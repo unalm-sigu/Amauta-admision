@@ -54,4 +54,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allByCodigo(String codigo);
 
+    List<Seccion> allUnusedByCiclo(CicloAcademico ciclo);
+
 }

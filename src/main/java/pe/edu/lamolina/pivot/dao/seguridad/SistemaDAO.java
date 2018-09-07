@@ -9,6 +9,6 @@ public interface SistemaDAO extends EasyDAO<Sistema> {
 
     Sistema findByRolSistema(Rol rol, Sistema sys);
 
-    public List<Sistema> allSistema();
+    List<Sistema> allByCodes(List<String> codigos);
 
 }

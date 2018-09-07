@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.configuracion.editorcontenido;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,8 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
 
     @Override
     public List<ContenidoCarta> allContenidoCartaByDynaTable(DynatableFilter filter) {
-        return contenidoCartaDAO.allByDynaTableBySistema(filter, new Sistema(despliegueConfig.getSistema()));
+        List<Sistema> sistemas = sistemaDAO.allByCodes(Arrays.asList("AMAUTA", "MAIPI", "BIEN", "MAT"));
+        return contenidoCartaDAO.allByDynaTableBySistema(filter, sistemas);
     }
 
     @Override
@@ -108,7 +110,7 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
 
     @Override
     public List<Sistema> allSistema() {
-        return sistemaDAO.allSistema();
+        return sistemaDAO.all();
     }
 
 }

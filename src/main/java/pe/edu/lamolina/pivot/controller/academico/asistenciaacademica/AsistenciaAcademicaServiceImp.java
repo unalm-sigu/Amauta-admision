@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -16,9 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.InasistenciaAlumno;
@@ -38,8 +41,10 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.LeccionReprogramada;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.InasistenciaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
@@ -53,6 +58,7 @@ import pe.edu.lamolina.pivot.dao.horario.HoraReprogramadaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.LeccionReprogramadaDAO;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
@@ -107,6 +113,12 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
 
     @Autowired
     HorarioAulaDAO horarioAulaDAO;
+
+    @Autowired
+    GrupoSeccionDAO grupoSeccionDAO;
+
+    @Autowired
+    DocenteSeccionDAO docenteSeccionDAO;
 
     @Override
     @Transactional(readOnly = true)
@@ -420,6 +432,28 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
     @Override
     public List<Aula> searchAulaByName(String nombre) {
         return aulaDAO.searchByNombreFilter(nombre, Integer.SIZE);
+    }
+
+    @Override
+    public List<GrupoSeccion> allGposSeccionesByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
+
+        List<GrupoSeccion> gruposSecciones = grupoSeccionDAO.allActivosByDocenteCiclo(docente, ciclo);
+        List<Seccion> seccionesTodos = seccionDAO.allActivosByGposSeccion(gruposSecciones);
+        List<DocenteSeccion> profesSeccionesTodos = docenteSeccionDAO.allActivosBySecciones(seccionesTodos);
+        Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", seccionesTodos);
+        Map<Long, List<DocenteSeccion>> mapProfeSecciones = TypesUtil.convertListToMapList("seccion.id", profesSeccionesTodos);
+
+        for (GrupoSeccion gpoSecc : gruposSecciones) {
+            List<Seccion> secciones = mapSecciones.get(gpoSecc.getId());
+            gpoSecc.setSecciones(secciones);
+            for (Seccion seccion : secciones) {
+                List<DocenteSeccion> profesSecciones = mapProfeSecciones.get(seccion.getId());
+                seccion.setDocenteSeccion(profesSecciones);
+            }
+        }
+
+        return gruposSecciones;
+
     }
 
 }

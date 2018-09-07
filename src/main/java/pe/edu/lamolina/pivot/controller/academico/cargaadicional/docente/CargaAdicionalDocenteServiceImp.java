@@ -42,35 +42,35 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     DocenteCicloDAO docenteCicloDAO;
-
+    
     @Autowired
     ConfiguraCargaAdicionalDAO configuraCargaAdicionalDAO;
-
+    
     @Autowired
     Factor1CargaAdicionalDAO factor1CargaAdicionalDAO;
-
+    
     @Autowired
     Factor2CargaAdicionalDAO factor2CargaAdicionalDAO;
-
+    
     @Autowired
     DocenteDAO docenteDAO;
-
+    
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
-
+    
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
-
+    
     @Override
     public List<DocenteCiclo> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
         return docenteCicloDAO.allByDynatableCicloAcademico(filter, cicloAcademico);
     }
-
+    
     @Override
     public ConfiguraCargaAdicional findConfiguracionByCicloAcademico(CicloAcademico cicloAcademico) {
         ConfiguraCargaAdicional conf = configuraCargaAdicionalDAO.findByCicloAcademico(cicloAcademico);
@@ -79,7 +79,7 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
         }
         return conf;
     }
-
+    
     @Override
     @Transactional
     public void eliminarCarga(CicloAcademico cicloAcademico, DataSessionPivot ds) {
@@ -91,7 +91,7 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
         docenteCicloDAO.deshacerCarga(cicloAcademico);
         configuraCargaAdicionalDAO.update(conf);
     }
-
+    
     @Override
     @Transactional
     public void eliminarMontos(CicloAcademico cicloAcademico, DataSessionPivot ds) {
@@ -103,7 +103,7 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
         docenteCicloDAO.deshacerMontos(cicloAcademico);
         configuraCargaAdicionalDAO.update(conf);
     }
-
+    
     private BigDecimal getCreditos(Seccion seccion) {
         switch (seccion.getTipoSeccionEnum()) {
             case TCUR:
@@ -116,7 +116,7 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
                 throw new AssertionError();
         }
     }
-
+    
     @Override
     @Transactional
     public void generarCarga(CicloAcademico cicloAcademico, DataSessionPivot ds) {
@@ -124,15 +124,15 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
         if (conf.getEstadoEnum() != ConfiguraCargaAdicionalEstadoEnum.CRE) {
             return;
         }
-
+        
         List<Factor1CargaAdicional> factores1 = factor1CargaAdicionalDAO.allByCicloAcademico(cicloAcademico);
         Map<String, Factor1CargaAdicional> mapFactor1 = factores1.stream().collect(Collectors.toMap(x -> String.format("%s-%s", x.getSituacionDocente().getCodigo(), x.getCategoriaDocente().getCodigo()), x -> x));
-
+        
         List<Factor2CargaAdicional> factores2 = factor2CargaAdicionalDAO.allByCicloAcademico(cicloAcademico);
         checkFactor2(factores2);
-
+        
         NavigableMap<Integer, Integer> map = new TreeMap<Integer, Integer>();
-
+        
         RangeMap<BigDecimal, Factor2CargaAdicional> mapFactor2 = TreeRangeMap.create();
         for (Factor2CargaAdicional factor : factores2) {
             if (factor.getCantidadFin() != null) {
@@ -141,62 +141,62 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
                 mapFactor2.put(Range.closed(new BigDecimal(factor.getCantidadInicio()), new BigDecimal(999)), factor);
             }
         }
-
+        
         ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
-
+        
         List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allByModalidadEstudioCicloAcademico(modalidadEstudio, cicloAcademico);
-
+        
         Map<Docente, List<DocenteSeccion>> mapDocenteSeccion = docenteSeccion.stream().collect(Collectors.groupingBy(DocenteSeccion::getDocente));
-
+        
         for (Map.Entry<Docente, List<DocenteSeccion>> entry : mapDocenteSeccion.entrySet()) {
             Docente docente = entry.getKey();
             List<DocenteSeccion> docenteSeccions = entry.getValue();
-
+            
             BigDecimal cantidadCreditos = BigDecimal.ZERO;
             BigDecimal promedioAlumnos = BigDecimal.ZERO;
             BigDecimal sumatoriaMatriculados = BigDecimal.ZERO;
             BigDecimal sumatoriaPorcentajeCarga = BigDecimal.ZERO;
-
+            
             for (DocenteSeccion docenteSeccion1 : docenteSeccions) {
                 BigDecimal creditos = getCreditos(docenteSeccion1.getSeccion());
-
+                
                 BigDecimal porcentajeCarga
                         = docenteSeccion1.getPorcentajeCarga() != null
                         ? docenteSeccion1.getPorcentajeCarga()
                         : BigDecimal.ZERO;
-
+                
                 BigDecimal matriculados
                         = docenteSeccion1.getSeccion().getMatriculados() != null
                         ? new BigDecimal(docenteSeccion1.getSeccion().getMatriculados())
                         : BigDecimal.ZERO;
-
+                
                 cantidadCreditos = cantidadCreditos.add(porcentajeCarga.multiply(creditos).multiply(matriculados));
                 sumatoriaMatriculados = sumatoriaMatriculados.add(matriculados);
-
+                
                 promedioAlumnos = promedioAlumnos.add(porcentajeCarga.multiply(matriculados));
                 sumatoriaPorcentajeCarga = sumatoriaPorcentajeCarga.add(porcentajeCarga);
             }
-
+            
             if (sumatoriaMatriculados.compareTo(BigDecimal.ZERO) > 0) {
                 cantidadCreditos = cantidadCreditos.divide(sumatoriaMatriculados, 4, RoundingMode.HALF_UP);
             } else {
                 cantidadCreditos = BigDecimal.ZERO;
             }
-
+            
             if (sumatoriaPorcentajeCarga.compareTo(BigDecimal.ZERO) > 0) {
                 promedioAlumnos = promedioAlumnos.divide(sumatoriaPorcentajeCarga, 4, RoundingMode.HALF_UP);
             } else {
                 promedioAlumnos = BigDecimal.ZERO;
             }
-
+            
             DocenteCiclo dc = new DocenteCiclo();
-
+            
             dc.setDocente(docente);
             dc.setCicloAcademico(cicloAcademico);
             dc.setPromedioAlumnos(promedioAlumnos);
             dc.setCreditosTotal(cantidadCreditos);
             dc.setModalidadEstudio(modalidadEstudio);
-
+            
             if (docente.getSituacion() == null || docente.getCategoria() == null) {
                 dc.setFactor1(BigDecimal.ZERO);
                 dc.setCreditosExceso(BigDecimal.ZERO);
@@ -208,9 +208,12 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
                 } else {
                     dc.setFactor1(factor.getFactor());
                     dc.setCreditosExceso(dc.getCreditosTotal().subtract(new BigDecimal(factor.getCreditosMinimo())));
+                    if (dc.getCreditosExceso().compareTo(BigDecimal.ZERO) < 0) {
+                        dc.setCreditosExceso(BigDecimal.ZERO);
+                    }
                 }
             }
-
+            
             if (promedioAlumnos.equals(BigDecimal.ZERO)) {
                 dc.setFactor2(BigDecimal.ZERO);
             } else {
@@ -221,17 +224,17 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
                     dc.setFactor2(BigDecimal.ZERO);
                 }
             }
-
+            
             dc.setFechaRegistro(new Date());
             dc.setUserRegistro(ds.getUsuario());
             docenteCicloDAO.save(dc);
-
+            
         }
-
+        
         conf.setEstado(ConfiguraCargaAdicionalEstadoEnum.CARGA);
         configuraCargaAdicionalDAO.update(conf);
     }
-
+    
     private void checkFactor2(List<Factor2CargaAdicional> factores) {
         factores.sort(Comparator.comparing(Factor2CargaAdicional::getCantidadInicio));
         for (int i = 0; i < factores.size(); i++) {
@@ -250,7 +253,7 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
             }
         }
     }
-
+    
     @Override
     @Transactional
     public void generarMontos(CicloAcademico cicloAcademico, DataSessionPivot ds) {
@@ -262,28 +265,28 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
         conf.setEstado(ConfiguraCargaAdicionalEstadoEnum.MONTO);
         configuraCargaAdicionalDAO.update(conf);
     }
-
+    
     @Override
     @Transactional
     public void saveConfiguracion(ConfiguraCargaAdicional configuraCargaAdicional, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         ConfiguraCargaAdicional confBD = configuraCargaAdicionalDAO.findByCicloAcademico(cicloAcademico);
-
+        
         if (confBD == null) {
             configuraCargaAdicional.setEstado(ConfiguraCargaAdicionalEstadoEnum.CRE);
             configuraCargaAdicional.setCicloAcademico(ds.getCicloAcademico());
-
+            
             configuraCargaAdicional.setUserRegistro(ds.getUsuario());
             configuraCargaAdicional.setFechaRegistro(new Date());
-
+            
             configuraCargaAdicionalDAO.save(configuraCargaAdicional);
         } else {
             Assert.isTrue(confBD.getEstadoEnum() == ConfiguraCargaAdicionalEstadoEnum.CRE, "La configuración ya ha sido aceptada");
-
+            
             confBD.setMinimoAlumnos(configuraCargaAdicional.getMinimoAlumnos());
             confBD.setRca(configuraCargaAdicional.getRca());
-
+            
             configuraCargaAdicionalDAO.update(confBD);
         }
     }
-
+    
 }

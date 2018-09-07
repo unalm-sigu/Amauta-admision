@@ -58,7 +58,7 @@ public class AsistenciaAcademicaController {
     CargaAcademicaService cargaAcademicaService;
 
     @Autowired
-    AsistenciaAcademicaService asistenciaAcademicaService;
+    AsistenciaAcademicaService service;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -109,31 +109,40 @@ public class AsistenciaAcademicaController {
             CicloAcademico ciclo = ds.getCicloAcademico();
             Docente docente = ds.getDocente();
 
-            List<GrupoSeccion> gruposSeccion = cargaAcademicaService.allGrupoByDocente(docente, ciclo, ds);
-            logger.debug(this.getClass() + " Lista grupos por docente {}", gruposSeccion.size());
+            //List<GrupoSeccion> gruposSecciones = cargaAcademicaService.allGrupoByDocente(docente, ciclo, ds);
+            List<GrupoSeccion> gruposSecciones = service.allGposSeccionesByDocente(docente, ciclo, ds);
+            logger.debug(this.getClass() + " Lista grupos por docente {}", gruposSecciones.size());
 
-            for (GrupoSeccion grupoSeccion : gruposSeccion) {
-                for (Seccion seccionEach : grupoSeccion.getSecciones()) {
-                    seccionEach.setVerInformacion(Boolean.FALSE);
-                    for (DocenteSeccion docenteSeccionEach : seccionEach.getDocenteSeccion()) {
-                        if (docenteSeccionEach.getDocente().getId().equals(docente.getId())) {
-                            seccionEach.setVerInformacion(Boolean.TRUE);
+            for (GrupoSeccion gpoSecc : gruposSecciones) {
+                for (Seccion seccion : gpoSecc.getSecciones()) {
+                    seccion.setVerInformacion(Boolean.FALSE);
+                    for (DocenteSeccion profeSecc : seccion.getDocenteSeccion()) {
+                        if (profeSecc.getDocente().getId().equals(docente.getId())) {
+                            seccion.setVerInformacion(Boolean.TRUE);
                         }
                     }
                 }
-                ObjectNode node = grupoSeccion.toJson();
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                ObjectNode node = JsonHelper.createJson(gpoSecc, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "id", "estadoGrupoEnum", "estadoGrupoCerrado",
+                            "curso.nombre",
+                            "curso.codigo",
+                            "curso.tpc",
+                            "cicloAcademico.tipoEnum",
+                            "secciones.codigo2",
+                            "secciones.verInformacion",
+                            "secciones.grupoHoras.codigo"
+                        });
 
-                node.put("estadoGrupoEnum", grupoSeccion.getEstadoGrupoEnum().getValue());
-                node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
-                node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
-
+//                node.put("estadoGrupoEnum", gpoSecc.getEstadoGrupoEnum().getValue());
+//                node.put("estadoGrupoCerrado", gpoSecc.isEstadoGrupoCerrado());
+//                node.put("estadoGrupoCerrado", gpoSecc.isEstadoGrupoCerrado());
                 array.add(node);
             }
 
             json.setData(array);
-            json.setTotal(gruposSeccion.size());
-            json.setFiltered(gruposSeccion.size());
+            json.setTotal(gruposSecciones.size());
+            json.setFiltered(gruposSecciones.size());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -157,16 +166,20 @@ public class AsistenciaAcademicaController {
             Docente docente = ds.getDocente();
             DateTime dateTime = new DateTime();
 
-            List<TemaLeccion> lecciones = asistenciaAcademicaService.allTemaLeccionBySeccionDocenteDyna(
+            List<TemaLeccion> lecciones = service.allTemaLeccionBySeccionDocenteDyna(
                     new Seccion(seccionId), docente, filter
             );
             logger.debug(this.getClass() + " Cantidad de lecciones {}", lecciones.size());
 
             for (TemaLeccion leccion : lecciones) {
-           //     DateTime editLimitDATE = new DateTime().plusDays(pe.edu.lamolina.model.miscelaneo.Constantine.DAYS_EDIT_TEMA_CICLO * -1);
-                DateTime fechaRegistro = new DateTime(leccion.getFechaRegistro());
-//                ObjectNode node = leccion.toJson();
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                //     DateTime editLimitDATE = new DateTime().plusDays(pe.edu.lamolina.model.miscelaneo.Constantine.DAYS_EDIT_TEMA_CICLO * -1);
+                //DateTime fechaRegistro = new DateTime(leccion.getFechaRegistro());
+                ObjectNode node = JsonHelper.createJson(leccion, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "*",
+                            "seccion.*",
+                            "docente.*"
+                        });
                 node.put("allowEdit", leccion.isAllowEdit());
                 array.add(node);
             }
@@ -190,13 +203,20 @@ public class AsistenciaAcademicaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DateTime today = new DateTime();
 
-        Seccion seccion = asistenciaAcademicaService.findSeccionDia(new Seccion(idSeccion), today);
+        Seccion seccion = service.findSeccionDia(new Seccion(idSeccion), today);
         logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
         Curso curso = grupoSeccion.getCurso();
 
+        ObjectNode seccionJson = JsonHelper.createJson(seccion, JsonNodeFactory.instance, true,
+                new String[]{
+                    "*",
+                    "grupoHoras.*",
+                    "grupoSeccion.*"
+                });
+
         model.addAttribute("seccion", seccion);
-//        model.addAttribute("seccionJson", seccion.toJson().toString());
+        model.addAttribute("seccionJson", seccionJson.toString());
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
@@ -213,19 +233,33 @@ public class AsistenciaAcademicaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DateTime today = new DateTime();
 
-        TemaLeccion temaLeccion = asistenciaAcademicaService.findTemaLeccion(idTemaLeccion);
+        TemaLeccion temaLeccion = service.findTemaLeccion(idTemaLeccion);
         if (temaLeccion == null) {
             temaLeccion = new TemaLeccion();
         }
 
-        Seccion seccion = asistenciaAcademicaService.findSeccionDia(temaLeccion.getSeccion(), new DateTime(temaLeccion.getFecha()));
+        Seccion seccion = service.findSeccionDia(temaLeccion.getSeccion(), new DateTime(temaLeccion.getFecha()));
         logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
         Curso curso = grupoSeccion.getCurso();
 
+        ObjectNode seccionJson = JsonHelper.createJson(seccion, JsonNodeFactory.instance, true,
+                new String[]{
+                    "*",
+                    "grupoHoras.*",
+                    "grupoSeccion.*"
+                });
+
+        ObjectNode temaLeccionJson = JsonHelper.createJson(temaLeccion, JsonNodeFactory.instance, true,
+                new String[]{
+                    "*",
+                    "seccion.*",
+                    "docente.*"
+                });
+
         model.addAttribute("seccion", seccion);
-//        model.addAttribute("seccionJson", seccion.toJson().toString());
-//        model.addAttribute("temaLeccionJson", temaLeccion.toJson().toString());
+        model.addAttribute("seccionJson", seccionJson.toString());
+        model.addAttribute("temaLeccionJson", temaLeccionJson.toString());
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
 
@@ -240,19 +274,33 @@ public class AsistenciaAcademicaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DateTime today = new DateTime();
 
-        TemaLeccion temaLeccion = asistenciaAcademicaService.findTemaLeccionSeccionDocenteFecha(new Seccion(idSeccion), ds.getDocente(), today);
+        TemaLeccion temaLeccion = service.findTemaLeccionSeccionDocenteFecha(new Seccion(idSeccion), ds.getDocente(), today);
         if (temaLeccion == null) {
             temaLeccion = new TemaLeccion();
         }
 
-        Seccion seccion = asistenciaAcademicaService.findSeccionDia(new Seccion(idSeccion), today);
+        Seccion seccion = service.findSeccionDia(new Seccion(idSeccion), today);
         logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
         Curso curso = grupoSeccion.getCurso();
 
+        ObjectNode seccionJson = JsonHelper.createJson(seccion, JsonNodeFactory.instance, true,
+                new String[]{
+                    "*",
+                    "grupoHoras.*",
+                    "grupoSeccion.*"
+                });
+
+        ObjectNode temaLeccionJson = JsonHelper.createJson(temaLeccion, JsonNodeFactory.instance, true,
+                new String[]{
+                    "*",
+                    "seccion.*",
+                    "docente.*"
+                });
+
         model.addAttribute("seccion", seccion);
-//        model.addAttribute("seccionJson", seccion.toJson().toString());
-//        model.addAttribute("temaLeccionJson", temaLeccion.toJson().toString());
+        model.addAttribute("seccionJson", seccionJson.toString());
+        model.addAttribute("temaLeccionJson", temaLeccionJson.toString());
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
 
@@ -286,14 +334,20 @@ public class AsistenciaAcademicaController {
         try {
             DateTime today = new DateTime();
             if (temaLeccionId != null) {
-                TemaLeccion temaLeccion = asistenciaAcademicaService.findTemaLeccion(temaLeccionId);
+                TemaLeccion temaLeccion = service.findTemaLeccion(temaLeccionId);
                 today = new DateTime(temaLeccion.getFecha());
             }
-            List<MatriculaSeccion> matriculasSeccionByFilter = asistenciaAcademicaService.allMatriculaSeccionBySeccion(new Seccion(seccionId), ds.getDocente(), today);
+            List<MatriculaSeccion> matriculasSeccionByFilter = service.allMatriculaSeccionBySeccion(new Seccion(seccionId), ds.getDocente(), today);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (MatriculaSeccion matriculaSeccionEach : matriculasSeccionByFilter) {
-//                array.addPOJO(matriculaSeccionEach.toJson());
+            for (MatriculaSeccion matriSecc : matriculasSeccionByFilter) {
+                ObjectNode matriSeccJson = JsonHelper.createJson(matriSecc, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "estado",
+                            "seccion.codigo2",
+                            "matriculaResumen.*"
+                        });
+                array.addPOJO(matriSeccJson);
             }
 
             json.setData(array);
@@ -325,9 +379,9 @@ public class AsistenciaAcademicaController {
             }
 
             if (temaLeccion.getId() == null) {
-                asistenciaAcademicaService.saveInasistencia(temaLeccion, ds.getDocente(), ds.getUsuario(), ds.getCicloAcademico());
+                service.saveInasistencia(temaLeccion, ds.getDocente(), ds.getUsuario(), ds.getCicloAcademico());
             } else {
-                asistenciaAcademicaService.updateInasistencia(temaLeccion, ds.getDocente(), ds.getUsuario(), ds.getCicloAcademico());
+                service.updateInasistencia(temaLeccion, ds.getDocente(), ds.getUsuario(), ds.getCicloAcademico());
             }
             String message = "Asistencia guardada.";
             response.setSuccess(true);
@@ -352,7 +406,7 @@ public class AsistenciaAcademicaController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            asistenciaAcademicaService.saveReprogramacion(leccionReprogramada, ds.getUsuario(), ds.getDocente(), ds.getCicloAcademico());
+            service.saveReprogramacion(leccionReprogramada, ds.getUsuario(), ds.getDocente(), ds.getCicloAcademico());
             String message = "Lección reprogramada.";
             response.setSuccess(true);
             response.setMessage(message);
@@ -376,12 +430,12 @@ public class AsistenciaAcademicaController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<Date> fechaInicioFin = asistenciaAcademicaService.findStartEndDateReschedule(
+            List<Date> fechaInicioFin = service.findStartEndDateReschedule(
                     new Seccion(seccionId), ds.getDocente(), ds.getCicloAcademico());
 
             JsonNodeFactory jc = JsonNodeFactory.instance;
 
-            Seccion seccion = asistenciaAcademicaService.findSeccion(seccionId);
+            Seccion seccion = service.findSeccion(seccionId);
 
             ArrayNode disabledDaysArg = new ArrayNode(jc);
             for (int i = 0; i < 7; i++) {
@@ -398,7 +452,7 @@ public class AsistenciaAcademicaController {
             }
 
             ArrayNode disabledDatesArg = new ArrayNode(jc);
-            List<TemaLeccion> temasLeccionBySeccion = asistenciaAcademicaService.allTemaLeccionBySeccion(seccion);
+            List<TemaLeccion> temasLeccionBySeccion = service.allTemaLeccionBySeccion(seccion);
             for (TemaLeccion temaLeccion : temasLeccionBySeccion) {
                 disabledDatesArg.add(TypesUtil.getStringDate(temaLeccion.getFecha(), "dd/MM/yyyy"));
             }
@@ -435,7 +489,7 @@ public class AsistenciaAcademicaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            List<Aula> aulas = asistenciaAcademicaService.searchAulaByName(nombre);
+            List<Aula> aulas = service.searchAulaByName(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
             for (Aula aula : aulas) {

@@ -29,6 +29,7 @@ import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -126,6 +127,11 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras) {
         return alumnoDAO.allByRolDynatable(filter, carreras);
+    }
+
+    @Override
+    public List<Alumno> allAlumnosByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades) {
+        return alumnoDAO.allByFacultadDynatable(filter, facultades);
     }
 
     @Override

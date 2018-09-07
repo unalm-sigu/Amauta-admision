@@ -9,6 +9,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
@@ -19,6 +20,22 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     public DocenteDAOH() {
         super();
         setClazz(Docente.class);
+    }
+
+    @Override
+    public List<Docente> allByFacultadesDyantable(DynatableFilter filter, List<Facultad> facultades) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Docente.class, "doc")
+                .join("persona per", "departamentoAcademico da", "da.facultad fa")
+                .leftJoin("per.tipoDocumento tdoc")
+                .in("fa.id", facultades)
+                .searchFields("per.numeroDocIdentidad", "per.telefono", "per.celular", "per.emailCompania", "tdoc.simbolo")
+                .searchFields("da.nombre", "fa.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("doc.id desc");
+
+        return all(sql);
     }
 
     @Override

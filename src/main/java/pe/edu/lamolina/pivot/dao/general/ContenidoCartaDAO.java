@@ -9,7 +9,7 @@ import pe.edu.lamolina.model.seguridad.Sistema;
 
 public interface ContenidoCartaDAO extends EasyDAO<ContenidoCarta> {
 
-    List<ContenidoCarta> allByDynaTableBySistema(DynatableFilter filter, Sistema sistema);
+    List<ContenidoCarta> allByDynaTableBySistema(DynatableFilter filter, List<Sistema> sistemas);
 
     ContenidoCarta findByCodigo(String mailnocert);
 

@@ -304,11 +304,11 @@
                                                     {{ seccion.docentesCant }}
                                                 </span>
                                                 <span v-if="seccion.situacionDocente=='ERR'" class="label label-danger" >
-                                                    {{seccion.situacionDocenteEnum}}
+                                                    {{seccion.situacionDocenteEnum.value}}
                                                 </span>
                                             </td>
                                             <td class="text-center v-middle">
-                                                <span class="label" v-bind:class="getEstadoClass(seccion.estado)">{{ seccion.estadoEnum }}</span>
+                                                <span class="label" v-bind:class="getEstadoClass(seccion.estado)">{{ seccion.estadoEnum.value }}</span>
                                             </td>
                                             <td class="v-middle">
                                                 <!-- 

@@ -6,4 +6,3 @@ import pe.edu.lamolina.model.rrhh.CategoriaDocente;
 public interface CategoriaDocenteDAO extends EasyDAO<CategoriaDocente> {
 
 }
-

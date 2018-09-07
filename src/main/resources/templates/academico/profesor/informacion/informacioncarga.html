@@ -1,0 +1,104 @@
+<raptor-table v-bind:url="`/academico/profesor/${docente.id}/listCargaAcademicaDocente`" v-bind:searcher="false" v-bind:paginate="false">
+    <template scope="props">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th class="col-md-4">Curso</th>
+                    <th class="col-md-1 text-center">Tipo Ciclo</th>
+                    <th class="col-md-3 text-center">Claves</th>
+                    <th class="col-md-2 text-center">Sistema de Calificación</th>
+                    <th class="col-md-1 text-center">Estado Plan</th>
+                    <th class="col-md-1 text-center">Estado Acta</th>
+                    <th class="col-md-1"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in props.data"> 
+                    <td class="v-middle padder-v" v-bind:style="item.styleHijo">
+                        <p class="h4 text-info">{{item.nombre}}</p>
+                        <small class="block text-muted">Código: {{item.codigo}}</small>
+                        <small class="block text-muted">TPC: {{item.tpc}}</small>
+                        <span v-html="buildResponsable(item)"/>
+                    </td>
+                    <td class="v-middle text-center">
+                        {{item.tipoCiclo}}
+                    </td>
+                    <td class="v-middle text-center">
+                        <span v-html="buildSeccionesHtml(item)"/>{{item.seccionesHtml}}
+                    </td>
+
+                    <td class="text-center v-middle">
+                        <input type="hidden" v-bind:value="item.id"/>
+                        <input type="hidden" v-bind:value="item.idSistemaCalificacion"/>
+
+                        <a v-if="item.sistemas === ''" href="#" class="label label-warning sistema-calificacion" rel="{{item.idSistemaCalificacion}}">{{item.sistemaCalificacion}}</a>
+                        <span v-if="item.sistemas !== ''">{{item.sistemasHtml}}</span>  
+
+                        <div v-if="item.estadoSistema === 'PRO'">
+                            <span class="block">
+                                <a href="#" class="label label-warning aceptar-sistema-calificacion">{{item.sistemaCalificacion}}</a>
+                            </span>
+                            <span class="block text-primary" >
+                                <a href="#" class="aceptar-sistema-calificacion"> Cursos : {{item.cantidadCursos}} </a>	
+                            </span>
+                        </div>
+
+                        <div v-if="item.estadoSistema === 'SOL' || item.estadoSistema === 'OBS'"> 
+                            <span class="block">
+                                <a href="#" class="label label-warning sistema-calificacion">{{item.sistemaCalificacion}}</a>
+                            </span>
+                            <span class="block text-primary" >
+                                <a href="#" class="sistema-calificacion"> Cursos : {{item.cantidadCursos}} </a>	
+                            </span>
+                        </div>
+
+                        <div v-if="['ACEP', 'EXP', 'EXPR'].includes(item.estadoSistema)">
+                            <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
+                            <span class="block"><a href="#" class="notas-academicas">Ingresar notas</a></span>
+                        </div>
+                        <div v-if="['RHZ'].includes(item.estadoSistema)">
+                            <span class="block"><a href="#" class="aceptar-sistema-calificacion">Rechazado</a></span>
+                        </div>
+                        <div v-if="['CER'].includes(item.estadoSistema)">
+                            <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
+                            <span class="block"><a href="#" class="ver-notas-academicas">Notas académicas</a></span>
+                        </div>
+                        <div v-if="['EXPR'].includes(item.estadoSistema)">
+                            <!-- 
+                            <a href="#" class="label label-warning aceptar-expandir-sistema">{{item.sistemaCalificacion}}</a>
+                            -->
+                        </div>
+                    </td>
+                    <td class="text-center v-middle">
+                        <span class="label label-success">{{item.estadoEnum}}</span>
+                    </td>
+                    <td class="text-center v-middle">
+                        <span class="label label-success">{{item.estadoGrupoEnum}}</span>
+
+                    </td>
+                    <td class="text-center v-middle">
+                        <input value="{{item.id}}" type="hidden"/>
+                        <div class="dropdown actions" v-if="item.verOpciones">
+
+                            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                            <ul class="dropdown-menu pull-right" >
+
+
+                                <li role="presentation" v-if="['EXPR', 'ACEP'].includes(item.estado)">
+                                    <a class="aceptar-expandir-sistema" href="#">Asignar evaluadores</a>
+                                </li>
+                                <li role="presentation" v-if="!item.estadoGrupoCerrado">
+                                    <a class="desvincular-expandir-sistema" href="#">Desvincular Sistema Calificación</a>
+                                </li>
+                                <li role="presentation" v-if="item.verAceptarSistemaCal">
+                                    <a  class="aceptar-sistema-calificacion" href="#">Aceptar Sistema Calificación</a>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </template>
+</raptor-table>

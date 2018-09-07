@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -36,6 +37,8 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     String findMaxCodigoByCiclo(CicloAcademico cicloAcademico);
 
+    List<GrupoSeccion> allUnusedByCiclo(CicloAcademico ciclo);
+
     List<String> allCodigoByCiclo(CicloAcademico cicloAcademico);
 
     void updateEstadoFechaModUsuarioMod(GrupoSeccion grupoSeccion);
@@ -49,4 +52,7 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
     ActaResumen findResumenByDepartamento(CicloAcademico ciclo, DepartamentoAcademico dpto);
 
     List<GrupoSeccion> allByCicloCurso(CicloAcademico ciclo, String codigo, Long curso);
+
+    List<GrupoSeccion> allActivosByDocenteCiclo(Docente docente, CicloAcademico ciclo);
+
 }

@@ -13,6 +13,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
@@ -73,6 +74,17 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         query.setParameter("prm_ciclo", cicloAcademico.getId());
 
         return (String) query.uniqueResult();
+    }
+
+    @Override
+    public List<GrupoSeccion> allUnusedByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("cicloAcademico ca")
+                .filter("ca.id", ciclo)
+                .filter("gs.codigo", "like", "Y%")
+                .orderBy("gs.codigo");
+        return all(sql);
     }
 
     @Override
@@ -363,7 +375,23 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         if (curso != null) {
             sql.filter("cur.id", curso);
         }
-        return sql.all(getCurrentSession());
+        return all(sql);
+    }
+
+    @Override
+    public List<GrupoSeccion> allActivosByDocenteCiclo(Docente docente, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("gs")
+                .from(DocenteSeccion.class, "ds")
+                .join("ds.seccion se", "se.grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur")
+                .join("ds.docente doc", "doc.persona per")
+                .leftJoin("per.tipoDocumento")
+                .filter("ca.id", ciclo)
+                .filter("doc.id", docente)
+                .filter("se.estado", EstadoEnum.ACT)
+                .filter("ds.estado", EstadoEnum.ACT);
+
+        return all(sql);
     }
 
 }

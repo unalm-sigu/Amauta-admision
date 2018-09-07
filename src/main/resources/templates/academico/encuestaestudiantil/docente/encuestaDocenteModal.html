@@ -132,7 +132,7 @@
                 <div class="col-md-12">
                     <ul style="list-style: circle; padding-left: 15px" >
                         <li v-for="p in preguntas.slice(0, preguntas.length/2)">
-                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp;  <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b> <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
+                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp; <br/> <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b> <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
                             </p>
                         </li>
                     </ul>
@@ -142,7 +142,7 @@
                 <div class="col-md-12">
                     <ul style="list-style: circle; padding-left: 10px">
                         <li v-for="p in preguntas.slice(preguntas.length/2)">
-                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp;  <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b>  <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
+                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp; <br/> <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b>  <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
                             </p>
                         </li>
                     </ul>
@@ -172,16 +172,44 @@
 <modal-vik ref="modalTemas"
            v-bind="modalTemas">
     <div slot="body">
-        <table class="table table-striped">
-            <tr v-for="tema in temas">
-                <td class="v-middle col-md-8">
-                    <span class="block text-justify"> {{ tema.temaEncuesta.nombre }} </span>  
-
-                </td>
-                <td class="v-middle col-md-4 text-center">
-                    <span class="text-lg"> {{ tema.puntaje.toFixed(2) }} </span >
-                </td>
+        <table class="table table-condensed table-striped table-hover">
+            <thead>
+                <tr>
+                    <th class="text-center" colspan="12">
+                        PUNTAJE ALCANZADO POR CATEGORIA - ESCALA 1 AL 10
+                    </th>
+                </tr>
+                <tr class="text-center">
+                    <th colspan="2" class="text-center v-middle col-md-2" 
+                        v-for="tema in temas">{{ tema.temaEncuesta.nombre }}</th>
+                    <td rowspan="2" class="text-center v-middle col-md-1">Indicador del desempeño por clave</td>
+                </tr>
+                <tr>
+                    <th class="text-center v-middle">Prom</th>
+                    <th class="text-center v-middle">Dsv.St.</th>
+                    <th class="text-center v-middle">Prom</th>
+                    <th class="text-center v-middle">Dsv.St.</th>
+                    <th class="text-center v-middle">Prom</th>
+                    <th class="text-center v-middle">Dsv.St.</th>
+                    <th class="text-center v-middle">Prom</th>
+                    <th class="text-center v-middle">Dsv.St.</th>
+                    <th class="text-center v-middle">Prom</th>
+                    <th class="text-center v-middle">Dsv.St.</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+            <template v-for="tema in temas">
+                <td class="text-center v-middle">{{ tema.puntaje.toFixed(2) *2 }}</td>
+                <td class="text-center v-middle">0.00</td>
+            </template>
+            <td class="text-center v-middle">7.00</td>
             </tr>
+            </tbody>
         </table>
+
+        <div id="container">
+
+        </div>
     </div>
 </modal-vik>

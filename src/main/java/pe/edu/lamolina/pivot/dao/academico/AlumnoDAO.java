@@ -16,6 +16,8 @@ import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResum
 
 public interface AlumnoDAO extends EasyDAO<Alumno> {
 
+    public List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades);
+
     Alumno findByCodigo(String codigoAlumno);
 
     Alumno findFlatByCodigo(String codigoAlumno);

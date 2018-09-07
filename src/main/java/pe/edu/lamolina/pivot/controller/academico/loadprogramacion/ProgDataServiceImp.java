@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.loadprogramacion;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -501,7 +503,7 @@ public class ProgDataServiceImp implements ProgDataService {
             profeBD.setUserRegistro(ds.getUsuario());
             docenteDAO.save(profeBD);
 
-            visor.agregarLog("doc", "saveDocente", "Profesor " + profeBD.getCodigo() + " ya existe, se actualizo", true, "info");
+            visor.agregarLog("doc", "saveDocente", "Profesor " + profeBD.getCodigo() + " es nuevo", true, "info");
 
         } else if (profeBD.getEstadoEnum() != DocenteEstadoEnum.ACT) {
             profeBD.setEstado(DocenteEstadoEnum.ACT);
@@ -509,8 +511,11 @@ public class ProgDataServiceImp implements ProgDataService {
             profeBD.setUserModifica(ds.getUsuario());
             docenteDAO.update(profeBD);
 
-            visor.agregarLog("doc", "saveDocente", "Profesor " + profeBD.getCodigo() + " nuevo", true, "info");
+            visor.agregarLog("doc", "saveDocente", "Profesor " + profeBD.getCodigo() + " ya existe, se actualizo", true, "info");
+        } else {
+            visor.agregarLog("doc", "saveDocente", "Profesor " + profeBD.getCodigo() + " no necesita ser actualizacion", true, "info");
         }
+
         saveUsuario(persona, RolEnum.DOC, ds);
         return profeBD;
     }
@@ -879,6 +884,83 @@ public class ProgDataServiceImp implements ProgDataService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void revisionPreviaGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo) {
+        List<GrupoSeccion> gpoSeccionesBD = grupoSeccionDAO.allByCiclo(ciclo);
+        Map<String, GrupoSeccion> mapGpoSeccionBD = TypesUtil.convertListToMap("codigo", gpoSeccionesBD);
+
+        List<Curso> cursosBD = cursoDAO.all();
+        Map<String, Curso> mapCursoBD = TypesUtil.convertListToMap("codigo", cursosBD);
+
+        List<GrupoSeccion> gposSeccionesUnused = grupoSeccionDAO.allUnusedByCiclo(ciclo);
+
+        for (GrupoSeccion gpoSecc : gruposSecciones) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
+            GrupoSeccion gpoSeccBD = mapGpoSeccionBD.get(gpoSecc.getCodigo());
+            if (gpoSeccBD == null) {
+                visor.agregarLog("gpoSecc", "revisionGpoSecc", "No es necesario revisar " + gpoSecc.getCodigo() + " porque es es nuevo", true, "info");
+                continue;
+            }
+
+            Curso curso = mapCursoBD.get(gpoSecc.getCodigoCurso());
+            Curso cursoBD = gpoSeccBD.getCurso();
+            if (curso.getId() == cursoBD.getId().longValue()) {
+                visor.agregarLog("gpoSecc", "revisionGpoSecc", "No es necesario revisar " + gpoSecc.getCodigo() + " porque datos son iguales", true, "info");
+                continue;
+            }
+
+            List<Seccion> seccionesBD = seccionDAO.allByGposSeccion(gpoSeccBD);
+            for (Seccion seccion : seccionesBD) {
+                List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allBySeccion(seccion);
+                if (alumnosSeccion.size() > 0) {
+                    visor.agregarLog("gpoSecc", "revisionGpoSecc", "El curso del gpo-Seccion " + gpoSeccBD.getCodigo()
+                            + " está relacionado al curso " + curso.getCodigo() + " pero en la base de datos es " + cursoBD.getCodigo(),
+                            false, "error-proceso");
+                    String msg = String.format("El curso del grupo-seccion %s está relacionado al curso %s pero en la base de datos es %s",
+                            gpoSecc.getCodigo(), curso.getCodigo(), cursoBD.getCodigo());
+                    throw new PhobosException(msg);
+                }
+            }
+
+            String codGpoSecc = getCodeGpoSeccFree(gposSeccionesUnused);
+            String codGpoAntes = gpoSeccBD.getCodigo();
+            gpoSeccBD.setCodigo(codGpoSecc);
+            grupoSeccionDAO.update(gpoSeccBD);
+
+            int loopSecc = 0;
+            for (Seccion seccion : seccionesBD) {
+                seccion.setCodigo(codGpoSecc + loopSecc);
+                seccion.setCodigo2(codGpoSecc + loopSecc);
+                seccionDAO.update(seccion);
+                loopSecc++;
+            }
+
+            gposSeccionesUnused.add(gpoSeccBD);
+
+            visor.agregarLog("gpoSecc", "revisionGpoSecc", "El codigo del gpo-Seccion " + codGpoAntes
+                    + " fue cambiado al UNUSED " + codGpoSecc + " porque el archivo tiene al curso " + curso.getCodigo()
+                    + " pero en la base de datos es " + cursoBD.getCodigo(),
+                    true, "info");
+
+        }
+    }
+
+    private String getCodeGpoSeccFree(List<GrupoSeccion> gposSeccionesUnused) {
+        Map<String, GrupoSeccion> mapGpoSecc = TypesUtil.convertListToMap("codigo", gposSeccionesUnused);
+        for (int i = 0; i < 100; i++) {
+            String cod = "Y" + NumberFormat.codigo(i, 2);
+            GrupoSeccion gpoSecc = mapGpoSecc.get(cod);
+            if (gpoSecc == null) {
+                return cod;
+            }
+        }
+        return "Y00";
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo) {
         int loop = 0;
         List<GrupoSeccion> gpoSeccionesBD = grupoSeccionDAO.allByCiclo(ciclo);
@@ -1026,8 +1108,6 @@ public class ProgDataServiceImp implements ProgDataService {
             Seccion seccionBD = mapSeccionBD.get(seccion.getCodigo());
             GrupoHoras gpoHoras = findGrupoHoras(seccion, mapGpoHoraBD);
             Aula aula = findAula(seccion, mapAulaBD);
-
-            System.out.println("SECCION " + seccion.getCodigo() + " :::: vac:" + seccion.getMatriculados() + " mat:" + seccion.getMatriculados());
 
             if (seccionBD == null) {
                 seccionBD = new Seccion();

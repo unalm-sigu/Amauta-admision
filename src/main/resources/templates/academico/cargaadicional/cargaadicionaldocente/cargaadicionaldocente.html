@@ -65,7 +65,7 @@
                                                     <span> {{ item.factor2.toFixed(1) }} </span>
                                                 </td>
                                                 <td class="v-middle text-center">
-                                                    <span> {{ item.monto.toFixed(2) }} </span>
+                                                    <span v-if="item.monto !== undefined"> {{ item.monto.toFixed(2) }} </span>
                                                 </td>
                                             </tr>
                                         </tbody>

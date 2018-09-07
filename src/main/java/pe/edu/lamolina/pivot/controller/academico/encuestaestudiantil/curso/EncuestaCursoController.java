@@ -94,27 +94,6 @@ public class EncuestaCursoController {
         return json;
     }
 
-//    @ResponseBody
-//    @RequestMapping("generar")
-//    public JsonResponse generar(HttpSession session) {
-//
-//        JsonResponse response = new JsonResponse();
-//
-//        try {
-//
-//            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-//            service.generarEncuesta(ds.getCicloAcademico(), ds);
-//            response.setMessage("Registro modificado satisfactoriamente");
-//            response.setSuccess(true);
-//
-//        } catch (PhobosException e) {
-//            ExceptionHandler.handlePhobosEx(e, response);
-//        } catch (Exception e) {
-//            ExceptionHandler.handleException(e, response);
-//        }
-//        return response;
-//
-//    }
     @ResponseBody
     @RequestMapping("generar")
     public JsonResponse generar(HttpSession session) {
@@ -253,6 +232,40 @@ public class EncuestaCursoController {
                     });
 
             response.setData(encuJson);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("delete")
+    public JsonResponse delete(@RequestBody EncuestaEstudiantil encuesta, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.delete(encuesta);
+            response.setMessage("Encuesta Eliminada.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("publicar")
+    public JsonResponse publicar(@RequestBody EncuestaEstudiantil encuesta, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.publicar(encuesta);
+            response.setMessage("Encuesta Publicada correctamente.");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

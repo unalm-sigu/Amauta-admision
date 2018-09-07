@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.encuesta.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -54,7 +55,7 @@ public class EncuestaCursoDAOH extends AbstractEasyDAO<EncuestaCurso> implements
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
                 .join("grupoSeccion gs", "gs.curso cur")
                 .join("cur.departamentoAcademico da", "da.facultad")
-//                .leftJoin("per.tipoDocumento tdoc")
+                //                .leftJoin("per.tipoDocumento tdoc")
                 .filter("ee.id", encuestaEstudiantil);
         return all(sql);
     }
@@ -68,6 +69,14 @@ public class EncuestaCursoDAOH extends AbstractEasyDAO<EncuestaCurso> implements
                 .join("cur.departamentoAcademico da", "da.facultad")
                 .filter("ec.id", encuestaForm);
         return find(sql);
+    }
+
+    @Override
+    public void deleteByEncuestaEstudiantil(EncuestaEstudiantil encuesta) {
+        String strQuery = "delete from EncuestaCurso ec where ec.encuestaEstudiantil.id=:enc";
+        Query query = getCurrentSession().createQuery(strQuery);
+        query.setLong("enc", encuesta.getId());
+        query.executeUpdate();
     }
 
 }

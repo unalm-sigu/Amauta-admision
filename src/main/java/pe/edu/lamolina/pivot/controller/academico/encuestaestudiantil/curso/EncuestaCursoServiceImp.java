@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
@@ -122,98 +122,6 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         return encuestas;
     }
 
-//    @Override
-//    @Transactional
-//    public void generarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds) {
-//        long DAYSINMS = 1000 * 60 * 60 * 24;
-//
-//        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloTipo(cicloAcademico, TipoExamenVirtualEnum.ENC_CUR);
-//
-//        if (encuestaEstudiantil == null) {
-//            throw new PhobosException("No existe ninguna encuesta activa");
-//        }
-//
-//        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
-//        List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allByModalidadEstudioCiclo(modalidad, cicloAcademico);
-//        logger.debug("matriculaSeccions {}", matriculaSeccions.size());
-//        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE2);
-//        if (eventoCicloAcademico == null) {
-//            throw new PhobosException("No esta configurado el evento académico");
-//        }
-//        logger.debug("eventosCicloAcademico {}", eventoCicloAcademico.getId());
-//
-//        List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
-//        Map<Long, Curso> mapCursosNoEncuestar = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
-//
-//        Map<Long, GrupoSeccion> mapGposSeccion = TypesUtil.convertListToMap("seccion.grupoSeccion.id", "seccion.grupoSeccion", matriculaSeccions);
-//        logger.debug("mapGposSeccion {}", mapGposSeccion.size());
-//
-//        Map<Long, List<Alumno>> mapAlumnosByGpoSecc = TypesUtil.convertListToMapList("seccion.grupoSeccion.id", "matriculaResumen.alumno", matriculaSeccions);
-//        logger.debug("mapAlumnosByGpoSecc {}", mapAlumnosByGpoSecc.size());
-//
-//        ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaEstudiantil);
-//        if (configuraEncuesta == null) {
-//            throw new PhobosException("No esta configurada la encuesta activa");
-//        }
-//
-//        Long maximoDocentes = configuraEncuesta.getCantidadMaximaDocentes();
-//        Long minimoAlumnos = configuraEncuesta.getCantidadMinimaAlumnos();
-//        logger.debug("cantidadMaximaDocentes {} cantidadMinimaAlumnos {}", maximoDocentes, minimoAlumnos);
-//
-//        for (GrupoSeccion grupoSeccion : mapGposSeccion.values()) {
-//            Curso curso = grupoSeccion.getCurso();
-//            logger.debug("grupoSeccion {} curso {} {} ", grupoSeccion.getId(), curso.getId(), curso.getNombre());
-//            Curso cursoSinEncuesta = mapCursosNoEncuestar.get(curso.getId());
-//            if (cursoSinEncuesta != null) {
-//                logger.debug("cursoSinEncuesta {} ", cursoSinEncuesta.getId());
-//                continue;
-//            }
-//            List<Alumno> alumnos = clearAlumnosDuplicados(mapAlumnosByGpoSecc.get(grupoSeccion.getId()));
-//            if (alumnos == null) {
-//                alumnos = new ArrayList();
-//            }
-//            logger.debug("cantidad alumnos {} ", alumnos.size());
-//
-//            Date fechaFinEvento = eventoCicloAcademico.getFechaFin();
-//            Date fechaInicio = new Date(fechaFinEvento.getTime() - 15 * DAYSINMS);
-//            Date fechaFin = new Date(fechaFinEvento.getTime() - 7 * DAYSINMS);
-//
-//            EncuestaCurso encuestaCurso = new EncuestaCurso();
-//            encuestaCurso.setAlumnosFin((long) alumnos.size());
-//            encuestaCurso.setAlumnosInicio((long) alumnos.size());
-//            encuestaCurso.setAlumnosEncuestados(0L);
-//            encuestaCurso.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-//            if (minimoAlumnos > alumnos.size()) {
-//                encuestaCurso.setDescripcion(Constantine.REQ_MIN_ALUMNO);
-//                encuestaCurso.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
-//            }
-//            encuestaCurso.setEncuestaEstudiantil(encuestaEstudiantil);
-//            encuestaCurso.setFechaEncuestaInicio(fechaInicio);
-//            encuestaCurso.setFechaEncuestaFin(fechaFin);
-//            encuestaCurso.setGrupoSeccion(grupoSeccion);
-//            encuestaCursoDAO.save(encuestaCurso);
-//
-//            for (Alumno alumno : alumnos) {
-//                EncuestaAlumno encuesta = new EncuestaAlumno();
-//                encuesta.setAlumno(alumno);
-//                encuesta.setEncuestaCurso(encuestaCurso);
-//                if (encuestaCurso.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.ACT) {
-//                    encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.PEND);
-//                } else {
-//                    encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
-//                }
-//                encuesta.setUserRegistro(ds.getUsuario());
-//                encuesta.setFechaRegistro(new Date());
-//                encuestaAlumnoDAO.save(encuesta);
-//            }
-//
-//        }
-//    }
-    private List<Alumno> clearAlumnosDuplicados(List<Alumno> alumnosDobles) {
-        Map<Long, Alumno> mapAlumnos = TypesUtil.convertListToMap("id", alumnosDobles);
-        return new ArrayList(mapAlumnos.values());
-    }
-
     @Override
     @Transactional
     public void cambiarEstadoEncuesta(EncuestaCurso encuestaForm) {
@@ -246,7 +154,10 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
     public EncuestaEstudiantil findEncuestaCurso(CicloAcademico cicloAcademico) {
         TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_CUR);
         ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
-        EncuestaEstudiantil encuesta = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
+        EncuestaEstudiantil encuesta = null;
+        if (encuestaModelo != null) {
+            encuesta = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
+        }
         if (encuesta == null) {
             encuesta = new EncuestaEstudiantil();
             encuesta.setEstadoEnum(EncuestaEstadoEnum.NCRE);
@@ -399,5 +310,40 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         } else {
             return "No se puede iniciar la generación de encuestas de docentes";
         }
+    }
+
+    @Override
+    @Transactional
+    public void delete(EncuestaEstudiantil encuesta) {
+        EncuestaEstudiantil encuestaDB = encuestaEstudiantilDAO.find(encuesta.getId());
+        if (encuestaDB == null) {
+            throw new PhobosException("La encuesta no existe");
+        }
+        List<EncuestaCurso> encuestasCur = encuestaCursoDAO.allByEncuestaEstudiantil(encuestaDB);
+
+        List<Long> idEncuestasCur = encuestasCur.stream().map(enDoc -> enDoc.getId()).collect(Collectors.toList());
+
+        encuestaAlumnoDAO.deleteByEncuestasCurso(idEncuestasCur);
+        encuestaCursoDAO.deleteByEncuestaEstudiantil(encuesta);
+        configuraEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
+        periodoEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
+        cursoSinEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
+        encuestaEstudiantilDAO.delete(encuestaDB);
+    }
+
+    @Override
+    @Transactional
+    public void publicar(EncuestaEstudiantil encuesta) {
+        EncuestaEstudiantil encuestaDB = encuestaEstudiantilDAO.find(encuesta.getId());
+        if (encuestaDB == null) {
+            throw new PhobosException("La encuesta no existe");
+        }
+
+        if (encuestaDB.getEstadoEnum() != EncuestaEstadoEnum.CFG) {
+            throw new PhobosException("La encuesta no se encuentra configurada");
+        }
+        encuestaDB.setEstadoEnum(EncuestaEstadoEnum.ACT);
+        encuestaEstudiantilDAO.update(encuestaDB);
+
     }
 }

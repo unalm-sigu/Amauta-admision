@@ -110,8 +110,8 @@ public class BolsaTrabajoController {
             }
             response.setData(arrayNode);
 
-            response.setTotal(filter.getTotal());
-            response.setFiltered(filter.getFiltered());
+            response.setTotal(arrayNode.size());
+            response.setFiltered(arrayNode.size());
         } catch (Exception e) {
             e.printStackTrace();
             response.setTotal(0);
