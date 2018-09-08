@@ -8,6 +8,8 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Factor1CargaAdicional;
+import pe.edu.lamolina.model.rrhh.CategoriaDocente;
+import pe.edu.lamolina.model.rrhh.SituacionDocente;
 import pe.edu.lamolina.pivot.dao.academico.Factor1CargaAdicionalDAO;
 
 @Repository
@@ -37,6 +39,18 @@ public class Factor1CargaAdicionalDAOH extends AbstractEasyDAO<Factor1CargaAdici
                 .filter("ca.id", cicloAcademico);
 
         return all(sql);
+    }
+
+    @Override
+    public Factor1CargaAdicional findByCategoriaSituacionCicloAcademico(CategoriaDocente categoria, SituacionDocente situacion, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(Factor1CargaAdicional.class, "fca")
+                .join("fca.cicloAcademico ca", "fca.situacionDocente sd", "fca.categoriaDocente cd")
+                .filter("sd.id", situacion)
+                .filter("cd.id", categoria)
+                .filter("ca.id", ciclo);
+
+        return find(sql);
     }
 
 }

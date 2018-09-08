@@ -11,12 +11,22 @@ new Vue({
             modalsize: 'modal-md',
             header: true,
             footer: true,
-            showaccept: true
+            showaccept: true,
+            okbtn: 'Guardar',
+            cancelbtn: 'Cancelar'
+        },
+        sinLimiteSuperior: false
+    },
+    mounted(){
+      $(".numerico").numeric({negative: false, decimal: false});  
+      $(".floatingpoint").numeric({negative: false});  
+    },
+    watch:{
+        sinLimiteSuperior(value){
+            if(value){
+                this.$set(this.factor, 'cantidadFin', null);
+            }
         }
-    },
-    computed: {
-    },
-    mounted: function () {
     },
     methods: {
         nuevo() {
@@ -26,11 +36,11 @@ new Vue({
         },
         find(item) {
             AXIOS.get(`${this.url}/find/${item.id}`)
-                .then(response => {
-                    this.factor = response.data.data;
-                    this.modal.title = 'Editar condición';
-                    this.$refs.modal.open();
-                })
+                    .then(response => {
+                        this.factor = response.data.data;
+                        this.modal.title = 'Editar condición';
+                        this.$refs.modal.open();
+                    })
         },
         eliminar(item) {
             bootbox.confirm({
@@ -42,9 +52,9 @@ new Vue({
                 callback: (result) => {
                     if (result) {
                         AXIOS.post(`${this.url}/delete/${item.id}`)
-                            .then(response => {
-                                this.$refs.raptor.loadRemoteData();
-                            })
+                                .then(response => {
+                                    this.$refs.raptor.loadRemoteData();
+                                })
                     }
                 }
             });
@@ -52,12 +62,12 @@ new Vue({
         },
         save() {
             AXIOS.post(`${this.url}/save`, this.factor)
-                .then(response => {
-                    if (response.data.success) {
-                        this.$refs.modal.close();
-                        this.$refs.raptor.loadRemoteData();
-                    }
-                })
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$refs.modal.close();
+                            this.$refs.raptor.loadRemoteData();
+                        }
+                    })
         }
     }
 });

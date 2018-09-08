@@ -2,8 +2,17 @@ package pe.edu.lamolina.pivot.controller.academico.cargaadicional.docente;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import static com.helger.commons.io.stream.StreamHelper.close;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,5 +210,67 @@ public class CargaAdicionalDocenteController {
         }
 
         return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "cerrar", method = RequestMethod.POST)
+    public JsonResponse cerrar(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse response = new JsonResponse();
+
+        try {
+            service.cerrar(ds.getCicloAcademico(), ds);
+            response.setMessage("Carga adicional cerrada");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @RequestMapping("reporte")
+    public void reporteTodos(Model model, HttpSession session, HttpServletResponse response) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            String fileName = service.reporte(ds.getCicloAcademico());
+            pdfResponse(fileName, response);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, model);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, model);
+        }
+    }
+
+    private void pdfResponse(String name, HttpServletResponse response) throws IOException {
+        if (!name.isEmpty()) {
+            File filex = new File(name);
+            if (!filex.exists()) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            DateTime hoy = new DateTime();
+
+            response.reset();
+            response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "inline; filename=\"" + name + "\"");
+
+            BufferedInputStream input = null;
+            BufferedOutputStream output = null;
+
+            try {
+                input = new BufferedInputStream(new FileInputStream(filex), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                output = new BufferedOutputStream(response.getOutputStream(), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                IOUtils.copy(input, output);
+                response.flushBuffer();
+            } finally {
+                close(output);
+                close(input);
+            }
+        }
     }
 }

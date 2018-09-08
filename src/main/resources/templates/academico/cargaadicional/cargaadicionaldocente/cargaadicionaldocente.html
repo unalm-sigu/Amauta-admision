@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Factor 1</title>
+        <title>Carga Académica Adicional</title>
     </head>
     <body>
         <div layout:fragment="main">
@@ -17,6 +17,8 @@
                             <li v-if="configura.estado === 'CARGA'"><a href="#" v-on:click="generarMontos"> Generar montos </a></li>
                             <li v-if="configura.estado === 'MONTO'"><a href="#" v-on:click="eliminarMontos"> Deshacer montos generados </a></li>
                             <li v-if="configura.estado === 'MONTO'"><a href="#" v-on:click="cerrar"> Cerrar </a></li>
+                            <li v-if="configura.estado === 'MONTO'"><a v-bind:href="`${url}/reporte`"> Reporte </a></li>
+                            <li v-if="configura.estado === 'CERR'"><a v-bind:href="`${url}/reporte`"> Reporte </a></li>
                         </ul>
                     </div>
                     <h2 th:inline="text"> Carga Académica Adicional [[${cicloAcademico.descripcion}]] </h2>

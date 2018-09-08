@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguraCargaAdicional;
@@ -22,21 +23,21 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class CargaAdicionalFactor1ServiceImp implements CargaAdicionalFactor1Service {
-    
+
     @Autowired
     ConfiguraCargaAdicionalDAO configuraCargaAdicionalDAO;
-    
+
     @Autowired
     Factor1CargaAdicionalDAO factor1CargaAdicionalDAO;
-    
+
     @Autowired
     CategoriaDocenteDAO categoriaDocenteDAO;
-    
+
     @Autowired
     SituacionDocenteDAO situacionDocenteDAO;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Override
     public List<Factor1CargaAdicional> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
         return factor1CargaAdicionalDAO.allByDynatableCicloAcademico(filter, cicloAcademico);
@@ -51,29 +52,38 @@ public class CargaAdicionalFactor1ServiceImp implements CargaAdicionalFactor1Ser
     public List<SituacionDocente> allSituacionDocente() {
         return situacionDocenteDAO.all();
     }
-    
+
     @Override
     @Transactional
     public void delete(Long id, DataSessionPivot ds) {
         factor1CargaAdicionalDAO.delete(id);
     }
-    
+
     @Override
     public Factor1CargaAdicional find(Long id) {
         return factor1CargaAdicionalDAO.find(id);
     }
-    
+
     @Override
     @Transactional
-    public void save(Factor1CargaAdicional factor1CargaAdicional, DataSessionPivot ds) {
-        factor1CargaAdicional.setCicloAcademico(ds.getCicloAcademico());
+    public void save(Factor1CargaAdicional factor, DataSessionPivot ds) {
+        Factor1CargaAdicional factorBD = factor1CargaAdicionalDAO.findByCategoriaSituacionCicloAcademico(factor.getCategoriaDocente(), factor.getSituacionDocente(), ds.getCicloAcademico());
+
+        if (factorBD != null) {
+            factorBD.setFactor(factor.getFactor());
+            factorBD.setCreditosMinimo(factor.getCreditosMinimo());
+            factorBD.setUserRegistro(ds.getUsuario());
+            factorBD.setFechaRegistro(new Date());
+            factor1CargaAdicionalDAO.update(factorBD);
+        } else {
+            factor.setCicloAcademico(ds.getCicloAcademico());
+            factor.setUserRegistro(ds.getUsuario());
+            factor.setFechaRegistro(new Date());
+            factor1CargaAdicionalDAO.save(factor);
+        }
         
-        factor1CargaAdicional.setUserRegistro(ds.getUsuario());
-        factor1CargaAdicional.setFechaRegistro(new Date());
-        
-        factor1CargaAdicionalDAO.save(factor1CargaAdicional);
     }
-    
+
     @Override
     @Transactional
     public void update(Factor1CargaAdicional factor1CargaAdicional, DataSessionPivot ds) {
@@ -82,16 +92,16 @@ public class CargaAdicionalFactor1ServiceImp implements CargaAdicionalFactor1Ser
         factorBD.setCreditosMinimo(factor1CargaAdicional.getCreditosMinimo());
         factorBD.setFactor(factor1CargaAdicional.getFactor());
         factorBD.setSituacionDocente(factor1CargaAdicional.getSituacionDocente());
-        
+
         factorBD.setUserRegistro(ds.getUsuario());
         factorBD.setFechaRegistro(new Date());
-        
+
         factor1CargaAdicionalDAO.update(factorBD);
     }
-    
+
     @Override
     public ConfiguraCargaAdicional findConfiguracionByCiclo(CicloAcademico cicloAcademico) {
         return configuraCargaAdicionalDAO.findByCicloAcademico(cicloAcademico);
     }
-    
+
 }

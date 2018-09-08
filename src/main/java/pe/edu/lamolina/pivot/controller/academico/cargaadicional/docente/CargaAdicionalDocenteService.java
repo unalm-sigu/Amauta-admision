@@ -11,16 +11,20 @@ public interface CargaAdicionalDocenteService {
 
     List<DocenteCiclo> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    public void eliminarCarga(CicloAcademico cicloAcademico, DataSessionPivot ds);
+    void eliminarCarga(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
-    public void eliminarMontos(CicloAcademico cicloAcademico, DataSessionPivot ds);
+    void eliminarMontos(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     ConfiguraCargaAdicional findConfiguracionByCicloAcademico(CicloAcademico cicloAcademico);
 
-    public void generarCarga(CicloAcademico cicloAcademico, DataSessionPivot ds);
+    void generarCarga(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
-    public void generarMontos(CicloAcademico cicloAcademico, DataSessionPivot ds);
+    void generarMontos(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     void saveConfiguracion(ConfiguraCargaAdicional configuraCargaAdicional, CicloAcademico cicloAcademico, DataSessionPivot ds);
+
+    String reporte(CicloAcademico cicloAcademico);
+
+    void cerrar(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
 }

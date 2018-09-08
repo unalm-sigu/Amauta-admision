@@ -16,5 +16,7 @@ public interface DocenteCicloDAO extends EasyDAO<DocenteCiclo> {
     void deshacerMontos(CicloAcademico cicloAcademico);
     
     void generarMontos(CicloAcademico cicloAcademico, BigDecimal rca);
+
+    List<DocenteCiclo> allActivoByCicloAcademico(CicloAcademico cicloAcademico);
     
 }
