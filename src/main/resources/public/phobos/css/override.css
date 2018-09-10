@@ -1216,6 +1216,13 @@ div.notas {
     -ms-transition: all 0.3s ease;
     -o-transition: all 0.3s ease;
     transition: all 0.3s ease; }
+.curso.size-1-n-horas {
+    min-height: calc(100% - 4px);
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease; }
 .curso.size-1:hover {
     min-height: calc(100% - 4px);
     max-height: 200px;
@@ -1267,7 +1274,7 @@ div.notas {
     padding-top: 6px;
     padding-right: 3px; }
 .curso .data-curso span {
-    color: #9b9b9b; }
+    color: #565656; }
 .curso.azul {
     background: rgba(84, 160, 255, 0.83);
     color: #fff; }
@@ -1393,7 +1400,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: #4183D7; }
 
 .curso.color2:before {
@@ -1403,7 +1410,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: #336E7B; }
 
 .curso.color3:before {
@@ -1413,7 +1420,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: #68C3A3; }
 
 .curso.color4:before {
@@ -1423,7 +1430,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: #FABE58; }
 
 .curso.color5:before {
@@ -1433,7 +1440,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: #6C7A89; }
 
 .curso.color6:before {
@@ -1443,7 +1450,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: #947CB0; }
 
 .curso.color7:before {
@@ -1453,7 +1460,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: #BE8C6B; }
 
 .curso.color8:before {
@@ -1463,7 +1470,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: #003780; }
 
 .curso.color9:before {
@@ -1473,7 +1480,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: yellow; }
 
 .curso.color10:before {
@@ -1483,7 +1490,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: #870000; }
 .curso.color11:before {
     content: "";
@@ -1492,7 +1499,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: navajowhite; }
 .curso.color12:before {
     content: "";
@@ -1501,7 +1508,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: #c2d5f2; }
 .curso.color13:before {
     content: "";
@@ -1510,7 +1517,7 @@ div.notas {
     height: 100%;
     left: 0;
     top: 0;
-    width: 2px;
+    width: 4px;
     background: #006C11; }
 /*end horario*/
 /*table borderless*/
@@ -1768,6 +1775,12 @@ div.notas {
     height: 120px; 
     overflow: hidden;
 }
+
+.div-foto-alumno-list {
+    height: 120px; 
+    margin: 5px;
+}
+
 .img-foto-list {
     height: 120px; 
     position: relative; 

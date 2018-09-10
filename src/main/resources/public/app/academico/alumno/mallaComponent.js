@@ -8,8 +8,6 @@ Vue.component("malla-component", {
         }
     },
     created() {
-        let $vue = this;
-        $vue.verMalla();
     },
     computed: {
         titulo() {

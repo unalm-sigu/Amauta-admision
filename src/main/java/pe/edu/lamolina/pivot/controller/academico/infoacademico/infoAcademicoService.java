@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
 import pe.edu.lamolina.model.horario.Hora;
@@ -15,7 +16,9 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface infoAcademicoService {
 
-    ObjectNode allAlumnosByCiclo(Alumno alumno, Long numeroCiclo);
+//    ObjectNode allAvanaceCurricularByCiclo(Alumno alumno, Long numeroCiclo);
+
+    ObjectNode allAvanaceCurricular(Alumno alumno);
 
     ObjectNode allAlumnosByCursosMatri(Alumno alumno, CicloAcademico cicloAca);
 
@@ -33,10 +36,12 @@ public interface infoAcademicoService {
 
     List<PlanCurricular> allPlanCurricularByCarrera(Carrera carrera);
 
-    void cambiarPlan(Alumno alumno, PlanCurricular planCurricular);
+    void cambiarPlan(Alumno alumno, PlanCurricular planCurricular, DataSessionPivot ds);
 
     void calcularPromedio(Alumno alumno, DataSessionPivot ds);
 
     List<BoletaIngresante> allAportesAlumno(Alumno alumno, CicloAcademico cicloAcademico);
+
+    MatriculaResumen findResumenMatricula(Alumno alumno, CicloAcademico ciclo);
 
 }

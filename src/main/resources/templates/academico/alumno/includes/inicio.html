@@ -32,11 +32,11 @@
             <label><strong>Promedio Acumulado: </strong></label>
             <span v-text="alumno.promedioAcumulado"></span>
         </div>
-        <div>
+        <div v-if="alumno.cicloIngreso.descripcion != '' ">
             <label><strong>Ciclo Ingreso: </strong></label>
             <span v-text="alumno.cicloIngreso.descripcion"></span>
         </div>
-        <div v-if="alumno.postulantePregrado !== undefined">
+        <div v-if="alumno.postulantePregrado.modalidadIngreso.nombre !== '' ">
             <label><strong>Modalidad de Ingreso: </strong></label>
             <span v-text="alumno.postulantePregrado.modalidadIngreso.nombre"></span>
         </div>
