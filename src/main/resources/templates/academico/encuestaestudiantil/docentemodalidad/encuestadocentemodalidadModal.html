@@ -1,0 +1,16 @@
+<modal-vik ref="modalTemas"
+           v-bind="modalTemas">
+    <div slot="body">
+        <table class="table table-striped">
+            <tr v-for="tema in puntajeDocenteModalidad">
+                <td class="v-middle col-md-8">
+                    <span class="block text-justify"> {{ tema.temaEncuesta.nombre }} </span>  
+
+                </td>
+                <td class="v-middle col-md-4 text-center">
+                    <span class="text-lg"> {{ tema.puntaje.toFixed(2) }} </span >
+                </td>
+            </tr>
+        </table>
+    </div>
+</modal-vik>

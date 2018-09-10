@@ -1,0 +1,77 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Factor 2</title>
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div  id="cargaadicionalfactor2VUE" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" v-on:click="nuevo" class="btn btn-success">Nuevo</a>
+                        </div>
+                    </div> 
+                    <h2 th:inline="text">Factor 2  </h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table v-bind:url="`${url}/list`" ref="raptor">
+                                <template scope="props">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-md-4 v-middle">Cantidad de alumnos </th>
+                                                <th class="col-md-8 text-center v-middle">Valor</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle">
+                                                    <span v-if="item.cantidadFin">  De {{ item.cantidadInicio }} a {{ item.cantidadFin }} alumnos </span> 
+                                                    <span v-else=""> Más de {{ item.cantidadInicio }} alumnos </span> 
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <span> {{ item.factor }} </span> 
+                                                </td>
+                                                <td>
+                                                    <div class="actions">
+                                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-option-vertical"></i></a>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a v-on:click="find(item)"> Editar </a></li>
+                                                            <li><a v-on:click="eliminar(item)"> Eliminar </a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                    <div th:substituteby="academico/cargaadicional/cargaadicionalfactor2/cargaadicionalfactor2Modal"></div>
+                </section>
+
+            </div>
+            <div th:substituteby="_modules/vue-modal"></div>
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/academico/cargaadicional/cargaadicionalfactor2/cargaadicionalfactor2.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
+
