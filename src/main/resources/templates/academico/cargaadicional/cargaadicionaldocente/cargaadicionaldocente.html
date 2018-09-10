@@ -1,0 +1,101 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Carga Académica Adicional</title>
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div  id="cargaadicionaldocenteVUE" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            <i class="fa fa-random fa-lg"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li v-if="!configura.estado || configura.estado === 'CRE'"><a href="#" v-on:click="editConfigura"> Configurar carga adicional</a></li>
+                            <li v-if="configura.estado === 'CRE'"><a href="#" v-on:click="generarCarga"> Generar carga adicional </a></li>
+                            <li v-if="configura.estado === 'CARGA'"><a href="#" v-on:click="eliminarCarga"> Deshacer carga adicional </a></li>
+                            <li v-if="configura.estado === 'CARGA'"><a href="#" v-on:click="generarMontos"> Generar montos </a></li>
+                            <li v-if="configura.estado === 'MONTO'"><a href="#" v-on:click="eliminarMontos"> Deshacer montos generados </a></li>
+                            <li v-if="configura.estado === 'MONTO'"><a href="#" v-on:click="cerrar"> Cerrar </a></li>
+                            <li v-if="configura.estado === 'MONTO'"><a v-bind:href="`${url}/reporte`"> Reporte </a></li>
+                            <li v-if="configura.estado === 'CERR'"><a v-bind:href="`${url}/reporte`"> Reporte </a></li>
+                        </ul>
+                    </div>
+                    <h2 th:inline="text"> Carga Académica Adicional [[${cicloAcademico.descripcion}]] </h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table v-bind:url="`${url}/list`" ref="raptor">
+                                <template scope="props">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-md-4 v-middle"> Docente </th>
+                                                <th class="col-md-2 text-center v-middle"> Créditos </th>
+                                                <th class="col-md-2 text-center v-middle">Factor 1</th>
+                                                <th class="col-md-2 text-center v-middle">Factor 2</th>
+                                                <th class="col-md-2 text-center v-middle">Monto</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle">
+                                                     <span class="block text-primary h4 bold m-t-xs m-b-xs">
+                                                        {{item.docente.persona.apellidosNombres}}
+
+                                                        <span class="text-muted" style="font-size: 6px;">{{item.id}}</span>
+                                                    </span>
+                                                    <small class="block text-muted">
+                                                        Departamento Académico: 
+                                                        {{item.docente.departamentoAcademico.nombre}}
+                                                    </small>
+                                                    <small class="block text-muted">
+                                                        Facultad: 
+                                                        {{item.docente.departamentoAcademico.facultad.nombre}}
+                                                    </small>
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <span class="block"> <b> Total: </b> {{ item.creditosTotal.toFixed(2) }} </span>
+                                                    <span class="block m-t-xs"> <b> Exceso: </b> {{ item.creditosExceso.toFixed(2) }} </span>
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <span> {{ item.factor1.toFixed(1) }} </span>
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <span> {{ item.factor2.toFixed(1) }} </span>
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <span v-if="item.monto !== undefined"> {{ item.monto.toFixed(2) }} </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                    <div th:substituteby="academico/cargaadicional/cargaadicionaldocente/cargaadicionaldocenteModal"></div>
+                </section>
+
+            </div>
+            <div th:substituteby="_modules/vue-modal"></div>
+        </div>
+
+        <!--var situacionesJson = /*[[${situaciones.toString()}]]*/ 'json';-->
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/academico/cargaadicional/cargaadicionaldocente/cargaadicionaldocente.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
+

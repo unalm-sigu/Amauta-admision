@@ -25,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -90,7 +91,11 @@ public class CicloAcademicoController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             List<CicloAcademico> ciclos = service.allByDynatable(filter);
             for (CicloAcademico ciclo : ciclos) {
-                array.add(ciclo.toJson());
+                ObjectNode cicloJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "*", "modalidadEstudio.*"
+                        });
+                array.add(cicloJson);
             }
             json.setData(array);
             json.setTotal(filter.getTotal());
@@ -109,8 +114,13 @@ public class CicloAcademicoController {
         JsonResponse response = new JsonResponse();
         try {
             CicloAcademico cicloAcademicoDB = service.findCicloAcademico(cicloAcademico);
-            response.setData(cicloAcademicoDB.toJson());
+            ObjectNode cicloJson = JsonHelper.createJson(cicloAcademicoDB, JsonNodeFactory.instance, true,
+                    new String[]{
+                        "*", "modalidadEstudio.*"
+                    });
+            response.setData(cicloJson);
             response.setSuccess(Boolean.TRUE);
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
