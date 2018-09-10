@@ -20,6 +20,11 @@ Vue.component('raptor-table', {
     },
     mounted() {
         if (this.preload) {
+            this.repreload();
+        }
+    },
+    methods: {
+        repreload() {
             this.search = this.getParameterByName('queries[search]');
             this.search = (this.search == null) ? '' : this.search;
             if (this.getParameterByName('page')) {
@@ -27,10 +32,7 @@ Vue.component('raptor-table', {
             } else {
                 this.loadRemoteData();
             }
-
-        }
-    },
-    methods: {
+        },
         getParameterByName(name) {
             var url = window.location.href;
             name = name.replace(/[\[\]]/g, '\\$&');

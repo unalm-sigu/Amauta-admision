@@ -30,7 +30,6 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -117,42 +116,36 @@ public class AlumnoController {
             } else {
                 alumnos = service.allAlumnosByFacultadDynatable(filter, facultades);
             }
-            
+
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Alumno alumn : alumnos) {
-                Persona persona = alumn.getPersona();
-                Carrera carrera = alumn.getCarrera();
-                Facultad facultad = carrera.getFacultad();
-
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                node.put("id", alumn.getId());
-                node.put("nombre", persona.getApellidosNombres());
-                node.put("codigo", alumn.getCodigo());
-                node.put("rutaFoto", persona.getRutaFoto());
-                node.put("tipoFoto", persona.getTipoFoto());
-                node.put("tipoDoc", persona.getTipoDocumento().getSimbolo());
-                node.put("nroDocumento", persona.getNumeroDocIdentidad());
-                node.put("telefono", persona.getTelefono());
-                node.put("celular", persona.getCelular());
-                node.put("email", persona.getEmail());
-                node.put("emailEmpresa", persona.getEmailCompania());
-                node.put("carrera", carrera.getNombre());
-                node.put("codigoCarrera", carrera.getCodigo());
-                node.put("codigoFacultad", facultad.getCodigo());
-                node.put("tipoCarreraValue", carrera.getTipoEnum().getValue());
-                node.put("tipoCarrera", carrera.getTipo());
-                node.put("facultad", facultad.getNombre());
-                node.put("codigoModalidad", carrera.getModalidadEstudio().getCodigo());
-                node.put("modalidad", carrera.getModalidadEstudio().getNombre());
-                node.put("situacion", alumn.getSituacionAcademica().getNombre());
-                node.put("cicloIngreso", (String) ObjectUtil.getParentTree(alumn, "cicloIngreso.descripcion"));
-                node.put("cicloActivo", (String) ObjectUtil.getParentTree(alumn, "cicloActivo.descripcion"));
-                node.put("estado", alumn.getEstado());
-                node.put("estadoEnum", alumn.getEstadoEnum() != null ? alumn.getEstadoEnum().getValue() : "");
-                node.put("ppa", alumn.getPromedioAcumulado());
-                node.put("cca", alumn.getCreditosCursados());
-                node.put("capa", alumn.getCreditosAprobados());
+                ObjectNode node = JsonHelper.createJson(alumn, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "id", "codigo", "estado", "estadoEnum",
+                            "promedioAcumulado", "creditosCursados", "creditosAprobados",
+                            "persona.apellidosNombres",
+                            "persona.rutaFoto",
+                            "persona.tipoFoto",
+                            "persona.tipoDocumento.simbolo",
+                            "persona.numeroDocIdentidad",
+                            "persona.telefono",
+                            "persona.celular",
+                            "persona.email",
+                            "persona.emailCompania",
+                            "carrera.nombre",
+                            "carrera.codigo",
+                            "carrera.tipoEnum",
+                            "carrera.tipo",
+                            "carrera.facultad.codigo",
+                            "carrera.facultad.nombre",
+                            "modalidadEstudio.codigo",
+                            "situacionAcademica.codigo",
+                            "situacionAcademica.nombre",
+                            "modalidadEstudio.nombre",
+                            "cicloIngreso.descripcion",
+                            "cicloActivo.descripcion"
+                        });
 
                 array.add(node);
             }
@@ -453,7 +446,6 @@ public class AlumnoController {
         JsonResponse response = new JsonResponse();
         try {
             Alumno alumno = service.allInfo(new Alumno(idAlumno));
-
             ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
                 "*",
                 "carrera.*",
@@ -465,24 +457,11 @@ public class AlumnoController {
                 "planCurricular.orientacionCarrera.*",
                 "modalidadEstudio.*",
                 "persona.*",
-                "persona.tipoDocumento.*"});
+                "persona.tipoDocumento.*"
+            });
 
             ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
             objNode.set("alumno", alumnoJson);
-
-//            ObjectNode objNodeInfo = new ObjectNode(JsonNodeFactory.instance);
-//            objNodeInfo.put("Modalidad", alumno.getModalidadEstudio() == null ? "" : alumno.getModalidadEstudio().getNombre());
-//            objNodeInfo.put("promedioAcumulado", alumno.getPromedioAcumulado());
-//            objNodeInfo.put("creditosCursados", alumno.getCreditosCursados());
-//            objNodeInfo.put("creditosAprobados", alumno.getCreditosAprobados());
-//            objNodeInfo.put("carrera", alumno.getCarrera().getNombre());
-//            objNodeInfo.put("facultad", alumno.getCarrera().getFacultad().getNombre());
-//            objNodeInfo.put("cicloIngreso", alumno.getCicloIngreso() == null ? "" : alumno.getCicloIngreso().getDescripcion());
-//            objNodeInfo.put("ultimoCiclo", alumno.getCodigoCicloActivo() == null ? "" : alumno.getCicloActivo().getDescripcion());
-//            if (alumno.getPlanCurricular() != null) {
-//                objNodeInfo.set("planCurricular", alumno.getPlanCurricular().toJson());
-//            }
-//            objNode.set("alumno", objNodeInfo);
             response.setData(objNode);
             response.setSuccess(true);
         } catch (PhobosException e) {
@@ -521,7 +500,7 @@ public class AlumnoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             Hora hora = service.getHoraByNroHora(numero);
-            response.setData(hora.toJson());
+            response.setData(JsonHelper.createJson(hora, JsonNodeFactory.instance, true, new String[]{"*"}));
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
 

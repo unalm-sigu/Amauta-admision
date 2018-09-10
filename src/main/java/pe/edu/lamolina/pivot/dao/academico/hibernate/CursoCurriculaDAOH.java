@@ -59,12 +59,12 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
     }
 
     @Override
-    public List<CursoCurricula> allByPlanCurricular(PlanCurricular planCurricular) {
+    public List<CursoCurricula> allByPlanCurricular(PlanCurricular plan) {
         Octavia sql = Octavia.query()
                 .from(CursoCurricula.class, "cc")
                 .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
                 .left("cu.departamentoAcademico")
-                .filter("pc.id", planCurricular)
+                .filter("pc.id", plan)
                 .orderBy("cc.numeroCiclo", "cc.numeroCurso");
         return sql.all(getCurrentSession());
     }
@@ -90,7 +90,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
                 .left("cu.departamentoAcademico")
                 .filter("pc.id", plan)
-                .filter("numeroCiclo", nro);
+                .filter("cc.numeroCiclo", nro);
 
         return sql.all(getCurrentSession());
     }

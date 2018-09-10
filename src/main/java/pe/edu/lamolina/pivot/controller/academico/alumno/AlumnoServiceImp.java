@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -156,29 +158,9 @@ public class AlumnoServiceImp implements AlumnoService {
 
     @Override
     public List<AlumnoCicloCurso> findAlumnoHistorial(Alumno alumno) {
-
         return alumnoCicloCursoDAO.findHistorial(alumno);
     }
 
-//    @Override
-//    public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros) {
-//        return alumnoDAO.allByRolDynatable(filter, codigo, filtros);
-//    }
-//
-//    @Override
-//    public AlumnoResumen findResumen() {
-//        return alumnoDAO.findResumen();
-//    }
-//
-//    @Override
-//    public List<MatriculaCurso> allMatriculaCursoByAlumno(Long idAlumno) {
-//        return matriculaCursoDAO.allByAlumno(idAlumno);
-//    }
-//
-//    @Override
-//    public Alumno findAlumno(Alumno alumno, CicloAcademico academico) {
-//        return alumnoDAO.find(alumno, academico);
-//    }
     @Override
     public List<CicloAcademico> allCicloAcademico() {
         Date date = new Date();
@@ -638,66 +620,95 @@ public class AlumnoServiceImp implements AlumnoService {
     public ObjectNode findHorarioBySeccionesHorarios(List<HorarioSeccion> seccionesHorarios) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
 
-        Map<Long, List<HorarioSeccion>> mapHorariosSeccionHora = TypesUtil.convertListToMapList("hora.id", seccionesHorarios);
-
-        Map<Long, Hora> seccionHorarioHorasMap = TypesUtil.convertListToMap("hora.id", "hora", seccionesHorarios);
+        Map<Long, List<HorarioSeccion>> mapHorarioSeccByIdHora = TypesUtil.convertListToMapList("hora.id", seccionesHorarios);
+        Map<Long, Hora> mapHoras = TypesUtil.convertListToMap("hora.id", "hora", seccionesHorarios);
 
         List<Seccion> secciones = new ArrayList();
+        Map<String, List<HorarioSeccion>> mapSeccionDia = new LinkedHashMap();
         for (HorarioSeccion seccionesHorario : seccionesHorarios) {
             secciones.add(seccionesHorario.getSeccion());
+            Dia dia = seccionesHorario.getDia();
+            Seccion seccion = seccionesHorario.getSeccion();
+            String key = seccion.getId() + "-" + dia.getId();
+            List<HorarioSeccion> horariosSecc = mapSeccionDia.get(key);
+            if (horariosSecc == null) {
+                horariosSecc = new ArrayList();
+                mapSeccionDia.put(key, horariosSecc);
+            }
+            horariosSecc.add(seccionesHorario);
         }
 
-        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allPrincipalesBySeccion(secciones);
-        Map<Long, DocenteSeccion> docenteSeccionesMap = TypesUtil.convertListToMap("seccion.id", docenteSecciones);
+        Map<String, Integer> mapSeccionHora = new LinkedHashMap();
+        for (Map.Entry<String, List<HorarioSeccion>> entry : mapSeccionDia.entrySet()) {
+            Integer nroHora = 1000;
+            List<HorarioSeccion> horariosSecc = entry.getValue();
+            for (HorarioSeccion horarioSecc : horariosSecc) {
+                Integer nroHoraSecc = horarioSecc.getHora().getNumero();
+                nroHora = (nroHora > nroHoraSecc) ? nroHoraSecc : nroHora;
+            }
+            mapSeccionHora.put(entry.getKey(), nroHora);
+        }
+
+        List<DocenteSeccion> profesSecciones = docenteSeccionDAO.allPrincipalesBySeccion(secciones);
+        Map<Long, DocenteSeccion> mapProfeSecc = TypesUtil.convertListToMap("seccion.id", profesSecciones);
 
         List<Dia> dias = diaDAO.allDia();
         List<Hora> horas = new ArrayList();
-        for (Hora hora : seccionHorarioHorasMap.values()) {
+        for (Hora hora : mapHoras.values()) {
             horas.add(hora);
         }
         horas = horas.isEmpty() ? horaDAO.allHora() : horas;
         Collections.sort(horas, new Hora.CompareCodigo());
 
-        ObjectNode dataObject = new ObjectNode(jsonFactory);
-        ArrayNode horaArray = new ArrayNode(jsonFactory);
+        ObjectNode horarioJson = new ObjectNode(jsonFactory);
+        ArrayNode horaArrayJson = new ArrayNode(jsonFactory);
 
         for (Hora hora : horas) {
-            ObjectNode horaNode = new ObjectNode(jsonFactory);
-            horaNode.put("hora", hora.getDescripcion());
-            horaNode.put("numeroHora", hora.getNumero());
-            List<HorarioSeccion> horariosSeccionesHora = mapHorariosSeccionHora.get(hora.getId());
+            ObjectNode horaJson = new ObjectNode(jsonFactory);
+            horaJson.put("hora", hora.getDescripcion());
+            horaJson.put("numeroHora", hora.getNumero());
+            List<HorarioSeccion> horariosSeccionesHora = mapHorarioSeccByIdHora.get(hora.getId());
             horariosSeccionesHora = (horariosSeccionesHora == null) ? new ArrayList() : horariosSeccionesHora;
 
             Map<Long, List<HorarioSeccion>> mapHorarioSeccionDia = TypesUtil.convertListToMapList("dia.id", horariosSeccionesHora);
-            ArrayNode arrayDia = new ArrayNode(jsonFactory);
+            ArrayNode diaArrayJson = new ArrayNode(jsonFactory);
             for (Dia dia : dias) {
-                ObjectNode diaNode = new ObjectNode(jsonFactory);
-                diaNode.put("hora", hora.getDescripcion());
-                diaNode.put("dia", dia.getNombre());
+                ObjectNode diaJson = new ObjectNode(jsonFactory);
+                diaJson.put("hora", hora.getDescripcion());
+                diaJson.put("dia", dia.getNombre());
                 List<HorarioSeccion> horariosSeccionesDia = mapHorarioSeccionDia.get(dia.getId());
                 horariosSeccionesDia = (horariosSeccionesDia == null) ? new ArrayList() : horariosSeccionesDia;
 
-                ArrayNode arraySeccion = new ArrayNode(jsonFactory);
+                ArrayNode seccionArrayJson = new ArrayNode(jsonFactory);
                 for (HorarioSeccion horarioSeccion : horariosSeccionesDia) {
-                    ObjectNode seccionNode = new ObjectNode(jsonFactory);
-                    seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo());
-                    seccionNode.put("tipoSeccion", horarioSeccion.getSeccion().getTipoSeccion());
-                    seccionNode.put("codigoCurso", horarioSeccion.getSeccion().getGrupoSeccion() != null ? horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getCodigo() : "");
-                    seccionNode.put("curso", horarioSeccion.getSeccion().getGrupoSeccion() != null ? horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre() : "");
-                    seccionNode.put("aula", horarioSeccion.getAula() != null ? horarioSeccion.getAula().getCodigo() : "");
-                    seccionNode.put("grupo", (String) ObjectUtil.getParentTree(horarioSeccion, "seccion.grupoHoras.codigo"));
-                    DocenteSeccion ds = docenteSeccionesMap.get(horarioSeccion.getSeccion().getId());
-                    String nombre = (String) ObjectUtil.getParentTree(ds, "docente.persona.letraNomPaterno");
-                    seccionNode.put("docente", nombre);
+                    Seccion seccion = horarioSeccion.getSeccion();
 
-                    arraySeccion.add(seccionNode);
+                    ObjectNode seccionJson = JsonHelper.createJson(seccion, jsonFactory, true, new String[]{
+                        "codigo2", "tipoSeccion",
+                        "grupoSeccion.curso.codigo",
+                        "grupoSeccion.curso.nombre",
+                        "grupoSeccion.curso.tpc",
+                        "aula.codigo",
+                        "grupoHoras.codigo"
+                    });
+
+                    String key = seccion.getId() + "-" + dia.getId();
+                    List<HorarioSeccion> horariosSecc = mapSeccionDia.get(key);
+                    Integer nroHora = mapSeccionHora.get(key);
+                    seccionJson.put("horasContinuas", horariosSecc.size());
+                    seccionJson.put("horaInicial", nroHora == hora.getNumero());
+
+                    DocenteSeccion profeSecc = mapProfeSecc.get(horarioSeccion.getSeccion().getId());
+                    seccionJson.put("docente", (String) ObjectUtil.getParentTree(profeSecc, "docente.persona.letraNomPaterno"));
+
+                    seccionArrayJson.add(seccionJson);
                 }
 
-                diaNode.put("secciones", arraySeccion);
-                arrayDia.add(diaNode);
+                diaJson.set("secciones", seccionArrayJson);
+                diaArrayJson.add(diaJson);
             }
-            horaNode.put("dias", arrayDia);
-            horaArray.add(horaNode);
+            horaJson.set("dias", diaArrayJson);
+            horaArrayJson.add(horaJson);
         }
         ArrayNode diasArray = new ArrayNode(jsonFactory);
         for (Dia dia : dias) {
@@ -705,11 +716,12 @@ public class AlumnoServiceImp implements AlumnoService {
             diaObjectNode.put("dia", dia.getNombre());
             diasArray.add(diaObjectNode);
         }
-        dataObject.put("horarios", horaArray);
-        dataObject.put("dias", diasArray);
-        dataObject.put("horasTotal", horaArray.size());
 
-        return dataObject;
+        horarioJson.set("horarios", horaArrayJson);
+        horarioJson.set("dias", diasArray);
+        horarioJson.put("horasTotal", horaArrayJson.size());
+
+        return horarioJson;
     }
 
     @Override

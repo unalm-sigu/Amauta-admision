@@ -23,8 +23,8 @@
                 <div class="col-md-12">
                     <span v-text='alumno.codigo'> </span> -  <span v-text ="alumno.situacionAcademica.nombre"></span>
                 </div>
-                <div class="col-md-12" v-if="ident">
-                    <span v-text="alumno.persona.tipoDocumento.simbolo"/>
+                <div class="col-md-12" v-if="alumno.persona.numeroDocIdentidad !== '' ">
+                    <span v-text="alumno.persona.tipoDocumento.simbolo"/>:
                     <span v-text="alumno.persona.numeroDocIdentidad"/>
                 </div>
                 <div class="col-md-12" v-if="flag">

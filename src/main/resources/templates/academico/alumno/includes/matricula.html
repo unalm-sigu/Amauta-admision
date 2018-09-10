@@ -19,7 +19,7 @@
                         <span > Cantidad de cursos: </span>
                     </div>
                     <div class="col-md-5 text-left">
-                        <span class="estado-blue" v-text="cursos.length"></span>
+                        <span class="estado-blue" v-text="resumen.cursosMatriculados"></span>
                     </div>
                 </div>
                 <div class="col-md-3 col-md-offset-2">
@@ -27,73 +27,114 @@
                         <span > Cantidad de créditos: </span>
                     </div>
                     <div class="col-md-5 text-left">
-                        <span class="estado-blue" v-text="cantidadCreditos"></span>
+                        <span class="estado-blue" v-text="resumen.creditosMatriculados"></span>
                     </div>
                 </div>
             </div>
             <table class="table table-body-hover">
                 <thead>
                     <tr>
-                        <th class="col-md-4 v-middle text-left">Curso</th>
+                        <th class="col-md-5 v-middle text-left">Curso</th>
+                        <th class="v-middle text-center">Créditos</th>
                         <th></th>
-                        <th class="col-md-1 v-middle text-center">Clave</th>
-                        <th class="col-md-1 v-middle text-center">Grupo</th>
-                        <th class="col-md-1 v-middle text-center">Aula</th>
-                        <th class="col-md-3 v-middle text-left">Docente</th>
+                        <th class="col-md-1 v-middle text-center">Sección</th>
+                        <th class="v-middle text-center">Grupo</th>
+                        <th class="v-middle text-center">Aula</th>
+                        <th class="col-md-4 v-middle text-left">Docente</th>
                         <th class="col-md-1 v-middle text-center">Nota Final</th>
                         <th class="col-md-1 v-middle text-center">Estado</th>
                     </tr>
                 </thead>
                 <tbody  v-for="item in cursos" v-bind:key="item.id">
                     <tr>
-                        <td v-bind:rowspan="item.curso.tipoCurso === 'TEOPRA' ? 2 : 1">
+                        <td v-bind:rowspan="item.curso.tipoCurso === 'TEOPRA' ? 2 : 1"
+                            class="v-middle">
                             <span class="block m-t-sm">
                                 <span class="text-left h4 text-primary bold" v-text="item.curso.nombre"/>
-                                <span class="block text-muted p-no-margin" v-text="item.curso.codigo + ' ' + displayCreditos(item)"/>
-                                <span class="block text-muted m-b-sm" v-text="item.curso.departamentoAcademico.nombre"/>
+                                <span class="block text-muted p-no-margin">
+                                    {{item.curso.codigo}} &nbsp;
+                                    <i class="fa fa-bookmark text-primary"></i> {{item.curso.tpc}}
+                                </span>
+                                <small class="block text-muted m-b-sm">
+                                    Dpto: {{item.curso.departamentoAcademico.nombre}}
+                                </small>
                             </span>
                         </td>
-                        <td class="text-center v-middle">
-                            <span v-if="item.detalle[0].tipo==='PCUR'" class="fa fa-flask"/>
-                            <span v-else="" class="fa fa-book"/>
+                        <td v-bind:rowspan="item.curso.tipoCurso === 'TEOPRA' ? 2 : 1"
+                            class="text-center v-middle">
+                            <span class="estado-blue">{{item.creditos}}</span>
                         </td>
                         <td class="text-center v-middle">
-                            <span v-text="item.detalle[0].codigo"/>
+                            <div v-for="(matSecc,idx) in item.matriculaSeccion" v-if="idx==0">
+                                <span v-if="matSecc.seccion.tipoSeccion==='PCUR'" class="fa fa-flask"/>
+                                <span v-else-if="matSecc.seccion.tipoSeccion==='PRA'" class="fa fa-flask"/>
+                                <span v-else="" class="fa fa-book"/>
+                            </div>
                         </td>
                         <td class="text-center v-middle">
-                            <span v-text="item.detalle[0].grupo"/>
+                            <div v-for="(matSecc,idx) in item.matriculaSeccion" v-if="idx==0">
+                                <span v-text="matSecc.seccion.codigo2"/>
+                            </div>
                         </td>
                         <td class="text-center v-middle">
-                            <span v-text="item.detalle[0].aula"/>
+                            <div v-for="(matSecc,idx) in item.matriculaSeccion" v-if="idx==0">
+                                <span v-text="matSecc.seccion.grupoHoras.codigo"/>
+                            </div>
+                        </td>
+                        <td class="text-center v-middle">
+                            <div v-for="(matSecc,idx) in item.matriculaSeccion" v-if="idx==0">
+                                <span v-text="matSecc.seccion.aula.codigo"/>
+                            </div>
                         </td>
                         <td class="v-middle">
-                            <span v-if="item.detalle[0].docenteCodigo !== 'N.N.'" v-text="item.detalle[0].docenteCodigo + ' - '+ item.detalle[0].docente"/>
-                            <span v-else="" v-text="item.detalle[0].docenteCodigo + ' - Desconocido'"/>
+                            <div v-for="(matSecc,idx) in item.matriculaSeccion" v-if="idx==0">
+                                <div v-for="(docSecc,ind) in matSecc.seccion.docenteSeccion" class="block">
+                                    <span v-if="docSecc.docente.codigo !== 'N.N.'" 
+                                          v-text="docSecc.docente.codigo + ' - '+ docSecc.docente.persona.nombreCompleto"/>
+                                    <span v-else="" v-text="docSecc.docente.codigo + ' - Desconocido'"/>
+                                </div>
+                            </div>
                         </td>
+
                         <td v-bind:rowspan="item.curso.tipoCurso === 'TEOPRA' ? 2 : 1" class="v-middle text-center">
                             <span v-bind:class="colornota(item.notaFinal)" v-text="item.notaFinal"/>
                         </td>
+
                         <td v-bind:rowspan="item.curso.tipoCurso === 'TEOPRA' ? 2 : 1" class="v-middle text-center">
-                            <span class="label" v-bind:class="labelclass(item)" v-text="labeltext(item)"></span>
+                            <span class="label" v-bind:class="labelclass(item)" v-text="item.estadoEnum.value"></span>
                         </td>
                     </tr>
                     <tr v-if="item.curso.tipoCurso === 'TEOPRA'">
                         <td class="text-center v-middle">
-                            <span v-if="item.detalle[1].tipo==='PCUR'" class="fa fa-flask"/>
-                            <span v-else="" class="fa fa-book"/>
+                            <div v-for="(matSecc,idx) in item.matriculaSeccion" v-if="idx==1">
+                                <span v-if="matSecc.seccion.tipoSeccion === 'PCUR' " class="fa fa-flask"/>
+                                <span v-else-if="matSecc.seccion.tipoSeccion === 'PRA' " class="fa fa-flask"/>
+                                <span v-else="" class="fa fa-book"/>
+                            </div>
                         </td>
                         <td class="text-center v-middle">
-                            <span v-text="item.detalle[1].codigo"/>
+                            <div v-for="(matSecc,idx) in item.matriculaSeccion" v-if="idx==1">
+                                <span v-text="matSecc.seccion.codigo2"/>
+                            </div>
                         </td>
                         <td class="text-center v-middle">
-                            <span v-text="item.detalle[1].grupo"/>
+                            <div v-for="(matSecc,idx) in item.matriculaSeccion" v-if="idx==1">
+                                <span v-text="matSecc.seccion.grupoHoras.codigo"/>
+                            </div>
                         </td>
                         <td class="text-center v-middle">
-                            <span v-text="item.detalle[1].aula"/>
+                            <div v-for="(matSecc,idx) in item.matriculaSeccion" v-if="idx==1">
+                                <span v-text="matSecc.seccion.aula.codigo"/>
+                            </div>
                         </td>
                         <td class="v-middle">
-                            <span v-if="item.detalle[1].docenteCodigo !== 'N.N.'" v-text="item.detalle[1].docenteCodigo + ' - '+ item.detalle[1].docente"/>
-                            <span v-else="" v-text="item.detalle[1].docenteCodigo + ' - Desconocido'"/>
+                            <div v-for="(matSecc,idx) in item.matriculaSeccion" v-if="idx==1">
+                                <div v-for="(docSecc,ind) in matSecc.seccion.docenteSeccion" class="block">
+                                    <span v-if="docSecc.docente.codigo !== 'N.N.'" 
+                                          v-text="docSecc.docente.codigo + ' - '+ docSecc.docente.persona.nombreCompleto"/>
+                                    <span v-else="" v-text="docSecc.docente.codigo + ' - Desconocido'"/>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 </tbody>

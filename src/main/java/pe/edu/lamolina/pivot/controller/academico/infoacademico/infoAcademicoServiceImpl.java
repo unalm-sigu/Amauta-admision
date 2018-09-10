@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -24,6 +28,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
@@ -32,9 +37,11 @@ import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
-import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
-import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
@@ -48,6 +55,7 @@ import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
@@ -101,52 +109,54 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
     @Autowired
     AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
 
+    @Autowired
+    MatriculaResumenDAO matriculaResumenDAO;
+
     @Override
-    public ObjectNode allAlumnosByCiclo(Alumno alumno, Long numeroCiclo) {
-        ArrayNode lstCiclos = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode lstCursos = new ArrayNode(JsonNodeFactory.instance);
-        ObjectNode objNodeCursos = new ObjectNode(JsonNodeFactory.instance);
+    public ObjectNode allAvanaceCurricular(Alumno alumno) {
+        ArrayNode ciclosJson = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode cursosJson = new ArrayNode(JsonNodeFactory.instance);
+        ObjectNode avanceCurrJson = new ObjectNode(JsonNodeFactory.instance);
         alumno = alumnoDAO.findAllInfo(alumno.getId());
 
-        if (alumno.getPlanCurricular() != null) {
-            List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularNroCiclo(alumno.getPlanCurricular(), numeroCiclo.intValue());
-            List<AlumnoCursoCurricula> lst = alumnoCursoCurriculaDAO.allByAlumnoCursosCurricula(alumno, cursoCurriculas);
-            if (numeroCiclo == 1l) {
-                List<AlumnoCursoCurricula> ciclosAlumno = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno);
-
-                Map<Integer, Long> counters = ciclosAlumno.stream()
-                        .collect(Collectors.groupingBy(c -> c.getNumeroCiclo(),
-                                Collectors.counting()));
-
-                for (Map.Entry<Integer, Long> entry : counters.entrySet()) {
-                    ObjectNode objCiclo = new ObjectNode(JsonNodeFactory.instance);
-                    objCiclo.put("numeroRoman", NumberFormat.roman(entry.getKey()));
-                    objCiclo.put("cantidad", "(" + entry.getValue() + ")");
-                    objCiclo.put("numero", entry.getKey());
-                    lstCiclos.add(objCiclo);
-                }
-
-                objNodeCursos.put("ciclos", lstCiclos);
-            }
-
-            for (AlumnoCursoCurricula alumnoCursoCurricula : lst) {
-                ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-                objNode.put("numeroCiclo", alumnoCursoCurricula.getNumeroCiclo());
-                objNode.put("estado", CursoCurriculaEstadoEnum.getNombreAndName(alumnoCursoCurricula.getEstado()));
-                objNode.put("codigo", alumnoCursoCurricula.getCurso().getCodigo());
-                objNode.put("codigoAnterior", alumnoCursoCurricula.getCurso().getCodigoAnterior1());
-                objNode.put("tipoCurso", alumnoCursoCurricula.getCurso() == null ? "" : TipoCursoCurriculaEnum.getNombre(alumnoCursoCurricula.getCursoCurricula().getTipoCursoCurricula().getNombre()));
-                objNode.put("vecesCursado", alumnoCursoCurricula.getVecesCursado().toString().equals("0") ? "" : alumnoCursoCurricula.getVecesCursado().toString());
-                objNode.put("nombre", alumnoCursoCurricula.getCurso().getNombre());
-                objNode.put("nota", alumnoCursoCurricula.getNota());
-                objNode.put("creditos", alumnoCursoCurricula.getCreditos());
-                objNode.put("descripcion", alumnoCursoCurricula.getCicloAprobado() == null ? "" : alumnoCursoCurricula.getCicloAprobado().getDescripcion());
-                lstCursos.add(objNode);
-            }
+        if (alumno.getPlanCurricular() == null) {
+            avanceCurrJson.set("cursos", cursosJson);
+            return avanceCurrJson;
         }
-        objNodeCursos.put("cursos", lstCursos);
 
-        return objNodeCursos;
+        List<CursoCurricula> cursosCicloPlan = cursoCurriculaDAO.allByPlanCurricular(alumno.getPlanCurricular());
+        List<AlumnoCursoCurricula> cursosPlanAlumno = alumnoCursoCurriculaDAO.allByAlumnoCursosCurricula(alumno, cursosCicloPlan);
+        List<AlumnoCursoCurricula> ciclosAlumno = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno);
+
+        Map<Integer, Long> counters = ciclosAlumno.stream()
+                .collect(Collectors.groupingBy(c -> c.getNumeroCiclo(),
+                        Collectors.counting()));
+
+        for (Map.Entry<Integer, Long> entry : counters.entrySet()) {
+            ObjectNode objCiclo = new ObjectNode(JsonNodeFactory.instance);
+            objCiclo.put("numeroRoman", NumberFormat.roman(entry.getKey()));
+            objCiclo.put("cantidad", "(" + entry.getValue() + ")");
+            objCiclo.put("numero", entry.getKey());
+            ciclosJson.add(objCiclo);
+        }
+
+        avanceCurrJson.set("ciclos", ciclosJson);
+
+        for (AlumnoCursoCurricula alumnoCursoCurricula : cursosPlanAlumno) {
+            ObjectNode objNode = JsonHelper.createJson(alumnoCursoCurricula, JsonNodeFactory.instance, true, new String[]{
+                "numeroCiclo", "estado", "estadoEnum", "vecesCursado", "nota", "creditos",
+                "curso.codigo",
+                "curso.codigoAnterior1",
+                "curso.nombre",
+                "curso.tpc",
+                "cursoCurricula.tipoCursoCurricula.nombre",
+                "cicloAprobado.descripcion"
+            });
+            cursosJson.add(objNode);
+        }
+
+        avanceCurrJson.set("cursos", cursosJson);
+        return avanceCurrJson;
     }
 
     @Override
@@ -156,7 +166,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
         Map<Long, Seccion> mapSecciones = new LinkedHashMap();
         Map<Long, List<MatriculaSeccion>> mapMatriculaSecciones = new LinkedHashMap();
 
-        List<MatriculaSeccion> matriculaSecciones = matriculaSeccionDAO.allByAlumnoCiclo(alumno, cicloAca);
+        List<MatriculaSeccion> matriculaSecciones = matriculaSeccionDAO.allMatriculadosByAlumnoCiclo(alumno, cicloAca);
         for (MatriculaSeccion ms : matriculaSecciones) {
             Seccion seccion = ms.getSeccion();
             seccion.setDocenteSeccion(new ArrayList());
@@ -172,7 +182,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
             matriculaSeccionesCurso.add(ms);
         }
 
-        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allBySecciones(secciones);
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allActivosBySecciones(secciones);
         for (DocenteSeccion profeSeccion : docentesSecciones) {
             Seccion seccionProfe = profeSeccion.getSeccion();
             Seccion seccion = mapSecciones.get(seccionProfe.getId());
@@ -180,46 +190,34 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
             seccion.getDocenteSeccion().add(profeSeccion);
         }
 
-        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByAlumnoCiclo(alumno, cicloAca);
-
-        ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-        ObjectNode objNodeSeccion = new ObjectNode(JsonNodeFactory.instance);
-        ArrayNode lstNode = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode lstNodeDocente = new ArrayNode(JsonNodeFactory.instance);
-        Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("matriculaResumen.id", "matriculaResumen", matriculaCursos);
-
-        for (Map.Entry<Long, MatriculaResumen> entry : mapMatriculaResumen.entrySet()) {
-            objNode.put("cursosMatriculado", entry.getValue().getCursosMatriculados());
-            objNode.put("creditosMatriculado", entry.getValue().getCreditosMatriculados());
-
-        }
+        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allMatriculadosByAlumnoCiclo(alumno, cicloAca);
         for (MatriculaCurso mc : matriculaCursos) {
             Curso curso = mc.getCurso();
             mc.setMatriculaSeccion(mapMatriculaSecciones.get(curso.getId()));
         }
 
+        MatriculaResumen matResum = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAca);
+        matResum = (matResum == null) ? new MatriculaResumen() : matResum;
+        ObjectNode matResumJson = JsonHelper.createJson(matResum, JsonNodeFactory.instance, true, new String[]{"*"});
+
+        ArrayNode matCursosJson = new ArrayNode(JsonNodeFactory.instance);
         for (MatriculaCurso matriculaCurso : matriculaCursos) {
-            ObjectNode objNodeCursos = new ObjectNode(JsonNodeFactory.instance);
-            objNodeCursos.put("curso", matriculaCurso.getCurso().getNombre());
-            objNodeCursos.put("codigoCurso", matriculaCurso.getCurso().getCodigo());
-            objNodeCursos.put("creditos", matriculaCurso.getCreditos());
-            objNodeCursos.put("estado", EstadoMatriculaEnum.getNombreAndName(matriculaCurso.getEstado()));
-            objNodeCursos.put("notaFinal", matriculaCurso.getNotaFinal());
-            objNodeCursos.put("notaAvance", matriculaCurso.getNotaAvance());
-            lstNodeDocente = new ArrayNode(JsonNodeFactory.instance);
-            for (MatriculaSeccion obj : matriculaCurso.getMatriculaSeccion()) {
-                for (DocenteSeccion docenteSeccion : obj.getSeccion().getDocenteSeccion()) {
-                    ObjectNode objNodeDocente = new ObjectNode(JsonNodeFactory.instance);
-                    objNodeDocente.put("codigo", obj.getSeccion().getCodigo2());
-                    objNodeDocente.put("nombreDocente", docenteSeccion.getDocente().getPersona().getNombreCompleto());
-                    lstNodeDocente.add(objNodeDocente);
-                }
-            }
-            objNodeCursos.set("docentes", lstNodeDocente);
-            lstNode.add(objNodeCursos);
+            ObjectNode matCurJson = JsonHelper.createJson(matriculaCurso, JsonNodeFactory.instance, true, new String[]{
+                "creditos", "estado", "estadoEnum", "notaFinal", "notaAvance",
+                "curso.codigo",
+                "curso.nombre",
+                "curso.tpc",
+                "curso.creditos",
+                "matriculaSeccion.seccion.codigo2",
+                "matriculaSeccion.seccion.aula.codigo",
+                "matriculaSeccion.seccion.grupoHoras.codigo",
+                "matriculaSeccion.seccion.docenteSeccion.docente.codigo",
+                "matriculaSeccion.seccion.docenteSeccion.docente.persona.nombreCompleto",});
+            matCursosJson.add(matCurJson);
         }
-        objNode.set("cursosMatriculados", lstNode);
-        return objNode;
+
+        matResumJson.set("matriculaSeccion", matCursosJson);
+        return matResumJson;
 
     }
 
@@ -241,7 +239,8 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
         Map<Long, Seccion> mapSecciones = new LinkedHashMap();
         Map<Long, List<MatriculaSeccion>> mapMatriculaSecciones = new LinkedHashMap();
 
-        List<MatriculaSeccion> matriculaSecciones = matriculaSeccionDAO.allByAlumnoCiclo(alumno, ciclo);
+        List<String> estadosMat = Arrays.asList(MAT.name(), PMAT.name(), RET.name(), RCU.name(), RCI.name());
+        List<MatriculaSeccion> matriculaSecciones = depurarMatriculaSecciones(matriculaSeccionDAO.allByAlumnoCicloEstados(alumno, ciclo, estadosMat));
         for (MatriculaSeccion ms : matriculaSecciones) {
             Seccion seccion = ms.getSeccion();
             seccion.setDocenteSeccion(new ArrayList());
@@ -257,7 +256,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
             matriculaSeccionesCurso.add(ms);
         }
 
-        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allBySecciones(secciones);
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allActivosBySecciones(secciones);
         for (DocenteSeccion profeSeccion : docentesSecciones) {
             if (!profeSeccion.esDocentePrincipal()) {
                 continue;
@@ -278,6 +277,72 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
 
     }
 
+    private List<MatriculaSeccion> depurarMatriculaSecciones(List<MatriculaSeccion> matriSecciones) {
+        List<MatriculaSeccion> depurados = new ArrayList();
+
+        Map<Long, List<MatriculaSeccion>> mapMatriSecc = TypesUtil.convertListToMapList("seccion.grupoSeccion.curso.id", matriSecciones);
+        for (Map.Entry<Long, List<MatriculaSeccion>> entry : mapMatriSecc.entrySet()) {
+            List<MatriculaSeccion> depuradosCurso = new ArrayList();
+            List<MatriculaSeccion> matriSeccCurso = entry.getValue();
+            for (MatriculaSeccion matSecc : matriSeccCurso) {
+                if (matSecc.getEstadoEnum() == MAT) {
+                    depuradosCurso.add(matSecc);
+                }
+            }
+            if (!depuradosCurso.isEmpty()) {
+                depurados.addAll(depuradosCurso);
+                continue;
+            }
+            for (MatriculaSeccion matSecc : matriSeccCurso) {
+                if (matSecc.getEstadoEnum() == PMAT) {
+                    depuradosCurso.add(matSecc);
+                }
+            }
+            if (!depuradosCurso.isEmpty()) {
+                depurados.addAll(depuradosCurso);
+                continue;
+            }
+            for (MatriculaSeccion matSecc : matriSeccCurso) {
+                if (matSecc.getEstadoEnum() == RCI) {
+                    depuradosCurso.add(matSecc);
+                }
+            }
+            if (!depuradosCurso.isEmpty()) {
+                depurados.addAll(depuradosCurso);
+                continue;
+            }
+            for (MatriculaSeccion matSecc : matriSeccCurso) {
+                if (matSecc.getEstadoEnum() == RCU) {
+                    depuradosCurso.add(matSecc);
+                }
+            }
+            if (!depuradosCurso.isEmpty()) {
+                depurados.addAll(depuradosCurso);
+                continue;
+            }
+
+            Collections.sort(matriSeccCurso, new MatriculaSeccion.CompareReverseId());
+            GrupoSeccion gpoSecc = null;
+            for (MatriculaSeccion matSecc : matriSeccCurso) {
+                if (matSecc.getEstadoEnum() == RET) {
+                    gpoSecc = matSecc.getSeccion().getGrupoSeccion();
+                    break;
+                }
+            }
+            for (MatriculaSeccion matSecc : matriSeccCurso) {
+                GrupoSeccion gpoSeccBD = matSecc.getSeccion().getGrupoSeccion();
+                if (matSecc.getEstadoEnum() == RET && gpoSecc.getId().longValue() == gpoSeccBD.getId()) {
+                    depuradosCurso.add(matSecc);
+                    if (depuradosCurso.size() > 1) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return depurados;
+    }
+
     @Override
     public List<PlanCurricular> allPlanCurricularByCarrera(Carrera carrera) {
         return planCurricularDAO.allActivoByCarrera(carrera);
@@ -285,11 +350,19 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
 
     @Override
     @Transactional
-    public void cambiarPlan(Alumno alumno, PlanCurricular planCurricular) {
-        Alumno alumnoBD = alumnoDAO.find(alumno.getId());
+    public void cambiarPlan(Alumno alumno, PlanCurricular planCurricular, DataSessionPivot ds) {
+        Alumno alumnoBD = alumnoDAO.find(alumno);
         PlanCurricular planCurricularBD = planCurricularDAO.find(planCurricular.getId());
+        Assert.isTrue(planCurricularBD != null, "No existe el plan curricular indicado");
+
+        Carrera carreraAlu = alumnoBD.getCarrera();
+        Carrera carreraPlan = planCurricularBD.getCarrera();
+        Assert.isTrue(carreraAlu.getId().longValue() == carreraPlan.getId(), "El cambio de plan no corresponde a la misma especialidad del alumno");
+
         alumnoBD.setPlanCurricular(planCurricularBD);
         alumnoDAO.update(alumnoBD);
+
+        avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
     }
 
     @Override
@@ -335,7 +408,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
         Map<Long, List<AporteAlumnoCiclo>> mapCtaAportes = TypesUtil.convertListToMapList("aporteCiclo.cuentaBancaria.id", aportesAlumno);
         Map<Long, CuentaBancaria> mapCtaBanco = TypesUtil.convertListToMap("aporteCiclo.cuentaBancaria.id", "aporteCiclo.cuentaBancaria", aportesAlumno);
         List<CuentaBancaria> ctas = new ArrayList(mapCtaBanco.values());
-        
+
         for (CuentaBancaria cta : ctas) {
             BigDecimal montoTotal = BigDecimal.ZERO;
 
@@ -365,6 +438,17 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
 
         return cicloModalidad;
 
+    }
+
+    @Override
+    public MatriculaResumen findResumenMatricula(Alumno alumno, CicloAcademico ciclo) {
+        MatriculaResumen matResum = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
+        if (matResum == null) {
+            matResum = new MatriculaResumen();
+            matResum.setCreditosMatriculados(0);
+            matResum.setCursosMatriculados(0);
+        }
+        return matResum;
     }
 
 }
