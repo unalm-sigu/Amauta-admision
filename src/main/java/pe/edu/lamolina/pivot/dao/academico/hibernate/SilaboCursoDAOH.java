@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -26,6 +27,15 @@ public class SilaboCursoDAOH extends AbstractEasyDAO<SilaboCurso> implements Sil
                 .searchFields("cu.nombre", "cu.codigo", "fa.nombre")
                 .orderBy("sc.id");
         sql.beginRelativeFilters();
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<SilaboCurso> allParents() {
+        Octavia sql = Octavia.query(SilaboCurso.class, "sc")
+                .join("cicloVigenciaInicio", "curso")
+                .leftJoin("cicloVigenciaFin cvf", "planCalificacion pc");
+
         return sql.all(getCurrentSession());
     }
 

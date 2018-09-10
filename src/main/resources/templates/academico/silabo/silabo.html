@@ -37,9 +37,9 @@
                                         <thead>
                                             <tr>
                                                 <th class="col-md-4 v-middle">Curso</th>
-                                                <th class="col-md-2 text-center v-middle"></th>
-                                                <th class="col-md-1 text-center v-middle">Silabo</th>
-                                                <th class="col-md-2 text-center v-middle">Archivo</th>
+                                                <th class="col-md-3 text-center v-middle"></th>
+                                                <th class="col-md-2 text-center v-middle">Silabo</th>
+                                                <th class="col-md-1 text-center v-middle">Archivo</th>
                                                 <th class="col-md-1 text-center v-middle">Estado</th>
                                                 <th></th>
                                             </tr>
@@ -47,35 +47,47 @@
                                         <tbody>
                                             <tr v-for="item in props.data">
                                                 <td class="v-middle">
-
-
+                                                    <span class="block">{{item.curso.nombre}}</span>
+                                                    <span class="block">{{item.curso.codigo}}</span>
                                                 </td>
                                                 <td class="v-middle">
-
-
+                                                    <span class="block">Departamento: {{item.curso.departamentoAcademico.nombre}}</span>
+                                                    <span class="block">Facultad: {{item.curso.departamentoAcademico.facultad.nombre}}</span>
+                                                    <span class="block">Modalidad: {{item.curso.modalidadEstudio.nombre}}</span>
                                                 </td>
-                                                <td class="v-middle">
-
-
+                                                <td class="v-middle text-center">
+                                                    <span class="block">Ciclo Inicio: {{item.cicloVigenciaInicio.descripcion}}</span>
+                                                    <span class="block" v-if="item.cicloVigenciaFin.id != ''">Ciclo Fin: {{item.cicloVigenciaFin.descripcion}}</span>
                                                 </td>
-                                                <td class="v-middle">
 
-
+                                                <td class="v-middle text-center">
+                                                    <a v-bind:href="item.rutaDocumento" class="pointer btn btn-link"><i class="fa fa-file-pdf-o fa-lg"></i></a>
                                                 </td>
 
                                                 <td class="v-middle text-center">
 
                                                     <span v-if="item.estado=='ACT'" class="label pointer label-success" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
-                                                    <span v-if="item.estado=='ANU'" class="label pointer label-default" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
-                                                    <span v-if="item.estado=='CER'" class="label pointer label-primary" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+                                                    <span v-if="item.estado=='PEND'" class="label pointer label-warning" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+                                                    <span v-if="item.estado=='VEN'" class="label pointer label-info" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+                                                    <span v-if="item.estado=='RCHZ'" class="label pointer label-danger" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+                                                    <span v-if="item.estado=='CRE'" class="label pointer label-default" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+                                                    <span v-if="item.estado=='REV'" class="label pointer label-warning" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+                                                    <span v-if="item.estado=='ERROREV'" class="label pointer label-danger" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
 
                                                 </td>
 
                                                 <td class="v-middle">
                                                     <div class="actions">
-                                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog" aria-hidden="true"></i></a>
-                                                        <ul class="dropdown-menu pull-right">
-                                                            <li v-if="item.estado=='ACT' "><a  v-on:click.prevent="estado(item)" href="#">Desactivar</a></li>
+                                                        <a class="dropdown-toggle pointer" data-toggle="dropdown"><i class="fa fa-cog" aria-hidden="true"></i></a>
+                                                        <ul class="dropdown-menu pull-right" v-if="item.estado != 'VEN'">
+                                                            <li><a v-if="item.estado == 'RCHZ' || item.estado == 'ERROREV' || item.estado == 'CRE' || item.estado == 'ACT'" class="pointer" v-on:click.prevent="editar(item)">Editar</a></li>
+                                                            <li><a v-if="item.estado == 'PEND'" class="pointer" v-on:click.prevent="revision(item, 'ACT')">Aprobar</a></li>
+                                                            <li><a v-if="item.estado == 'REV'" class="pointer" v-on:click.prevent="revision(item, 'VEN')">Aprobar Cierre</a></li>
+                                                            <li><a v-if="item.estado == 'REV'" class="pointer" v-on:click.prevent="revision(item, 'ERROREV')">Rechazar Cierre</a></li>
+                                                            <li><a v-if="item.estado == 'PEND'" class="pointer" v-on:click.prevent="revision(item, 'RCHZ')">Rechazar</a></li>
+                                                            <li><a v-if="item.estado == 'ACT' || item.estado == 'ERROREV'" class="pointer" v-on:click.prevent="revision(item, 'REV')">Solicitar Cierre</a></li>
+                                                            <li><a v-if="item.estado == 'RCHZ' || item.estado == 'CRE'" class="pointer" v-on:click.prevent="revision(item, 'PEND')">Solicitar Aprobación</a></li>
+                                                            <li><a v-if="item.estado == 'CRE' || item.estado == 'RCHZ' " class="pointer"  v-on:click.prevent="eliminar(item)">Eliminar</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -99,6 +111,7 @@
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
             <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/academico/silabo/silabo.js}" charset="utf-8"></script>

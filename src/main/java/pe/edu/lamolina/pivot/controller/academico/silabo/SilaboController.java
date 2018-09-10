@@ -17,12 +17,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.SilaboCurso;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -83,7 +87,24 @@ public class SilaboController {
 
                 ObjectNode node = JsonHelper.createJson(silabo, JsonNodeFactory.instance, true,
                         new String[]{
-                            "*"
+                            "*",
+                            "curso.id",
+                            "curso.codigo",
+                            "curso.nombre",
+                            "curso.departamentoAcademico.id",
+                            "curso.departamentoAcademico.nombre",
+                            "curso.departamentoAcademico.codigo",
+                            "curso.departamentoAcademico.nombreLargo",
+                            "curso.departamentoAcademico.facultad.nombre",
+                            "curso.departamentoAcademico.facultad.codigo",
+                            "cicloVigenciaInicio.id",
+                            "cicloVigenciaInicio.descripcion",
+                            "cicloVigenciaInicio.descripcion2",
+                            "cicloVigenciaFin.id",
+                            "cicloVigenciaFin.descripcion",
+                            "cicloVigenciaFin.descripcion2",
+                            "curso.modalidadEstudio.id",
+                            "curso.modalidadEstudio.nombre"
                         });
 
                 array.add(node);
@@ -100,4 +121,71 @@ public class SilaboController {
         return json;
     }
 
+    @ResponseBody
+    @RequestMapping("save")
+    public JsonResponse save(@RequestBody SilaboCurso silabo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            silabo.setUserRegistro(ds.getUsuario());
+            if (silabo.getId() == null) {
+                response.setMessage("Silabo agregado satisfactoriamente");
+            } else {
+                response.setMessage("Silabo actualizado satisfactoriamente");
+            }
+            service.save(silabo);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("delete")
+    public JsonResponse delete(@RequestBody SilaboCurso silabo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.delete(silabo);
+            response.setMessage("Silabo eliminado correctamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("revision")
+    public JsonResponse revision(@RequestBody SilaboCurso silabo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.revision(silabo, response);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
 }

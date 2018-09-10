@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Ubicacion;
@@ -46,5 +47,11 @@ public interface BuscarService {
     List<Curso> allCurso(String codigo, CicloAcademico ciclo);
 
     List<Seccion> allSeccionByCodigo(String codigo, CicloAcademico ciclo);
+
+    List<CicloAcademico> allCicloByDescripcion(String nombre);
+
+    List<PlanCalificacion> allPlanCalificacionByDescripcion(String nombre);
+
+    List<Curso> allCursoByModalidadEstudioNombre(String nombre, ModalidadEstudioEnum moda);
 
 }

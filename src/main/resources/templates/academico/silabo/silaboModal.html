@@ -9,17 +9,97 @@
             <h4>Agregar nuevo Silabo</h4>
         </div>
 
-        <div class="row">
+        <div class="row" data-parsley-validate="true" id="form">
             <div class="col-md-12">
-                <div class="panel-body">
+                <label>Curso</label>
+                <div class="form-group">
+                    <multiselect v-model="silaboCurso.curso"
+                                 track-by="id"
+                                 v-bind:internal-search="false"
+                                 v-bind:limit="15"
+                                 v-on:search-change="findCurso"
+                                 v-bind:allow-empty="false"
+                                 v-bind:options="cursos"
+                                 v-bind:disabled="silaboCurso.estado == 'ACT' || silaboCurso.estado == 'ERROREV'"
+                                 label="nombre"
+                                 >
+                    </multiselect>   
+                    <input class="hide" v-model="silaboCurso.curso" required="true" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label>Ciclo Inicio</label>
+                <div class="form-group">
+                    <multiselect v-model="silaboCurso.cicloVigenciaInicio"
+                                 track-by="id"
+                                 v-bind:internal-search="false"
+                                 v-bind:limit="15"
+                                 v-on:search-change="findCiclo"
+                                 v-bind:options="ciclos"
+                                 v-bind:allow-empty="false"
+                                 v-bind:disabled="silaboCurso.estado == 'ACT' || silaboCurso.estado == 'ERROREV'"
+                                 label="descripcion"
+                                 >
+                    </multiselect> 
+                    <input class="hide" v-model="silaboCurso.cicloVigenciaInicio" required="true" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label>Ciclo Fin</label>
+                <div class="form-group">
+                    <multiselect v-model="silaboCurso.cicloVigenciaFin"
+                                 track-by="id"
+                                 v-bind:internal-search="false"
+                                 v-bind:limit="15"
+                                 v-on:search-change="findCiclo"
+                                 v-bind:options="ciclos"
+                                 label="descripcion"
+                                 >
+                    </multiselect> 
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label>Archivo</label>
+                <div class="form-group">
+                    <a v-if="silaboCurso.id != '' &amp;&amp; silaboCurso.id != null &amp;&amp; silaboCurso.fileUpdated == ''"
+                       v-bind:href="silaboCurso.rutaDocumento" class="btn btn-link"><i class="fa fa-file-pdf-o fa-lg"></i> Descargar</a>
+                       <a v-if="silaboCurso.fileUpdated != '' &amp;&amp; silaboCurso.fileUpdated != null"
+                       v-bind:href="'/comun/archivo/downloadTemp/' + silaboCurso.rutaDocumento" class="btn btn-link"><i class="fa fa-file-pdf-o fa-lg"></i> Descargar</a>
 
-                    <div class="form-group">
-                        <label>Curso</label>
-                        <input type="text"
-                               class="form-control input-sm"
-                               v-model="silaboCurso.curso"
-                               required="true"/>
-                    </div>
+                    <file-upload
+                        v-if="silaboCurso.estado != 'ACT' &amp;&amp; silaboCurso.estado != 'ERROREV'"
+                        extensions="pdf"
+                        accept="application/pdf"
+                        class="pull-right"
+                        post-action="/comun/archivo/uploadFile"
+                        v-model="files"
+                        v-bind:multiple="false"
+                        v-on:input-filter="inputFilter"
+                        v-on:input-file="inputFile"
+                        required="true"
+                        ref="upload">
+                        <span class="btn btn-primary pull-right m-b-md"
+                              v-if="!$refs.upload || !$refs.upload.active"
+                              v-on:click="$refs.upload.active = true">
+                            <i class="fa fa-cloud-upload"></i> &nbsp;Subir Archivo
+                        </span>
+                    </file-upload>
+                    <input class="hide" v-model="silaboCurso.rutaDocumento" required="true" />
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label>Plan Calificación</label>
+                <div class="form-group">
+                    <multiselect v-model="silaboCurso.planCalificacion"
+                                 track-by="id"
+                                 v-bind:internal-search="false"
+                                 v-bind:limit="15"
+                                 v-on:search-change="findPlanCalifica"
+                                 v-bind:options="planes"
+                                 v-bind:disabled="silaboCurso.estado == 'ACT' || silaboCurso.estado == 'ERROREV'"
+                                 label="codigo"
+                                 >
+                    </multiselect> 
                 </div>
             </div>
         </div>
