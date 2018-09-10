@@ -126,6 +126,11 @@ public class SilaboServiceImp implements SilaboService {
         SilaboCursoEstadoEnum sEnum = SilaboCursoEstadoEnum.valueOf(silabo.getEstado());
         response.setMessage("El silabo ha cambiado su estado a " + sEnum.getValue());
         silaboDB.setEstadoEnum(silabo.getEstadoEnum());
+
+        if (silaboDB.getCicloVigenciaFin() != null && silabo.getEstadoEnum() == SilaboCursoEstadoEnum.ACT) {
+            response.setMessage("El silabo ha cambiado su estado a " + SilaboCursoEstadoEnum.VEN.getValue());
+            silaboDB.setEstadoEnum(SilaboCursoEstadoEnum.VEN);
+        }
         silaboCursoDAO.update(silaboDB);
 
     }
