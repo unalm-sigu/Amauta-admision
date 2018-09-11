@@ -34,7 +34,7 @@ Vue.component("malla-component", {
                 return;
             var id = this.alumno.planCurricular.id;
             $.ajax({
-                url: APP.url('academico/planCurricular/dataCurricula'),
+                url: APP.url('academico/alumno/dataCurricula'),
                 type: 'POST',
                 async: true,
                 data: {id: id},

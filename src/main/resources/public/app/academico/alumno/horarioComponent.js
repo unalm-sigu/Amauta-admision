@@ -73,7 +73,7 @@ Vue.component("horario-component", {
             if (seccion.horasContinuas == 1) {
                 return  "curso size-1 " + classDiv;
             } else {
-                return "curso size-1-n-horas " + classDiv;
+                return "curso size-" + seccion.horasContinuas + "-horas " + classDiv;
             }
         },
         settingHoras() {
@@ -103,8 +103,9 @@ Vue.component("horario-component", {
             var posicionMayor = horasTotal.indexOf(horaMax);
             //eliminando las horas despues del mayor
             for (var i = horasTotal.length - 1; i >= 0; i--) {
-                if (horasTotal[i] > posicionMayor)
+                if (horasTotal[i] > posicionMayor) {
                     horasTotal.splice(horasTotal[i], 1);
+                }
             }
 
             //obtener index
@@ -115,13 +116,13 @@ Vue.component("horario-component", {
             let horasRestante = [];
             //eliminando horas entre los rangos de horas minimo y maximo
             for (var i = horasTotal.length - 1; i >= 0; i--) {
-                if (indexs[i] > -1)
+                if (indexs[i] > -1) {
                     horasTotal.splice(indexs[i], 1);
+                }
             }
 
             horasRestante = horasTotal;
             if (cantHoras <= 4) {
-
                 let horasLlenar = 4 - cantHoras;
                 if (horasLlenar == 1) {
                     vue.llenarSeccion(vue, 1, horasRestante);
@@ -147,7 +148,7 @@ Vue.component("horario-component", {
                 }
                 vue.tabla8 = true;
             }
-            if (cantHoras >= 9 && cantHoras <= 15) {
+            if (cantHoras >= 9) {
                 let horasLlenar = 15 - cantHoras;
                 if (horasLlenar == 1) {
                     vue.llenarSeccion(vue, 1, horasRestante);
@@ -221,10 +222,21 @@ Vue.component("horario-component", {
             });
         },
         getHeigth(seccion) {
+            return "";
             if (seccion.horasContinuas == 1) {
                 return "";
             }
-            return "height: " + (seccion.horasContinuas * 53) + "px;";
+
+            let sty = "min-height: calc(" + seccion.horasContinuas + "*100% - 4px); ";
+            sty += "max-height: calc(" + seccion.horasContinuas + "*100% - 4px); ";
+            return sty;
+
+//            let $vue = this;
+//            if ($vue.tabla14) {
+//                return "min-height: calc(200% - 4px); " + (seccion.horasContinuas * 28) + "px;";
+//            } else {
+//                return "min-height: " + (seccion.horasContinuas * 54) + "px;";
+//            }
         },
         verificarHora(dia) {
             let secciones = dia.secciones;

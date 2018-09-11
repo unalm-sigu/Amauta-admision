@@ -30,7 +30,8 @@
                                          v-bind:style="getHeigth(seccion)"
                                          v-bind:class="getColorBySeccion(seccion)">
                                         <i v-if="seccion.tipoSeccion==='TCUR' " class="fa fa-book fa-lg"></i>
-                                        <i v-if="seccion.tipoSeccion==='PCUR' " class="fa fa-flask fa-lg"></i>
+                                        <i v-else-if="seccion.tipoSeccion==='TEO' " class="fa fa-book fa-lg"></i>
+                                        <i v-else="" class="fa fa-flask fa-lg"></i>
                                         <p  class="data-curso text-primary">
                                             {{ seccion.grupoSeccion.curso.nombre}}
                                             <span v-if="seccion.docente != '' ">{{ seccion.docente }} </span>
@@ -70,7 +71,8 @@
                                          v-bind:style="getHeigth(seccion)"
                                          v-bind:class="getColorBySeccion(seccion)">
                                         <i v-if="seccion.tipoSeccion==='TCUR' " class="fa fa-book fa-lg"></i>
-                                        <i v-if="seccion.tipoSeccion==='PCUR' " class="fa fa-flask fa-lg"></i>
+                                        <i v-else-if="seccion.tipoSeccion==='TEO' " class="fa fa-book fa-lg"></i>
+                                        <i v-else="" class="fa fa-flask fa-lg"></i>
                                         <p  class="data-curso text-primary">
                                             {{ seccion.grupoSeccion.curso.nombre}}
                                             <span v-if="seccion.docente != '' ">{{ seccion.docente }} </span>
@@ -111,7 +113,8 @@
                                          v-bind:style="getHeigth(seccion)"
                                          v-bind:class="getColorBySeccion(seccion)">
                                         <i v-if="seccion.tipoSeccion==='TCUR' " class="fa fa-book fa-lg"></i>
-                                        <i v-if="seccion.tipoSeccion==='PCUR' " class="fa fa-flask fa-lg"></i>
+                                        <i v-else-if="seccion.tipoSeccion==='TEO' " class="fa fa-book fa-lg"></i>
+                                        <i v-else="" class="fa fa-flask fa-lg"></i>
                                         <p  class="data-curso text-primary">
                                             {{ seccion.grupoSeccion.curso.nombre}}
                                             <span v-if="seccion.docente != '' ">{{ seccion.docente }} </span>

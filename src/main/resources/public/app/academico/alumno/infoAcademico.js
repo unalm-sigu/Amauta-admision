@@ -1,3 +1,4 @@
+Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#infoAcademico',
     data: {

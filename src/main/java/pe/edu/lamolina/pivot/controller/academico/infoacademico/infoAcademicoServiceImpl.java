@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -33,6 +34,7 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
@@ -43,7 +45,9 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
@@ -57,9 +61,12 @@ import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.OrientacionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
+import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -111,6 +118,15 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
 
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+
+    @Autowired
+    OrientacionCarreraDAO orientacionCarreraDAO;
+
+    @Autowired
+    HorarioSeccionDAO horarioSeccionDAO;
+
+    @Autowired
+    DiaDAO diaDAO;
 
     @Override
     public ObjectNode allAvanaceCurricular(Alumno alumno) {
@@ -229,6 +245,9 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
     @Override
     public Alumno allInfo(Alumno alumno) {
         Alumno alu = alumnoDAO.findAllInfo(alumno.getId());
+        Carrera carrera = alu.getCarrera();
+        List<OrientacionCarrera> orientaciones = orientacionCarreraDAO.allByCarrera(carrera);
+        carrera.setOrientacionCarrera(orientaciones);
         return alu;
     }
 
@@ -449,6 +468,144 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
             matResum.setCursosMatriculados(0);
         }
         return matResum;
+    }
+
+    @Override
+    public List<HorarioSeccion> allSeccionHorarioAlumnoByAlumnoCicloACademico(Alumno alumno, CicloAcademico academico) {
+        List<MatriculaSeccion> matriculaSecciones = matriculaSeccionDAO.allByAlumnoCicloEstados(alumno, academico, Arrays.asList("MAT"));
+        if (matriculaSecciones.isEmpty()) {
+            return new ArrayList();
+        }
+
+        List<Seccion> secciones = new ArrayList();
+        for (MatriculaSeccion matriculaSeccion : matriculaSecciones) {
+            secciones.add(matriculaSeccion.getSeccion());
+
+        }
+        return horarioSeccionDAO.allBySecciones(secciones);
+    }
+
+    @Override
+    public ObjectNode findHorarioBySeccionesHorarios(List<HorarioSeccion> seccionesHorarios) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
+        Map<Long, List<HorarioSeccion>> mapHorarioSeccByIdHora = TypesUtil.convertListToMapList("hora.id", seccionesHorarios);
+        Map<Long, Hora> mapHoras = TypesUtil.convertListToMap("hora.id", "hora", seccionesHorarios);
+
+        List<Seccion> secciones = new ArrayList();
+        Map<String, List<HorarioSeccion>> mapSeccionDia = new LinkedHashMap();
+        for (HorarioSeccion seccionesHorario : seccionesHorarios) {
+            secciones.add(seccionesHorario.getSeccion());
+            Dia dia = seccionesHorario.getDia();
+            Seccion seccion = seccionesHorario.getSeccion();
+            String key = seccion.getId() + "-" + dia.getId();
+            List<HorarioSeccion> horariosSecc = mapSeccionDia.get(key);
+            if (horariosSecc == null) {
+                horariosSecc = new ArrayList();
+                mapSeccionDia.put(key, horariosSecc);
+            }
+            horariosSecc.add(seccionesHorario);
+        }
+
+        Map<String, Integer> mapSeccionHora = new LinkedHashMap();
+        for (Map.Entry<String, List<HorarioSeccion>> entry : mapSeccionDia.entrySet()) {
+            Integer nroHora = 1000;
+            List<HorarioSeccion> horariosSecc = entry.getValue();
+            for (HorarioSeccion horarioSecc : horariosSecc) {
+                Integer nroHoraSecc = horarioSecc.getHora().getNumero();
+                nroHora = (nroHora > nroHoraSecc) ? nroHoraSecc : nroHora;
+            }
+            mapSeccionHora.put(entry.getKey(), nroHora);
+        }
+
+        List<DocenteSeccion> profesSecciones = docenteSeccionDAO.allPrincipalesBySeccion(secciones);
+        Map<Long, DocenteSeccion> mapProfeSecc = TypesUtil.convertListToMap("seccion.id", profesSecciones);
+
+        List<Dia> dias = diaDAO.allDia();
+        List<Hora> horas = new ArrayList();
+        List<Hora> horasDB = horaDAO.all();
+        Integer horaMax = 0;
+        for (Hora hora : mapHoras.values()) {
+            horaMax = horaMax < hora.getNumero() ? hora.getNumero() : horaMax;
+            horas.add(hora);
+        }
+        if (!horas.isEmpty()) {
+            Map<Integer, Hora> mapHorasDB = TypesUtil.convertListToMap("numero", horasDB);
+            Hora horaDB = mapHorasDB.get(horaMax + 1);
+            if (horaDB != null) {
+                horas.add(horaDB);
+            }
+        }
+        horas = horas.isEmpty() ? horaDAO.allHora() : horas;
+        Collections.sort(horas, new Hora.CompareCodigo());
+
+        ObjectNode horarioJson = new ObjectNode(jsonFactory);
+        ArrayNode horaArrayJson = new ArrayNode(jsonFactory);
+
+        for (Hora hora : horas) {
+            ObjectNode horaJson = new ObjectNode(jsonFactory);
+            horaJson.put("hora", hora.getDescripcion());
+            horaJson.put("numeroHora", hora.getNumero());
+            List<HorarioSeccion> horariosSeccionesHora = mapHorarioSeccByIdHora.get(hora.getId());
+            horariosSeccionesHora = (horariosSeccionesHora == null) ? new ArrayList() : horariosSeccionesHora;
+
+            Map<Long, List<HorarioSeccion>> mapHorarioSeccionDia = TypesUtil.convertListToMapList("dia.id", horariosSeccionesHora);
+            ArrayNode diaArrayJson = new ArrayNode(jsonFactory);
+            for (Dia dia : dias) {
+                ObjectNode diaJson = new ObjectNode(jsonFactory);
+                diaJson.put("hora", hora.getDescripcion());
+                diaJson.put("dia", dia.getNombre());
+                List<HorarioSeccion> horariosSeccionesDia = mapHorarioSeccionDia.get(dia.getId());
+                horariosSeccionesDia = (horariosSeccionesDia == null) ? new ArrayList() : horariosSeccionesDia;
+
+                ArrayNode seccionArrayJson = new ArrayNode(jsonFactory);
+                for (HorarioSeccion horarioSeccion : horariosSeccionesDia) {
+                    Seccion seccion = horarioSeccion.getSeccion();
+
+                    ObjectNode seccionJson = JsonHelper.createJson(seccion, jsonFactory, true, new String[]{
+                        "codigo2", "tipoSeccion",
+                        "grupoSeccion.curso.codigo",
+                        "grupoSeccion.curso.nombre",
+                        "grupoSeccion.curso.tpc",
+                        "aula.codigo",
+                        "grupoHoras.codigo"
+                    });
+
+                    String key = seccion.getId() + "-" + dia.getId();
+                    List<HorarioSeccion> horariosSecc = mapSeccionDia.get(key);
+                    Integer nroHora = mapSeccionHora.get(key);
+                    seccionJson.put("horasContinuas", horariosSecc.size());
+                    seccionJson.put("horaInicial", nroHora == hora.getNumero());
+
+                    DocenteSeccion profeSecc = mapProfeSecc.get(horarioSeccion.getSeccion().getId());
+                    seccionJson.put("docente", (String) ObjectUtil.getParentTree(profeSecc, "docente.persona.letraNomPaterno"));
+
+                    seccionArrayJson.add(seccionJson);
+                }
+
+                diaJson.set("secciones", seccionArrayJson);
+                diaArrayJson.add(diaJson);
+            }
+            horaJson.set("dias", diaArrayJson);
+            horaArrayJson.add(horaJson);
+        }
+        ArrayNode diasArray = new ArrayNode(jsonFactory);
+        for (Dia dia : dias) {
+            ObjectNode diaObjectNode = new ObjectNode(jsonFactory);
+            diaObjectNode.put("dia", dia.getNombre());
+            diasArray.add(diaObjectNode);
+        }
+
+        horarioJson.set("horarios", horaArrayJson);
+        horarioJson.set("dias", diasArray);
+        horarioJson.put("horasTotal", horaArrayJson.size());
+
+        return horarioJson;
+    }
+
+    @Override
+    public Hora getHoraByNroHora(Integer numero) {
+        return horaDAO.findByNumeroHora(numero);
     }
 
 }
