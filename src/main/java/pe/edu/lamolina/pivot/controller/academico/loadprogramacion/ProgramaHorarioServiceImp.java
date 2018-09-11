@@ -297,11 +297,12 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         crearCursos(rutaFileCursos, mapCursos, mapDepartamentosAcademicos);
 
-//        t1 = System.currentTimeMillis();
-//        logger.debug("saveAlumnos");
-//        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
+        t1 = System.currentTimeMillis();
+        logger.debug("saveAlumnos");
+        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+        t2 = System.currentTimeMillis();
+        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
+        
         t1 = System.currentTimeMillis();
         logger.debug("loadDataDocentes");
         Map<String, Docente> mapDocentes = this.saveDocentes(docentes, mapKeyPersonas, mapDNIPersonas, ds);

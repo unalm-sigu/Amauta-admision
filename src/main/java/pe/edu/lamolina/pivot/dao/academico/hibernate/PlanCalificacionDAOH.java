@@ -8,7 +8,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 
@@ -67,6 +67,23 @@ public class PlanCalificacionDAOH extends AbstractEasyDAO<PlanCalificacion> impl
                 .from(PlanCalificacion.class, "pc")
                 .leftJoin("sistemaNotas sn")
                 .in("pc.id", ids);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<PlanCalificacion> allByNombre(String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(PlanCalificacion.class, "pc")
+                .join("departamentoAcademico de")
+                .beginBlock()
+                .__().filter("pc.codigo", "like", nombre)
+                .__().filter("pc.sustento", "like", nombre)
+                .__().filter("pc.formula", "like", nombre)
+                .__().filter("pc.descripcion", "like", nombre)
+                .endBlock()
+                .limit(15);
 
         return all(sql);
     }

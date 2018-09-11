@@ -3,8 +3,11 @@ package pe.edu.lamolina.pivot.controller.academico.infoacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,21 +16,29 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
 import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
+import pe.edu.lamolina.pivot.controller.academico.plancurricular.PlanCurricularService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -40,12 +51,15 @@ public class infoAcademicoController {
     @Autowired
     infoAcademicoService service;
 
+    @Autowired
+    PlanCurricularService planCurricularService;
+
     @ResponseBody
-    @RequestMapping(value = "{idAlumno}/{numeroCiclo}/avance", method = RequestMethod.GET)
-    public JsonResponse alumnoListHistorial(@PathVariable("idAlumno") Long idAlumno, @PathVariable("numeroCiclo") Long numeroCiclo, Model model, HttpSession session) {
+    @RequestMapping(value = "{idAlumno}/avance", method = RequestMethod.GET)
+    public JsonResponse alumnoAvance(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            ObjectNode objectNode = service.allAlumnosByCiclo(new Alumno(idAlumno), numeroCiclo);
+            ObjectNode objectNode = service.allAvanaceCurricular(new Alumno(idAlumno));
             response.setData(objectNode);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -76,7 +90,10 @@ public class infoAcademicoController {
     }
 
     @RequestMapping("{idAlumno}/infoacademico")
-    public String infoAcademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+    public String infoAcademico(
+            @PathVariable("idAlumno") Long idAlumno,
+            @RequestParam(value = "origen", required = false) String origen,
+            Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -84,39 +101,79 @@ public class infoAcademicoController {
         Alumno alumno = service.allInfo(new Alumno(idAlumno));
         ObjectNode alumnoJson = JsonHelper.createJson(alumno, factory, true, new String[]{
             "*",
-            "carrera.*",
-            "carrera.orientacionCarrera.*",
-            "situacionAcademica.*",
-            "planCurricular.*",
-            "modalidadEstudio.*",
-            "persona.*",
-            "persona.tipoDocumento.*"});
+            "carrera.codigo",
+            "carrera.nombre",
+            "carrera.tipoEnum",
+            "carrera.orientacionCarrera.id",
+            "carrera.orientacionCarrera.nombre",
+            "carrera.facultad.codigo",
+            "carrera.facultad.nombre",
+            "orientacionCarrera.id",
+            "orientacionCarrera.nombre",
+            "cicloIngreso.descripcion",
+            "cicloActivo.descripcion",
+            "cicloActivoRegular.descripcion",
+            "situacionAcademica.codigo",
+            "situacionAcademica.nombre",
+            "postulantePregrado.modalidadIngreso.nombre",
+            "planCurricular.id",
+            "planCurricular.carrera.nombre",
+            "planCurricular.orientacionCarrera.id",
+            "planCurricular.orientacionCarrera.nombre",
+            "planCurricular.cicloInicioVigencia.descripcion",
+            "modalidadEstudio.codigo",
+            "modalidadEstudio.nombre",
+            "postulantePregrado.modalidadIngreso.nombre",
+            "persona.apellidos",
+            "persona.paterno",
+            "persona.materno",
+            "persona.nombres",
+            "persona.sexo",
+            "persona.sexoEnum",
+            "persona.nombreCompleto",
+            "persona.apellidosNombres",
+            "persona.numeroDocIdentidad",
+            "persona.rutaFoto",
+            "persona.tipoFoto",
+            "persona.tipoDocumento.simbolo"
+        });
 
         ArrayNode planesJson = new ArrayNode(JsonNodeFactory.instance);
 
         List<PlanCurricular> planes = service.allPlanCurricularByCarrera(alumno.getCarrera());
         for (PlanCurricular plan : planes) {
-            ObjectNode planJson = JsonHelper.createJson(plan, factory, true,
-                    new String[]{"*", "cicloInicioVigencia.*", "carrera.*"});
+            ObjectNode planJson = JsonHelper.createJson(plan, factory, true, new String[]{
+                "*", "cicloInicioVigencia.*", "carrera.*"
+            });
             planesJson.add(planJson);
         }
 
-        ObjectNode cicloJson = JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, true,
-                new String[]{
-                    "*", "modalidadEstudio.*"
-                });
+        ObjectNode cicloJson = JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, true, new String[]{
+            "id", "descripcion", "descripcion2", "modalidadEstudio.*"
+        });
 
-        model.addAttribute("datoAlumno", alumnoJson);
+        model.addAttribute("alumno", alumnoJson);
         model.addAttribute("ciclo", cicloJson);
         model.addAttribute("planes", planesJson);
+        model.addAttribute("origen", getOrigen(origen));
 
         ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);
         List<Hora> horas = service.allHoras();
         for (Hora hora : horas) {
-            horasJson.add(hora.toJson());
+            horasJson.add(JsonHelper.createJson(hora, JsonNodeFactory.instance, true, new String[]{"*"}));
         }
+
         model.addAttribute("horasBD", horasJson);
         return "academico/alumno/infoAcademico";
+    }
+
+    private String getOrigen(String origen) {
+        if (StringUtils.isEmpty(origen)) {
+            return "/academico/alumno";
+        }
+        byte[] decoded = Base64.getMimeDecoder().decode(origen);
+        String output = new String(decoded);
+        return output;
     }
 
     @ResponseBody
@@ -174,52 +231,44 @@ public class infoAcademicoController {
     public JsonResponse cursosMatriculados(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         JsonNodeFactory factory = JsonNodeFactory.instance;
-        ObjectNode data = new ObjectNode(factory);
+
         ArrayNode cursosJson = new ArrayNode(factory);
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             Alumno alumno = new Alumno(idAlumno);
+
+            ObjectNode data = new ObjectNode(factory);
             List<MatriculaCurso> matriculaCursos = service.allCursosMatriculadosByAlumnoCiclo(alumno, ciclo);
             for (MatriculaCurso matriculaCurso : matriculaCursos) {
-                ObjectNode matriCursoJson = JsonHelper.createJson(matriculaCurso, factory, true,
-                        new String[]{
-                            "*",
-                            "curso.codigo",
-                            "curso.nombre",
-                            "curso.tpc",
-                            "matriculaSeccion.seccion.codigo2",
-                            "matriculaSeccion.seccion.tipoSeccion",
-                            "matriculaSeccion.seccion.grupoHoras.codigo",
-                            "matriculaSeccion.seccion.aula.codigo",
-                            "matriculaSeccion.seccion.docenteSeccion.docente.codigo",
-                            "matriculaSeccion.seccion.docenteSeccion.docente.persona.nombreCompleto"
-                        });
-//                ObjectNode matriCursoJson = matriculaCurso.toJson();
-//                ArrayNode detalle = new ArrayNode(factory);
-//                List<MatriculaSeccion> matriculaSeccions = matriculaCurso.getMatriculaSeccion();
-//                if (matriculaSeccions == null) {
-//                    continue;
-//                }
-//                for (MatriculaSeccion matriculaSeccion : matriculaSeccions) {
-//                    ObjectNode node = new ObjectNode(factory);
-//                    node.put("tipo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.tipoSeccion"));
-//                    node.put("codigo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.codigo"));
-//                    node.put("grupo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.grupoHoras.codigo"));
-//                    node.put("aula", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.aula.codigo"));
-//                    DocenteSeccion docenteSeccion = matriculaSeccion.getSeccion().getDocenteSeccion().get(0);
-//                    node.put("docente", (String) ObjectUtil.getParentTree(docenteSeccion, "docente.persona.nombreCompleto"));
-//                    node.put("docenteCodigo", (String) ObjectUtil.getParentTree(docenteSeccion, "docente.codigo"));
-//                    detalle.add(node);
-//                }
-//                matriCursoJson.set("detalle", detalle);
+                ObjectNode matriCursoJson = JsonHelper.createJson(matriculaCurso, factory, true, new String[]{
+                    "id", "creditos", "creditosAprobados", "estado", "estadoEnum", "notaFinal", "notaAvance",
+                    "curso.codigo",
+                    "curso.nombre",
+                    "curso.tpc",
+                    "curso.tipoCurso",
+                    "curso.departamentoAcademico.nombre",
+                    "matriculaSeccion.seccion.codigo2",
+                    "matriculaSeccion.seccion.tipoSeccion",
+                    "matriculaSeccion.seccion.grupoHoras.codigo",
+                    "matriculaSeccion.seccion.aula.codigo",
+                    "matriculaSeccion.seccion.docenteSeccion.docente.codigo",
+                    "matriculaSeccion.seccion.docenteSeccion.docente.persona.nombreCompleto"
+                });
                 cursosJson.add(matriCursoJson);
-
             }
             data.set("cursos", cursosJson);
+
+            MatriculaResumen matResum = service.findResumenMatricula(alumno, ciclo);
+            data.set("resumen", JsonHelper.createJson(matResum, factory, true, new String[]{
+                "creditosMatriculados",
+                "cursosMatriculados"
+            }));
+
             data.set("ciclo", JsonHelper.createJson(ciclo, factory));
             response.setData(data);
+            response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -287,8 +336,10 @@ public class infoAcademicoController {
     public JsonResponse cambiarPlan(@PathVariable("idAlumno") Long idAlumno, @PathVariable("idPlan") Long idPlan, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.cambiarPlan(new Alumno(idAlumno), new PlanCurricular(idPlan));
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.cambiarPlan(new Alumno(idAlumno), new PlanCurricular(idPlan), ds);
             response.setSuccess(true);
+            response.setMessage("Se actualizó satisfactoriamente el plan curricular del alumno");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
 
@@ -335,6 +386,112 @@ public class infoAcademicoController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{idAlumno}/horario", method = RequestMethod.GET)
+    public JsonResponse alumnoLoadHorario(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico academico = ds.getCicloAcademico();
+        try {
+            List<HorarioSeccion> seccionesHorarios = service.allSeccionHorarioAlumnoByAlumnoCicloACademico(new Alumno(idAlumno), academico);
+            ObjectNode horarios = service.findHorarioBySeccionesHorarios(seccionesHorarios);
+            response.setData(horarios);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{numero}/hora", method = RequestMethod.GET)
+    public JsonResponse getHoraByNroHora(@PathVariable("numero") Integer numero, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            Hora hora = service.getHoraByNroHora(numero);
+            response.setData(JsonHelper.createJson(hora, JsonNodeFactory.instance, true, new String[]{"*"}));
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("dataCurricula")
+    public JsonResponse dataCurricula(PlanCurricular plan, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            if (plan.getId() != null) {
+                PlanCurricular planBD = planCurricularService.findPlanCurricularById(plan);
+
+                List<CursoCurricula> cursosCurr = planBD.getCursoCurricula();
+                Map<Integer, List<CursoCurricula>> mapCursosCurr = TypesUtil.convertListToMapList("numeroCiclo", cursosCurr);
+
+                for (Map.Entry<Integer, List<CursoCurricula>> entry : mapCursosCurr.entrySet()) {
+                    Integer nroCiclo = entry.getKey();
+                    if (nroCiclo == 0) {
+                        continue;
+                    }
+
+                    ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+                    node.put("numeroCiclo", nroCiclo);
+                    node.put("numeroRomano", NumberFormat.roman(nroCiclo));
+
+                    ArrayNode arrayCursos = new ArrayNode(JsonNodeFactory.instance);
+                    List<CursoCurricula> cursosCiclo = entry.getValue();
+                    for (CursoCurricula cursoCurr : cursosCiclo) {
+                        Curso curso = cursoCurr.getCurso();
+                        ObjectNode nodeCurso = new ObjectNode(JsonNodeFactory.instance);
+                        nodeCurso.put("id", cursoCurr.getId());
+                        nodeCurso.put("tipo", cursoCurr.getTipoCursoCurricula().getCodigo());
+                        nodeCurso.put("curso", curso.getNombre());
+                        nodeCurso.put("codigo", curso.getCodigo());
+                        nodeCurso.put("creditos", cursoCurr.getCreditos());
+                        nodeCurso.put("numeroCurso", cursoCurr.getNumeroCurso());
+                        nodeCurso.put("creditosRequisito", cursoCurr.getCreditosRequisito());
+
+                        ArrayNode arrayRequisitos = new ArrayNode(JsonNodeFactory.instance);
+                        List<RequisitoCursoCurricula> requisitos = cursoCurr.getRequisitosCursoCurricula();
+                        for (RequisitoCursoCurricula requisito : requisitos) {
+                            CursoCurricula cursoReq = requisito.getCursoRequisito();
+                            ObjectNode nodeReq = new ObjectNode(JsonNodeFactory.instance);
+                            nodeReq.put("idReq", cursoReq.getId());
+                            nodeReq.put("simultaneo", requisito.getSimultaneo());
+                            arrayRequisitos.add(nodeReq);
+                        }
+
+                        nodeCurso.set("requisitos", arrayRequisitos);
+                        arrayCursos.add(nodeCurso);
+                    }
+
+                    node.set("cursos", arrayCursos);
+                    array.add(node);
+                }
+            }
+            response.setData(array);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
         return response;
     }
 

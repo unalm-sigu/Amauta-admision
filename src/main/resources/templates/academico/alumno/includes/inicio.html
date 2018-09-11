@@ -1,60 +1,218 @@
 <template id="inicioComponent">
     <section class="panel-body">
-        <div>
-            <label class="text-lg"><strong>Situacion Académica: </strong></label>
-            <span class="text-lg" v-text="alumno.situacionAcademica.nombre"></span>
-        </div>
-        <div>
-            <label><strong>Modalidad de Estudio: </strong></label>
-            <span v-text="alumno.modalidadEstudio.nombre"></span>
-        </div>
-        <div v-if="alumno.carrera.codigo !== alumno.carrera.facultad.codigo">
-            <label><strong>Carrera: </strong></label>
-            <span v-text="alumno.carrera.nombre"></span>
-        </div>
-        <div>
-            <label><strong>Facultad: </strong></label>
-            <span v-text="alumno.carrera.facultad.nombre"></span>
-        </div>
-        <div v-if="mostrarOrientacion">
-            <label><strong>Orientacion: </strong></label>
-            <span v-text="alumno.planCurricular.orientacionCarrera.nombre"></span>
-        </div>
-        <div v-if="mostrarCreditos">
-            <label><strong>Créditos Cursados: </strong></label>
-            <span v-text="alumno.creditosCursados"></span>
-        </div>
-        <div v-if="mostrarCreditos">
-            <label><strong>Créditos Aprobados: </strong></label>
-            <span v-text="alumno.creditosAprobados"></span>
-        </div>
-        <div v-if="alumno.promedioAcumulado > 0">
-            <label><strong>Promedio Acumulado: </strong></label>
-            <span v-text="alumno.promedioAcumulado"></span>
-        </div>
-        <div>
-            <label><strong>Ciclo Ingreso: </strong></label>
-            <span v-text="alumno.cicloIngreso.descripcion"></span>
-        </div>
-        <div v-if="alumno.postulantePregrado !== undefined">
-            <label><strong>Modalidad de Ingreso: </strong></label>
-            <span v-text="alumno.postulantePregrado.modalidadIngreso.nombre"></span>
-        </div>
-        <div>
-            <label><strong>Ciclo Activo: </strong></label>
-            <span v-text="alumno.cicloActivo.descripcion"></span>
-        </div>
-        <div v-if="alumno.retirosCursos > 0">
-            <label><strong>Retiros de Cursos: </strong></label>
-            <span v-text="alumno.retirosCursos"></span>
-        </div>
-        <div v-if="alumno.retirosCiclos > 0">
-            <label><strong>Retiros de Ciclos: </strong></label>
-            <span v-text="alumno.retirosCiclos"></span>
-        </div>
-        <div v-if="alumno.retirosExtemporaneos > 0">
-            <label><strong>Retiros Extemporáneos de Cursos: </strong></label>
-            <span v-text="alumno.retirosExtemporaneos"></span>
+        <table>
+            <tbody>
+                <tr>
+                    <td class="col-lg-2 v-middle">
+                        <div v-if="alumno.persona.tipoFoto=='POSTUL'" 
+                             class="img-responsive img-thumbnail img-circle div-foto-list">
+                            <img class="img-foto-list" v-bind:src="alumno.persona.rutaFoto" />
+                        </div>
+
+                        <img v-else-if="alumno.persona.tipoFoto=='COMUN'"
+                             class="img-responsive img-thumbnail img-circle" 
+                             v-bind:src="alumno.persona.rutaFoto" />
+
+                        <img v-else="" 
+                             class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="alumno.persona.rutaFoto" />
+                    </td>
+
+                    <td class="col-lg-10 v-middle">
+                        <div class='text-left'>
+                            <div class="row h5 m-t-n m-b" v-if="alumno.persona.paterno != '' ">
+                                <div class="col-lg-2 bold">Paterno</div>
+                                <div class="col-lg-10" v-text="alumno.persona.paterno"></div>
+                            </div>
+                            <div class="row h5 m-t-xs m-b" v-if="alumno.persona.materno != '' ">
+                                <div class="col-lg-2 bold">Materno</div>
+                                <div class="col-lg-10" v-text="alumno.persona.materno"></div>
+                            </div>
+                            <div class="row h5 m-t-xs m-b">
+                                <div class="col-lg-2 bold">Nombres</div>
+                                <div class="col-lg-10" v-text="alumno.persona.nombres"></div>
+                            </div>
+                            <div class="row h5 m-t-xs m-b" v-if="alumno.persona.sexo != '' ">
+                                <div class="col-lg-2 bold">Sexo</div>
+                                <div class="col-lg-10" v-text="alumno.persona.sexoEnum.value"></div>
+                            </div>
+                            <div class="row h5 m-t-xs m-b-n" v-if="alumno.persona.numeroDocIdentidad != '' ">
+                                <div class="col-lg-2 bold" v-text="alumno.persona.tipoDocumento.simbolo"></div>
+                                <div class="col-lg-10" v-text="alumno.persona.numeroDocIdentidad"></div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <hr/>
+
+        <div class="row">
+            <div class="col-lg-6 col-md-8 col-sm-12">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td class="col-md-4">
+                                <strong> Número matrícula  </strong>
+                            </td>
+                            <td class="col-md-8">
+                                <span v-text='alumno.codigo'></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-md-4">
+                                <strong> Modalidad Estudio  </strong>
+                            </td>
+                            <td class="col-md-8">
+                                <span v-text='alumno.modalidadEstudio.nombre'></span>
+                            </td>
+                        </tr>
+
+                        <tr v-if="alumno.modalidadEstudio.codigo == 'PRE' ">
+                            <td>
+                                <strong> Facultad  </strong>
+                            </td>
+                            <td>
+                                <span v-text='alumno.carrera.facultad.nombre'></span>
+                            </td>
+
+                        </tr>
+
+                        <tr v-if="alumno.carrera.codigo !== alumno.carrera.facultad.codigo">
+                            <td>
+                                <strong v-if="alumno.modalidadEstudio.codigo == 'PRE' "> Especialidad  </strong>
+                                <strong v-if="alumno.modalidadEstudio.codigo == 'EPG' "> {{alumno.carrera.tipoEnum.value}}  </strong>
+                            </td>
+                            <td>
+                                <span v-text='alumno.carrera.nombre'></span>
+                            </td>
+                        </tr>
+
+                        <tr v-if='alumno.carrera.orientacionCarrera.length > 0'>
+                            <td>
+                                <strong> Orientación  </strong>
+                            </td>
+                            <td>
+                                <form>
+                                    <multiselect 
+                                        v-model="alumno.orientacionCarrera" 
+                                        v-bind:options='alumno.carrera.orientacionCarrera'
+                                        label='nombre'
+                                        track-by='id'
+                                        placeholder="Seleccione una orientación"
+                                        v-on:input="changeOrientacion(alumno.orientacionCarrera)">
+                                    </multiselect>
+                                </form>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong> Situación Académica  </strong>
+                            </td>
+                            <td>
+                                <span v-text='alumno.situacionAcademica.codigo'></span>
+                                <span v-text='alumno.situacionAcademica.nombre'></span>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong> Plan de Estudios  </strong>
+                            </td>
+                            <td>
+                                <span v-if="alumno.planCurricular.id != '' ">
+                                    {{alumno.planCurricular.cicloInicioVigencia.descripcion}}
+                                    <span v-if="alumno.planCurricular.orientacionCarrera.id != '' ">
+                                        ({{alumno.planCurricular.orientacionCarrera.nombre}})
+                                    </span>
+                                </span>
+                                <span v-else="">No está especificado</span>
+                            </td>
+
+                        </tr>
+
+                        <tr v-if="alumno.cicloIngreso.descripcion != '' ">
+                            <td>
+                                <strong> Ciclo Ingreso  </strong>
+                            </td>
+                            <td>
+                                <span v-text="alumno.cicloIngreso.descripcion"></span>
+                            </td>
+                        </tr>
+
+                        <tr v-if="alumno.postulantePregrado.modalidadIngreso.nombre != '' ">
+                            <td>
+                                <strong> Modalidad Ingreso  </strong>
+                            </td>
+                            <td>
+                                <span v-text="alumno.postulantePregrado.modalidadIngreso.nombre"></span>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-lg-6 col-md-8 col-sm-12">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td class="col-md-6">
+                                <strong> Promedio ponderado currícula  </strong>
+                            </td>
+                            <td class="col-md-6">
+                                <span v-text='alumno.promedioCarreraAcumulado'></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <strong> Créditos aprobados currícula </strong>
+                            </td>
+                            <td>
+                                <span v-text='alumno.creditosCarreraAprobados'></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <strong> Créditos cursados currícula </strong>
+                            </td>
+                            <td>
+                                <span v-text='alumno.creditosCarreraCursados'></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong> Promedio ponderado acumulado  </strong>
+                            </td>
+                            <td>
+                                <span v-text='alumno.promedioAcumulado'></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <strong> Créditos aprobados  </strong>
+                            </td>
+                            <td>
+                                <span v-text='alumno.creditosAprobados'></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <strong> Créditos cursados  </strong>
+                            </td>
+                            <td>
+                                <span v-text='alumno.creditosCursados'></span>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 </template>

@@ -8,8 +8,6 @@ Vue.component("malla-component", {
         }
     },
     created() {
-        let $vue = this;
-        $vue.verMalla();
     },
     computed: {
         titulo() {
@@ -36,7 +34,7 @@ Vue.component("malla-component", {
                 return;
             var id = this.alumno.planCurricular.id;
             $.ajax({
-                url: APP.url('academico/planCurricular/dataCurricula'),
+                url: APP.url('academico/alumno/dataCurricula'),
                 type: 'POST',
                 async: true,
                 data: {id: id},

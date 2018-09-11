@@ -312,7 +312,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .__().filter("ca.descripcion3", "like", nombre)
                 .endBlock()
                 .limit(15);
-        
+
         return all(sql);
     }
 
@@ -346,4 +346,23 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         return find(sql);
     }
 
+    @Override
+    public List<CicloAcademico> allByModalidadEstudioName(ModalidadEstudio modalidad, String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("me.id", modalidad)
+                .beginBlock()
+                .__().filter("ca.numeroCiclo", "like", nombre)
+                .__().filter("ca.year", "like", nombre)
+                .__().filter("ca.codigo", "like", nombre)
+                .__().filter("ca.descripcion", "like", nombre)
+                .__().filter("ca.descripcion2", "like", nombre)
+                .__().filter("ca.descripcion3", "like", nombre)
+                .endBlock()
+                .limit(15);
+
+        return all(sql);
+    }
 }

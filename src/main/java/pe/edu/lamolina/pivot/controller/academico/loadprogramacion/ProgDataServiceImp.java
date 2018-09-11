@@ -364,7 +364,7 @@ public class ProgDataServiceImp implements ProgDataService {
         Map<String, CicloAcademico> mapCiclos = TypesUtil.convertListToMap("codigoAntiguo", ciclos);
 
         Alumno alu = mapAlumnos.get(alumno.getCodigo());
-        String codigoCarrera = StringUtils.isEmpty(alumno.getCodigoEspecialidad()) ? alumno.getCodigoPostgrado() : alumno.getCodigoEspecialidad();
+        String codigoCarrera = StringUtils.isEmpty(alumno.getCodigoPostgrado()) ? alumno.getCodigoEspecialidad() : alumno.getCodigoPostgrado();
         Carrera carrera = mapCarreras.get(codigoCarrera);
         ModalidadEstudio modalidad = carrera.getModalidadEstudio();
         CicloAcademico cicloInicio = mapCiclos.get(alumno.getCodigoCicloIngreso());
