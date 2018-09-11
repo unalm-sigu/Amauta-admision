@@ -37,6 +37,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Ubicacion;
@@ -523,4 +524,97 @@ public class BuscarController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("allCiclo")
+    public JsonResponse allCiclo(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<CicloAcademico> ciclos = buscarService.allCicloByDescripcion(nombre);
+            for (CicloAcademico ciclo : ciclos) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", ciclo.getId());
+                json.put("descripcion", ciclo.getDescripcion());
+                json.put("codigo", ciclo.getCodigo());
+                json.put("descripcion2", ciclo.getDescripcion2());
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allPlanCalificacion")
+    public JsonResponse allPlanCalificacion(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<PlanCalificacion> planes = buscarService.allPlanCalificacionByDescripcion(nombre);
+            for (PlanCalificacion plan : planes) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", plan.getId());
+                json.put("descripcion", plan.getDescripcion());
+                json.put("codigo", plan.getCodigo());
+                json.put("formula", plan.getFormula());
+                json.put("sustento", plan.getSustento());
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCursoMod")
+    public JsonResponse allCursoMod(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            String moda = "PRE";
+            ModalidadEstudioEnum.valueOf(moda);
+            List<Curso> cursos = buscarService.allCursoByModalidadEstudioNombre(nombre, ModalidadEstudioEnum.valueOf(moda));
+            for (Curso curso : cursos) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", curso.getId());
+                json.put("codigo", curso.getCodigo());
+                json.put("nombre", curso.getNombre());
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 }

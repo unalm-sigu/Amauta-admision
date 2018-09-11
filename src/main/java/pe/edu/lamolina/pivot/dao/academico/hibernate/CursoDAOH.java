@@ -21,6 +21,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import static pe.edu.lamolina.model.enums.EstadoCursoCachimboEnum.ACT;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
 @Repository
 public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
@@ -264,5 +265,24 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .like("cu.codigo", codigo)
                 .limit(15);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Curso> allByModalidadEstudioNombre(ModalidadEstudioEnum moda, String nombre) {
+
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cur")
+                .join("modalidadEstudio mo", "departamentoAcademico da")
+                .join("da.facultad")
+                .filter("mo.codigo", moda)
+                .beginBlock()
+                .__().filter("cur.nombre", "like", nombre)
+                .__().filter("cur.codigo", "like", nombre)
+                .__().filter("cur.codigoAnterior1", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return all(sql);
+
     }
 }
