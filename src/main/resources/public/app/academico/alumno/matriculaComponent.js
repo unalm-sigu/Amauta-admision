@@ -6,23 +6,16 @@ Vue.component("matricula-component", {
     data() {
         return {
             cursos: [],
-            ciclo: {}
+            ciclo: {},
+            resumen: {}
         }
     },
     computed: {
         titulo() {
-            return 'Matrícula ' + this.ciclo.descripcion;
-        },
-        cantidadCreditos() {
-            let $vue = this;
-            if ($vue.cursos.length > 0)
-                return $vue.cursos.map(x => x.curso.creditos).reduce((a, b) => a + b);
-            else
-                return 0;
+            return 'Cursos Matriculados ' + this.ciclo.descripcion;
         }
     },
     mounted() {
-        this.obtenerDatos();
     },
     methods: {
         obtenerDatos() {
@@ -34,6 +27,7 @@ Vue.component("matricula-component", {
                 success: function (response) {
                     $vue.cursos = response.data.cursos;
                     $vue.ciclo = response.data.ciclo;
+                    $vue.resumen = response.data.resumen;
                 }
             });
         },
@@ -62,20 +56,6 @@ Vue.component("matricula-component", {
                 'label-warning': item.estado === 'PMAT',
                 'label-danger': item.estado === 'RCU' || item.estado === 'RET' || item.estado === 'RCI'
             };
-        },
-        labeltext(item) {
-            switch (item.estado) {
-                case 'MAT':
-                    return 'Matriculado';
-                case 'PMAT':
-                    return 'Prematriculado';
-                case 'RCU':
-                    return 'Retirado Curso';
-                case 'RCI':
-                    return 'Retirado Ciclo';
-                case 'RET':
-                    return 'Retirado';
-            }
         }
     }
 });

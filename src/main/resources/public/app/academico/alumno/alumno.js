@@ -1,96 +1,70 @@
-$(function() {
-
-    var dynatable = $('#dynaTable').dynatable({
-        dataset: {
-            ajaxUrl: APP.url('academico/alumno/list'),
-            perPageDefault: 10
-        },
-        writers: {
-            _rowWriter: ulWriter
-        },
-        table: {
-            bodyRowSelector: 'tbody tr'
+new Vue({
+    el: '#alumnosVUE',
+    data: {
+        alumnosURL: APP.url('academico/alumno/list'),
+        seleccionado: '',
+        bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''}
+    },
+    mounted: function () {
+        let $vue = this;
+        let tipo = $vue.$refs.load.getParameterByName('queries[moe.codigo]');
+        tipo = (tipo == null) ? '' : tipo;
+        if (tipo != '') {
+            $vue.bgColorClass[tipo] = 'bg-light';
+            $vue.seleccionado = tipo;
+            $vue.$refs.load.querie.push({name: 'moe.codigo', value: tipo});
         }
-    }).data('dynatable');
+        $vue.$refs.load.repreload();
+    },
+    methods: {
+        verTipoCarrera(item) {
+            return (item.carrera.tipo == "MAE" || item.carrera.tipo == "DOC");
+        },
+        verFacultad(item) {
+            return (item.modalidadEstudio.codigo == "PRE" && item.carrera.codigo != item.carrera.facultad.codigo);
+        },
+        urlAcademico(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.id + '/infoacademico') + $vue.getOrigenURL();
+        },
+        urlDataPersonal(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.id + '/fisicoupdate') + $vue.getOrigenURL();
+        },
+        urlMatricula(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.id + '/gomatricula') + $vue.getOrigenURL();
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
+        },
+        verModalidades(tipo) {
+            let $vue = this;
+            if ($vue.seleccionado === '') {
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
 
-    function ulWriter(rowIndex, record, columns, cellWriter) {
+                $vue.$refs.load.querie.push({name: 'moe.codigo', value: tipo});
+                $vue.$refs.load.loadRemoteData();
 
-        var colorEstado = {ACT: 'success', FAPR: 'warning', FRES: 'warning'};
-        record.colorEstado = colorEstado[record.estado];
-        record.verTipoCarrera = (record.tipoCarrera == "MAE" || record.tipoCarrera == "DOC");
-        record.verFacultad = (record.codigoModalidad == "PRE" && record.codigoCarrera != record.codigoFacultad);
-        if (record.colorEstado == undefined) {
-            record.colorEstado = 'danger';
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
+
+                $vue.$refs.load.querie.push({name: 'moe.codigo', value: tipo});
+                $vue.$refs.load.loadRemoteData();
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.seleccionado = '';
+
+                $vue.$refs.load.querie = [];
+                $vue.$refs.load.changeUrl('queries[moe.codigo]', null);
+                $vue.$refs.load.loadRemoteData();
+            }
         }
-
-        var html = $.templates("#alumnoTemplate").render(record);
-        return html;
     }
-
-    Alumno = {
-        divElegido: null,
-        verModalidades: function($this, e) {
-            e.preventDefault();
-            var div = $this.closest("div");
-            var classColor = 'bg-light';
-            var tieneBgColor = div.hasClass(classColor);
-            dynatable.queries.remove("moe.codigo");
-
-            if (Alumno.divElegido != null) {
-                Alumno.divElegido.removeClass(classColor);
-                Alumno.divElegido = null;
-            }
-
-            if (!tieneBgColor) {
-                div.addClass(classColor);
-                Alumno.divElegido = div;
-                var estado = $this.attr("rel");
-                dynatable.queries.add("moe.codigo", estado);
-            }
-            dynatable.process();
-        },
-        verDatosPersonales: function(e) {
-            e.preventDefault;
-            var self = $(e.currentTarget);
-            var alumno = self.attr('rel');
-
-            var box = bootbox.alert({
-                size: 'large',
-                message: APP.template.spincenter,
-                buttons: {
-                    ok: {label: "Cerrar", className: "btn-default"},
-                }
-            });
-
-            $.ajax({
-                url: APP.url('academico/alumno/resumen'),
-                type: 'POST',
-                async: false,
-                data: {idAlumno: alumno},
-                success: function(response) {
-                    if (response.success) {
-                        var html = $.templates("#alumnoResumenTemplate").render(response.data);
-                        box.find('.bootbox-body').html(html);
-                    } else {
-                        box.modal('close');
-                        notify(response.message, "error");
-                    }
-                },
-                error: function() {
-                    box.modal('close');
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-
-        }
-    };
-
-    $("body").delegate(".ver-modalidades", "click", function(e) {
-        Alumno.verModalidades($(this), e);
-    });
-
-    $("body").delegate(".ver-datos-personales", "click", function(e) {
-        Alumno.verDatosPersonales(e);
-    });
-
 });
+

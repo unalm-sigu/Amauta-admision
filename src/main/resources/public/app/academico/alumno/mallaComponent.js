@@ -8,8 +8,6 @@ Vue.component("malla-component", {
         }
     },
     created() {
-        let $vue = this;
-        $vue.verMalla();
     },
     computed: {
         titulo() {
@@ -36,7 +34,7 @@ Vue.component("malla-component", {
                 return;
             var id = this.alumno.planCurricular.id;
             $.ajax({
-                url: APP.url('academico/planCurricular/dataCurricula'),
+                url: APP.url('academico/alumno/dataCurricula'),
                 type: 'POST',
                 async: true,
                 data: {id: id},
@@ -173,7 +171,6 @@ Vue.component("malla-component", {
                         for (var i = 0; i < reqs.length; i++) {
                             draw.get(reqs[i]).show();
                         }
-                        console.log("asdas");
                     });
                     group.mouseout(function () {
                         var idCurso = this.data("idCurso");

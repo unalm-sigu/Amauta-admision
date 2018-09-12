@@ -7,34 +7,37 @@
         </div>
         <form class="form-horizontal m-b-md">
             <div class="form-group">
-                <label class="control-label col-sm-1" for="email">Plan Curricular: </label>
+                <label class="control-label col-sm-2" for="email">Plan Curricular: </label>
                 <div class="col-sm-2">
                     <select id='planes' class="form-control" v-model="planTemp.id">
-                        <option v-for="plan in planes" v-bind:value="plan.id" v-text="plan.cicloInicioVigencia.descripcion"></option>
+                        <option v-for="plan in planes" 
+                                v-bind:value="plan.id" 
+                                v-text="plan.cicloInicioVigencia.descripcion"></option>
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <button v-on:click="generarAvance" class="btn btn-primary btn-sm"> Actualizar </button> 
+                    <a v-on:click="generarAvance" class="btn btn-primary btn-sm"> Actualizar </a> 
                 </div>
 
             </div>
         </form>
-        <div class="tabbable-line m-b-md m-t-md">
+        <div class="tabbable-line m-b-md m-t-md" v-if="cantidadCursos>0">
             <div class="tabbable-line" id="subBar">
                 <ul class="nav nav-tabs">
                     <li class="">
                         <a href="#" style="text-transform: none;"> Ciclos </a>
                     </li>
                     <li class="ver-tab-ciclo-cur-obl" v-for="(ciclocurricula,index) in ciclosCurricula" v-bind:class="active(index)">
-                        <a href="#" style="text-transform: none;"
-                           v-text="ciclocurricula.numeroRoman"  v-on:click="cicloSelecc(ciclocurricula.numero)" >
+                        <a class="pointer" style="text-transform: none;"
+                           v-text="ciclocurricula.numeroRoman"  
+                           v-on:click="cicloSelecc(ciclocurricula.numero)" >
                             <small v-text="ciclocurricula.cantidad" class="text-primary"></small>
                         </a>  
                     </li>
                 </ul>
             </div>
         </div>
-        <table class="table table-striped">
+        <table class="table table-striped" v-if="cantidadCursos>0">
             <thead class="panel panel-heading">
                 <tr>
                     <th class="col-md-1 v-middle text-center">Tipo</th>
@@ -48,31 +51,32 @@
                 </tr>
             </thead>
             <tbody>           
-                <tr v-for="curso in cursosCurricula">
+                <tr v-for="item in cursosCurricula"
+                    v-if="item.numeroCiclo == showCiclo ">
                     <td  class="v-middle text-center"> 
-                        <span class="block" v-text="curso.tipoCurso"></span>
+                        <span class="block" v-text="item.cursoCurricula.tipoCursoCurricula.nombre"></span>
                     </td>
                     <td  class="v-middle text-center"> 
-                        <span class="block" v-text="curso.codigo"></span>
-                        <small class="block bold text-primary" v-text="curso.codigoAnterior"> </small>
+                        <span class="block" v-text="item.curso.codigo"></span>
+                        <small class="block bold text-primary" v-text="item.curso.codigoAnterior1"> </small>
                     </td>
                     <td  class="v-middle text-left" > 
-                        <span v-text="curso.nombre"></span>
+                        <span v-text="item.curso.nombre"></span>
                     </td>
                     <td  class="v-middle text-center" > 
-                        <span v-text="curso.vecesCursado"></span>
+                        <span v-if="item.vecesCursado != '0' " v-text="item.vecesCursado"></span>
                     </td>
                     <td  class="v-middle text-center"> 
-                        <span class="estado-gray" v-text="curso.creditos"></span>
+                        <span class="estado-gray" v-text="item.creditos"></span>
                     </td>
                     <td class="v-middle text-center">
-                        <span v-bind:class="styleNotaCurri(curso.nota)" v-text="curso.nota"></span>
+                        <span v-bind:class="styleNotaCurri(item.nota)" v-text="item.nota"></span>
                     </td>
                     <td class="v-middle text-center">
-                        <span v-text="curso.descripcion"></span>
+                        <span v-text="item.cicloAprobado.descripcion"></span>
                     </td>
                     <td class="v-middle text-center">
-                        <span v-bind:class="styleEstadoCurr(curso.estado.nombre)" v-text="curso.estado.valor"></span>
+                        <span v-bind:class="styleEstadoCurr(item.estadoEnum.name)" v-text="item.estadoEnum.value"></span>
                     </td>
                 </tr>
             </tbody>

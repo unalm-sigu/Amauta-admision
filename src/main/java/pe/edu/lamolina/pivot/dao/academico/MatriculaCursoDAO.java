@@ -7,7 +7,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
 public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
@@ -27,7 +26,7 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
     List<MatriculaCurso> allByCiclo(CicloAcademico ciclo);
 
-    List<MatriculaCurso> allByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
+    List<MatriculaCurso> allMatriculadosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 
     List<MatriculaCurso> allActivoByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 

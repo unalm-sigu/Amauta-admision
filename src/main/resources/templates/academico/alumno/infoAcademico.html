@@ -6,11 +6,11 @@
 
     <body>
         <section  layout:fragment="main">
-            <div id="infoAcademico" >
+            <div id="infoAcademico" v-cloak="">
                 <header class="header b-b padder-lg">
                     <h2>Información Académica</h2>
                     <div class="pull-right m-t-md">
-                        <a th:href="@{/academico/alumno}" class="btn btn-default">Regresar</a>
+                        <a th:href="${origen}" class="btn btn-default">Regresar</a>
                     </div>
                     <header-info-component v-bind:alumno="alumno"></header-info-component>
                     <div class="tabbable-line">
@@ -25,34 +25,36 @@
                     <section class="panel">
                         <section class="panel-body">
                             <div v-show="1 == tabId"  >
-                                <inicio-component v-bind:alumno="alumno" v-bind:alumnoInfo="alumnoInfo"></inicio-component>
+                                <inicio-component v-bind:alumno="alumno" v-on:reiniciar-planes-main="reiniciarPlanes()"></inicio-component>
                             </div>
                             <div v-show="2 == tabId" >
-                                <historial-component v-bind:alumno="alumno"></historial-component>
+                                <historial-component v-bind:alumno="alumno" ref="loadHistorial"></historial-component>
                             </div>
                             <div v-show="3 == tabId" >
-                                <avance-component v-bind:alumno.sync="alumno" v-bind:planes="planes"></avance-component>
+                                <avance-component v-bind:alumno.sync="alumno" v-on:reload-plan-alumno="reloadPlanAlumno()" ref="loadAvance"></avance-component>
                             </div>
                             <div v-show="4 == tabId" >
-                                <matricula-component v-bind:alumno="alumno"></matricula-component>
+                                <matricula-component v-bind:alumno="alumno" ref="loadMatricula"></matricula-component>
                             </div>
                             <div v-show="5 == tabId"  >
-                                <th:block th:substituteby="academico/alumno/includes/horario"/>
+                                <horario-component v-bind:alumno="alumno" v-bind:ciclo="ciclo" ref="loadHorario"></horario-component>
                             </div>
                             <div v-show="6 == tabId">
-                                <malla-component v-bind:alumno="alumno"></malla-component>
+                                <malla-component v-bind:alumno="alumno" ref="loadMalla"></malla-component>
                             </div>
                             <div v-show="7 == tabId">
-                                <th:block th:substituteby="academico/alumno/includes/aportes"/>
+                                <!--th:block th:substituteby="academico/alumno/includes/aportes"/-->
                             </div>
                         </section>
-                    </section>
+                    </section> 
+
                 </div>
             </div>
             <div th:substituteby="academico/alumno/includes/headerInfo"/>
             <div th:substituteby="academico/alumno/includes/inicio"/>
             <div th:substituteby="academico/alumno/includes/historial"/>
             <div th:substituteby="academico/alumno/includes/avance"/>
+            <div th:substituteby="academico/alumno/includes/horario"/>
             <div th:substituteby="academico/alumno/includes/matricula"/>
             <div th:substituteby="academico/alumno/includes/malla"/>
             <div th:substituteby="_modules/vue-modal"/>
@@ -62,7 +64,7 @@
         <div layout:fragment="js">
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var alumnoJson = /*[[${datoAlumno.toString()}]]*/ 'json';
+                var alumnoJson = /*[[${alumno.toString()}]]*/ 'json';
                 var horasJson = /*[[${horasBD.toString()}]]*/ 'json';
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 var planesJson = /*[[${planes.toString()}]]*/ 'json';
@@ -74,6 +76,7 @@
             <script th:src="@{/app/academico/alumno/inicioComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/avanceComponent.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/alumno/horarioComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/matriculaComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/mallaComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/infoAcademico.js}" charset="utf-8"></script>

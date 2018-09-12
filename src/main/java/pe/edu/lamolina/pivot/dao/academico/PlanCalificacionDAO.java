@@ -14,4 +14,6 @@ public interface PlanCalificacionDAO extends EasyDAO<PlanCalificacion> {
 
     Long maxNumeroCorrelativoPlanCalifica(Long idDepartamentoAcademico);
 
+    List<PlanCalificacion> allByNombre(String nombre);
+
 }

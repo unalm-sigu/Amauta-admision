@@ -20,13 +20,10 @@ Vue.component("historial-component", {
         }
     },
     beforeMount() {
-        if (this.alumno != null && this.alumno.id != null) {
-            this.cargaHistorial();
-        }
     },
     mounted() {
-        // this.cargaHistorial();
-    }, watch: {
+    },
+    watch: {
         alumno(newValue) {
             if (this.alumno != null && this.alumno.id != null) {
                 if (this.alumno.id != newValue.id) {

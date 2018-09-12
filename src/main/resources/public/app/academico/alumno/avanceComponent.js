@@ -1,17 +1,17 @@
 Vue.component("avance-component", {
     template: "#avanceComponent",
     props: {
-        alumno: {},
-        planes: []
+        alumno: {}
     },
     data: function () {
         return {
+            planes: [],
             ident: true,
             ciclosCurricula: [],
             cursosCurricula: [],
             cantidadCursos: 0,
-            searchCiclo: 1,
-            planTemp: { id:0}
+            showCiclo: 1,
+            planTemp: {id: 0},
         }
     },
     computed: {
@@ -20,21 +20,23 @@ Vue.component("avance-component", {
         }
     },
     beforeMount() {
-        this.cargaAvance();
+        let $vue = this;
+        $vue.loadPlanes();
     },
     mounted() {
-        this.planTemp.id = this.alumno.planCurricular.id;
+        let $vue = this;
+        $vue.planTemp.id = this.alumno.planCurricular.id;
     },
     methods: {
         active(index) {
             let $vue = this;
-            let tabSize = $vue.searchCiclo - 1;
+            let tabSize = $vue.showCiclo - 1;
             if (index === tabSize) {
                 return "active";
             }
         },
         styleNotaCurri(nota) {
-            if (nota === null) {
+            if (nota === "") {
 
             } else {
                 return "estado-blue";
@@ -53,60 +55,68 @@ Vue.component("avance-component", {
         },
         cargaAvance() {
             let $vue = this;
+
             $.ajax({
                 method: 'GET',
-                url: APP.url('academico/alumno/' + $vue.alumno.id + '/' + $vue.searchCiclo + '/avance'),
+                url: APP.url('academico/alumno/' + $vue.alumno.id + '/avance'),
                 contentType: "application/json",
                 success: function (response) {
                     $vue.cursosCurricula = response.data.cursos;
-                    if ($vue.searchCiclo == 1) {
-
-                        $vue.ciclosCurricula = response.data.ciclos;
-                        $vue.cantidadCursos = $vue.cursosCurricula.length;
-                    }
-                }
-            });
-        },
-        cambiarPlanCurricular() {
-            let $vue = this;
-            $.ajax({
-                async: false,
-                method: 'GET',
-                url: APP.url('academico/alumno/' + $vue.alumno.id + '/' + $vue.planTemp.id + '/cambiarplan'),
-                contentType: "application/json",
-                success: function (response) {
-                    $vue.alumno.planCurricular.id = $vue.planTemp.id;
-                    notify('Plan curricular actualizado', 'info');
+                    $vue.ciclosCurricula = response.data.ciclos;
+                    $vue.cantidadCursos = $vue.cursosCurricula.length;
                 }
             });
         },
         generarAvance() {
             let $vue = this;
-            console.log($vue.planTemp.id )
-            console.log($vue.alumno.planCurricular.id )
-            if ($vue.planTemp.id !== $vue.alumno.planCurricular.id) {
-                console.log('cambiar de plan');
-                $vue.cambiarPlanCurricular();
-            }
-                console.log('cambiar de planassadas');
-            if ($vue.planTemp.id !== $vue.alumno.planCurricular.id) {
+            if ($vue.planTemp.id == $vue.alumno.planCurricular.id && $vue.cursosCurricula.length > 0) {
+                notify('Debe cambiar antes el plan curricular', 'error');
                 return;
             }
+
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'GET',
-                url: APP.url('academico/alumno/' + $vue.alumno.id + '/generaravance'),
+                url: APP.url('academico/alumno/' + $vue.alumno.id + '/' + $vue.planTemp.id + '/cambiarplan'),
                 contentType: "application/json",
                 success: function (response) {
-                    $vue.cargaAvance();
+                    if (response.success) {
+                        $vue.$emit("reload-plan-alumno");
+                        $vue.cargaAvance();
+                        notify(response.message, 'info');
+                    } else {
+                        notify(response.message, 'error');
+                    }
                     MODAL.hideWait();
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
         cicloSelecc: function (cicloSelecc) {
             let $vue = this;
-            $vue.searchCiclo = cicloSelecc;
-            $vue.cargaAvance();
+            $vue.showCiclo = cicloSelecc;
+        },
+        loadPlanes() {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                async: true,
+                url: APP.url('academico/alumno/' + $vue.alumno.id + '/planes'),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.planes = response.data;
+                        $vue.planTemp.id = $vue.alumno.planCurricular.id;
+                    } else {
+                        notify("No se pudo cargar la lista de planes curriculares disponibles para el alumno", "error");
+                    }
+                },
+                error() {
+                    notify("No se pudo cargar la lista de planes curriculares disponibles para el alumno", "error");
+                }
+            });
         }
     }
 });

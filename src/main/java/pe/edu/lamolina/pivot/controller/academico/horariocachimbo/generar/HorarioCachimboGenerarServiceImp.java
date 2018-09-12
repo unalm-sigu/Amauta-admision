@@ -252,7 +252,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
     @Override
     public List<Hora> allHora() {
-        return horaDAO.allHora();
+        return horaDAO.all();
     }
 
     @Override
@@ -335,7 +335,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         List<SeccionHorarioCachimbos> seccionHorarioCachimbos = seccionHorarioCachimbosDAO.allBySeccions(ciclo, secciones);
         Map<Long, List<SeccionHorarioCachimbos>> seccionHorarioCachimbosMap = TypesUtil.convertListToMapList("seccion.id", seccionHorarioCachimbos);
 
-        List<MatriculaSeccion> matriculadosSecciones = matriculaSeccionDAO.allMatByAlumnosCiclo(alumnos, ciclo);
+        List<MatriculaSeccion> matriculadosSecciones = matriculaSeccionDAO.allMatriculadosByAlumnosCiclo(alumnos, ciclo);
         for (MatriculaSeccion matSeccion : matriculadosSecciones) {
             Seccion sec = matSeccion.getSeccion();
             Seccion seccion = mapSeccionMain.get(sec.getId());

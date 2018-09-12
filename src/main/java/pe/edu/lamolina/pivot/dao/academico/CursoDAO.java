@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
 public interface CursoDAO extends EasyDAO<Curso> {
 
@@ -40,4 +41,6 @@ public interface CursoDAO extends EasyDAO<Curso> {
     List<Curso> allByDptoEstado(Long idDpto, String estado);
 
     List<Curso> allActiveByCodigo(String codigo, CicloAcademico ciclo);
+
+    List<Curso> allByModalidadEstudioNombre(ModalidadEstudioEnum moda, String nombre);
 }

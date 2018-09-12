@@ -22,12 +22,12 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
     List<MatriculaSeccion> allByGpoSeccion(GrupoSeccion grupoSeccion, CicloAcademico ciclo);
 
     List<MatriculaSeccion> allMatriculadosByCiclo(CicloAcademico ciclo);
-    
+
     List<MatriculaSeccion> allByCiclo(CicloAcademico ciclo);
 
-    List<MatriculaSeccion> allByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
+    List<MatriculaSeccion> allMatriculadosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 
-    List<MatriculaSeccion> allMatByAlumnosCiclo(List<AlumnoHorario> alumnos, CicloAcademico ciclo);
+    List<MatriculaSeccion> allMatriculadosByAlumnosCiclo(List<AlumnoHorario> alumnos, CicloAcademico ciclo);
 
     Long countAllSeccionPrematriculado(CicloAcademico cicloAcademico);
 

@@ -15,11 +15,13 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Ubicacion;
 import pe.edu.lamolina.model.general.Universidad;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
@@ -73,6 +75,8 @@ public class BuscarServiceImp implements BuscarService {
     CarreraDAO carreraDAO;
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
 
     @Override
     public List<Curso> allCursosSCA(String nombre, PlanCalificacion plan, CicloAcademico ciclo) {
@@ -150,6 +154,22 @@ public class BuscarServiceImp implements BuscarService {
     public List<Seccion> allSeccionByCodigo(String codigo, CicloAcademico ciclo) {
         codigo = forLike(codigo);
         return seccionDAO.allByCodigo(codigo);
+    }
+
+    @Override
+    public List<CicloAcademico> allCicloByDescripcion(String nombre) {
+        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        return cicloAcademicoDAO.allByModalidadEstudioName(modalidad, nombre);
+    }
+
+    @Override
+    public List<PlanCalificacion> allPlanCalificacionByDescripcion(String nombre) {
+        return planCalificacionDAO.allByNombre(nombre);
+    }
+
+    @Override
+    public List<Curso> allCursoByModalidadEstudioNombre(String nombre, ModalidadEstudioEnum moda) {
+        return cursoDAO.allByModalidadEstudioNombre(moda, nombre);
     }
 
 }
