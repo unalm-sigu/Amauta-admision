@@ -93,7 +93,7 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
 
     @Override
     public List<Hora> allHora() {
-        return horaDAO.allHora();
+        return horaDAO.all();
     }
 
     @Override

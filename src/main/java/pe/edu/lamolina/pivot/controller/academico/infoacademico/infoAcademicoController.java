@@ -15,7 +15,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -60,26 +59,10 @@ public class infoAcademicoController {
     public JsonResponse alumnoAvance(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            ObjectNode objectNode = service.allAvanaceCurricular(new Alumno(idAlumno));
+            ObjectNode objectNode = service.allAvanceCurricular(new Alumno(idAlumno));
             response.setData(objectNode);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
+            response.setSuccess(Boolean.TRUE);
 
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("{idAlumno}/cursoMatri")
-    public JsonResponse alumnoListCursoMatri(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            ObjectNode lst = service.allAlumnosByCursosMatri(new Alumno(idAlumno), ds.getCicloAcademico());
-            response.setData(lst);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
 
@@ -97,6 +80,7 @@ public class infoAcademicoController {
             Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
         JsonNodeFactory factory = JsonNodeFactory.instance;
 
         Alumno alumno = service.findWithallInfo(new Alumno(idAlumno));
@@ -149,7 +133,7 @@ public class infoAcademicoController {
             planesJson.add(planJson);
         }
 
-        ObjectNode cicloJson = JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, true, new String[]{
+        ObjectNode cicloJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{
             "id", "descripcion", "descripcion2", "modalidadEstudio.*"
         });
 
@@ -213,39 +197,41 @@ public class infoAcademicoController {
 
         try {
             List<AlumnoCiclo> promedios = service.allPromediosByAlumno(new Alumno(idAlumno));
-            ArrayNode lstNode = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode promediosCicloJson = new ArrayNode(JsonNodeFactory.instance);
             for (AlumnoCiclo promedio : promedios) {
 
                 SituacionAcademica situacionAcademica = promedio.getSituacionFinal();
 
-                ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-                objNode.put("ciclo", promedio.getCicloAcademico().getDescripcion2());
-                objNode.put("descripción", promedio.getCicloAcademico().getDescripcion());
-                objNode.put("promedio", promedio.getPromedioCiclo());
-                objNode.put("promedioPonderadoAcum", promedio.getPromedioAcumulado());
-                objNode.put("CreditoCursadosCiclo", promedio.getCreditosCursadosCiclo());
-                objNode.put("CreditoAprobadosAcu", promedio.getCreditosAprobadosAcumulados());
-                objNode.put("CreditoAprobaCiclo", promedio.getCreditosAprobadosCiclo());
-                objNode.put("creditoAcumulado", promedio.getCreditosAcumulados());
-                objNode.put("situacionAcademica", situacionAcademica.getNombre());
+                ObjectNode promedioJson = new ObjectNode(JsonNodeFactory.instance);
+                promedioJson.put("ciclo", promedio.getCicloAcademico().getDescripcion2());
+                promedioJson.put("descripción", promedio.getCicloAcademico().getDescripcion());
+                promedioJson.put("promedio", promedio.getPromedioCiclo());
+                promedioJson.put("promedioPonderadoAcum", promedio.getPromedioAcumulado());
+                promedioJson.put("CreditoCursadosCiclo", promedio.getCreditosCursadosCiclo());
+                promedioJson.put("CreditoAprobadosAcu", promedio.getCreditosAprobadosAcumulados());
+                promedioJson.put("CreditoAprobaCiclo", promedio.getCreditosAprobadosCiclo());
+                promedioJson.put("creditoAcumulado", promedio.getCreditosAcumulados());
+                promedioJson.put("situacionAcademica", situacionAcademica.getNombre());
                 List<AlumnoCicloCurso> cursos = promedio.getAlumnoCicloCurso();
 
-                ArrayNode lstCurso = new ArrayNode(JsonNodeFactory.instance);
+                ArrayNode cursosCicloJson = new ArrayNode(JsonNodeFactory.instance);
                 for (AlumnoCicloCurso cicloCurso : cursos) {
-                    ObjectNode objCurso = new ObjectNode(JsonNodeFactory.instance);
+                    ObjectNode cursoJson = new ObjectNode(JsonNodeFactory.instance);
                     Curso curso = cicloCurso.getCurso();
-                    objCurso.put("curso", curso.getNombre());
-                    objCurso.put("codigo", curso.getCodigo());
-                    objCurso.put("creditos", cicloCurso.getCreditos());
-                    objCurso.put("nota", cicloCurso.getNota());
+                    cursoJson.put("curso", curso.getNombre());
+                    cursoJson.put("codigo", curso.getCodigo());
+                    cursoJson.put("creditos", cicloCurso.getCreditos());
+                    cursoJson.put("nota", cicloCurso.getNota());
 
-                    lstCurso.add(objCurso);
+                    cursosCicloJson.add(cursoJson);
                 }
-                objNode.set("cursos", lstCurso);
-                lstNode.add(objNode);
+                promedioJson.set("cursos", cursosCicloJson);
+                promediosCicloJson.add(promedioJson);
                 response.setSuccess(true);
             }
-            response.setData(lstNode);
+            response.setData(promediosCicloJson);
+            response.setSuccess(Boolean.TRUE);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
 
@@ -262,14 +248,14 @@ public class infoAcademicoController {
         JsonResponse response = new JsonResponse();
         JsonNodeFactory factory = JsonNodeFactory.instance;
 
-        ArrayNode cursosJson = new ArrayNode(factory);
-
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             Alumno alumno = new Alumno(idAlumno);
 
             ObjectNode data = new ObjectNode(factory);
+            ArrayNode cursosJson = new ArrayNode(factory);
+            
             List<MatriculaCurso> matriculaCursos = service.allCursosMatriculadosByAlumnoCiclo(alumno, ciclo);
             for (MatriculaCurso matriculaCurso : matriculaCursos) {
                 ObjectNode matriCursoJson = JsonHelper.createJson(matriculaCurso, factory, true, new String[]{
@@ -333,7 +319,7 @@ public class infoAcademicoController {
     public JsonResponse alumnoListHistorial(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            List<AlumnoCicloCurso> alumnoCicloCurso = service.allPromediosByAlumnoOrderByCurso(new Alumno(idAlumno));
+            List<AlumnoCicloCurso> alumnoCicloCurso = service.allCursoHistorialByAlumno(new Alumno(idAlumno));
 
             ArrayNode lstCurso = new ArrayNode(JsonNodeFactory.instance);
             ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);

@@ -1173,7 +1173,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<Hora> allHora() {
-        return horaDAO.allHora();
+        return horaDAO.all();
     }
 
     @Override

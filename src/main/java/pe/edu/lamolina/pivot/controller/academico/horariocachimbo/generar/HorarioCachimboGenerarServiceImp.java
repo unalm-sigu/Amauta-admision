@@ -252,7 +252,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
     @Override
     public List<Hora> allHora() {
-        return horaDAO.allHora();
+        return horaDAO.all();
     }
 
     @Override

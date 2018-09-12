@@ -142,7 +142,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
     }
 
     @Override
-    public ObjectNode allAvanaceCurricular(Alumno alumno) {
+    public ObjectNode allAvanceCurricular(Alumno alumno) {
         ArrayNode ciclosJson = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode cursosJson = new ArrayNode(JsonNodeFactory.instance);
         ObjectNode avanceCurrJson = new ObjectNode(JsonNodeFactory.instance);
@@ -188,7 +188,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
         return avanceCurrJson;
     }
 
-    @Override
+    //@Override
     public ObjectNode allAlumnosByCursosMatri(Alumno alumno, CicloAcademico cicloAca) {
 
         List<Seccion> secciones = new ArrayList();
@@ -252,7 +252,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
 
     @Override
     public List<Hora> allHoras() {
-        return horaDAO.allHora();
+        return horaDAO.all();
     }
 
     @Override
@@ -409,8 +409,8 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
     }
 
     @Override
-    public List<AlumnoCicloCurso> allPromediosByAlumnoOrderByCurso(Alumno alumno) {
-        return alumnoCicloCursoDAO.allByAlumnoOrdeyByCurso(alumno);
+    public List<AlumnoCicloCurso> allCursoHistorialByAlumno(Alumno alumno) {
+        return alumnoCicloCursoDAO.allByAlumnoOrderByCurso(alumno);
     }
 
     @Override
@@ -465,7 +465,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
         return boletas;
     }
 
-    public CicloAcademico findCicloByModalidad(ModalidadEstudio modalidad, CicloAcademico ciclo) {
+    private CicloAcademico findCicloByModalidad(ModalidadEstudio modalidad, CicloAcademico ciclo) {
         ModalidadEstudio modalidadCiclo = ciclo.getModalidadEstudio();
         if (modalidadCiclo.getId() == modalidad.getId().longValue()) {
             return ciclo;
@@ -555,7 +555,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
                 horas.add(horaDB);
             }
         }
-        horas = horas.isEmpty() ? horaDAO.allHora() : horas;
+        horas = horas.isEmpty() ? horaDAO.all() : horas;
         Collections.sort(horas, new Hora.CompareCodigo());
 
         ObjectNode horarioJson = new ObjectNode(jsonFactory);
@@ -647,7 +647,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
             alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoBD);
             alumnoCursoCurriculaDAO.deleteAllByAlumno(alumnoBD);
             alumnoAvanceCurricularDAO.deleteAllByAlumno(alumnoBD);
-            
+
             alumnoBD.setPlanCurricular(null);
             alumnoDAO.update(alumnoBD);
             return;

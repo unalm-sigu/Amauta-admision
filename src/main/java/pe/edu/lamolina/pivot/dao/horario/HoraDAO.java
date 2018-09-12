@@ -6,8 +6,6 @@ import pe.edu.lamolina.model.horario.Hora;
 
 public interface HoraDAO extends EasyDAO<Hora> {
 
-    List<Hora> allHora();
-
     Hora findByNumeroHora(Integer numero);
 
     List<Hora> allHoraInitOcho();
