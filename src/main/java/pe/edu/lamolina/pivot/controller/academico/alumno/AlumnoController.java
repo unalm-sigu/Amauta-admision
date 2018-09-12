@@ -8,10 +8,12 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -226,7 +229,10 @@ public class AlumnoController {
     }
 
     @RequestMapping("{idAlumno}/fisicoupdate")
-    public String fisicoupdate(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+    public String fisicoupdate(
+            @PathVariable("idAlumno") Long idAlumno,
+            @RequestParam(value = "origen", required = false) String origen,
+            Model model, HttpSession session) {
 
         List<String> codigos = new ArrayList();
         codigos.add(PRE.name());
@@ -243,7 +249,18 @@ public class AlumnoController {
         model.addAttribute("modalidades", modalidades);
         model.addAttribute("alumno", alumno);
         model.addAttribute("helper", new AlumnoHelper());
+        model.addAttribute("origen", getOrigen(origen));
+
         return "academico/alumno/fisico/alumnoFisico";
+    }
+
+    private String getOrigen(String origen) {
+        if (StringUtils.isEmpty(origen)) {
+            return "/academico/alumno";
+        }
+        byte[] decoded = Base64.getMimeDecoder().decode(origen);
+        String output = new String(decoded);
+        return output;
     }
 
     @ResponseBody

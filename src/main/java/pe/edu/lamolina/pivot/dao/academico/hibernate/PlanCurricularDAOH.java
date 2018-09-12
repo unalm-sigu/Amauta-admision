@@ -9,6 +9,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 
@@ -18,18 +19,6 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
     public PlanCurricularDAOH() {
         super();
         setClazz(PlanCurricular.class);
-    }
-
-    @Override
-    public List<PlanCurricular> allActivoByCarrera(Carrera carrera) {
-        Octavia sql = Octavia.query()
-                .from(PlanCurricular.class, "pc")
-                .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
-                .left("orientacionCarrera ocar", "cicloInicioVigencia cic")
-                .filter("estado", EstadoEnum.ACT)
-                .filter("carrera", carrera);
-
-        return all(sql);
     }
 
     @Override
@@ -75,6 +64,32 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
         }
 
         query.executeUpdate();
+    }
+
+    @Override
+    public List<PlanCurricular> allActivoByCarrera(Carrera carrera) {
+        Octavia sql = Octavia.query()
+                .from(PlanCurricular.class, "pc")
+                .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
+                .left("orientacionCarrera ocar", "cicloInicioVigencia cic")
+                .isNull("ocar.id")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("carrera", carrera);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<PlanCurricular> allActivoByOrientacion(Carrera carrera, OrientacionCarrera orientacion) {
+        Octavia sql = Octavia.query()
+                .from(PlanCurricular.class, "pc")
+                .join("carrera car", "car.facultad fac", "car.modalidadEstudio me", "orientacionCarrera ocar")
+                .left("cicloInicioVigencia cic")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("ocar.id", orientacion)
+                .filter("carrera", carrera);
+
+        return all(sql);
     }
 
 }

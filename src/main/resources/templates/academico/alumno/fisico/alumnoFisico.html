@@ -7,7 +7,7 @@
 
 
             <header class="header b-b padder-lg">
-                <a th:href="@{/academico/alumno}" class="btn btn-default btn-sm pull-right">Regresar</a>
+                <a th:href="${origen}" class="btn btn-default btn-sm pull-right">Regresar</a>
                 <h2 th:text="${ alumno.persona.id!=null ? alumno.persona.apellidosNombres : 'Alumno Fisico' }" id="nombreCompleto">Alumno Fisico</h2>
             </header>
 

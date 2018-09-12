@@ -52,8 +52,10 @@ import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoSimultaneoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
@@ -127,6 +129,17 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
 
     @Autowired
     DiaDAO diaDAO;
+
+    @Autowired
+    AlumnoCursoSimultaneoDAO alumnoCursoSimultaneoDAO;
+
+    @Autowired
+    AlumnoAvanceCurricularDAO alumnoAvanceCurricularDAO;
+
+    @Override
+    public Alumno findAlumno(Long idAlumno) {
+        return alumnoDAO.find(new Alumno(idAlumno));
+    }
 
     @Override
     public ObjectNode allAvanaceCurricular(Alumno alumno) {
@@ -243,7 +256,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
     }
 
     @Override
-    public Alumno allInfo(Alumno alumno) {
+    public Alumno findWithallInfo(Alumno alumno) {
         Alumno alu = alumnoDAO.findAllInfo(alumno.getId());
         Carrera carrera = alu.getCarrera();
         List<OrientacionCarrera> orientaciones = orientacionCarreraDAO.allByCarrera(carrera);
@@ -363,8 +376,14 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
     }
 
     @Override
-    public List<PlanCurricular> allPlanCurricularByCarrera(Carrera carrera) {
-        return planCurricularDAO.allActivoByCarrera(carrera);
+    public List<PlanCurricular> allPlanCurricularByAlumno(Alumno alumno) {
+        Carrera carrera = alumno.getCarrera();
+        OrientacionCarrera orientacion = alumno.getOrientacionCarrera();
+        if (orientacion == null) {
+            return planCurricularDAO.allActivoByCarrera(carrera);
+        } else {
+            return planCurricularDAO.allActivoByOrientacion(carrera, orientacion);
+        }
     }
 
     @Override
@@ -606,6 +625,37 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
     @Override
     public Hora getHoraByNroHora(Integer numero) {
         return horaDAO.findByNumeroHora(numero);
+    }
+
+    @Override
+    @Transactional
+    public void cambiarOrientacion(Alumno alumno, OrientacionCarrera orientacion, DataSessionPivot ds) {
+        Alumno alumnoBD = alumnoDAO.find(alumno);
+        OrientacionCarrera orientacionBD = orientacionCarreraDAO.find(orientacion.getId());
+        Assert.isTrue(alumnoBD != null, "El alumno no existe en la base de datos");
+        Assert.isTrue(orientacionBD != null, "La orientación no existe en la base de datos");
+
+        Carrera carrAlu = alumnoBD.getCarrera();
+        Carrera carrOri = orientacionBD.getCarrera();
+        Assert.isTrue(carrAlu.getId() == carrOri.getId().longValue(), "La orientación no corresponde a la especialidad del alumno");
+
+        alumnoBD.setOrientacionCarrera(orientacionBD);
+        alumnoDAO.update(alumnoBD);
+
+        List<PlanCurricular> planes = planCurricularDAO.allActivoByOrientacion(carrOri, orientacionBD);
+        if (planes.isEmpty() || planes.size() > 1) {
+            alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoBD);
+            alumnoCursoCurriculaDAO.deleteAllByAlumno(alumnoBD);
+            alumnoAvanceCurricularDAO.deleteAllByAlumno(alumnoBD);
+            
+            alumnoBD.setPlanCurricular(null);
+            alumnoDAO.update(alumnoBD);
+            return;
+        }
+
+        alumnoBD.setPlanCurricular(planes.get(0));
+        alumnoDAO.update(alumnoBD);
+        avanceCurricularService.generarAvanceCurricularByAlumno(alumnoBD, ds);
     }
 
 }

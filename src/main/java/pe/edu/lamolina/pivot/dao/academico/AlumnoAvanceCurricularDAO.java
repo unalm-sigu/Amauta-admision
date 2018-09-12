@@ -9,8 +9,9 @@ import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 public interface AlumnoAvanceCurricularDAO extends EasyDAO<AlumnoAvanceCurricular> {
 
     AlumnoAvanceCurricular findByAlumnoTipoCursoCurricula(Alumno alumno, TipoCursoCurricula tipoCursoCurricula);
-    
-    List<AlumnoAvanceCurricular> allByAlumno(Alumno alumno);
-    
-}
 
+    List<AlumnoAvanceCurricular> allByAlumno(Alumno alumno);
+
+    void deleteAllByAlumno(Alumno alumnoBD);
+
+}
