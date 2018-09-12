@@ -59,7 +59,7 @@
                                                 {{ item.tipoTramite.nombre}}
                                             </td>
                                             <td class="v-middle text-left">
-                                                <small class="block text-muted">Tramite:  {{ item.estadoEnum}}</small>
+                                                <small class="block text-muted">Tramite:  {{ item.estadoEnum.value}}</small>
                                                 <small class="block text-muted" 
                                                        v-if="item.tipoTramite.esTipoTramiteRei">
                                                     Reincorporación: {{item.estadoTramite.nombre}}
@@ -81,7 +81,7 @@
                                                         <i class="glyphicon glyphicon-cog"></i>
                                                     </a> 
                                                     <ul class="dropdown-menu pull-right"> 
-                                              
+
                                                         <li v-if="item.formularioEstadoTramite.id">
                                                             <a class="btn-link pointer" 
                                                                v-on:click="procesarTramite(item,$event)">
