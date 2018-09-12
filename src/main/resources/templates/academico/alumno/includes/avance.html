@@ -10,7 +10,9 @@
                 <label class="control-label col-sm-2" for="email">Plan Curricular: </label>
                 <div class="col-sm-2">
                     <select id='planes' class="form-control" v-model="planTemp.id">
-                        <option v-for="plan in planes" v-bind:value="plan.id" v-text="plan.cicloInicioVigencia.descripcion"></option>
+                        <option v-for="plan in planes" 
+                                v-bind:value="plan.id" 
+                                v-text="plan.cicloInicioVigencia.descripcion"></option>
                     </select>
                 </div>
                 <div class="col-sm-2">

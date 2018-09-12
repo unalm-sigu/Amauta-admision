@@ -12,7 +12,7 @@ Vue.component("matricula-component", {
     },
     computed: {
         titulo() {
-            return 'Matrícula ' + this.ciclo.descripcion;
+            return 'Cursos Matriculados ' + this.ciclo.descripcion;
         }
     },
     mounted() {

@@ -18,10 +18,9 @@ Vue.component("inicio-component", {
     methods: {
         changeOrientacion(orientacion) {
             let vue = this;
-            //vue.orientacionTmp = vue.alumno.orientacionCarrera;
 
             bootbox.confirm({
-                message: "El cambio de orientación afectara el avance curricular y los cursos hábiles ¿Desea proceder con el cambio?",
+                message: "El cambio de orientación afectará el avance curricular y los cursos hábiles ¿Desea proceder con el cambio?",
                 buttons: {
                     confirm: {
                         label: 'Si, cambiar',
@@ -34,7 +33,6 @@ Vue.component("inicio-component", {
                 },
                 callback: function (aceptar) {
                     if (aceptar) {
-                        //vue.alumno.orientacionCarrera = orientacion;
                         vue.saveOrientacion(orientacion);
                     } else {
                         vue.alumno.orientacionCarrera = vue.orientacionTmp;
@@ -53,7 +51,7 @@ Vue.component("inicio-component", {
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
-                        vue.orientacionTmp = vue.alumno.orientacionCarrera;
+                        vue.$emit("reiniciar-planes-main");
                         notify(response.message, "info");
                     } else {
                         vue.alumno.orientacionCarrera = vue.orientacionTmp;

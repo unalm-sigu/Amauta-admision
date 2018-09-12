@@ -25,13 +25,13 @@
                     <section class="panel">
                         <section class="panel-body">
                             <div v-show="1 == tabId"  >
-                                <inicio-component v-bind:alumno="alumno" ></inicio-component>
+                                <inicio-component v-bind:alumno="alumno" v-on:reiniciar-planes-main="reiniciarPlanes()"></inicio-component>
                             </div>
                             <div v-show="2 == tabId" >
                                 <historial-component v-bind:alumno="alumno" ref="loadHistorial"></historial-component>
                             </div>
                             <div v-show="3 == tabId" >
-                                <avance-component v-bind:alumno.sync="alumno" ref="loadAvance"></avance-component>
+                                <avance-component v-bind:alumno.sync="alumno" v-on:reload-plan-alumno="reloadPlanAlumno()" ref="loadAvance"></avance-component>
                             </div>
                             <div v-show="4 == tabId" >
                                 <matricula-component v-bind:alumno="alumno" ref="loadMatricula"></matricula-component>
@@ -47,7 +47,7 @@
                             </div>
                         </section>
                     </section> 
-                    
+
                 </div>
             </div>
             <div th:substituteby="academico/alumno/includes/headerInfo"/>

@@ -171,7 +171,6 @@ Vue.component("malla-component", {
                         for (var i = 0; i < reqs.length; i++) {
                             draw.get(reqs[i]).show();
                         }
-                        console.log("asdas");
                     });
                     group.mouseout(function () {
                         var idCurso = this.data("idCurso");

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -36,6 +37,16 @@ public class AlumnoAvanceCurricularDAOH extends AbstractEasyDAO<AlumnoAvanceCurr
                 .filter("tipoCursoCurricula", tipoCursoCurricula);
 
         return (AlumnoAvanceCurricular) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public void deleteAllByAlumno(Alumno alumno) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("delete AlumnoAvanceCurricular aac where aac.alumno.id = :ALUMNO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameter("ALUMNO", alumno.getId());
+        query.executeUpdate();
     }
 
 }

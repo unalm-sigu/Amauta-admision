@@ -5,10 +5,10 @@ import java.util.List;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
-import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
 import pe.edu.lamolina.model.horario.Hora;
@@ -17,7 +17,8 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface infoAcademicoService {
 
-//    ObjectNode allAvanaceCurricularByCiclo(Alumno alumno, Long numeroCiclo);
+    Alumno findAlumno(Long idAlumno);
+
     ObjectNode allAvanaceCurricular(Alumno alumno);
 
     ObjectNode allAlumnosByCursosMatri(Alumno alumno, CicloAcademico cicloAca);
@@ -26,7 +27,7 @@ public interface infoAcademicoService {
 
     List<Hora> allHoras();
 
-    Alumno allInfo(Alumno alumno);
+    Alumno findWithallInfo(Alumno alumno);
 
     void generarAvance(Alumno alumno, DataSessionPivot ds);
 
@@ -34,7 +35,7 @@ public interface infoAcademicoService {
 
     List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);
 
-    List<PlanCurricular> allPlanCurricularByCarrera(Carrera carrera);
+    List<PlanCurricular> allPlanCurricularByAlumno(Alumno alumno);
 
     void cambiarPlan(Alumno alumno, PlanCurricular planCurricular, DataSessionPivot ds);
 
@@ -49,5 +50,7 @@ public interface infoAcademicoService {
     ObjectNode findHorarioBySeccionesHorarios(List<HorarioSeccion> seccionesHorarios);
 
     Hora getHoraByNroHora(Integer numero);
+
+    void cambiarOrientacion(Alumno alumno, OrientacionCarrera orientacionCarrera, DataSessionPivot ds);
 
 }

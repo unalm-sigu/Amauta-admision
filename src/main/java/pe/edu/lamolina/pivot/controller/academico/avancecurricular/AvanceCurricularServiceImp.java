@@ -89,7 +89,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         }
     }
 
-    public void obtenerData(
+    private void obtenerData(
             PlanCurricular planCurricular,
             Map<Long, CursoCurricula> mapCursoCurricula,
             Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula,
