@@ -38,6 +38,7 @@ new Vue({
             $vue.mensajeria = {esObligatorio: 0};
             $vue.addMensajeria.okbtn = "Guardar";
             $vue.addMensajeria.title = "Nuevo Mensaje Intranet";
+            $("#formMensajeria").parsley().destroy();
             $vue.$refs.modalMensajeria.open();
         },
         saveUpdate(event) {
@@ -70,15 +71,10 @@ new Vue({
             });
 
         },
-//        getBoolean(valor) {
-//            if (valor) {
-//                return 1;
-//            }
-//            return 0;
-//        },
         editar(item) {
             let $vue = this;
             $vue.init();
+            $("#formMensajeria").parsley().destroy();
             $.ajax({
                 method: 'POST',
                 url: APP.url('mensajeria/edit'),
