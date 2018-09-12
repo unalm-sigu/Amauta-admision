@@ -1,42 +1,6 @@
 <template id="headerInfoComponent">
-    <section class="panel-body">
-        <div class="col-md-12" >
-            <div class="col-md-2" align="center">
-                
-                <div v-if="alumno.persona.tipoFoto=='POSTUL'" 
-                   class="img-responsive img-thumbnail img-circle div-foto">
-                    <img class="img-foto" v-bind:src="alumno.persona.rutaFoto" />
-                </div>
-                
-                <img v-else-if="alumno.persona.tipoFoto=='COMUN'" 
-                     class="img-responsive img-thumbnail img-circle" 
-                     v-bind:src="alumno.persona.rutaFoto"> </img>
-                
-                <img v-else="" class="img-foto-tempo img-responsive img-thumbnail img-circle" 
-                     v-bind:src="alumno.persona.rutaFoto"> </img>
-                
-            </div>
-            <div class="col-md-10">
-                <div class="col-md-12">
-                    <h3 v-text='alumno.persona.apellidosNombres'> </h3>
-                </div>
-                <div class="col-md-12">
-                    <span v-text='alumno.codigo'> </span> -  <span v-text ="alumno.situacionAcademica.nombre"></span>
-                </div>
-                <div class="col-md-12" v-if="alumno.persona.numeroDocIdentidad !== '' ">
-                    <span v-text="alumno.persona.tipoDocumento.simbolo"/>:
-                    <span v-text="alumno.persona.numeroDocIdentidad"/>
-                </div>
-                <div class="col-md-12" v-if="flag">
-                    <span v-text="alumno.carrera.nombre"/>
-                    <span v-if="alumno.carrera.codigo != alumno.carrera.facultad.codigo">
-                        - <span v-text="alumno.carrera.facultad.nombre"/>
-                    </span>
-                </div>
-                <div class="col-md-12">
-                    <span > <small v-text="alumno.modalidadEstudio.nombre"> </small> </span>
-                </div>
-            </div>
-        </div>
-    </section>
+    <div class="col-md-12 text-primary h3 bold m-t m-b-xs" >
+        <span v-text='alumno.codigo'/> -
+        <span v-text='alumno.persona.apellidosNombres'/> 
+    </div>
 </template>

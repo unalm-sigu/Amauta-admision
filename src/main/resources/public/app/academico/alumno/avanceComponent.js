@@ -5,7 +5,7 @@ Vue.component("avance-component", {
     },
     data: function () {
         return {
-            planes: JSON.parse(planesJson),
+            planes: [],
             ident: true,
             ciclosCurricula: [],
             cursosCurricula: [],
@@ -20,9 +20,12 @@ Vue.component("avance-component", {
         }
     },
     beforeMount() {
+        let $vue = this;
+        $vue.loadPlanes();
     },
     mounted() {
-        this.planTemp.id = this.alumno.planCurricular.id;
+        let $vue = this;
+        $vue.planTemp.id = this.alumno.planCurricular.id;
     },
     methods: {
         active(index) {
@@ -52,6 +55,7 @@ Vue.component("avance-component", {
         },
         cargaAvance() {
             let $vue = this;
+
             $.ajax({
                 method: 'GET',
                 url: APP.url('academico/alumno/' + $vue.alumno.id + '/avance'),
@@ -77,6 +81,7 @@ Vue.component("avance-component", {
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
+                        $vue.$emit("reload-plan-alumno");
                         $vue.cargaAvance();
                         notify(response.message, 'info');
                     } else {
@@ -92,6 +97,26 @@ Vue.component("avance-component", {
         cicloSelecc: function (cicloSelecc) {
             let $vue = this;
             $vue.showCiclo = cicloSelecc;
+        },
+        loadPlanes() {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                async: true,
+                url: APP.url('academico/alumno/' + $vue.alumno.id + '/planes'),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.planes = response.data;
+                        $vue.planTemp.id = $vue.alumno.planCurricular.id;
+                    } else {
+                        notify("No se pudo cargar la lista de planes curriculares disponibles para el alumno", "error");
+                    }
+                },
+                error() {
+                    notify("No se pudo cargar la lista de planes curriculares disponibles para el alumno", "error");
+                }
+            });
         }
     }
 });

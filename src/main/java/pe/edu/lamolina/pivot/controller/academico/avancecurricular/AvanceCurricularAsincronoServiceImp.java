@@ -179,7 +179,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         List<AlumnoCursoCurricula> alumnoCursoCurriculas;
         List<AlumnoCursoSimultaneo> cursosSimultaneos = new ArrayList();
 
-        int creditosAproboados = alumnoBD.getCreditosAprobados();
+        int creditosAprobados = alumnoBD.getCreditosAprobados();
         int creditosCurriculaAprobados = alumnoBD.getCreditosCarreraAprobados();
 
         alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allNoOpcionalByAlumno(alumnoBD);
@@ -192,7 +192,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         sincronizarConCurricula(cursosCurricula, mapAlumnoCursoCurriculaByCurso, cursosAlumno, alumnoBD);
 
-        validarCreditosAprobados(cursosCurricula, cursosAlumno.values(), creditosAproboados, creditosCurriculaAprobados);
+        validarCreditosAprobados(cursosCurricula, cursosAlumno.values(), creditosAprobados, creditosCurriculaAprobados);
         validarEquivalencias(cursosAlumno, alumno, mapEquivalentes);
         validarHistorial(mapAlumnoCursoCurriculaByCurso, alumnoBD);
         validarCursosComodin(alumno, cursosAlumno, mapAlumnoCursoCurriculaByCurso, ds);

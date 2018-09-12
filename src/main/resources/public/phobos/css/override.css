@@ -1216,8 +1216,41 @@ div.notas {
     -ms-transition: all 0.3s ease;
     -o-transition: all 0.3s ease;
     transition: all 0.3s ease; }
-.curso.size-1-n-horas {
-    min-height: calc(100% - 4px);
+.curso.size-2-horas {
+    min-height: calc(200% - 4px);
+    max-height: calc(200% - 4px);
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease; }
+.curso.size-3-horas {
+    min-height: calc(300% - 4px);
+    max-height: calc(300% - 4px);
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease; }
+.curso.size-4-horas {
+    min-height: calc(400% - 4px);
+    max-height: calc(400% - 4px);
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease; }
+.curso.size-5-horas {
+    min-height: calc(500% - 4px);
+    max-height: calc(500% - 4px);
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease; }
+.curso.size-6-horas {
+    min-height: calc(600% - 4px);
+    max-height: calc(600% - 4px);
     -webkit-transition: all 0.3s ease;
     -moz-transition: all 0.3s ease;
     -ms-transition: all 0.3s ease;
@@ -1230,7 +1263,53 @@ div.notas {
     -moz-transition: all 0.3s ease;
     -ms-transition: all 0.3s ease;
     -o-transition: all 0.3s ease;
-    transition: all 0.3s ease; }
+    transition: all 0.3s ease; 
+    border-bottom: 1px solid #787878;}
+.curso.size-2-horas:hover {
+    min-height: calc(200% - 4px);
+    max-height: 400px;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease; 
+    border-bottom: 1px solid #787878;}
+.curso.size-3-horas:hover {
+    min-height: calc(300% - 4px);
+    max-height: 600px;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease; 
+    border-bottom: 1px solid #787878;}
+.curso.size-4-horas:hover {
+    min-height: calc(400% - 4px);
+    max-height: 800px;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease; 
+    border-bottom: 1px solid #787878;}
+.curso.size-5-horas:hover {
+    min-height: calc(500% - 4px);
+    max-height: 1000px;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease; 
+    border-bottom: 1px solid #787878;}
+.curso.size-6-horas:hover {
+    min-height: calc(600% - 4px);
+    max-height: 1000px;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease; 
+    border-bottom: 1px solid #787878;}
 .curso.size-3 {
     height: calc(100% - 4px); }
 .curso:hover {

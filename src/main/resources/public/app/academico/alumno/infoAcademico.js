@@ -1,3 +1,4 @@
+Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#infoAcademico',
     data: {
@@ -53,6 +54,7 @@ new Vue({
                 $vue.loadPages.historial = true;
             }
             if ($vue.tabId === 3 && !$vue.loadPages.avance) {
+                $vue.$refs.loadAvance.loadPlanes();
                 $vue.$refs.loadAvance.cargaAvance();
                 $vue.loadPages.avance = true;
             }
@@ -85,12 +87,36 @@ new Vue({
                 }
             });
         },
+        reloadAlumno() {
+            let $vue = this;
+            $.ajax({
+                method: 'GET',
+                url: APP.url('academico/alumno/' + this.alumno.id + '/data'),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.alumno = response.data;
+                    }
+                }
+            });
+        },
         styleMenu(index) {
             let $vue = this;
             let id = $vue.tabId;
             if (index == id) {
                 return "active";
             }
+        },
+        reiniciarPlanes() {
+            let $vue = this;
+            $vue.reloadAlumno();
+            $vue.loadPages.avance = false;
+            $vue.loadPages.malla = false;
+        },
+        reloadPlanAlumno() {
+            let $vue = this;
+            $vue.reloadAlumno();
+            $vue.loadPages.malla = false;
         }
     }
 });

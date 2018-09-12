@@ -105,7 +105,6 @@ new Vue({
             }
         },
         mostrarUbicacionDomicilio: function() {
-            console.log();
             var vue = this;
             var dataPaisUni = $("#paisDomicilio").select2("data");
             if (dataPaisUni.codigo === "PE") {
