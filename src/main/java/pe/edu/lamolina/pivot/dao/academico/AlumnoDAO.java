@@ -22,7 +22,23 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     Alumno findFlatByCodigo(String codigoAlumno);
 
+    Alumno findByPersona(Persona persona, CicloAcademico cicloAcademico);
+
+    Alumno find(Alumno alumno);
+
+    Alumno findAllInfo(Long id);
+
+    Alumno findSituacionAcademica(Alumno alumno);
+
+    Alumno findByPersonaCicloIngreso(Persona persona, CicloAcademico ciclo);
+
     Alumno findLock(Long id);
+
+    AlumnoResumen findResumen();
+
+    MatriculableResumen findResumenByCiclo(CicloAcademico cicloAcademico);
+
+    Long countByPlanCurricular(PlanCurricular plan);
 
     List<Alumno> allByPersona(Persona persona);
 
@@ -30,27 +46,15 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByRolDynatable(DynatableFilter filter, List<Carrera> carreras);
 
-    AlumnoResumen findResumen();
-
     List<Alumno> allByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros);
 
-    MatriculableResumen findResumenByCiclo(CicloAcademico cicloAcademico);
-
     List<Alumno> allByName(String nombre);
-
-    Alumno findByPersona(Persona persona, CicloAcademico cicloAcademico);
 
     List<Alumno> allIngresantePregradoByCiclo(ModalidadEstudio modalidad, CicloAcademico cicloAcademico, List<Alumno> alumnoExclude);
 
     List<Alumno> allByNameModalidadEstudioCiclo(String nombre, ModalidadEstudio modalidad, CicloAcademico cicloAcademico);
 
     List<Alumno> allByPersonas(List<Persona> personas);
-
-    Alumno find(Alumno alumno);
-
-    Long countByPlanCurricular(PlanCurricular plan);
-
-    Alumno findByPersonaCicloIngreso(Persona persona, CicloAcademico ciclo);
 
     List<Alumno> allBySituaciones(ModalidadEstudio modalidad, List<SituacionAcademica> situaciones);
 
@@ -60,12 +64,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     void updateSituacionCicloCapa(Alumno alumno);
 
-    Alumno findAllInfo(Long id);
-
     void updateCicloActivoRegular(Alumno alumno);
 
-    Alumno findSituacionAcademica(Alumno alumno);
-
     List<Alumno> allByNombreFacultad(String name, Facultad facultad);
-    
+
 }

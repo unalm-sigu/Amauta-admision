@@ -17,7 +17,7 @@ public class HoraDAOH extends AbstractEasyDAO<Hora> implements HoraDAO {
     }
 
     @Override
-    public List<Hora> allHora() {
+    public List<Hora> all() {
         Octavia sql = Octavia.query()
                 .from(Hora.class, "ho")
                 .orderBy("ho.numero");
@@ -32,7 +32,7 @@ public class HoraDAOH extends AbstractEasyDAO<Hora> implements HoraDAO {
                 .filter("numero", numero)
                 .orderBy("ho.numero");
 
-        return (Hora) sql.find(getCurrentSession());
+        return find(sql);
     }
 
     @Override

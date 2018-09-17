@@ -19,9 +19,7 @@ public interface infoAcademicoService {
 
     Alumno findAlumno(Long idAlumno);
 
-    ObjectNode allAvanaceCurricular(Alumno alumno);
-
-    ObjectNode allAlumnosByCursosMatri(Alumno alumno, CicloAcademico cicloAca);
+    ObjectNode allAvanceCurricular(Alumno alumno);
 
     List<MatriculaCurso> allCursosMatriculadosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 
@@ -31,7 +29,7 @@ public interface infoAcademicoService {
 
     void generarAvance(Alumno alumno, DataSessionPivot ds);
 
-    List<AlumnoCicloCurso> allPromediosByAlumnoOrderByCurso(Alumno alumno);
+    List<AlumnoCicloCurso> allCursoHistorialByAlumno(Alumno alumno);
 
     List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);
 
