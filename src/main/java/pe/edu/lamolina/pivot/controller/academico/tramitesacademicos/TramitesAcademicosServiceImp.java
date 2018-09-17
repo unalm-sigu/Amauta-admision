@@ -442,7 +442,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
         ctx.setVariable("matriculados", matriculados);
         ctx.setVariable("gpoSecciones", gpoSecciones);
-        ctx.setVariable("alumnoCicloCurso", alumnoCicloCursoDAO.allByAlumnoOrderByCurso(alumno));
+        ctx.setVariable("alumnoCicloCurso", alumnoCicloCursoDAO.allByAlumnoCicloAsc(alumno));
 
         PdfContent pdfMatriculados = new PdfContent();
         pdfMatriculados.setContext(ctx);
