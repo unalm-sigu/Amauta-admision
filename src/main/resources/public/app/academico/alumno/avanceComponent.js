@@ -1,9 +1,9 @@
 Vue.component("avance-component", {
     template: "#avanceComponent",
     props: {
-        alumno: {},
         showTitle: true,
-        showActions: true
+        showActions: true,
+        alumno: {}
     },
     data: function () {
         return {
@@ -22,7 +22,10 @@ Vue.component("avance-component", {
     computed: {
         titulo() {
             let $vue = this;
-            return 'Avance Curricular en ' + $vue.alumno.carrera.nombre;
+            if ($vue.alumno.carrera)
+                return 'Avance Curricular en ' + $vue.alumno.carrera.nombre;
+            else
+                return '';
         }
     },
     beforeMount() {
