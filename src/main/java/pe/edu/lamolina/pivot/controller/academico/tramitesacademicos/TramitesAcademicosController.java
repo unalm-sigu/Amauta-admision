@@ -472,7 +472,7 @@ public class TramitesAcademicosController {
 
         try {
             String fileName = tramitesAcademicosService.cursoDirigidoReporte(new Tramite(id), ds);
-            pdfResponse(fileName, String.format("Subvención por carga académica adicional %s.pdf", ds.getCicloAcademico().getDescripcion()), response);
+            pdfResponse(fileName, "Información.pdf", response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {
