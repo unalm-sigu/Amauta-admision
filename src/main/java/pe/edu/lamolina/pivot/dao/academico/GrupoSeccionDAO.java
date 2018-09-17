@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
+import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -54,5 +55,9 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
     List<GrupoSeccion> allByCicloCurso(CicloAcademico ciclo, String codigo, Long curso);
 
     List<GrupoSeccion> allActivosByDocenteCiclo(Docente docente, CicloAcademico ciclo);
+
+    Map<Long, Long> allCountAlumnos(List<GrupoSeccion> grupos);
+
+    Map<Long, Long> allCountAlumnosWithNf(List<GrupoSeccion> grupos);
 
 }
