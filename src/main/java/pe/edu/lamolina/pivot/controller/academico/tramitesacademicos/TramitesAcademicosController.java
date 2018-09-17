@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.ArrayUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
@@ -87,7 +89,6 @@ public class TramitesAcademicosController {
         return "academico/tramitescademicos/tramitesAcademicos";
     }
 
-    /*
     @ResponseBody
     @RequestMapping("listTramites")
     public DynatableResponse listTramites(DynatableFilter filter,
@@ -138,11 +139,11 @@ public class TramitesAcademicosController {
             for (Tramite tramite : tramites) {
                 ObjectNode tramiteJson = JsonHelper.createJson(tramite, jc, false, mapperTramiteComplex);
                 //   ArrayNode reincorporaciones = null;
-              
-           //     if (tramite.getReincorporaciones() != null && !tramite.getReincorporaciones().isEmpty()) {
-             //       Reincorporacion reincorporacion = tramite.getReincorporaciones().get(0);
-            //        tramiteJson.set("reincorporacion", JsonHelper.createJson(reincorporacion, jc, false, mapperReincorporacion));
-           //     }
+
+                //     if (tramite.getReincorporaciones() != null && !tramite.getReincorporaciones().isEmpty()) {
+                //       Reincorporacion reincorporacion = tramite.getReincorporaciones().get(0);
+                //        tramiteJson.set("reincorporacion", JsonHelper.createJson(reincorporacion, jc, false, mapperReincorporacion));
+                //     }
                 if (tramite.getTramitesReunionConsejo() != null && !tramite.getTramitesReunionConsejo().isEmpty()) {
                     TramiteReunionConsejo tramiteReunionConsejo = tramite.getTramitesReunionConsejo().get(0);
                     tramiteJson.set("tramiteReunionConsejo", JsonHelper.createJson(tramiteReunionConsejo, jc, false, mapperReunionConsejo));
@@ -165,7 +166,7 @@ public class TramitesAcademicosController {
         }
         return json;
     }
-     */
+
     @ResponseBody
     @RequestMapping("cambiarEstadoReincorporacion")
     public JsonResponse cambiarAulaDirect(
