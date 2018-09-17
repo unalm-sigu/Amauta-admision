@@ -6,11 +6,13 @@ Vue.component("historial-component", {
     data: function () {
         return {
             cursos: [],
-            alumnoCurso: [],
-            listCiclos: [],
+            promedios: [],
+            verInfo: 1,
             typeSearch: false,
             typeSearch2: false,
             typeSearch3: false,
+            typeSearch4: false,
+            cicloSelect: {},
             general: true,
         }
     },
@@ -33,6 +35,107 @@ Vue.component("historial-component", {
         }
     },
     methods: {
+
+        colspanResumen(item) {
+            if (item.carrera.codigo == item.carrera.facultad.codigo) {
+                return 2;
+            }
+            return 3;
+        },
+        classResumen(item) {
+            if (item.carrera.codigo == item.carrera.facultad.codigo) {
+                return "col-md-3";
+            }
+            return "col-md-2";
+        },
+        verCarrera(item) {
+            if (item.carrera.codigo == item.carrera.facultad.codigo) {
+                return false;
+            }
+            return true;
+        },
+        tieneMeritoCiclo(item) {
+            if (item.cuadroHonorCiclo == "" && item.quintoSuperiorCiclo == "" && item.tercioSuperiorCiclo == "") {
+                return false;
+            }
+            return true;
+        },
+        tieneMeritoFacultad(item) {
+            if (item.cuadroHonorFacultad == "" && item.quintoSuperiorFacultad == "" && item.tercioSuperiorFacultad == "") {
+                return false;
+            }
+            return true;
+        },
+        tieneMeritoCarrera(item) {
+            if (item.cuadroHonorCarrera == "" && item.quintoSuperiorCarrera == "" && item.tercioSuperiorCarrera == "") {
+                return false;
+            }
+            return true;
+        },
+        getMeritoCiclo(item) {
+            if (item.cuadroHonorCiclo !== "") {
+                return "C.Honor";
+            } else if (item.quintoSuperiorCiclo !== "") {
+                return "5to.Super.";
+            } else if (item.tercioSuperiorCiclo !== "") {
+                return "3cio.Super.";
+            }
+            return "";
+        },
+        getMeritoFacultad(item) {
+            if (item.cuadroHonorFacultad !== "") {
+                return "C.Honor";
+            } else if (item.quintoSuperiorFacultad !== "") {
+                return "5to.Super.";
+            } else if (item.tercioSuperiorFacultad !== "") {
+                return "3cio.Super.";
+            }
+            return "";
+        },
+        getMeritoCarrera(item) {
+            if (item.cuadroHonorCarrera !== "") {
+                return "C.Honor";
+            } else if (item.quintoSuperiorCarrera !== "") {
+                return "5to.Super.";
+            } else if (item.tercioSuperiorCarrera !== "") {
+                return "3cio.Super.";
+            }
+            return "";
+        },
+        verCiclo(item) {
+            let noVer = {NMAT: "NMAT", RCI: "RCI", INH: "INH"};
+            let estado = noVer[item.estadoEnum.name];
+            if (estado === undefined) {
+                return true;
+            }
+            return false;
+        },
+        verNota(nota) {
+            let nn = nota.toFixed(2);
+            if (nn.length == 4) {
+                nn = "0" + nn;
+            }
+            return nn;
+        },
+        classCiclo(item) {
+            if (item.estadoEnum.name == 'NMAT') {
+                return "text-warning";
+            } else if (item.cicloAcademico.tipoEnum.name == 'REG') {
+                return "bold";
+            } else {
+                return "text-muted";
+            }
+        },
+        changeCiclo(item) {
+            let url = location.href + "#" + item.id;
+            location.href = "#" + item.id;
+        },
+        labelCiclo(item, id) {
+            if (item.cicloAcademico == undefined) {
+                return "";
+            }
+            return item.cicloAcademico.descripcion;
+        },
         cargaHistorial() {
             let $vue = this;
             $.ajax({
@@ -41,57 +144,83 @@ Vue.component("historial-component", {
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
-                        $vue.alumnoCurso = response.data;
-                        var i = 1;
-                        $vue.alumnoCurso.forEach(function (element) {
-                            var obj = {id: 1, value: element.descripción};
-                            $vue.listCiclos.push(obj);
-                            i++;
-                        })
+                        $vue.promedios = response.data.promedios;
+                        $vue.cursos = response.data.cursos;
+                        $vue.cicloSelect = {};
+                        if ($vue.promedios.length > 0) {
+                            $vue.cicloSelect = $vue.promedios[0];
+                        }
                     }
                 }
             });
         },
+        classScrollable() {
+            let $vue = this;
+            if ($vue.typeSearch3) {
+                return "";
+            }
+            return "pre-scrollable";
+        },
+        verificarCiclo(item) {
+            let $vue = this;
+            if ($vue.typeSearch3) {
+                return (item.id == $vue.cicloSelect.id)
+            }
+            return true;
+        },
         changeSearch() {
             let $vue = this;
-            $vue.alumnoCurso = this.alumnoCurso;
-            $vue.alumnoCursoTemp = this.alumnoCursoTemp;
+            $vue.verificarShow();
         },
         changeSearch2() {
             let $vue = this;
             if (!$vue.typeSearch2) {
                 $vue.general = true;
             } else {
-                $.ajax({
-                    method: 'GET',
-                    url: APP.url('academico/alumno/' + this.alumno.id + '/listHistorial'),
-                    contentType: "application/json",
-                    success: function (response) {
-                        $vue.cursos = response.data.cursos;
-                        $vue.general = false;
-                    }
-                });
+                $vue.general = false;
+                if ($vue.typeSearch3) {
+                    $vue.typeSearch3 = false;
+                }
             }
+
+            $vue.verificarShow();
         },
         changeSearch3() {
             let $vue = this;
-            if (!$vue.typeSearch3) {
+            $vue.verificarShow();
+        },
+        changeSearch4() {
+            let $vue = this;
+            $vue.verificarShow();
+        },
+        verificarShow() {
+            let $vue = this;
+            if ($vue.typeSearch4) {
+                $vue.verInfo = 4;
             } else {
+                if (!$vue.typeSearch2 && !$vue.typeSearch3) {
+                    $vue.verInfo = 1;
+                }
+                if ($vue.typeSearch2 && !$vue.typeSearch3) {
+                    $vue.verInfo = 3;
+                }
+                if (!$vue.typeSearch2 && $vue.typeSearch3) {
+                    $vue.verInfo = 1;
+                }
             }
         },
-        styleNota(nota) {
-            if (nota < 11 || nota == 'DE') {
-                return "text-danger";
-            } else {
+        styleNota(item) {
+            if (item.estaAprobado == 1) {
                 return "text-primary";
+            } else {
+                return "text-danger";
             }
         },
-        validarNota(curso, tipo) {
+        validarNota(item, tipo) {
             if (!tipo) {
                 return true;
             } else {
-                if (curso.nota >= 11)
-                    return true;
+                return (item.estaAprobado == 1);
             }
         },
         calcularPromedio: function () {
@@ -99,6 +228,7 @@ Vue.component("historial-component", {
             if (vue.alumno.id == null) {
                 return;
             }
+
             bootbox.confirm({
                 message: '¿Seguro que desea recalcular el promedio?',
                 buttons: {
@@ -128,6 +258,6 @@ Vue.component("historial-component", {
                     }
                 }
             });
-        },
+        }
     }
 });

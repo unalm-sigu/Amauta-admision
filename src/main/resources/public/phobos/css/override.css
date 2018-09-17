@@ -1873,3 +1873,8 @@ div.notas {
     max-width: none;
 }
 
+.multiselect, .multiselect__input, .multiselect__single {
+    font-family: inherit;
+    font-size: 13px !important;
+}
+

@@ -179,19 +179,19 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
         return all(sql);
     }
 
-    @Override
-    public List<AlumnoCicloCurso> allByAlumnoOrderByCurso(Alumno alumno) {
-        Octavia sql = Octavia.query()
-                .from(AlumnoCicloCurso.class, "acc")
-                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
-                .join("ac.carrera", "ac.situacionInicio")
-                .left("ac.situacionFinal", "ac.orientacionCarrera")
-                .filter("al.id", alumno)
-                .orderBy("cu.nombre");
-
-        return sql.all(getCurrentSession());
-    }
-
+    //@Override
+//    public List<AlumnoCicloCurso> allByAlumnoOrderByCurso(Alumno alumno) {
+//        Octavia sql = Octavia.query()
+//                .from(AlumnoCicloCurso.class, "acc")
+//                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+//                .join("ac.carrera", "ac.situacionInicio")
+//                .left("ac.situacionFinal", "ac.orientacionCarrera")
+//                .filter("al.id", alumno)
+//                .orderBy("cu.nombre");
+//
+//        return sql.all(getCurrentSession());
+//    }
+//    
     @Override
     public Long countByCursoAlumnoAnterioresCiclo(Curso curso, Alumno alumno, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()

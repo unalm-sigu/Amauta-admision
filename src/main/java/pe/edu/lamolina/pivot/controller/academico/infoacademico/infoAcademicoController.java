@@ -24,7 +24,6 @@ import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -34,7 +33,6 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
-import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
@@ -59,8 +57,8 @@ public class infoAcademicoController {
     public JsonResponse alumnoAvance(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            ObjectNode objectNode = service.allAvanceCurricular(new Alumno(idAlumno));
-            response.setData(objectNode);
+            ObjectNode avanceCurrInfoJson = service.allAvanceCurricular(new Alumno(idAlumno));
+            response.setData(avanceCurrInfoJson);
             response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {
@@ -196,40 +194,15 @@ public class infoAcademicoController {
         JsonResponse response = new JsonResponse();
 
         try {
-            List<AlumnoCiclo> promedios = service.allPromediosByAlumno(new Alumno(idAlumno));
-            ArrayNode promediosCicloJson = new ArrayNode(JsonNodeFactory.instance);
-            for (AlumnoCiclo promedio : promedios) {
+            List<AlumnoCicloCurso> cursosHisto = service.allHistorialAlumno(new Alumno(idAlumno));
+            ArrayNode promediosJson = service.allPromediosJson(cursosHisto);
+            ArrayNode cursosJson = service.allCursosJson(cursosHisto);
 
-                SituacionAcademica situacionAcademica = promedio.getSituacionFinal();
+            ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
+            data.set("promedios", promediosJson);
+            data.set("cursos", cursosJson);
 
-                ObjectNode promedioJson = new ObjectNode(JsonNodeFactory.instance);
-                promedioJson.put("ciclo", promedio.getCicloAcademico().getDescripcion2());
-                promedioJson.put("descripción", promedio.getCicloAcademico().getDescripcion());
-                promedioJson.put("promedio", promedio.getPromedioCiclo());
-                promedioJson.put("promedioPonderadoAcum", promedio.getPromedioAcumulado());
-                promedioJson.put("CreditoCursadosCiclo", promedio.getCreditosCursadosCiclo());
-                promedioJson.put("CreditoAprobadosAcu", promedio.getCreditosAprobadosAcumulados());
-                promedioJson.put("CreditoAprobaCiclo", promedio.getCreditosAprobadosCiclo());
-                promedioJson.put("creditoAcumulado", promedio.getCreditosAcumulados());
-                promedioJson.put("situacionAcademica", situacionAcademica.getNombre());
-                List<AlumnoCicloCurso> cursos = promedio.getAlumnoCicloCurso();
-
-                ArrayNode cursosCicloJson = new ArrayNode(JsonNodeFactory.instance);
-                for (AlumnoCicloCurso cicloCurso : cursos) {
-                    ObjectNode cursoJson = new ObjectNode(JsonNodeFactory.instance);
-                    Curso curso = cicloCurso.getCurso();
-                    cursoJson.put("curso", curso.getNombre());
-                    cursoJson.put("codigo", curso.getCodigo());
-                    cursoJson.put("creditos", cicloCurso.getCreditos());
-                    cursoJson.put("nota", cicloCurso.getNota());
-
-                    cursosCicloJson.add(cursoJson);
-                }
-                promedioJson.set("cursos", cursosCicloJson);
-                promediosCicloJson.add(promedioJson);
-                response.setSuccess(true);
-            }
-            response.setData(promediosCicloJson);
+            response.setData(data);
             response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {
@@ -255,7 +228,7 @@ public class infoAcademicoController {
 
             ObjectNode data = new ObjectNode(factory);
             ArrayNode cursosJson = new ArrayNode(factory);
-            
+
             List<MatriculaCurso> matriculaCursos = service.allCursosMatriculadosByAlumnoCiclo(alumno, ciclo);
             for (MatriculaCurso matriculaCurso : matriculaCursos) {
                 ObjectNode matriCursoJson = JsonHelper.createJson(matriculaCurso, factory, true, new String[]{
@@ -304,39 +277,6 @@ public class infoAcademicoController {
 
         try {
             service.generarAvance(new Alumno(idAlumno), ds);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("{idAlumno}/listHistorial")
-    public JsonResponse alumnoListHistorial(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            List<AlumnoCicloCurso> alumnoCicloCurso = service.allCursoHistorialByAlumno(new Alumno(idAlumno));
-
-            ArrayNode lstCurso = new ArrayNode(JsonNodeFactory.instance);
-            ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-
-            if (alumnoCicloCurso.size() > 0) {
-                objNode.put("alumnoCodigo", alumnoCicloCurso.get(0).getAlumnoCiclo().getAlumno().getCodigo());
-                for (AlumnoCicloCurso curso : alumnoCicloCurso) {
-                    ObjectNode objCurso = new ObjectNode(JsonNodeFactory.instance);
-                    objCurso.put("curso", curso.getCurso().getNombre());
-                    objCurso.put("codigo", curso.getCurso().getCodigo());
-                    objCurso.put("creditos", curso.getCreditos());
-                    objCurso.put("nota", curso.getNota());
-                    lstCurso.add(objCurso);
-                }
-            }
-            objNode.set("cursos", lstCurso);
-            response.setData(objNode);
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
