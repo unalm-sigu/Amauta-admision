@@ -3,14 +3,23 @@ package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import static com.helger.commons.io.stream.StreamHelper.close;
 import java.beans.PropertyEditorSupport;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +42,16 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
+import pe.edu.lamolina.pivot.controller.academico.infoacademico.infoAcademicoService;
+import pe.edu.lamolina.pivot.controller.academico.reunionconsejo.ReunionConsejoService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -53,6 +66,10 @@ public class TramitesAcademicosController {
 
     @Autowired
     TramitesAcademicosService tramitesAcademicosService;
+    @Autowired
+    ReunionConsejoService reunionConsejoService;
+    @Autowired
+    infoAcademicoService infoAcademicoService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -87,7 +104,6 @@ public class TramitesAcademicosController {
         return "academico/tramitescademicos/tramitesAcademicos";
     }
 
-    /*
     @ResponseBody
     @RequestMapping("listTramites")
     public DynatableResponse listTramites(DynatableFilter filter,
@@ -112,6 +128,7 @@ public class TramitesAcademicosController {
                 "tipoTramite.codigo",
                 "tipoTramite.nombre",
                 "tipoTramite.esTipoTramiteRei",
+                "tipoTramite.esTipoTramiteCurDir",
                 "userRegistro.*",
                 "userRegistro.persona.*",
                 "userRespuesta.*",
@@ -138,11 +155,11 @@ public class TramitesAcademicosController {
             for (Tramite tramite : tramites) {
                 ObjectNode tramiteJson = JsonHelper.createJson(tramite, jc, false, mapperTramiteComplex);
                 //   ArrayNode reincorporaciones = null;
-              
-           //     if (tramite.getReincorporaciones() != null && !tramite.getReincorporaciones().isEmpty()) {
-             //       Reincorporacion reincorporacion = tramite.getReincorporaciones().get(0);
-            //        tramiteJson.set("reincorporacion", JsonHelper.createJson(reincorporacion, jc, false, mapperReincorporacion));
-           //     }
+
+                //     if (tramite.getReincorporaciones() != null && !tramite.getReincorporaciones().isEmpty()) {
+                //       Reincorporacion reincorporacion = tramite.getReincorporaciones().get(0);
+                //        tramiteJson.set("reincorporacion", JsonHelper.createJson(reincorporacion, jc, false, mapperReincorporacion));
+                //     }
                 if (tramite.getTramitesReunionConsejo() != null && !tramite.getTramitesReunionConsejo().isEmpty()) {
                     TramiteReunionConsejo tramiteReunionConsejo = tramite.getTramitesReunionConsejo().get(0);
                     tramiteJson.set("tramiteReunionConsejo", JsonHelper.createJson(tramiteReunionConsejo, jc, false, mapperReunionConsejo));
@@ -165,7 +182,7 @@ public class TramitesAcademicosController {
         }
         return json;
     }
-     */
+
     @ResponseBody
     @RequestMapping("cambiarEstadoReincorporacion")
     public JsonResponse cambiarAulaDirect(
@@ -214,18 +231,16 @@ public class TramitesAcademicosController {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             ObjectNode node = new ObjectNode(jsonFactory);
-            /*
-            ReunionConsejo reunionConsejo = reunionConsejoService.findReunionConsejoByFechaAndOficina(fechaReunion, oficinaAux);
-            if (reunionConsejo == null) {
-                reunionConsejo = new ReunionConsejo();
-                reunionConsejo.setEsOrdinario(BigDecimal.ONE.intValue());
-            }
-
-            node.set("reunionConsejo", JsonHelper.createJson(reunionConsejo, jsonFactory, true, new String[]{
-                "*",
-                "usuarioRegistro.*",
-                "usuarioActualizacion.*",}));
-             */
+//            ReunionConsejo reunionConsejo = reunionConsejoService.findReunionConsejoByFechaAndOficina(fechaReunion, oficinaAux);
+//            if (reunionConsejo == null) {
+//                reunionConsejo = new ReunionConsejo();
+//                reunionConsejo.setEsOrdinario(BigDecimal.ONE.intValue());
+//            }
+//
+//            node.set("reunionConsejo", JsonHelper.createJson(reunionConsejo, jsonFactory, true, new String[]{
+//                "*",
+//                "usuarioRegistro.*",
+//                "usuarioActualizacion.*",}));
             response.setData(node);
             response.setSuccess(Boolean.TRUE);
 
@@ -270,7 +285,6 @@ public class TramitesAcademicosController {
         return json;
     }
 
-    /*
     @ResponseBody
     @RequestMapping("saveAgendar")
     public JsonResponse saveAgendar(
@@ -298,7 +312,7 @@ public class TramitesAcademicosController {
 
         return response;
     }
-     */
+
     @ResponseBody
     @RequestMapping("revertirEstadoTramite")
     public JsonResponse revertirEstadoTramite(
@@ -334,6 +348,15 @@ public class TramitesAcademicosController {
         ObjectNode tramiteJson = JsonHelper.createJson(new Tramite(tramiteId), JsonNodeFactory.instance);
 
         model.addAttribute("tramiteJson", tramiteJson.toString());
+
+        ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);
+        List<Hora> horas = infoAcademicoService.allHoras();
+        for (Hora hora : horas) {
+            horasJson.add(JsonHelper.createJson(hora, JsonNodeFactory.instance, true, new String[]{"*"}));
+        }
+
+        model.addAttribute("horasBD", horasJson);
+
         return "academico/tramitescademicos/proceso/procesarTramite";
     }
 
@@ -354,6 +377,11 @@ public class TramitesAcademicosController {
                 "*",
                 "persona.*",
                 "alumno.*",
+                "alumno.planCurricular.id",
+                "alumno.modalidadEstudio.id",
+                "alumno.modalidadEstudio.nombre",
+                "alumno.planCurricular.carrera.nombre",
+                "alumno.planCurricular.cicloInicioVigencia.descripcion",
                 "compania.*",
                 "cicloAcademico.*",
                 "tipoTramite.codigo",
@@ -413,7 +441,9 @@ public class TramitesAcademicosController {
                 tramite.setObservacion(tramiteNode.get("motivo").asText());
             }
             tramite.setTramiteReunionConsejo(new TramiteReunionConsejo());
-            tramite.getTramiteReunionConsejo().setReunionConsejo(new ReunionConsejo(tramiteNode.get("reunionConsejo").asText()));
+            if (tramiteNode.get("reunionConsejo") != null) {
+                tramite.getTramiteReunionConsejo().setReunionConsejo(new ReunionConsejo(tramiteNode.get("reunionConsejo").asText()));
+            }
 
             AccionTramiteAcademico accionTramiteAcademico = new AccionTramiteAcademico(tramiteNode.get("accionTramite").asLong());
             tramitesAcademicosService.procesarTramite(tramite, accionTramiteAcademico, ds);
@@ -436,4 +466,46 @@ public class TramitesAcademicosController {
         return "redirect:/academico/tramiteacademico";
     }
 
+    @RequestMapping("cursodirigido/{id}/reporte")
+    public void cursoDirigidoReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            String fileName = tramitesAcademicosService.cursoDirigidoReporte(new Tramite(id), ds);
+            pdfResponse(fileName, String.format("Subvención por carga académica adicional %s.pdf", ds.getCicloAcademico().getDescripcion()), response);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, model);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, model);
+        }
+    }
+
+    private void pdfResponse(String name, String outputFile, HttpServletResponse response) throws IOException {
+        if (!name.isEmpty()) {
+            File filex = new File(name);
+            if (!filex.exists()) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+            DateTime hoy = new DateTime();
+
+            response.reset();
+            response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "inline; filename=\"" + outputFile + "\"");
+
+            BufferedInputStream input = null;
+            BufferedOutputStream output = null;
+
+            try {
+                input = new BufferedInputStream(new FileInputStream(filex), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                output = new BufferedOutputStream(response.getOutputStream(), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                IOUtils.copy(input, output);
+                response.flushBuffer();
+            } finally {
+                close(output);
+                close(input);
+            }
+        }
+    }
 }

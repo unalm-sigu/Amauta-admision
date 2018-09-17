@@ -1,7 +1,9 @@
 Vue.component("avance-component", {
     template: "#avanceComponent",
     props: {
-        alumno: {}
+        alumno: {},
+        showTitle: true,
+        showActions: true
     },
     data: function () {
         return {

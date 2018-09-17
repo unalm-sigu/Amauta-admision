@@ -1,0 +1,128 @@
+
+<template id="cursoComponent">
+    <div layout:fragment="main">
+
+        <header class="header b-b padder-lg">
+            <h2> {curso.codigo}} - {{ curso.nombre }} </h2>
+        </header>
+
+        <div class="col-lg-12">
+            <section class="panel">
+                <section class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label>Modalidad Estudio</label>
+                                <input disabled="" v-model="curso.modalidadEstudio.nombre" class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>Nivel</label>
+                                <input class="form-control" disabled="" v-model="curso.nivel"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>Departamento Académico</label>
+                                <input v-model="curso.departamentoAcademico.nombre" disabled="" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>Tipo Dictado</label>
+                                <input disabled="" class="form-control" v-model="curso.tipoCurso"/>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>Horas semanales de teoría</label>
+                                <input name="horasTeoria" class="form-control text-right numerico"  v-model="curso.horasTeoria"/>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>Horas semanales de práctica</label>
+                                <input name="horasPractica" class="form-control text-right numerico" v-model="curso.horasPractica"/>
+                            </div>
+                        </div>
+                    </div>  
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>Creditos</label>
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <div class="col-sm-3">
+                                            <label class="radio inline">
+                                                <input type="radio" required="true" name="tipoCredito" id="credito" value="FIJO" v-model="curso.tipoCredito === 'FIJO'"/> Fijos
+                                            </label>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <label class="radio inline">
+                                                <input type="radio" required="true" name="tipoCredito" id="credito" value="VAR" v-model="curso.tipoCredito === 'VAR'"/> Variables
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>    
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label></label>
+                                <input class="form-control text-right numerico" v-model="curso.creditos"/>
+                            </div>
+                        </div>  
+                    </div>  
+                    <hr/>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-group" v-if="curso.coordinador.id">
+                                <label>Coordinador</label>
+                                <input disabled=""  class="form-control text-right" v-model="curso.coordinador.persona.nombreCompleto"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </div>
+</template>
+<script>
+    Vue.component('curso-component', {
+        template: '#cursoComponent',
+        props: {
+            cursoId: null,
+            curso: null
+        },
+        data: function () {
+            return {
+                URL_CURSOS: APP.url('academico/curso/'),
+            }
+        },
+        mounted() {
+            let $vue = this;
+            if (this.cursoId != null) {
+                findCurso(this.cursoId);
+            }
+        },
+        methods: {
+            findCurso(id) {
+                AXIOS.get(`${this.URL_CURSOS}/find/${id}`)
+                        .then(response => {
+                            if (response.data.success) {
+                                this.curso = response.data.data;
+                            }
+                        })
+            }
+        }
+    });
+
+</script>

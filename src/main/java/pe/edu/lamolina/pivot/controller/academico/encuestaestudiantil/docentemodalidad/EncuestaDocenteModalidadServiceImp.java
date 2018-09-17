@@ -62,6 +62,7 @@ import pe.edu.lamolina.pivot.zelper.CustomRenderer;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfContent;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfGenerator;
+import pe.edu.lamolina.pivot.zelper.pdf.TipoPdfEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -162,7 +163,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
 
         PdfContent pdfContent = new PdfContent();
         pdfContent.setContext(ctx);
-        pdfContent.setDocumentPdfEnum(DocumentoPdfEnum.RESULTADO_ENCUESTA);
+        pdfContent.setTipoPdfEnum(TipoPdfEnum.RESULTADO_ENCUESTA);
 
         String src = pdfGenerator.generateDocument(pdfContent, "tmp");
         String dest = src;

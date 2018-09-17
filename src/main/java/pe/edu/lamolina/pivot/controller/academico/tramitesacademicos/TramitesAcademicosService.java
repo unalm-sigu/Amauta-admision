@@ -26,4 +26,6 @@ public interface TramitesAcademicosService {
 
     void procesarTramite(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, DataSessionPivot ds);
 
+    String cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds);
+
 }

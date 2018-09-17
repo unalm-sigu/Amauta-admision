@@ -21,7 +21,7 @@
                 <div class="pull-right m-t-md">  
                     <a class="btn btn-info" type="button"    v-on:click.prevent="agenda"   href="#" >Agenda</a>
                 </div> 
-                <h2 >Tramites Academicos</h2>
+                <h2 >Trámites Académicos</h2>
             </header>
             <section  class="wrapper-lg">
 
@@ -36,13 +36,12 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th class="text-center">Tramite</th>
-                                            <th class="col-md-3 text-center">Persona</th>
-                                            <th class="text-center">Tipo Tramite</th>
-                                            <th class="text-center">Estado</th>
-                                            <th class="text-center">Registro</th>
+                                            <th class="col-md-2">Trámite</th>
+                                            <th class="col-md-col-md-3">Persona</th>
+                                            <th class="c">Tipo Tramite</th>
+                                            <th class="">Estado</th>
+                                            <th class="col-md-3">Registro</th>
                                             <th class="text-center">
-
                                             </th>
                                         </tr>
                                     </thead>
@@ -59,10 +58,14 @@
                                                 {{ item.tipoTramite.nombre}}
                                             </td>
                                             <td class="v-middle text-left">
-                                                <small class="block text-muted">Tramite:  {{ item.estadoEnum}}</small>
+                                                <small class="block text-muted">Tramite:  {{ item.estadoEnum.value}}</small>
                                                 <small class="block text-muted" 
                                                        v-if="item.tipoTramite.esTipoTramiteRei">
                                                     Reincorporación: {{item.estadoTramite.nombre}}
+                                                </small>
+                                                <small class="block text-muted" 
+                                                       v-if="item.tipoTramite.esTipoTramiteCurDir">
+                                                    Curso Dirigido: {{item.estadoTramite.nombre}}
                                                 </small>
                                                 <small class="block text-muted" 
                                                        v-if="item.tramiteReunionConsejo">

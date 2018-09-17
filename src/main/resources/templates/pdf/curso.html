@@ -1,0 +1,124 @@
+<html>
+    <head>
+        <title th:inline="text"> Subvención por carga académica adicional [[${cicloAcademico.descripcion}]]  </title>
+        <style>
+            body{
+                font-size: 10px !important;	
+            }
+
+            .fecha {
+                font-size: 10px;
+                font-style: italic;
+            }
+
+            .table{
+                font-size:12px !important;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+         
+            .text-right{
+                text-align: right;
+            }
+
+            table td {
+                padding: 8px !important;
+            }
+
+            .info-adicional{
+                font-size: 10px;
+                font-style: italic;
+            }
+            .header {
+                display: block;
+                padding-bottom: 20px;
+            }
+            .col-sm{
+                width: 30px;
+            }
+
+            .col-xs {
+                width: 20px;
+            }
+
+            .col-xxs {
+                width: 7px;
+            }
+
+            .table-docentes {
+                width: 100%;
+            }
+
+        </style>
+    </head>
+    <body>
+        <table  cellspacing="0" cellpadding="0" width="100%">
+            <tr>
+                <td width="200" style="text-center">
+                    <img height= "80px" src="logo-min.jpg" />
+                </td>
+                <td width="80%" style="text-align: center; padding-bottom: 20px;">
+                    <b style="font-size: 16px;"> UNIVERSIDAD NACIONAL AGRARIA LA MOLINA </b>
+                    <p style="font-family: serif; font-size: 12px;"> OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS </p>
+                    <p style="font-size: 10px; font-style: italic;"> Email: estudios@lamolina.edu.pe</p>
+                    <p style="font-size: 10px; font-style: italic;"> Teléfono: 349 - 5669 / 349 - 5647 anexo 135 </p>
+                </td>
+                <td width="200">
+                </td>
+            </tr>
+        </table>
+
+        <div style="text-align: center">
+            <b class="block" th:inline="text"> SUBVENCIÓN POR CARGA ACADÉMICA ADICIONAL <br/> CICLO [[${cicloAcademico.descripcion}]]</b><br/>
+        </div>
+
+        <div style="text-align: right; padding-top: 20px;padding-bottom: 20px;">
+            <span class="fecha" th:text="${fecha}">La Molina, miércoles 8 de agosto de 2018</span>
+        </div>
+
+    <th:block th:each="item : ${mapFacultades}">
+       <b th:text="${item.key.nombre}"> facultad </b>
+        <table class="table table-docentes">
+            <thead>
+                <tr>
+                    <td style="width: 10%;">
+                        <b> CÓDIGO  </b> 
+                    </td> 
+                    <td style="width: 50%;">
+                        <b> APELLIDOS Y NOMBRES </b>
+                    </td> 
+                    <td style="width: 5%;" class="text-right">
+                    </td> 
+                    <td style="width: 10%;" class="text-right">
+                        <b>MONTO</b>
+                    </td> 
+                    <td style="width: 25%;" class="text-center"> 
+                        <b>RECIBÍ CONFORME </b>
+                    </td> 
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="docenteCiclo : ${item.value}">
+                    <td> 
+                        <span th:text="${docenteCiclo.docente.codigo}"> codigo docente </span>
+                    </td>
+                    <td> 
+                        <span th:text="${docenteCiclo.docente.persona.apellidosNombres}"> nombre docente </span>
+                    </td>
+                    <td class="text-right">
+                       S/.
+                    </td>
+                    <td class="text-right">
+                        <span th:text="${docenteCiclo.monto}"> monto </span>
+                    </td>
+                    <td class="text-center"> ............................................  </td>
+                </tr>
+            </tbody>
+        </table>
+       <h1 style="page-break-before: always"></h1>
+    </th:block>
+
+</body>
+</html>
