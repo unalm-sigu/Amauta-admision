@@ -412,7 +412,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         Curso curso = cursoDirigido.getCurso();
         PlanCurricular planCurricular = alumno.getPlanCurricular();
 
-        Map<Integer, List<CursoCurricula>> cursosPlanCurricular = planCurricular.getCursoCurricula().stream().collect(Collectors.groupingBy(cc -> cc.getNumeroCiclo()));
+        Map<Integer, List<CursoCurricula>> cursosPlanCurricular = planCurricular.getCursoCurricula().stream().filter(cc -> cc.getNumeroCiclo() != null).collect(Collectors.groupingBy(cc -> cc.getNumeroCiclo()));
 
         Map<Integer, List<AlumnoCursoCurricula>> avanceCurricular = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno)
                 .stream()
@@ -442,7 +442,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
         ctx.setVariable("matriculados", matriculados);
         ctx.setVariable("gpoSecciones", gpoSecciones);
-        ctx.setVariable("alumnoCicloCurso", alumnoCicloCursoDAO.allByAlumnoCicloAsc(alumno));
+        ctx.setVariable("alumnoCicloCurso", alumnoCicloCursoDAO.allByAlumnoOrderByCurso(alumno));
 
         PdfContent pdfMatriculados = new PdfContent();
         pdfMatriculados.setContext(ctx);

@@ -96,8 +96,8 @@
                                     <td th:unless="${hs == null}">
                                         <b th:text="${hs.seccion.grupoSeccion.curso.codigo}">  </b>
                                         <p th:text="${hs.seccion.codigo2}">  </p>
-                                        <p th:inline="text"> Aula: [[${hs.seccion.aula?.codigo}]]  </p>
-                                        <p th:inline="text"> Gpo: [[${hs.seccion.grupoHoras?.codigo}]]  </p>
+                                        <p th:inline="text"> Aula [[${hs.seccion.aula?.codigo}]]  </p>
+                                        <p th:inline="text"> Gpo [[${hs.seccion.grupoHoras?.codigo}]]  </p>
                                     </td>
                                 </tr>
                             </tbody>

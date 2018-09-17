@@ -71,20 +71,22 @@
 
         <table class="table table-plan" style="margin-bottom: 30px">
             <thead>
-                
+                <tr>
+                    <td><b>Curso</b></td>
+                    <td class="text-center"><b>Nota</b></td>
+                    <td class="text-center"><b>Ciclo</b></td>
+                </tr>
             </thead>
             <tbody>
                 <tr th:each="cursado : ${alumnoCicloCurso}">
                     <td>
-                        <span th:text="${cursado.curso.codigo}"> codigo </span>
+                        <span th:inline="text"> [[${cursado.curso.codigo}]] - [[${cursado.curso.nombre}]] </span>
                     </td>
-                    <td>
-                        <span th:text="${cursado.curso.nombre}"> codigo </span>
+                    <td class="text-center">
+                        <span th:if="${cursado.isAprobado()}" th:text="${cursado.nota}"> nota </span>
+                        <span th:unless="${cursado.isAprobado()}" style="color: red;" th:text="${cursado.nota}"> nota </span>
                     </td>
-                    <td>
-                        <span th:text="${cursado.nota}"> nota </span>
-                    </td>
-                    <td>
+                    <td class="text-center">
                         <span th:text="${cursado.alumnoCiclo.cicloAcademico.descripcion}"> ciclo </span>
                     </td>
                 </tr>
