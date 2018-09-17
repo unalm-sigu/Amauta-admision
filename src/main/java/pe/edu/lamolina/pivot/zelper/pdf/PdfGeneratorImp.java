@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.spring4.SpringTemplateEngine;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.enums.DocumentoPdfEnum;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Service
@@ -52,19 +52,30 @@ public class PdfGeneratorImp implements PdfGenerator {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public String generateDocument(PdfContent pdfContent) {
-        return generateDocument(pdfContent, null);
+    public String generateDocument(PdfContent pdfContent, Rectangle rectangle) {
+        return generateDocument(pdfContent, null, rectangle);
     }
 
     @Override
     public String generateDocument(PdfContent pdfContent, String subFolder) {
+        return generateDocument(pdfContent, subFolder, PageSize.A4);
+    }
+
+    @Override
+    public String generateDocument(PdfContent pdfContent) {
+        return generateDocument(pdfContent, null, PageSize.A4);
+    }
+
+    @Override
+    public String generateDocument(PdfContent pdfContent, String subFolder, Rectangle rectangle) {
         logger.debug("Entro a generar documento pdf");
-        Document docPDF = new Document(PageSize.A4);
+        Document docPDF = new Document(rectangle);
         docPDF.addCreationDate();
         docPDF.addCreator("albatross.pe");
 
-        DocumentoPdfEnum documentoPdfEnum = pdfContent.getDocumentPdfEnum();
+        TipoPdfEnum documentoPdfEnum = pdfContent.getTipoPdfEnum();
 
+        ObjectUtil.printAttr(pdfContent);
         pdfContent.setSubject(documentoPdfEnum.getSubject());
         pdfContent.setTitle(documentoPdfEnum.getTitle());
         pdfContent.setTemplate(documentoPdfEnum.getFileTemplate());
@@ -116,12 +127,13 @@ public class PdfGeneratorImp implements PdfGenerator {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
         docPDF.close();
         logger.debug("Se genero el documento pdf {}", filePath);
         return filePath;
     }
 
-    private String documentPdfAdmisionFilename(DocumentoPdfEnum docPdfEnum, String subFolder) {
+    private String documentPdfAdmisionFilename(TipoPdfEnum docPdfEnum, String subFolder) {
         File folder = new File(PDF_SAVE_PATH + (StringUtils.isEmpty(subFolder) ? "" : File.separator + subFolder));
         if (!folder.exists()) {
             folder.mkdirs();

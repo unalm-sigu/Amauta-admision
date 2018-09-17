@@ -1,7 +1,24 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Alumnos</title>
-        <link th:substituteby="_layout/includes :: styles-dynatable"/>
+        <!--<link th:substituteby="_layout/includes :: styles-dynatable"/>-->
+        <style>
+            .header-ciclo {
+                padding-top: 9px;
+                padding-bottom: 9px;
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+            }
+            .footer-ciclo {
+                padding-top: 9px;
+                padding-bottom: 9px;
+                border-bottom-left-radius: 11px;
+                border-bottom-right-radius: 11px;
+            }
+            .td-pad {
+                padding: 0 !important;
+            }
+        </style>
     </head>
 
     <body>

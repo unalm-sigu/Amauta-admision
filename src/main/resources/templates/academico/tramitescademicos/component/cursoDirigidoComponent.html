@@ -1,0 +1,115 @@
+
+<template id="cursoDirigidoComponent">
+    <div>
+        <a class="btn btn-primary pull-right m-b-sm" v-bind:href="`${URL_TRAMITE}/cursodirigido/${tramite.id}/reporte`"> Descargar Informe </a>
+        <div id="tabs" class=" tabbable-line">	
+            <ul class="nav nav-tabs">
+                <li class="active">
+                    <a  href="#1" data-toggle="tab">Curso</a>
+                </li>
+                <li>
+                    <a href="#2" data-toggle="tab">Malla Curricular</a>
+                </li>
+                <li>
+                    <a href="#3" data-toggle="tab">Avance Curricular</a>
+                </li>
+                <li>
+                    <a href="#4" data-toggle="tab">Historial Académico</a>
+                </li>
+                <li>
+                    <a href="#5" data-toggle="tab">Cursos Matriculados</a>
+                </li>
+                <li>
+                    <a href="#6" data-toggle="tab">Horario</a>
+                </li>
+            </ul>
+
+            <div class="tab-content ">
+                <div class="tab-pane active" id="1">
+                </div>
+                <div class="tab-pane" id="2">
+                    <malla-component v-bind:alumno="tramite.alumno" ref="loadMalla"></malla-component>
+                </div>
+                <div class="tab-pane" id="3">
+                    <avance-component v-bind:alumno.sync="tramite.alumno"  ref="loadAvance" v-bind:showTitle="false" v-bind:show-actions="false"></avance-component>
+                </div>
+                <div class="tab-pane" id="4">
+                    <historial-component v-bind:alumno="tramite.alumno" ref="loadHistorial" v-bind:show-actions="false" v-bind:show-title="false"></historial-component>
+                </div>
+                <div class="tab-pane" id="5">
+                    <matricula-component v-bind:alumno="tramite.alumno" ref="loadMatricula"></matricula-component>
+                </div>
+                <div class="tab-pane" id="6">
+                    <horario-component v-bind:alumno="tramite.alumno" v-bind:ciclo="tramite.cicloAcademico" ref="loadHorario"></horario-component>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</template>
+<script >
+    Vue.component('curso-dirigido-component', {
+        template: '#cursoDirigidoComponent',
+        props: {
+            tramite: null
+        },
+        data: function () {
+            return {
+                alumno: {},
+                URL_TRAMITE: APP.url('academico/tramiteacademico'),
+                URL_REUNIONES: APP.url('academico/tramiteacademico/listReunionesConsejo'),
+                reunionConsejoSel: null
+            }
+        },
+        mounted() {
+            this.alumno = this.tramite.alumno;
+            console.dir(this.alumno);
+            let $vue = this;
+            if ($vue.tramite != null) {
+                if ($vue.tramite.id != null) {
+                    this.reunionConsejoSel = $vue.tramite.tramiteReunionConsejo.reunionConsejo;
+                    this.loadAgendarComponent();
+                }
+            }
+            this.$refs.loadMalla.verMalla();
+            this.$refs.loadMatricula.obtenerDatos();
+            this.$refs.loadHistorial.cargaHistorial();
+            this.$refs.loadAvance.cargaAvance();
+            this.$refs.loadHorario.cargaHorario();
+        },
+        watch: {
+            tramite(newValue) {
+                if (this.tramite != null) {
+                    if (this.tramite.id != null) {
+                        if (this.tramite.id != newValue.id) {
+                            this.alumno = this.tramite.alumno;
+                            this.reunionConsejoSel = $vue.tramite.tramiteReunionConsejo.reunionConsejo;
+                            this.loadAgendarComponent();
+                            // this.$refs.tblReunionesConsejo.loadRemoteData();
+                        }
+                    }
+                }
+            }
+        },
+        methods: {
+            loadAgendarComponent() {
+                let $vue = this;
+                $vue.reunionConsejoSel = null;
+                /*  $.ajax({
+                 url: APP.url('academico/tramiteacademico/loadModalAgendar'),
+                 data: JSON.stringify($vue.tramite),
+                 dataType: "json",
+                 contentType: "application/json",
+                 type: 'POST',
+                 success: function (response) {
+                 if (response.success) {
+                 $vue.tramiteSeleccionado = tramite;
+                 }
+                 }
+                 });*/
+                //  $vue.$refs.modalAgendar.open();
+            }
+        }
+    });
+
+</script>

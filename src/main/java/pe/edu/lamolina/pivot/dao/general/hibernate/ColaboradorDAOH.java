@@ -8,7 +8,6 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.Alumno;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DSC;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.PER;

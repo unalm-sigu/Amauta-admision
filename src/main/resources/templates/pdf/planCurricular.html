@@ -1,0 +1,125 @@
+<html>
+    <head>
+        <title th:inline="text"> Plan Curricular </title>
+        <style>
+            body{
+                font-size: 10px !important;	
+            }
+
+            .fecha {
+                font-size: 10px;
+                font-style: italic;
+            }
+
+            .table{
+                font-size:10px !important;
+                border: solid .25px;
+                border-collapse: collapse;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .text-right{
+                text-align: right;
+            }
+
+            table td {
+                padding: 5px !important;
+            }
+
+            .info-adicional{
+                font-size: 10px;
+                font-style: italic;
+            }
+            .header {
+                display: block;
+                padding-bottom: 20px;
+            }
+            .col-sm{
+                width: 30px;
+            }
+
+            .col-xs {
+                width: 20px;
+            }
+
+            .col-xxs {
+                width: 7px;
+            }
+
+            .table-plan {
+                width: 100%;
+            }
+
+            .table-plan > tbody > tr > td, .table-plan > thead > tr > td  {
+                border-top: solid .25px;
+                border-bottom: solid .25px;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div style="text-align: center">
+            <b class="block" th:inline="text"> PLAN CURRICULAR <br/> [[${planCurricular.carrera.nombre}]]</b><br/>
+        </div>
+
+        <div style="text-align: right; padding-top: 20px;padding-bottom: 20px;">
+            <span class="fecha" th:text="${fecha}">La Molina, miércoles 8 de agosto de 2018</span>
+        </div>
+
+    <th:block  th:each="cursos : ${planCurricularCursos}" style="border: solid 2px !important">
+        <table class="table table-plan" style="margin-bottom: 30px">
+            <thead>
+                <tr>
+                    <td colspan="5" style="background-color: black; color: white" class="text-center">
+                        <b th:if="${cursos.key == 1}"> Primer Ciclo </b>
+                        <b th:if="${cursos.key == 2}"> Segundo Ciclo </b>
+                        <b th:if="${cursos.key == 3}"> Tercer Ciclo </b>
+                        <b th:if="${cursos.key == 4}"> Cuarto Ciclo </b>
+                        <b th:if="${cursos.key == 5}"> Quinto Ciclo </b>
+                        <b th:if="${cursos.key == 6}"> Sexto Ciclo </b>
+                        <b th:if="${cursos.key == 7}"> Séptimo Ciclo </b>
+                        <b th:if="${cursos.key == 8}"> Octavo Ciclo </b>
+                        <b th:if="${cursos.key == 9}"> Noveno Ciclo </b>
+                        <b th:if="${cursos.key == 10}"> Décimo Ciclo </b>
+                        <b th:if="${cursos.key == 11}"> Undécimo Ciclo </b>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 50%"><b> Nombre </b></td>
+                    <td style="width: 35%"><b> Tipo </b></td>
+                    <td style="width: 5%"><b> T      </b></td>
+                    <td style="width: 5%"><b> P      </b></td>
+                    <td style="width: 5%"><b> C      </b></td>
+                </tr>
+            </thead>
+            <tbody style="border: solid 2px !important">
+                <tr th:each="curso : ${cursos.value}"  style="border: solid 2px !important">
+                    <td>
+                        <span th:text="${curso.curso.codigo}"> codigo del curso </span>
+                        <span th:text="${curso.curso.nombre}"> nombre del curso </span>
+                    </td>
+                    <td>
+                        <span th:if="${curso.curso.isTipoCursoTEO()}"> Teoría </span>
+                        <span th:if="${curso.curso.isTipoCursoPRA()}"> Práctica </span>
+                        <span th:if="${curso.curso.isTipoCursoTEOPRA()}"> Teoría Práctica </span>
+                    </td>
+                    <td>
+                        <span th:text="${curso.curso.horasTeoria}"> t </span>
+                    </td>
+                    <td>
+                        <span th:text="${curso.curso.horasPractica}"> p  </span>
+                    </td>
+                    <td>
+                        <span th:text="${curso.curso.creditos}"> c </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </th:block>
+
+
+</body>
+</html>

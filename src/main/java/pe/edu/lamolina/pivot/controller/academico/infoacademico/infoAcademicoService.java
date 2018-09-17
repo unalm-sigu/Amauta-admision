@@ -1,9 +1,9 @@
 package pe.edu.lamolina.pivot.controller.academico.infoacademico;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
@@ -29,9 +29,11 @@ public interface infoAcademicoService {
 
     void generarAvance(Alumno alumno, DataSessionPivot ds);
 
-    List<AlumnoCicloCurso> allCursoHistorialByAlumno(Alumno alumno);
+    List<AlumnoCicloCurso> allHistorialAlumno(Alumno alumno);
 
-    List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);
+    ArrayNode allPromediosJson(List<AlumnoCicloCurso> cursosCiclos);
+
+    ArrayNode allCursosJson(List<AlumnoCicloCurso> cursosCiclosOrigen);
 
     List<PlanCurricular> allPlanCurricularByAlumno(Alumno alumno);
 

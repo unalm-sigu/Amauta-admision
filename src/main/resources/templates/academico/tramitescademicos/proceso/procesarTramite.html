@@ -19,7 +19,7 @@
         <header class="header b-b padder-lg">
             <h2 >Procesar Tramites Academicos</h2>
             <div class="pull-right m-t-md">
-                <a class="btn btn-default"   th:href="@{/academico/tramiteacademico}"  >Regresar</a>
+                <a class="btn btn-default"   th:href="@{/academico/tramiteacademico}">Regresar</a>
             </div>
         </header>
         <div id="procesarTramitesAcademicos">
@@ -62,6 +62,13 @@
                 </section>
             </div>
         </div>
+
+        <div th:substituteby="academico/alumno/includes/headerInfo"/>
+        <div th:substituteby="academico/alumno/includes/inicio"/>
+        <div th:substituteby="academico/alumno/includes/avance"/>
+        <div th:substituteby="academico/alumno/includes/horario"/>
+        <div th:substituteby="academico/alumno/includes/matricula"/>
+        <div th:substituteby="academico/alumno/includes/malla"/>
         <div th:substituteby="academico/alumno/includes/historial"/>
         <div th:substituteby="templates/modal"/>
         <div th:substituteby="_modules/vue-modal"/>
@@ -71,14 +78,22 @@
     <div layout:fragment="js">
         <script th:inline="javascript">
             var tramiteJson = [[${tramiteJson}]];
+            var horasJson = [[${horasBD.toString()}]];
         </script>
+        <div th:substituteby="_layout/includes :: svgjs"/>
         <div th:substituteby="_modules/vue-raptor-table"/>
         <div th:substituteby="academico/tramitescademicos/component/tramiteDetalleComponent"/>
         <div th:substituteby="academico/tramitescademicos/component/agendarComponent"/>
+        <div th:substituteby="academico/tramitescademicos/component/cursoDirigidoComponent"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-generalComponents.js}"></script>
         <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/alumno/avanceComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/alumno/horarioComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/alumno/matriculaComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/alumno/mallaComponent.js}" charset="utf-8"></script>
+
         <script th:src="@{/app/academico/tramitesacademicos/proceso/procesarTramite.js}" charset="utf-8"></script>
 
 

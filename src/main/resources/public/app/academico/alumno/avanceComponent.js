@@ -1,7 +1,9 @@
 Vue.component("avance-component", {
     template: "#avanceComponent",
     props: {
-        alumno: {}
+        alumno: {},
+        showTitle: true,
+        showActions: true
     },
     data: function () {
         return {
@@ -9,14 +11,18 @@ Vue.component("avance-component", {
             ident: true,
             ciclosCurricula: [],
             cursosCurricula: [],
+            resumenAlumno: [],
+            resumenPlan: [],
             cantidadCursos: 0,
+            showCursos: true,
             showCiclo: 1,
             planTemp: {id: 0},
         }
     },
     computed: {
         titulo() {
-            return 'Avance Curricular';
+            let $vue = this;
+            return 'Avance Curricular en ' + $vue.alumno.carrera.nombre;
         }
     },
     beforeMount() {
@@ -28,6 +34,56 @@ Vue.component("avance-component", {
         $vue.planTemp.id = this.alumno.planCurricular.id;
     },
     methods: {
+        totalAlumno(tipo) {
+            let $vue = this;
+            let cred = 0;
+            let cur = 0;
+
+            for (var i = 0; i < $vue.resumenAlumno.length; i++) {
+                let res = $vue.resumenAlumno[i];
+                cred += res.creditos;
+                cur += res.cursos;
+            }
+            return (tipo == 'CREDITOS') ? cred : cur;
+        },
+        totalPlan(tipo) {
+            let $vue = this;
+            let cred = 0;
+            let cur = 0;
+
+            for (var i = 0; i < $vue.resumenPlan.length; i++) {
+                let res = $vue.resumenPlan[i];
+                cred += res.creditos;
+                cur += res.cursos;
+            }
+            return (tipo == 'CREDITOS') ? cred : cur;
+        },
+        creditosAlumno(item) {
+            let $vue = this;
+            for (var i = 0; i < $vue.resumenAlumno.length; i++) {
+                let res = $vue.resumenAlumno[i];
+                if (res.tipoCursoCurricula.codigo == item.tipoCursoCurricula.codigo) {
+                    return res.creditos;
+                }
+            }
+            return 0;
+
+        },
+        cursosAlumnos(item) {
+            let $vue = this;
+            for (var i = 0; i < $vue.resumenAlumno.length; i++) {
+                let res = $vue.resumenAlumno[i];
+                if (res.tipoCursoCurricula.codigo == item.tipoCursoCurricula.codigo) {
+                    return res.cursos;
+                }
+            }
+            return 0;
+        },
+        verResumen() {
+            let $vue = this;
+            $vue.showCiclo = 201;
+            $vue.showCursos = false;
+        },
         active(index) {
             let $vue = this;
             let tabSize = $vue.showCiclo - 1;
@@ -63,6 +119,8 @@ Vue.component("avance-component", {
                 success: function (response) {
                     $vue.cursosCurricula = response.data.cursos;
                     $vue.ciclosCurricula = response.data.ciclos;
+                    $vue.resumenAlumno = response.data.resumenAlumno;
+                    $vue.resumenPlan = response.data.resumenPlan;
                     $vue.cantidadCursos = $vue.cursosCurricula.length;
                 }
             });
@@ -97,6 +155,7 @@ Vue.component("avance-component", {
         cicloSelecc: function (cicloSelecc) {
             let $vue = this;
             $vue.showCiclo = cicloSelecc;
+            $vue.showCursos = true;
         },
         loadPlanes() {
             let $vue = this;

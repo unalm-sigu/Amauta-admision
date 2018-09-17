@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -193,6 +194,36 @@ public class CursoController {
         model.addAttribute("idiomas", service.allIdiomas());
 
         return "academico/curso/cursoForm";
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "find/{id}", method = RequestMethod.GET)
+    public JsonResponse find(@PathVariable("id") Long id, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            Curso curso = service.find(id);
+            response.setData(JsonHelper.createJson(curso, JsonNodeFactory.instance, new String[]{
+                "id",
+                "nivel",
+                "codigo",
+                "nombre",
+                "tipoCurso",
+                "horasTeoria",
+                "horasPractica",
+                "tipoCredito",
+                "creditos",
+                "modalidadEstudio.nombre",   
+                "departamentoAcademico.nombre",   
+                "coordinador.persona.nombreCompleto"   
+            }));
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     @ResponseBody

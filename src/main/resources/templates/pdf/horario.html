@@ -1,0 +1,113 @@
+<html>
+    <head>
+        <title th:inline="text"> Horario </title>
+        <style>
+            body{
+                font-size: 10px !important;	
+            }
+
+            .fecha {
+                font-size: 10px;
+                font-style: italic;
+            }
+
+            .table{
+                font-size:8px !important;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .text-right{
+                text-align: right;
+            }
+
+            table td {
+                padding: 7px !important;
+            }
+
+            .info-adicional{
+                font-size: 10px;
+                font-style: italic;
+            }
+            .header {
+                display: block;
+                padding-bottom: 20px;
+            }
+            .col-sm{
+                width: 30px;
+            }
+
+            .col-xs {
+                width: 20px;
+            }
+
+            .col-xxs {
+                width: 7px;
+            }
+
+            .table-plan {
+                width: 100%;
+                border: solid .25px;
+                border-collapse: collapse;
+            }
+
+            .table-plan > tbody > tr > td, .table-plan > thead > tr > td  {
+                border-top: solid .25px;
+                border-bottom: solid .25px;
+            }
+            
+            .row-sche{
+                height: 55px;
+            }
+
+        </style>
+    </head>
+    <body>
+         <div style="text-align: center;">
+             <b class="block" th:inline="text" > HORARIO DE CLASES </b>
+        </div>
+        <table style="width: 95%; margin-top: 20px" cellspacing="0" cellpadding="0">
+            <tbody>
+                <tr>
+                    <td style="width: 30px">
+                        <table class="table" style="width: 100%">
+                            <tbody>
+                                <tr style="height: 20px">
+                                    <td>  </td> 
+                                </tr>
+                                <tr th:each="hora : ${horas}" class="text-right row-sche">
+                                    <td> <span th:text="${hora.descripcion}"> hora </span> </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td  th:each="diaHorario : ${datosHorario}">
+                        <table class="table table-plan">
+                            <tbody>
+                                <tr class="text-center" style="height: 20px">
+                                    <td><b th:text="${diaHorario.key.nombre}"> dia </b></td>
+                                </tr>
+                                <tr th:each="hs : ${diaHorario.value}" class="row-sche">
+                                    <td th:if="${hs == null}">
+                                        <p> &nbsp; </p>
+                                    </td>
+                                    <td th:unless="${hs == null}">
+                                        <b th:text="${hs.seccion.grupoSeccion.curso.codigo}">  </b>
+                                        <p th:text="${hs.seccion.codigo2}">  </p>
+                                        <p th:inline="text"> Aula: [[${hs.seccion.aula?.codigo}]]  </p>
+                                        <p th:inline="text"> Gpo: [[${hs.seccion.grupoHoras?.codigo}]]  </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+
+
+    </body>
+</html>

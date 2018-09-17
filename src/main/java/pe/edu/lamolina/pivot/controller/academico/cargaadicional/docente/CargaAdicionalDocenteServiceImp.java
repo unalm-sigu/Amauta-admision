@@ -46,6 +46,7 @@ import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfContent;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfGenerator;
+import pe.edu.lamolina.pivot.zelper.pdf.TipoPdfEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -332,7 +333,7 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
 
         PdfContent pdfContent = new PdfContent();
         pdfContent.setContext(ctx);
-        pdfContent.setDocumentPdfEnum(DocumentoPdfEnum.SUBVENCION_CARGA_ADICIONAL);
+        pdfContent.setTipoPdfEnum(TipoPdfEnum.SUBVENCION_CARGA_ADICIONAL);
 
         String src = pdfGenerator.generateDocument(pdfContent, "tmp");
         return src;
