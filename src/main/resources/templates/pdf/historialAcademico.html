@@ -90,8 +90,9 @@
                         <span th:text="${cursado.curso.creditos}"> creditos </span>
                     </td>
                     <td style="width: 4.16%" colspan="4"  class="text-center">
-                        <span th:if="${11 > T(Integer).parseInt(cursado.nota)}" style="color: red" th:text="${cursado.nota}"> nota </span>
-                        <span th:if="${T(Integer).parseInt(cursado.nota) >= 11}" th:text="${cursado.nota}"> nota </span>
+                       
+                        <span style="color: red" th:text="${cursado.nota}"> nota </span>
+                        <span th:text="${cursado.nota}"> nota </span>
                     </td>
                 </tr>
             </tbody>
