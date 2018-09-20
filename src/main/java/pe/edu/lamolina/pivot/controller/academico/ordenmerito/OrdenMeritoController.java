@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.ordenmerito;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,8 +22,12 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlOrdenMerito;
+import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -49,6 +55,27 @@ public class OrdenMeritoController {
         return "academico/ordenmerito/ordenmerito";
     }
 
+    @RequestMapping("{id}/control")
+    public String infoAcademico(
+            @PathVariable Long id,
+            Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        ControlOrdenMerito control = service.find(id);
+        ObjectNode json = JsonHelper.createJson(control, JsonNodeFactory.instance, new String[]{
+            "id",
+            "cicloAcademico.descripcion",
+            "cicloAcademico.descripcion2",
+            "carrera.nombre",
+            "facultad.nombre",
+            "escalaEnum"
+        });
+        model.addAttribute("control", control);
+        model.addAttribute("controlJson", json);
+        return "academico/ordenmerito/ordenmeritoControl";
+    }
+
     @ResponseBody
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
@@ -60,6 +87,7 @@ public class OrdenMeritoController {
 
         for (ControlOrdenMerito item : list) {
             array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                "id",
                 "escalaEnum",
                 "estadoEnum",
                 "facultad.nombre",
@@ -69,6 +97,44 @@ public class OrdenMeritoController {
                 "noComputados",
                 "alumnosCompletos",
                 "alumnosIncompletos"
+            }));
+        }
+
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{id}/control/alumnos", method = RequestMethod.GET)
+    public DynatableResponse alumnos(DynatableFilter filter, HttpSession session, @PathVariable Long id) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DynatableResponse json = new DynatableResponse();
+
+        List<AlumnoCiclo> list = service.allAlumnoCicloByControl(filter, new ControlOrdenMerito(id));
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+        for (AlumnoCiclo item : list) {
+            array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                "alumno.persona.nombreCompleto",
+                "alumno.codigo",
+                "carrera.nombre",
+                "carrera.facultad.nombre",
+                "ordenMeritoCarrera",
+                "ordenMeritoCiclo",
+                "ordenMeritoFacultad",
+                "cuadroHonorCarrera",
+                "cuadroHonorCiclo",
+                "cuadroHonorFacultad",
+                "quintoSuperiorCarrera",
+                "quintoSuperiorCiclo",
+                "quintoSuperiorFacultad",
+                "tercioSuperiorCarrera",
+                "tercioSuperiorCiclo",
+                "tercioSuperiorFacultad",
+                "promedioCiclo"
             }));
         }
 

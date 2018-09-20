@@ -34,36 +34,29 @@
                         </div>
                         <raptor-table v-bind:url="`${URL}/list`" v-bind:paginate="false" v-bind:pagination="{ 'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true}" ref="raptor">
                             <template scope="props">
-                                <table class="table table-striped">
+                                <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
                                             <th class="col-md-2">Escala</th>
-                                            <th class="col-md-2">Facultad</th>
-                                            <th class="col-md-2">Especialidad</th>
-                                            <th class="col-md-1 text-center">Total de alumnos</th>
-                                            <th class="col-md-1 text-center">Computados</th>
-                                            <th class="col-md-1 text-center">No computados</th>
-                                            <th class="col-md-1 text-center">Notas completas</th>
-                                            <th class="col-md-1 text-center">Notas incompletas</th>
+                                            <th class="text-center">Total de alumnos</th>
+                                            <th class="text-center">Computados</th>
+                                            <th class="text-center">No computados</th>
+                                            <th class="text-center">Notas completas</th>
+                                            <th class="text-center">Notas incompletas</th>
                                             <th class="col-md-1 text-center">Estado</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="item in props.data"> 
                                             <td>
-                                                <span> {{ item.escalaEnum.value }} </span>
-                                            </td>
-                                            <td>
-                                                <span> {{ item.facultad.nombre }} </span>
-                                            </td>
-                                            <td>
-                                                <span> {{ item.carrera.nombre }} </span>
+                                                <span v-if="item.escalaEnum.name === 'CICLO'"> Ciclo </span>
+                                                <span v-else=""> {{ item.escalaEnum.value }} de {{ item.facultad.nombre }}{{item.carrera.nombre}} </span>
                                             </td>
                                             <td class="v-middle text-center">
                                                 <span> {{ item.totalAlumnos }} </span>
                                             </td>
                                             <td class="v-middle text-center">
-                                                <span> {{ item.alumnosComputados }} </span>
+                                                <a v-bind:href="`${URL}/${item.id}/control`"> {{ item.alumnosComputados }} </a>
                                             </td>
                                             <td class="v-middle text-center">
                                                 <span> {{ item.noComputados }} </span>
