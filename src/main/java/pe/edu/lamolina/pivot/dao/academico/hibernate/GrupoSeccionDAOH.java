@@ -261,7 +261,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         }
 
         for (String key : queries.keySet()) {
-            if (!key.equals("superior.id")) {
+            if (!key.equals("anexo-superior")) {
                 continue;
             }
             String value = (String) queries.get(key);
@@ -272,7 +272,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         }
 
         for (String key : queries.keySet()) {
-            if (!key.equals("anexo.id")) {
+            if (!key.equals("anexo")) {
                 continue;
             }
             sql.filter("ab.id", queries.get(key));

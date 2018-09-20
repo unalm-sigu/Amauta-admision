@@ -48,9 +48,8 @@ Vue.component("autocomplete-doc", {
             escapeMarkup: function (m) {
                 return m;
             }
-        }
 
-        ).on('select2-selecting', function (e) {
+        }).on('select2-selecting', function (e) {
             vm.$emit('input', e.object.id);
 
             let docSeccion = vm.$options.propsData.docseccion;
@@ -138,7 +137,7 @@ var app = new Vue({
         tipoRepitenciaModal: {
             id: 'modalTipoRepitencia',
             header: true,
-            title: 'Tipo Repitencia',
+            title: 'Aplicar restricción repitencia / retirados / ingresantes',
             okbtn: 'Aceptar',
             modalsize: 'modal-lg'
         },
@@ -519,7 +518,7 @@ var app = new Vue({
             var tabs = $("#tab-grupos");
             tabs.find("li").removeClass("active");
             tabs.find(".tab-pane").removeClass("active");
-            
+
             let $vue = this;
             $global.$emit('loadGrupoComponent', seccion.id);
             this.$refs.modalGrupo.open();
@@ -839,4 +838,4 @@ var app = new Vue({
             e.target.value = e.target.value.toUpperCase()
         }
     }
-})
+});
