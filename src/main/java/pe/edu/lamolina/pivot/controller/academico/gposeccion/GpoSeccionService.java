@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface GpoSeccionService {
 
@@ -158,7 +159,7 @@ public interface GpoSeccionService {
 
     List<TipoRepitencia> allTipoRepitencia();
 
-    void saveTipoRepitenciaRestriccion(Seccion seccion, Usuario usuario, List<TipoRepitencia> tiposRepitencia);
+    void saveTipoRepitenciaRestriccion(Seccion seccion, List<TipoRepitencia> tiposRepitencia, DataSessionPivot ds);
 
     List<EventoCicloAcademico> allEventoCicloAcademicoForPeriodo(CicloAcademico cicloAcademico);
 

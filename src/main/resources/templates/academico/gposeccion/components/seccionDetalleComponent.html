@@ -1,51 +1,53 @@
 <template id="seccionDetComp">
     <div v-if="seccion" class="m-b-xs"> 
-        <div class="row">
-            <div class="form-group">
-                <label for="docIdentidad" class="col-md-2 bold">Curso</label>
+        <div v-if="seccion.codigo2"> 
+            <div class="row">
+                <div class="form-group">
+                    <label for="docIdentidad" class="col-md-2 bold">Curso</label>
 
-                <div class="col-md-10">
-                    <span> {{seccion.grupoSeccion.curso.codigo}} {{seccion.grupoSeccion.curso.nombre}} </span>
+                    <div class="col-md-10">
+                        <span> {{seccion.grupoSeccion.curso.codigo}} {{seccion.grupoSeccion.curso.nombre}} </span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="form-group">
-                <label class="col-md-2 bold">Dpto. Académico</label>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 bold">Dpto. Académico</label>
 
-                <div class="col-md-10">
-                    <span> {{seccion.grupoSeccion.curso.departamentoAcademico.nombre}} </span>
+                    <div class="col-md-10">
+                        <span> {{seccion.grupoSeccion.curso.departamentoAcademico.nombre}} </span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="form-group">
-                <label class="col-md-2 bold">Sección</label>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 bold">Sección</label>
 
-                <div class="col-md-4">
-                    <span> {{seccion.codigo2}}</span>
-                </div>
+                    <div class="col-md-4">
+                        <span> {{seccion.codigo2}}</span>
+                    </div>
 
-                <label class="col-md-2 bold">Vacantes</label>
+                    <label class="col-md-2 bold">Vacantes</label>
 
-                <div class="col-md-4">
-                    <span> {{seccion.vacantes}} </span>
+                    <div class="col-md-4">
+                        <span> {{seccion.vacantes}} </span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="form-group">
-                <label class="col-md-2 bold">Aula</label>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 bold">Aula</label>
 
-                <div class="col-md-4">
-                    <span>{{seccion.aula.codigo}}</span>
-                    <span v-if="seccion.aula.nombre != '' "> - {{seccion.aula.nombre}}</span>
-                </div>
+                    <div class="col-md-4">
+                        <span>{{seccion.aula.codigo}}</span>
+                        <span v-if="seccion.aula.nombre != '' "> - {{seccion.aula.nombre}}</span>
+                    </div>
 
-                <label class="col-md-2 bold">Horas</label>
+                    <label class="col-md-2 bold">Horas</label>
 
-                <div class="col-md-4">
-                    <span>{{seccion.horasSemanales}}</span>
+                    <div class="col-md-4">
+                        <span>{{seccion.horasSemanales}}</span>
+                    </div>
                 </div>
             </div>
         </div>
