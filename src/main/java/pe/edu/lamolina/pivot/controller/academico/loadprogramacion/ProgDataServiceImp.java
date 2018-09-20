@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -32,6 +33,7 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
@@ -66,6 +68,7 @@ import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.RestriccionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
@@ -1158,6 +1161,24 @@ public class ProgDataServiceImp implements ProgDataService {
                 seccionDAO.update(seccionBD);
                 visor.agregarLog("secc", "saveSecc", "Seccion " + seccionBD.getCodigo() + " ya existe, se actualizó datos", false, "info");
             }
+            
+//            List<RestriccionCarrera> restriccionCarr = seccion.getRestriccionesCarrera();
+//            List<RestriccionCarrera> restriccionCarrBD = seccionBD.getRestriccionesCarrera();
+//            ListsInspector inspector = TypesUtil.analizeLists(restriccionCarrBD, restriccionCarr, "carrera.codigo");
+//            
+//            List<RestriccionCarrera> resCarrDead = inspector.getDeadList();
+//            List<RestriccionCarrera> resCarrNew = inspector.getNewList();
+//            for (RestriccionCarrera restriccionCarrera : resCarrDead) {
+//                // delete
+//                restriccionCarreraDAO.delete(item)
+//            }
+//            for (RestriccionCarrera restriccionCarrera : resCarrNew) {
+//                // insert
+//                restriccionCarrera.setEstado(estado);
+//                restriccionCarrera.setFechaRegistro(new Date());
+//                restriccionCarrera.setUsuarioRegistro(ds.user);
+//                restriccionCarreraDAO.dave(restriccionCarrera);
+//            }
 
             if (seccionBD.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
                 mapSeccionesTCurBD.put(gpoSecc.getCodigo(), seccionBD);

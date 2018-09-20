@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -55,7 +56,6 @@ import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -131,82 +131,107 @@ public class GpoSeccionController {
             ArrayNode arrayGpoSecc = new ArrayNode(JsonNodeFactory.instance);
 
             for (GrupoSeccion gpoSeccion : gpoSecciones) {
-                ObjectNode nodeGpoSecc = new ObjectNode(JsonNodeFactory.instance);
-
-                nodeGpoSecc.put("id", gpoSeccion.getId());
-                nodeGpoSecc.put("curso", gpoSeccion.getCurso().getNombre());
-                nodeGpoSecc.put("codigo", gpoSeccion.getCurso().getCodigo());
-                nodeGpoSecc.put("teoria", gpoSeccion.getCurso().getHorasTeoria());
-                nodeGpoSecc.put("practica", gpoSeccion.getCurso().getHorasPractica());
-                nodeGpoSecc.put("creditos", gpoSeccion.getCurso().getCreditos());
-                nodeGpoSecc.put("anexo", gpoSeccion.getAnexoBoletin().getNombre());
-                nodeGpoSecc.put("estado", gpoSeccion.getEstado());
-
-                nodeGpoSecc.put("estadoValue", gpoSeccion.getEstado() != null ? EstadoEnum.valueOf(gpoSeccion.getEstado()).getValue() : "");
-
-                ArrayNode arraySecc = new ArrayNode(JsonNodeFactory.instance);
-                for (Seccion seccion : gpoSeccion.getSecciones()) {
-                    ObjectNode nodeSecc = new ObjectNode(JsonNodeFactory.instance);
-                    nodeSecc.put("tipo", seccion.getTipoSeccion());
-                    nodeSecc.put("tipoValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
-                    nodeSecc.put("codigo", seccion.getCodigo());
-                    nodeSecc.put("codigo2", seccion.getCodigo2());
-                    nodeSecc.put("vacantes", seccion.getVacantes());
-                    nodeSecc.put("matriculados", seccion.getMatriculados());
-                    nodeSecc.put("aula", (String) ObjectUtil.getParentTree(seccion, "aula.codigo"));
-                    nodeSecc.put("grupo", (String) ObjectUtil.getParentTree(seccion, "grupoHoras.codigo"));
-                    nodeSecc.put("estadoSec", seccion.getEstado());
-                    nodeSecc.put("estadoValueSec", seccion.getEstadoEnum().getValue());
-
-                    ArrayNode arrayDoc = new ArrayNode(JsonNodeFactory.instance);
-                    for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
-                        ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
-                        nodeDoc.put("principal", docSeccion.getPrincipal());
-                        nodeDoc.put("codigo", docSeccion.getDocente().getCodigo());
-                        nodeDoc.put("porcentaje", docSeccion.getPorcentajeCarga());
-                        nodeDoc.put("docente", (String) ObjectUtil.getParentTree(docSeccion, "docente.persona.apellidosNombres"));
-                        arrayDoc.add(nodeDoc);
-                    }
-
-                    if (seccion.getDocenteSeccion().isEmpty()) {
-                        ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
-                        nodeDoc.put("principal", 0);
-                        nodeDoc.put("codigo", "");
-                        nodeDoc.put("porcentaje", "");
-                        nodeDoc.put("docente", "");
-                        arrayDoc.add(nodeDoc);
-                    }
-
-                    nodeSecc.set("docentes", arrayDoc);
-                    arraySecc.add(nodeSecc);
-                }
-
-                if (gpoSeccion.getSecciones().isEmpty()) {
-                    ObjectNode nodeSecc = new ObjectNode(JsonNodeFactory.instance);
-                    nodeSecc.put("tipo", "");
-                    nodeSecc.put("tipoValue", "");
-                    nodeSecc.put("codigo", "");
-                    nodeSecc.put("codigo2", "");
-                    nodeSecc.put("vacantes", "");
-                    nodeSecc.put("matriculados", "");
-                    nodeSecc.put("aula", "");
-                    nodeSecc.put("grupo", "");
-                    nodeSecc.put("estadoSec", "");
-                    nodeSecc.put("estadoValueSec", "");
-
-                    ArrayNode arrayDoc = new ArrayNode(JsonNodeFactory.instance);
-                    ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
-                    nodeDoc.put("principal", 0);
-                    nodeDoc.put("codigo", "");
-                    nodeDoc.put("porcentaje", "");
-                    nodeDoc.put("docente", "");
-                    arrayDoc.add(nodeDoc);
-
-                    nodeSecc.set("docentes", arrayDoc);
-                    arraySecc.add(nodeSecc);
-                }
-
-                nodeGpoSecc.set("secciones", arraySecc);
+                ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
+                    "id", "estado", "estadoEnum",
+                    "curso.codigo",
+                    "curso.nombre",
+                    "curso.tpc",
+                    "anexoBoletin.nombre",
+                    "anexoBoletin.anexoSuperior.nombre",
+                    "secciones.codigo2",
+                    "secciones.tipoSeccionEnum",
+                    "secciones.vacantes",
+                    "secciones.matriculados",
+                    "secciones.restriccionCapa",
+                    "secciones.estadoEnum",
+                    "secciones.grupoHoras.codigo",
+                    "secciones.aula.codigo",
+                    "secciones.restriccionesModalidad.modalidadEstudio.nombre",
+                    "secciones.restriccionesFacultad.facultad.nombre",
+                    "secciones.restriccionesCarrera.carrera.nombre",
+                    "secciones.restriccionesRepitencia.tipoRepitencia.nombre",
+                    "secciones.docenteSeccion.estadoEnum",
+                    "secciones.docenteSeccion.principal",
+                    "secciones.docenteSeccion.porcentajeCarga",
+                    "secciones.docenteSeccion.docente.codigo",
+                    "secciones.docenteSeccion.docente.persona.apellidosNombres"
+                });
+//                ObjectNode nodeGpoSecc = new ObjectNode(JsonNodeFactory.instance);
+//
+//                nodeGpoSecc.put("id", gpoSeccion.getId());
+//                nodeGpoSecc.put("curso", gpoSeccion.getCurso().getNombre());
+//                nodeGpoSecc.put("codigo", gpoSeccion.getCurso().getCodigo());
+//                nodeGpoSecc.put("teoria", gpoSeccion.getCurso().getHorasTeoria());
+//                nodeGpoSecc.put("practica", gpoSeccion.getCurso().getHorasPractica());
+//                nodeGpoSecc.put("creditos", gpoSeccion.getCurso().getCreditos());
+//                nodeGpoSecc.put("anexo", gpoSeccion.getAnexoBoletin().getNombre());
+//                nodeGpoSecc.put("estado", gpoSeccion.getEstado());
+//
+//                nodeGpoSecc.put("estadoValue", gpoSeccion.getEstado() != null ? EstadoEnum.valueOf(gpoSeccion.getEstado()).getValue() : "");
+//
+//                ArrayNode arraySecc = new ArrayNode(JsonNodeFactory.instance);
+//                for (Seccion seccion : gpoSeccion.getSecciones()) {
+//                    ObjectNode nodeSecc = new ObjectNode(JsonNodeFactory.instance);
+//                    nodeSecc.put("tipo", seccion.getTipoSeccion());
+//                    nodeSecc.put("tipoValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
+//                    nodeSecc.put("codigo", seccion.getCodigo());
+//                    nodeSecc.put("codigo2", seccion.getCodigo2());
+//                    nodeSecc.put("vacantes", seccion.getVacantes());
+//                    nodeSecc.put("matriculados", seccion.getMatriculados());
+//                    nodeSecc.put("aula", (String) ObjectUtil.getParentTree(seccion, "aula.codigo"));
+//                    nodeSecc.put("grupo", (String) ObjectUtil.getParentTree(seccion, "grupoHoras.codigo"));
+//                    nodeSecc.put("estadoSec", seccion.getEstado());
+//                    nodeSecc.put("estadoValueSec", seccion.getEstadoEnum().getValue());
+//
+//                    ArrayNode arrayDoc = new ArrayNode(JsonNodeFactory.instance);
+//                    for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
+//                        ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
+//                        nodeDoc.put("principal", docSeccion.getPrincipal());
+//                        nodeDoc.put("codigo", docSeccion.getDocente().getCodigo());
+//                        nodeDoc.put("porcentaje", docSeccion.getPorcentajeCarga());
+//                        nodeDoc.put("docente", (String) ObjectUtil.getParentTree(docSeccion, "docente.persona.apellidosNombres"));
+//                        arrayDoc.add(nodeDoc);
+//                    }
+//
+//                    if (seccion.getDocenteSeccion().isEmpty()) {
+//                        ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
+//                        nodeDoc.put("principal", 0);
+//                        nodeDoc.put("codigo", "");
+//                        nodeDoc.put("porcentaje", "");
+//                        nodeDoc.put("docente", "");
+//                        arrayDoc.add(nodeDoc);
+//                    }
+//
+//                    nodeSecc.set("docentes", arrayDoc);
+//                    arraySecc.add(nodeSecc);
+//                }
+//
+//                if (gpoSeccion.getSecciones().isEmpty()) {
+//                    ObjectNode nodeSecc = new ObjectNode(JsonNodeFactory.instance);
+//                    nodeSecc.put("tipo", "");
+//                    nodeSecc.put("tipoValue", "");
+//                    nodeSecc.put("codigo", "");
+//                    nodeSecc.put("codigo2", "");
+//                    nodeSecc.put("vacantes", "");
+//                    nodeSecc.put("matriculados", "");
+//                    nodeSecc.put("aula", "");
+//                    nodeSecc.put("grupo", "");
+//                    nodeSecc.put("estadoSec", "");
+//                    nodeSecc.put("estadoValueSec", "");
+//
+//                    ArrayNode arrayDoc = new ArrayNode(JsonNodeFactory.instance);
+//                    ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
+//                    nodeDoc.put("principal", 0);
+//                    nodeDoc.put("codigo", "");
+//                    nodeDoc.put("porcentaje", "");
+//                    nodeDoc.put("docente", "");
+//                    arrayDoc.add(nodeDoc);
+//
+//                    nodeSecc.set("docentes", arrayDoc);
+//                    arraySecc.add(nodeSecc);
+//                }
+//
+//                nodeGpoSecc.set("secciones", arraySecc);
                 arrayGpoSecc.add(nodeGpoSecc);
             }
 
@@ -222,17 +247,67 @@ public class GpoSeccionController {
     }
 
     @RequestMapping("{gruposeccion}/editar")
-    public String editar(@PathVariable("gruposeccion") Long gruposeccionId, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+    public String editar(
+            @PathVariable("gruposeccion") Long gruposeccionId,
+            @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
 
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         GrupoSeccion gpoSeccion = service.findGpoSeccion(gruposeccionId);
         ObjectNode gpoSeccionJson = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance);
 
         model.addAttribute("grupoSeccion", gpoSeccion);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
+        model.addAttribute("origen", getOrigen(origen));
 
         return "academico/gposeccion/gpoSeccionForm";
+    }
+
+    private String getOrigen(String origen) {
+        if (StringUtils.isEmpty(origen)) {
+            return "/academico/gposeccion";
+        }
+        byte[] decoded = Base64.getMimeDecoder().decode(origen);
+        String output = new String(decoded);
+        return output;
+    }
+
+    @ResponseBody
+    @RequestMapping("allData")
+    public JsonResponse allData(Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            List<AnexoBoletin> anexos = service.allAnexoBoletionHijos();
+            ArrayNode anexosJson = new ArrayNode(JsonNodeFactory.instance);
+            for (AnexoBoletin anexo : anexos) {
+                ObjectNode anxJson = JsonHelper.createJson(anexo, JsonNodeFactory.instance, true, new String[]{
+                    "id", "codigo", "nombre",
+                    "departamentoAcademico.nombre",
+                    "carrera.nombre",
+                    "anexoSuperior.id",
+                    "anexoSuperior.codigo",
+                    "anexoSuperior.nombre"
+                });
+                anexosJson.add(anxJson);
+            }
+
+            ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
+            data.set("anexos", anexosJson);
+
+            response.setData(data);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
     }
 
     @ResponseBody

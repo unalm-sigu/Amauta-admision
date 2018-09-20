@@ -25,9 +25,9 @@
 <body>
     <section  layout:fragment="main">
         <header class="header b-b padder-lg">
-            <h2>Programacion de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
+            <h2>Programación de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
             <div class="pull-right m-t-md">
-                <a class="btn btn-default"   th:href="@{/academico/gposeccion}"  >Regresar</a>
+                <a class="btn btn-default"   th:href="${origen}"  >Regresar</a>
             </div>
         </header>
         <div id="pageGpoSeccion">
@@ -459,21 +459,6 @@
         <div th:substituteby="academico/gposeccion/components/restriccionComponent"/>
         <div th:substituteby="academico/gposeccion/components/repitenciaComponent"/>
 
-        <!-- 
-              <div id="autocomplete-doc">
-                  <input class="input-s-full" v-bind:rel="rel" type="hidden"  />
-              </div>
-      
-              <div id="tablaHorarioReg"></div>
-            
-                      <script type="text/x-template" id="select2-template">
-                          <input class="input-s-full" type="text" />
-                      </script>
-              
-                      <div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
-                          {{:personaNombre}}  {{:personaPaterno}}  {{:personaMaterno}}
-                      </div>
-        -->
     </section>
 
     <div layout:fragment="js">
