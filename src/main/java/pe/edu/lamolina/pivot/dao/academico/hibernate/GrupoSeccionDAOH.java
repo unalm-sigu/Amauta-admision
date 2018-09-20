@@ -213,8 +213,8 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     public List<GrupoSeccion> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
-                .join("secciones s", "curso cur", "cicloAcademico ca")
-                .leftJoin("planCalificacion pc")
+                .join("curso cur", "cicloAcademico ca")
+                .leftJoin("planCalificacion pc", "secciones s")
                 .filter("ca.id", ciclo);
 
         return all(sql);

@@ -2,7 +2,6 @@ package pe.edu.lamolina.pivot.controller.academico.loadprogramacion;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +17,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -34,6 +34,8 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
+import pe.edu.lamolina.model.academico.RestriccionFacultad;
+import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
@@ -69,6 +71,8 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionCarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
+import pe.edu.lamolina.pivot.dao.academico.RestriccionRepitenciaDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
@@ -133,6 +137,12 @@ public class ProgDataServiceImp implements ProgDataService {
     DiaHoraGrupoDAO diaHoraGrupoDAO;
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
+    @Autowired
+    RestriccionCarreraDAO restriccionCarreraDAO;
+    @Autowired
+    RestriccionFacultadDAO restriccionFacultadDAO;
+    @Autowired
+    RestriccionRepitenciaDAO restriccionRepitenciaDAO;
 
     @Autowired
     LoadDataMatriculadoService loadDataMatriculadoService;
@@ -1002,6 +1012,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setAnexoBoletin(anexo);
 
                 grupoSeccionDAO.save(gpoSeccBD);
+                mapGpoSeccionBD.put(gpoSeccBD.getCodigo(), gpoSeccBD);
                 visor.agregarLog("gpoSecc", "saveGpoSecc", "Gpo-Seccion " + gpoSeccBD.getCodigo() + " nuevo", true, "info");
 
             } else {
@@ -1036,7 +1047,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Map<String, Seccion> loadDataSecciones(List<Seccion> secciones, CicloAcademico ciclo, Map<String, GrupoSeccion> mapGpoSecciones) {
+    public Map<String, Seccion> loadDataSecciones(List<Seccion> secciones, CicloAcademico ciclo, Map<String, GrupoSeccion> mapGpoSecciones, DataSessionPivot ds) {
         int loop = 0;
         Map<String, List<Seccion>> mapSeccionesPCUR = new LinkedHashMap();
         Map<String, Seccion> mapSeccionesTCUR = new LinkedHashMap();
@@ -1092,6 +1103,7 @@ public class ProgDataServiceImp implements ProgDataService {
         Map<String, Seccion> mapSeccionesTCurBD = new LinkedHashMap();
 
         List<Seccion> seccionesBD = seccionDAO.allByCiclo(ciclo);
+
         Map<String, Seccion> mapSeccionBD = TypesUtil.convertListToMap("codigo", seccionesBD);
         List<GrupoHoras> gpoHorasBD = grupoHorasDAO.all();
         Map<String, GrupoHoras> mapGpoHoraBD = TypesUtil.convertListToMap("codigo", gpoHorasBD);
@@ -1119,6 +1131,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 seccionBD.setGrupoSeccion(gpoSecc);
                 seccionBD.setVacantes(seccion.getVacantes());
                 seccionBD.setMatriculados(seccion.getMatriculados());
+                seccionBD.setRestriccionCapa(seccion.getRestriccionCapa());
                 seccionBD.setRetirados(0);
                 seccionBD.setReservados(0);
                 seccionBD.setPrematriculados(0);
@@ -1155,30 +1168,65 @@ public class ProgDataServiceImp implements ProgDataService {
                 seccionBD.setEstado(EstadoEnum.ACT.name());
                 seccionBD.setVacantes(seccion.getVacantes());
                 seccionBD.setMatriculados(seccion.getMatriculados());
+                seccionBD.setRestriccionCapa(seccion.getRestriccionCapa());
                 seccionBD.setRetirados(0);
                 seccionBD.setReservados(0);
                 seccionBD.setPrematriculados(0);
                 seccionDAO.update(seccionBD);
                 visor.agregarLog("secc", "saveSecc", "Seccion " + seccionBD.getCodigo() + " ya existe, se actualizó datos", false, "info");
             }
-            
-//            List<RestriccionCarrera> restriccionCarr = seccion.getRestriccionesCarrera();
-//            List<RestriccionCarrera> restriccionCarrBD = seccionBD.getRestriccionesCarrera();
-//            ListsInspector inspector = TypesUtil.analizeLists(restriccionCarrBD, restriccionCarr, "carrera.codigo");
-//            
-//            List<RestriccionCarrera> resCarrDead = inspector.getDeadList();
-//            List<RestriccionCarrera> resCarrNew = inspector.getNewList();
-//            for (RestriccionCarrera restriccionCarrera : resCarrDead) {
-//                // delete
-//                restriccionCarreraDAO.delete(item)
-//            }
-//            for (RestriccionCarrera restriccionCarrera : resCarrNew) {
-//                // insert
-//                restriccionCarrera.setEstado(estado);
-//                restriccionCarrera.setFechaRegistro(new Date());
-//                restriccionCarrera.setUsuarioRegistro(ds.user);
-//                restriccionCarreraDAO.dave(restriccionCarrera);
-//            }
+
+            List<RestriccionCarrera> restriccionCarr = seccion.getRestriccionesCarrera();
+            List<RestriccionCarrera> restriccionCarrBD = seccionBD.getRestriccionesCarrera();
+            ListsInspector inspector = TypesUtil.analizeLists(restriccionCarrBD, restriccionCarr, "carrera.codigo");
+
+            List<RestriccionCarrera> resCarrDead = inspector.getDeadList();
+            List<RestriccionCarrera> resCarrNew = inspector.getNewList();
+            for (RestriccionCarrera restriccionCarrera : resCarrDead) {
+                restriccionCarreraDAO.delete(restriccionCarrera);
+            }
+            for (RestriccionCarrera restriccionCarrera : resCarrNew) {
+                ObjectUtil.printAttr(restriccionCarrera);
+                restriccionCarrera.setEstadoEnum(EstadoEnum.ACT);
+                restriccionCarrera.setFechaRegistro(new Date());
+                restriccionCarrera.setUsuarioRegistro(ds.getUsuario());
+                restriccionCarrera.setSeccion(seccionBD);
+                restriccionCarreraDAO.save(restriccionCarrera);
+            }
+
+            List<RestriccionFacultad> restriccionFac = seccion.getRestriccionesFacultad();
+            List<RestriccionFacultad> restriccionFacBD = seccionBD.getRestriccionesFacultad();
+            ListsInspector inspectorFacultad = TypesUtil.analizeLists(restriccionFacBD, restriccionFac, "facultad.codigo");
+
+            List<RestriccionFacultad> resFacDead = inspectorFacultad.getDeadList();
+            List<RestriccionFacultad> resFacNew = inspectorFacultad.getNewList();
+            for (RestriccionFacultad restriccionFacultad : resFacDead) {
+                restriccionFacultadDAO.delete(restriccionFacultad);
+            }
+            for (RestriccionFacultad restriccionFacultad : resFacNew) {
+                restriccionFacultad.setEstadoEnum(EstadoEnum.ACT);
+                restriccionFacultad.setFechaRegistro(new Date());
+                restriccionFacultad.setUsuarioRegistro(ds.getUsuario());
+                restriccionFacultad.setSeccion(seccionBD);
+                restriccionFacultadDAO.save(restriccionFacultad);
+            }
+
+            List<RestriccionRepitencia> restriccionRep = seccion.getRestriccionesRepitencia();
+            List<RestriccionRepitencia> restriccionRepBD = seccionBD.getRestriccionesRepitencia();
+            ListsInspector inspectorRepitencia = TypesUtil.analizeLists(restriccionRepBD, restriccionRep, "tipoRepitencia.codigo");
+
+            List<RestriccionRepitencia> resRepDead = inspectorRepitencia.getDeadList();
+            List<RestriccionRepitencia> resRepNew = inspectorRepitencia.getNewList();
+            for (RestriccionRepitencia restriccionRepitencia : resRepDead) {
+                restriccionRepitenciaDAO.delete(restriccionRepitencia);
+            }
+            for (RestriccionRepitencia restriccionRepitencia : resRepNew) {
+                restriccionRepitencia.setEstadoEnum(EstadoEnum.ACT);
+                restriccionRepitencia.setFechaRegistro(new Date());
+                restriccionRepitencia.setUsuarioRegistro(ds.getUsuario());
+                restriccionRepitencia.setSeccion(seccionBD);
+                restriccionRepitenciaDAO.save(restriccionRepitencia);
+            }
 
             if (seccionBD.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
                 mapSeccionesTCurBD.put(gpoSecc.getCodigo(), seccionBD);
