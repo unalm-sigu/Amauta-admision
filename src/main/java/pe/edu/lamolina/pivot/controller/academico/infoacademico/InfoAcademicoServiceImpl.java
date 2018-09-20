@@ -76,7 +76,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
-public class infoAcademicoServiceImpl implements infoAcademicoService {
+public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
@@ -390,6 +390,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
             promedio.setAlumnoCicloCurso(cursos);
         }
 
+        
         Collections.sort(promedios, new AlumnoCiclo.CompareReverseCiclo());
         ArrayNode promediosCicloJson = new ArrayNode(JsonNodeFactory.instance);
         for (AlumnoCiclo promedio : promedios) {

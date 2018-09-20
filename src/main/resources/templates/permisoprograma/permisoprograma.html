@@ -1,0 +1,75 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Permisos para programación de horarios</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="permisoProgramacionVUE">
+                <header class="header b-b padder-lg">        
+                    <h2>Permisos para programación de horarios - <span>2016-II</span></h2>
+                </header>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="lista">
+                        <section class="panel">
+                            <section class="panel-body">
+                                <div class="col-md-12 col-md-offset-0">
+                                    <raptor-table v-bind:url="list" ref="loadCitas">
+                                        <template  scope="props" >
+                                            <table  class="table table-striped table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="col-md-3 text-left">Alumno</th>
+                                                        <th class="col-md-3 text-left">Fecha atención</th>
+                                                        <th class="col-md-3 text-left">Tipo Trámite</th>
+                                                        <th class="col-md-3 text-left">Estado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="item in props.data">
+                                                        <td class="v-middle text-left" rowspan="item.anexo.length">
+                                                            <span v-text="item.id"></span>
+                                                            <!--         <div class="pull-left m-r">
+                                                                         <img class="img-responsive img-thumbnail img-circle" v-bind:src="item.alumno.persona.rutaFoto" />
+                                                                     </div>
+                                                                     <span class="block bold "> <a>{{item.alumno.persona.nombreCompleto}}</a> </span> 
+                                                                     <span class="block bold " > {{item.alumno.carrera.nombre}} <span v-if="item.alumno.carrera.codigo!=item.alumno.carrera.facultad.codigo">- {{item.alumno.carrera.facultad.nombre}} </span></span> 
+                                                                     <span class="block bold " v-if="item.alumno.persona.numeroDocIdentidad!=null"> {{item.alumno.persona.tipoDocumento.simbolo}} - {{item.alumno.persona.numeroDocIdentidad}} </span> 
+                                                                     <span class="block bold " > {{item.alumno.codigo}}</span> -->
+                                                        </td>                                                       
+                                                    </tr>
+                                                    <tr v-for="anexo in item.anexo">
+                                                        <td class="v-middle text-left" rowspan="anexo.permiso1.length">
+                                                            <span v-text="item.id"></span>
+                                                            <!--         <div class="pull-left m-r">
+                                                                         <img class="img-responsive img-thumbnail img-circle" v-bind:src="item.alumno.persona.rutaFoto" />
+                                                                     </div>
+                                                                     <span class="block bold "> <a>{{item.alumno.persona.nombreCompleto}}</a> </span> 
+                                                                     <span class="block bold " > {{item.alumno.carrera.nombre}} <span v-if="item.alumno.carrera.codigo!=item.alumno.carrera.facultad.codigo">- {{item.alumno.carrera.facultad.nombre}} </span></span> 
+                                                                     <span class="block bold " v-if="item.alumno.persona.numeroDocIdentidad!=null"> {{item.alumno.persona.tipoDocumento.simbolo}} - {{item.alumno.persona.numeroDocIdentidad}} </span> 
+                                                                     <span class="block bold " > {{item.alumno.codigo}}</span> -->
+                                                        </td>                                                       
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </template>
+                                    </raptor-table>
+                                </div>
+                            </section>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var cicloacademico = /*[[${cicloacademico.toString()}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/permisoprograma/permisoprograma.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>
