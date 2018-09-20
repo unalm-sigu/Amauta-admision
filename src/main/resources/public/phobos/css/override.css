@@ -1907,3 +1907,8 @@ div.notas {
 .multiselect__clear:after {
     transform: rotate(-45deg)
 }
+
+.label-varios {
+    display: inline-block;
+    float: none;
+}

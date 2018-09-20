@@ -15,7 +15,7 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-public interface infoAcademicoService {
+public interface InfoAcademicoService {
 
     Alumno findAlumno(Long idAlumno);
 

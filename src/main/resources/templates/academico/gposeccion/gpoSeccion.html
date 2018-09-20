@@ -15,7 +15,7 @@
 
     <body>
         <div layout:fragment="main">
-            <div id="gpoSeccionesVUE">
+            <div id="gpoSeccionesVUE" v-cloak="">
 
                 <header class="header b-b padder-lg">
 
@@ -168,11 +168,17 @@
                                                 <td class="v-middle text-center text-primary"></td>
                                             </template>
 
-                                            <td class="v-middle text-center"
-                                                v-bind:rowspan="getRowspanSecc(secc)">
-                                                <span class="estado-red pointer"
-                                                      v-if="tieneRestricciones(secc)">R</span>
+                                            <td class="v-middle text-center" v-bind:rowspan="getRowspanSecc(secc)">
+                                                <small v-if="secc.restriccionCapa != '' " class="block btn-link pointer text-primary">{{secc.restriccionCapa}} capa</small>
+                                                <small v-on:click="verRestriccion(secc,item,'CARR')" v-if="secc.restriccionesCarrera.length > 0 " class="block btn-link text-primary pointer">Especialidad</small>
+                                                <small v-on:click="verRestriccion(secc,item,'FAC')" v-if="secc.restriccionesFacultad.length > 0 " class="block btn-link text-primary pointer">Facultad</small>
+                                                <small v-on:click="verRestriccion(secc,item,'MOD')" v-if="secc.restriccionesModalidad.length > 0 " class="block btn-link text-primary pointer">Modalidad</small>
+                                                <small v-on:click="verRestriccion(secc,item,'REP')" v-if="secc.restriccionesRepitencia.length > 0 " class="block btn-link text-primary pointer">Repitencia</small>
+
+                                                <!--                                                <span class="estado-red pointer"
+                                                                                                      v-if="tieneRestricciones(secc)">R</span>-->
                                             </td>
+
                                             <td class=" v-middle text-center"
                                                 v-bind:rowspan="getRowspanSecc(secc)">
                                                 <span class="clear">
@@ -248,11 +254,15 @@
                                                 <td class="v-middle text-center text-primary"></td>
                                             </template>
 
-                                            <td class="v-middle text-center"
+                                            <td class="v-middle text-center "
                                                 v-bind:rowspan="getRowspanSecc(secc)">
-                                                <span v-if="secc.restriccionCapa != '' " class="estado-dark">{{secc.restriccionCapa}} capa</span>
+                                                <small v-if="secc.restriccionCapa != '' " class="block btn-link pointer text-primary">{{secc.restriccionCapa}} capa</small>
+                                                <small v-on:click="verRestriccion(secc,item,'CARR')" v-if="secc.restriccionesCarrera.length > 0 " class="block btn-link text-primary pointer">Especialidad</small>
+                                                <small v-on:click="verRestriccion(secc,item,'FAC')" v-if="secc.restriccionesFacultad.length > 0 " class="block btn-link text-primary pointer">Facultad</small>
+                                                <small v-on:click="verRestriccion(secc,item,'MOD')" v-if="secc.restriccionesModalidad.length > 0 " class="block btn-link text-primary pointer">Modalidad</small>
+                                                <small v-on:click="verRestriccion(secc,item,'REP')" v-if="secc.restriccionesRepitencia.length > 0 " class="block btn-link text-primary pointer">Repitencia</small>
                                             </td>
-                                            
+
                                             <td class=" v-middle text-center"
                                                 v-bind:rowspan="getRowspanSecc(secc)">
                                                 <span class="clear">
@@ -287,14 +297,71 @@
                         </section>
                     </section>
                 </section>
-                <!--<div th:substituteby="templates/modal"/>-->
+
+                <modal-vik ref="modalRestriccion"
+                           v-bind="restriccionModal"
+                           v-bind:footer="false">
+                    <div slot="body">
+                        <seccion-det-component v-bind:seccion="seccionSelect"></seccion-det-component>
+                        <h5 class="text-primary">
+                            Sección restrigida para 
+                            <span v-if="tipoRestriccion == 'CARR' "> alumnos de la(s) especialidad(es):</span>
+                            <span v-if="tipoRestriccion == 'FAC' "> alumnos de la(s) facultad(es):</span>
+                            <span v-if="tipoRestriccion == 'MOD' "> alumnos de la(s) modalidad(es) de estudio:</span>
+                        </h5>
+
+                        <table class="table table-striped" >
+                            <tbody>
+                                <tr v-for="rest in seccionSelect.restriccionesCarrera"
+                                    v-if="tipoRestriccion == 'CARR' ">
+                                    <td class="col-md-12 bold">
+                                        <span v-if="rest.carrera.tipoMAE">Maestría en</span>
+                                        <span v-else-if="rest.carrera.tipoDOC">Doctorado en</span>
+                                        <span v-else="">Pregrado - </span>
+                                        <span>{{rest.carrera.codigo}} - {{rest.carrera.nombre}}</span>
+                                    </td>
+                                </tr>
+
+                                <tr v-for="rest in seccionSelect.restriccionesFacultad"
+                                    v-if="tipoRestriccion == 'FAC' ">
+                                    <td class="col-md-12 bold">
+                                        <span>{{rest.facultad.codigo}} - {{rest.facultad.nombre}}</span>
+                                    </td>
+                                </tr>
+
+                                <tr v-for="rest in seccionSelect.restriccionesModalidad"
+                                    v-if="tipoRestriccion == 'MOD' ">
+                                    <td class="col-md-12 bold">
+                                        <span>{{rest.modalidadEstudio.codigo}} - {{rest.modalidadEstudio.nombre}}</span>
+                                    </td>
+                                </tr>
+
+                                <tr v-for="rest in seccionSelect.restriccionesRepitencia"
+                                    v-if="tipoRestriccion == 'REP' ">
+                                    <td class="col-md-12 bold">
+                                        <span>{{rest.tipoRepitencia.nombre}}</span>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+
+                        <br/>
+                        <br/>
+                        <br/>
+                    </div>
+                </modal-vik>
 
                 <!--<script id="gpoSeccionTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/gposeccion/gpoSeccionTemplate"/></script>-->
             </div>
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="academico/gposeccion/components/seccionDetalleComponent"/>
+            <div th:substituteby="templates/modal"/>
         </div>
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/gposeccion/gpoSeccion.js}" charset="utf-8"></script>
         </div>
 

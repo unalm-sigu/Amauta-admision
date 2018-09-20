@@ -91,6 +91,7 @@ import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
@@ -1550,7 +1551,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void saveTipoRepitenciaRestriccion(Seccion seccion, Usuario usuario, List<TipoRepitencia> tiposRestriccionesSeleccionados) {
+    public void saveTipoRepitenciaRestriccion(Seccion seccion, List<TipoRepitencia> tiposRestriccionesSeleccionados, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
         List<RestriccionRepitencia> restriccionesRepitencia = restriccionRepitenciaDAO.allActivasBySeccion(seccion);
@@ -1560,7 +1561,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             if (!tiposRestriccionesSeleccionados.contains(restriccionRepEach.getTipoRepitencia())) {
                 restriccionRepEach.setEstadoEnum(EstadoEnum.INA);
                 restriccionRepEach.setFechaModificacion(today.toDate());
-                restriccionRepEach.setUsuarioModificacion(usuario);
+                restriccionRepEach.setUsuarioModificacion(ds.getUsuario());
                 restriccionRepitenciaDAO.updateEstadoFechaUsuario(restriccionRepEach);
             }
         }
@@ -1572,7 +1573,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 restriccionRepitencia.setTipoRepitencia(tipoRepitenciaEach);
                 restriccionRepitencia.setEstadoEnum(EstadoEnum.ACT);
                 restriccionRepitencia.setFechaRegistro(today.toDate());
-                restriccionRepitencia.setUsuarioRegistro(usuario);
+                restriccionRepitencia.setUsuarioRegistro(ds.getUsuario());
                 restriccionRepitencia.setSeccion(seccion);
                 restriccionRepitenciaDAO.save(restriccionRepitencia);
             }
@@ -1705,7 +1706,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<ModalidadEstudio> allModalidadesEstudioActivas() {
-        return modalidadEstudioDAO.allActivos();
+        return modalidadEstudioDAO.allRegularesActivas();
     }
 
     @Override

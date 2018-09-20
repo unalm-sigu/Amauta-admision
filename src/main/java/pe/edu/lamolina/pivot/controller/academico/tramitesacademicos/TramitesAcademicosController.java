@@ -50,11 +50,11 @@ import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
-import pe.edu.lamolina.pivot.controller.academico.infoacademico.infoAcademicoService;
 import pe.edu.lamolina.pivot.controller.academico.reunionconsejo.ReunionConsejoService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 
 @Controller
 @RequestMapping("academico/tramiteacademico")
@@ -69,7 +69,7 @@ public class TramitesAcademicosController {
     @Autowired
     ReunionConsejoService reunionConsejoService;
     @Autowired
-    infoAcademicoService infoAcademicoService;
+    InfoAcademicoService infoAcademicoService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
