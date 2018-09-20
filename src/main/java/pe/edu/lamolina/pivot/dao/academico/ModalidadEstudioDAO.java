@@ -14,7 +14,7 @@ public interface ModalidadEstudioDAO extends EasyDAO<ModalidadEstudio> {
 
     List<ModalidadEstudio> allByCompania(Compania compania);
 
-    List<ModalidadEstudio> allActivos();
+    List<ModalidadEstudio> allRegularesActivas();
 
     List<ModalidadEstudio> allActivoByCompania(Compania compania);
 

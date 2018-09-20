@@ -91,6 +91,7 @@ import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
@@ -200,9 +201,31 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allBySecciones(secciones);
         Map<Long, List<DocenteSeccion>> mapDocSeccion = TypesUtil.convertListToMapList("seccion.id", docenteSeccion);
 
+        List<RestriccionModalidad> restriccionesMod = restriccionModalidadDAO.allActivasBySecciones(secciones);
+        List<RestriccionFacultad> restriccionesFac = restriccionFacultadDAO.allActivasBySecciones(secciones);
+        List<RestriccionCarrera> restriccionesCarr = restriccionCarreraDAO.allActivasBySecciones(secciones);
+        List<RestriccionRepitencia> restriccionesRep = restriccionRepitenciaDAO.allActivasBySecciones(secciones);
+
+        Map<Long, List<RestriccionModalidad>> mapRestriccionMod = TypesUtil.convertListToMapList("seccion.id", restriccionesMod);
+        Map<Long, List<RestriccionFacultad>> mapRestriccionFac = TypesUtil.convertListToMapList("seccion.id", restriccionesFac);
+        Map<Long, List<RestriccionCarrera>> mapRestriccionCarr = TypesUtil.convertListToMapList("seccion.id", restriccionesCarr);
+        Map<Long, List<RestriccionRepitencia>> mapRestriccionRep = TypesUtil.convertListToMapList("seccion.id", restriccionesRep);
+
         for (Seccion seccion : secciones) {
             List<DocenteSeccion> doceentesSecc = mapDocSeccion.get(seccion.getId());
             seccion.setDocenteSeccion(doceentesSecc == null ? new ArrayList() : doceentesSecc);
+
+            List<RestriccionModalidad> restriccionesModSecc = mapRestriccionMod.get(seccion.getId());
+            seccion.setRestriccionesModalidad(restriccionesModSecc == null ? new ArrayList() : restriccionesModSecc);
+
+            List<RestriccionFacultad> restriccionesFacSecc = mapRestriccionFac.get(seccion.getId());
+            seccion.setRestriccionesFacultad(restriccionesFacSecc == null ? new ArrayList() : restriccionesFacSecc);
+
+            List<RestriccionCarrera> restriccionesCarrSecc = mapRestriccionCarr.get(seccion.getId());
+            seccion.setRestriccionesCarrera(restriccionesCarrSecc == null ? new ArrayList() : restriccionesCarrSecc);
+
+            List<RestriccionRepitencia> restriccionesRepSecc = mapRestriccionRep.get(seccion.getId());
+            seccion.setRestriccionesRepitencia(restriccionesRepSecc == null ? new ArrayList() : restriccionesRepSecc);
         }
 
         return gsecciones;
@@ -1290,7 +1313,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (!muertosHSecc.isEmpty()) {
             horarioAulaDAO.deleteAllInList(muertosHAula);
         }
-        
+
         if (seccion.getAula() != null) {
             for (DiaHoraGrupo diaHoraGrupoEach : nuevosHAula) {
                 HorarioAula horarioAula = new HorarioAula();
@@ -1528,7 +1551,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void saveTipoRepitenciaRestriccion(Seccion seccion, Usuario usuario, List<TipoRepitencia> tiposRestriccionesSeleccionados) {
+    public void saveTipoRepitenciaRestriccion(Seccion seccion, List<TipoRepitencia> tiposRestriccionesSeleccionados, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
         List<RestriccionRepitencia> restriccionesRepitencia = restriccionRepitenciaDAO.allActivasBySeccion(seccion);
@@ -1538,7 +1561,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             if (!tiposRestriccionesSeleccionados.contains(restriccionRepEach.getTipoRepitencia())) {
                 restriccionRepEach.setEstadoEnum(EstadoEnum.INA);
                 restriccionRepEach.setFechaModificacion(today.toDate());
-                restriccionRepEach.setUsuarioModificacion(usuario);
+                restriccionRepEach.setUsuarioModificacion(ds.getUsuario());
                 restriccionRepitenciaDAO.updateEstadoFechaUsuario(restriccionRepEach);
             }
         }
@@ -1550,7 +1573,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 restriccionRepitencia.setTipoRepitencia(tipoRepitenciaEach);
                 restriccionRepitencia.setEstadoEnum(EstadoEnum.ACT);
                 restriccionRepitencia.setFechaRegistro(today.toDate());
-                restriccionRepitencia.setUsuarioRegistro(usuario);
+                restriccionRepitencia.setUsuarioRegistro(ds.getUsuario());
                 restriccionRepitencia.setSeccion(seccion);
                 restriccionRepitenciaDAO.save(restriccionRepitencia);
             }
@@ -1683,7 +1706,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<ModalidadEstudio> allModalidadesEstudioActivas() {
-        return modalidadEstudioDAO.allActivos();
+        return modalidadEstudioDAO.allRegularesActivas();
     }
 
     @Override

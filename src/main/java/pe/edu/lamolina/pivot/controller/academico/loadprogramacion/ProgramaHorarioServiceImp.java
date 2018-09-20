@@ -31,6 +31,7 @@ import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -41,6 +42,7 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -297,11 +299,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         crearCursos(rutaFileCursos, mapCursos, mapDepartamentosAcademicos);
 
-        t1 = System.currentTimeMillis();
-        logger.debug("saveAlumnos");
-        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
-        t2 = System.currentTimeMillis();
-        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
+//        t1 = System.currentTimeMillis();
+//        logger.debug("saveAlumnos");
+//        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+//        t2 = System.currentTimeMillis();
+//        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
         
         t1 = System.currentTimeMillis();
         logger.debug("loadDataDocentes");
@@ -339,17 +341,17 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarDocenteSecciones ejecutado en {} mseg", (t2 - t1));
 
-        t1 = System.currentTimeMillis();
-        logger.debug("loadDataMatriculados");
-        Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
-        t2 = System.currentTimeMillis();
-        logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
+//        t1 = System.currentTimeMillis();
+//        logger.debug("loadDataMatriculados");
+//        Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
+//        t2 = System.currentTimeMillis();
+//        logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
 
-        t1 = System.currentTimeMillis();
-        logger.debug("revisarAlumnosMatriculados");
-        revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
-        t2 = System.currentTimeMillis();
-        logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
+//        t1 = System.currentTimeMillis();
+//        logger.debug("revisarAlumnosMatriculados");
+//        revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
+//        t2 = System.currentTimeMillis();
+//        logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("revisarSecciones");
@@ -368,8 +370,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         t1 = System.currentTimeMillis();
         logger.debug("horariosSeccion");
-//        List<Seccion> seccionesBD = seccionDAO.allByCiclo(ciclo);
-//        Map<String, Seccion> mapSecciones = TypesUtil.convertListToMap("codigo", seccionesBD);
         List<HorarioSeccion> horariosSeccion = crearHorarioSecciones(rutaFileHorarioSecciones, mapSecciones, mapDias, mapHoras, mapAulas, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\thorariosSeccion ejecutado en {} mseg", (t2 - t1));
@@ -1386,6 +1386,26 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Integer matriculados = getCellIntegerValue(11, row);
 
                 Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave, vacantes, matriculados);
+                
+//                List<RestriccionCarrera> restricionesCarr = new ArrayList();
+//                String[] carrerasPregrado = espCodidgo.split("/");
+//                for (String carr : carrerasPregrado) {
+//                    Carrera carrera = mapCarreras.get("010");
+//                    RestriccionCarrera resCarr = new RestriccionCarrera();
+//                    resCarr.setCarrera(carrera);
+//                    resCarr.setSeccion(seccion);
+//                    restricionesCarr.add(resCarr);
+//                }
+//                String[] carrerasPosgrado = espGrad.split("/");
+//                for (String carr : carrerasPregrado) {
+//                    Carrera carrera = mapCarreras.get("010");
+//                    RestriccionCarrera resCarr = new RestriccionCarrera();
+//                    resCarr.setCarrera(carrera);
+//                    resCarr.setSeccion(seccion);
+//                    restricionesCarr.add(resCarr);
+//                }
+//                seccion.setRestriccionesCarrera(restricionesCarr);
+                
                 System.out.println(seccion.getCodigo() + " vacantes: " + seccion.getVacantes());
                 System.out.println("\t" + " matriculados: " + seccion.getMatriculados());
                 secciones.add(seccion);

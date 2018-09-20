@@ -1,9 +1,14 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +16,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -21,6 +27,7 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.ABI;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.acta.ActaResumen;
@@ -30,6 +37,8 @@ import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 
 @Repository
 public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements GrupoSeccionDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public GrupoSeccionDAOH() {
         super();
@@ -261,7 +270,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         }
 
         for (String key : queries.keySet()) {
-            if (!key.equals("superior.id")) {
+            if (!key.equals("anexo-superior")) {
                 continue;
             }
             String value = (String) queries.get(key);
@@ -272,7 +281,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         }
 
         for (String key : queries.keySet()) {
-            if (!key.equals("anexo.id")) {
+            if (!key.equals("anexo")) {
                 continue;
             }
             sql.filter("ab.id", queries.get(key));
@@ -392,6 +401,75 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .filter("ds.estado", EstadoEnum.ACT);
 
         return all(sql);
+    }
+
+    @Override
+    public Map<Long, Long> allCountAlumnos(List<GrupoSeccion> grupos) {
+        List<Long> gruposIds = new ArrayList<>();
+        for (GrupoSeccion grupo : grupos) {
+            gruposIds.add(grupo.getId());
+        }
+        StringBuilder strb = new StringBuilder();
+        strb.append("Select gsec.id,count(ms) from MatriculaSeccion ms");
+        strb.append(" inner join ms.seccion sec ");
+        strb.append(" inner join sec.grupoSeccion gsec ");
+        strb.append(" inner join ms.seccion sec ");
+        strb.append(" where  ms.estado=:MSEC_ESTADO");
+        strb.append(" and sec.tipoSeccion != :TIPO_SEC_DIF ");
+        strb.append(" and gsec.id in (:GRUPOS) ");
+        strb.append(" group by gsec.id ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("MSEC_ESTADO", EstadoMatriculaEnum.MAT.name());
+        query.setParameter("TIPO_SEC_DIF", TipoSeccionEnum.PCUR.name());
+        query.setParameterList("GRUPOS", gruposIds);
+        List<Object[]> result = query.list();
+
+        Map<Long, Long> resultados = new HashMap<>();
+        for (Object[] object : result) {
+            resultados.put(TypesUtil.getLong(object[0]), TypesUtil.getLong(object[1]));
+        }
+        return resultados;
+    }
+
+    @Override
+    public Map<Long, Long> allCountAlumnosWithNf(List<GrupoSeccion> grupos) {
+        List<Long> gruposIds = new ArrayList<>();
+        for (GrupoSeccion grupo : grupos) {
+            gruposIds.add(grupo.getId());
+        }
+
+        StringBuilder strb = new StringBuilder();
+        strb.append(" Select ");
+        strb.append(" gsec.id, ");
+        strb.append(" count(*) ");
+        strb.append(" from aca_matricula_curso mcur ");
+        strb.append(" inner join aca_matricula_resumen mres on mcur.id_matricula_resumen=mres.id ");
+        strb.append(" inner join aca_matricula_seccion msec on msec.id_matricula_resumen=mres.id ");
+        strb.append(" inner join aca_seccion sec on sec.id=msec.id_seccion ");
+        strb.append(" inner join aca_grupo_seccion gsec on sec.id_grupo_seccion=gsec.id and gsec.id_curso=mcur.id_curso");
+        strb.append(" where  mcur.porcentaje_avance_nota=100 ");
+        strb.append(" and msec.estado=:MSEC_ESTADO ");
+        strb.append(" AND sec.tipo_seccion !=:TIPO_SEC_DIF ");
+        strb.append(" and gsec.id in (:GRUPOS) ");
+        strb.append(" group by gsec.id ");
+
+        Query query = getCurrentSession().createSQLQuery(strb.toString());
+        query.setParameter("MSEC_ESTADO", EstadoMatriculaEnum.MAT.name());
+        query.setParameter("TIPO_SEC_DIF", TipoSeccionEnum.PCUR.name());
+        query.setParameterList("GRUPOS", gruposIds);
+
+        String listString = gruposIds.stream().map(Object::toString)
+                .collect(Collectors.joining(", "));
+
+        logger.debug("Grupos Ids {}", listString);
+
+        List<Object[]> result = query.list();
+
+        Map<Long, Long> resultados = new HashMap<>();
+        for (Object[] object : result) {
+            resultados.put(TypesUtil.getLong(object[0]), TypesUtil.getLong(object[1]));
+        }
+        return resultados;
     }
 
 }

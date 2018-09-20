@@ -1,107 +1,370 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Grupo Sección</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-    <style>
-        .td-vacio {
-            padding-right: 4px !important;
-            padding-left: 4px !important;
-        }
-        .bg-row {
-            background-color: #f9fafc;
-        }
-    </style>
-</head>
+        <style>
+            .td-vacio {
+                padding-right: 4px !important;
+                padding-left: 4px !important;
+            }
+            .bg-row {
+                background-color: #f9fafc;
+            }
 
-<body>
-    <div layout:fragment="main">
+        </style>
+    </head>
 
-        <header class="header b-b padder-lg">
+    <body>
+        <div layout:fragment="main">
+            <div id="gpoSeccionesVUE" v-cloak="">
 
-            <div class="pull-right m-t-md">                 
-                <div class="btn-group">
-                    <a type="button" class="btn btn-success nuevo-grupo-sec">Nuevo Grupo</a>
-                </div>
-            </div> 
-            <h2 th:text="|Programación de horarios ${ciclo.descripcion}|">Grupo Sección</h2>
-        </header>
-        <section class="wrapper-lg">
-            <section class="panel m-b-md">
-                <section class="panel-body">
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-3 text-center">
-                                <a href="#" class="view-count text-danger" rel="ingresantes">
-                                    <span class="h1 block bold" th:text="${resumen.ingresantes}">23</span>
-                                    <small class="block m-b-xs">Ingresantes</small>
-                                </a>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <a href="#" class="view-count text-black" rel="departamentos">
-                                    <span class="h1 block bold" th:text="${resumen.departamentos}">23</span>
-                                    <small class="block m-b-xs">Departamentos</small>
-                                </a>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <a href="#" class="view-count text-success" rel="postGrados">
-                                    <span class="h1 block bold" th:text="${resumen.postGrados}">23</span>
-                                    <small class="block m-b-xs">Posgrado</small>
-                                </a>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <a href="#" class="view-count text-warning" rel="actividades">
-                                    <span class="h1 block bold" th:text="${resumen.actividades}">23</span>
-                                    <small class="block m-b-xs">Actividades Deportivas</small>
-                                </a>
-                            </div>
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success nuevo-grupo-sec">Nuevo Grupo</a>
                         </div>
-                    </div>
+                    </div> 
+                    <h2 th:text="|Programación de horarios ${ciclo.descripcion}|">Grupo Sección</h2>
+                </header>
+                <section class="wrapper-lg">
+                    <section class="panel m-b-md">
+                        <section class="panel-body">
+                            <div class="col-md-12">
+                                <div class="row">
+
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['ingresantes']">
+                                        <a v-on:click="verAnexos('ingresantes')" class="text-danger pointer" rel="ingresantes">
+                                            <span class="h1 block bold" th:text="${resumen.ingresantes}">23</span>
+                                            <small class="block m-b-xs">Ingresantes</small>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['departamentos']">
+                                        <a v-on:click="verAnexos('departamentos')" class="text-black pointer" rel="departamentos">
+                                            <span class="h1 block bold" th:text="${resumen.departamentos}">23</span>
+                                            <small class="block m-b-xs">Departamentos</small>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['postgrados']">
+                                        <a v-on:click="verAnexos('postgrados')" class="text-success pointer" rel="postgrados">
+                                            <span class="h1 block bold" th:text="${resumen.postGrados}">23</span>
+                                            <small class="block m-b-xs">Posgrado</small>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['actividades']">
+                                        <a v-on:click="verAnexos('actividades')" class="text-warning pointer" rel="actividades">
+                                            <span class="h1 block bold" th:text="${resumen.actividades}">23</span>
+                                            <small class="block m-b-xs">Actividades Deportivas</small>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </section>
+
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <raptor-table v-bind:url="gpoSeccionesURL" v-bind:preload="false" ref="load">
+                                <div slot="header">
+                                    <div class="col-md-8">
+                                        <multiselect v-model='anexoSelect'
+                                                     v-bind:options='anexosVisibles'
+                                                     label='nombre'
+                                                     placeholder="Seleccione un anexo"
+                                                     deselect-label="Retire anexo"
+                                                     select-label="Seleccione este anexo"
+                                                     track-by='id'
+                                                     v-on:input="gpoSeccionesAnexo">
+                                            <template slot="option" slot-scope="props">
+                                                <div class="block text-primary bold" v-text="props.option.nombre"></div>
+                                                <small class="block">{{props.option.anexoSuperior.nombre}}</small>
+                                            </template>
+                                            <template slot="clear" slot-scope="props">
+                                                <div class="multiselect__clear" v-if="existeAnexoSelect()" 
+                                                     v-on:mousedown.prevent.stop="clearAll(props.search)"></div>
+                                            </template>
+                                        </multiselect>
+                                    </div>
+                                </div>
+
+                                <template scope="props" >
+                                    <table class="table table-striped table-hover">
+                                        <thead> 
+                                            <tr>
+                                                <th class="col-md-4"></th>
+                                                <th class="col-md-1 text-center v-middle">Sección</th>
+                                                <th class="col-md-1 text-center v-middle">
+                                                    <span class="block">Aula</span>
+                                                    <span class="block">Grupo</span>
+                                                </th>
+                                                <th class="col-md-1 text-center v-middle">
+                                                    <span class="block">Vacantes</span> <span class="block">Matric.</span>
+                                                </th>
+
+                                                <th class="td-vacio"></th>
+                                                <th class="td-vacio"></th>
+                                                <th class="col-md-3 text-center v-middle">Docente</th>
+                                                <th class="td-vacio text-center v-middle">% Carga </th>
+
+                                                <th class="col-md-2 text-center v-middle">Restricciones</th>
+                                                <th class="td-vacio text-center v-middle">Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody v-for="item in props.data">
+                                            <tr>
+                                                <td class="v-middle " v-bind:rowspan="getRowspanGpoSecc(item)">
+                                                    <span class="block text-primary bold h5 m-b-xs m-t-xs editar-gpo-seccion pointer"
+                                                          v-text="item.curso.nombre"
+                                                          v-on:click="editarGpoSeccion(item)"></span>
+                                                    <span class="block">
+                                                        {{item.curso.codigo}}&nbsp;
+                                                        <i class="fa fa-bookmark text-primary"></i>
+                                                        {{item.curso.tpc}}</span>
+                                                    <span class="block" v-text="item.anexoBoletin.nombre"></span>
+                                                    <span class="clear">
+                                                        <span v-if="item.estadoEnum.name == 'ACT' " class="label label-success" v-text="item.estadoEnum.value"></span>
+                                                        <span v-else="" class="label label-danger" v-text="item.estadoEnum.value"></span>
+                                                    </span>
+                                                </td>
+
+                                        <template v-for="secc in item.secciones"
+                                                  v-if="secc.tipoSeccionEnum.name != 'PCUR' ">
+                                            <td class="v-middle text-center " 
+                                                v-bind:rowspan="getRowspanSecc(secc)">
+                                                <span class="block text-primary" v-text="secc.codigo2"></span>
+                                                <small class="block" v-text="tipoSeccion(secc)"></small>
+                                            </td>
+                                            <td class="v-middle text-center" 
+                                                v-bind:rowspan="getRowspanSecc(secc)">
+                                                <span class="block" v-if="secc.aula.codigo != ''"><i class="fa fa-home"></i> {{secc.aula.codigo}}</span>
+                                                <span class="block" v-if="secc.grupoHoras.codigo != '' "><i class="fa fa-calendar"></i> {{secc.grupoHoras.codigo}}</span>
+                                            </td>
+                                            <td class="v-middle text-center"
+                                                v-bind:rowspan="getRowspanSecc(secc)">
+                                                <span class="block bold">{{secc.vacantes}}/{{secc.matriculados}}</span>
+                                            </td>
+
+                                            <template v-for="(profeSecc,idx) in secc.docenteSeccion"
+                                                      v-if="idx==0">
+                                                <td class="v-middle text-center td-vacio" >
+                                                    <i v-if="esPrincipal(profeSecc)" class="fa fa-check-square text-success"></i> 
+                                                </td>
+                                                <td class="v-middle text-center td-vacio " v-text="profeSecc.docente.codigo"></td>
+                                                <td class="v-middle">
+                                                    <span v-if="profeSecc.docente.codigo != 'N.N.' " v-text="profeSecc.docente.persona.apellidosNombres" class="block"/>
+                                                    <span v-else="" class="block">Desconocido</span>
+                                                    <span v-if="profeSecc.estadoEnum.name == 'ACT' " v-text="profeSecc.estadoEnum.value" class="label label-success"></span>
+                                                    <span v-else="" v-text="profeSecc.estadoEnum.value" class="label label-danger"></span>
+                                                </td>
+                                                <td class="v-middle text-center text-primary" >
+                                                    <span v-if="profeSecc.porcentajeCarga != '' ">{{profeSecc.porcentajeCarga}}%</span>
+                                                </td>
+                                            </template>
+
+                                            <template v-if="secc.docenteSeccion.length == 0">
+                                                <td class="v-middle text-center td-vacio" ></td>
+                                                <td class="v-middle text-center td-vacio"></td>
+                                                <td class="v-middle"></td>
+                                                <td class="v-middle text-center text-primary"></td>
+                                            </template>
+
+                                            <td class="v-middle text-center" v-bind:rowspan="getRowspanSecc(secc)">
+                                                <small v-if="secc.restriccionCapa != '' " class="block btn-link pointer text-primary">{{secc.restriccionCapa}} capa</small>
+                                                <small v-on:click="verRestriccion(secc,item,'CARR')" v-if="secc.restriccionesCarrera.length > 0 " class="block btn-link text-primary pointer">Especialidad</small>
+                                                <small v-on:click="verRestriccion(secc,item,'FAC')" v-if="secc.restriccionesFacultad.length > 0 " class="block btn-link text-primary pointer">Facultad</small>
+                                                <small v-on:click="verRestriccion(secc,item,'MOD')" v-if="secc.restriccionesModalidad.length > 0 " class="block btn-link text-primary pointer">Modalidad</small>
+                                                <small v-on:click="verRestriccion(secc,item,'REP')" v-if="secc.restriccionesRepitencia.length > 0 " class="block btn-link text-primary pointer">Repitencia</small>
+
+                                                <!--                                                <span class="estado-red pointer"
+                                                                                                      v-if="tieneRestricciones(secc)">R</span>-->
+                                            </td>
+
+                                            <td class=" v-middle text-center"
+                                                v-bind:rowspan="getRowspanSecc(secc)">
+                                                <span class="clear">
+                                                    <span v-if="secc.estadoEnum.name == 'ACT' " class="label label-success" v-text="secc.estadoEnum.value"></span>
+                                                    <span v-else="" class="label label-danger" v-text="secc.estadoEnum.value"></span>
+                                                </span>
+                                            </td>
+
+                                        </template>
+
+
+                                        </tr>
+
+                                        <template v-for="secc in item.secciones"
+                                                  v-if="secc.tipoSeccionEnum.name != 'PCUR' ">
+                                            <tr v-for="(profeSecc,idx) in secc.docenteSeccion"
+                                                v-if="idx>0">
+                                                <td class="v-middle text-center td-vacio" >
+                                                    <i v-if="esPrincipal(profeSecc)" class="fa fa-check-square text-success"></i> 
+                                                </td>
+                                                <td class="v-middle text-center td-vacio " v-text="profeSecc.docente.codigo"></td>
+                                                <td class="v-middle">
+                                                    <span v-if="profeSecc.docente.codigo != 'N.N.' " v-text="profeSecc.docente.persona.apellidosNombres" class="block"/>
+                                                    <span v-else="" class="block">Desconocido</span>
+                                                    <span v-if="profeSecc.estadoEnum.name == 'ACT' " v-text="profeSecc.estadoEnum.value" class="label label-success"></span>
+                                                    <span v-else="" v-text="profeSecc.estadoEnum.value" class="label label-danger"></span>
+                                                </td>
+                                                <td class="v-middle text-center text-primary" >
+                                                    <span v-if="profeSecc.porcentajeCarga != '' ">{{profeSecc.porcentajeCarga}}%</span>
+                                                </td>
+                                            </tr>
+                                        </template>
+
+                                        <template v-for="(secc,idx) in item.secciones"
+                                                  v-if="secc.tipoSeccionEnum.name == 'PCUR' ">
+                                            <tr>
+                                                <td class="v-middle text-center " 
+                                                    v-bind:rowspan="getRowspanSecc(secc)">
+                                                    <span class="block text-primary" v-text="secc.codigo2"></span>
+                                                    <small class="block" v-text="tipoSeccion(secc)"></small>
+                                                </td>
+                                                <td class="v-middle text-center" 
+                                                    v-bind:rowspan="getRowspanSecc(secc)">
+                                                    <span class="block" v-if="secc.aula.codigo != ''"><i class="fa fa-home"></i> {{secc.aula.codigo}}</span>
+                                                    <span class="block" v-if="secc.grupoHoras.codigo != '' "><i class="fa fa-calendar"></i> {{secc.grupoHoras.codigo}}</span>
+                                                </td>
+                                                <td class="v-middle text-center"
+                                                    v-bind:rowspan="getRowspanSecc(secc)">
+                                                    <span class="block bold">{{secc.vacantes}}/{{secc.matriculados}}</span>
+                                                </td>
+
+                                            <template v-for="(profeSecc,idx) in secc.docenteSeccion"
+                                                      v-if="idx==0">
+                                                <td class="v-middle text-center td-vacio" >
+                                                    <i v-if="esPrincipal(profeSecc)" class="fa fa-check-square text-success"></i> 
+                                                </td>
+                                                <td class="v-middle text-center td-vacio " v-text="profeSecc.docente.codigo"></td>
+                                                <td class="v-middle">
+                                                    <span v-if="profeSecc.docente.codigo != 'N.N.' " v-text="profeSecc.docente.persona.apellidosNombres" class="block"/>
+                                                    <span v-else="" class="block">Desconocido</span>
+                                                    <span v-if="profeSecc.estadoEnum.name == 'ACT' " v-text="profeSecc.estadoEnum.value" class="label label-success"></span>
+                                                    <span v-else="" v-text="profeSecc.estadoEnum.value" class="label label-danger"></span>
+                                                </td>
+                                                <td class="v-middle text-center text-primary" >
+                                                    <span v-if="profeSecc.porcentajeCarga != '' ">{{profeSecc.porcentajeCarga}}%</span>
+                                                </td>
+                                            </template>
+
+                                            <template v-if="secc.docenteSeccion.length == 0">
+                                                <td class="v-middle text-center td-vacio" ></td>
+                                                <td class="v-middle text-center td-vacio"></td>
+                                                <td class="v-middle"></td>
+                                                <td class="v-middle text-center text-primary"></td>
+                                            </template>
+
+                                            <td class="v-middle text-center "
+                                                v-bind:rowspan="getRowspanSecc(secc)">
+                                                <small v-if="secc.restriccionCapa != '' " class="block btn-link pointer text-primary">{{secc.restriccionCapa}} capa</small>
+                                                <small v-on:click="verRestriccion(secc,item,'CARR')" v-if="secc.restriccionesCarrera.length > 0 " class="block btn-link text-primary pointer">Especialidad</small>
+                                                <small v-on:click="verRestriccion(secc,item,'FAC')" v-if="secc.restriccionesFacultad.length > 0 " class="block btn-link text-primary pointer">Facultad</small>
+                                                <small v-on:click="verRestriccion(secc,item,'MOD')" v-if="secc.restriccionesModalidad.length > 0 " class="block btn-link text-primary pointer">Modalidad</small>
+                                                <small v-on:click="verRestriccion(secc,item,'REP')" v-if="secc.restriccionesRepitencia.length > 0 " class="block btn-link text-primary pointer">Repitencia</small>
+                                            </td>
+
+                                            <td class=" v-middle text-center"
+                                                v-bind:rowspan="getRowspanSecc(secc)">
+                                                <span class="clear">
+                                                    <span v-if="secc.estadoEnum.name == 'ACT' " class="label label-success" v-text="secc.estadoEnum.value"></span>
+                                                    <span v-else="" class="label label-danger" v-text="secc.estadoEnum.value"></span>
+                                                </span>
+                                            </td>
+                                            </tr>
+
+                                            <tr v-for="(profeSecc,idx) in secc.docenteSeccion"
+                                                v-if="idx>0">
+                                                <td class="v-middle text-center td-vacio" >
+                                                    <i v-if="esPrincipal(profeSecc)" class="fa fa-check-square text-success"></i> 
+                                                </td>
+                                                <td class="v-middle text-center td-vacio " v-text="profeSecc.docente.codigo"></td>
+                                                <td class="v-middle">
+                                                    <span v-if="profeSecc.docente.codigo != 'N.N.' " v-text="profeSecc.docente.persona.apellidosNombres" class="block"/>
+                                                    <span v-else="" class="block">Desconocido</span>
+                                                    <span v-if="profeSecc.estadoEnum.name == 'ACT' " v-text="profeSecc.estadoEnum.value" class="label label-success"></span>
+                                                    <span v-else="" v-text="profeSecc.estadoEnum.value" class="label label-danger"></span>
+                                                </td>
+                                                <td class="v-middle text-center text-primary" >
+                                                    <span v-if="profeSecc.porcentajeCarga != '' ">{{profeSecc.porcentajeCarga}}%</span>
+                                                </td>
+                                            </tr>
+
+                                        </template>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+                        </section>
+                    </section>
                 </section>
-            </section>
 
-            <section class="panel">
-                <section class="panel-body">
+                <modal-vik ref="modalRestriccion"
+                           v-bind="restriccionModal"
+                           v-bind:footer="false">
+                    <div slot="body">
+                        <seccion-det-component v-bind:seccion="seccionSelect"></seccion-det-component>
+                        <h5 class="text-primary">
+                            Sección restrigida para 
+                            <span v-if="tipoRestriccion == 'CARR' "> alumnos de la(s) especialidad(es):</span>
+                            <span v-if="tipoRestriccion == 'FAC' "> alumnos de la(s) facultad(es):</span>
+                            <span v-if="tipoRestriccion == 'MOD' "> alumnos de la(s) modalidad(es) de estudio:</span>
+                        </h5>
 
-                    <div class="hide m-t-lg" id="headDynatable">
-                        <div class="col-md-6">
-                            <input type="hidden" class="form-control" placeholder="Seleccione un anexo" id="anexos"/>
-                        </div>
+                        <table class="table table-striped" >
+                            <tbody>
+                                <tr v-for="rest in seccionSelect.restriccionesCarrera"
+                                    v-if="tipoRestriccion == 'CARR' ">
+                                    <td class="col-md-12 bold">
+                                        <span v-if="rest.carrera.tipoMAE">Maestría en</span>
+                                        <span v-else-if="rest.carrera.tipoDOC">Doctorado en</span>
+                                        <span v-else="">Pregrado - </span>
+                                        <span>{{rest.carrera.codigo}} - {{rest.carrera.nombre}}</span>
+                                    </td>
+                                </tr>
+
+                                <tr v-for="rest in seccionSelect.restriccionesFacultad"
+                                    v-if="tipoRestriccion == 'FAC' ">
+                                    <td class="col-md-12 bold">
+                                        <span>{{rest.facultad.codigo}} - {{rest.facultad.nombre}}</span>
+                                    </td>
+                                </tr>
+
+                                <tr v-for="rest in seccionSelect.restriccionesModalidad"
+                                    v-if="tipoRestriccion == 'MOD' ">
+                                    <td class="col-md-12 bold">
+                                        <span>{{rest.modalidadEstudio.codigo}} - {{rest.modalidadEstudio.nombre}}</span>
+                                    </td>
+                                </tr>
+
+                                <tr v-for="rest in seccionSelect.restriccionesRepitencia"
+                                    v-if="tipoRestriccion == 'REP' ">
+                                    <td class="col-md-12 bold">
+                                        <span>{{rest.tipoRepitencia.nombre}}</span>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+
+                        <br/>
+                        <br/>
+                        <br/>
                     </div>
+                </modal-vik>
 
-                    <table class="table" id="dynaTable">
-                        <thead> 
-                            <tr> 
-                                <th class="col-md-4"></th>
-                                <th class="col-md-1 text-center v-middle">Clave</th>
-                                <th class="col-md-1 text-center v-middle"><span class="block">Aula</span> <span class="block">Grupo</span></th>
-                                <th class="col-md-1 text-center v-middle"><span class="block">Vacantes</span> <span class="block">Matric.</span></th>
+                <!--<script id="gpoSeccionTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/gposeccion/gpoSeccionTemplate"/></script>-->
+            </div>
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="academico/gposeccion/components/seccionDetalleComponent"/>
+            <div th:substituteby="templates/modal"/>
+        </div>
 
-
-                                <th class="td-vacio"></th>
-                                <th class="td-vacio"></th>
-                                <th class="col-md-3 text-center v-middle">Docente</th>
-                                <th class="col-md-1 text-center v-middle">% Carga </th>
-
-                                <th class="col-md-1 text-center v-middle">Restricción</th>
-                                <th class="col-md-1 v-middle">Estado</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </section>
-            </section>
-        </section>
-        <div th:substituteby="templates/modal"/>
-
-        <script id="gpoSeccionTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/gposeccion/gpoSeccionTemplate"/></script>
-    </div>
-
-    <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/gposeccion/gposeccion.js}" charset="utf-8"></script>
-    </div>
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/gposeccion/gpoSeccion.js}" charset="utf-8"></script>
+        </div>
 
 
-</body>
+    </body>
 </html>

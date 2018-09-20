@@ -134,7 +134,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
                 .leftJoin("aula", "grupoHoras")
                 .in("gs.id", gruposSeccion)
-                .orderBy("sec.codigo");
+                .orderBy("sec.codigo2");
 
         return all(sql);
     }

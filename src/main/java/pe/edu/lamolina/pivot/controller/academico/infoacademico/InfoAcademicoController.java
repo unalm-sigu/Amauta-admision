@@ -42,19 +42,20 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/alumno")
-public class infoAcademicoController {
+public class InfoAcademicoController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    infoAcademicoService service;
+    InfoAcademicoService service;
 
     @Autowired
     PlanCurricularService planCurricularService;
 
     @ResponseBody
     @RequestMapping("{idAlumno}/avance")
-    public JsonResponse alumnoAvance(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+    public JsonResponse alumnoAvance(
+            @PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             ObjectNode avanceCurrInfoJson = service.allAvanceCurricular(new Alumno(idAlumno));

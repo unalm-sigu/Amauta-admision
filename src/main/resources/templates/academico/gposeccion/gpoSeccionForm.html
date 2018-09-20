@@ -25,9 +25,9 @@
 <body>
     <section  layout:fragment="main">
         <header class="header b-b padder-lg">
-            <h2>Programacion de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
+            <h2>Programación de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
             <div class="pull-right m-t-md">
-                <a class="btn btn-default"   th:href="@{/academico/gposeccion}"  >Regresar</a>
+                <a class="btn btn-default"   th:href="${origen}"  >Regresar</a>
             </div>
         </header>
         <div id="pageGpoSeccion">
@@ -172,7 +172,7 @@
                                                    style="cursor:pointer;">
                                                     {{SIN_RESTRICCION_TEXT}}
                                                 </a>
-                                                <div class="col-md-12 text-center"
+                                                <div class="text-center"
                                                      v-if="seccion.isTieneRestriccion &amp;&amp; !seccion.isTipoSeccionTCUR">
 
                                                     <div class="col-md-12">
@@ -197,17 +197,18 @@
                                                        v-if="seccion.isTieneRestriccionCarrera"
                                                        v-for="restCarrera in seccion.restriccionesCarrera"
                                                        style="cursor:pointer;"
-                                                       class="col-md-3"> 
-                                                        <span class="label label-primary">
+                                                       class="m-t-xs label-varios"> 
+                                                        <span class="label label-primary m-l-xs">
                                                             {{restCarrera.carrera.codigo}}  
                                                         </span>
                                                     </a>  
+
                                                     <a v-on:click="showModalRestriccion(seccion)" 
                                                        v-if="seccion.isTieneRestriccionFacultad"
                                                        v-for="restFacultad in seccion.restriccionesFacultad" 
                                                        style="cursor:pointer;"
-                                                       class="col-md-3"> 
-                                                        <span class="label label-primary">
+                                                       class="m-t-xs label-varios"> 
+                                                        <span class="label label-primary m-l-xs">
                                                             {{restFacultad.facultad.codigo}} 
                                                         </span>
                                                     </a> 
@@ -216,8 +217,8 @@
                                                        v-if="seccion.isTieneRestriccionModalidad"
                                                        v-for="restModalidad in seccion.restriccionesModalidad" 
                                                        style="cursor:pointer;"
-                                                       class="col-md-3"> 
-                                                        <span class="label label-primary">
+                                                       class="m-t-xs label-varios"> 
+                                                        <span class="label label-primary m-l-xs">
                                                             {{restModalidad.modalidadEstudio.codigo}} 
                                                         </span>
                                                     </a> 
@@ -232,13 +233,13 @@
                                                     {{SIN_RESTRICCION_TEXT}}
                                                 </a>
 
-                                                <div class="col-md-12">
+                                                <div class="row">
                                                     <a v-on:click="showModalTipoRepitencia(seccion)" 
                                                        v-if="seccion.isTieneRestriccionRepitencia  &amp;&amp; !seccion.isTipoSeccionTCUR"
                                                        v-for="restRepitencia in seccion.restriccionesRepitencia"
                                                        style="cursor:pointer;"
-                                                       class="col-md-3"> 
-                                                        <span class="label label-primary">
+                                                       class="m-t-xs label-varios"> 
+                                                        <span class="label label-primary m-l-xs">
                                                             {{restRepitencia.tipoRepitencia.codigo}}  
                                                         </span>
                                                     </a>  
@@ -247,9 +248,6 @@
 
                                             </td>
                                             <td class="text-center v-middle">
-                                                <!--div v-if="seccion.isTipoSeccionTCUR" >
-                                                    {{ seccion.restriccionCapa }}
-                                                </div-->
 
                                                 <div v-if="!seccion.isTipoSeccionTCUR &amp;&amp; seccion.restriccionCapa!='' " 
                                                      v-show="!seccion.editRestriccionCapa &amp;&amp; !directEditSecciones">
@@ -291,10 +289,6 @@
                                                        v-on:blur="changeVacantes(seccion,$event)"
                                                        v-on:keyup.enter="changeVacantes(seccion,$event)">
                                                 </input>
-                                                <!--
-                                                 v-on:blur="seccion.editVacantes=false; $emit('update')"
-                                                       v-on:keyup.enter = "seccion.editVacantes=false; $emit('update')"
-                                                -->
                                             </td>
                                             <td class="text-center v-middle">
                                                 {{ seccion.matriculados }}
@@ -311,12 +305,6 @@
                                                 <span class="label" v-bind:class="getEstadoClass(seccion.estado)">{{ seccion.estadoEnum.value }}</span>
                                             </td>
                                             <td class="v-middle">
-                                                <!-- 
-                                                <a  v-if="index == secciones.length - 1 &amp;&amp; secciones.length > 0"
-                                                    v-on:click="deleteSeccion(seccion)"
-                                                    class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
-                                                v-if="index == secciones.length - 1 &amp;&amp; secciones.length > 0"
-                                                -->
 
                                                 <div class="dropdown actions" 
                                                      v-if="index > 0">
@@ -459,21 +447,6 @@
         <div th:substituteby="academico/gposeccion/components/restriccionComponent"/>
         <div th:substituteby="academico/gposeccion/components/repitenciaComponent"/>
 
-        <!-- 
-              <div id="autocomplete-doc">
-                  <input class="input-s-full" v-bind:rel="rel" type="hidden"  />
-              </div>
-      
-              <div id="tablaHorarioReg"></div>
-            
-                      <script type="text/x-template" id="select2-template">
-                          <input class="input-s-full" type="text" />
-                      </script>
-              
-                      <div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
-                          {{:personaNombre}}  {{:personaPaterno}}  {{:personaMaterno}}
-                      </div>
-        -->
     </section>
 
     <div layout:fragment="js">

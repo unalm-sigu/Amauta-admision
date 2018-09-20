@@ -126,11 +126,11 @@ Vue.component('raptor-table', {
                 return;
             }
 
-            let first = params.offset + 1;
+            let first = data.data.length == 0 ? 0 : params.offset + 1;
             let tos = params.offset + data.data.length;
             let filtero = data.filtered;
             let info = "";
-            if ($vue.paginate) {
+            if ($vue.paginate && data.data.length > 0) {
                 info = first + " a " + tos + " de " + filtero + " registros";
             } else {
                 info = data.data.length + " registros";
