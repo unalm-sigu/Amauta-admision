@@ -7,7 +7,8 @@ public enum TipoRestriccionEnum {
 
     ESP("Especialidad"),
     FAC("Facultad"),
-    MOD("Modalidad");
+    MOD("Modalidad"),
+    NREP("No repitentes");
 
     private final String value;
     private static final Map<String, TipoRestriccionEnum> lookup = new HashMap<>();
