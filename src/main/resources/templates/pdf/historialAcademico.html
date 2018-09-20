@@ -1,0 +1,148 @@
+<html>
+    <head>
+        <title th:inline="text"> Plan Curricular </title>
+        <style>
+            body{
+                font-size: 10px !important;	
+            }
+
+            .fecha {
+                font-size: 10px;
+                font-style: italic;
+            }
+
+            .table{
+                font-size:10px !important;
+                border: solid .25px;
+                border-collapse: collapse;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .text-right{
+                text-align: right;
+            }
+
+            table td {
+                padding: 5px !important;
+            }
+
+            .info-adicional{
+                font-size: 10px;
+                font-style: italic;
+            }
+            .header {
+                display: block;
+                padding-bottom: 20px;
+            }
+            .col-sm{
+                width: 30px;
+            }
+
+            .col-xs {
+                width: 20px;
+            }
+
+            .col-xxs {
+                width: 7px;
+            }
+
+            .table-plan {
+                width: 100%;
+            }
+
+            .table-plan > tbody > tr > td, .table-plan > thead > tr > td  {
+                border-top: solid .25px;
+                border-bottom: solid .25px;
+            }
+
+        </style>
+    </head>
+    <body>
+
+        <div style="text-align: center">
+            <b class="block" th:inline="text"> HISTORIAL ACADÉMICO </b>
+        </div>
+        <div style="text-align: right; padding-top: 20px;padding-bottom: 20px;">
+            <span class="fecha" th:text="${fecha}">La Molina, miércoles 8 de agosto de 2018</span>
+        </div>
+
+    <th:block th:each="item : ${historial}">
+        <table class="table table-plan" style="margin-bottom: 30px">
+            <thead>
+                <tr>
+                    <td colspan="24" style="background-color: black; color: white" class="text-center"><b th:inline="text"> [[${item.key.descripcion2}]]</b></td>
+                </tr>
+                <tr>
+                    <td style="width: 66.56%" colspan="16" ><b> Nombre del curso  </b></td>
+                    <td style="width: 16.64%" colspan="4" class="text-center"><b> Creditos </b></td>
+                    <td style="width: 16.64%" colspan="4" class="text-center"><b> Nota   </b></td>
+                </tr>
+            </thead>
+            <tbody style="border: solid 2px !important">
+                <tr th:each="cursado : ${item.value}"  style="border: solid 2px !important">
+                    <td style="width: 4.16%" colspan="16" class="">
+                        <span th:inline="text"> [[${cursado.curso.codigo}]] - [[${cursado.curso.nombre}]] </span>
+                    </td>
+                    <td style="width: 4.16%" colspan="4"  class="text-center">
+                        <span th:text="${cursado.curso.creditos}"> creditos </span>
+                    </td>
+                    <td style="width: 4.16%" colspan="4"  class="text-center">
+                       
+                        <span th:if="${!cursado.isAprobado()}" style="color: red" th:text="${cursado.nota}"> nota </span>
+                        <span th:if="${cursado.isAprobado()}" th:text="${cursado.nota}"> nota </span>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr>
+                    <td colspan="24" style="background-color: black; color: white" class="text-center"><b th:inline="text"> Resumen Académico </b></td>
+                </tr>
+                <tr>
+                    <td class="text-center" colspan="10"><b> SEMESTRAL  </b></td>
+                    <td class="text-center" colspan="4"><b> </b></td>
+                    <td class="text-center" colspan="10"><b> ACUMULADO </b></td>
+                </tr>
+                <tr>
+                    <td colspan="6" style="width: 4.16%">Créditos Cursados</td>
+                    <td colspan="4" style="width: 4.16%" class="text-right"> 
+                        <span th:text="${alumnoCiclo.get(item.key).creditosCursadosCiclo}"> creditos cursados semestral </span>
+                    </td>
+                    <td colspan="4" style="width: 4.16%"></td>
+                    <td colspan="6" style="width: 4.16%">Créditos Cursados</td>
+                    <td colspan="4" style="width: 4.16%" class="text-right"> 
+                        <span th:text="${alumnoCiclo.get(item.key).creditosAcumulados}"> creditos cursados semestral </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" style="width: 4.16%">Créditos Aprobados</td>
+                    <td colspan="4" style="width: 4.16%" class="text-right"> 
+                        <span th:text="${alumnoCiclo.get(item.key).creditosAprobadosCiclo}"> creditos cursados semestral </span>
+                    </td>
+                    <td colspan="4" style="width: 4.16%"></td>
+                    <td colspan="6" style="width: 4.16%">Créditos Aprobados</td>
+                    <td colspan="4" style="width: 4.16%" class="text-right"> 
+                        <span th:text="${alumnoCiclo.get(item.key).creditosAprobadosAcumulados}"> creditos cursados semestral </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" style="width: 4.16%"> Promedio Ponderado </td>
+                    <td colspan="4" style="width: 4.16%" class="text-right"> 
+                        <span th:text="${alumnoCiclo.get(item.key).promedioCiclo}"> creditos cursados semestral </span>
+                    </td>
+                    <td colspan="4" style="width: 4.16%"></td>
+                    <td colspan="6" style="width: 4.16%"> Promedio Ponderado </td>
+                    <td colspan="4" style="width: 4.16%" class="text-right"> 
+                        <span th:text="${alumnoCiclo.get(item.key).promedioAcumulado}"> creditos cursados semestral </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </th:block>
+
+
+
+</body>
+</html>

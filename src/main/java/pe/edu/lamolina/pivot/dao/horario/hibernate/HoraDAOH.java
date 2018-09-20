@@ -45,4 +45,15 @@ public class HoraDAOH extends AbstractEasyDAO<Hora> implements HoraDAO {
         return all(sql);
     }
 
+    @Override
+    public List<Hora> allByInicioFin(Hora inicio, Hora fin) {
+         Octavia sql = Octavia.query()
+                .from(Hora.class, "ho")
+                .filter("ho.numero", ">=", inicio.getNumero())
+                .filter("ho.numero", "<=", fin.getNumero())
+                .orderBy("ho.numero");
+
+        return all(sql);
+    }
+
 }

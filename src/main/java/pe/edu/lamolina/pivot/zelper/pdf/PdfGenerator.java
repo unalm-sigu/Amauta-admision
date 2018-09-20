@@ -1,10 +1,13 @@
 package pe.edu.lamolina.pivot.zelper.pdf;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.itextpdf.text.Rectangle;
 import java.util.List;
 
 public interface PdfGenerator {
+
+    String generateDocument(PdfContent pdfContent, Rectangle rectangle);
+
+    String generateDocument(PdfContent pdfContent, String subFolder, Rectangle pageSize);
 
     String generateDocument(PdfContent pdfContent, String subFolder);
 

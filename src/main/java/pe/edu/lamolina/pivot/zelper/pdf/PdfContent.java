@@ -1,17 +1,12 @@
 package pe.edu.lamolina.pivot.zelper.pdf;
 
 import org.thymeleaf.context.Context;
-import pe.edu.lamolina.model.enums.DocumentoPdfEnum;
 
-/**
- *
- * @author Albatross
- */
 public class PdfContent {
 
     private Context context;
 
-    private DocumentoPdfEnum documentPdfEnum;
+    private TipoPdfEnum tipoPdfEnum;
 
     private String template;
 
@@ -51,12 +46,12 @@ public class PdfContent {
         this.subject = subject;
     }
 
-    public DocumentoPdfEnum getDocumentPdfEnum() {
-        return documentPdfEnum;
+    public TipoPdfEnum getTipoPdfEnum() {
+        return tipoPdfEnum;
     }
 
-    public void setDocumentPdfEnum(DocumentoPdfEnum documentPdfEnum) {
-        this.documentPdfEnum = documentPdfEnum;
+    public void setTipoPdfEnum(TipoPdfEnum tipoDocumentoPdfEnum) {
+        this.tipoPdfEnum = tipoDocumentoPdfEnum;
     }
 
 }

@@ -211,7 +211,7 @@ public class CargaAdicionalDocenteController {
 
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "cerrar", method = RequestMethod.POST)
     public JsonResponse cerrar(HttpSession session) {
@@ -237,7 +237,7 @@ public class CargaAdicionalDocenteController {
 
         try {
             String fileName = service.reporte(ds.getCicloAcademico());
-            pdfResponse(fileName, response);
+            pdfResponse(fileName, String.format("Subvención por carga académica adicional %s.pdf", ds.getCicloAcademico().getDescripcion()), response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {
@@ -245,7 +245,7 @@ public class CargaAdicionalDocenteController {
         }
     }
 
-    private void pdfResponse(String name, HttpServletResponse response) throws IOException {
+    private void pdfResponse(String name, String outputFile, HttpServletResponse response) throws IOException {
         if (!name.isEmpty()) {
             File filex = new File(name);
             if (!filex.exists()) {
@@ -257,7 +257,7 @@ public class CargaAdicionalDocenteController {
             response.reset();
             response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "inline; filename=\"" + name + "\"");
+            response.setHeader("Content-Disposition", "inline; filename=\"" + outputFile + "\"");
 
             BufferedInputStream input = null;
             BufferedOutputStream output = null;

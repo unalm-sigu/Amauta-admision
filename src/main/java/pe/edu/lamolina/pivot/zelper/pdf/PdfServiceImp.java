@@ -164,7 +164,7 @@ public class PdfServiceImp implements PdfService {
                 }
 
                 PdfContent pdfContent = new PdfContent();
-                pdfContent.setDocumentPdfEnum(DocumentoPdfEnum.ACTA_NOTAS);
+                pdfContent.setTipoPdfEnum(TipoPdfEnum.ACTA_NOTAS);
                 pdfContent.setContext(ctx);
 
                 String subFolder = "acta_notas";
