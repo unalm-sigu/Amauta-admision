@@ -5,6 +5,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ControlOrdenMerito;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
@@ -52,4 +53,9 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     AlumnoCiclo findUltimoCicloRegularByAlumno(Alumno alum, CicloAcademico cicloAcademico);
 
+    List<AlumnoCiclo> allByCicloAcademico(CicloAcademico ciclo);
+
+    List<AlumnoCiclo> allByControlesOrdenMerito(List<ControlOrdenMerito> coms);
+
+    void deleteInfoOrdenMeritoByCicloAcademico(CicloAcademico cicloAcademico);
 }

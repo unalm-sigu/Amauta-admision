@@ -1,0 +1,106 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Orden de Mérito</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+<body>
+    <div layout:fragment="main">
+        <div id="ordenmeritoVUE" v-cloak="">
+
+            <header class="header b-b padder-lg">
+                <div class="pull-right m-t-md">                
+                    <button class="btn btn-success btn-sm dropdown-toggle" type="button"  data-toggle="dropdown"> Acciones </button>
+                    <ul class="dropdown-menu pointer">
+                        <li><a v-on:click="generarDatos"> Generar Datos </a></li>
+                        <li><a v-on:click="calcularMeritos"> Calcular Méritos </a></li>
+                    </ul>
+                </div> 
+                <p class="h2" th:inline="text"> Orden de Mérito [[${ciclo.descripcion}]] </p>
+            </header>
+            <section class="wrapper-lg m-b-xs">
+                <section class="panel  ">           
+                    <section class="panel-body ">
+                        <div id="headDynatable">
+                            <div class="col-md-4">
+                                <select class="form-control" id="cicloChange">
+                                    <option th:each="item : ${ciclos}" 
+                                            th:text="${item.descripcion2}"
+                                            th:value="${item.id}"
+                                            th:selected='${ciclo.id == item.id}'
+                                            >
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <raptor-table v-bind:url="`${URL}/list`" v-bind:paginate="false" v-bind:pagination="{ 'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true}" ref="raptor">
+                            <template scope="props">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-2">Escala</th>
+                                            <th class="col-md-2">Facultad</th>
+                                            <th class="col-md-2">Especialidad</th>
+                                            <th class="col-md-1 text-center">Total de alumnos</th>
+                                            <th class="col-md-1 text-center">Computados</th>
+                                            <th class="col-md-1 text-center">No computados</th>
+                                            <th class="col-md-1 text-center">Notas completas</th>
+                                            <th class="col-md-1 text-center">Notas incompletas</th>
+                                            <th class="col-md-1 text-center">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in props.data"> 
+                                            <td>
+                                                <span> {{ item.escalaEnum.value }} </span>
+                                            </td>
+                                            <td>
+                                                <span> {{ item.facultad.nombre }} </span>
+                                            </td>
+                                            <td>
+                                                <span> {{ item.carrera.nombre }} </span>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span> {{ item.totalAlumnos }} </span>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span> {{ item.alumnosComputados }} </span>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span> {{ item.noComputados }} </span>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span> {{ item.alumnosCompletos }} </span>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span> {{ item.alumnosIncompletos }} </span>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span class="label label-default" v-if="item.estadoEnum.name==='CRE'"> {{ item.estadoEnum.value }} </span>
+                                                <span class="label label-success" v-if="item.estadoEnum.name==='CALC'"> {{ item.estadoEnum.value }} </span>
+                                                <span class="label label-primary" v-if="item.estadoEnum.name==='CER'"> {{ item.estadoEnum.value }} </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </template>
+                        </raptor-table>
+                    </section>
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <div layout:fragment="js">
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <div th:substituteby="_modules/vue-modal"/>
+        <div th:substituteby="_modules/vue-raptor-table"/>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            /*]]>*/
+        </script>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/ordenmerito/ordenmerito.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>
