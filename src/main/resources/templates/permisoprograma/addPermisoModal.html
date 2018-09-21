@@ -1,0 +1,30 @@
+<modal-vik ref="modalAddPermiso"
+           v-bind="modalAddPermiso"
+           >
+    <!--v-bind:okaction="createEnviarRevision"-->
+    <div slot="body">
+
+        <form id="formEnviarRevision"  data-parsley-validate="true">
+            <div class="step1">
+                <div class=" row">
+                    <div class="col-sm-6" >
+                        <div class="form-group">
+                            <label >Anexo Boletin  </label>
+                            <multiselect 
+                                v-bind:options='anexoBoletin'
+                                label='nombre'
+                                track-by='id'
+                                required="true" >
+                                <template slot="singleLabel" slot-scope="props">
+                                    <span v-text="props.option.nombre"></span>
+                                    <small v-text="props.option.anexoSuperior.nombre"></small>
+                                </template>
+                            </multiselect>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</modal-vik>

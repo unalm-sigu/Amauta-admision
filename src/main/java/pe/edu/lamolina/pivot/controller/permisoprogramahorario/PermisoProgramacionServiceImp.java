@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.bean.ColaboradorAnexoBean;
 import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.CURSO;
 import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.DOCENTE;
@@ -16,8 +17,10 @@ import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.SECCION;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.FuncionColaborador;
 import pe.edu.lamolina.model.permisoprogramacion.ColaboradorAnexo;
+import pe.edu.lamolina.model.permisoprogramacion.PermisoProgramacion;
 import pe.edu.lamolina.model.permisoprogramacion.PermisosProgramacionHorarios;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.general.FuncionColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.interceptor.LoggerPermisoProgramacionDAO;
 import pe.edu.lamolina.pivot.dao.permisoprogramacion.ColaboradorAnexoDAO;
@@ -43,6 +46,8 @@ public class PermisoProgramacionServiceImp implements PermisoProgramacionService
 
     @Autowired
     ColaboradorAnexoDAO colaboradorAnexoDAO;
+    @Autowired
+    AnexoBoletinDAO anexoBoletinDAO;
 
     @Override
     public List<ColaboradorAnexoBean> allPermisos(DynatableFilter filter) {
@@ -51,23 +56,29 @@ public class PermisoProgramacionServiceImp implements PermisoProgramacionService
         for (FuncionColaborador funcionColaborador : funcionesCola) {
             colaboradores.add(funcionColaborador.getColaborador());
         }
+        List<ColaboradorAnexo> colaboradorAn = colaboradorAnexoDAO.allByColaboradores(colaboradores);
         List<PermisosProgramacionHorarios> perColaboradorAnexo = permisoProgramacionHorariosDAO.allPermisos(colaboradores);
         Map<String, List<PermisosProgramacionHorarios>> mapPermisos = TypesUtil.convertListToMapList("key", perColaboradorAnexo);
-        Map<Long, List<ColaboradorAnexo>> mapColAnexo = TypesUtil.convertListToMapList("colaboradorAnexo.colaborador.id", "colaboradorAnexo", perColaboradorAnexo);
+        Map<Long, List<ColaboradorAnexo>> mapColAnexo = TypesUtil.convertListToMapList("colaborador.id", colaboradorAn);
         List<ColaboradorAnexoBean> anexoBeans = new ArrayList<>();
         for (Colaborador colaborador : colaboradores) {
             List<ColaboradorAnexo> colaboradorAnexo = mapColAnexo.get(colaborador.getId());
-            for (ColaboradorAnexo item : colaboradorAnexo) {
-                ColaboradorAnexoBean anexoBean = new ColaboradorAnexoBean();
-                anexoBean.setColaborador(colaborador);
-                anexoBean.setAnexoBoletin(item.getAnexoBoletin());
-                anexoBean.setPermisosCurso(mapPermisos.get(item.getId() + CURSO.toString()));
-                anexoBean.setPermisosDocente(mapPermisos.get(item.getId() + DOCENTE.toString()));
-                anexoBean.setPermisosGpoSec(mapPermisos.get(item.getId() + GPOSECC.toString()));
-                anexoBean.setPermisosSecc(mapPermisos.get(item.getId() + SECCION.toString()));
-                anexoBeans.add(anexoBean);
+            if (colaboradorAnexo != null) {
+                for (ColaboradorAnexo item : colaboradorAnexo) {
+                    ColaboradorAnexoBean anexoBean = new ColaboradorAnexoBean();
+                    anexoBean.setColaborador(colaborador);
+                    anexoBean.setAnexoBoletin(item.getAnexoBoletin());
+                    List<PermisosProgramacionHorarios> permisos = mapPermisos.get(item.getId() + "-" + CURSO.name());
+                    anexoBean.setPermisosCurso(permisos != null ? permisos : new ArrayList<>());
+                    permisos = mapPermisos.get(item.getId() + "-" + DOCENTE.name());
+                    anexoBean.setPermisosDocente(permisos != null ? permisos : new ArrayList<>());
+                    permisos = mapPermisos.get(item.getId() + "-" + GPOSECC.name());
+                    anexoBean.setPermisosGpoSec(permisos != null ? permisos : new ArrayList<>());
+                    permisos = mapPermisos.get(item.getId() + "-" + SECCION.name());
+                    anexoBean.setPermisosSecc(permisos != null ? permisos : new ArrayList<>());
+                    anexoBeans.add(anexoBean);
+                }
             }
-
         }
 
         return anexoBeans;
@@ -105,4 +116,13 @@ public class PermisoProgramacionServiceImp implements PermisoProgramacionService
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public List<PermisoProgramacion> allPermisosPrograma() {
+        return permisoProgramacionDAO.allPermisos();
+    }
+
+    @Override
+    public List<AnexoBoletin> allAnexoBoletin() {
+        return anexoBoletinDAO.all();
+    }
 }
