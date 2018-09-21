@@ -316,11 +316,12 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         crearCursos(rutaFileCursos, mapCursos, mapDepartamentosAcademicos);
 
-        t1 = System.currentTimeMillis();
-        logger.debug("saveAlumnos");
-        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
-        t2 = System.currentTimeMillis();
-        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
+//        t1 = System.currentTimeMillis();
+//        logger.debug("saveAlumnos");
+//        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+//        t2 = System.currentTimeMillis();
+//        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
+//
         t1 = System.currentTimeMillis();
         logger.debug("loadDataDocentes");
         Map<String, Docente> mapDocentes = this.saveDocentes(docentes, mapKeyPersonas, mapDNIPersonas, ds);
@@ -356,17 +357,19 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         progDataService.revisarDocenteSecciones(mapDocenteSecciones, ciclo, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarDocenteSecciones ejecutado en {} mseg", (t2 - t1));
-
-        t1 = System.currentTimeMillis();
-        logger.debug("loadDataMatriculados");
-        Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
-        t2 = System.currentTimeMillis();
-        logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
-        t1 = System.currentTimeMillis();
-        logger.debug("revisarAlumnosMatriculados");
-        revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
-        t2 = System.currentTimeMillis();
-        logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
+//
+//        t1 = System.currentTimeMillis();
+//        logger.debug("loadDataMatriculados");
+//        Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
+//        t2 = System.currentTimeMillis();
+//        logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
+//        
+//        t1 = System.currentTimeMillis();
+//        logger.debug("revisarAlumnosMatriculados");
+//        revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
+//        t2 = System.currentTimeMillis();
+//        logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
+//        
         t1 = System.currentTimeMillis();
         logger.debug("revisarSecciones");
         progDataService.revisarSecciones(secciones, ciclo);
@@ -1521,6 +1524,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 GrupoSeccion gpoSecc = new GrupoSeccion(gclave, curso, anexo);
+                System.out.println("gclave >> " + gclave + " " + curso + " " + anexo);
                 gpoSecciones.add(gpoSecc);
             }
             logger.debug("Se han leido un total de {} grupos-secciones", loop);

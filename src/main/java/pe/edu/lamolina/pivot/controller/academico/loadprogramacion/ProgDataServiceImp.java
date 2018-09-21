@@ -910,12 +910,14 @@ public class ProgDataServiceImp implements ProgDataService {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");
             }
+            System.out.println(">>> " + gpoSecc.getCodigo() + " ::: " + gpoSecc.getCodigoCurso());
 
             GrupoSeccion gpoSeccBD = mapGpoSeccionBD.get(gpoSecc.getCodigo());
             if (gpoSeccBD == null) {
                 visor.agregarLog("gpoSecc", "revisionGpoSecc", "No es necesario revisar " + gpoSecc.getCodigo() + " porque es es nuevo", true, "info");
                 continue;
             }
+            System.out.println(">>> " + gpoSeccBD.getCodigo() + " ::: " + gpoSeccBD.getCurso().getCodigo());
 
             Curso curso = mapCursoBD.get(gpoSecc.getCodigoCurso());
             Curso cursoBD = gpoSeccBD.getCurso();
