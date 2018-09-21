@@ -125,7 +125,7 @@ public class BuscarServiceImp implements BuscarService {
 
     @Override
     public List<ModalidadEstudio> allModalidadEstudios() {
-        return modalidadEstudioDAO.allActivos();
+        return modalidadEstudioDAO.allRegularesActivas();
     }
 
     @Override

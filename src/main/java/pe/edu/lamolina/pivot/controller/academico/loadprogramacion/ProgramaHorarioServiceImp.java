@@ -37,14 +37,18 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
+import pe.edu.lamolina.model.academico.RestriccionFacultad;
+import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCursoEnum;
@@ -61,15 +65,18 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
+import pe.edu.lamolina.pivot.dao.academico.TipoRepitenciaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.EstadoCivilDAO;
@@ -147,6 +154,16 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     @Autowired
     CursoDAO cursoDAO;
+
+    @Autowired
+    CarreraDAO carreraDAO;
+
+    @Autowired
+    TipoRepitenciaDAO tipoRepitenciaDAO;
+
+    @Autowired
+    FacultadDAO facultadDAO;
+
     @Autowired
     VisorLoadProgramacion visor;
 
@@ -299,12 +316,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         crearCursos(rutaFileCursos, mapCursos, mapDepartamentosAcademicos);
 
-//        t1 = System.currentTimeMillis();
-//        logger.debug("saveAlumnos");
-//        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
-        
+        t1 = System.currentTimeMillis();
+        logger.debug("saveAlumnos");
+        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+        t2 = System.currentTimeMillis();
+        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
         t1 = System.currentTimeMillis();
         logger.debug("loadDataDocentes");
         Map<String, Docente> mapDocentes = this.saveDocentes(docentes, mapKeyPersonas, mapDNIPersonas, ds);
@@ -325,7 +341,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         t1 = System.currentTimeMillis();
         logger.debug("loadDataSecciones");
-        Map<String, Seccion> mapSecciones = progDataService.loadDataSecciones(secciones, ciclo, mapGpoSecciones);
+        Map<String, Seccion> mapSecciones = progDataService.loadDataSecciones(secciones, ciclo, mapGpoSecciones, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataSecciones ejecutado en {} mseg", (t2 - t1));
 
@@ -341,18 +357,16 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarDocenteSecciones ejecutado en {} mseg", (t2 - t1));
 
-//        t1 = System.currentTimeMillis();
-//        logger.debug("loadDataMatriculados");
-//        Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
-
-//        t1 = System.currentTimeMillis();
-//        logger.debug("revisarAlumnosMatriculados");
-//        revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
-
+        t1 = System.currentTimeMillis();
+        logger.debug("loadDataMatriculados");
+        Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
+        t2 = System.currentTimeMillis();
+        logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
+        t1 = System.currentTimeMillis();
+        logger.debug("revisarAlumnosMatriculados");
+        revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
+        t2 = System.currentTimeMillis();
+        logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
         t1 = System.currentTimeMillis();
         logger.debug("revisarSecciones");
         progDataService.revisarSecciones(secciones, ciclo);
@@ -996,8 +1010,15 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String tCurso = getCellStringValue(9, row);
                 String tipo = getCellStringValue(10, row);
 
+                Integer curCreditTeo = getCellIntegerValue(12, row);
+                Integer curCreditPra = getCellIntegerValue(13, row);
+
                 if (mapCursos.get(curNuevo) != null) {
                     visor.agregarLog("cur", "saveCursos", "Curso " + curNuevo + " ya existe", true, "info");
+                    Curso cursoDb = mapCursos.get(curNuevo);
+                    cursoDb.setCreditosTeoria(curCreditTeo);
+                    cursoDb.setCreditosPractica(curCreditPra);
+                    cursoDAO.update(cursoDb);
                     continue;
                 }
 
@@ -1214,7 +1235,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String codigoDocente = getCellStringValue(2, row);
                 String codigoSeccion = getCellStringValue(3, row);
                 Integer principal = Integer.valueOf(getCellStringValue(4, row));
-                String carga = getCellStringValue(7, row);
+                String carga = getCellStringValue(9, row);
 
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
@@ -1361,6 +1382,15 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             Workbook myWorkBook = new HSSFWorkbook(fis);
             Sheet mySheet = myWorkBook.getSheetAt(0);
 
+            List<Carrera> carreras = carreraDAO.all();
+            Map<String, Carrera> mapCarreras = TypesUtil.convertListToMap("codigo", carreras);
+
+            List<Facultad> facultades = facultadDAO.all();
+            Map<String, Facultad> mapFacultad = TypesUtil.convertListToMap("codigo", facultades);
+
+            List<TipoRepitencia> repitencias = tipoRepitenciaDAO.allByCode(Arrays.asList("REP", "ING", "NREP"));
+            Map<String, TipoRepitencia> mapTipoRepitencia = TypesUtil.convertListToMap("letra", repitencias);
+
             Iterator<Row> rowIterator = mySheet.iterator();
             int loop = 0;
             while (rowIterator.hasNext()) {
@@ -1385,27 +1415,68 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Integer vacantes = getCellIntegerValue(10, row);
                 Integer matriculados = getCellIntegerValue(11, row);
 
-                Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave, vacantes, matriculados);
-                
-//                List<RestriccionCarrera> restricionesCarr = new ArrayList();
-//                String[] carrerasPregrado = espCodidgo.split("/");
-//                for (String carr : carrerasPregrado) {
-//                    Carrera carrera = mapCarreras.get("010");
-//                    RestriccionCarrera resCarr = new RestriccionCarrera();
-//                    resCarr.setCarrera(carrera);
-//                    resCarr.setSeccion(seccion);
-//                    restricionesCarr.add(resCarr);
-//                }
-//                String[] carrerasPosgrado = espGrad.split("/");
-//                for (String carr : carrerasPregrado) {
-//                    Carrera carrera = mapCarreras.get("010");
-//                    RestriccionCarrera resCarr = new RestriccionCarrera();
-//                    resCarr.setCarrera(carrera);
-//                    resCarr.setSeccion(seccion);
-//                    restricionesCarr.add(resCarr);
-//                }
-//                seccion.setRestriccionesCarrera(restricionesCarr);
-                
+                Integer restriccionCapa = getCellIntegerValue(12, row);
+
+                String espCodigo = getCellStringValue(13, row);
+                String facCodigo = getCellStringValue(14, row);
+                String espGrado = getCellStringValue(15, row);
+
+                String condicion = getCellStringValue(16, row);
+
+                Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave, vacantes, matriculados, restriccionCapa);
+
+                List<RestriccionCarrera> restricionesCarrera = new ArrayList();
+
+                if (!StringUtils.isEmpty(espCodigo)) {
+                    String[] carrerasPregrado = espCodigo.split("/");
+                    for (String codeCarrera : carrerasPregrado) {
+                        Carrera carrera = mapCarreras.get(codeCarrera);
+                        RestriccionCarrera restriccionCarrera = new RestriccionCarrera();
+                        restriccionCarrera.setCarrera(carrera);
+                        restriccionCarrera.setSeccion(seccion);
+                        restricionesCarrera.add(restriccionCarrera);
+                    }
+                }
+
+                if (!StringUtils.isEmpty(espGrado)) {
+                    String[] carrerasPosgrado = espGrado.split("/");
+                    for (String codeCarrera : carrerasPosgrado) {
+                        Carrera carrera = mapCarreras.get(codeCarrera);
+                        RestriccionCarrera restriccionCarrera = new RestriccionCarrera();
+                        restriccionCarrera.setCarrera(carrera);
+                        restriccionCarrera.setSeccion(seccion);
+                        restricionesCarrera.add(restriccionCarrera);
+                    }
+                }
+
+                List<RestriccionFacultad> restriccionesFacultad = new ArrayList();
+                if (!StringUtils.isEmpty(facCodigo)) {
+                    String[] codigosFacultad = facCodigo.split("/");
+                    for (String codeFacultad : codigosFacultad) {
+                        Facultad facultad = mapFacultad.get(codeFacultad);
+                        RestriccionFacultad restriccionFacultad = new RestriccionFacultad();
+                        restriccionFacultad.setFacultad(facultad);
+                        restriccionFacultad.setSeccion(seccion);
+                        restriccionesFacultad.add(restriccionFacultad);
+                    }
+                }
+
+                List<RestriccionRepitencia> restriccionesRepitencia = new ArrayList();
+                if (!StringUtils.isEmpty(condicion)) {
+                    String[] condiciones = condicion.split("/");
+                    for (String cond : condiciones) {
+                        TipoRepitencia tipo = mapTipoRepitencia.get(cond);
+                        RestriccionRepitencia restriccion = new RestriccionRepitencia();
+                        restriccion.setTipoRepitencia(tipo);
+                        restriccion.setSeccion(seccion);
+                        restriccionesRepitencia.add(restriccion);
+                    }
+                }
+
+                seccion.setRestriccionesCarrera(restricionesCarrera);
+                seccion.setRestriccionesFacultad(restriccionesFacultad);
+                seccion.setRestriccionesRepitencia(restriccionesRepitencia);
+
                 System.out.println(seccion.getCodigo() + " vacantes: " + seccion.getVacantes());
                 System.out.println("\t" + " matriculados: " + seccion.getMatriculados());
                 secciones.add(seccion);

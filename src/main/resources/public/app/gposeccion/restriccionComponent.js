@@ -67,20 +67,6 @@ Vue.component("restriccion-component", {
             });
         },
         saveRestriccion($vue) {
-            /*
-             $('#frmRestriccion').find(".multiselect__input").each(function () {
-             $(this).attr("required", true);
-             });
-             $('#frmRestriccion').find('.multiselect__input').each(function () {
-             var input = $(this);
-             let element = input.closest('.multiselect').find('.multiselect__tags-wrap');
-             
-             if (element.css('display') != 'none' && element.html() != "") {
-             $(this).removeAttr("required");
-             }
-             });
-             */
-
 
             var form = $("[id='frmRestriccion']");
             form.parsley().destroy();
@@ -120,8 +106,9 @@ Vue.component("restriccion-component", {
                 }
             });
 
-            console.dir(restriccionForm);
-        }, cambiarTipoRestriccion() {
+
+        },
+        cambiarTipoRestriccion() {
             let $vue = this;
             $vue.restriccionesArr = [];
             $.ajax({
@@ -150,7 +137,8 @@ Vue.component("restriccion-component", {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }, nameWithCodeEspecialidad( { codigo, nombre, tipoDescripcion, modalidadEstudio, esTipoDOC, esTipoMAE }) {
+        },
+        nameWithCodeEspecialidad( { codigo, nombre, tipoDescripcion, modalidadEstudio, esTipoDOC, esTipoMAE }) {
             let result = `${codigo} ${nombre}`;
             if (esTipoDOC || esTipoMAE) {
                 result += ` (Tipo Carrera : ${tipoDescripcion})`;
@@ -158,7 +146,8 @@ Vue.component("restriccion-component", {
                 result += ` (Modalidad : ${modalidadEstudio.nombre})`;
             }
             return result;
-        }, nameWithCode( { codigo, nombre}) {
+        },
+        nameWithCode( { codigo, nombre}) {
             return `${codigo} - ${nombre}`;
         }
     }

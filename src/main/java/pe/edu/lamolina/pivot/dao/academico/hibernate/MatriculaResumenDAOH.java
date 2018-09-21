@@ -11,7 +11,9 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -230,6 +232,24 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .join("alumno alu", "cicloAcademico ca")
                 .in("alu.id", alumnos)
                 .filter("ca.id", ciclo);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<MatriculaResumen> findNotasIncompletas(List<Alumno> alumnos, CicloAcademico cicloAcademico) {
+        Octavia subquery = Octavia.query(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr2")
+                .filter("estado", "!=", EstadoMatriculaEnum.MAT)
+                .filter("porcentajeAvanceNota", 100);
+
+        Octavia sql = Octavia.query(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca")
+                .exists(subquery)
+                .linkedBy("mr.id", "mr2.id")
+                .in("alu.id", alumnos)
+                .filter("estado", EstadoMatriculaEnum.MAT)
+                .filter("ca.id", cicloAcademico);
+        
         return sql.all(getCurrentSession());
     }
 

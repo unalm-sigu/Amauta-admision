@@ -340,8 +340,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.albatrosscloud</groupId>
-            <!--<groupId>pe.albatross</groupId>-->
+            <!--<groupId>com.github.albatrosscloud</groupId>-->
+            <groupId>pe.albatross</groupId>
             <artifactId>octavia</artifactId>
             <version>1.0.15</version>
         </dependency>
@@ -356,7 +356,7 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-            <version>0.14.89</version>
+            <version>0.14.91</version>
         </dependency>
 
     </dependencies>

@@ -68,7 +68,7 @@ public interface ProgDataService {
 
     Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo);
 
-    Map<String, Seccion> loadDataSecciones(List<Seccion> secciones, CicloAcademico ciclo, Map<String, GrupoSeccion> mapGpoSecciones);
+    Map<String, Seccion> loadDataSecciones(List<Seccion> secciones, CicloAcademico ciclo, Map<String, GrupoSeccion> mapGpoSecciones , DataSessionPivot ds);
 
     Map<String, DocenteSeccion> loadDataDocentesSecciones(
             List<DocenteSeccion> docentesSecciones,

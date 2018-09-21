@@ -1,4 +1,15 @@
 Vue.component("multiselect", window.VueMultiselect.default);
+Vue.component("seccion-det-component", {
+    template: "#seccionDetComp",
+    props: {
+        seccion: null
+    }, watch: {
+        seccion(newValue) {
+
+        }
+    }
+});
+
 new Vue({
     el: '#gpoSeccionesVUE',
     data: {
@@ -8,7 +19,17 @@ new Vue({
         anexosSup: {ingresantes: 1, departamentos: 2, postgrados: 4, actividades: 3},
         anexos: [],
         anexosVisibles: [],
-        anexoSelect: {}
+        anexoSelect: {},
+        restriccionModal: {
+            id: 'modalRestriccion',
+            header: true,
+            seccionSelect: {},
+            title: 'Restricciones Modalidad / Facultad / Especialidad',
+            //okbtn: 'Aceptar',
+            modalsize: 'modal-md'
+        },
+        seccionSelect: {},
+        tipoRestriccion: ''
     },
     mounted: function () {
         let $vue = this;
@@ -30,6 +51,22 @@ new Vue({
         }
     },
     methods: {
+        verRestriccion(seccion, gpoSecc, tipo) {
+            let $vue = this;
+            seccion.grupoSeccion = gpoSecc;
+            $vue.seccionSelect = seccion;
+            $vue.tipoRestriccion = tipo;
+            if (seccion.restriccionesRepitencia.length > 0 && tipo == "REP") {
+                $vue.restriccionModal.title = "Restricciones de Repitencia";
+            } else if (seccion.restriccionesCarrera.length > 0 && tipo == "CARR") {
+                $vue.restriccionModal.title = "Restricciones de Carrera";
+            } else if (seccion.restriccionesFacultad.length > 0 && tipo == "FAC") {
+                $vue.restriccionModal.title = "Restricciones de Facultad";
+            } else if (seccion.restriccionesModalidad.length > 0 && tipo == "MOD") {
+                $vue.restriccionModal.title = "Restricciones de Modalidad de Estudio";
+            }
+            $vue.$refs.modalRestriccion.open();
+        },
         tieneRestricciones(seccion) {
             if (seccion.restriccionCapa != "") {
                 return true;

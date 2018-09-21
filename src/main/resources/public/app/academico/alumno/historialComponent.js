@@ -2,6 +2,8 @@ Vue.component("historial-component", {
     template: "#historialComponent",
     props: {
         alumno: {},
+        showTitle: true,
+        showActions: true
     },
     data: function () {
         return {

@@ -130,7 +130,7 @@ var app = new Vue({
         restriccionModal: {
             id: 'modalRestriccion',
             header: true,
-            title: 'Restricciones',
+            title: 'Restricciones Modalidad / Facultad / Especialidad',
             okbtn: 'Aceptar',
             modalsize: 'modal-lg'
         },

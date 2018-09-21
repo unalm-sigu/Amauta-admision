@@ -18,4 +18,6 @@ public interface FacultadDAO extends EasyDAO<Facultad> {
 
     Facultad findByCodigo(String codigo);
 
+    List<Facultad> allNormal();
+
 }

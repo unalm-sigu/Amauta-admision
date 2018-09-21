@@ -72,9 +72,7 @@ Vue.component("repitencia-component", {
                 contentType: "application/json",
                 type: 'POST',
                 async: true,
-                data:
-                        JSON.stringify($vue.tiposRepitenciaArr)
-                ,
+                data: JSON.stringify($vue.tiposRepitenciaArr),
                 success: function (response) {
                     if (response.success) {
                         MODAL.hideWait();

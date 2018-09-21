@@ -1,4 +1,6 @@
-var app = new Vue({
+Vue.component("multiselect", window.VueMultiselect.default)
+
+new Vue({
     el: '#procesarTramitesAcademicos',
     data: {
         tramite: null,
