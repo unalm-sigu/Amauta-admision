@@ -8,24 +8,32 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.permisoprogramacion.ColaboradorAnexo;
+import pe.edu.lamolina.model.permisoprogramacion.PermisosProgramacionHorarios;
 import pe.edu.lamolina.pivot.dao.permisoprogramacion.ColaboradorAnexoDAO;
 
 @Repository
 public class ColaboradorAnexoDAOH extends AbstractEasyDAO<ColaboradorAnexo> implements ColaboradorAnexoDAO {
-
+    
     public ColaboradorAnexoDAOH() {
         super();
         setClazz(ColaboradorAnexo.class);
     }
-
+    
     @Override
     public List<ColaboradorAnexo> allByColaboradores(ArrayList<Colaborador> colaboradores) {
+        Octavia subQuery = new Octavia()
+                .from(PermisosProgramacionHorarios.class, "pph")
+                .join("colaboradorAnexo ca1")
+                .filter("pph.estado", ACT);
+        
         Octavia sql = new Octavia()
-                .from(ColaboradorAnexo.class,"ca")
-                .join("colaborador col","anexoBoletin ab")
+                .from(ColaboradorAnexo.class, "ca")
+                .join("colaborador col", "anexoBoletin ab")
+                .exists(subQuery)
+                .linkedBy("ca.id", "ca1.id")
                 .filter("estado", ACT)
                 .in("col.id", colaboradores);
         return all(sql);
     }
-
+    
 }

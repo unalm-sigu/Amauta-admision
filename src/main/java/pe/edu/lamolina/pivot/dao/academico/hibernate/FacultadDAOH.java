@@ -15,43 +15,43 @@ import pe.edu.lamolina.model.general.Compania;
 
 @Repository
 public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadDAO {
-    
+
     public FacultadDAOH() {
         super();
         setClazz(Facultad.class);
     }
-    
+
     @Override
     public List<Facultad> allDynatable(DynatableFilter filter) {
-        
+
         DynatableSql sql = new DynatableSql(filter)
                 .from(Facultad.class, "fa")
                 .searchFields("fa.nombre", "fa.codigo", "fa.estado")
                 .orderBy("fa.id desc");
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<Facultad> allByCompania(Compania compania) {
         Octavia sql = Octavia.query()
                 .from(Facultad.class, "fa")
                 .join("compania co")
                 .filter("co.id", compania);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<Facultad> allActivos() {
         Octavia sql = Octavia.query()
                 .from(Facultad.class, "fa")
                 .join("compania")
                 .filter("estado", EstadoEnum.ACT);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<Facultad> allFacultad(String nombre, Compania compania) {
         Octavia sql = Octavia.query()
@@ -65,27 +65,27 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
                 .endBlock()
                 .orderBy("fa.nombre")
                 .limit(10);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<Facultad> allNormal() {
         Octavia sql = Octavia.query()
                 .from(Facultad.class, "fa")
                 .join("compania")
-                .notIn("codigo", Arrays.asList("000", "001", "111", "200", "999"))
+                .notIn("codigo", Arrays.asList("000", "001", "111", "200", "999", "090"))
                 .filter("estado", EstadoEnum.ACT);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public Facultad findByCodigo(String codigo) {
         Octavia sql = Octavia.query()
                 .from(Facultad.class, "fa")
                 .filter("fa.codigo", codigo);
-        
+
         return find(sql);
     }
 }

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -58,4 +59,10 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
     List<AlumnoCiclo> allByControlesOrdenMerito(List<ControlOrdenMerito> coms);
 
     void deleteInfoOrdenMeritoByCicloAcademico(CicloAcademico cicloAcademico);
+
+    List<AlumnoCiclo> allByControlMeritoCiclo(DynatableFilter filter, ControlOrdenMerito controlBD);
+
+    List<AlumnoCiclo> allByControlMeritoCarrera(DynatableFilter filter, ControlOrdenMerito controlBD);
+
+    List<AlumnoCiclo> allByControlMeritoFacultad(DynatableFilter filter, ControlOrdenMerito controlBD);
 }
