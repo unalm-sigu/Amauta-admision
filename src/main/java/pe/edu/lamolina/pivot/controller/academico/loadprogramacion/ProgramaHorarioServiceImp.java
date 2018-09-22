@@ -321,6 +321,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
+
         t1 = System.currentTimeMillis();
         logger.debug("loadDataDocentes");
         Map<String, Docente> mapDocentes = this.saveDocentes(docentes, mapKeyPersonas, mapDNIPersonas, ds);
@@ -362,11 +363,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
+
         t1 = System.currentTimeMillis();
         logger.debug("revisarAlumnosMatriculados");
         revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
+
         t1 = System.currentTimeMillis();
         logger.debug("revisarSecciones");
         progDataService.revisarSecciones(secciones, ciclo);
@@ -476,17 +479,29 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             Persona persona = alumno.getPersona();
             loadInfoPersona(persona, mapTiposDoc, mapEstadoCivil, mapPaises, mapUbicacion);
             List<Persona> personasVinculadas = progDataService.allPersonasByPer(persona, mapKeyPersonas, mapDNIPersonas, ds);
-            persona = progDataService.savePersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
-            String emailCia = progDataService.extraerEmailCompania(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
-            logger.debug("\temail-cia {}", emailCia);
-            Persona perso = progDataService.extraerDocumentoIdentidad(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
-            progDataService.changeDocumentoIdentidad(persona, personasVinculadas, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
-
-            if (mapIdPersonas.get(persona.getId()) == null) {
-                mapIdPersonas.put(persona.getId(), persona);
+            Persona perxoma = null;
+            try {
+                System.out.println("persona = progDataService.savePersona >>> " + persona.getId() + " :::: " + persona.getKey());
+                perxoma = progDataService.savePersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            } catch (Exception e) {
+                if (perxoma != null) {
+                    System.out.println("cayo 111 :::: " + perxoma.getId() + " :::: " + perxoma.getKey());
+                }
+                System.out.println("cayo 222 :::: " + persona.getId() + " :::: " + persona.getKey());
+                e.printStackTrace();
+                throw new PhobosException(e.getLocalizedMessage());
             }
 
-            alumno.setPersona(persona);
+            String emailCia = progDataService.extraerEmailCompania(perxoma, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            logger.debug("\temail-cia {}", emailCia);
+            Persona perso = progDataService.extraerDocumentoIdentidad(perxoma, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            progDataService.changeDocumentoIdentidad(perxoma, personasVinculadas, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
+
+            if (mapIdPersonas.get(perxoma.getId()) == null) {
+                mapIdPersonas.put(perxoma.getId(), persona);
+            }
+
+            alumno.setPersona(perxoma);
             progDataService.saveAlumno(alumno, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
             loop++;
         }
@@ -519,7 +534,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             progDataService.changeDocumentoIdentidad(persona, personasVinculadas, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
             loop++;
         }
-
     }
 
     private void revisarAlumnosMatriculados(CicloAcademico ciclo, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueados) {

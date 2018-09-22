@@ -289,9 +289,15 @@ public class ProgDataServiceImp implements ProgDataService {
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
 
+        String kk = "miranda/ubaldo/alfides-teodoro";
+
         TipoDocIdentidad tipoDoc = persona.getTipoDocumento();
         if (tipoDoc != null && !StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
+            if (persona.getKey().equals(kk)) {
+                System.out.println("  " + persona.getIdentificacion());
+            }
             Persona tempo = mapDNIPersonas.get(persona.getIdentificacion());
+
             if (tempo == null) {
                 List<Persona> tempos = mapKeyPersonas.get(persona.getKey());
                 if (tempos != null && !tempos.isEmpty()) {
@@ -300,6 +306,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     perzoma.setTipoDocumento(persona.getTipoDocumento());
                     perzoma.setNumeroDocIdentidad(persona.getNumeroDocIdentidad());
                     personaDAO.update(perzoma);
+                    System.out.println("return perzoma 111 " + perzoma.getId());
                     return perzoma;
                 }
             }
@@ -309,19 +316,28 @@ public class ProgDataServiceImp implements ProgDataService {
                 persona.setFechaRegistro(new Date());
                 persona.setEstadoEnum(PersonaEstadoEnum.ACT);
                 personaDAO.save(persona);
+                System.out.println("save perzoma 444 " + persona.getId());
 
                 mapDNIPersonas.put(persona.getIdentificacion(), persona);
             }
 
             Persona perzoma = revisarPersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            if (persona.getKey().equals(kk)) {
+                ObjectUtil.printAttr(persona);
+            }
             copiarDatosPersonales(perzoma, persona);
+            if (persona.getKey().equals(kk)) {
+                ObjectUtil.printAttr(persona);
+            }
             personaDAO.update(perzoma);
+            System.out.println("return perzoma 222 " + perzoma.getId());
             return perzoma;
         }
 
         Persona perzoma = revisarPersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
         copiarDatosPersonales(perzoma, persona);
         personaDAO.update(perzoma);
+        System.out.println("return perzoma 333 " + perzoma.getId());
         return perzoma;
     }
 
@@ -1249,7 +1265,6 @@ public class ProgDataServiceImp implements ProgDataService {
             visor.agregarLog("secc", "saveSecc", "Seccion " + seccionBD.getCodigo() + " procesada", true, "info");
             logger.debug("\t\tSeccion {} procesada {} de {}", seccionBD.getCodigo(), loop, secciones.size());
 
-            System.out.println("SECCION_BD " + seccionBD.getCodigo() + " :::: vac:" + seccionBD.getMatriculados() + " mat:" + seccionBD.getMatriculados());
         }
 
         for (Map.Entry<String, Seccion> entry : mapSeccionesTCurBD.entrySet()) {

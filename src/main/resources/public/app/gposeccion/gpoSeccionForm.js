@@ -105,7 +105,7 @@ var app = new Vue({
         seccionSeleccionada: null,
         verDocentes: false,
         seccionModal: null,
-        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning"},
+        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", INA: "danger", BLO: "warning", FUS: "warning"},
         grupoModal: {
             id: 'modalGrupo',
             header: true,

@@ -67,6 +67,10 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
         comCiclo.setCicloAcademico(cicloAcademico);
         comCiclo.setEscala(ControlOrdenMeritoEscalaEnum.CICLO);
         comCiclo.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
+        comCiclo.setAlumnosCompletos(0);
+        comCiclo.setAlumnosComputados(0);
+        comCiclo.setAlumnosIncompletos(0);
+        comCiclo.setNoComputados(0);
 
         comCiclo.setUserRegistro(ds.getUsuario());
         comCiclo.setFechaRegistro(now);
@@ -98,6 +102,10 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
             com.setEscala(ControlOrdenMeritoEscalaEnum.FAC);
             com.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
             com.setTotalAlumnos(entry.getValue().size());
+            com.setAlumnosCompletos(0);
+            com.setAlumnosComputados(0);
+            com.setAlumnosIncompletos(0);
+            com.setNoComputados(0);
 
             com.setUserRegistro(ds.getUsuario());
             com.setFechaRegistro(now);
@@ -132,6 +140,10 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
             com.setEscala(ControlOrdenMeritoEscalaEnum.ESPE);
             com.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
             com.setTotalAlumnos(entry.getValue().size());
+            com.setAlumnosCompletos(0);
+            com.setAlumnosComputados(0);
+            com.setAlumnosIncompletos(0);
+            com.setNoComputados(0);
 
             com.setUserRegistro(ds.getUsuario());
             com.setFechaRegistro(now);
