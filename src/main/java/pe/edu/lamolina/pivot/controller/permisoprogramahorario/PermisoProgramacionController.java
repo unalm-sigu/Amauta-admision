@@ -1,10 +1,8 @@
 package pe.edu.lamolina.pivot.controller.permisoprogramahorario;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,14 +28,13 @@ import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.CURSO;
 import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.DOCENTE;
 import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.GPOSECC;
 import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.SECCION;
-import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.permisoprogramacion.PermisoProgramacion;
 import pe.edu.lamolina.model.permisoprogramacion.PermisosProgramacionHorarios;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("permisoprograma/buscar")
+@RequestMapping("permisoprograma/colaborador")
 public class PermisoProgramacionController {
 
     @Autowired
@@ -52,6 +49,7 @@ public class PermisoProgramacionController {
         Map<String, List<PermisoProgramacion>> map = TypesUtil.convertListToMapList("nivel", programacions);
 
         List<AnexoBoletin> anexoBoletin = service.allAnexoBoletin();
+        ArrayNode arrayEvento = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
         for (AnexoBoletin anexo : anexoBoletin) {
@@ -89,11 +87,16 @@ public class PermisoProgramacionController {
             });
             arrayProgramadoc.add(node);
         }
+        arrayEvento.addAll(arrayProgramaCurso);
+        arrayEvento.addAll(arrayProgramaSecc);
+        arrayEvento.addAll(arrayProgramaGpoSecc);
+        arrayEvento.addAll(arrayProgramadoc);
         model.addAttribute("anexoBoletin", array);
         model.addAttribute("programaCurso", arrayProgramaCurso);
         model.addAttribute("programaSeccion", arrayProgramaSecc);
         model.addAttribute("programaGpoSeccion", arrayProgramaGpoSecc);
         model.addAttribute("programaDocente", arrayProgramadoc);
+        model.addAttribute("eventos", arrayEvento);
 
         model.addAttribute("cicloacademico", cicloAcademico.getDescripcion());
 
@@ -118,6 +121,7 @@ public class PermisoProgramacionController {
                 String fichado = mapFichados.get(colaboradorAnexo.getColaborador().getId());
                 List<AnexoBoletin> colaboradorAnexos = mapColaborAnexo.get(colaboradorAnexo.getColaborador().getId());
                 ObjectNode node = JsonHelper.createJson(colaboradorAnexo, JsonNodeFactory.instance, new String[]{
+                    "id",
                     "colaborador.*",
                     "colaborador.cargo.*",
                     "colaborador.persona.*",
@@ -130,8 +134,8 @@ public class PermisoProgramacionController {
                         "puedeEliminar",
                         "puedeModificar",});
                     permisos.put("idPermiso", item.getId());
-                    permisos.put("id", item.getPermisoProgracion().getId());
-                    permisos.put("nombre", item.getPermisoProgracion().getNombre());
+                    permisos.put("id", item.getPermisoProgramacion().getId());
+                    permisos.put("nombre", item.getPermisoProgramacion().getNombre());
                     arrayPermisoCurso.add(permisos);
                 }
 
@@ -142,8 +146,8 @@ public class PermisoProgramacionController {
                         "puedeEliminar",
                         "puedeModificar",});
                     permisos.put("idPermiso", item.getId());
-                    permisos.put("id", item.getPermisoProgracion().getId());
-                    permisos.put("nombre", item.getPermisoProgracion().getNombre());
+                    permisos.put("id", item.getPermisoProgramacion().getId());
+                    permisos.put("nombre", item.getPermisoProgramacion().getNombre());
                     arrayPermisoSeccion.add(permisos);
                 }
 
@@ -154,8 +158,8 @@ public class PermisoProgramacionController {
                         "puedeEliminar",
                         "puedeModificar",});
                     permisos.put("idPermiso", item.getId());
-                    permisos.put("id", item.getPermisoProgracion().getId());
-                    permisos.put("nombre", item.getPermisoProgracion().getNombre());
+                    permisos.put("id", item.getPermisoProgramacion().getId());
+                    permisos.put("nombre", item.getPermisoProgramacion().getNombre());
                     arrayPermisoGsec.add(permisos);
                 }
 
@@ -167,15 +171,15 @@ public class PermisoProgramacionController {
                         "puedeEliminar",
                         "puedeModificar",});
                     permisos.put("idPermiso", item.getId());
-                    permisos.put("id", item.getPermisoProgracion().getId());
-                    permisos.put("nombre", item.getPermisoProgracion().getNombre());
+                    permisos.put("id", item.getPermisoProgramacion().getId());
+                    permisos.put("nombre", item.getPermisoProgramacion().getNombre());
                     arrayPermisoDoc.add(permisos);
                 }
 
-                node.set("permisoGpoSecc", arrayPermisoGsec);
-                node.set("permisoSeccion", arrayPermisoSeccion);
-                node.set("permisoCurso", arrayPermisoCurso);
-                node.set("permisoDoc", arrayPermisoDoc);
+                node.set("permisosGpoSec", arrayPermisoGsec);
+                node.set("permisosSecc", arrayPermisoSeccion);
+                node.set("permisosCurso", arrayPermisoCurso);
+                node.set("permisosDocente", arrayPermisoDoc);
 
                 if (fichado == null) {
                     node.put("rows", colaboradorAnexos.size());
@@ -198,13 +202,13 @@ public class PermisoProgramacionController {
 
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(@RequestBody Colaborador colaborador, HttpSession session) {
+    public JsonResponse save(@RequestBody ColaboradorAnexoBean colaboradorAnexo, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.FALSE);
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.save(colaborador, ds);
+            service.save(colaboradorAnexo, ds);
 
             response.setMessage("Se registró satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
@@ -218,13 +222,13 @@ public class PermisoProgramacionController {
 
     @ResponseBody
     @RequestMapping("update")
-    public JsonResponse update(@RequestBody Colaborador colaborador, HttpSession session) {
+    public JsonResponse update(@RequestBody ColaboradorAnexoBean colaboradorAnexo, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.FALSE);
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.update(colaborador, ds);
+            service.update(colaboradorAnexo, ds);
 
             response.setMessage("Se actualizó satisfactoriamente");
             response.setSuccess(Boolean.TRUE);

@@ -7,13 +7,15 @@
         <form id="formEnviarRevision"  data-parsley-validate="true">
             <div class="step1">
                 <div class=" row">
-                    <div class="col-sm-6" >
+                    <div class="col-sm-12" >
                         <div class="form-group">
                             <label >Anexo Boletin  </label>
                             <multiselect 
+                                v-model="colaboradorAnexo.anexoBoletin"
                                 v-bind:options='anexoBoletin'
                                 label='nombre'
                                 track-by='id'
+                                placeholder="Seleccines un anexo"
                                 required="true" >
                                 <template slot="singleLabel" slot-scope="props">
                                     <span v-text="props.option.nombre"></span>
@@ -21,6 +23,28 @@
                                 </template>
                             </multiselect>
                         </div>
+                    </div>
+                    <div class="col-sm-12" >
+                        <div class="form-group">
+                            <label >Eventos  </label>
+                            <multiselect 
+                                v-model="colaboradorAnexo.permisoProgramacion"
+                                v-bind:options='eventos'
+                                label='nombre'
+                                placeholder="Selecciones un evento"
+                                track-by='id'
+                                required="true" 
+                                v-on:select="eventoSelect">
+                                <template slot="singleLabel" slot-scope="props">
+                                    <span v-text="props.option.nombre"></span>
+                                </template>
+                            </multiselect>
+                        </div>
+                    </div>
+                </div>
+                <div class=" row">
+                    <div >
+                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
                     </div>
                 </div>
             </div>
