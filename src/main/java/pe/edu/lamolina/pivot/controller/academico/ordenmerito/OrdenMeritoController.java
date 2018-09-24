@@ -105,12 +105,12 @@ public class OrdenMeritoController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "{id}/control/alumnos", method = RequestMethod.GET)
-    public DynatableResponse alumnos(DynatableFilter filter, HttpSession session, @PathVariable Long id) {
+    @RequestMapping(value = "{id}/control/{nivel}/alumnos", method = RequestMethod.GET)
+    public DynatableResponse alumnos(DynatableFilter filter, HttpSession session, @PathVariable Long id, @PathVariable Integer nivel) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
-        List<AlumnoCiclo> list = service.allAlumnoCicloByControl(filter, new ControlOrdenMerito(id));
+        List<AlumnoCiclo> list = service.allAlumnoCicloByControlNivel(filter, new ControlOrdenMerito(id), nivel);
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
         for (AlumnoCiclo item : list) {
@@ -119,19 +119,40 @@ public class OrdenMeritoController {
                 "alumno.codigo",
                 "carrera.nombre",
                 "carrera.facultad.nombre",
+                
                 "ordenMeritoCarrera",
                 "ordenMeritoCiclo",
                 "ordenMeritoFacultad",
+                
                 "cuadroHonorCarrera",
                 "cuadroHonorCiclo",
                 "cuadroHonorFacultad",
+                
                 "quintoSuperiorCarrera",
                 "quintoSuperiorCiclo",
                 "quintoSuperiorFacultad",
+                
                 "tercioSuperiorCarrera",
                 "tercioSuperiorCiclo",
                 "tercioSuperiorFacultad",
-                "promedioCiclo"
+                
+                "ordenMeritoCarreraNivel",
+                "ordenMeritoCicloNivel",
+                "ordenMeritoFacultadNivel",
+                
+                "cuadroHonorCarreraNivel",
+                "cuadroHonorCicloNivel",
+                "cuadroHonorFacultadNivel",
+                
+                "quintoSuperiorCarreraNivel",
+                "quintoSuperiorCicloNivel",
+                "quintoSuperiorFacultadNivel",
+                
+                "tercioSuperiorCarreraNivel",
+                "tercioSuperiorCicloNivel",
+                "tercioSuperiorFacultadNivel",
+                
+                "promedioAcumulado"
             }));
         }
 

@@ -16,11 +16,23 @@
                     <p class="h4" th:if="${control.escala=='FAC'}" th:inline="text"> Nivel: [[${control.escalaEnum.value}]]  de [[${control.facultad?.nombre}]]</p>
                     <p class="h4" th:if="${control.escala=='ESPE'}" th:inline="text"> Nivel: [[${control.escalaEnum.value}]]  de [[${control.carrera?.nombre}]]</p>
                 </div>
+                <div class="block m-b-sm m-t-sm row">
+                    <div class="col-md-3">
+                        <multiselect 
+                            label="label"
+                            track-by="val"
+                            v-model="nivelEscogido"
+                            v-bind:options="niveles"
+                            v-bind:show-labels="false">
+                        </multiselect>
+                    </div>
+
+                </div>
             </header>
             <section class="wrapper-lg m-b-xs">
                 <section class="panel">           
-                    <section class="panel-body ">
-                        <raptor-table v-bind:url="`${URL}/${control.id}/control/alumnos`" ref="raptor">
+                    <section class="panel-body">
+                        <raptor-table v-bind:url="`${URL}/${control.id}/control/${nivelEscogido.val}/alumnos`" ref="raptor">
                             <template scope="props">
                                 <table class="table table-striped">
                                     <thead>
@@ -49,27 +61,60 @@
                                                 </div>
                                             </td>
                                             <td class="v-middle text-center">
-                                                <span> {{ item.promedioCiclo.toFixed(2) }} </span>
+                                                <span> {{ item.promedioAcumulado.toFixed(2) }} </span>
                                             </td>
                                             <td class="v-middle text-center">
-                                                <span v-if="control.escalaEnum.name === 'ESPE'"> {{ item.ordenMeritoCarrera }} </span>
-                                                <span v-if="control.escalaEnum.name === 'FAC'"> {{ item.ordenMeritoFacultad }} </span>
-                                                <span v-if="control.escalaEnum.name === 'CICLO'"> {{ item.ordenMeritoCiclo }} </span>
+                                                <div v-if="nivelEscogido.val === 0">
+                                                    <span v-if="control.escalaEnum.name === 'ESPE'"> {{ item.ordenMeritoCarrera }} </span>
+                                                    <span v-if="control.escalaEnum.name === 'FAC'"> {{ item.ordenMeritoFacultad }} </span>
+                                                    <span v-if="control.escalaEnum.name === 'CICLO'"> {{ item.ordenMeritoCiclo }} </span>
+                                                </div>
+                                                <div v-else="">
+                                                    <span v-if="control.escalaEnum.name === 'ESPE'"> {{ item.ordenMeritoCarreraNivel }} </span>
+                                                    <span v-if="control.escalaEnum.name === 'FAC'"> {{ item.ordenMeritoFacultadNivel }} </span>
+                                                    <span v-if="control.escalaEnum.name === 'CICLO'"> {{ item.ordenMeritoCicloNivel }} </span>
+                                                </div>
+
                                             </td>
                                             <td class="v-middle text-center">
-                                                <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.cuadroHonorCarrera"> Sí </span>
-                                                <span v-if="control.escalaEnum.name === 'FAC' &amp;&amp; item.cuadroHonorFacultad"> Sí </span>
-                                                <span v-if="control.escalaEnum.name === 'CICLO' &amp;&amp; item.cuadroHonorCiclo"> Sí </span>
+                                                <div v-if="nivelEscogido.val === 0">
+                                                    <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.cuadroHonorCarrera"> Sí </span>
+                                                    <span v-if="control.escalaEnum.name === 'FAC' &amp;&amp; item.cuadroHonorFacultad"> Sí </span>
+                                                    <span v-if="control.escalaEnum.name === 'CICLO' &amp;&amp; item.cuadroHonorCiclo"> Sí </span>
+
+                                                </div>
+                                                <div v-else="">
+                                                    <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.cuadroHonorCarreraNivel"> Sí </span>
+                                                    <span v-if="control.escalaEnum.name === 'FAC' &amp;&amp; item.cuadroHonorFacultadNivel"> Sí </span>
+                                                    <span v-if="control.escalaEnum.name === 'CICLO' &amp;&amp; item.cuadroHonorCicloNivel"> Sí </span>
+                                                </div>
+
                                             </td>
                                             <td class="v-middle text-center">
-                                                <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.quintoSuperiorCarrera"> Sí </span>
-                                                <span v-if="control.escalaEnum.name === 'FAC' &amp;&amp; item.quintoSuperiorFacultad"> Sí </span>
-                                                <span v-if="control.escalaEnum.name === 'CICLO' &amp;&amp; item.quintoSuperiorCiclo"> Sí </span>
+                                                <div v-if="nivelEscogido.val === 0">
+                                                    <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.quintoSuperiorCarrera"> Sí </span>
+                                                    <span v-if="control.escalaEnum.name === 'FAC' &amp;&amp; item.quintoSuperiorFacultad"> Sí </span>
+                                                    <span v-if="control.escalaEnum.name === 'CICLO' &amp;&amp; item.quintoSuperiorCiclo"> Sí </span>
+                                                </div>
+                                                <div v-else="">
+                                                    <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.quintoSuperiorCarreraNivel"> Sí </span>
+                                                    <span v-if="control.escalaEnum.name === 'FAC' &amp;&amp; item.quintoSuperiorFacultadNivel"> Sí </span>
+                                                    <span v-if="control.escalaEnum.name === 'CICLO' &amp;&amp; item.quintoSuperiorCicloNivel"> Sí </span>
+                                                </div>
+
                                             </td>
                                             <td class="v-middle text-center">
-                                                <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.tercioSuperiorCarrera"> Sí </span>
-                                                <span v-if="control.escalaEnum.name === 'FAC' &amp;&amp; item.tercioSuperiorFacultad"> Sí </span>
-                                                <span v-if="control.escalaEnum.name === 'CICLO' &amp;&amp; item.tercioSuperiorCiclo"> Sí </span>
+                                                <div v-if="nivelEscogido.val === 0">
+                                                    <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.tercioSuperiorCarrera"> Sí </span>
+                                                    <span v-if="control.escalaEnum.name === 'FAC' &amp;&amp; item.tercioSuperiorFacultad"> Sí </span>
+                                                    <span v-if="control.escalaEnum.name === 'CICLO' &amp;&amp; item.tercioSuperiorCiclo"> Sí </span>
+                                                </div>
+                                                <div v-else="">
+                                                    <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.tercioSuperiorCarreraNivel"> Sí </span>
+                                                    <span v-if="control.escalaEnum.name === 'FAC' &amp;&amp; item.tercioSuperiorFacultadNivel"> Sí </span>
+                                                    <span v-if="control.escalaEnum.name === 'CICLO' &amp;&amp; item.tercioSuperiorCicloNivel"> Sí </span>
+                                                </div>
+
                                             </td>
                                         </tr>
                                     </tbody>

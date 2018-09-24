@@ -25,4 +25,6 @@ public interface OrdenMeritoService {
 
     ControlOrdenMerito find(Long id);
 
+    public List<AlumnoCiclo> allAlumnoCicloByControlNivel(DynatableFilter filter, ControlOrdenMerito controlOrdenMerito, Integer nivel);
+
 }

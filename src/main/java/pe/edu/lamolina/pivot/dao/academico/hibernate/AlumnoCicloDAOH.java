@@ -307,7 +307,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("alu.persona per", "carrera car", "car.facultad fac")
                 .left("controlMeritoCiclo cmc", "controlMeritoFacultad cmf", "controlMeritoCarrera cmca")
                 .filter("estado", EstadoMatriculaEnum.MAT)
-                .isNotNull("promedioCiclo")
+                .isNotNull("promedioAcumulado")
                 .beginBlock()
                 .__().in("cmc.id", coms)
                 .__().in("cmf.id", coms)
@@ -381,6 +381,48 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("controlMeritoFacultad control")
                 .filter("control.id", controlBD)
                 .orderBy("ac.ordenMeritoFacultad");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allByControlMeritoCicloNivel(DynatableFilter filter, ControlOrdenMerito controlBD, Integer nivel) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "alu.persona per", "carrera car", "car.facultad fac")
+                .join("cicloAcademico ca")
+                .join("controlMeritoCiclo control")
+                .filter("nivel", nivel)
+                .filter("control.id", controlBD)
+                .orderBy("ac.ordenMeritoCiclo");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allByControlMeritoCarreraNivel(DynatableFilter filter, ControlOrdenMerito controlBD, Integer nivel) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "alu.persona per", "carrera car", "car.facultad fac")
+                .join("cicloAcademico ca")
+                .join("controlMeritoCarrera control")
+                .filter("nivel", nivel)
+                .filter("control.id", controlBD)
+                .orderBy("ac.ordenMeritoCiclo");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allByControlMeritoFacultadNivel(DynatableFilter filter, ControlOrdenMerito controlBD, Integer nivel) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "alu.persona per", "carrera car", "car.facultad fac")
+                .join("cicloAcademico ca")
+                .join("controlMeritoFacultad control")
+                .filter("nivel", nivel)
+                .filter("control.id", controlBD)
+                .orderBy("ac.ordenMeritoCiclo");
 
         return all(sql);
     }
