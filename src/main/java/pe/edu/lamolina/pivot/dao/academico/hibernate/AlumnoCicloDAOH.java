@@ -335,9 +335,29 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         sql.append("cuadroHonorCiclo = null, ");
         sql.append("cuadroHonorFacultad = null, ");
 
+        sql.append("quintoSuperiorCarrera = null, ");
+        sql.append("quintoSuperiorCiclo = null, ");
+        sql.append("quintoSuperiorFacultad = null, ");
+
         sql.append("tercioSuperiorCarrera = null, ");
         sql.append("tercioSuperiorCiclo = null, ");
-        sql.append("tercioSuperiorFacultad = null ");
+        sql.append("tercioSuperiorFacultad = null, ");
+
+        sql.append("ordenMeritoCarreraNivel = null, ");
+        sql.append("ordenMeritoCicloNivel = null, ");
+        sql.append("ordenMeritoFacultadNivel = null, ");
+
+        sql.append("cuadroHonorCarreraNivel = null, ");
+        sql.append("cuadroHonorCicloNivel = null, ");
+        sql.append("cuadroHonorFacultadNivel = null, ");
+
+        sql.append("quintoSuperiorCarreraNivel = null, ");
+        sql.append("quintoSuperiorCicloNivel = null, ");
+        sql.append("quintoSuperiorFacultadNivel = null, ");
+
+        sql.append("tercioSuperiorCarreraNivel = null, ");
+        sql.append("tercioSuperiorCicloNivel = null, ");
+        sql.append("tercioSuperiorFacultadNivel = null ");
 
         sql.append("where cicloAcademico.id = :CICLO");
 

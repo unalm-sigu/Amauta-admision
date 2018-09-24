@@ -409,7 +409,7 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
             Integer quinto = puesto / 5;
             Integer tercio = puesto / 3;
 
-            for (AlumnoCiclo alumnoCiclo : entry.getValue()) {
+            for (AlumnoCiclo alumnoCiclo : as) {
                 Integer puestoAlumno;
                 switch (escala) {
                     case CICLO:

@@ -16,6 +16,7 @@ new Vue({
     watch: {
         url(old, neu) {
             this.$refs.raptor.url = old;
+            this.$refs.raptor.page = {currentPage: 1};
             this.$refs.raptor.loadRemoteData();
         }
     },
