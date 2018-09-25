@@ -90,4 +90,7 @@ public interface Constantine {
     // 
     Long ID_TIPO_SUBVENCION_INVESTIGACION = 5l;
     Long ID_TIPO_TRAMITE_SUBVENCION = 1l;
+
+    String CICLO_ORDEN_MERITO = "CICLO_ORDEN_MERITO";
+
 }

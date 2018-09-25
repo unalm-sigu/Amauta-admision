@@ -213,3 +213,56 @@
         </div>
     </div>
 </modal-vik>
+
+<modal-vik
+    ref="modalAddCurso"
+    v-bind="addCursoModal">
+
+    <div slot="body">
+
+        <div class="col-sm-10">
+            <label class="control-label">Curso</label>
+            <div class="form-group">
+                <multiselect v-model='curso'
+                             v-bind:internal-search='false'
+                             v-bind:limit='15'
+                             v-on:search-change="searchCurso"
+                             v-bind:options='cursos'
+                             placeholder="Ingresa un caracter como mínimo"
+                             label='curso'>
+                </multiselect>
+            </div>
+        </div>
+
+        <div class="col-sm-2 m-t-md">
+            <button
+                class="btn btn-success btn-sm pull-right"
+                v-bind:disabled="btnAgregar"
+                v-on:click.prevent="agregarCurso()">Agregar</button>
+        </div>
+
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th class="col-sm-2">Código</th>
+                    <th class="col-sm-2">T-P-C</th>
+                    <th class="col-sm-8">Nombre</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in cursosNoEnc">
+                    <td class="v-middle">{{item.codigo}}</td>
+                    <td class="v-middle">{{item.tpc}}</td>
+                    <td class="v-middle">{{item.curso}}</td>
+                    <td class="v-middle">
+                        <a v-on:click.prevent="removeCurso(item)"  class="btn btn-link text-danger pointer">
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</modal-vik>

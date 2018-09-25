@@ -119,7 +119,7 @@ public class ConvenioServiceImp implements ConvenioService {
     @Override
     public List<Carrera> allCarreraByName(String nombre, Compania cia) {
         List<ModalidadEstudio> modalidadEstudio = modalidadEstudioDAO.allPrePostgrado(cia);
-        return carreraDAO.allCarreraByNameAndModalidad(nombre, modalidadEstudio);
+        return carreraDAO.allByNombreModalidad(nombre, modalidadEstudio);
     }
 
     @Override

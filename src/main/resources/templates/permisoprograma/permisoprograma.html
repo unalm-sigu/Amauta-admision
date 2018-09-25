@@ -5,52 +5,142 @@
 
     <body>
         <div layout:fragment="main">
-            <div id="permisoProgramacionVUE">
+            <div id="permisoProgramacionVUE" v-cloak="">
                 <header class="header b-b padder-lg">        
-                    <h2>Permisos para programación de horarios - <span>2016-II</span></h2>
+                    <h2>Permisos para programación de horarios -</h2>
                 </header>
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="lista">
                         <section class="panel">
                             <section class="panel-body">
                                 <div class="col-md-12 col-md-offset-0">
-                                    <raptor-table v-bind:url="list" ref="loadCitas">
+                                    <raptor-table v-bind:url="colaboradorURL" ref="load">
                                         <template  scope="props" >
                                             <table  class="table table-striped table-hover">
                                                 <thead>
                                                     <tr>
-                                                        <th class="col-md-3 text-left">Alumno</th>
-                                                        <th class="col-md-3 text-left">Fecha atención</th>
-                                                        <th class="col-md-3 text-left">Tipo Trámite</th>
-                                                        <th class="col-md-3 text-left">Estado</th>
+                                                        <th class="col-md-2 text-left">Colaborador</th>
+                                                        <th class="col-md-2 text-left">Anexo Boletin</th>
+                                                        <th class="col-md-2 text-left">Cursos</th>
+                                                        <th class="col-md-2 text-left">Grupo Seccion</th>
+                                                        <th class="col-md-2 text-left">Seccion</th>
+                                                        <th class="col-md-2 text-left">Docentes</th>
+                                                        <th class="text-left"></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr v-for="item in props.data">
-                                                        <td class="v-middle text-left" rowspan="item.anexo.length">
-                                                            <span v-text="item.id"></span>
-                                                            <!--         <div class="pull-left m-r">
-                                                                         <img class="img-responsive img-thumbnail img-circle" v-bind:src="item.alumno.persona.rutaFoto" />
-                                                                     </div>
-                                                                     <span class="block bold "> <a>{{item.alumno.persona.nombreCompleto}}</a> </span> 
-                                                                     <span class="block bold " > {{item.alumno.carrera.nombre}} <span v-if="item.alumno.carrera.codigo!=item.alumno.carrera.facultad.codigo">- {{item.alumno.carrera.facultad.nombre}} </span></span> 
-                                                                     <span class="block bold " v-if="item.alumno.persona.numeroDocIdentidad!=null"> {{item.alumno.persona.tipoDocumento.simbolo}} - {{item.alumno.persona.numeroDocIdentidad}} </span> 
-                                                                     <span class="block bold " > {{item.alumno.codigo}}</span> -->
+                                                    <tr v-for="item in props.data"
+                                                        v-on:mouseover="seleccionar(item)"
+                                                        v-on:mouseleave="deseleccionar()">
+                                                        <td class="v-middle text-left"
+                                                            v-if="item.rows>0"
+                                                            v-bind:rowspan="item.rows">
+                                                            <div class="pull-left m-r">
+                                                                <img class="img-responsive img-thumbnail img-circle" v-bind:src="item.colaborador.persona.rutaFoto" />
+                                                            </div>
+                                                            <span class="block bold "> <a>{{item.colaborador.persona.apellidosNombres}}</a> </span> 
+                                                            <span class="block bold " > {{item.colaborador.cargo.nombre}} </span> 
                                                         </td>                                                       
-                                                    </tr>
-                                                    <tr v-for="anexo in item.anexo">
-                                                        <td class="v-middle text-left" rowspan="anexo.permiso1.length">
-                                                            <span v-text="item.id"></span>
-                                                            <!--         <div class="pull-left m-r">
-                                                                         <img class="img-responsive img-thumbnail img-circle" v-bind:src="item.alumno.persona.rutaFoto" />
-                                                                     </div>
-                                                                     <span class="block bold "> <a>{{item.alumno.persona.nombreCompleto}}</a> </span> 
-                                                                     <span class="block bold " > {{item.alumno.carrera.nombre}} <span v-if="item.alumno.carrera.codigo!=item.alumno.carrera.facultad.codigo">- {{item.alumno.carrera.facultad.nombre}} </span></span> 
-                                                                     <span class="block bold " v-if="item.alumno.persona.numeroDocIdentidad!=null"> {{item.alumno.persona.tipoDocumento.simbolo}} - {{item.alumno.persona.numeroDocIdentidad}} </span> 
-                                                                     <span class="block bold " > {{item.alumno.codigo}}</span> -->
+                                                        <td class="v-middle text-left" 
+                                                            v-bind:rowspan="item.row"
+                                                            v-bind:class="classTable(item)">
+                                                            <span class="block bold ">{{item.anexoBoletin.nombre}} </span> 
                                                         </td>                                                       
-                                                    </tr>
+                                                        <td class="v-middle text-left" v-bind:class="classTable(item)">
+                                                            <div class="col-sm-12" >
+                                                                <div class="form-group" v-if="item.anexoBoletin.id!=null">
+                                                                    <multiselect 
+                                                                        v-model="item.permisosCurso"
+                                                                        v-bind:options='programaCurso'
+                                                                        label="nombre"
+                                                                        track-by='id'
+                                                                        :multiple="true" 
+                                                                        :taggable="true"
+                                                                        :hide-selected="true"
+                                                                        :show-labels="false"
+                                                                        required="true"
+                                                                        v-on:remove="removePermiso"
+                                                                        v-on:input="input(item,'CUR')"
+                                                                        v-on:select="selectPermiso"
+                                                                        >
+                                                                    </multiselect>
+                                                                </div>
+                                                            </div>
 
+                                                        </td>                                                       
+                                                        <td class="v-middle text-left" v-bind:class="classTable(item)">
+                                                            <div class="col-sm-12" >
+                                                                <div class="form-group" v-if="item.anexoBoletin.id!=null">
+                                                                    <multiselect 
+                                                                        v-model="item.permisosGpoSec"
+                                                                        v-bind:options='programaGpoSeccion'
+                                                                        :custom-label='customLabel'
+                                                                        track-by='id'
+                                                                        :multiple="true" 
+                                                                        :hide-selected="true"
+                                                                        :show-labels="false"
+                                                                        required="true"
+                                                                        v-on:input="input(item,'GpoSec')"
+                                                                        v-on:remove="removePermiso"
+                                                                        v-on:select="selectPermiso">
+                                                                    </multiselect>
+                                                                </div>
+                                                            </div>
+                                                        </td>                                                       
+                                                        <td class="v-middle text-left" v-bind:class="classTable(item)">
+                                                            <div class="col-sm-12" >
+                                                                <div class="form-group" v-if="item.anexoBoletin.id!=null">
+                                                                    <multiselect 
+                                                                        v-model="item.permisosSecc"
+                                                                        v-bind:options='programaSeccion'
+                                                                        label="nombre"
+                                                                        track-by='id'
+                                                                        :multiple="true" 
+                                                                        :hide-selected="true"
+                                                                        :show-labels="false"
+                                                                        required="true" 
+                                                                        v-on:remove="removePermiso"
+                                                                        v-on:open="addSecc"
+                                                                        v-on:select="addPermiso">      
+                                                                        <template slot="tag" slot-scope="props">
+                                                                            <span class="multiselect__tag" v-text="props.option.nombre" v-on:click="modifySecc(item,props.option)"></span>
+                                                                        </template>
+                                                                    </multiselect>
+                                                                </div>
+                                                            </div>
+                                                        </td>                                                       
+                                                        <td class="v-middle text-left" v-bind:class="classTable(item)">
+                                                            <div class="col-sm-12" >
+                                                                <div class="form-group" v-if="item.anexoBoletin.id!=null">
+                                                                    <multiselect 
+                                                                        v-model="item.permisosDocente"
+                                                                        v-bind:options='programaDocente'
+                                                                        :custom-label='customLabel'
+                                                                        track-by='id'
+                                                                        :multiple="true" 
+                                                                        :taggable="true"
+                                                                        :hide-selected="true"
+                                                                        :show-labels="false"
+                                                                        required="true"
+                                                                        v-on:remove="removePermiso"
+                                                                        v-on:input="input(item,'DOC')"
+                                                                        v-on:select="selectPermiso">
+                                                                    </multiselect>
+                                                                </div>
+                                                            </div>
+                                                        </td>                                                       
+                                                        <td class="v-middle text-left" v-bind:class="classTable(item)">
+                                                            <div class="dropdown actions">
+                                                                <a class="dropdown-toggle" data-toggle="dropdown">
+                                                                    <i class="glyphicon glyphicon-option-vertical"></i>
+                                                                </a> 
+
+                                                                <ul class="dropdown-menu pull-right">
+                                                                    <li ><a v-on:click="modal(item)">Agregar Permiso</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </td>                                                       
+                                                    </tr>                                                   
                                                 </tbody>
                                             </table>
                                         </template>
@@ -60,14 +150,24 @@
                         </section>
                     </div>
                 </div>
+                <th:block  th:replace="permisoprograma/addPermisoModal"/>
+                <th:block  th:replace="permisoprograma/modifiSeccModal"/>
             </div>
+            <div th:substituteby="_modules/vue-modal"/>
         </div>
         <div layout:fragment="js">
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var cicloacademico = /*[[${cicloacademico.toString()}]]*/ 'json';
+                var anexoBoletin = /*[[${anexoBoletin.toString()}]]*/ 'json';
+                var programaCurso = /*[[${programaCurso.toString()}]]*/ 'json';
+                var programaSeccion = /*[[${programaSeccion.toString()}]]*/ 'json';
+                var programaGpoSeccion = /*[[${programaGpoSeccion.toString()}]]*/ 'json';
+                var programaDocente = /*[[${programaDocente.toString()}]]*/ 'json';
+                var eventos = /*[[${eventos.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/permisoprograma/permisoprograma.js}" charset="utf-8"></script>
         </div>

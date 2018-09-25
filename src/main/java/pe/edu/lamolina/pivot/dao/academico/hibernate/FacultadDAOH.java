@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import org.springframework.stereotype.Repository;
@@ -64,6 +65,17 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
                 .endBlock()
                 .orderBy("fa.nombre")
                 .limit(10);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Facultad> allNormal() {
+        Octavia sql = Octavia.query()
+                .from(Facultad.class, "fa")
+                .join("compania")
+                .between("codigo", "010", "080")
+                .filter("estado", EstadoEnum.ACT);
 
         return all(sql);
     }
