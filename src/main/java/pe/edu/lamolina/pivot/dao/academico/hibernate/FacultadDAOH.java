@@ -74,7 +74,7 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
         Octavia sql = Octavia.query()
                 .from(Facultad.class, "fa")
                 .join("compania")
-                .notIn("codigo", Arrays.asList("000", "001", "111", "200", "999", "090"))
+                .between("codigo", "010", "080")
                 .filter("estado", EstadoEnum.ACT);
 
         return all(sql);

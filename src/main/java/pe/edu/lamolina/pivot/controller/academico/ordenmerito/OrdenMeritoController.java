@@ -57,8 +57,6 @@ public class OrdenMeritoController {
             @PathVariable Long id,
             Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
         ControlOrdenMerito control = service.find(id);
         ObjectNode json = JsonHelper.createJson(control, JsonNodeFactory.instance, new String[]{
             "id",
@@ -88,7 +86,9 @@ public class OrdenMeritoController {
                 "escalaEnum",
                 "estadoEnum",
                 "facultad.nombre",
+                "facultad.codigo",
                 "carrera.nombre",
+                "carrera.codigo",
                 "totalAlumnos",
                 "alumnosComputados",
                 "noComputados",
@@ -115,43 +115,46 @@ public class OrdenMeritoController {
 
         for (AlumnoCiclo item : list) {
             array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                "creditosAcumulados", "creditosConvalidados", "nivel",
                 "alumno.persona.nombreCompleto",
                 "alumno.codigo",
                 "carrera.nombre",
+                "carrera.codigo",
                 "carrera.facultad.nombre",
-                
+                "carrera.facultad.codigo",
+                //--  --//
                 "ordenMeritoCarrera",
                 "ordenMeritoCiclo",
                 "ordenMeritoFacultad",
-                
+                //--  --//
                 "cuadroHonorCarrera",
                 "cuadroHonorCiclo",
                 "cuadroHonorFacultad",
-                
+                //--  --//
                 "quintoSuperiorCarrera",
                 "quintoSuperiorCiclo",
                 "quintoSuperiorFacultad",
-                
+                //--  --//
                 "tercioSuperiorCarrera",
                 "tercioSuperiorCiclo",
                 "tercioSuperiorFacultad",
-                
+                //--  --//
                 "ordenMeritoCarreraNivel",
                 "ordenMeritoCicloNivel",
                 "ordenMeritoFacultadNivel",
-                
+                //--  --//
                 "cuadroHonorCarreraNivel",
                 "cuadroHonorCicloNivel",
                 "cuadroHonorFacultadNivel",
-                
+                //--  --//
                 "quintoSuperiorCarreraNivel",
                 "quintoSuperiorCicloNivel",
                 "quintoSuperiorFacultadNivel",
-                
+                //--  --//
                 "tercioSuperiorCarreraNivel",
                 "tercioSuperiorCicloNivel",
                 "tercioSuperiorFacultadNivel",
-                
+                //--  --//
                 "promedioAcumulado"
             }));
         }

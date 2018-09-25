@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -27,6 +28,7 @@ import pe.edu.lamolina.model.enums.ControlOrdenMeritoEscalaEnum;
 import pe.edu.lamolina.model.enums.ControlOrdenMeritoEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ControlOrdenMeritoDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
@@ -52,6 +54,8 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
     CicloAcademicoDAO cicloAcademicoDAO;
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
+    @Autowired
+    CarreraDAO carreraDAO;
 
     @Override
     @Transactional
@@ -75,18 +79,35 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
         comCiclo.setUserRegistro(ds.getUsuario());
         comCiclo.setFechaRegistro(now);
 
-        List<Facultad> facultades = facultadDAO.allNormal();
-        Set<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toSet());
-        Set<Facultad> noFacultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() > 1).collect(Collectors.toSet());
+        List<Carrera> carreras = carreraDAO.allActivasByModalidadEnum(ModalidadEstudioEnum.PRE);
+        Collections.sort(carreras, new Carrera.CompareCodigo());
 
-        Map<Facultad, List<AlumnoCiclo>> alumnosByFacultades = alumnoCiclos.stream().filter(ac -> facultadUnica.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera().getFacultad()));
-        Map<Carrera, List<AlumnoCiclo>> alumnosByCarreras = alumnoCiclos.stream().filter(ac -> noFacultadUnica.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera()));
+        Map<Long, Facultad> mapFacultad = TypesUtil.convertListToMap("facultad.id", "facultad", carreras);
+        List<Facultad> facultades = new ArrayList(mapFacultad.values());
+
+        Map<Long, List<Carrera>> mapCarreras = TypesUtil.convertListToMapList("facultad.id", carreras);
+        for (Map.Entry<Long, List<Carrera>> entry : mapCarreras.entrySet()) {
+            Facultad fac = mapFacultad.get(entry.getKey());
+            List<Carrera> carrerasFac = entry.getValue();
+            fac.setCarrera(carrerasFac);
+        }
+
+        List<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toList());
+        Collections.sort(facultadUnica, new Facultad.CompareCodigo());
+        List<Facultad> noFacultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() > 1).collect(Collectors.toList());
+        Collections.sort(noFacultadUnica, new Facultad.CompareCodigo());
+
+        Map<Facultad, List<AlumnoCiclo>> mapAlumnoByFacultad = alumnoCiclos.stream().filter(ac -> facultadUnica.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera().getFacultad()));
+        Map<Carrera, List<AlumnoCiclo>> mapAlumnosByCarrera = alumnoCiclos.stream().filter(ac -> noFacultadUnica.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera()));
+//
+        Map<Long, List<AlumnoCiclo>> mapAlumnosByIdFac = TypesUtil.convertListToMapList("carrera.facultad.id", alumnoCiclos);
+        Map<Long, List<AlumnoCiclo>> mapAlumnosByIdCarr = TypesUtil.convertListToMapList("carrera.id", alumnoCiclos);
 
         Integer total = 0;
-        for (Map.Entry<Facultad, List<AlumnoCiclo>> entry : alumnosByFacultades.entrySet()) {
+        for (Map.Entry<Facultad, List<AlumnoCiclo>> entry : mapAlumnoByFacultad.entrySet()) {
             total += entry.getValue().size();
         }
-        for (Map.Entry<Carrera, List<AlumnoCiclo>> entry : alumnosByCarreras.entrySet()) {
+        for (Map.Entry<Carrera, List<AlumnoCiclo>> entry : mapAlumnosByCarrera.entrySet()) {
             total += entry.getValue().size();
         }
         comCiclo.setTotalAlumnos(total);
@@ -95,13 +116,16 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
         Integer completosCiclo = 0;
         Integer incompletosCiclo = 0;
 
-        for (Map.Entry<Facultad, List<AlumnoCiclo>> entry : alumnosByFacultades.entrySet()) {
+        for (Facultad fac : facultadUnica) {
             ControlOrdenMerito com = new ControlOrdenMerito();
-            com.setFacultad(entry.getKey());
+            System.out.println("fac ==> " + fac.getCodigo());
+            List<AlumnoCiclo> alumnosCiclo = mapAlumnosByIdFac.get(fac.getId());
+
+            com.setFacultad(fac);
             com.setCicloAcademico(cicloAcademico);
             com.setEscala(ControlOrdenMeritoEscalaEnum.FAC);
             com.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
-            com.setTotalAlumnos(entry.getValue().size());
+            com.setTotalAlumnos(alumnosCiclo.size());
             com.setAlumnosCompletos(0);
             com.setAlumnosComputados(0);
             com.setAlumnosIncompletos(0);
@@ -115,7 +139,7 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
             Integer completos = 0;
             Integer incompletos = 0;
 
-            for (AlumnoCiclo alumnoCiclo : entry.getValue()) {
+            for (AlumnoCiclo alumnoCiclo : alumnosCiclo) {
                 if (alumnoCiclo.getPromedioAcumulado() != null) {
                     completos++;
                 } else {
@@ -133,43 +157,129 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
             controlOrdenMeritoDAO.update(com);
         }
 
-        for (Map.Entry<Carrera, List<AlumnoCiclo>> entry : alumnosByCarreras.entrySet()) {
-            ControlOrdenMerito com = new ControlOrdenMerito();
-            com.setCarrera(entry.getKey());
-            com.setCicloAcademico(cicloAcademico);
-            com.setEscala(ControlOrdenMeritoEscalaEnum.ESPE);
-            com.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
-            com.setTotalAlumnos(entry.getValue().size());
-            com.setAlumnosCompletos(0);
-            com.setAlumnosComputados(0);
-            com.setAlumnosIncompletos(0);
-            com.setNoComputados(0);
+        for (Facultad fac : noFacultadUnica) {
+            for (Carrera carr : fac.getCarrera()) {
 
-            com.setUserRegistro(ds.getUsuario());
-            com.setFechaRegistro(now);
+                ControlOrdenMerito com = new ControlOrdenMerito();
+                System.out.println("esp ==> " + carr.getCodigo());
+                List<AlumnoCiclo> alumnosCiclo = mapAlumnosByIdCarr.get(carr.getId());
 
-            Integer completos = 0;
-            Integer incompletos = 0;
-            controlOrdenMeritoDAO.save(com);
+                com.setCarrera(carr);
+                com.setCicloAcademico(cicloAcademico);
+                com.setEscala(ControlOrdenMeritoEscalaEnum.ESPE);
+                com.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
+                com.setTotalAlumnos(alumnosCiclo.size());
+                com.setAlumnosCompletos(0);
+                com.setAlumnosComputados(0);
+                com.setAlumnosIncompletos(0);
+                com.setNoComputados(0);
 
-            for (AlumnoCiclo alumnoCiclo : entry.getValue()) {
-                if (alumnoCiclo.getPromedioAcumulado() != null) {
-                    completos++;
-                } else {
-                    incompletos++;
+                com.setUserRegistro(ds.getUsuario());
+                com.setFechaRegistro(now);
+
+                Integer completos = 0;
+                Integer incompletos = 0;
+                controlOrdenMeritoDAO.save(com);
+
+                for (AlumnoCiclo alumnoCiclo : alumnosCiclo) {
+                    if (alumnoCiclo.getPromedioAcumulado() != null) {
+                        completos++;
+                    } else {
+                        incompletos++;
+                    }
+                    alumnoCiclo.setControlMeritoCarrera(com);
+                    alumnoCiclo.setControlMeritoCiclo(comCiclo);
                 }
-                alumnoCiclo.setControlMeritoCarrera(com);
-                alumnoCiclo.setControlMeritoCiclo(comCiclo);
+
+                completosCiclo += completos;
+                incompletosCiclo += incompletos;
+
+                com.setAlumnosComputados(completos);
+                com.setNoComputados(incompletos);
+                controlOrdenMeritoDAO.update(com);
             }
-
-            completosCiclo += completos;
-            incompletosCiclo += incompletos;
-
-            com.setAlumnosComputados(completos);
-            com.setNoComputados(incompletos);
-            controlOrdenMeritoDAO.update(com);
         }
 
+//        for (Map.Entry<Facultad, List<AlumnoCiclo>> entry : mapAlumnoByFacultad.entrySet()) {
+//            ControlOrdenMerito com = new ControlOrdenMerito();
+//            Facultad fac = entry.getKey();
+//            System.out.println("fac ==> " + fac.getCodigo());
+//
+//            com.setFacultad(entry.getKey());
+//            com.setCicloAcademico(cicloAcademico);
+//            com.setEscala(ControlOrdenMeritoEscalaEnum.FAC);
+//            com.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
+//            com.setTotalAlumnos(entry.getValue().size());
+//            com.setAlumnosCompletos(0);
+//            com.setAlumnosComputados(0);
+//            com.setAlumnosIncompletos(0);
+//            com.setNoComputados(0);
+//
+//            com.setUserRegistro(ds.getUsuario());
+//            com.setFechaRegistro(now);
+//
+//            controlOrdenMeritoDAO.save(com);
+//
+//            Integer completos = 0;
+//            Integer incompletos = 0;
+//
+//            for (AlumnoCiclo alumnoCiclo : entry.getValue()) {
+//                if (alumnoCiclo.getPromedioAcumulado() != null) {
+//                    completos++;
+//                } else {
+//                    incompletos++;
+//                }
+//                alumnoCiclo.setControlMeritoFacultad(com);
+//                alumnoCiclo.setControlMeritoCiclo(comCiclo);
+//            }
+//
+//            completosCiclo += completos;
+//            incompletosCiclo += incompletos;
+//
+//            com.setAlumnosComputados(completos);
+//            com.setNoComputados(incompletos);
+//            controlOrdenMeritoDAO.update(com);
+//        }
+//
+//        for (Map.Entry<Carrera, List<AlumnoCiclo>> entry : mapAlumnosByCarrera.entrySet()) {
+//            ControlOrdenMerito com = new ControlOrdenMerito();
+//            Carrera esp = entry.getKey();
+//            System.out.println("esp ==> " + esp.getCodigo());
+//
+//            com.setCarrera(entry.getKey());
+//            com.setCicloAcademico(cicloAcademico);
+//            com.setEscala(ControlOrdenMeritoEscalaEnum.ESPE);
+//            com.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
+//            com.setTotalAlumnos(entry.getValue().size());
+//            com.setAlumnosCompletos(0);
+//            com.setAlumnosComputados(0);
+//            com.setAlumnosIncompletos(0);
+//            com.setNoComputados(0);
+//
+//            com.setUserRegistro(ds.getUsuario());
+//            com.setFechaRegistro(now);
+//
+//            Integer completos = 0;
+//            Integer incompletos = 0;
+//            controlOrdenMeritoDAO.save(com);
+//
+//            for (AlumnoCiclo alumnoCiclo : entry.getValue()) {
+//                if (alumnoCiclo.getPromedioAcumulado() != null) {
+//                    completos++;
+//                } else {
+//                    incompletos++;
+//                }
+//                alumnoCiclo.setControlMeritoCarrera(com);
+//                alumnoCiclo.setControlMeritoCiclo(comCiclo);
+//            }
+//
+//            completosCiclo += completos;
+//            incompletosCiclo += incompletos;
+//
+//            com.setAlumnosComputados(completos);
+//            com.setNoComputados(incompletos);
+//            controlOrdenMeritoDAO.update(com);
+//        }
         comCiclo.setAlumnosComputados(completosCiclo);
         comCiclo.setNoComputados(incompletosCiclo);
         controlOrdenMeritoDAO.update(comCiclo);
@@ -370,7 +480,7 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
         for (ControlOrdenMerito com : coms) {
             controlOrdenMeritoDAO.update(com);
         }
-     
+
         for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
             alumnoCicloDAO.update(alumnoCiclo);
         }

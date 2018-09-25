@@ -37,7 +37,7 @@
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th class="col-md-2">Escala</th>
+                                            <th class="col-md-3">Escala</th>
                                             <th class="text-center">Total de alumnos</th>
                                             <th class="text-center">Computados</th>
                                             <th class="text-center">No computados</th>
@@ -49,8 +49,13 @@
                                     <tbody>
                                         <tr v-for="item in props.data"> 
                                             <td>
-                                                <span v-if="item.escalaEnum.name === 'CICLO'"> Ciclo </span>
-                                                <span v-else=""> {{ item.escalaEnum.value }} de {{ item.facultad.nombre }}{{item.carrera.nombre}} </span>
+                                                <a v-bind:href="`${URL}/${item.id}/control`">
+                                                    <div v-if="item.escalaEnum.name === 'CICLO'"
+                                                         class="m-t-xs m-b-xs"> Ciclo </div>
+                                                    <div v-else="" class="m-t-xs m-b-xs"> 
+                                                        <span >{{ item.escalaEnum.value }} de {{ item.facultad.nombre }}{{item.carrera.nombre}} </span>
+                                                    </div>
+                                                </a>
                                             </td>
                                             <td class="v-middle text-center">
                                                 <span> {{ item.totalAlumnos }} </span>

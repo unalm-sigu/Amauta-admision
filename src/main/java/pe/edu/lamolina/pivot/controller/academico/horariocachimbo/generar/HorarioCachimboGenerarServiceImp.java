@@ -210,7 +210,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
     @Override
     public List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio) {
-        return carreraDAO.allCarreraByModalidadEstudio(modalidadEstudio);
+        return carreraDAO.allByModalidad(modalidadEstudio);
     }
 
     @Override
@@ -298,7 +298,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         Map<Long, CarreraCachimbos> mapCarreraCachimbos = TypesUtil.convertListToMap("carrera.id", carreraCachimbos);
 
         List<List<Seccion>> horariosTotal = new ArrayList();
-        List<Carrera> carreras = carreraDAO.allActivoByModalidad(modalidad);
+        List<Carrera> carreras = carreraDAO.allActivasByModalidad(modalidad);
 
         List<CursoCachimbos> cursoCachimbosTodos = cursoCachimbosDAO.allByCicloFromSeccionCursoCachimbo(ciclo);
         List<CursoCachimbos> cursoCachimbosCiclo = cursoCachimbosDAO.allByCiclo(ciclo);

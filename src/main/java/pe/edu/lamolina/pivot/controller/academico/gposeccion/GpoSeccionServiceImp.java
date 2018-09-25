@@ -1711,7 +1711,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<Carrera> allCarrerasActivas() {
-        return carreraDAO.allActivos();
+        return carreraDAO.allActivas();
     }
 
     @Override
@@ -1720,7 +1720,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         modalidades.add(ModalidadEstudioEnum.PRE.name());
         modalidades.add(ModalidadEstudioEnum.EPG.name());
 
-        return carreraDAO.allActivasByModalidadesEstudio(modalidades);
+        return carreraDAO.allActivasByModalidades(modalidades);
     }
 
     @Override
