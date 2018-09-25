@@ -187,7 +187,7 @@ public class PersonaServiceImp implements PersonaService {
 
         Persona personaBD = personaDAO.find(persona.getId());
 
-        boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, persona, Arrays.asList("email", "emailCompania", "paterno", "materno", "nombres", "sexo", "fechaNacer", "direccion", "celular", "telefono"));
+        boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, persona, Arrays.asList("email", "emailCompania", "paterno", "materno", "nombres", "sexo", "fechaNacer", "direccion", "celular", "telefono", "tituloAcademico"));
         if (sinCambios) {
             logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
             return personaBD;
@@ -196,8 +196,10 @@ public class PersonaServiceImp implements PersonaService {
         personaBD.setNombres(persona.getNombres());
         personaBD.setPaterno(persona.getPaterno());
         personaBD.setMaterno(persona.getMaterno());
+        personaBD.setTituloAcademico(persona.getTituloAcademico());
         personaBD.setSexo(persona.getSexo());
         personaBD.setFechaNacer(persona.getFechaNacer());
+        personaBD.setUbicacionDomicilio(persona.getUbicacionDomicilio());
         personaBD.setDireccion(persona.getDireccion());
         personaBD.setCelular(persona.getCelular());
         personaBD.setTelefono(persona.getTelefono());

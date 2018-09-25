@@ -265,7 +265,7 @@ public class EditorEncuestaController {
 
     @ResponseBody
     @RequestMapping("allcursosinencuesta")
-    public JsonResponse allCursoSinEncuesta(ExamenVirtual encuesta, HttpSession session) {
+    public JsonResponse allCursoSinEncuesta(EncuestaEstudiantil encuesta, HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {

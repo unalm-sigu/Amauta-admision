@@ -33,7 +33,6 @@ import pe.edu.lamolina.pivot.dao.encuesta.EncuestaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaCursoDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaEstudiantilDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PeriodoEncuestaDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -144,20 +143,22 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
             return;
         }
 
-        EncuestaCurso enc = new EncuestaCurso();
-        enc.setAlumnosFin((long) alumnos.size());
-        enc.setAlumnosInicio((long) alumnos.size());
-        enc.setAlumnosEncuestados(0L);
-        enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-        enc.setEncuestaEstudiantil(encuestaEstudiantil);
-        enc.setFechaEncuestaInicio(periodosEncuesta.get(0).getFechaInicio());
-        enc.setFechaEncuestaFin(periodosEncuesta.get(0).getFechaFin());
-        enc.setGrupoSeccion(grupoSeccion);
-        enc.setUserRegistro(ds.getUsuario());
-        enc.setFechaRegistro(new Date());
-        encuestaCursoDAO.save(enc);
+        for (PeriodoEncuesta periodoEncuesta : periodosEncuesta) {
+            EncuestaCurso enc = new EncuestaCurso();
+            enc.setAlumnosFin((long) alumnos.size());
+            enc.setAlumnosInicio((long) alumnos.size());
+            enc.setAlumnosEncuestados(0L);
+            enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
+            enc.setEncuestaEstudiantil(encuestaEstudiantil);
+            enc.setFechaEncuestaInicio(periodoEncuesta.getFechaInicio());
+            enc.setFechaEncuestaFin(periodoEncuesta.getFechaFin());
+            enc.setGrupoSeccion(grupoSeccion);
+            enc.setUserRegistro(ds.getUsuario());
+            enc.setFechaRegistro(new Date());
+            encuestaCursoDAO.save(enc);
+            saveEncuestaAlumno(enc, alumnos, ds);
+        }
 
-        saveEncuestaAlumno(enc, alumnos, ds);
         encuestaEstudiantil.setObjetivosEncuesta(encuestaEstudiantil.getObjetivosEncuesta() + 1);
         encuestaEstudiantil.setEncuestasProgramadas(encuestaEstudiantil.getEncuestasProgramadas() + alumnos.size());
     }
