@@ -1,4 +1,6 @@
 Vue.component('date-picker', VueBootstrapDatetimePicker.default);
+Vue.component("multiselect", window.VueMultiselect.default);
+
 new Vue({
     el: '#main',
     data: {
@@ -29,18 +31,29 @@ new Vue({
             modalsize: 'modal-lg',
             header: false
         },
+        addCursoModal: {
+            id: 'modalAddCurso',
+            header: true,
+            title: 'Cursos sin encuesta',
+            showaccept: false,
+            cancelbtn: 'Cerrar'
+        },
         configuraEncuesta: {},
         periodosEncuesta: [],
         configDate: {
             format: "DD/MM/YYYY",
             useCurrent: false
-        }
+        },
+        cursos: {},
+        curso: null,
+        btnAgregar: false,
+        cursoss: []
     },
     mounted: function () {
         let vue = this;
-        $global.$on("estado", function (encuestaDocente) {
-            vue.estado(encuestaDocente);
-        });
+//        $global.$on("estado", function (encuestaDocente) {
+//            vue.estado(encuestaDocente);
+//        });
         if (vue.estadoVisor == 'INICIADO' || vue.estadoVisor == 'OCUPADO') {
             setTimeout(function () {
                 vue.$refs.modalVerProgreso.open();
@@ -72,9 +85,9 @@ new Vue({
         generarEncuesta() {
             let vue = this;
             bootbox.confirm({
-                message: '¿Está seguro que desea activar la encuesta de cursos para este ciclo?',
+                message: '¿Está seguro que desea generar la encuesta de cursos para este ciclo?',
                 buttons: {
-                    confirm: {label: 'Si, activar encuesta'},
+                    confirm: {label: 'Si, generar encuesta'},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
@@ -115,13 +128,13 @@ new Vue({
                 }
             });
         },
-        changeEstado: function (encuestaDocente) {
+        changeEstado: function (encuesta) {
             let vue = this;
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/encuestaestudiantil/curso/estado'),
                 async: false,
-                data: {'id': encuestaDocente.id},
+                data: {'id': encuesta.id},
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, 'info');
@@ -220,7 +233,7 @@ new Vue({
                         } else {
                             vue.$refs.modalVerProgreso.close();
                             bootbox.alert({
-                                message: "Finalizó la generación de encuesta de docentes",
+                                message: "Finalizó la generación de encuesta de cursos",
                                 buttons: {ok: {label: "Aceptar"}},
                                 callback: function () {
                                     vue.$refs.load.loadRemoteData();
@@ -285,7 +298,7 @@ new Vue({
         publicar() {
             let $vue = this;
             bootbox.confirm({
-                message: '¿Está seguro que desea publicar la encuesta de docentes para este ciclo?',
+                message: '¿Está seguro que desea publicar la encuesta de cursos para este ciclo?',
                 buttons: {
                     confirm: {label: 'Si, publicar encuesta'},
                     cancel: {label: 'Cancelar', className: "btn-link"}
@@ -308,6 +321,127 @@ new Vue({
                     }
                 }
             });
+        },
+        sinEncuesta() {
+            var $vue = this;
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/encuestaestudiantil/editor/allcursosinencuesta'),
+                data: {
+                    'id': $vue.encuesta.id
+                },
+                async: false,
+                success: function (response) {
+                    if (response.success) {
+                        console.log(response.data);
+                        $vue.cursos = response.data;
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+            $vue.curso = {};
+            $vue.$refs.modalAddCurso.open();
+        },
+        agregarCurso() {
+            var $vue = this;
+            $vue.btnAgregar = true;
+            if ($vue.curso.id == null) {
+                notify("No hay curso seleccionado  para agregar", "error");
+                return;
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/encuestaestudiantil/editor/addcursosinencuesta'),
+                data: {
+                    'curso.id': $vue.curso.id,
+                    'encuestaEstudiantil.id': $vue.encuesta.id
+                },
+                async: false,
+                success: function (response) {
+                    if (response.success) {
+                        $vue.cursos.push($vue.curso);
+                        $vue.refreshEncuesta();
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                    $vue.btnAgregar = false;
+                }, error: function () {
+                    $vue.btnAgregar = false;
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+            $vue.curso = {};
+        },
+        deleteCursoSinEncuesta(curso) {
+            var $vue = this;
+            let idx = $vue.cursos.map(item => item.id).indexOf(curso.id);
+            if (idx > -1) {
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url('academico/encuestaestudiantil/editor/removecursosinencuesta'),
+                    data: {
+                        'curso.id': curso.id,
+                        'encuestaEstudiantil.id': $vue.encuesta.id
+                    },
+                    async: false,
+                    success: function (response) {
+                        if (response.success) {
+                            notify(response.message, 'info');
+                            $vue.cursos.splice(idx, 1);
+                            $vue.refreshEncuesta();
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    }, error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+            }
+        },
+        removeCurso(curso) {
+            var vue = this;
+
+            swal({
+                text: "¿Está seguro que desea eliminar el curso?",
+                icon: "warning",
+                type: "warning",
+                dangerMode: true,
+                showCancelButton: true,
+                closeOnConfirm: false,
+                buttons: {
+                    cancel: "No",
+                    confirm: "Si, estoy seguro"
+                }
+            }).then((willDelete) => {
+                if (willDelete) {
+                    vue.deleteCursoSinEncuesta(curso);
+                }
+            });
+
+        },
+        searchCurso(nombre) {
+            this.isLoading = true
+            $.ajax({
+                url: APP.url("academico/encuestaestudiantil/editor/searchcurso"),
+                dataType: 'json',
+                type: 'post',
+                data: {nombre: nombre}
+            }).then(response => {
+                console.log(response.data);
+                this.cursoss = response.data
+                this.isLoading = false
+            })
+        },
+        removePeriodo(i) {
+            var vue = this;
+            vue.periodosEncuesta.splice(i, 1);
         }
     }
 });

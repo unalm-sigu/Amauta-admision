@@ -1,4 +1,5 @@
 Vue.component('date-picker', VueBootstrapDatetimePicker.default);
+Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     data: {
@@ -56,7 +57,18 @@ new Vue({
             footer: false,
             showaccept: false
         },
-        temas: []
+        temas: [],
+        cursos: [],
+        cursosNoEnc: [],
+        curso: {},
+        addCursoModal: {
+            id: 'modalAddCurso',
+            header: true,
+            title: 'Cursos sin encuesta',
+            showaccept: false,
+            cancelbtn: 'Cerrar'
+        },
+        btnAgregar: false
     },
     mounted: function () {
         let vue = this;
@@ -366,6 +378,123 @@ new Vue({
                     }
                 }
             });
+        },
+        sinEncuesta() {
+            var $vue = this;
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/encuestaestudiantil/editor/allcursosinencuesta'),
+                data: {
+                    'id': $vue.encuesta.id
+                },
+                async: false,
+                success: function (response) {
+                    if (response.success) {
+                        console.log(response.data);
+                        $vue.cursosNoEnc = response.data;
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+            $vue.curso = {};
+            $vue.$refs.modalAddCurso.open();
+        },
+        agregarCurso() {
+            var $vue = this;
+            $vue.btnAgregar = true;
+            if ($vue.curso.id == null) {
+                notify("No hay curso seleccionado  para agregar", "error");
+                return;
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/encuestaestudiantil/editor/addcursosinencuesta'),
+                data: {
+                    'curso.id': $vue.curso.id,
+                    'encuestaEstudiantil.id': $vue.encuesta.id
+                },
+                async: false,
+                success: function (response) {
+                    if (response.success) {
+                        $vue.cursosNoEnc.push($vue.curso);
+                        $vue.refreshEncuesta();
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                    $vue.btnAgregar = false;
+                }, error: function () {
+                    $vue.btnAgregar = false;
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+            $vue.curso = {};
+        },
+        deleteCursoSinEncuesta(curso) {
+            var $vue = this;
+            let idx = $vue.cursosNoEnc.map(item => item.id).indexOf(curso.id);
+            if (idx > -1) {
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url('academico/encuestaestudiantil/editor/removecursosinencuesta'),
+                    data: {
+                        'curso.id': curso.id,
+                        'encuestaEstudiantil.id': $vue.encuesta.id
+                    },
+                    async: false,
+                    success: function (response) {
+                        if (response.success) {
+                            notify(response.message, 'info');
+                            $vue.cursosNoEnc.splice(idx, 1);
+                            $vue.refreshEncuesta();
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    }, error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+            }
+        },
+        removeCurso(curso) {
+            var vue = this;
+
+            swal({
+                text: "¿Está seguro que desea eliminar el curso?",
+                icon: "warning",
+                type: "warning",
+                dangerMode: true,
+                showCancelButton: true,
+                closeOnConfirm: false,
+                buttons: {
+                    cancel: "No",
+                    confirm: "Si, estoy seguro"
+                }
+            }).then((willDelete) => {
+                if (willDelete) {
+                    vue.deleteCursoSinEncuesta(curso);
+                }
+            });
+
+        },
+        searchCurso(nombre) {
+            this.isLoading = true
+            $.ajax({
+                url: APP.url("academico/encuestaestudiantil/editor/searchcurso"),
+                dataType: 'json',
+                type: 'post',
+                data: {nombre: nombre}
+            }).then(response => {
+                console.log(response.data);
+                this.cursos = response.data
+                this.isLoading = false
+            })
         }
     }
 });

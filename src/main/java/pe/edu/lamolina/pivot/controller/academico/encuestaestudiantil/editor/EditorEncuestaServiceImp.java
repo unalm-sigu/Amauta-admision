@@ -23,7 +23,6 @@ import pe.edu.lamolina.pivot.dao.encuesta.OpcionPreguntaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PreguntaExamenDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.TipoExamenVirtualDAO;
-import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
@@ -89,10 +88,6 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
             encuestasHistorial = (encuestasHistorial == null) ? new ArrayList() : encuestasHistorial;
             Collections.sort(encuestasHistorial, new EncuestaEstudiantil.ComparePeriodo());
             encuesta.setEncuestasEstudiantiles(encuestasHistorial);
-
-//            Collections.sort(encuestasAnteriores, new EncuestaEstudiantil.ComparePeriodo());
-//            encuesta.setCicloAcademicoInicio(encuestasAnteriores.get(0).getCicloAcademico());
-//            encuesta.setCicloAcademicoFin(encuestasAnteriores.get(encuestasAnteriores.size() - 1).getCicloAcademico());
         }
         return encuestas;
     }
@@ -289,19 +284,8 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     @Transactional
     public void addCursoSinEncuesta(CursoSinEncuesta cursoSinEncuestaForm, DataSessionPivot ds) {
 
-        CicloAcademico ciclo = ds.getCicloAcademico();
         Curso curso = cursoSinEncuestaForm.getCurso();
-        ExamenVirtual encuesta = cursoSinEncuestaForm.getEncuestaEstudiantil().getEncuesta();
-        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuesta);
-
-        if (encuestaEstudiantil == null) {
-            encuestaEstudiantil = new EncuestaEstudiantil();
-            encuestaEstudiantil.setCicloAcademico(ciclo);
-            encuestaEstudiantil.setEncuesta(encuesta);
-            encuestaEstudiantil.setFechaRegistro(new Date());
-            encuestaEstudiantil.setUserRegistro(ds.getUsuario());
-            encuestaEstudiantilDAO.save(encuestaEstudiantil);
-        }
+        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.find(cursoSinEncuestaForm.getEncuestaEstudiantil().getId());
 
         CursoSinEncuesta cursoSinEncuesta = cursoSinEncuestaDAO.findByEncuestaEstudiantilCurso(encuestaEstudiantil, curso);
 
@@ -319,13 +303,8 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     }
 
     @Override
-    public List<Curso> allCursoSinEncuesta(ExamenVirtual encuestaForm, DataSessionPivot ds) {
-        CicloAcademico ciclo = ds.getCicloAcademico();
-        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuestaForm);
-        if (encuestaEstudiantil == null) {
-            return new ArrayList();
-        }
-        List<CursoSinEncuesta> cursoSinEncuestas = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
+    public List<Curso> allCursoSinEncuesta(EncuestaEstudiantil encuestaForm, DataSessionPivot ds) {
+        List<CursoSinEncuesta> cursoSinEncuestas = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaForm);
         if (cursoSinEncuestas.isEmpty()) {
             return new ArrayList();
         }
@@ -336,30 +315,14 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     @Override
     @Transactional
     public void removeCursoSinEncuesta(CursoSinEncuesta cursoSinEncuestaForm, DataSessionPivot ds) {
-        CicloAcademico ciclo = ds.getCicloAcademico();
         Curso curso = cursoSinEncuestaForm.getCurso();
-        ExamenVirtual encuesta = cursoSinEncuestaForm.getEncuestaEstudiantil().getEncuesta();
-        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuesta);
-        CursoSinEncuesta cursoSinEncuesta = cursoSinEncuestaDAO.findByEncuestaEstudiantilCurso(encuestaEstudiantil, curso);
+        CursoSinEncuesta cursoSinEncuesta = cursoSinEncuestaDAO.findByEncuestaEstudiantilCurso(cursoSinEncuestaForm.getEncuestaEstudiantil(), curso);
         if (cursoSinEncuesta == null) {
             throw new PhobosException("Curso no existe en el registro");
         }
         cursoSinEncuestaDAO.delete(cursoSinEncuesta);
     }
 
-//    @Override
-//    public ConfiguraEncuesta getConfiguracion(ExamenVirtual encuesta, DataSessionPivot ds) {
-//        CicloAcademico ciclo = ds.getCicloAcademico();
-//        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuesta);
-//        if (encuestaEstudiantil == null) {
-//            return new ConfiguraEncuesta();
-//        }
-//        ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaEstudiantil);
-//        if (configuraEncuesta == null) {
-//            return new ConfiguraEncuesta();
-//        }
-//        return configuraEncuesta;
-//    }
     @Override
     public ObjectNode toJson(ConfiguraEncuesta configuraEncuesta) {
         JsonNodeFactory fc = JsonNodeFactory.instance;
@@ -367,41 +330,4 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
         return node;
     }
 
-//    @Override
-//    @Transactional
-//    public void saveConfigEncuesta(ConfiguraEncuesta configuraEncuesta, DataSessionPivot ds) {
-//        
-//        CicloAcademico ciclo = ds.getCicloAcademico();
-//        ExamenVirtual encuesta = configuraEncuesta.getEncuestaEstudiantil().getEncuesta();
-//        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuesta);
-//        if (encuestaEstudiantil == null) {
-//            encuestaEstudiantil = new EncuestaEstudiantil();
-//            encuestaEstudiantil.setCicloAcademico(ciclo);
-//            encuestaEstudiantil.setEncuesta(encuesta);
-//            encuestaEstudiantil.setFechaCreacion(new Date());
-//            encuestaEstudiantil.setUserCreacion(ds.getUsuario());
-//            encuestaEstudiantilDAO.save(encuestaEstudiantil);
-//        }
-//        ConfiguraEncuesta configuraEncuestaDb = configuraEncuestaDAO.findByEncuesta(encuestaEstudiantil);
-//        if (configuraEncuestaDb != null) {
-//            throw new PhobosException("Configuración Encuesta ya registrado");
-//        }
-//        configuraEncuesta.setEncuestaEstudiantil(encuestaEstudiantil);
-//        configuraEncuesta.setFechaRegistro(new Date());
-//        configuraEncuesta.setUserRegistro(ds.getUsuario());
-//        configuraEncuesta.setEncuestaTeoriaPractica(configuraEncuesta.getEncuestaTeoriaPractica() == null ? 0L : 1L);
-//        configuraEncuestaDAO.save(configuraEncuesta);
-//    }
-//    
-//    @Override
-//    @Transactional
-//    public void updateConfigEncuesta(ConfiguraEncuesta configuraEncuestaForm, DataSessionPivot ds) {
-//        ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.find(configuraEncuestaForm);
-//        configuraEncuesta.setCantidadMaximaDocentes(configuraEncuestaForm.getCantidadMaximaDocentes());
-//        configuraEncuesta.setCantidadMinimaAlumnos(configuraEncuestaForm.getCantidadMinimaAlumnos());
-//        configuraEncuesta.setEncuestaTeoriaPractica(configuraEncuestaForm.getEncuestaTeoriaPractica() == null ? 0L : 1L);
-//        configuraEncuesta.setFechaModificacion(new Date());
-//        configuraEncuesta.setUserModificacion(ds.getUsuario());
-//        configuraEncuestaDAO.update(configuraEncuesta);
-//    }
 }
