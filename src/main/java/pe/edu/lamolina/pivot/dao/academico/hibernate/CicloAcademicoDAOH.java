@@ -388,6 +388,8 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
 
         return all(sql);
     }
+
+    @Override
     public List<CicloAcademico> allAnteriores(int ciclos, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
@@ -406,7 +408,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .from(CicloAcademico.class, "ca")
                 .join("ca.modalidadEstudio me")
                 .in("ca.estado", estados);
-        
+
         return all(sql);
     }
 }
