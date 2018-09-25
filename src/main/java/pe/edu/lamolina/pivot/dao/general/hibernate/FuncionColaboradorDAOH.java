@@ -67,7 +67,7 @@ public class FuncionColaboradorDAOH extends AbstractEasyDAO<FuncionColaborador> 
         DynatableSql sql = new DynatableSql(filter)
                 .from(FuncionColaborador.class, "fc")
                 .join("colaborador col", "funcion fun", "col.persona per", "per.tipoDocumento")
-                .searchFields("per.numeroDocIdentidad")
+                .searchFields("per.numeroDocIdentidad", "alum.codigo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .searchSubquery(subquery)

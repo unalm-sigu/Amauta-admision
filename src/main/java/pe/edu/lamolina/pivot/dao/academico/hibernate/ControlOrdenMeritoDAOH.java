@@ -30,7 +30,7 @@ public class ControlOrdenMeritoDAOH extends AbstractEasyDAO<ControlOrdenMerito> 
                 .left("carrera car", "facultad fa")
                 .filter("ca.id", cicloAcademico)
                 .searchFields("car.nombre", "fa.codigo")
-                .orderBy("com.id asc");
+                .orderBy("com.id");
 
         return all(sql);
     }

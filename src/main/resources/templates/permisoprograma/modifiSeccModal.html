@@ -1,41 +1,23 @@
-<modal-vik ref="modalAddPermiso"
-           v-bind="modalAddPermiso"
-              v-bind:okaction="save" >
+<modal-vik ref="modalModifySecc"
+           v-bind="modalModifySecc"
+           v-bind:okaction="save" >
 
     <div slot="body">
-
         <form id="formEnviarRevision"  data-parsley-validate="true">
             <div class="step1">
                 <div class=" row">
                     <div class="col-sm-12" >
                         <div class="form-group">
-                            <label >Anexo Boletin  </label>
-                            <multiselect 
-                                v-model="colaboradorAnexo.anexoBoletin"
-                                v-bind:options='anexoBoletin'
-                                label='nombre'
-                                track-by='id'
-                                placeholder="Seleccines un anexo"
-                                required="true" >
-                                <template slot="singleLabel" slot-scope="props">
-                                    <span v-text="props.option.nombre"></span>
-                                    <small v-text="props.option.anexoSuperior.nombre"></small>
-                                </template>
-                            </multiselect>
-                        </div>
-                    </div>
-                    <div class="col-sm-12" >
-                        <div class="form-group">
                             <label >Eventos  </label>
                             <multiselect 
                                 v-model="colaboradorAnexo.permisoProgramacion"
-                                v-bind:options='eventos'
+                                v-bind:options='programaSeccion'
                                 label='nombre'
                                 placeholder="Selecciones un evento"
                                 track-by='id'
                                 required="true" 
                                 v-on:select="eventoSelect">
-                                <template slot="option" slot-scope="props">
+                                <template slot="singleLabel" slot-scope="props">
                                     <span v-text="props.option.nombre"></span>
                                 </template>
                             </multiselect>

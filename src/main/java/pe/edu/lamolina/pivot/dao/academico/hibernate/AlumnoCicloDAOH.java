@@ -307,7 +307,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("alu.persona per", "carrera car", "car.facultad fac")
                 .left("controlMeritoCiclo cmc", "controlMeritoFacultad cmf", "controlMeritoCarrera cmca")
                 .filter("estado", EstadoMatriculaEnum.MAT)
-                .isNotNull("promedioCiclo")
+                .isNotNull("promedioAcumulado")
                 .beginBlock()
                 .__().in("cmc.id", coms)
                 .__().in("cmf.id", coms)
@@ -335,9 +335,29 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         sql.append("cuadroHonorCiclo = null, ");
         sql.append("cuadroHonorFacultad = null, ");
 
+        sql.append("quintoSuperiorCarrera = null, ");
+        sql.append("quintoSuperiorCiclo = null, ");
+        sql.append("quintoSuperiorFacultad = null, ");
+
         sql.append("tercioSuperiorCarrera = null, ");
         sql.append("tercioSuperiorCiclo = null, ");
-        sql.append("tercioSuperiorFacultad = null ");
+        sql.append("tercioSuperiorFacultad = null, ");
+
+        sql.append("ordenMeritoCarreraNivel = null, ");
+        sql.append("ordenMeritoCicloNivel = null, ");
+        sql.append("ordenMeritoFacultadNivel = null, ");
+
+        sql.append("cuadroHonorCarreraNivel = null, ");
+        sql.append("cuadroHonorCicloNivel = null, ");
+        sql.append("cuadroHonorFacultadNivel = null, ");
+
+        sql.append("quintoSuperiorCarreraNivel = null, ");
+        sql.append("quintoSuperiorCicloNivel = null, ");
+        sql.append("quintoSuperiorFacultadNivel = null, ");
+
+        sql.append("tercioSuperiorCarreraNivel = null, ");
+        sql.append("tercioSuperiorCicloNivel = null, ");
+        sql.append("tercioSuperiorFacultadNivel = null ");
 
         sql.append("where cicloAcademico.id = :CICLO");
 
@@ -381,6 +401,48 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("controlMeritoFacultad control")
                 .filter("control.id", controlBD)
                 .orderBy("ac.ordenMeritoFacultad");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allByControlMeritoCicloNivel(DynatableFilter filter, ControlOrdenMerito controlBD, Integer nivel) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "alu.persona per", "carrera car", "car.facultad fac")
+                .join("cicloAcademico ca")
+                .join("controlMeritoCiclo control")
+                .filter("nivel", nivel)
+                .filter("control.id", controlBD)
+                .orderBy("ac.ordenMeritoCiclo");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allByControlMeritoCarreraNivel(DynatableFilter filter, ControlOrdenMerito controlBD, Integer nivel) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "alu.persona per", "carrera car", "car.facultad fac")
+                .join("cicloAcademico ca")
+                .join("controlMeritoCarrera control")
+                .filter("nivel", nivel)
+                .filter("control.id", controlBD)
+                .orderBy("ac.ordenMeritoCiclo");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allByControlMeritoFacultadNivel(DynatableFilter filter, ControlOrdenMerito controlBD, Integer nivel) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "alu.persona per", "carrera car", "car.facultad fac")
+                .join("cicloAcademico ca")
+                .join("controlMeritoFacultad control")
+                .filter("nivel", nivel)
+                .filter("control.id", controlBD)
+                .orderBy("ac.ordenMeritoCiclo");
 
         return all(sql);
     }

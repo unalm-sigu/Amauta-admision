@@ -106,7 +106,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
                 .filter("ca.nombre", "like", nombre);
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
-    public List<Carrera> allCarrera() {
+    public List<Carrera> all() {
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
@@ -166,7 +166,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
-    public List<Carrera> allCarreraByName(String nombre, ModalidadEstudio modalidadEstudio) {
+    public List<Carrera> allByNombreModalidad(String nombre, ModalidadEstudio modalidadEstudio) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "car")
@@ -179,7 +179,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
-    public List<Carrera> allCarreraByModalidadEstudio(ModalidadEstudio modalidadEstudio) {
+    public List<Carrera> allByModalidad(ModalidadEstudio modalidadEstudio) {
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
@@ -190,7 +190,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
-    public List<Carrera> allActivoByModalidad(ModalidadEstudio modalidadEstudio) {
+    public List<Carrera> allActivasByModalidad(ModalidadEstudio modalidadEstudio) {
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
@@ -202,7 +202,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
-    public List<Carrera> allCarreraByNameAndModalidad(String nombre, List<ModalidadEstudio> modalidadEstudio) {
+    public List<Carrera> allByNombreModalidad(String nombre, List<ModalidadEstudio> modalidadEstudio) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "car")
@@ -215,7 +215,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
-    public List<Carrera> allCarreraByName(String nombre, Compania cia) {
+    public List<Carrera> allByNombre(String nombre, Compania cia) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "car")
@@ -228,7 +228,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
-    public List<Carrera> allActivos() {
+    public List<Carrera> allActivas() {
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
@@ -237,7 +237,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
-    public List<Carrera> allActivasByModalidadesEstudio(List<String> modalidadesCodes) {
+    public List<Carrera> allActivasByModalidades(List<String> modalidadesCodes) {
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
@@ -248,10 +248,20 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
-    public List<Carrera> allByModalidadEstudio(ModalidadEstudioEnum modalidad) {
+    public List<Carrera> allByModalidadEnum(ModalidadEstudioEnum modalidad) {
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me")
+                .filter("me.codigo", modalidad);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Carrera> allActivasByModalidadEnum(ModalidadEstudioEnum modalidad) {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .filter("ca.estado", EstadoCarreraEnum.ACT.name())
                 .filter("me.codigo", modalidad);
         return sql.all(getCurrentSession());
     }

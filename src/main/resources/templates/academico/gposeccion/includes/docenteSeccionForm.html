@@ -96,7 +96,7 @@
             </td>
             
             <td class="v-middle">
-                <a v-if="docSeccion.principal == 0"
+                <a v-if="docSeccion.principal == 0 || docSeccion.estado != 'ACT' "
                    v-on:click="deleteDocSeccion(docSeccion)"
                    class="delete-tipo-evaluacion pointer"><i class="fa fa-trash-o fa-lg text-danger"></i></a>
             </td>

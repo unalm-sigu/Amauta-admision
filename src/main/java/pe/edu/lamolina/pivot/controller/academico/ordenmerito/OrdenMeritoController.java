@@ -22,12 +22,9 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlOrdenMerito;
-import pe.edu.lamolina.model.academico.PlanCurricular;
-import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -60,8 +57,6 @@ public class OrdenMeritoController {
             @PathVariable Long id,
             Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
         ControlOrdenMerito control = service.find(id);
         ObjectNode json = JsonHelper.createJson(control, JsonNodeFactory.instance, new String[]{
             "id",
@@ -91,7 +86,9 @@ public class OrdenMeritoController {
                 "escalaEnum",
                 "estadoEnum",
                 "facultad.nombre",
+                "facultad.codigo",
                 "carrera.nombre",
+                "carrera.codigo",
                 "totalAlumnos",
                 "alumnosComputados",
                 "noComputados",
@@ -108,33 +105,57 @@ public class OrdenMeritoController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "{id}/control/alumnos", method = RequestMethod.GET)
-    public DynatableResponse alumnos(DynatableFilter filter, HttpSession session, @PathVariable Long id) {
+    @RequestMapping(value = "{id}/control/{nivel}/alumnos", method = RequestMethod.GET)
+    public DynatableResponse alumnos(DynatableFilter filter, HttpSession session, @PathVariable Long id, @PathVariable Integer nivel) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
-        List<AlumnoCiclo> list = service.allAlumnoCicloByControl(filter, new ControlOrdenMerito(id));
+        List<AlumnoCiclo> list = service.allAlumnoCicloByControlNivel(filter, new ControlOrdenMerito(id), nivel);
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
         for (AlumnoCiclo item : list) {
             array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                "creditosAcumulados", "creditosConvalidados", "nivel",
                 "alumno.persona.nombreCompleto",
                 "alumno.codigo",
                 "carrera.nombre",
+                "carrera.codigo",
                 "carrera.facultad.nombre",
+                "carrera.facultad.codigo",
+                //--  --//
                 "ordenMeritoCarrera",
                 "ordenMeritoCiclo",
                 "ordenMeritoFacultad",
+                //--  --//
                 "cuadroHonorCarrera",
                 "cuadroHonorCiclo",
                 "cuadroHonorFacultad",
+                //--  --//
                 "quintoSuperiorCarrera",
                 "quintoSuperiorCiclo",
                 "quintoSuperiorFacultad",
+                //--  --//
                 "tercioSuperiorCarrera",
                 "tercioSuperiorCiclo",
                 "tercioSuperiorFacultad",
-                "promedioCiclo"
+                //--  --//
+                "ordenMeritoCarreraNivel",
+                "ordenMeritoCicloNivel",
+                "ordenMeritoFacultadNivel",
+                //--  --//
+                "cuadroHonorCarreraNivel",
+                "cuadroHonorCicloNivel",
+                "cuadroHonorFacultadNivel",
+                //--  --//
+                "quintoSuperiorCarreraNivel",
+                "quintoSuperiorCicloNivel",
+                "quintoSuperiorFacultadNivel",
+                //--  --//
+                "tercioSuperiorCarreraNivel",
+                "tercioSuperiorCicloNivel",
+                "tercioSuperiorFacultadNivel",
+                //--  --//
+                "promedioAcumulado"
             }));
         }
 
