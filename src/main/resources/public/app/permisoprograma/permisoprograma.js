@@ -14,7 +14,13 @@ new Vue({
         modalAddPermiso: {
             id: 'modalAddPermiso',
             header: true,
-            title: 'Agregar Cita',
+            title: 'Agregar Permiso',
+            showaccept: true
+        },
+        modalModifySecc: {
+            id: 'modalModifySecc',
+            header: true,
+            title: 'Modificar Permiso',
             showaccept: true
         },
         addSelect: false,
@@ -63,8 +69,15 @@ new Vue({
             $vue.data.permisosProgramacionHorarios = new Array();
             $vue.data.permisosProgramacionHorarios[0] = {};
             $vue.data.permisosProgramacionHorarios[0].permisoProgramacion = $vue.permisoProgramacion;
-
-            console.log($vue.data);
+            if ($vue.permisoProgramacion.textoAgregar != null) {
+                $vue.data.permisosProgramacionHorarios[0].puedeAgregar = 1;
+            }
+            if ($vue.permisoProgramacion.textoEliminar != null) {
+                $vue.data.permisosProgramacionHorarios[0].puedeEliminar = 1;
+            }
+            if ($vue.permisoProgramacion.textoModificar != null) {
+                $vue.data.permisosProgramacionHorarios[0].puedeModificar = 1;
+            }
             $.ajax({
                 method: 'POST',
                 url: APP.url('permisoprograma/colaborador/save'),
@@ -107,17 +120,72 @@ new Vue({
                 }
             });
         },
-        modal() {
+        modal(item) {
             let $vue = this;
+            $vue.colaboradorAnexo = {};
+            $vue.colaboradorAnexo.colaborador = item.colaborador;
             $vue.$refs.modalAddPermiso.open();
         },
         eventoSelect(item) {
             let $vue = this;
             $vue.crud = false;
+            $vue.colaboradorAnexo.puedeAgregar = null;
+            $vue.colaboradorAnexo.puedeEliminar = null;
+            $vue.colaboradorAnexo.puedeModificar = null;
+            $vue.objCrud = {};
             if (item.nivel == "SECCION") {
                 $vue.objCrud = item;
                 $vue.crud = true;
             }
+            console.log(item)
+        },
+        save() {
+            let $vue = this;
+            $vue.data = {};
+            $vue.data.colaborador = $vue.colaboradorAnexo.colaborador;
+            $vue.data.anexoBoletin = $vue.colaboradorAnexo.anexoBoletin;
+            $vue.data.permisosProgramacionHorarios = new Array();
+            $vue.data.permisosProgramacionHorarios[0] = {};
+            $vue.data.permisosProgramacionHorarios[0].permisoProgramacion = $vue.colaboradorAnexo.permisoProgramacion;
+            if ($vue.colaboradorAnexo.puedeAgregar) {
+                $vue.data.permisosProgramacionHorarios[0].puedeAgregar = 1;
+            }
+            if ($vue.colaboradorAnexo.puedeEliminar) {
+                $vue.data.permisosProgramacionHorarios[0].puedeEliminar = 1;
+            }
+            if ($vue.colaboradorAnexo.puedeModificar) {
+                $vue.data.permisosProgramacionHorarios[0].puedeModificar = 1;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('permisoprograma/colaborador/save'),
+                data: JSON.stringify($vue.data),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.modalAddPermiso.close();
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.message, "success");
+                    }
+                },
+                error: function (error) {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        modifySecc(item) {
+            let $vue = this;
+            console.log(item);
+            $vue.colaboradorAnexo = {};
+            $vue.colaboradorAnexo.colaborador = item.colaborador;
+            $vue.colaboradorAnexo.colaborador = item.colaborador;
+            $vue.$refs.modalModifySecc.open();
+        },
+        addPermiso() {
+
+        },
+        addSecc() {
+
         }
     }
 });

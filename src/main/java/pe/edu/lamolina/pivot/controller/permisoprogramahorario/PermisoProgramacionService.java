@@ -20,4 +20,6 @@ public interface PermisoProgramacionService {
 
     public List<AnexoBoletin> allAnexoBoletin();
 
+    public void savepermiso(ColaboradorAnexoBean colaboradorAnexo, DataSessionPivot ds);
+
 }
