@@ -617,4 +617,32 @@ public class BuscarController {
         }
         return response;
     }
+
+    @ResponseBody
+    @RequestMapping("allCicloDescendent")
+    public JsonResponse allCicloDescendent(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ArrayNode jsonList = new ArrayNode(jFactory);
+            List<CicloAcademico> ciclos = buscarService.allCicloByDescripcionDescendent(nombre);
+            for (CicloAcademico ciclo : ciclos) {
+                ObjectNode node = JsonHelper.createJson(ciclo, jFactory, true,
+                        new String[]{
+                            "id", "descripcion", "codigo", "descripcion2"
+                        });
+                jsonList.add(node);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 }

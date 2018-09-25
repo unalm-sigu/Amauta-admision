@@ -58,6 +58,8 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allUltimosByNext(Integer cantidadCiclos, List<CicloAcademico> actives);
 
-    List<CicloAcademico> allByModalidadEstudioName(ModalidadEstudio modalidad, String nombre);
+     List<CicloAcademico> allByModalidadEstudioName(ModalidadEstudio modalidad, String nombre);
+
+    List<CicloAcademico> allCicloByNameDescendent(String nombre, ModalidadEstudio modalidad);
 
 }

@@ -23,10 +23,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
+import pe.edu.lamolina.pivot.controller.academico.ciclo.CicloAcademicoService;
 import pe.edu.lamolina.pivot.controller.seguridad.menu.VisorMenu;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -36,6 +38,8 @@ public class OAuthController {
 
     @Autowired
     OAuthServiceProvider serviceProvider;
+    @Autowired
+    CicloAcademicoService cicloAcademicoService;
     @Autowired
     VisorMenu visorMenu;
     @Autowired
@@ -204,4 +208,18 @@ public class OAuthController {
         return "";
     }
 
+    @RequestMapping("changeciclo")
+    public String changeciclo(HttpSession session, Model model) {
+        return "academico/cicloacademico/cicloland";
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "cicloland", method = RequestMethod.POST)
+    public void cicloland(HttpSession session, @RequestParam("ciclo") Long ciclo) throws Exception {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = cicloAcademicoService.getCicloAcademico(ciclo);
+        ds.setCicloAcademico(cicloAcademico);
+        session.setAttribute(Constantine.SESSION_USUARIO, ds);
+    }
 }
