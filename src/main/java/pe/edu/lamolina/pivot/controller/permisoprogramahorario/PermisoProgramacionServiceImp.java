@@ -86,6 +86,15 @@ public class PermisoProgramacionServiceImp implements PermisoProgramacionService
                     anexoBean.setPermisosSecc(permisos != null ? permisos : new ArrayList<>());
                     anexoBeans.add(anexoBean);
                 }
+            } else {
+                ColaboradorAnexoBean anexoBean = new ColaboradorAnexoBean();
+                anexoBean.setColaborador(colaborador);
+                anexoBean.setAnexoBoletin(new AnexoBoletin());
+                anexoBean.setPermisosCurso(new ArrayList<>());
+                anexoBean.setPermisosDocente(new ArrayList<>());
+                anexoBean.setPermisosGpoSec(new ArrayList<>());
+                anexoBean.setPermisosSecc(new ArrayList<>());
+                anexoBeans.add(anexoBean);
             }
         }
 
@@ -96,10 +105,21 @@ public class PermisoProgramacionServiceImp implements PermisoProgramacionService
     @Transactional
     public void save(ColaboradorAnexoBean colaboradorAnexoForm, DataSessionPivot ds) {
         Usuario usuario = ds.getUsuario();
-
-        ColaboradorAnexo colaboradorAnexo = colaboradorAnexoDAO.find(colaboradorAnexoForm.getId());
+        ColaboradorAnexo colaboradorAnexo = null;
+        if (colaboradorAnexoForm.getId() != null) {
+            colaboradorAnexo = colaboradorAnexoDAO.find(colaboradorAnexoForm.getId());
+        }
+        if (colaboradorAnexo == null) {
+            colaboradorAnexo = new ColaboradorAnexo();
+            colaboradorAnexo.setAnexoBoletin(colaboradorAnexoForm.getAnexoBoletin());
+            colaboradorAnexo.setColaborador(colaboradorAnexoForm.getColaborador());
+            colaboradorAnexo.setEstado(EstadoEnum.ACT.name());
+            colaboradorAnexo.setFechaRegistro(new Date());
+            colaboradorAnexo.setUserRegistro(ds.getUsuario());
+            colaboradorAnexoDAO.save(colaboradorAnexo);
+        }
         for (PermisosProgramacionHorarios permisosHorariosForm : colaboradorAnexoForm.getPermisosProgramacionHorarios()) {
-            PermisosProgramacionHorarios programacionHo = permisoProgramacionHorariosDAO.findByColaborador(colaboradorAnexoForm.getId(), permisosHorariosForm.getPermisoProgramacion());
+            PermisosProgramacionHorarios programacionHo = permisoProgramacionHorariosDAO.findByColaborador(colaboradorAnexo.getId(), permisosHorariosForm.getPermisoProgramacion());
             PermisosProgramacionHorarios programacionHorarios = programacionHo == null ? new PermisosProgramacionHorarios() : programacionHo;
             programacionHorarios.setColaboradorAnexo(colaboradorAnexo);
             programacionHorarios.setEstado(ACT.name());
@@ -109,11 +129,13 @@ public class PermisoProgramacionServiceImp implements PermisoProgramacionService
             programacionHorarios.setPuedeAgregar(0);
             programacionHorarios.setPuedeEliminar(0);
             programacionHorarios.setPuedeModificar(0);
-            if (permisosHorariosForm.getPermisoProgramacion().getTextoAgregar() != null) {
+            if (permisosHorariosForm.getPuedeAgregar() != null) {
                 programacionHorarios.setPuedeAgregar(1);
-            } else if (permisosHorariosForm.getPermisoProgramacion().getTextoEliminar() != null) {
+            }
+            if (permisosHorariosForm.getPuedeEliminar() != null) {
                 programacionHorarios.setPuedeEliminar(1);
-            } else {
+            }
+            if (permisosHorariosForm.getPuedeModificar() != null) {
                 programacionHorarios.setPuedeModificar(1);
             }
             permisoProgramacionHorariosDAO.save(programacionHorarios);
@@ -148,5 +170,53 @@ public class PermisoProgramacionServiceImp implements PermisoProgramacionService
     @Override
     public List<AnexoBoletin> allAnexoBoletin() {
         return anexoBoletinDAO.all();
+    }
+
+    @Override
+    public void savepermiso(ColaboradorAnexoBean colaboradorAnexoForm, DataSessionPivot ds) {
+        Usuario usuario = ds.getUsuario();
+
+        ColaboradorAnexo colaboradorAnexo = new ColaboradorAnexo();
+        colaboradorAnexo.setAnexoBoletin(colaboradorAnexoForm.getAnexoBoletin());
+        colaboradorAnexo.setColaborador(colaboradorAnexoForm.getColaborador());
+        colaboradorAnexo.setEstado(EstadoEnum.ACT.name());
+        colaboradorAnexo.setFechaRegistro(new Date());
+        colaboradorAnexo.setUserRegistro(ds.getUsuario());
+        colaboradorAnexoDAO.save(colaboradorAnexo);
+
+        for (PermisosProgramacionHorarios permisosHorariosForm : colaboradorAnexoForm.getPermisosProgramacionHorarios()) {
+            PermisosProgramacionHorarios programacionHo = permisoProgramacionHorariosDAO.findByColaborador(colaboradorAnexo.getId(), permisosHorariosForm.getPermisoProgramacion());
+            PermisosProgramacionHorarios programacionHorarios = programacionHo == null ? new PermisosProgramacionHorarios() : programacionHo;
+            programacionHorarios.setColaboradorAnexo(colaboradorAnexo);
+            programacionHorarios.setEstado(ACT.name());
+            programacionHorarios.setFechaRegistro(new Date());
+            programacionHorarios.setUserRegistro(usuario);
+            programacionHorarios.setPermisoProgramacion(permisosHorariosForm.getPermisoProgramacion());
+            programacionHorarios.setPuedeAgregar(0);
+            programacionHorarios.setPuedeEliminar(0);
+            programacionHorarios.setPuedeModificar(0);
+            if (permisosHorariosForm.getPuedeAgregar() != null) {
+                programacionHorarios.setPuedeAgregar(1);
+            }
+            if (permisosHorariosForm.getPuedeEliminar() != null) {
+                programacionHorarios.setPuedeEliminar(1);
+            }
+            if (permisosHorariosForm.getPuedeModificar() != null) {
+                programacionHorarios.setPuedeModificar(1);
+            }
+            permisoProgramacionHorariosDAO.save(programacionHorarios);
+
+//            LoggerPermisoProgramacion loggerPermisoProgramacion = new LoggerPermisoProgramacion();
+//            loggerPermisoProgramacion.setAnexoBoletin(colaboradorAnexoForm.getAnexoBoletin());
+//            loggerPermisoProgramacion.setColaborador(colaboradorAnexoForm.getColaborador());
+//            loggerPermisoProgramacion.setFechaPermiso(new Date());
+//            loggerPermisoProgramacion.setPermisoProgramacion(permisosHorariosForm.getPermisoProgramacion());
+//            loggerPermisoProgramacion.setPuedeAgregar(permisosHorariosForm.getPuedeAgregar());
+//            loggerPermisoProgramacion.setPuedeEliminar(permisosHorariosForm.getPuedeEliminar());
+//            loggerPermisoProgramacion.setPuedeModificar(permisosHorariosForm.getPuedeEliminar());
+//            loggerPermisoProgramacion.setUserPermiso(usuario);
+//            loggerPermisoProgramacionDAO.save(loggerPermisoProgramacion);
+        }
+
     }
 }

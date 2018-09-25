@@ -219,6 +219,25 @@ public class PermisoProgramacionController {
         }
         return response;
     }
+    @ResponseBody
+    @RequestMapping("savepermiso")
+    public JsonResponse savepermiso(@RequestBody ColaboradorAnexoBean colaboradorAnexo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(Boolean.FALSE);
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.savepermiso(colaboradorAnexo, ds);
+
+            response.setMessage("Se registró satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 
     @ResponseBody
     @RequestMapping("update")
