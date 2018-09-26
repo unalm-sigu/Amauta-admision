@@ -148,9 +148,9 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
         RangeMap<BigDecimal, Factor2CargaAdicional> mapFactor2 = TreeRangeMap.create();
         for (Factor2CargaAdicional factor : factores2) {
             if (factor.getCantidadFin() != null) {
-                mapFactor2.put(Range.closed(new BigDecimal(factor.getCantidadInicio()), new BigDecimal(factor.getCantidadFin())), factor);
+                mapFactor2.put(Range.closedOpen(new BigDecimal(factor.getCantidadInicio()), new BigDecimal(factor.getCantidadFin())), factor);
             } else {
-                mapFactor2.put(Range.closed(new BigDecimal(factor.getCantidadInicio()), new BigDecimal(999)), factor);
+                mapFactor2.put(Range.closedOpen(new BigDecimal(factor.getCantidadInicio()), new BigDecimal(999)), factor);
             }
         }
 
@@ -254,15 +254,15 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
         for (int i = 0; i < factores.size(); i++) {
             Factor2CargaAdicional factor = factores.get(i);
             if (i == 0) {
-                Assert.isTrue(factor.getCantidadInicio() == 1, "El factor 2 no está configurado");
+                Assert.isTrue(factor.getCantidadInicio() == 0, "El factor 2 no está configurado");
             } else if (i == factores.size() - 1) {
                 Factor2CargaAdicional factorAnterior = factores.get(i - 1);
                 Assert.isNull(factor.getCantidadFin(), "El factor 2 no está configurado");
-                Assert.isTrue(factor.getCantidadInicio() == factorAnterior.getCantidadFin() + 1, "El factor 2 no está configurado");
+                Assert.isTrue(factor.getCantidadInicio() == factorAnterior.getCantidadFin(), "El factor 2 no está configurado");
             } else {
                 Factor2CargaAdicional factorAnterior = factores.get(i - 1);
                 Assert.isTrue(factor.getCantidadInicio() != 1, "El factor 2 no está configurado");
-                Assert.isTrue(factor.getCantidadInicio() == factorAnterior.getCantidadFin() + 1, "El factor 2 no está configurado");
+                Assert.isTrue(factor.getCantidadInicio() == factorAnterior.getCantidadFin(), "El factor 2 no está configurado");
                 Assert.isNotNull(factor.getCantidadFin(), "Los intervalos del factor 2 se cruzan");
             }
         }
