@@ -53,5 +53,7 @@ public interface BuscarService {
     List<PlanCalificacion> allPlanCalificacionByDescripcion(String nombre);
 
     List<Curso> allCursoByModalidadEstudioNombre(String nombre, ModalidadEstudioEnum moda);
+    
+    List<CicloAcademico> allCicloByDescripcionDescendent(String nombre);
 
 }

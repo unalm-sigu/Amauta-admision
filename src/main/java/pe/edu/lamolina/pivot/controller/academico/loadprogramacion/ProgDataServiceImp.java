@@ -1138,7 +1138,7 @@ public class ProgDataServiceImp implements ProgDataService {
             //Seccion seccionBD = seccionDAO.findByCodeCiclo(seccion.getCodigo(), ciclo);
             Seccion seccionBD = mapSeccionBD.get(seccion.getCodigo());
             GrupoHoras gpoHoras = findGrupoHoras(seccion, mapGpoHoraBD);
-            Aula aula = findAula(seccion, mapAulaBD);
+            Aula aula = findAula(seccion, mapAulaBD, ciclo);
 
             if (seccionBD == null) {
                 seccionBD = new Seccion();
@@ -1297,7 +1297,7 @@ public class ProgDataServiceImp implements ProgDataService {
         return gpoHoras;
     }
 
-    private Aula findAula(Seccion seccion, Map<String, Aula> mapAulaBD) {
+    private Aula findAula(Seccion seccion, Map<String, Aula> mapAulaBD, CicloAcademico ciclo) {
         String codigo = seccion.getCodigoAula();
         if (StringUtils.isEmpty(codigo)) {
             return null;
@@ -1305,7 +1305,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
         //Aula aula = aulaDAO.findByCode(codigo);
         Aula aula = mapAulaBD.get(codigo);
-        if (aula == null) {
+        if (aula == null && ciclo.getCodigo().compareTo("201710") >= 0) {
             String msg = String.format("El aula %s de la seccion %s no existe en la base de datos",
                     codigo, seccion.getCodigo());
             throw new PhobosException(msg);

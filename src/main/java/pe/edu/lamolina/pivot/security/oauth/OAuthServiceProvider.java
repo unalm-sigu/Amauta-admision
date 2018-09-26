@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.security.oauth;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
