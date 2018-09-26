@@ -120,13 +120,8 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         List<EncuestaDocente> encuestasDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
         Map<Long, EncuestaDocente> mapEncuestaByProfeSecc = TypesUtil.convertListToMap("docenteSeccion.id", encuestasDocentes);
 
-        List<Curso> cursosNoEncuestar = cursoDAO.allNoEncuestar();
-        Map<Long, Curso> mapCursosNoEncuestar = TypesUtil.convertListToMap("id", cursosNoEncuestar);
-
         List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
         Map<Long, Curso> mapCursosSinEncuesta = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
-
-        mapCursosSinEncuesta.putAll(mapCursosNoEncuestar);
 
         visorEncuestaDocente.iniciarConteo(profesPersonasSecciones.size());
         for (DocenteSeccion profeSecc : profesPersonasSecciones) {

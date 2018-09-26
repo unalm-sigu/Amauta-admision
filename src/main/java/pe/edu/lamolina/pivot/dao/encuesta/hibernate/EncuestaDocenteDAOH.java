@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.encuesta.hibernate;
 
 import java.util.List;
+import java.util.Map;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -12,6 +13,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
+import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
 
@@ -67,7 +69,29 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .searchFields("da.nombre", "cur.nombre", "cur.codigo", "fa.nombre", "sec.codigo2", "gh.codigo", "doc.codigo")
                 .orderBy("ed.id");
         sql.beginRelativeFilters();
+
+        setCondicionEstado(filter, sql);
+
         return sql.all(getCurrentSession());
+
+    }
+
+    private void setCondicionEstado(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+        for (String key : queries.keySet()) {
+            if (!key.equals("ed.estado")) {
+                continue;
+            }
+            String values = (String) queries.get(key);
+            if (values.equals("activo")) {
+                sql.filter("ed.estado", EncuestaEstudiantilEstadoEnum.ACT);
+            } else if (values.equals("anulado")) {
+                sql.filter("ed.estado", EncuestaEstudiantilEstadoEnum.ANU);
+            }
+        }
 
     }
 

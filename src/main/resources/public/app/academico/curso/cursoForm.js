@@ -23,8 +23,6 @@ $(function () {
             }
             CursoForm.loadDepartamentos();
 
-
-            //var modEstudio = $("[name='modalidadEstudio.id']");
             var modCodigo = $("#codigoModalidad").val();
             console.log(modCodigo)
 
@@ -35,6 +33,8 @@ $(function () {
                 CursoForm.loadEspecialidades(modCodigo);
                 CursoForm.validarDivEspecialidad(modCodigo);
             }
+
+            CursoForm.tipoCredito($("[name='tipoCredito']:checked"));
 
         },
         loadDepartamentos: function () {
@@ -119,6 +119,17 @@ $(function () {
             var form = $("#formularioCurso");
             if (!form.parsley().validate()) {
                 return;
+            }
+            if ($("[name='tipoCredito']:checked").val() == 'FIJO') {
+                var credTotal = +$("[name='creditos']").val();
+                var credprac = +$("[name='creditosPractica']").val();
+                var credTeo = +$("[name='creditosTeoria']").val();
+
+                if (credTotal != credprac + credTeo) {
+                    notify("La suma de créditos no coincide con el total.", "error");
+                    $("[name='creditosPractica']").focus();
+                    return;
+                }
             }
 
             $.ajax({
@@ -277,16 +288,30 @@ $(function () {
                 $('[name="horasPractica"]').attr("readonly", false);
                 $('[name="horasTeoria"]').attr("readonly", true);
                 $('[name="horasTeoria"]').val(0);
-            }else{
+            } else {
                 $('[name="horasPractica"]').attr("required", true);
                 $('[name="horasPractica"]').attr("readonly", false);
                 $('[name="horasTeoria"]').attr("readonly", false);
                 $('[name="horasTeoria"]').attr("required", true);
                 $('[name="horasTeoria"]').val(0);
             }
-
+        },
+        tipoCredito($this) {
+            console.log($this.val());
+            if ($this.val() == 'VAR') {
+                $("#credPract").addClass('hide');
+                $("#credTeoria").addClass('hide');
+                $("[name='creditosPractica']").val('');
+                $("[name='creditosPractica']").attr('required', false);
+                $("[name='creditosTeoria']").val('');
+                $("[name='creditosTeoria']").attr('required', false);
+            } else if ($this.val() == 'FIJO') {
+                $("[name='creditosTeoria']").attr('required', true);
+                $("[name='creditosPractica']").attr('required', true);
+                $("#credPract").removeClass('hide');
+                $("#credTeoria").removeClass('hide');
+            }
         }
-
     };
 
     CursoForm.init();
@@ -327,5 +352,8 @@ $(function () {
     });
     $("body").delegate('[name="tipoCurso"]', "change", function () {
         CursoForm.validandoHoras($(this));
+    });
+    $("body").delegate('[name="tipoCredito"]', "change", function () {
+        CursoForm.tipoCredito($(this));
     });
 });
