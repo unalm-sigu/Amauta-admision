@@ -212,9 +212,9 @@ public class CursoController {
                 "horasPractica",
                 "tipoCredito",
                 "creditos",
-                "modalidadEstudio.nombre",   
-                "departamentoAcademico.nombre",   
-                "coordinador.persona.nombreCompleto"   
+                "modalidadEstudio.nombre",
+                "departamentoAcademico.nombre",
+                "coordinador.persona.nombreCompleto"
             }));
             response.setSuccess(true);
 

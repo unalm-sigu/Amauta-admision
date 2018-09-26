@@ -36,6 +36,7 @@ import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.TemaExamenVirtual;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
@@ -81,6 +82,8 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
     PuntajeEncuestaDocenteModalidadDAO puntajeEncuestaDocenteModalidadDAO;
     @Autowired
     TemaExamenVirtualDAO temaExamenVirtualDAO;
+    @Autowired
+    CursoDAO cursoDAO;
 
     @Autowired
     VisorEncuestaDocente visorEncuestaDocente;
@@ -117,8 +120,13 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         List<EncuestaDocente> encuestasDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
         Map<Long, EncuestaDocente> mapEncuestaByProfeSecc = TypesUtil.convertListToMap("docenteSeccion.id", encuestasDocentes);
 
-        List<CursoSinEncuesta> cursosNoEncuestar = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
-        Map<Long, Curso> mapCursosNoEncuestar = TypesUtil.convertListToMap("curso.di", "curso", cursosNoEncuestar);
+        List<Curso> cursosNoEncuestar = cursoDAO.allNoEncuestar();
+        Map<Long, Curso> mapCursosNoEncuestar = TypesUtil.convertListToMap("id", cursosNoEncuestar);
+
+        List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
+        Map<Long, Curso> mapCursosSinEncuesta = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
+
+        mapCursosSinEncuesta.putAll(mapCursosNoEncuestar);
 
         visorEncuestaDocente.iniciarConteo(profesPersonasSecciones.size());
         for (DocenteSeccion profeSecc : profesPersonasSecciones) {
@@ -128,7 +136,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
                     mapProfeSeccBySecc,
                     mapProfeSeccByGpoSecc,
                     mapEncuestaByProfeSecc,
-                    mapCursosNoEncuestar,
+                    mapCursosSinEncuesta,
                     mapEncusProfesModalidadades,
                     configuraEncuesta,
                     periodosEncuesta,

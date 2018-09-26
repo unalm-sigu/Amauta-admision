@@ -43,4 +43,6 @@ public interface CursoDAO extends EasyDAO<Curso> {
     List<Curso> allActiveByCodigo(String codigo, CicloAcademico ciclo);
 
     List<Curso> allByModalidadEstudioNombre(ModalidadEstudioEnum moda, String nombre);
+
+    List<Curso> allNoEncuestar();
 }
