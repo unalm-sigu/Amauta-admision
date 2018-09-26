@@ -126,10 +126,12 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")
-                .join("persona per")
+                .join("persona per", "departamentoAcademico da")
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("doc.codigo", "like", nombre)
+                .__().filter("da.nombre", "like", nombre)
                 .endBlock();
 
         return sql.all(getCurrentSession());

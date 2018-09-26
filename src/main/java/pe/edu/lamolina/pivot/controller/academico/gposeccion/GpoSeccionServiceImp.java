@@ -188,6 +188,45 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
+    public GrupoSeccion findGpoSeccion(Long id) {
+        GrupoSeccion gpoSecc = grupoSeccionDAO.find(id);
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSecc);
+        gpoSecc.setSecciones(secciones);
+
+        List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allBySecciones(secciones);
+        Map<Long, List<DocenteSeccion>> mapDocSeccion = TypesUtil.convertListToMapList("seccion.id", docenteSeccion);
+
+        List<RestriccionModalidad> restriccionesMod = restriccionModalidadDAO.allActivasBySecciones(secciones);
+        List<RestriccionFacultad> restriccionesFac = restriccionFacultadDAO.allActivasBySecciones(secciones);
+        List<RestriccionCarrera> restriccionesCarr = restriccionCarreraDAO.allActivasBySecciones(secciones);
+        List<RestriccionRepitencia> restriccionesRep = restriccionRepitenciaDAO.allActivasBySecciones(secciones);
+
+        Map<Long, List<RestriccionModalidad>> mapRestriccionMod = TypesUtil.convertListToMapList("seccion.id", restriccionesMod);
+        Map<Long, List<RestriccionFacultad>> mapRestriccionFac = TypesUtil.convertListToMapList("seccion.id", restriccionesFac);
+        Map<Long, List<RestriccionCarrera>> mapRestriccionCarr = TypesUtil.convertListToMapList("seccion.id", restriccionesCarr);
+        Map<Long, List<RestriccionRepitencia>> mapRestriccionRep = TypesUtil.convertListToMapList("seccion.id", restriccionesRep);
+
+        for (Seccion seccion : secciones) {
+            List<DocenteSeccion> doceentesSecc = mapDocSeccion.get(seccion.getId());
+            seccion.setDocenteSeccion(doceentesSecc == null ? new ArrayList() : doceentesSecc);
+
+            List<RestriccionModalidad> restriccionesModSecc = mapRestriccionMod.get(seccion.getId());
+            seccion.setRestriccionesModalidad(restriccionesModSecc == null ? new ArrayList() : restriccionesModSecc);
+
+            List<RestriccionFacultad> restriccionesFacSecc = mapRestriccionFac.get(seccion.getId());
+            seccion.setRestriccionesFacultad(restriccionesFacSecc == null ? new ArrayList() : restriccionesFacSecc);
+
+            List<RestriccionCarrera> restriccionesCarrSecc = mapRestriccionCarr.get(seccion.getId());
+            seccion.setRestriccionesCarrera(restriccionesCarrSecc == null ? new ArrayList() : restriccionesCarrSecc);
+
+            List<RestriccionRepitencia> restriccionesRepSecc = mapRestriccionRep.get(seccion.getId());
+            seccion.setRestriccionesRepitencia(restriccionesRepSecc == null ? new ArrayList() : restriccionesRepSecc);
+        }
+
+        return gpoSecc;
+    }
+
+    @Override
     public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
         List<GrupoSeccion> gsecciones = grupoSeccionDAO.allByDynatable(filter, ciclo);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gsecciones);
@@ -229,6 +268,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         return gsecciones;
+    }
+
+    @Override
+    public List<GrupoSeccion> allCleanByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
+        return grupoSeccionDAO.allByDynatable(filter, ciclo);
     }
 
     @Override
@@ -689,11 +733,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    public GrupoSeccion findGpoSeccion(Long id) {
-        return grupoSeccionDAO.find(id);
-    }
-
-    @Override
     public List<Seccion> allSeccionesByGrupo(GrupoSeccion grupoSeccion, List<DocenteSeccion> docentesSeccion) {
         List<Seccion> secciones = seccionDAO.allByGposSeccion(grupoSeccion);
         List<RestriccionCarrera> restriccionesCarrera = restriccionCarreraDAO.allActivasBySecciones(secciones);
@@ -949,6 +988,28 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional(readOnly = false)
     public void updatePorcentajeAvance(DocenteSeccion docenteSeccion) {
+        DocenteSeccion profeSecc = docenteSeccionDAO.find(docenteSeccion.getId());
+        List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSecc.getSeccion());
+
+        BigDecimal total = BigDecimal.ZERO;
+        for (DocenteSeccion profeSeccBD : profesSecc) {
+            if (profeSeccBD.getId().longValue() == docenteSeccion.getId()) {
+                continue;
+            }
+            if (profeSeccBD.getPorcentajeCarga() == null) {
+                continue;
+            }
+            if (profeSeccBD.getEstadoEnum() != EstadoEnum.ACT) {
+                continue;
+            }
+            total = total.add(profeSeccBD.getPorcentajeCarga());
+        }
+
+        total = total.add(docenteSeccion.getPorcentajeCarga());
+        BigDecimal cien = new BigDecimal(100L);
+        if (total.compareTo(cien) > 0) {
+            throw new PhobosException("El porcentaje de carga no puede exceder el 100%");
+        }
         docenteSeccionDAO.updatePorcentajeAvance(docenteSeccion);
     }
 

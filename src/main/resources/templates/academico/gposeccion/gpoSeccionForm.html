@@ -19,6 +19,33 @@
             transform: translateX(10px);
             opacity: 0;
         }
+        .nav-gposec-gray {
+            color: #c8c8c8;
+        }
+        .nav-gposec-primary {
+            color: #0275D8;
+            cursor: pointer;
+        }
+        .avatar-gposecc {
+            display: block;
+            position: relative;
+            border-radius: 50%;
+            width: 54px;
+            height: 54px;
+            overflow: hidden;
+            line-height: 54px;
+            background-color: #F5B041;
+            color: #fff;
+            text-align: center;
+            font-size: 24px;
+            text-indent: 0;
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+        .text-curso {
+            font-size: 18px;
+            color: #0275D8;
+        }
     </style>
 </head>
 
@@ -39,36 +66,66 @@
                         <section class="panel m-b-xs">
                             <section class="panel-body">
                                 <div class="row">
-                                    <div class="form-group">
-                                        <label for="cboAnexo" class="col-md-2 control-label">Anexo</label>
-                                        <div class="col-md-4">
-                                            <span  th:text="|${grupoSeccion.anexoBoletin.codigo} - ${grupoSeccion.anexoBoletin.nombre}|"></span>
-                                        </div>
-
-                                        <label for="cboCategoria" class="col-md-2 control-label">Categoria</label>
-                                        <div class="col-md-4">
-                                            <span  th:text="|${grupoSeccion.anexoBoletin.anexoSuperior.codigo} - ${grupoSeccion.anexoBoletin.anexoSuperior.nombre}|"></span>
-                                        </div>
+                                    <div class="col-md-1">
+                                        <div class="avatar-gposecc"
+                                             v-text='avatarGpo()'>234</div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group">
-                                        <label for="cboCurso" class="col-md-2 control-label">Curso</label>
-                                        <div class="col-md-10">
-                                            <span vclass="form-control" th:text="|${grupoSeccion.curso.codigo} - ${grupoSeccion.curso.nombre}|"></span>
+
+                                    <div class="col-md-9">
+                                        <div class="row m-b-xs">
+                                            <div class="col-md-2 bold">Anexo</div>
+                                            <div class="col-md-10">
+                                                <span class="block bold" v-text="grupoSeccion.anexoBoletin.codigo + ' - ' + grupoSeccion.anexoBoletin.nombre"></span>
+                                                <small class="block" v-text="grupoSeccion.anexoBoletin.anexoSuperior.codigo + ' - ' + grupoSeccion.anexoBoletin.anexoSuperior.nombre"></small>
+                                            </div>
                                         </div>
+
+                                        <div class="row m-b-xs">
+                                            <div class="col-md-2 text-curso">Curso</div>
+                                            <div class="col-md-10">
+                                                <span class="block text-curso" v-text="grupoSeccion.curso.codigo + ' - ' + grupoSeccion.curso.nombre"></span>
+                                                <span class="block bold" v-text="grupoSeccion.curso.tpc"></span>
+                                            </div>
+                                        </div>
+                                        <!--div class="row">
+                                            <div class="col-md-2 bold text-primary">Periodo</div>
+                                            <div class="col-md-10">
+                                                
+                                            </div>
+                                        </div-->
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group">
-                                        <label  class="col-md-2 control-label">Estructura</label>
-                                        <div class="col-md-1">
-                                            <span  th:text="${grupoSeccion.curso.codigo}"></span>
+
+                                    <div class="col-md-2">
+
+                                        <div class="text-right">
+                                            <span v-bind:class="classBtnPrev()" 
+                                                  v-on:click="prevGpoSecc()">
+                                                <span class="fa-stack fa-lg">
+                                                    <i v-if="btnNavega.left" class="fa fa-circle fa-stack-2x"></i>
+                                                    <i v-if="btnNavega.left" 
+                                                       class="fa fa-arrow-left fa-stack-1x fa-inverse"></i>
+                                                    <i v-else="" class="fa fa-spinner fa-spin fa-2x fa-fw"></i>
+                                                </span>
+
+
+                                            </span>
+
+                                            <span v-bind:class="classBtnNext()" 
+                                                  v-on:click="nextGpoSecc()">
+                                                <span class="fa-stack fa-lg">
+                                                    <i v-if="btnNavega.right" class="fa fa-circle fa-stack-2x"></i>
+                                                    <i v-if="btnNavega.right" class="fa fa-arrow-right fa-stack-1x fa-inverse"></i>
+                                                    <i v-else="" class="fa fa-spinner fa-spin fa-2x fa-fw"></i>
+                                                </span>
+
+                                            </span>
+
                                         </div>
-                                        <div class="col-md-1">
-                                            <span  th:text="${grupoSeccion.curso.tpc}"></span>
-
-
+                                        <div class="text-right">
+                                            <small class="text-muted m-r">
+                                                {{(navega.position+1)}} de 
+                                                {{navega.arrayGpoSecciones.length}}
+                                            </small>
                                         </div>
                                     </div>
                                 </div>
@@ -81,7 +138,7 @@
                                 <table class="table" >
                                     <thead> 
                                         <tr class=""> 
-                                            <th class="col-md-1 text-center v-middle">Sección </th>
+                                            <th class="col-md-1 text-center v-middle">Sección</th>
                                             <th class="col-md-1 text-center v-middle">Aula</th>
                                             <th class="col-md-1 text-center v-middle">Grupo</th>
                                             <th class="col-md-2 text-center v-middle">Restricción modalidad facultad especialidad</th>
@@ -99,16 +156,18 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr  v-for="(seccion, index) in secciones" 
-                                             v-bind:class="{'active' : (seccionSeleccionada!=null &amp;&amp; seccionSeleccionada.id==seccion.id)}">
+                                        <tr v-for="(seccion, index) in secciones" 
+                                            v-bind:class="{'active' : (seccionSeleccionada!=null &amp;&amp; seccionSeleccionada.id==seccion.id)}">
+
                                             <td class="text-center v-middle">
-                                                <a v-on:click="seleccionarSeccion(seccion)" 
+                                                <a v-on:click="seleccionarSeccion(index)" 
                                                    style="cursor:pointer;">{{ seccion.codigo2 }}
                                                 </a>
                                                 <div>
                                                     {{ seccion.tipoSeccionEvaluacionValue }}
                                                 </div>
                                             </td>
+
                                             <td class="text-center v-middle">
 
                                                 <a v-if="seccion.aula.id=='' &amp;&amp; !directEditSecciones"
@@ -339,11 +398,11 @@
                                 </table>
 
                                 <a class="btn btn-info btn-sm pull-right m-t-xs"
-                                   th:if="${grupoSeccion.curso.tipoCursoTEOPRA}"
-                                   v-on:click="addSeccion"
-                                   >
+                                   v-if="grupoSeccion.curso.tipoCursoEnum.name == 'TEOPRA' "
+                                   v-on:click="addSeccion">
                                     <i class="fa fa-plus add-seccion" aria-hidden="true"></i> <strong> Agregar Sección</strong>
                                 </a>
+
                             </section>
                         </section>
 
@@ -394,7 +453,7 @@
                        v-bind:okaction="saveAula"
                        v-bind:cancelaction="closeAula">
                 <div slot="body">
-                    <aula-component></aula-component>
+                    <aula-component ref="aulaComponent"></aula-component>
                 </div>
             </modal-vik>
 
@@ -452,17 +511,19 @@
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:inline="javascript">
-            var gpoSeccionJson = [[${grupoSeccionJson}]];
+            var gpoSeccionJson = /*[[${grupoSeccionJson}]]*/ {};
+            var navigationJson = /*[[${navigationJson}]]*/ {};
         </script>
+
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script th:src="@{/app/gposeccion/dynatableComponents.js}" charset="utf-8"></script>
-        <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/aulaComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/aulaHorarioComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/grupoHorarioComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/restriccionComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/repitenciaComponent.js}" charset="utf-8"></script>
         <script th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>
