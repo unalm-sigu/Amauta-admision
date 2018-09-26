@@ -847,7 +847,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Dia dia = mapDias.get(Integer.parseInt(diaNum));
                 Hora hora = mapHoras.get(Integer.parseInt(horaNum));
                 Aula aula = mapAulas.get(aulaCod);
-                if (aula == null && !StringUtils.isEmpty(aulaCod)) {
+                if (aula == null && !StringUtils.isEmpty(aulaCod) && cicloAcademico.getCodigo().compareTo("201710") >= 0) {
                     throw new PhobosException("Aula " + aulaCod + " no se halló en la base de datos");
                 }
 

@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.curso;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,7 @@ public class CursoServiceImp implements CursoService {
 
     @Override
     public List<Curso> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> departamentos) {
+        logger.debug("size dps {}", departamentos.size());
         return cursoDAO.allByDynatable(filter, departamentos);
     }
 
@@ -129,6 +131,7 @@ public class CursoServiceImp implements CursoService {
         cursoBD.setHorasPractica(curso.getHorasPractica());
         cursoBD.setHorasTeoriaVerano(curso.getHorasTeoriaVerano());
         cursoBD.setHorasPracticaVerano(curso.getHorasPracticaVerano());
+        cursoBD.setNoEncuestar(curso.getNoEncuestar());
 
         if (curso.getTipoCreditoEnum() == TipoCreditoEnum.FIJO) {
             cursoBD.setCreditos(curso.getCreditos());
@@ -169,7 +172,7 @@ public class CursoServiceImp implements CursoService {
     @Override
     public Curso find(Long id) {
         Curso curso = cursoDAO.find(id);
-        if (curso.getTipoCredito().equals(TipoCreditoEnum.VAR.name())) {
+        if (!StringUtils.isBlank(curso.getTipoCredito()) && curso.getTipoCredito().equals(TipoCreditoEnum.VAR.name())) {
             curso.setCreditos(curso.getCreditosVariables());
         }
         List<NombreCurso> nombres = nombreCursoDAO.allByCurso(curso);

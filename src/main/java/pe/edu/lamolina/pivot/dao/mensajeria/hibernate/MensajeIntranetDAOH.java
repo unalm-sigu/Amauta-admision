@@ -22,7 +22,7 @@ public class MensajeIntranetDAOH extends AbstractEasyDAO<MensajeIntranet> implem
         DynatableSql sql = new DynatableSql(filter)
                 .from(MensajeIntranet.class, "mi")
                 .join("grupoAlumno ga", "tipoMensajeIntranet ti", "cicloAcademico ca")
-                .searchFields("mi.fechaInicio", "mi.fechafin", "ga.nombre")
+                .searchFields("mi.fechaInicio", "mi.fechaFin", "ga.nombre", "mi.contenido")
                 .orderBy("mi.id desc");
 
         return all(sql);
