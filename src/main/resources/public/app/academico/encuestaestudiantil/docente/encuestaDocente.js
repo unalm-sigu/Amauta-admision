@@ -68,17 +68,29 @@ new Vue({
             showaccept: false,
             cancelbtn: 'Cerrar'
         },
-        btnAgregar: false
+        btnAgregar: false,
+        seleccionado: '',
+        bgColorClass: {activo: '', anulado: '', innecesario: '', sinperiodo: '', cerrado: '',
+            encuestable: '', encuestado: ''}
     },
     mounted: function () {
-        let vue = this;
-        if (vue.estadoVisor == 'INICIADO' || vue.estadoVisor == 'OCUPADO') {
+        let $vue = this;
+        if ($vue.estadoVisor == 'INICIADO' || $vue.estadoVisor == 'OCUPADO') {
             setTimeout(function () {
-                vue.$refs.modalVerProgreso.open();
-                vue.refreshProgresoEncuesta();
+                $vue.$refs.modalVerProgreso.open();
+                $vue.refreshProgresoEncuesta();
             }, 1000);
         }
-        vue.refreshEncuesta();
+        $vue.refreshEncuesta();
+
+        let tipo = $vue.$refs.load.getParameterByName('queries[ed.estado]');
+        tipo = (tipo == null) ? '' : tipo;
+        if (tipo != '') {
+            $vue.bgColorClass[tipo] = 'bg-light';
+            $vue.seleccionado = tipo;
+            $vue.$refs.load.querie.push({name: 'ed.estado', value: tipo});
+        }
+        $vue.$refs.load.repreload();
     },
     methods: {
         removePeriodo(i) {
@@ -495,6 +507,32 @@ new Vue({
                 this.cursos = response.data
                 this.isLoading = false
             })
+        },
+        verEstados(tipo) {
+            let $vue = this;
+            if ($vue.seleccionado === '') {
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
+
+                $vue.$refs.load.querie.push({name: 'ed.estado', value: tipo});
+                $vue.$refs.load.loadRemoteData();
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
+
+                $vue.$refs.load.querie.push({name: 'ed.estado', value: tipo});
+                $vue.$refs.load.loadRemoteData();
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.seleccionado = '';
+
+                $vue.$refs.load.querie = [];
+                $vue.$refs.load.changeUrl('queries[ed.estado]', null);
+                $vue.$refs.load.loadRemoteData();
+            }
         }
     }
 });

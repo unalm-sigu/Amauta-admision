@@ -847,7 +847,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Dia dia = mapDias.get(Integer.parseInt(diaNum));
                 Hora hora = mapHoras.get(Integer.parseInt(horaNum));
                 Aula aula = mapAulas.get(aulaCod);
-                if (aula == null && !StringUtils.isEmpty(aulaCod)) {
+                if (aula == null && !StringUtils.isEmpty(aulaCod) && cicloAcademico.getCodigo().compareTo("201710") >= 0) {
                     throw new PhobosException("Aula " + aulaCod + " no se halló en la base de datos");
                 }
 
@@ -1445,6 +1445,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     String[] carrerasPregrado = espCodigo.split("/");
                     for (String codeCarrera : carrerasPregrado) {
                         Carrera carrera = mapCarreras.get(codeCarrera);
+                        if (carrera == null) {
+                            continue;
+                        }
                         RestriccionCarrera restriccionCarrera = new RestriccionCarrera();
                         restriccionCarrera.setCarrera(carrera);
                         restriccionCarrera.setSeccion(seccion);
@@ -1456,6 +1459,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     String[] carrerasPosgrado = espGrado.split("/");
                     for (String codeCarrera : carrerasPosgrado) {
                         Carrera carrera = mapCarreras.get(codeCarrera);
+                        if (carrera == null) {
+                            continue;
+                        }
                         RestriccionCarrera restriccionCarrera = new RestriccionCarrera();
                         restriccionCarrera.setCarrera(carrera);
                         restriccionCarrera.setSeccion(seccion);
@@ -1468,6 +1474,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     String[] codigosFacultad = facCodigo.split("/");
                     for (String codeFacultad : codigosFacultad) {
                         Facultad facultad = mapFacultad.get(codeFacultad);
+                        if (facultad == null) {
+                            continue;
+                        }
                         RestriccionFacultad restriccionFacultad = new RestriccionFacultad();
                         restriccionFacultad.setFacultad(facultad);
                         restriccionFacultad.setSeccion(seccion);
@@ -1480,6 +1489,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     String[] condiciones = condicion.split("/");
                     for (String cond : condiciones) {
                         TipoRepitencia tipo = mapTipoRepitencia.get(cond);
+                        if (tipo == null) {
+                            continue;
+                        }
                         RestriccionRepitencia restriccion = new RestriccionRepitencia();
                         restriccion.setTipoRepitencia(tipo);
                         restriccion.setSeccion(seccion);

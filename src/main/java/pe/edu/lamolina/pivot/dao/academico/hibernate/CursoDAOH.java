@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Query;
@@ -37,7 +38,7 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
     public Curso find(long idCurso) {
         Octavia sql = Octavia.query()
                 .from(Curso.class, "cu")
-                .join("modalidadEstudio")
+                .leftJoin("modalidadEstudio")
                 .leftJoin("planCalificacion pc", "departamentoAcademico da", "da.facultad")
                 .filter("cu.id", idCurso);
 
@@ -134,7 +135,12 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .from(Curso.class, "cu")
                 .join("departamentoAcademico da", "da.facultad fa")
                 .leftJoin("planCalificacion pc", "carrera ca", "coordinador co", "co.persona per")
+                .leftJoin("modalidadEstudio me")
                 .in("da.id", departamentos)
+                .beginBlock()
+                .__().in("me.codigo", Arrays.asList(ModalidadEstudioEnum.EPG, ModalidadEstudioEnum.PRE))
+                .__().isNull("me.id")
+                .endBlock()
                 .searchFields("cu.nombre", "cu.codigo", "cu.codigoAnterior1", "fa.nombre", "da.nombre", "cu.estado", "ca.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -284,5 +290,12 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .limit(15);
         return all(sql);
 
+    }
+
+    @Override
+    public List<Curso> allNoEncuestar() {
+        Octavia sql = Octavia.query(Curso.class, "cu")
+                .filter("cu.noEncuestar", 1);
+        return all(sql);
     }
 }
