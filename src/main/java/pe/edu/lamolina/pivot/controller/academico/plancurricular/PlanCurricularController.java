@@ -31,6 +31,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
@@ -342,6 +343,8 @@ public class PlanCurricularController {
                 node.put("codigo2", cursoAdicional.getCurso().getCodigoAnterior1());
                 node.put("curso", cursoAdicional.getCurso().getNombre());
                 node.put("creditos", cursoAdicional.getCurso().getCreditos());
+                node.put("cicloInicio", (String) ObjectUtil.getParentTree(cursoAdicional, "cicloInicio.descripcion"));
+                node.put("cicloFin", (String) ObjectUtil.getParentTree(cursoAdicional, "cicloFin.descripcion"));
                 array.add(node);
             }
 
@@ -582,10 +585,24 @@ public class PlanCurricularController {
         return "academico/plancurricular/agregarCursoElec";
     }
 
+    @RequestMapping("{cursoAdicional}/editarCursoAdicional")
+    public String editarCursoAdicional(@PathVariable("cursoAdicional") Long cursoAdicionalId, Model model, HttpSession session) {
+        CursoAdicionalCurricula cursoAdicional = service.findCursoAdicional(cursoAdicionalId);
+
+        model.addAttribute("cursoAdicional", cursoAdicional);
+        model.addAttribute("planCurricular", cursoAdicional.getPlanCurricular());
+        model.addAttribute("format", new NumberFormat());
+        model.addAttribute("edita", true);
+        return "academico/plancurricular/agregarCursoAdc";
+    }
+
     @RequestMapping("{plancurricular}/agregarCursoAdicional")
     public String agregarCursoAdicional(@PathVariable("plancurricular") Long plancurricularId, Model model, HttpSession session) {
         PlanCurricular planCurricular = service.findPlanCurricularById(new PlanCurricular(plancurricularId));
+        model.addAttribute("cursoAdicional", new CursoAdicionalCurricula());
         model.addAttribute("planCurricular", planCurricular);
+        model.addAttribute("edita", false);
+
         return "academico/plancurricular/agregarCursoAdc";
     }
 
@@ -925,7 +942,13 @@ public class PlanCurricularController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             String message = "Curso agregado exitosamente.";
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-            service.saveCursoAdicional(cursoAdicionalCurricula, ds);
+
+            if (cursoAdicionalCurricula.getId() != null) {
+                service.updateCursoAdicional(cursoAdicionalCurricula, ds);
+                message = "Curso actualizado exitosamente";
+            } else {
+                service.saveCursoAdicional(cursoAdicionalCurricula, ds);
+            }
 
             response.setData(node);
             response.setSuccess(true);
@@ -935,6 +958,26 @@ public class PlanCurricularController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("findCursoAdicional/{id}")
+    public JsonResponse findCursoAdicional(@PathVariable Long id, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            CursoAdicionalCurricula curso = service.findCursoAdicional(id);
+            response.setData(JsonHelper.createJson(curso, JsonNodeFactory.instance, new String[]{
+                "cicloInicio.id",
+                "cicloFin.id"
+            }));
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1283,14 +1326,19 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.FALSE);
-        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-        if (cursos != null && !cursos.isEmpty()) {
-            node.put("id", cursos.get(0).getId());
-            node.put("codigo", cursos.get(0).getCodigo());
-            node.put("curso", cursos.get(0).getNombre());
-            response.setData(node);
+
+        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+        if (cursos != null) {
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            for (Curso curso : cursos) {
+                node.put("id", curso.getId());
+                node.put("codigo", curso.getCodigo());
+                node.put("curso", curso.getNombre());
+            }
+            arr.add(node);
             response.setSuccess(Boolean.TRUE);
         }
+        response.setData(arr);
         return response;
     }
 
