@@ -383,6 +383,7 @@ public class PlanCurricularController {
                 node.put("creditosRequisito", cursoOpcional.getCreditosRequisito());
                 node.put("cursosRequisito", cursoOpcional.getCursosOpcionales().size());
                 node.put("esRequisitoDe", cursoOpcional.getRequisitosCursoOpcionales().size());
+                node.put("requisitosOr", cursoOpcional.getRequisitosOr());
 
                 ArrayNode arrayPreRequisitos = new ArrayNode(JsonNodeFactory.instance);
                 List<RequisitoCursoOpcional> cursosRequisitos = cursoOpcional.getCursosOpcionales();
@@ -942,6 +943,7 @@ public class PlanCurricularController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             String message = "Curso agregado exitosamente.";
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            ObjectUtil.eliminarAttrSinId(cursoAdicionalCurricula);
 
             if (cursoAdicionalCurricula.getId() != null) {
                 service.updateCursoAdicional(cursoAdicionalCurricula, ds);
