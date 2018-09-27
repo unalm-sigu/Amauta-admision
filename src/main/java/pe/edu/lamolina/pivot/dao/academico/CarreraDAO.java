@@ -29,24 +29,26 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
 
     CarreraResumen resumen();
 
-    List<Carrera> allCarrera();
+    List<Carrera> all();
 
-    List<Carrera> allCarreraByName(String nombre, ModalidadEstudio modalidadEstudio);
+    List<Carrera> allByNombreModalidad(String nombre, ModalidadEstudio modalidadEstudio);
 
-    List<Carrera> allCarreraByModalidadEstudio(ModalidadEstudio modalidadEstudio);
+    List<Carrera> allByModalidad(ModalidadEstudio modalidadEstudio);
 
     List<Carrera> allRegularesByCarreras(List<Carrera> carreras);
 
-    List<Carrera> allActivoByModalidad(ModalidadEstudio modalidadEstudio);
+    List<Carrera> allActivasByModalidad(ModalidadEstudio modalidadEstudio);
 
-    List<Carrera> allCarreraByNameAndModalidad(String nombre, List<ModalidadEstudio> modalidadEstudio);
+    List<Carrera> allByNombreModalidad(String nombre, List<ModalidadEstudio> modalidadEstudio);
 
-    List<Carrera> allCarreraByName(String nombre, Compania cia);
+    List<Carrera> allByNombre(String nombre, Compania cia);
 
-    List<Carrera> allActivos();
+    List<Carrera> allActivas();
 
-    List<Carrera> allActivasByModalidadesEstudio(List<String> modalidadesCodes);
+    List<Carrera> allActivasByModalidades(List<String> modalidadesCodes);
 
-    List<Carrera> allByModalidadEstudio(ModalidadEstudioEnum modalidadEstudioEnum);
+    List<Carrera> allByModalidadEnum(ModalidadEstudioEnum modalidadEstudioEnum);
+
+    List<Carrera> allActivasByModalidadEnum(ModalidadEstudioEnum modalidadEstudioEnum);
 
 }

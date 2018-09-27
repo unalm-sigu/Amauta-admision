@@ -5,7 +5,7 @@
     <body>
         <section layout:fragment="main">
 
-             <header class="header b-b padder-lg">                
+            <header class="header b-b padder-lg">                
                 <a th:href="@{${origen}}" class="btn btn-default btn-sm pull-right">Regresar</a>
                 <h2 th:text="${ persona.id!=null ? persona.apellidosNombres : 'Nueva Persona' }" id="nombreCompleto">Nuevo Persona</h2> 
 
@@ -68,6 +68,16 @@
                             <div class="col-sm-3">
                                 <input  type="text" name="nombres" required="true" class="form-control nombre-persona" 
                                         th:value="${persona!=null} ? ${persona.nombres}" placeholder="Nombres"/>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group">
+                                <label for="tituloAcademico" class="col-sm-2 control-label">Título Académico</label>
+                                <div class="col-sm-3">
+                                    <input  type="text" name="tituloAcademico" class="form-control" 
+                                            th:value="${persona!=null} ? ${persona.tituloAcademico}" placeholder="Ej. Dr. Ing. Mg.Sc."/>
+                                </div>
                             </div>
                         </div>
 

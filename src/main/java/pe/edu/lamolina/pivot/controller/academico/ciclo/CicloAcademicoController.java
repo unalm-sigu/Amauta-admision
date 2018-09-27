@@ -271,21 +271,4 @@ public class CicloAcademicoController {
         return response;
     }
 
-    @RequestMapping("changeciclo")
-    public String changeciclo(HttpSession session, Model model) {
-        List<CicloAcademico> ciclos = service.allCicloAcademico(25);
-        model.addAttribute("cicloAcademicos", ciclos);
-        return "academico/cicloacademico/cicloland";
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "cicloland", method = RequestMethod.POST)
-    public void cicloland(HttpSession session, @RequestParam("ciclo") Long ciclo) throws Exception {
-
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico cicloAcademico = service.getCicloAcademico(ciclo);
-        ds.setCicloAcademico(cicloAcademico);
-        session.setAttribute(Constantine.SESSION_USUARIO, ds);
-
-    }
 }

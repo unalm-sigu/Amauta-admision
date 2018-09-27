@@ -22,7 +22,7 @@
                         <input type="hidden" th:value="${curso.modalidadEstudio==null}? '':${curso.modalidadEstudio.codigo}" id="codigoModalidad"/>
 
                         <div th:if="${curso.id}">
-                            <input type='hidden' name="modalidadEstudio.id" th:value="${curso.modalidadEstudio.id}" />
+                            <input type='hidden' name="modalidadEstudio.id" th:value="${curso.modalidadEstudio == null} ? null : ${curso.modalidadEstudio.id}" />
                             <input type='hidden' name="nivel" th:value="${curso.nivel}"/>
                             <input type='hidden' name="departamentoAcademico.id" th:value="${curso.departamentoAcademico != null} ? ${curso.departamentoAcademico.id}:''" />
                         </div>
@@ -47,7 +47,7 @@
                                                 th:attr="data-codigo=${item.codigo}"
                                                 th:text="${item.nombre}"/>
                                     </select>
-                                    <span th:if="${curso.id}" class='form-control' th:text="${curso.modalidadEstudio.nombre}" ></span>
+                                    <span th:if="${curso.id}" class='form-control' th:text="${curso.modalidadEstudio == null} ? 'Sin Modalidad' : ${curso.modalidadEstudio.nombre}" ></span>
                                 </div>
                             </div>
                             <div class="col-lg-2">
@@ -161,14 +161,39 @@
                                     </div>
                                 </div>
                             </div>    
-                            <div class="col-lg-3">
+                            <div class="col-lg-2">
+                                <label>Créditos Total</label>
                                 <div class="form-group">
-                                    <label></label>
                                     <input name="creditos" class="form-control text-right numerico" required="true"  th:value="${curso} != null ? ${curso.creditos} : ''"  
                                            maxlength="2" data-trigger="change"/>
                                 </div>
                             </div>  
+                            <div class="col-lg-2" id="credPract">
+                                <label>Créditos Práctica</label>
+                                <div class="form-group">
+                                    <input name="creditosPractica" class="form-control text-right numerico" required="true"  th:value="${curso} != null ? ${curso.creditosPractica} : ''"  
+                                           maxlength="2" data-trigger="change"/>
+                                </div>
+                            </div>  
+                            <div class="col-lg-2" id="credTeoria">
+                                <label>Créditos Teoría</label>
+                                <div class="form-group">
+                                    <input name="creditosTeoria" class="form-control text-right numerico" required="true"  th:value="${curso} != null ? ${curso.creditosTeoria} : ''"  
+                                           maxlength="2" data-trigger="change"/>
+                                </div>
+                            </div>  
                         </div>  
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <label>No encuestar</label>
+                                <div class="form-group">
+                                    <label class="switch">
+                                        <input type="checkbox" name="noEncuestar" th:value="1" th:attr="checked=${curso.noEncuestar}"/>
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>  
+                        </div>
                         <hr/>
                         <div class="row">
                             <div class="col-lg-6">
@@ -267,20 +292,20 @@
 
                 <script id="divNombreCurso" type="text/x-jsrender" class="hide" >
                     <tr>
-                        <td>
-                            <select class="form-control" name="idIdioma" required="true" placeholder="Seleccione el idiomas" data-trigger="change">
-                            <option></option>
-                            <option th:each="item : ${idiomas}"
-                            th:value="${item.id}" 
-                            th:text="${item.nombre}"/>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="nombreIdioma"/>
-                        </td>
-                        <td class="v-middle"> 
-                            <a class="btn btn-warning btn-sm delete-idioma" ><i class="fa fa-times pointer" aria-hidden="true"></i></a>
-                        </td>
+                    <td>
+                    <select class="form-control" name="idIdioma" required="true" placeholder="Seleccione el idiomas" data-trigger="change">
+                    <option></option>
+                    <option th:each="item : ${idiomas}"
+                    th:value="${item.id}" 
+                    th:text="${item.nombre}"/>
+                    </select>
+                    </td>
+                    <td>
+                    <input type="text" class="form-control" name="nombreIdioma"/>
+                    </td>
+                    <td class="v-middle"> 
+                    <a class="btn btn-warning btn-sm delete-idioma" ><i class="fa fa-times pointer" aria-hidden="true"></i></a>
+                    </td>
                     </tr>
                 </script>
             </section>

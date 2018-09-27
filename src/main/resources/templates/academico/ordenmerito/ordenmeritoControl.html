@@ -37,13 +37,24 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th class="col-md-2">Alumno</th>
-                                            <th class="col-md-2 text-center">Especialidad</th>
-                                            <th class=" text-center">Promedio</th>
-                                            <th class=" text-center">Orden de Mérito</th>
-                                            <th class=" text-center">Cuadro de Honor</th>
-                                            <th class=" text-center">Quinto Superior</th>
-                                            <th class=" text-center">Tercio Superior</th>
+                                            <th rowspan="2" class="col-md-3 v-middle">Alumno</th>
+                                            <th v-if="control.escalaEnum.name=='FAC'"
+                                                rowspan="2" class="col-md-2 v-middle text-center">Facultad</th>
+                                            <th v-if="control.escalaEnum.name=='ESPE'"
+                                                rowspan="2" class="col-md-2 v-middle text-center">Especialidad</th>
+
+                                            <th rowspan="2" class=" text-center v-middle">Promedio</th>
+                                            <th colspan="3" class=" text-center v-middle b-l">Créd. Acumul.</th>
+
+                                            <th rowspan="2" class=" text-center v-middle b-l">Orden de Mérito</th>
+                                            <th rowspan="2" class=" text-center v-middle">Cuadro de Honor</th>
+                                            <th rowspan="2" class=" text-center v-middle">Quinto Superior</th>
+                                            <th rowspan="2" class=" text-center v-middle">Tercio Superior</th>
+                                        </tr>
+                                        <tr>
+                                            <th class=" text-center v-middle b-l">Aprob.</th>
+                                            <th class=" text-center v-middle">Conval.</th>
+                                            <th class=" text-center v-middle">Nivel</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -53,16 +64,22 @@
                                                 <span class="block text-muted small">  {{ item.alumno.codigo }} </span>
                                             </td>
                                             <td class="v-middle text-center">
-                                                <div v-if="control.escalaEnum.name === 'FAC'">
-                                                </div>
-                                                <div v-else="">
-                                                    <span class="block text-success"> {{item.carrera.nombre}}</span>
-                                                    <small class="block bold"> {{item.carrera.facultad.nombre}}</small>
-                                                </div>
+                                                <span v-if="item.carrera.codigo == item.carrera.facultad.codigo"
+                                                      class="block text-success"> {{item.carrera.facultad.nombre}}</span>
+                                                      
+                                                <span v-if="item.carrera.codigo != item.carrera.facultad.codigo"
+                                                      class="block text-success"> {{item.carrera.nombre}}</span>
+                                                <small v-if="item.carrera.codigo != item.carrera.facultad.codigo"
+                                                       class="block bold"> {{item.carrera.facultad.nombre}}</small>
                                             </td>
                                             <td class="v-middle text-center">
                                                 <span> {{ item.promedioAcumulado.toFixed(2) }} </span>
                                             </td>
+
+                                            <td class="v-middle text-center b-l"><span v-if="item.creditosAcumulados>0" v-text="item.creditosAcumulados">100</span></td>
+                                            <td class="v-middle text-center b-l"><span v-if="item.creditosConvalidados>0" v-text="item.creditosConvalidados">100</span></td>
+                                            <td class="v-middle text-center b-l b-r">{{item.nivel}}</td>
+
                                             <td class="v-middle text-center">
                                                 <div v-if="nivelEscogido.val === 0">
                                                     <span v-if="control.escalaEnum.name === 'ESPE'"> {{ item.ordenMeritoCarrera }} </span>

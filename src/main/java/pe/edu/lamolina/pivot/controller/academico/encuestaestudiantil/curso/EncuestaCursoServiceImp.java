@@ -17,10 +17,12 @@ import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
+import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaAlumno;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
@@ -31,6 +33,7 @@ import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
@@ -83,6 +86,8 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
     VisorEncuestaCurso visorEncuestaCurso;
     @Autowired
     GeneradorEncuestaCursoService generadorEncuestaCursoService;
+    @Autowired
+    CursoDAO cursoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -246,6 +251,21 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         updateConfigEncuesta(encuestaBD, encuestaForm.getConfiguraEncuesta().get(0), ciclo, ds);
         updateConfigEncuesta(encuestaBD, encuestaForm.getPeriodosEncuesta(), ciclo, ds);
 
+        List<Curso> cursosNoEncuestar = cursoDAO.allNoEncuestar();
+        List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaBD);
+        Map<Long, Curso> mapCursosNoEncuestar = TypesUtil.convertListToMap("curso.id", cursosSinEncuesta);
+
+        for (Curso curso : cursosNoEncuestar) {
+            Curso cur = mapCursosNoEncuestar.get(curso.getId());
+            if (cur == null) {
+                CursoSinEncuesta cus = new CursoSinEncuesta();
+                cus.setCurso(curso);
+                cus.setEncuestaEstudiantil(encuestaBD);
+                cus.setFechaCreacion(new Date());
+                cus.setUserCreacion(ds.getUsuario());
+                cursoSinEncuestaDAO.save(cus);
+            }
+        }
     }
 
     private void updateConfigEncuesta(EncuestaEstudiantil encuesta, ConfiguraEncuesta configuraEncuestaForm, CicloAcademico ciclo, DataSessionPivot ds) {

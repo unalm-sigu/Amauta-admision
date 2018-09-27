@@ -6,6 +6,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
@@ -38,16 +39,10 @@ public interface EditorEncuestaService {
 
     void addCursoSinEncuesta(CursoSinEncuesta cursoSinEncuesta, DataSessionPivot ds);
 
-    List<Curso> allCursoSinEncuesta(ExamenVirtual encuesta, DataSessionPivot ds);
+    List<Curso> allCursoSinEncuesta(EncuestaEstudiantil encuesta, DataSessionPivot ds);
 
     void removeCursoSinEncuesta(CursoSinEncuesta cursoSinEncuesta, DataSessionPivot ds);
 
-//    ConfiguraEncuesta getConfiguracion(ExamenVirtual encuesta, DataSessionPivot ds);
-
     ObjectNode toJson(ConfiguraEncuesta configuraEncuesta);
-
-//    void saveConfigEncuesta(ConfiguraEncuesta configuraEncuesta, DataSessionPivot ds);
-//
-//    void updateConfigEncuesta(ConfiguraEncuesta configuraEncuesta, DataSessionPivot ds);
 
 }
