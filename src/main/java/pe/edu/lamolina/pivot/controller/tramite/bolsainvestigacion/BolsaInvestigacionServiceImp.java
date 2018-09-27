@@ -117,7 +117,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         tramite.setAlumno(alumnoBolsa.getAlumno());
         tramite.setCicloAcademico(cicloAcademico);
         tramite.setCompania(ds.getCompania());
-        tramite.setEstado(TramiteEstadoEnum.CRE.name());
+        tramite.setEstado(TramiteEstadoEnum.SOL.name());
         tramite.setFechaRegistro(new Date());
         tramite.setPersona(alumnoBolsa.getAlumno().getPersona());
         tramite.setTipoTramite(new TipoTramite(ID_TIPO_TRAMITE_SUBVENCION));
