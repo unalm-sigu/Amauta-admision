@@ -398,7 +398,7 @@ $(function () {
             var idx = tr.attr("rel");
             var rec = dynatableCursosAdc.settings.dataset.records[idx];
 
-            MODAL.init("lg");
+            MODAL.init("md");
             MODAL.title("Edición Curso " + rec.curso);
             MODAL.buttons('<a class="btn btn-primary" id="btnAddCurAdc">Aceptar</a>');
             MODAL.show();
@@ -409,6 +409,7 @@ $(function () {
                 async: false,
                 success: function (response) {
                     MODAL.body(response);
+
                     $("[name='cicloFin.id']").select2({
                         minimumInputLength: 1,
                         ajax: {
@@ -428,7 +429,11 @@ $(function () {
                         formatSelection: function (info) {
                             return info.descripcion;
                         }
+                    }).on('select2-selecting', function (e) {
+                        $("[name='cicloFin.id']").val(e.object.id);
                     });
+
+
                     $("[name='cicloInicio.id']").select2({
                         minimumInputLength: 1,
                         ajax: {
@@ -458,17 +463,13 @@ $(function () {
 
                     axios.post(`/academico/planCurricular/findCursoAdicional/${rec.id}`)
                             .then(response => {
-                                var $option = $("<option selected></option>").val(initial_creditor_id).text("Whatever Select2 should display");
-                                $("[name='cicloFinContrato.id']").select2("val", response.data.data.cicloFin.id).trigger('change');
-                                $("[name='cicloInicioContrato.id']").select2("val", response.data.data.cicloInicio.id).trigger('change');
+                                if (response.data.data.cicloInicio.id) {
+                                    $("[name='cicloInicio.id']").select2("data", response.data.data.cicloInicio);
+                                }
+                                if (response.data.data.cicloFin.id) {
+                                    $("[name='cicloFin.id']").select2("data", response.data.data.cicloFin);
+                                }
                             })
-//                    $("#cboCursoElec").select2(NuevaCurricula.cursoElectivos).on('select2-selecting', function (e) {
-//                        $("#txtCreditosElec").val(e.object.creditos);
-//                    });
-//
-//                    $("#cboTipoCursoCurriculaElec").select2();
-//                    $("#cboCursosRequistosElectivo").select2(NuevaCurricula.select2RequisitoCursoOpcional);
-
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -821,9 +822,6 @@ $(function () {
                             results: function (response, page) {
                                 return {results: response.data};
                             }
-                        },
-                        initSelection: function (element, callback) {
-                            return null;
                         },
                         formatResult: function (info) {
                             return info.descripcion;

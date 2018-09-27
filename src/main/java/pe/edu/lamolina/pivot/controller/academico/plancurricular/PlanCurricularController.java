@@ -973,7 +973,9 @@ public class PlanCurricularController {
             CursoAdicionalCurricula curso = service.findCursoAdicional(id);
             response.setData(JsonHelper.createJson(curso, JsonNodeFactory.instance, new String[]{
                 "cicloInicio.id",
-                "cicloFin.id"
+                "cicloInicio.descripcion",
+                "cicloFin.id",
+                "cicloFin.descripcion"
             }));
             response.setSuccess(true);
         } catch (PhobosException e) {
