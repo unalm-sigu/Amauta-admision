@@ -19,7 +19,6 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -120,7 +119,7 @@ public class CicloAcademicoController {
                     });
             response.setData(cicloJson);
             response.setSuccess(Boolean.TRUE);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

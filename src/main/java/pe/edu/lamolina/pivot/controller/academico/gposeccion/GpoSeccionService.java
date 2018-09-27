@@ -40,6 +40,8 @@ public interface GpoSeccionService {
 
     List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
+    List<GrupoSeccion> allCleanByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
+
     void cambiarEstadoGpoSeccion(SeccionEstadoEnum estadoEnum, GrupoSeccion grupoSeccion, Usuario usuario);
 
     List<AnexoBoletin> allAnexosSuperiores();
@@ -169,7 +171,6 @@ public interface GpoSeccionService {
 
     void updateDocenteSecFechaFin(DocenteSeccion docenteSeccion);
 
-    //void analizedDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico);
     List<DocenteSeccion> analizedDocenteSeccion(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
 
     Aula findAulaActiveByCode(String codigoAula);
@@ -179,5 +180,7 @@ public interface GpoSeccionService {
     void actualizarSeccionResctriccionCapa(Seccion seccionForm, Usuario usuario);
 
     List<HorarioSeccion> allHorarioSeccion(Seccion seccion);
+
+    void evaluateSeccion(Seccion seccion);
 
 }

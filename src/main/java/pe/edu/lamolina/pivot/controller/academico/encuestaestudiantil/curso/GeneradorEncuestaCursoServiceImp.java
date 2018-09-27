@@ -87,13 +87,10 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
         ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaEstudiantil);
         List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuestaEstudiantil);
 
-        List<Curso> cursosNoEncuestar = cursoDAO.allNoEncuestar();
-
         List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
         Map<Long, Curso> mapCursosSinEncuesta = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
-        Map<Long, Curso> mapCursosNoEncuestar = TypesUtil.convertListToMap("id", cursosNoEncuestar);
-        mapCursosSinEncuesta.putAll(mapCursosNoEncuestar);
         visorEncuestaCurso.iniciarConteo(mapGposSeccion.size());
+
         for (GrupoSeccion grupoSeccion : mapGposSeccion.values()) {
             saveEncuestaCurso(
                     grupoSeccion,
@@ -106,7 +103,6 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
         }
 
         encuestaEstudiantilDAO.update(encuestaEstudiantil);
-
     }
 
     private void saveEncuestaCurso(

@@ -99,6 +99,7 @@ public class BolsaTrabajoController {
                     "tramite.alumno.persona.nombreCompleto",
                     "tramite.alumno.persona.numeroDocIdentidad",
                     "tramite.alumno.persona.rutaFoto",
+                    "tramite.alumno.persona.tipoFoto",
                     "tramite.alumno.persona.tipoDocumento.id",
                     "tramite.alumno.persona.tipoDocumento.simbolo",
                     "tramite.alumno.carrera.id",

@@ -30,12 +30,10 @@ Vue.component("aula-component", {
             }
         }
     },
-    mounted: function () {
+    created() {
+    },
+    mounted() {
         let $vue = this;
-        $global.$on("loadAulaComponent", function (seccion) {
-            $vue.loadAula($vue, seccion);
-        });
-
         $global.$on("saveAula", function () {
             $vue.saveAula($vue);
         });
@@ -43,7 +41,6 @@ Vue.component("aula-component", {
         $global.$on("closeAula", function () {
             $vue.closeAula($vue);
         });
-
 
     },
     methods: {
@@ -59,7 +56,8 @@ Vue.component("aula-component", {
         labelAula() {
             return "lalala";
         },
-        loadAula($vue, seccion) {
+        loadAula(seccion) {
+            let $vue = this;
             $vue.tabAulas = {
                 aulaSel: {},
                 oera: {
@@ -87,7 +85,7 @@ Vue.component("aula-component", {
                 method: 'POST',
                 url: APP.url('academico/gposeccion/loadModalAula'),
                 data: {
-                    seccion: seccion
+                    seccion: seccion.id
                 },
                 success: function (response) {
                     if (response.success) {
