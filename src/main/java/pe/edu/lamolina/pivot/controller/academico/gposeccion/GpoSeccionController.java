@@ -1117,7 +1117,6 @@ public class GpoSeccionController {
             @RequestParam("docSeccion") Long docSeccion,
             @RequestParam("porcentajeAvance") BigDecimal porcentajeAvance,
             HttpSession session) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
             DocenteSeccion docenteSeccion = new DocenteSeccion(docSeccion);

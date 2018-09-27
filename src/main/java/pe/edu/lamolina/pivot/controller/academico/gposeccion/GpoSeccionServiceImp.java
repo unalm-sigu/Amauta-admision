@@ -52,6 +52,10 @@ import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
+import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
+import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
+import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
@@ -85,6 +89,9 @@ import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionModalidadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionRepitenciaDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoRepitenciaDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.ConfiguraEncuestaDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.PeriodoEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
@@ -176,6 +183,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+    @Autowired
+    EncuestaDocenteDAO encuestaDocenteDAO;
+    @Autowired
+    PeriodoEncuestaDAO periodoEncuestaDAO;
+    @Autowired
+    ConfiguraEncuestaDAO configuraEncuestaDAO;
 
     @Override
     public Oficina findOficinaOera() {
@@ -553,13 +566,127 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional
     public void updateDocenteSecFechaInicio(DocenteSeccion docenteSeccion) {
+
+        DocenteSeccion profeSecc = docenteSeccionDAO.find(docenteSeccion.getId());
+        List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSecc.getSeccion());
+
+        if (profeSecc.getFechaFin() != null) {
+            if (docenteSeccion.getFechaInicio().compareTo(profeSecc.getFechaFin()) >= 0) {
+                throw new PhobosException("La fecha de inicio no puede ser mayor o igual a la fecha final");
+            }
+        }
+
+        for (DocenteSeccion profeSeccBD : profesSecc) {
+            if (profeSeccBD.getId() == docenteSeccion.getId().longValue()) {
+                continue;
+            }
+            if (profeSeccBD.getFechaInicio() == null && profeSeccBD.getFechaFin() == null) {
+                continue;
+            }
+            if (profeSeccBD.getFechaInicio() != null && profeSeccBD.getFechaFin() != null) {
+                if (docenteSeccion.getFechaInicio().compareTo(profeSeccBD.getFechaInicio()) >= 0 && docenteSeccion.getFechaInicio().compareTo(profeSeccBD.getFechaFin()) <= 0) {
+                    throw new PhobosException("La fecha seleccionada se encuentra dentro de un rango fijado");
+                } else {
+                    continue;
+                }
+            }
+            if (profeSeccBD.getFechaInicio() != null && profeSeccBD.getFechaInicio().compareTo(docenteSeccion.getFechaInicio()) == 0) {
+                throw new PhobosException("La fecha seleccionada es igual a otra fecha de inicio.");
+            }
+            if (profeSeccBD.getFechaFin() != null && profeSeccBD.getFechaFin().compareTo(docenteSeccion.getFechaInicio()) == 0) {
+                throw new PhobosException("La fecha seleccionada es igual a una fecha fin.");
+            }
+        }
+
         docenteSeccionDAO.updateFechaInicio(docenteSeccion);
+        evaluateSeccion(profeSecc.getSeccion());
     }
 
     @Override
     @Transactional
     public void updateDocenteSecFechaFin(DocenteSeccion docenteSeccion) {
+
+        DocenteSeccion profeSecc = docenteSeccionDAO.find(docenteSeccion.getId());
+        List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSecc.getSeccion());
+
+        if (profeSecc.getFechaInicio() != null) {
+            if (profeSecc.getFechaInicio().compareTo(docenteSeccion.getFechaFin()) >= 0) {
+                throw new PhobosException("La fecha final no puede ser menor o igual a la fecha de inicio");
+            }
+        }
+
+        for (DocenteSeccion profeSeccBD : profesSecc) {
+            if (profeSeccBD.getId() == docenteSeccion.getId().longValue()) {
+                continue;
+            }
+            if (profeSeccBD.getFechaInicio() == null && profeSeccBD.getFechaFin() == null) {
+                continue;
+            }
+            if (profeSeccBD.getFechaInicio() != null && profeSeccBD.getFechaFin() != null) {
+                if (docenteSeccion.getFechaFin().compareTo(profeSeccBD.getFechaInicio()) >= 0 && docenteSeccion.getFechaFin().compareTo(profeSeccBD.getFechaFin()) <= 0) {
+                    throw new PhobosException("La fecha seleccionada se encuentra dentro de un rango fijado");
+                } else if (profeSecc.getFechaInicio() != null) {
+                    if (profeSeccBD.getFechaFin().compareTo(profeSecc.getFechaInicio()) >= 0 && profeSeccBD.getFechaFin().compareTo(docenteSeccion.getFechaFin()) <= 0) {
+                        throw new PhobosException("La fecha seleccionada abarca un rango establecido.");
+                    }
+                } else {
+                    continue;
+                }
+            }
+            if (profeSeccBD.getFechaInicio() != null && profeSeccBD.getFechaInicio().compareTo(docenteSeccion.getFechaFin()) == 0) {
+                throw new PhobosException("La fecha seleccionada es igual a una fecha de inicio.");
+            }
+            if (profeSeccBD.getFechaFin() != null && profeSeccBD.getFechaFin().compareTo(docenteSeccion.getFechaFin()) == 0) {
+                throw new PhobosException("La fecha seleccionada es igual a otra fecha final.");
+            }
+        }
+
         docenteSeccionDAO.updateFechaFin(docenteSeccion);
+        evaluateSeccion(profeSecc.getSeccion());
+    }
+
+    private void evaluateSeccion(Seccion seccion) {
+        List<DocenteSeccion> lstDocSec = docenteSeccionDAO.allBySeccion(seccion);
+
+        BigDecimal total = BigDecimal.ZERO;
+        boolean dateIsOk = true;
+        for (DocenteSeccion docenteSeccion : lstDocSec) {
+            logger.debug("DOCENTE SECCION ID {}", docenteSeccion.getId());
+            if (docenteSeccion.getPorcentajeCarga() != null) {
+                total = total.add(docenteSeccion.getPorcentajeCarga());
+            }
+            if (docenteSeccion.getFechaInicio() == null || docenteSeccion.getFechaFin() == null) {
+                dateIsOk = false;
+            }
+        }
+        BigDecimal cien = new BigDecimal(100L);
+        if (dateIsOk && total.compareTo(cien) == 0) {
+            fixEncuesta(lstDocSec);
+            logger.debug("YA SE PUEDE ABRIR LA ENCUESTA");
+        } else {
+            logger.debug("NADA AUN ? ");
+        }
+    }
+
+    private void fixEncuesta(List<DocenteSeccion> lstDocSec) {
+        if (lstDocSec.size() == 1) {
+            EncuestaDocente encuesta = encuestaDocenteDAO.findByDocenteSeccion(lstDocSec.get(0));
+            List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuesta.getEncuestaEstudiantil());
+            encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
+            encuesta.setFechaEncuestaInicio(periodosEncuesta.get(0).getFechaInicio());
+            encuesta.setFechaEncuestaFin(periodosEncuesta.get(0).getFechaFin());
+            encuestaDocenteDAO.update(encuesta);
+        } else {
+            for (DocenteSeccion docenteSeccion : lstDocSec) {
+                EncuestaDocente encuesta = encuestaDocenteDAO.findByDocenteSeccion(docenteSeccion);
+                ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuesta.getEncuestaEstudiantil());
+                Date inicioEncuesta = new DateTime(docenteSeccion.getFechaFin()).minusDays(configuraEncuesta.getDiasEncuesta().intValue()).toDate();
+                encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
+                encuesta.setFechaEncuestaInicio(inicioEncuesta);
+                encuesta.setFechaEncuestaFin(docenteSeccion.getFechaFin());
+                encuestaDocenteDAO.update(encuesta);
+            }
+        }
     }
 
     @Override
@@ -1011,6 +1138,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             throw new PhobosException("El porcentaje de carga no puede exceder el 100%");
         }
         docenteSeccionDAO.updatePorcentajeAvance(docenteSeccion);
+        evaluateSeccion(profeSecc.getSeccion());
     }
 
     @Override
