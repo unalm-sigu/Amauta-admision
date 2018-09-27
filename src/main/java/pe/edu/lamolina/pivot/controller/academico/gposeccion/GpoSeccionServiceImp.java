@@ -565,87 +565,89 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void updateDocenteSecFechaInicio(DocenteSeccion docenteSeccion) {
+    public void updateDocenteSecFechaInicio(DocenteSeccion profeSeccForm) {
 
-        DocenteSeccion profeSecc = docenteSeccionDAO.find(docenteSeccion.getId());
-        List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSecc.getSeccion());
+        DocenteSeccion profeSeccDB = docenteSeccionDAO.find(profeSeccForm.getId());
+        List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccDB.getSeccion());
 
-        if (profeSecc.getFechaFin() != null) {
-            if (docenteSeccion.getFechaInicio().compareTo(profeSecc.getFechaFin()) >= 0) {
+        if (profeSeccDB.getFechaFin() != null) {
+            if (profeSeccForm.getFechaInicio().compareTo(profeSeccDB.getFechaFin()) >= 0) {
                 throw new PhobosException("La fecha de inicio no puede ser mayor o igual a la fecha final");
             }
         }
 
-        for (DocenteSeccion profeSeccBD : profesSecc) {
-            if (profeSeccBD.getId() == docenteSeccion.getId().longValue()) {
+        for (DocenteSeccion profeSec : profesSecc) {
+            if (profeSec.getId() == profeSeccForm.getId().longValue()) {
                 continue;
             }
-            if (profeSeccBD.getFechaInicio() == null && profeSeccBD.getFechaFin() == null) {
+            if (profeSec.getFechaInicio() == null && profeSec.getFechaFin() == null) {
                 continue;
             }
-            if (profeSeccBD.getFechaInicio() != null && profeSeccBD.getFechaFin() != null) {
-                if (docenteSeccion.getFechaInicio().compareTo(profeSeccBD.getFechaInicio()) >= 0 && docenteSeccion.getFechaInicio().compareTo(profeSeccBD.getFechaFin()) <= 0) {
+            if (profeSec.getFechaInicio() != null && profeSec.getFechaFin() != null) {
+                if (profeSeccForm.getFechaInicio().compareTo(profeSec.getFechaInicio()) >= 0 && profeSeccForm.getFechaInicio().compareTo(profeSec.getFechaFin()) <= 0) {
                     throw new PhobosException("La fecha seleccionada se encuentra dentro de un rango fijado");
                 } else {
                     continue;
                 }
             }
-            if (profeSeccBD.getFechaInicio() != null && profeSeccBD.getFechaInicio().compareTo(docenteSeccion.getFechaInicio()) == 0) {
+            if (profeSec.getFechaInicio() != null && profeSec.getFechaInicio().compareTo(profeSeccForm.getFechaInicio()) == 0) {
                 throw new PhobosException("La fecha seleccionada es igual a otra fecha de inicio.");
             }
-            if (profeSeccBD.getFechaFin() != null && profeSeccBD.getFechaFin().compareTo(docenteSeccion.getFechaInicio()) == 0) {
+            if (profeSec.getFechaFin() != null && profeSec.getFechaFin().compareTo(profeSeccForm.getFechaInicio()) == 0) {
                 throw new PhobosException("La fecha seleccionada es igual a una fecha fin.");
             }
         }
-
-        docenteSeccionDAO.updateFechaInicio(docenteSeccion);
-        evaluateSeccion(profeSecc.getSeccion());
+        profeSeccDB.setFechaInicio(profeSeccForm.getFechaInicio());
+        docenteSeccionDAO.updateFechaInicio(profeSeccDB);
+        evaluateSeccion(profeSeccDB.getSeccion());
     }
 
     @Override
     @Transactional
-    public void updateDocenteSecFechaFin(DocenteSeccion docenteSeccion) {
+    public void updateDocenteSecFechaFin(DocenteSeccion profeSeccForm) {
 
-        DocenteSeccion profeSecc = docenteSeccionDAO.find(docenteSeccion.getId());
-        List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSecc.getSeccion());
+        DocenteSeccion profeSeccDB = docenteSeccionDAO.find(profeSeccForm.getId());
+        List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccDB.getSeccion());
 
-        if (profeSecc.getFechaInicio() != null) {
-            if (profeSecc.getFechaInicio().compareTo(docenteSeccion.getFechaFin()) >= 0) {
+        if (profeSeccDB.getFechaInicio() != null) {
+            if (profeSeccDB.getFechaInicio().compareTo(profeSeccForm.getFechaFin()) >= 0) {
                 throw new PhobosException("La fecha final no puede ser menor o igual a la fecha de inicio");
             }
         }
 
-        for (DocenteSeccion profeSeccBD : profesSecc) {
-            if (profeSeccBD.getId() == docenteSeccion.getId().longValue()) {
+        for (DocenteSeccion profeSec : profesSecc) {
+            if (profeSec.getId() == profeSeccForm.getId().longValue()) {
                 continue;
             }
-            if (profeSeccBD.getFechaInicio() == null && profeSeccBD.getFechaFin() == null) {
+            if (profeSec.getFechaInicio() == null && profeSec.getFechaFin() == null) {
                 continue;
             }
-            if (profeSeccBD.getFechaInicio() != null && profeSeccBD.getFechaFin() != null) {
-                if (docenteSeccion.getFechaFin().compareTo(profeSeccBD.getFechaInicio()) >= 0 && docenteSeccion.getFechaFin().compareTo(profeSeccBD.getFechaFin()) <= 0) {
+            if (profeSec.getFechaInicio() != null && profeSec.getFechaFin() != null) {
+                if (profeSeccForm.getFechaFin().compareTo(profeSec.getFechaInicio()) >= 0 && profeSeccForm.getFechaFin().compareTo(profeSec.getFechaFin()) <= 0) {
                     throw new PhobosException("La fecha seleccionada se encuentra dentro de un rango fijado");
-                } else if (profeSecc.getFechaInicio() != null) {
-                    if (profeSeccBD.getFechaFin().compareTo(profeSecc.getFechaInicio()) >= 0 && profeSeccBD.getFechaFin().compareTo(docenteSeccion.getFechaFin()) <= 0) {
+                } else if (profeSeccDB.getFechaInicio() != null) {
+                    if (profeSec.getFechaFin().compareTo(profeSeccDB.getFechaInicio()) >= 0 && profeSec.getFechaFin().compareTo(profeSeccForm.getFechaFin()) <= 0) {
                         throw new PhobosException("La fecha seleccionada abarca un rango establecido.");
                     }
                 } else {
                     continue;
                 }
             }
-            if (profeSeccBD.getFechaInicio() != null && profeSeccBD.getFechaInicio().compareTo(docenteSeccion.getFechaFin()) == 0) {
+            if (profeSec.getFechaInicio() != null && profeSec.getFechaInicio().compareTo(profeSeccForm.getFechaFin()) == 0) {
                 throw new PhobosException("La fecha seleccionada es igual a una fecha de inicio.");
             }
-            if (profeSeccBD.getFechaFin() != null && profeSeccBD.getFechaFin().compareTo(docenteSeccion.getFechaFin()) == 0) {
+            if (profeSec.getFechaFin() != null && profeSec.getFechaFin().compareTo(profeSeccForm.getFechaFin()) == 0) {
                 throw new PhobosException("La fecha seleccionada es igual a otra fecha final.");
             }
         }
-
-        docenteSeccionDAO.updateFechaFin(docenteSeccion);
-        evaluateSeccion(profeSecc.getSeccion());
+        profeSeccDB.setFechaFin(profeSeccForm.getFechaFin());
+        docenteSeccionDAO.updateFechaFin(profeSeccDB);
+        evaluateSeccion(profeSeccDB.getSeccion());
     }
 
-    private void evaluateSeccion(Seccion seccion) {
+    @Override
+    @Transactional
+    public void evaluateSeccion(Seccion seccion) {
         List<DocenteSeccion> lstDocSec = docenteSeccionDAO.allBySeccion(seccion);
 
         BigDecimal total = BigDecimal.ZERO;
@@ -653,6 +655,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         for (DocenteSeccion docenteSeccion : lstDocSec) {
             logger.debug("DOCENTE SECCION ID {}", docenteSeccion.getId());
             if (docenteSeccion.getPorcentajeCarga() != null) {
+                System.out.println(docenteSeccion.getPorcentajeCarga() + " yyyy");
                 total = total.add(docenteSeccion.getPorcentajeCarga());
             }
             if (docenteSeccion.getFechaInicio() == null || docenteSeccion.getFechaFin() == null) {
@@ -1113,14 +1116,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    @Transactional(readOnly = false)
-    public void updatePorcentajeAvance(DocenteSeccion docenteSeccion) {
-        DocenteSeccion profeSecc = docenteSeccionDAO.find(docenteSeccion.getId());
-        List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSecc.getSeccion());
+    @Transactional
+    public void updatePorcentajeAvance(DocenteSeccion profeSeccForm) {
+        DocenteSeccion profeSeccBDMain = docenteSeccionDAO.find(profeSeccForm.getId());
+        List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccBDMain.getSeccion());
 
         BigDecimal total = BigDecimal.ZERO;
         for (DocenteSeccion profeSeccBD : profesSecc) {
-            if (profeSeccBD.getId().longValue() == docenteSeccion.getId()) {
+            if (profeSeccBD.getId().longValue() == profeSeccForm.getId()) {
                 continue;
             }
             if (profeSeccBD.getPorcentajeCarga() == null) {
@@ -1132,13 +1135,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             total = total.add(profeSeccBD.getPorcentajeCarga());
         }
 
-        total = total.add(docenteSeccion.getPorcentajeCarga());
+        total = total.add(profeSeccForm.getPorcentajeCarga());
         BigDecimal cien = new BigDecimal(100L);
         if (total.compareTo(cien) > 0) {
             throw new PhobosException("El porcentaje de carga no puede exceder el 100%");
         }
-        docenteSeccionDAO.updatePorcentajeAvance(docenteSeccion);
-        evaluateSeccion(profeSecc.getSeccion());
+
+        profeSeccBDMain.setPorcentajeCarga(profeSeccForm.getPorcentajeCarga());
+        docenteSeccionDAO.update(profeSeccBDMain);
+
+        evaluateSeccion(profeSeccBDMain.getSeccion());
     }
 
     @Override
