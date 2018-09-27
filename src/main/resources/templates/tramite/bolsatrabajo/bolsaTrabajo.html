@@ -32,7 +32,7 @@
                                             <tr v-for="item in props.data">
                                                 <td class="v-middle">
                                                     <div class="pull-left">
-                                                        <div v-if="item.persona.tipoFoto=='POSTUL' "
+                                                        <div v-if="item.tramite.alumno.persona.tipoFoto=='POSTUL' "
                                                              class="img-responsive img-thumbnail img-circle div-foto-list">
                                                             <img class="img-foto-list" v-bind:src="item.tramite.alumno.persona.rutaFoto" />
                                                         </div>
@@ -47,9 +47,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="v-middle text-left">
-                                                    <div class="pull-left m-r">
-                                                        <img class="img-responsive img-thumbnail img-circle" v-bind:src="item.tramite.alumno.persona.rutaFoto" />
-                                                    </div>
+                                                   
                                                     <span class="block bold "> <a>{{item.tramite.alumno.persona.nombreCompleto}}</a> </span> 
                                                     <span class="block bold " v-if="item.tramite.alumno.carrera.nombre!=item.tramite.alumno.carrera.facultad.nombre"> {{item.tramite.alumno.carrera.nombre}} - {{item.tramite.alumno.carrera.facultad.nombre}} </span> 
                                                     <span class="block bold " v-if="item.tramite.alumno.persona.numeroDocIdentidad!=null"> {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}} </span> 
