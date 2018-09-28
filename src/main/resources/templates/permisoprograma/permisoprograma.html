@@ -1,6 +1,17 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Permisos para programación de horarios</title>
+        <style>
+            .multiselect__tags{
+                min-height: 40px;
+                display: block;
+                padding: 8px 40px 0 8px;
+                border-radius: 5px;
+                border: none !important;
+                background: none !important;
+                font-size: 14px;
+            }
+        </style>
     </head>
 
     <body>
@@ -25,7 +36,7 @@
                                                         <th class="col-md-2 text-left">Grupo Seccion</th>
                                                         <th class="col-md-2 text-left">Seccion</th>
                                                         <th class="col-md-2 text-left">Docentes</th>
-                                                        <th class="text-left"></th>
+                                                        <th ></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -35,9 +46,6 @@
                                                         <td class="v-middle text-left"
                                                             v-if="item.rows>0"
                                                             v-bind:rowspan="item.rows">
-                                                            <div class="pull-left m-r">
-                                                                <img class="img-responsive img-thumbnail img-circle" v-bind:src="item.colaborador.persona.rutaFoto" />
-                                                            </div>
                                                             <span class="block bold "> <a>{{item.colaborador.persona.apellidosNombres}}</a> </span> 
                                                             <span class="block bold " > {{item.colaborador.cargo.nombre}} </span> 
                                                         </td>                                                       
@@ -59,6 +67,7 @@
                                                                         :hide-selected="true"
                                                                         :show-labels="false"
                                                                         required="true"
+                                                                        placeholder=""
                                                                         v-on:remove="removePermiso"
                                                                         v-on:input="input(item,'CUR')"
                                                                         v-on:select="selectPermiso"
@@ -68,7 +77,7 @@
                                                             </div>
 
                                                         </td>                                                       
-                                                        <td class="v-middle text-left" v-bind:class="classTable(item)">
+                                                        <td class="text-left" v-bind:class="classTable(item)">
                                                             <div class="col-sm-12" >
                                                                 <div class="form-group" v-if="item.anexoBoletin.id!=null">
                                                                     <multiselect 
@@ -76,10 +85,12 @@
                                                                         v-bind:options='programaGpoSeccion'
                                                                         :custom-label='customLabel'
                                                                         track-by='id'
+                                                                        :taggable="true"
                                                                         :multiple="true" 
                                                                         :hide-selected="true"
                                                                         :show-labels="false"
                                                                         required="true"
+                                                                        placeholder=""
                                                                         v-on:input="input(item,'GpoSec')"
                                                                         v-on:remove="removePermiso"
                                                                         v-on:select="selectPermiso">
@@ -87,7 +98,7 @@
                                                                 </div>
                                                             </div>
                                                         </td>                                                       
-                                                        <td class="v-middle text-left" v-bind:class="classTable(item)">
+                                                        <td class=" text-left" v-bind:class="classTable(item)">
                                                             <div class="col-sm-12" >
                                                                 <div class="form-group" v-if="item.anexoBoletin.id!=null">
                                                                     <multiselect 
@@ -98,38 +109,51 @@
                                                                         :multiple="true" 
                                                                         :hide-selected="true"
                                                                         :show-labels="false"
+                                                                        :taggable="true"
                                                                         required="true" 
-                                                                        v-on:remove="removePermiso"
-                                                                        v-on:open="addSecc"
-                                                                        v-on:select="addPermiso">      
+                                                                        placeholder=""
+                                                                        v-on:remove="removePermiso">      
+                                                                        <template slot="option" slot-scope="props">
+                                                                            <span class="block" v-text="props.option.nombre" v-on:click="modal(item,props.option)"></span>                                                                          
+                                                                        </template>
                                                                         <template slot="tag" slot-scope="props">
-                                                                            <span class="multiselect__tag" v-text="props.option.nombre" v-on:click="modifySecc(item,props.option)"></span>
+                                                                            <span class="multiselect__tag " >
+                                                                                <span v-text="props.option.nombre" v-on:click="modifySecc(item,props.option)"></span>
+                                                                                <i class=" multiselect__tag-icon" aria-hidden="true" v-on:click="props.remove(props.option)"></i>
+                                                                            </span>
                                                                         </template>
                                                                     </multiselect>
                                                                 </div>
                                                             </div>
                                                         </td>                                                       
-                                                        <td class="v-middle text-left" v-bind:class="classTable(item)">
+                                                        <td class=" text-left" v-bind:class="classTable(item)">
                                                             <div class="col-sm-12" >
                                                                 <div class="form-group" v-if="item.anexoBoletin.id!=null">
-                                                                    <multiselect 
+                                                                    <multiselect                                                                        
                                                                         v-model="item.permisosDocente"
                                                                         v-bind:options='programaDocente'
                                                                         :custom-label='customLabel'
                                                                         track-by='id'
                                                                         :multiple="true" 
-                                                                        :taggable="true"
                                                                         :hide-selected="true"
                                                                         :show-labels="false"
+                                                                        :taggable="true"
                                                                         required="true"
                                                                         v-on:remove="removePermiso"
                                                                         v-on:input="input(item,'DOC')"
+                                                                        placeholder=""
                                                                         v-on:select="selectPermiso">
+                                                                        <template slot="tag" slot-scope="props"  class="back">
+                                                                            <span class="multiselect__tag " >
+                                                                                <span v-text="props.option.nombre" ></span>
+                                                                                <i class=" multiselect__tag-icon" aria-hidden="true" v-on:click="props.remove(props.option)"></i>
+                                                                            </span>
+                                                                        </template>
                                                                     </multiselect>
                                                                 </div>
                                                             </div>
                                                         </td>                                                       
-                                                        <td class="v-middle text-left" v-bind:class="classTable(item)">
+                                                        <td class="text-left" v-bind:class="classTable(item)">
                                                             <div class="dropdown actions">
                                                                 <a class="dropdown-toggle" data-toggle="dropdown">
                                                                     <i class="glyphicon glyphicon-option-vertical"></i>

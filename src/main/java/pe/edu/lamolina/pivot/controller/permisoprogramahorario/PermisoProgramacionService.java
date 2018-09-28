@@ -22,4 +22,6 @@ public interface PermisoProgramacionService {
 
     public void savepermiso(ColaboradorAnexoBean colaboradorAnexo, DataSessionPivot ds);
 
+    public void updatepermiso(ColaboradorAnexoBean colaboradorAnexo, DataSessionPivot ds);
+
 }

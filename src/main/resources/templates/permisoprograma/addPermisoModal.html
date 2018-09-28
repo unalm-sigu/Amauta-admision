@@ -1,6 +1,6 @@
 <modal-vik ref="modalAddPermiso"
            v-bind="modalAddPermiso"
-              v-bind:okaction="save" >
+           v-bind:okaction="save" >
 
     <div slot="body">
 
@@ -8,7 +8,7 @@
             <div class="step1">
                 <div class=" row">
                     <div class="col-sm-12" >
-                        <div class="form-group">
+                        <div class="form-group" v-if="colaboradorAnexo.id == null">
                             <label >Anexo Boletin  </label>
                             <multiselect 
                                 v-model="colaboradorAnexo.anexoBoletin"
@@ -17,15 +17,24 @@
                                 track-by='id'
                                 placeholder="Seleccines un anexo"
                                 required="true" >
-                                <template slot="singleLabel" slot-scope="props">
-                                    <span v-text="props.option.nombre"></span>
-                                    <small v-text="props.option.anexoSuperior.nombre"></small>
+                                <template slot="option" slot-scope="props">
+                                    <span class="block" v-text="props.option.nombre"></span>
+                                    <small v-if="props.option.anexoSuperior != null" v-text="props.option.anexoSuperior.nombre"></small>
                                 </template>
                             </multiselect>
                         </div>
+                        <div class="form-group" v-else="">
+                            <label >Anexo Boletin  </label>
+                            <div class="col-sm-12" >
+                                <span class="bold" v-text="colaboradorAnexo.anexoBoletin.nombre"></span>
+                                <small v-if="colaboradorAnexo.anexoBoletin.anexoSuperior != null" v-text="colaboradorAnexo.anexoBoletin.anexoSuperior.nombre"></small>
+                            </div>
+                        </div>
                     </div>
+                </div>
+                <div class=" row">
                     <div class="col-sm-12" >
-                        <div class="form-group">
+                        <div class="form-group" v-if="colaboradorAnexo.id == null">
                             <label >Eventos  </label>
                             <multiselect 
                                 v-model="colaboradorAnexo.permisoProgramacion"
@@ -39,6 +48,12 @@
                                     <span v-text="props.option.nombre"></span>
                                 </template>
                             </multiselect>
+                        </div>
+                        <div class="form-group" v-else="">
+                            <label >Evento </label>
+                            <div class="col-sm-12" >
+                                <span class="bold" v-text="colaboradorAnexo.permisoProgramacion.nombre"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
