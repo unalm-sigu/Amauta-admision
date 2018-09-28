@@ -45,6 +45,18 @@
                 <input class="form-control" name="creditosRequisito" type="text" required="yes" data-parsley-type="digits"
                        th:value="${cursoOpcional.creditosRequisito}"/>
             </div>
+            <div class="form-group col-md-4">
+                <label> Requiere solo un curso requisito </label>
+                <div class="col-sm-10 text-left">
+                    <label class="switch">
+                        <input  type="checkbox" 
+                                name="requisitosOr"
+                                value="1"
+                                th:attr="checked=${cursoOpcional.requisitosOr}"/>
+                        <span></span>
+                    </label>
+                </div>
+            </div>
         </div>
 
         <fieldset>

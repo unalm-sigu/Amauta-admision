@@ -30,7 +30,6 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;

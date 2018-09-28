@@ -181,4 +181,6 @@ public interface GpoSeccionService {
 
     List<HorarioSeccion> allHorarioSeccion(Seccion seccion);
 
+    void evaluateSeccion(Seccion seccion);
+
 }

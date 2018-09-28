@@ -64,4 +64,6 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     List<DocenteSeccion> allSinNNByCicloModalidad(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio);
 
+    List<DocenteSeccion> allActivosByDocenteCiclo(Docente docente, CicloAcademico ciclo);
+
 }

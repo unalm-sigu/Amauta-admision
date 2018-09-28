@@ -43,6 +43,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -418,49 +419,6 @@ public class ProfesorController {
 
     }
 
-//    @RequestMapping("view/{file:.*}")
-    public void view(@PathVariable String file, HttpServletResponse response) throws Exception {
-
-        String fileNameRoot = Constantine.AVATAR_DIR + file;
-
-        File filex = new File(fileNameRoot);
-        if (!filex.exists()) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-
-        response.reset();
-        response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-        response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "inline; filename=\"" + file + "\"");
-
-        BufferedInputStream input = null;
-        BufferedOutputStream output = null;
-
-        try {
-            input = new BufferedInputStream(new FileInputStream(filex), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-            output = new BufferedOutputStream(response.getOutputStream(), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-            IOUtils.copy(input, output);
-            response.flushBuffer();
-
-        } finally {
-
-            close(output);
-            close(input);
-
-        }
-    }
-
-    private static void close(Closeable resource) {
-        if (resource != null) {
-            try {
-                resource.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     @ResponseBody
     @RequestMapping(value = "view/{file:.*}")
     public byte[] showAvatar(@PathVariable("file") String file, HttpServletRequest reextencionquest, HttpSession session) throws IOException {
@@ -515,105 +473,23 @@ public class ProfesorController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
-            List<GrupoSeccion> gruposSeccion = cargaAcademicaService.allGrupoByDocente(docente, ciclo, ds);
-            logger.debug(this.getClass() + " Lista grupos por docente {}", gruposSeccion.size());
+            List<GrupoSeccion> gruposSeccion = service.allGpoSecciones(docente, ciclo, ds);
 
             for (GrupoSeccion grupoSeccion : gruposSeccion) {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                node.put("id", grupoSeccion.getId());
-                node.put("idCurso", grupoSeccion.getCurso().getId());
-                node.put("tipoCiclo", grupoSeccion.getCicloAcademico().getTipoEnum().getValue());
-                node.put("nombre", grupoSeccion.getCurso().getNombre());
-                node.put("codigo", grupoSeccion.getCurso().getCodigo());
-                node.put("tpc", grupoSeccion.getCurso().getTpc());
-                node.put("responsable", (String) ObjectUtil.getParentTree(grupoSeccion.getDocenteResponsable(), "persona.nombreCompleto"));
-                node.put("codigo", grupoSeccion.getCurso().getCodigo());
-                node.put("estadoGrupoEnum", grupoSeccion.getEstadoGrupoEnum().getValue());
-                node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
-                //(String) ObjectUtil.getParentTree(docSeccion, "seccion.aula.nombre")
-                node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
-                String secciones = "";
+                ObjectNode node = JsonHelper.createJson(grupoSeccion, JsonNodeFactory.instance, true, new String[]{
+                    "id", "estadoEnum",
+                    "curso.codigo",
+                    "curso.nombre",
+                    "curso.tpc",
+                    "secciones.tipoSeccionEnum",
+                    "secciones.codigo2",
+                    "secciones.matriculados",
+                    "secciones.aula.codigo",
+                    "secciones.aula.nombre",
+                    "secciones.grupoHoras.codigo",
+                    "secciones.docenteSeccion.*"
+                });
 
-                for (Seccion seccion : grupoSeccion.getSecciones()) {
-                    secciones += seccion.getId() + "|" + seccion.getCodigo2() + "|";
-
-                    if (ObjectUtil.getParentTree(seccion, "grupoHoras") != null) {
-                        secciones += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + "|";
-                        //grupoHoras += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + ",";
-                    } else {
-                        secciones += " | |";
-                    }
-                    secciones += (seccion.getVerInformacion() ? "VER" : "NO-VER") + ",";
-                }
-                node.put("secciones", secciones.substring(0, secciones.length() - 1));
-//                if (!"".equals(grupoHoras)) {
-//                    grupoHoras = grupoHoras.substring(0, grupoHoras.length() - 1);
-//                }
-//                node.put("grupoHoras", grupoHoras);
-
-                boolean tienePlanCalificacion = false;
-                boolean verOpciones = false;
-                boolean propuesto = false;
-                PlanCalificacion planCalificacionSelected = null;
-                node.put("sistemas", "");
-
-                List<PlanCalificacionCurso> planesCalificacionesCursos = grupoSeccion.getCurso().getPlanesCalificacionCursos();
-
-                StringBuilder strbSistemas = new StringBuilder();
-                logger.debug("Curso {}, Cantidad Plan Cursos {}", grupoSeccion.getCurso().getId(), planesCalificacionesCursos.size());
-
-                if (grupoSeccion.getPlanCalificacion() == null || grupoSeccion.isEstadoPropuesto()) {
-                    logger.debug("El grupo no tiene plan calificacion o su estado es propuesto");
-                    if (planesCalificacionesCursos.isEmpty()) {
-                        logger.debug("sin planes asociados al curso");
-                        node.put("estado", EstadoPlanCalificaEnum.PEND.name());
-                        node.put("estadoEnum", EstadoPlanCalificaEnum.PEND.getValue());
-                    } else {
-                        logger.debug("con planes asociados al curso, quedara como propuesto");
-                        for (PlanCalificacionCurso planesCalificacionesCurso : planesCalificacionesCursos) {
-                            strbSistemas.append(planesCalificacionesCurso.getPlanCalificacion().getId());
-                            strbSistemas.append(",");
-                            strbSistemas.append(planesCalificacionesCurso.getPlanCalificacion().getCodigo());
-                            strbSistemas.append("-");
-                        }
-                        if (strbSistemas.length() != 0) {
-                            node.put("sistemas", strbSistemas.substring(0, strbSistemas.length() - 1));
-                        }
-
-                        node.put("estado", EstadoPlanCalificaEnum.PRO.name());
-                        node.put("estadoEnum", EstadoPlanCalificaEnum.PRO.getValue());
-                        propuesto = true;
-                        verOpciones = true;
-                    }
-
-                } else {
-                    verOpciones = true;
-                    node.put("idSistemaCalificacion", grupoSeccion.getPlanCalificacion().getId().toString());
-                    node.put("sistemaCalificacion", grupoSeccion.getPlanCalificacion().getCodigo());
-
-                    node.put("estado", grupoSeccion.getEstadoPlan());
-                    node.put("estadoEnum", grupoSeccion.getEstadoPlanEnum().getValue());
-
-                    tienePlanCalificacion = true;
-                    planCalificacionSelected = grupoSeccion.getPlanCalificacion();
-                }
-                node.put("tienePlanCalificacion", tienePlanCalificacion);
-
-                node.put("verDetalleSistemaCal", false);
-                node.put("verOpciones", verOpciones);
-                if (grupoSeccion != null) {
-                    if (grupoSeccion.isEstadoSolicitado()
-                            || grupoSeccion.isEstadoExpandido()
-                            || grupoSeccion.isEstadoExpandir()) {
-                        node.put("verDetalleSistemaCal", true);
-                    }
-                }
-                node.put("verAceptarSistemaCal", false);
-                if (grupoSeccion != null) {
-                    if (grupoSeccion.isEstadoPropuesto() || propuesto) {
-                        node.put("verAceptarSistemaCal", true);
-                    }
-                }
                 array.add(node);
             }
 

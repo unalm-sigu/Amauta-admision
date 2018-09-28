@@ -10,6 +10,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
@@ -127,6 +128,15 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
         Query query = getCurrentSession().createQuery(strQuery);
         query.setLong("enc", encuesta.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public EncuestaDocente findByDocenteSeccion(DocenteSeccion docSec) {
+
+        Octavia sql = Octavia.query(EncuestaDocente.class, "ed")
+                .join("docenteSeccion ds")
+                .filter("ds.id", docSec);
+        return find(sql);
     }
 
 }

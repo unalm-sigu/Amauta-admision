@@ -78,8 +78,12 @@
 
         <fieldset>
             <legend>Cursos Requisitos 
-                <span th:if="${!cursoCurricula.requisitosOr}" class="text-md font-normal text-muted"> Todos los siguientes cursos </span>
-                <span th:if="${cursoCurricula.requisitosOr}" class="text-md font-normal text-muted"> Uno de los siguientes cursos </span>
+                <span th:if="${!cursoCurricula.requisitosOr}" class="text-md font-normal text-muted"> 
+                    <div class="nota-primary">Todos los siguientes cursos </div>
+                </span>
+                <span th:if="${cursoCurricula.requisitosOr}" class="text-md font-normal text-muted"> 
+                    <div class="nota-danger">Uno de los siguientes cursos </div>
+                </span>
             </legend>
             <div class="row">
                 <div class="form-group col-md-9">

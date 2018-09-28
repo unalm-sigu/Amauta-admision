@@ -33,10 +33,12 @@
                                         <thead>
                                             <tr>
                                                 <th class="col-md-4 v-middle"> Docente </th>
+                                                <th class="col-md-2 v-middle"> Situación / Categoría </th>
+                                                <th class="col-md-1 text-center v-middle"> Alumnos </th>
                                                 <th class="col-md-2 text-center v-middle"> Créditos </th>
-                                                <th class="col-md-2 text-center v-middle">Factor 1</th>
-                                                <th class="col-md-2 text-center v-middle">Factor 2</th>
-                                                <th class="col-md-2 text-center v-middle">Monto</th>
+                                                <th class="col-md-1 text-center v-middle">Factor 1</th>
+                                                <th class="col-md-1 text-center v-middle">Factor 2</th>
+                                                <th class="col-md-1 text-center v-middle">Monto</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -56,9 +58,16 @@
                                                         {{item.docente.departamentoAcademico.facultad.nombre}}
                                                     </small>
                                                 </td>
+                                                <td class="v-middle">
+                                                    <span class="block bold" v-text="item.situacionDocente.nombre"></span>
+                                                    <span class="block" v-text="item.categoriaDocente.nombre"></span>
+                                                </td>
                                                 <td class="v-middle text-center">
-                                                    <span class="block"> <b> Total: </b> {{ item.creditosTotal.toFixed(2) }} </span>
-                                                    <span class="block m-t-xs"> <b> Exceso: </b> {{ item.creditosExceso.toFixed(2) }} </span>
+                                                    {{ item.promedioAlumnos.toFixed(4) }}
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <span class="block"> <b> Total: </b> {{ item.creditosTotal.toFixed(4) }} </span>
+                                                    <span class="block m-t-xs"> <b> Exceso: </b> {{ item.creditosExceso.toFixed(4) }} </span>
                                                 </td>
                                                 <td class="v-middle text-center">
                                                     <span> {{ item.factor1.toFixed(1) }} </span>
@@ -66,8 +75,8 @@
                                                 <td class="v-middle text-center">
                                                     <span> {{ item.factor2.toFixed(1) }} </span>
                                                 </td>
-                                                <td class="v-middle text-center">
-                                                    <span v-if="item.monto !== undefined"> {{ item.monto.toFixed(2) }} </span>
+                                                <td class="v-middle text-right">
+                                                    <span v-if="item.monto !== undefined" class="m-r-xs"> {{ item.montoVer }} </span>
                                                 </td>
                                             </tr>
                                         </tbody>

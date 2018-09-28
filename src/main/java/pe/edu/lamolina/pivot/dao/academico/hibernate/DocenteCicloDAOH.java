@@ -14,12 +14,12 @@ import pe.edu.lamolina.pivot.dao.academico.DocenteCicloDAO;
 
 @Repository
 public class DocenteCicloDAOH extends AbstractEasyDAO<DocenteCiclo> implements DocenteCicloDAO {
-
+    
     public DocenteCicloDAOH() {
         super();
         setClazz(DocenteCiclo.class);
     }
-
+    
     @Override
     public List<DocenteCiclo> allByDynatableCicloAcademico(DynatableFilter filter, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
@@ -29,25 +29,26 @@ public class DocenteCicloDAOH extends AbstractEasyDAO<DocenteCiclo> implements D
                 .searchFields("da.nombre", "fa.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .filter("ca.id", cicloAcademico);
-
+                .filter("ca.id", cicloAcademico)
+                .orderBy("dc.monto desc", "per.paterno", "per.materno", "per.nombres");
+        
         return all(sql);
     }
-
+    
     @Override
     public void deshacerCarga(CicloAcademico cicloAcademico) {
         Query query = getCurrentSession().createQuery("delete from DocenteCiclo where cicloAcademico.id = :CICLO");
         query.setParameter("CICLO", cicloAcademico.getId());
         query.executeUpdate();
     }
-
+    
     @Override
     public void deshacerMontos(CicloAcademico cicloAcademico) {
         Query query = getCurrentSession().createQuery("update DocenteCiclo set monto = null where cicloAcademico.id = :CICLO");
         query.setParameter("CICLO", cicloAcademico.getId());
         query.executeUpdate();
     }
-
+    
     @Override
     public void generarMontos(CicloAcademico cicloAcademico, BigDecimal rca) {
         Query query = getCurrentSession().createQuery("update DocenteCiclo set monto =  factor1 * factor2 * creditosExceso * :RCA * 4 where cicloAcademico.id = :CICLO");
@@ -55,7 +56,7 @@ public class DocenteCicloDAOH extends AbstractEasyDAO<DocenteCiclo> implements D
         query.setParameter("RCA", rca);
         query.executeUpdate();
     }
-
+    
     @Override
     public List<DocenteCiclo> allActivoByCicloAcademico(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -66,8 +67,8 @@ public class DocenteCicloDAOH extends AbstractEasyDAO<DocenteCiclo> implements D
                 .filter("ca.id", cicloAcademico)
                 .filter("monto", ">", BigDecimal.ZERO)
                 .orderBy("fa.nombre", "per.paterno");
-
+        
         return all(sql);
     }
-
+    
 }

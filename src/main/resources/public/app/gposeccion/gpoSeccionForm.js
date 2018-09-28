@@ -870,7 +870,9 @@ var app = new Vue({
                         //     $vue.loadDocentesSec();
                         notify(response.message, "info");
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(response.message, "error");
+                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+                        MODAL.hideWait();
                     }
                 },
                 error: function (response) {
@@ -904,7 +906,9 @@ var app = new Vue({
                         // $vue.loadDocentesSec();
                         notify(response.message, "info");
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(response.message, "error");
+                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+                        MODAL.hideWait();
                     }
                 },
                 error: function (response) {

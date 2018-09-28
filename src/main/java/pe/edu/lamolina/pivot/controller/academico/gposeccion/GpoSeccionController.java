@@ -1061,7 +1061,6 @@ public class GpoSeccionController {
             @RequestParam("seccion") Long seccionId,
             @RequestParam("vacantes") Integer vacantes,
             HttpSession session) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -1117,12 +1116,12 @@ public class GpoSeccionController {
             @RequestParam("docSeccion") Long docSeccion,
             @RequestParam("porcentajeAvance") BigDecimal porcentajeAvance,
             HttpSession session) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
             DocenteSeccion docenteSeccion = new DocenteSeccion(docSeccion);
             docenteSeccion.setPorcentajeCarga(porcentajeAvance);
             service.updatePorcentajeAvance(docenteSeccion);
+
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Porcentaje de avance actualizado");
         } catch (PhobosException e) {

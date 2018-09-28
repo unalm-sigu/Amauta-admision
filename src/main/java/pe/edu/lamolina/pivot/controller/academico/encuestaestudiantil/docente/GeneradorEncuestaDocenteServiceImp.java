@@ -171,6 +171,8 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         CicloAcademico ciclo = profeSecc.getSeccion().getGrupoSeccion().getCicloAcademico();
 
         EncuestaDocenteModalidad encuProfeModalidad = mapEncusProfesModalidadades.get(docente.getId() + "-" + modalidad.getId());
+        logger.debug("encprofmoda {}", encuProfeModalidad);
+        logger.debug("KEY {}", docente.getId() + "-" + modalidad.getId());
         if (encuProfeModalidad == null) {
             encuProfeModalidad = new EncuestaDocenteModalidad();
             encuProfeModalidad.setCicloAcademico(ciclo);

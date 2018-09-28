@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
@@ -22,5 +23,8 @@ public interface EncuestaDocenteDAO extends EasyDAO<EncuestaDocente> {
     public EncuestaDocente findEncuestaDocente(EncuestaDocente encuestaForm);
 
     void deleteByEncuestaEstudiantil(EncuestaEstudiantil encuesta);
+
+    EncuestaDocente findByDocenteSeccion(DocenteSeccion get);
+
 
 }
