@@ -148,6 +148,10 @@ public class PermisoProgramacionController {
                     permisos.put("idPermiso", item.getId());
                     permisos.put("id", item.getPermisoProgramacion().getId());
                     permisos.put("nombre", item.getPermisoProgramacion().getNombre());
+                    permisos.put("nivel", item.getPermisoProgramacion().getNivel());
+                    permisos.put("textoAgregar", item.getPermisoProgramacion().getTextoAgregar());
+                    permisos.put("textoEliminar", item.getPermisoProgramacion().getTextoEliminar());
+                    permisos.put("textoModificar", item.getPermisoProgramacion().getTextoModificar());
                     arrayPermisoSeccion.add(permisos);
                 }
 
@@ -219,6 +223,7 @@ public class PermisoProgramacionController {
         }
         return response;
     }
+
     @ResponseBody
     @RequestMapping("savepermiso")
     public JsonResponse savepermiso(@RequestBody ColaboradorAnexoBean colaboradorAnexo, HttpSession session) {
@@ -248,6 +253,26 @@ public class PermisoProgramacionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.update(colaboradorAnexo, ds);
+
+            response.setMessage("Se actualizó satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("updatepermiso")
+    public JsonResponse updatepermiso(@RequestBody ColaboradorAnexoBean colaboradorAnexo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(Boolean.FALSE);
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.updatepermiso(colaboradorAnexo, ds);
 
             response.setMessage("Se actualizó satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
