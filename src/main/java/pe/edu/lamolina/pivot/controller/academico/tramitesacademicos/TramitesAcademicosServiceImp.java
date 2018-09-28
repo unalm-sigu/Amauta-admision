@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,9 +29,12 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Dia;
@@ -40,9 +44,9 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
+import pe.edu.lamolina.model.tramite.AutorizacionRegistro;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
-import pe.edu.lamolina.model.tramite.EstadoTramiteAcademico;
 import pe.edu.lamolina.model.tramite.FlujoTramiteAcademico;
 import pe.edu.lamolina.model.tramite.FormularioEstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -50,18 +54,22 @@ import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.infoAcademicoService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.flujo.FlujoTramiteAcademicoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.tramite.AutorizacionRegistroDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CursoDirigidoDAO;
-import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.FlujoTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.FormularioEstadoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
@@ -85,9 +93,6 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Autowired
     ReincorporacionDAO reincorporacionDAO;
-
-    @Autowired
-    EstadoTramiteAcademicoDAO estadoTramiteAcademicoDAO;
 
     @Autowired
     TipoTramiteDAO tipoTramiteDAO;
@@ -143,6 +148,23 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     @Autowired
     DiaDAO diaDAO;
 
+    @Autowired
+    CursoDAO cursoDAO;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
+
+    @Autowired
+    AutorizacionRegistroDAO autorizacionRegistroDAO;
+
+    @Autowired
+    PromedioService promedioService;
+
+    private DateTime today = new DateTime();
+
     @Override
     public List<Tramite> allTramitesByFilter(DynatableFilter filter) {
         List<Tramite> tramites = tramiteDAO.allByFilter(filter);
@@ -188,50 +210,6 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             }
         }
         return tramites;
-    }
-
-    @Override
-    @Transactional
-    public void aceptarSolReincorporacion(Tramite tramite, Usuario usuario) {
-        DateTime today = new DateTime();
-
-        tramite = tramiteDAO.find(tramite.getId());
-        Alumno alumnoTramite = alumnoDAO.find(tramite.getAlumno());
-
-        List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
-        Reincorporacion reincorporacion = reincorporaciones.get(0);
-
-        if (!reincorporacion.getEstadoTramite().getEsSolicitudReincorporacion()) {
-            throw new PhobosException("Estado incorrecto");
-        }
-
-        TipoTramite tipoTramiteReincorporacion = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
-        EstadoTramiteAcademico estadoTramiteAcademico
-                = estadoTramiteAcademicoDAO.findByTipoTramiteOrden(tipoTramiteReincorporacion, (BigDecimal.ONE.intValue() + 1));
-
-        //     Map oficinas = oficinaDAO.findOficinaOrigenDestinoByEstadoTramiteAcad(estadoTramiteAcademico, alumnoTramite);
-        Map oficinas = new HashMap();
-        FlujoTramiteAcademico flujoTramiteAcademico = new FlujoTramiteAcademico();
-        flujoTramiteAcademico.setEstadoTramite(estadoTramiteAcademico.getEstadoTramite());
-        flujoTramiteAcademico.setFechaRegistro(today.toDate());
-        flujoTramiteAcademico.setOficinaOrigen((Oficina) oficinas.get("oficinaOrigen"));
-        flujoTramiteAcademico.setOficinaDestino((Oficina) oficinas.get("oficinaDestino"));
-        flujoTramiteAcademico.setTramiteAcademico(tramite);
-        flujoTramiteAcademico.setUserRegistro(usuario);
-        flujoTramiteAcademico.setOrden(estadoTramiteAcademico.getOrden());
-        flujoTramiteAcademicoDAO.save(flujoTramiteAcademico);
-
-        Reincorporacion reincorporacionUpd = new Reincorporacion();
-        reincorporacionUpd.setId(reincorporacion.getId());
-        reincorporacionUpd.setEstadoTramite(estadoTramiteAcademico.getEstadoTramite());
-        reincorporacionDAO.updateEstado(reincorporacionUpd);
-
-        Tramite tramiteUpd = new Tramite();
-        tramiteUpd.setId(tramite.getId());
-        tramiteUpd.setEstadoEnum(TramiteEstadoEnum.PROC);
-        tramiteUpd.setUserModificacion(usuario);
-        tramiteUpd.setFechaModificacion(today.toDate());
-        tramiteDAO.updateEstado(tramiteUpd);
     }
 
     @Override
@@ -286,12 +264,23 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Override
     @Transactional
+    public void aceptarSolReincorporacion(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, DataSessionPivot ds) {
+        today = new DateTime();
+
+        accionTramiteAcademico = accionTramiteAcademicoDAO.find(accionTramiteAcademico.getId());
+        this.procesarTramite(tramite, accionTramiteAcademico, ds);
+    }
+
+    @Override
+    @Transactional
     public void procesarTramite(Tramite tramiteForm, AccionTramiteAcademico accionTramiteAcademico, DataSessionPivot ds) {
-        DateTime today = new DateTime();
+        today = new DateTime();
 
         Tramite tramite = this.findTramite(tramiteForm.getId());
         accionTramiteAcademico = accionTramiteAcademicoDAO.find(accionTramiteAcademico.getId());
+        AutorizacionRegistro autorizacionRegistro = autorizacionRegistroDAO.findByTramite(tramite);
         logger.debug("EstadoTramite Inicio {}, Estado Fin {}", ObjectUtil.getParentTree(accionTramiteAcademico, "estadoTramiteInicio.nombre"), ObjectUtil.getParentTree(accionTramiteAcademico, "estadoTramiteFinal.nombre"));
+        logger.debug("Autorizacion Registro {}", autorizacionRegistro != null ? autorizacionRegistro.getId() : "No tiene");
 
         Tramite tramiteUpd = new Tramite();
         tramiteUpd.setId(tramite.getId());
@@ -314,8 +303,43 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         if (accionTramiteAcademico.getEstadoTramiteFinal().getEsAgendadoConsejoFacultad()) {
             this.agendarSolicitud(tramite, tramiteForm.getTramiteReunionConsejo().getReunionConsejo(), today, ds.getUsuario());
         }
+        if (accionTramiteAcademico.getEstadoTramiteFinal().getEsVistoBuenoUR()) {
+            this.vistoBuenoUR(tramite, accionTramiteAcademico, autorizacionRegistro, ds.getUsuario(), today);
+        }
+        if (accionTramiteAcademico.getEstadoTramiteFinal().getEsControlCalidad()) {
+            //Si no hubo modificaciones en el historial del alumno, creamos la autorizacion registro
+            if (autorizacionRegistro == null) {
+                this.crearAutorizacionRegistro(tramite.getAlumno(), tramite, ds);
+            }
+        }
+
+        if (accionTramiteAcademico.getEstadoTramiteFinal().getEsRechazarSolicitud()) {
+            List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAutorizacionRegistro(autorizacionRegistro);
+            for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
+                if (ObjectUtil.getParentTree(alumnoCicloCurso, "alumnoCicloCursoOrigen.id") != null) {
+                    AlumnoCicloCurso alumnoCicloCursoOrigenUpd = new AlumnoCicloCurso();
+                    alumnoCicloCursoOrigenUpd.setId(alumnoCicloCurso.getAlumnoCicloCursoOrigen().getId());
+                    alumnoCicloCursoOrigenUpd.setEstado(EstadoMatriculaEnum.MAT);
+                    alumnoCicloCursoOrigenUpd.setRegistroActivo(BigDecimal.ONE.intValue());
+                    alumnoCicloCursoDAO.updateEstadoRegistroActivo(alumnoCicloCursoOrigenUpd);
+
+                    alumnoCicloCursoDAO.delete(alumnoCicloCurso);
+                }
+            }
+        }
 
         this.saveFlujoTramite(tramite, accionTramiteAcademico, ds.getUsuario(), today);
+    }
+
+    private void crearAutorizacionRegistro(Alumno alumno, Tramite tramite, DataSessionPivot ds) {
+        AutorizacionRegistro autorizacionRegistro = new AutorizacionRegistro();
+        autorizacionRegistro.setMotivo("");
+        autorizacionRegistro.setAlumno(alumno);
+        autorizacionRegistro.setEstadoEnum(EstadoEnum.ACT);
+        autorizacionRegistro.setFechaRegistro(today.toDate());
+        autorizacionRegistro.setUserRegistro(ds.getUsuario());
+        autorizacionRegistro.setTramite(tramite);
+        autorizacionRegistroDAO.save(autorizacionRegistro);
     }
 
     @Transactional(readOnly = false)
@@ -349,6 +373,22 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             cd.setEstado(accionTramiteAcademico.getEstadoTramiteFinal());
             cursoDirigidoDAO.update(cd);
         }
+    }
+
+    public void vistoBuenoUR(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, AutorizacionRegistro autorizacionRegistro, Usuario usuario, DateTime today) {
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAutorizacionRegistro(autorizacionRegistro);
+        for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
+            if (ObjectUtil.getParentTree(alumnoCicloCurso, "alumnoCicloCursoOrigen.id") != null) {
+                AlumnoCicloCurso alumnoCicloCursoOrigenUpd = new AlumnoCicloCurso();
+                alumnoCicloCursoOrigenUpd.setId(alumnoCicloCurso.getAlumnoCicloCursoOrigen().getId());
+                alumnoCicloCursoOrigenUpd.setEstado(EstadoMatriculaEnum.MAT);
+                alumnoCicloCursoOrigenUpd.setRegistroActivo(BigDecimal.ONE.intValue());
+                alumnoCicloCursoDAO.updateEstadoRegistroActivo(alumnoCicloCursoOrigenUpd);
+
+                //  alumnoCicloCursoDAO.delete(alumnoCicloCurso);
+            }
+        }
+        //recalcular alumno???
     }
 
     @Override
@@ -523,6 +563,168 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         return mapDiaCompleto;
 
+    }
+
+    @Override
+    public List<Curso> allCursos() {
+        return cursoDAO.all();
+    }
+
+    @Override
+    public List<Curso> allCursosByName(String nombre, Integer limit) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        return cursoDAO.searchLikeNombre(nombre, limit);
+    }
+
+    @Override
+    public List<CicloAcademico> allCiclosAcademicosByName(String nombre, Alumno alumno) {
+        alumno = alumnoDAO.find(alumno);
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
+        List<CicloAcademico> ciclosAcademicos = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
+        return cicloAcademicoDAO.allByLikeName(nombre, alumno.getModalidadEstudio(), ciclosAcademicos, 15);
+    }
+
+    @Override
+    public ArrayNode allAlumnoCicloJson(Alumno alumno, AlumnoCiclo ciclo) {
+        List<AlumnoCicloCurso> alumnosCiclosCurso = alumnoCicloCursoDAO.allByAlumnoAndAlumnoCiclo(alumno, ciclo);
+        ArrayNode promediosJson = infoAcademicoService.allPromediosJson(alumnosCiclosCurso);
+        return promediosJson;
+    }
+
+    @Override
+    public AlumnoCiclo findAlumnoCiclo(AlumnoCiclo alumnoCiclo, Tramite tramite) {
+        alumnoCiclo = alumnoCicloDAO.find(alumnoCiclo.getId());
+        AutorizacionRegistro autorizacionRegistro = autorizacionRegistroDAO.findByTramite(tramite);
+        if (alumnoCiclo != null) {
+            List<AlumnoCicloCurso> alumnosCicloCursos = alumnoCicloCursoDAO.allByAlumnoCicloActivosOrAutorizacionRegistro(alumnoCiclo, autorizacionRegistro);
+            alumnoCiclo.setAlumnoCicloCurso(alumnosCicloCursos);
+        }
+        return alumnoCiclo;
+    }
+
+    @Override
+    public List<AlumnoCiclo> allAlumnoCicloByAlumno(Alumno alumno, Tramite tramite) {
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(alumno);
+        logger.debug("Cantidad de alumno ciclos {}", alumnoCiclos.size());
+
+        AutorizacionRegistro autorizacionRegistro = autorizacionRegistroDAO.findByTramite(tramite);
+
+        List<AlumnoCiclo> alumnoCiclosReturn = new ArrayList<>();
+
+        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+            List<AlumnoCicloCurso> alumnosCicloCursos = alumnoCicloCursoDAO.allByAlumnoCicloActivosAndAutorizacionRegistro(alumnoCiclo, autorizacionRegistro);
+            if (!alumnosCicloCursos.isEmpty()) {
+                alumnoCiclo.setAlumnoCicloCurso(alumnosCicloCursos);
+                AlumnoCiclo alumnoCicloClone = (AlumnoCiclo) alumnoCiclo.clone();
+                alumnoCicloClone.setAlumnoCicloCurso(alumnosCicloCursos);
+                alumnoCiclosReturn.add(alumnoCiclo);
+            }
+        }
+        return alumnoCiclosReturn;
+    }
+
+    @Override
+    @Transactional
+    public void saveAlumnoCicloFromRevision(AlumnoCiclo alumnoCiclo, Long tramiteId, DataSessionPivot ds) {
+        today = new DateTime();
+        Tramite tramite = tramiteDAO.find(tramiteId);
+        AutorizacionRegistro autorizacionRegistro = autorizacionRegistroDAO.findByTramite(tramite);
+        List<AlumnoCicloCurso> alumnosCicloCursosOmBD = alumnoCicloCursoDAO.allByAlumnoCicloActivosOrAutorizacionRegistro(alumnoCiclo, autorizacionRegistro);
+
+        if (autorizacionRegistro == null) {
+            autorizacionRegistro = new AutorizacionRegistro();
+            autorizacionRegistro.setMotivo("");
+            autorizacionRegistro.setAlumno(alumnoCiclo.getAlumno());
+            autorizacionRegistro.setEstadoEnum(EstadoEnum.ACT);
+            autorizacionRegistro.setFechaRegistro(today.toDate());
+            autorizacionRegistro.setUserRegistro(ds.getUsuario());
+            autorizacionRegistro.setTramite(new Tramite(tramiteId));
+            autorizacionRegistroDAO.save(autorizacionRegistro);
+        }
+
+        logger.debug("Alumno Ciclo {}", alumnoCiclo.getId());
+        boolean noChanges = true;
+        for (AlumnoCicloCurso alumnoCicloCursoForm : alumnoCiclo.getAlumnoCicloCurso()) {
+
+            if (alumnoCicloCursoForm.getIsEstadoNotaModificada()) {
+                continue;
+            }
+
+            if (alumnoCicloCursoForm.getId().compareTo(0L) > 0) {
+                //old records
+                AlumnoCicloCurso alumnoCicloCursoDB = alumnosCicloCursosOmBD.stream().filter(x -> x.getId().compareTo(alumnoCicloCursoForm.getId()) == 0).findFirst().orElse(null);
+                if (alumnoCicloCursoDB == null) {
+                    throw new PhobosException("Curso %s no encontrado", alumnoCicloCursoForm.getCurso().getNombre());
+                }
+                if (alumnoCicloCursoForm.getNota().compareTo(alumnoCicloCursoDB.getNota()) != 0
+                        || alumnoCicloCursoForm.getCreditos().compareTo(alumnoCicloCursoDB.getCreditos()) != 0) {
+
+                    if (alumnoCicloCursoForm.getIsEstadoMatriculado()) {
+                        alumnoCicloCursoDB.setEstado(EstadoMatriculaEnum.NMOD);
+                        alumnoCicloCursoDB.setRegistroActivo(BigDecimal.ZERO.intValue());
+                        alumnoCicloCursoDB.setUserModificacion(ds.getUsuario());
+                        alumnoCicloCursoDB.setAutorizacionRegistro(autorizacionRegistro);
+                        if (!alumnoCicloCursoForm.getEstaActivo()) {
+                            alumnoCicloCursoDB.setEstado(EstadoMatriculaEnum.MAT);
+                            alumnoCicloCursoDB.setNota(alumnoCicloCursoForm.getNota());
+                            alumnoCicloCursoDB.setCreditos(alumnoCicloCursoForm.getCreditos());
+                        }
+                        alumnoCicloCursoDAO.update(alumnoCicloCursoDB);
+                        if (!alumnoCicloCursoForm.getEstaActivo()) {
+                            noChanges = false;
+                            continue;
+                        }
+                    }
+                    AlumnoCicloCurso alumnoCursoNew = (AlumnoCicloCurso) alumnoCicloCursoDB.clone();
+                    alumnoCursoNew.setId(null);
+                    alumnoCursoNew.setNota(alumnoCicloCursoForm.getNota());
+                    alumnoCursoNew.setCreditos(alumnoCicloCursoForm.getCreditos());
+                    alumnoCursoNew.setOrigenData(OrigenDataSituacionAcademicaEnum.TA_REI);
+                    alumnoCursoNew.setAlumnoCicloCursoOrigen(alumnoCicloCursoDB);
+                    alumnoCursoNew.setFechaRegistro(today.toDate());
+                    alumnoCursoNew.setUsuarioRegistro(ds.getUsuario());
+                    alumnoCursoNew.setRegistroActivo(BigDecimal.ZERO.intValue());
+                    alumnoCursoNew.setEstado(EstadoMatriculaEnum.MAT);
+                    alumnoCursoNew.setAutorizacionRegistro(autorizacionRegistro);
+                    Integer vecesEstudiadoCurso = alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(alumnoCicloCursoForm.getCurso(), alumnoCiclo.getAlumno(), alumnoCiclo.getCicloAcademico()).intValue();
+                    alumnoCursoNew.setVecesCursado(vecesEstudiadoCurso);
+                    alumnoCicloCursoDAO.save(alumnoCursoNew);
+                    noChanges = false;
+                }
+            } else {
+                AlumnoCicloCurso alumnoCursoNew = new AlumnoCicloCurso();
+                alumnoCursoNew.setAlumnoCiclo(alumnoCiclo);
+                alumnoCursoNew.setAutorizacionRegistro(autorizacionRegistro);
+                alumnoCursoNew.setCreditos(alumnoCicloCursoForm.getCreditos());
+                alumnoCursoNew.setCurso(alumnoCicloCursoForm.getCurso());
+                //  alumnoCursoNew.setEstaAprobado(Integer.MAX_VALUE);
+                alumnoCursoNew.setEstado(EstadoMatriculaEnum.MAT);
+                alumnoCursoNew.setFechaRegistro(today.toDate());
+                alumnoCursoNew.setNota(alumnoCicloCursoForm.getNota());
+                alumnoCursoNew.setOrigenData(OrigenDataSituacionAcademicaEnum.ACTA);
+                alumnoCursoNew.setRegistroActivo(BigDecimal.ZERO.intValue());
+                alumnoCursoNew.setUsuarioRegistro(ds.getUsuario());
+                // alumnoCursoNew.setVecesCursado(Integer.BYTES);
+                Integer aprobado = promedioService.evaluateEstaAprobado(new BigDecimal(alumnoCicloCursoForm.getNota()), alumnoCiclo.getAlumno());
+                alumnoCursoNew.setEstaAprobado(aprobado);
+
+                Integer vecesEstudiadoCurso = alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(alumnoCicloCursoForm.getCurso(), alumnoCiclo.getAlumno(), alumnoCiclo.getCicloAcademico()).intValue();
+                alumnoCursoNew.setVecesCursado(vecesEstudiadoCurso);
+
+                alumnoCicloCursoDAO.save(alumnoCursoNew);
+                noChanges = false;
+            }
+        }
+
+        if (noChanges) {
+            throw new PhobosException("Sin cambios en las notas, verifique.");
+        }
+    }
+
+    @Override
+    public AccionTramiteAcademico findAccionTramiteAcademico(AccionTramiteAcademico accionTramiteAcademico) {
+        AccionTramiteAcademico accionTramiteAcademicoReturn = accionTramiteAcademicoDAO.find(accionTramiteAcademico.getId());
+        return accionTramiteAcademicoReturn;
     }
 
 }

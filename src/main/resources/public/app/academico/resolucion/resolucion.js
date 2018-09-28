@@ -6,7 +6,7 @@ var app = new Vue({
     data: {
         URL_RESOLUCIONES: APP.url('academico/resolucion/listResoluciones'),
         URL_TRAMITES: APP.url('academico/resolucion/listTramitesToConfirm'),
-        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning"},
+        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning", DOC_CONF: "success"},
         resolucionModal: {
             id: 'modalResolucion',
             header: true,
@@ -218,7 +218,7 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }, saveConfirmar(event) {
+        }, saveConfirmarSubirDocumento(event) {
             let $vue = this;
             if (event) {
                 event.preventDefault();
@@ -246,6 +246,7 @@ var app = new Vue({
                         $vue.$refs.modalResolucion.close();
                     } else {
                         notify(response.message, "error");
+                        $vue.$refs.modalResolucion.close();
                     }
                 },
                 error: function () {

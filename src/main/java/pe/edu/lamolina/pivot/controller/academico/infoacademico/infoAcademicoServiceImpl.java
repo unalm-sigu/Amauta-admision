@@ -432,6 +432,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
                 "alumnoCicloCurso.creditos",
                 "alumnoCicloCurso.estaAprobado",
                 "alumnoCicloCurso.vecesCursado",
+                "alumnoCicloCurso.curso.id",
                 "alumnoCicloCurso.curso.codigo",
                 "alumnoCicloCurso.curso.nombre",
                 "alumnoCicloCurso.curso.tpc",

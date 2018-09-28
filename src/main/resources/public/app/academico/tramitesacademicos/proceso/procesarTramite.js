@@ -7,6 +7,7 @@ var app = new Vue({
         accionSeleccionada: null,
         processingAjaxData: null
     }, created: function () {
+        console.log("created");
         this.tramite = JSON.parse(tramiteJson);
         console.dir(this.tramite);
         this.loadFormProcesarTramite();
@@ -23,27 +24,33 @@ var app = new Vue({
                     if (response.success) {
                         $vue.tramite = response.data.tramite;
                         $vue.componentForm = $vue.tramite.formularioEstadoTramite.formulario;
+                        console.log("loadFormProcesarTramite");
                         console.dir($vue.componentForm);
                         //    var returnParams = Object.assign(params, $vue.ajaxdata);
+                        console.log("compomentProps");
                         $vue.compomentProps = {alumno: $vue.tramite.alumno, tramite: $vue.tramite};
+                        console.log($vue.compomentProps);
                     }
                 }
             });
         }, procesarTramite(accion) {
             let $vue = this;
+            $vue.accionSeleccionada = accion;
+
             $vue.processingAjaxData = {
                 tramite: $vue.tramite.id,
-                accionTramite: accion.id
+                accionTramite: $vue.accionSeleccionada.id
             }
-            if (accion.estadoTramiteFinal.esAgendadoConsejoFacultad) {
+
+            if ($vue.accionSeleccionada.estadoTramiteFinal.esAgendadoConsejoFacultad) {
                 if ($vue.$refs.procesarComponent.reunionConsejoSel == null) {
                     notify("Seleccione la reunión consejo.", "error");
                     return;
                 }
-              //  $vue.processingAjaxData.tramiteReunionConsejo={};
+                //  $vue.processingAjaxData.tramiteReunionConsejo={};
                 $vue.processingAjaxData.reunionConsejo = $vue.$refs.procesarComponent.reunionConsejoSel.id;
             }
-            $vue.accionSeleccionada = accion;
+
             if ($vue.accionSeleccionada.esSolicitarMotivo) {
                 bootbox.prompt("Cual es motivo", function (result) {
                     if (result) {

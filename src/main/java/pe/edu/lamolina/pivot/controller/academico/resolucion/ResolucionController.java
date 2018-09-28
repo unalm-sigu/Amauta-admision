@@ -103,10 +103,12 @@ public class ResolucionController {
     public String editar(@PathVariable("resolucion") Long resolucionId, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        //    Resolucion resolucion = resolucionService.findResolucion(resolucionId);
         Resolucion resolucion = new Resolucion(resolucionId);
         ObjectNode resolucionJson = JsonHelper.createJson(resolucion, JsonNodeFactory.instance);
         model.addAttribute("resolucionJson", resolucionJson.toString());
+
+        resolucion = resolucionService.findResolucion(resolucionId);
+        model.addAttribute("resolucion", resolucion);
         return "academico/resolucion/resolucionForm";
     }
 
@@ -396,13 +398,10 @@ public class ResolucionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            /*  if (StringUtils.isBlank(resolucion.getRutaUrl())) {
-                throw new PhobosException("Seleccion su archivo de resolucion.");
-            }
-             */
+
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             if (resolucion.getId() == null) {
-                resolucionService.saveResolucion(resolucion, ds.getUsuario(), ds.getCicloAcademico());
+                resolucionService.saveResolucion(resolucion, ds, ds.getCicloAcademico());
                 node.put("operation", "s");
                 // node.put("planCurricular", planCurricular.getId());
 
@@ -428,6 +427,40 @@ public class ResolucionController {
     @RequestMapping("succesSave")
     public String succesSave(RedirectAttributes redirectAttr, HttpSession session) {
         Notificaciones.crearMsg("Resolución guardada correctamente.", redirectAttr);
+        return "redirect:/academico/resolucion";
+    }
+
+    @ResponseBody
+    @RequestMapping("saveConfirmarResVB")
+    public JsonResponse saveConfirmarResVB(
+            @RequestBody Resolucion resolucion,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+            node.put("operation", "s");
+            resolucionService.saveConfirmarResVB(resolucion, ds, ds.getCicloAcademico());
+
+            response.setData(node);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @RequestMapping("succesSaveResVB")
+    public String succesSaveResVB(RedirectAttributes redirectAttr, HttpSession session) {
+        Notificaciones.crearMsg("Visto Bueno registrado correctamente.", redirectAttr);
         return "redirect:/academico/resolucion";
     }
 
@@ -489,7 +522,7 @@ public class ResolucionController {
 
     @ResponseBody
     @RequestMapping("saveConfirmar")
-    public JsonResponse saveConfirmar(
+    public JsonResponse saveConfirmarSubirDocumento(
             @RequestBody Resolucion resolucion,
             Model model,
             HttpSession session) {
@@ -499,7 +532,7 @@ public class ResolucionController {
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
-            resolucionService.saveConfirmar(resolucion, ds);
+            resolucionService.saveConfirmarSubirDocumento(resolucion, ds);
 
             response.setMessage("Resolucion confirmada.");
 
