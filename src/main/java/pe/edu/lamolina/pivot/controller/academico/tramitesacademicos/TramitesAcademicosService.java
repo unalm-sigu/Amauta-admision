@@ -1,8 +1,13 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;
 import org.joda.time.DateTime;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
@@ -14,7 +19,7 @@ public interface TramitesAcademicosService {
 
     List<Tramite> allTramitesByFilter(DynatableFilter filter);
 
-    void aceptarSolReincorporacion(Tramite tramite, Usuario usuario);
+    void aceptarSolReincorporacion(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, DataSessionPivot ds);
 
     void agendarSolicitud(Tramite tramite, ReunionConsejo reunionConsejo, DateTime today, Usuario usuario);
 
@@ -27,5 +32,21 @@ public interface TramitesAcademicosService {
     void procesarTramite(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, DataSessionPivot ds);
 
     String cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds);
+
+    List<Curso> allCursos();
+
+    List<Curso> allCursosByName(String nombre, Integer limit);
+
+    List<CicloAcademico> allCiclosAcademicosByName(String nombre, Alumno alumno);
+
+    ArrayNode allAlumnoCicloJson(Alumno alumno, AlumnoCiclo ciclo);
+
+    AlumnoCiclo findAlumnoCiclo(AlumnoCiclo alumnoCiclo, Tramite tramite);
+
+    List<AlumnoCiclo> allAlumnoCicloByAlumno(Alumno alumno, Tramite tramite);
+
+    void saveAlumnoCicloFromRevision(AlumnoCiclo alumnoCiclo, Long tramiteId, DataSessionPivot ds);
+
+    AccionTramiteAcademico findAccionTramiteAcademico(AccionTramiteAcademico accionTramiteAcademico);
 
 }

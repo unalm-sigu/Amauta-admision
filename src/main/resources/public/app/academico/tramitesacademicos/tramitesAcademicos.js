@@ -24,29 +24,48 @@ var app = new Vue({
         }, controlarSeccion(seccion, e) {
             e.preventDefault();
             location.href = APP.url('academico/docente/asistenciaacademica/' + seccion.id + '/lecciones');
-        }, cambiarEstadoReincorporacion: function (tramite, estadoDestino, event) {
+        }, cambiarEstadoReincorporacion: function (tramite, accionTramite, event) {
             event.preventDefault();
             let $vue = this;
             console.log("cambiarEstadoReincorporacion");
             console.dir(tramite);
-            $.ajax({
-                url: APP.url('academico/tramiteacademico/cambiarEstadoReincorporacion'),
-                type: 'POST',
-                async: false,
-                data: {
-                    tramite: tramite.id,
-                    estado: estadoDestino
+
+            var dialog = bootbox.confirm({
+                message: "¿Está seguro que desea ser el usuario responsable de este tramite?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
                 },
-                success: function (response) {
-                    if (response.success) {
-                        notify(response.message, "info");
-                        $vue.$refs.tblTramitesAcademicos.loadRemoteData();
-                    } else {
-                        notify(response.message, "error");
+                callback: function (result) {
+                    if (result) {
+                        var confirm = dialog.find('[data-bb-handler="confirm"]');
+                        //   confirm.html("Espere");
+                        //    confirm.prop("disabled", true);
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            url: APP.url('academico/tramiteacademico/cambiarEstadoReincorporacion'),
+                            type: 'POST',
+                            async: false,
+                            data: {
+                                tramite: tramite.id,
+                                accionTramite: accionTramite
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    $vue.$refs.tblTramitesAcademicos.loadRemoteData();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                                MODAL.hideWait();
+                            },
+                            error: function () {
+                                MODAL.hideWait();
+                                notify(response.message, "error");
+                            }
+                        });
+
                     }
-                },
-                error: function () {
-                    notify(response.message, "error");
                 }
             });
         }, agenda() {
@@ -147,7 +166,7 @@ var app = new Vue({
         }, procesarTramite(item, event) {
             event.preventDefault();
 
-            location.href = APP.url("academico/tramiteacademico/procesar/"+item.id);
+            location.href = APP.url("academico/tramiteacademico/procesar/" + item.id);
         }
     }
 })

@@ -12,14 +12,12 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
-import pe.edu.lamolina.model.tramite.EstadoTramiteAcademico;
 import pe.edu.lamolina.model.tramite.FlujoTramiteAcademico;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteAcademicoDAO;
-import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.FlujoTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 
@@ -29,9 +27,6 @@ public class FlujoTramiteAcademicoServiceImp implements FlujoTramiteAcademicoSer
 
     @Autowired
     ReincorporacionDAO reincorporacionDAO;
-
-    @Autowired
-    EstadoTramiteAcademicoDAO estadoTramiteAcademicoDAO;
 
     @Autowired
     FlujoTramiteAcademicoDAO flujoTramiteAcademicoDAO;
@@ -54,7 +49,7 @@ public class FlujoTramiteAcademicoServiceImp implements FlujoTramiteAcademicoSer
     @Override
     @Transactional(readOnly = false)
     public void saveFlujoTramite(Tramite tramite, Usuario usuario, DateTime today, boolean revert) {
-
+        /*
         EstadoTramite estadoTramite = null;
         if (tramite.getTipoTramite().getEsTipoTramiteRei()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
@@ -92,7 +87,7 @@ public class FlujoTramiteAcademicoServiceImp implements FlujoTramiteAcademicoSer
             reincorporacionUpd.setId(reincorporacion.getId());
             reincorporacionUpd.setEstadoTramite(newEstadoTramiteAcademico.getEstadoTramite());
             reincorporacionDAO.updateEstado(reincorporacionUpd);
-        }
+        }*/
     }
 
     @Override

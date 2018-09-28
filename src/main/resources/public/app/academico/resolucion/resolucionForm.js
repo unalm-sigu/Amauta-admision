@@ -101,6 +101,35 @@ var app = new Vue({
                 }
             });
 
+        },
+        saveConfirmarResVB(event) {
+            let $vue = this;
+            if (event) {
+                event.preventDefault();
+            }
+            $.ajax({
+                url: APP.url('academico/resolucion/saveConfirmarResVB'),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: false,
+                data: JSON.stringify($vue.resolucion),
+                success: function (response) {
+                    if (response.success) {
+                        if (response.data.operation == "s") {
+                            location.href = APP.url('academico/resolucion/succesSaveResVB');
+                        } else {
+                            notify(response.message, "info");
+                        }
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
         }, cambiarOficina() {
             let $vue = this;
             $vue.reunionesConsejo = [];
