@@ -5,11 +5,10 @@ public class Laboratory {
     private static final String fmt = "  %11s:  %s %s%n";
 
     public static void main666(String[] args) {
-        String code = "http://localhost:9900/academico/gposeccion/173107/editar?origen=aHR0cDovL2xvY2FsaG9zdDo5OTAwL2FjYWRlbWljby9ncG9zZWNjaW9uP3F1ZXJpZXNbYW5leG8tc3VwZXJpb3JdPWRlcGFydGFtZW50b3M=";
+        String code = "<p>@(ESTIMADO)&nbsp;@(NOMBRE-PERSONA):</p>nn<p>Sea bienvenido a la Universidad Agraria La Molina. Le informamos que hemos creado una cuenta de correo electr&oacute;nico para comunicarnos oficialmente con usted. La cuenta es:</p>nn<p>@(CORREO-NUEVO)</p>nn<p>&nbsp;</p>nn<p>Saludos<br />nUniversidad Nacional Agraria La Molina</p>";
 
-        String quiebre = "/academico/gposeccion/";
-        String[] tramos = code.split(quiebre);
-        
+        System.out.println(code.indexOf("@(ESTIMADO)")+" :::: ");
+        System.out.println(code.replace("@(ESTIMADO)", "EsTiMaDo")+" :::: ");
 
     }
 

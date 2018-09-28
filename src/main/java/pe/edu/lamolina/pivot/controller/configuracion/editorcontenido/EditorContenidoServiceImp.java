@@ -10,13 +10,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.aws.S3Service;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.model.inscripcion.ContenidoCartaVariable;
 import pe.edu.lamolina.model.inscripcion.ContenidoVariable;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoVariableDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.SistemaDAO;
+import pe.edu.lamolina.pivot.dao.sip.ContenidoCartaVariableDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.S3_PUBLIC_DIR;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.S3_TMP;
@@ -30,6 +33,8 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
     @Autowired
     ContenidoVariableDAO contenidoVariableDAO;
     @Autowired
+    ContenidoCartaVariableDAO contenidoCartaVariableDAO;
+    @Autowired
     SistemaDAO sistemaDAO;
 
     @Autowired
@@ -42,6 +47,23 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
     @Override
     public ContenidoCarta findContenidoCartaById(Long idContenido) {
         return contenidoCartaDAO.find(idContenido);
+    }
+
+    @Override
+    public ContenidoCarta findSoloContenidoCartaById(Long idContenido) {
+        ContenidoCarta conteBD = contenidoCartaDAO.find(idContenido);
+        String html = conteBD.getContenido();
+        List<ContenidoCartaVariable> vars = contenidoCartaVariableDAO.allByIdContenido(idContenido);
+        for (ContenidoCartaVariable var : vars) {
+            while (html.indexOf(var.getContenidoVariable().getCodigo()) > -1) {
+                html = html.replace(var.getContenidoVariable().getCodigo(), var.getEjemplo());
+            }
+        }
+
+        ContenidoCarta conteForm = new ContenidoCarta();
+        conteForm.setContenido(html);
+
+        return conteForm;
     }
 
     @Override
@@ -74,6 +96,11 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
     @Override
     public List<ContenidoVariable> allVariablesByContenido(Long idContenido) {
         return contenidoVariableDAO.allByContenidoId(idContenido);
+    }
+
+    @Override
+    public List<ContenidoCartaVariable> allVariablesCartaByContenido(Long idContenido) {
+        return contenidoCartaVariableDAO.allByIdContenido(idContenido);
     }
 
     @Override
@@ -111,6 +138,30 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
     @Override
     public List<Sistema> allSistema() {
         return sistemaDAO.all();
+    }
+
+    @Override
+    public List<ContenidoVariable> allVariables() {
+        return contenidoVariableDAO.all();
+    }
+
+    @Override
+    @Transactional
+    public void addVariable(ContenidoVariable variable, Long idContenido) {
+        ContenidoCarta conteBD = contenidoCartaDAO.find(idContenido);
+        List<ContenidoCartaVariable> vars = contenidoCartaVariableDAO.allByIdContenido(idContenido);
+        for (ContenidoCartaVariable var : vars) {
+            if (variable.getId() == var.getContenidoVariable().getId().longValue()) {
+                throw new PhobosException("Esta variable ya existe en este contenido");
+            }
+        }
+
+        ContenidoCartaVariable newVar = new ContenidoCartaVariable();
+        newVar.setContenidoCarta(conteBD);
+        newVar.setContenidoVariable(variable);
+        newVar.setEjemplo("");
+        contenidoCartaVariableDAO.save(newVar);
+
     }
 
 }
