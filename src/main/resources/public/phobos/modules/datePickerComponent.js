@@ -3,6 +3,7 @@ Vue.component("v-date-picker", {
                         <input  type="text" 
                                class="form-control"
                                v-bind:data-parsley-errors-container="'#'+'error'+id"
+                               v-bind:disabled="disabled"
                                v-bind:required="required"/>
                         <span class="input-group-addon">
                             <i class="fa fa-calendar" aria-hidden="true"></i>

@@ -11,7 +11,6 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
-import pe.edu.lamolina.model.tramite.EstadoTramiteAcademico;
 
 public interface OficinaDAO extends EasyDAO<Oficina> {
 

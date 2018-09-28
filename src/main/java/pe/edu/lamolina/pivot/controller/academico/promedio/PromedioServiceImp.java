@@ -825,7 +825,8 @@ public class PromedioServiceImp implements PromedioService {
         }
     }
 
-    private Integer evaluateEstaAprobado(MatriculaCurso matriculaCurso, Alumno alumno) {
+    @Override
+    public Integer evaluateEstaAprobado(MatriculaCurso matriculaCurso, Alumno alumno) {
         Integer aprobado = BigDecimal.ZERO.intValue();
         if (matriculaCurso.getNotaFinal().equals(NotaLetraEnum.APROBADO.getValor1())) {
             aprobado = BigDecimal.ONE.intValue();
@@ -836,7 +837,8 @@ public class PromedioServiceImp implements PromedioService {
         return aprobado;
     }
 
-    private Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno) {
+    @Override
+    public Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno) {
         Integer aprobado = BigDecimal.ZERO.intValue();
         if (alumno.isPostgrado()) {
             if (nota.compareTo(new BigDecimal(13)) >= 0) {
