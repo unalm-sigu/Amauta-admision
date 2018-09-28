@@ -19,6 +19,7 @@
                             <li v-if="encuesta.estado=='NCRE'"><a href="#" v-on:click="activarEncuesta"> Activar encuesta </a></li>
                             <li v-if="encuesta.estado=='CRE'"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="sinEncuesta"> Cursos sin encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="generarEncuesta"> Generar encuestas </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#" v-on:click="eliminar"> Eliminar encuestas </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#" v-on:click="publicar"> Publicar encuestas </a></li>
@@ -44,29 +45,29 @@
 
                             <div class="col-md-6">
                                 <div class="row">
-                                    <div class="col-md-3 text-center">
-                                        <a href="#" class="ver-interesados text-success" rel="anulados">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['activo']">
+                                        <a href="#" class="ver-interesados text-success" v-on:click="verEstados('activo')">
                                             <div class="h1 block bold m-t-xs m-b-n"
                                                  id="anulados">{{encuesta.encuestasActivas}}</div>
                                             <div class="block m-b-xs m-t">Activos</div>
                                         </a>
                                     </div>
-                                    <div class="col-md-3 text-center">
-                                        <a href="#" class="ver-interesados text-muted" rel="interesados">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['anulado']">
+                                        <a class="ver-interesados text-muted pointer" v-on:click="verEstados('anulado')">
                                             <div class="h1 block bold m-t-xs m-b-n"
                                                  id="interesados">{{encuesta.encuestasAnuladas}}</div>
                                             <div class="block m-b-xs m-t">Anulados</div>
                                         </a>
                                     </div>
-                                    <div class="col-md-3 text-center">
-                                        <a href="#" class="ver-interesados text-warning" rel="preinscritos">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['innecesario']">
+                                        <a class="ver-interesados text-warning pointer" v-on:click="verEstados('innecesario')">
                                             <div class="h1 block bold m-t-xs m-b-n"
                                                  id="preinscritos">{{encuesta.encuestasInnecesarias}}</div>
                                             <div class="block m-b-xs m-t">Innecesarios</div>
                                         </a>
                                     </div>
-                                    <div class="col-md-3 text-center">
-                                        <a href="#" class="ver-interesados text-danger" rel="prospectos">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['sinperiodo']">
+                                        <a class="ver-interesados text-danger pointer" v-on:click="verEstados('sinperiodo')">
                                             <div class="h1 block bold m-t-xs m-b-n"
                                                  id="prospectos">{{encuesta.encuestasSinPeriodo}}</div>
                                             <div class="block m-b-xs m-t">Sin periodo</div>
@@ -77,24 +78,24 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="row">
-                                    <div class="col-md-3 text-center">
-                                        <a href="#" class="ver-interesados text-success" rel="prospectos">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['cerrado']">
+                                        <a class="ver-interesados text-success pointer" v-on:click="verEstados('cerrado')">
                                             <div class="h1 block bold m-t-xs m-b-n"
                                                  id="prospectos">{{encuesta.encuestasCerradas}}</div>
                                             <div class="block m-b-xs m-t">Cerrados</div>
                                         </a>
                                     </div>
 
-                                    <div class="col-md-3 text-center">
-                                        <a href="#" class="ver-interesados text-primary" rel="prospectos">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['encuestable']">
+                                        <a class="ver-interesados text-primary pointer" v-on:click="verEstados('encuestable')">
                                             <div class="h1 block bold m-t-xs m-b-n"
                                                  id="prospectos">{{encuesta.objetivosEncuesta}}</div>
                                             <div class="block m-b-xs m-t">Encuestables</div>
                                         </a>
                                     </div>
 
-                                    <div class="col-md-3 text-center">
-                                        <a href="#" class="ver-interesados text-success" rel="prospectos">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['encuestado']">
+                                        <a class="ver-interesados text-success pointer" v-on:click="verEstados('encuestado')">
                                             <div class="h1 block bold m-t-xs m-b-n"
                                                  id="prospectos">{{encuesta.objetivosEncuestados}}</div>
                                             <div class="block m-b-xs m-t">Encuestados</div>
@@ -102,7 +103,7 @@
                                     </div>
 
                                     <div class="col-md-3 text-center">
-                                        <a href="#" class="ver-interesados text-warning" rel="prospectos">
+                                        <a class="ver-interesados text-warning pointer">
                                             <div class="h1 block bold m-t-xs m-b-n"
                                                  id="prospectos">{{cursosNoEncuestar.length}}</div>
                                             <div class="block m-t">Cursos no</div>

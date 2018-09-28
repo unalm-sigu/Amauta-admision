@@ -74,6 +74,8 @@ public interface PlanCurricularService {
     void updateCursoCurricula(CursoCurricula cursoCurricula, DataSessionPivot ds);
 
     void saveCursoAdicional(CursoAdicionalCurricula cursoAdicionalCurricula, DataSessionPivot ds);
+    
+    void updateCursoAdicional(CursoAdicionalCurricula cursoAdicionalCurricula, DataSessionPivot ds);
 
     void deleteCursoEquivalenteByGrupoCursoCurricula(Integer grupo, CursoCurricula curso);
 
@@ -113,4 +115,6 @@ public interface PlanCurricularService {
 
     Long countAlumnosByPlanCurricular(PlanCurricular planCurricular);
 
+    CursoAdicionalCurricula findCursoAdicional(Long cursoAdicionalId);
+    
 }

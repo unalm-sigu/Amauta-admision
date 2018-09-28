@@ -125,7 +125,7 @@ public class BuscarServiceImp implements BuscarService {
 
     @Override
     public List<ModalidadEstudio> allModalidadEstudios() {
-        return modalidadEstudioDAO.allActivos();
+        return modalidadEstudioDAO.allRegularesActivas();
     }
 
     @Override
@@ -170,6 +170,12 @@ public class BuscarServiceImp implements BuscarService {
     @Override
     public List<Curso> allCursoByModalidadEstudioNombre(String nombre, ModalidadEstudioEnum moda) {
         return cursoDAO.allByModalidadEstudioNombre(moda, nombre);
+    }
+
+    @Override
+    public List<CicloAcademico> allCicloByDescripcionDescendent(String nombre) {
+        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        return cicloAcademicoDAO.allCicloByNameDescendent(nombre, modalidad);
     }
 
 }

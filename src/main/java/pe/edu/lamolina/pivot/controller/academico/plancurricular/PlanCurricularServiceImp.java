@@ -529,6 +529,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     public void updateCursoOpcional(CursoOpcionalCurricula cursoOpcional, DataSessionPivot ds) {
         CursoOpcionalCurricula cursoOpcionalBD = cursoOpcionalCurriculaDAO.find(cursoOpcional.getId());
         cursoOpcionalBD.setCreditosRequisito(cursoOpcional.getCreditosRequisito());
+        cursoOpcionalBD.setRequisitosOr(cursoOpcional.getRequisitosOr());
         cursoOpcionalCurriculaDAO.update(cursoOpcionalBD);
 
         List<RequisitoCursoOpcional> requisitosDB = requisitoCursoOpcionalDAO.allByCursoElectivo(cursoOpcional);
@@ -1050,6 +1051,27 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional
     public void desvincularCursoCurricula(PlanCurricular plan, DataSessionPivot ds) {
         avanceCurricularService.desvincularCursoCurricula(plan, ds);
+    }
+
+    @Override
+    public CursoAdicionalCurricula findCursoAdicional(Long cursoAdicionalId) {
+        return cursoAdicionalCurriculaDAO.find(cursoAdicionalId);
+    }
+
+    @Override
+    @Transactional
+    public void updateCursoAdicional(CursoAdicionalCurricula cursoAdicionalCurricula, DataSessionPivot ds) {
+        CursoAdicionalCurricula cacBD = cursoAdicionalCurriculaDAO.find(cursoAdicionalCurricula.getId());
+        
+        cacBD.setCicloInicio(cursoAdicionalCurricula.getCicloInicio());
+        
+        if(cursoAdicionalCurricula.getCicloFin().getId() != null){
+            cacBD.setCicloFin(cursoAdicionalCurricula.getCicloFin());
+        }else{
+            cacBD.setCicloFin(null);
+        }
+        
+        cursoAdicionalCurriculaDAO.update(cacBD);
     }
 
 }

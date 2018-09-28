@@ -1,4 +1,3 @@
-
 <template id="cursoDirigidoComponent">
     <div>
         <a class="btn btn-primary pull-right m-b-sm" v-bind:href="`${URL_TRAMITE}/cursodirigido/${tramite.id}/reporte`"> Descargar Informe </a>
@@ -44,7 +43,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 </template>
 <script >
@@ -63,7 +61,6 @@
         },
         mounted() {
             this.alumno = this.tramite.alumno;
-            console.dir(this.alumno);
             let $vue = this;
             if ($vue.tramite != null) {
                 if ($vue.tramite.id != null) {
@@ -85,7 +82,6 @@
                             this.alumno = this.tramite.alumno;
                             this.reunionConsejoSel = $vue.tramite.tramiteReunionConsejo.reunionConsejo;
                             this.loadAgendarComponent();
-                            // this.$refs.tblReunionesConsejo.loadRemoteData();
                         }
                     }
                 }

@@ -20,7 +20,7 @@ new Vue({
         resolucion: {
             id: ''
         },
-        labelContrato: {'ACT': 'label-success', 'PEND': 'label-warning', 'RESL':'label-primary', 'CFIN':'label-danger', 'VENC':'label-default'},
+        labelContrato: {'ACT': 'label-success', 'PEND': 'label-warning', 'RESL': 'label-primary', 'CFIN': 'label-danger', 'VENC': 'label-default'},
         modalContrato: {
             id: 'modalContrato',
             header: true,
@@ -59,10 +59,10 @@ new Vue({
             vue.docente.persona.fechaNacer = ella.find('input').val();
         });
         self.find('[name="persona.tipoDocumento.id"]').
-            select2({minimumResultsForSearch: -1}).
-            on("change.select2", function (el) {
-                vue.docente.persona.tipoDocumento.id = el.val;
-            });
+                select2({minimumResultsForSearch: -1}).
+                on("change.select2", function (el) {
+                    vue.docente.persona.tipoDocumento.id = el.val;
+                });
         self.find("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});
         self.find("[name='categoria.id']").select2({minimumResultsForSearch: -1});
         self.find("[name='situacion.id']").select2({minimumResultsForSearch: -1});
@@ -171,6 +171,12 @@ new Vue({
         });
     },
     methods: {
+        tipoSeccion(seccion) {
+            if (seccion.tipoSeccionEnum.value.indexOf(" ") < 0) {
+                return seccion.tipoSeccionEnum.value;
+            }
+            return seccion.tipoSeccionEnum.value.split(" ")[0];
+        },
         submitForm: function (e) {
             var self = $(e.currentTarget);
             self.btnDisabled();
@@ -268,12 +274,12 @@ new Vue({
             }
             let envelope = form.serialize();
             AXIOS.post(`/academico/profesor/${this.docente.id}/contratos/save`, envelope)
-                .then(response => {
-                    if (response.data.success) {
-                        this.$refs.raptorContratos.loadRemoteData();
-                        this.$refs.modalContrato.close();
-                    }
-                })
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$refs.raptorContratos.loadRemoteData();
+                            this.$refs.modalContrato.close();
+                        }
+                    })
         },
         addVistoBueno(item) {
             bootbox.confirm({
@@ -285,11 +291,11 @@ new Vue({
                 callback: (result) => {
                     if (result) {
                         AXIOS.post(`/academico/profesor/contrato/${item.id}/vistobueno`)
-                            .then(response => {
-                                if (response.data.success) {
-                                    this.$refs.raptorContratos.loadRemoteData();
-                                }
-                            })
+                                .then(response => {
+                                    if (response.data.success) {
+                                        this.$refs.raptorContratos.loadRemoteData();
+                                    }
+                                })
                     }
                 }
             });
@@ -308,12 +314,12 @@ new Vue({
                 return;
             }
             AXIOS.post(`/academico/profesor/contrato/${this.resolucion.id}/resolucionfacultad`, form.serialize())
-                .then(response => {
-                    if (response.data.success) {
-                        this.$refs.raptorContratos.loadRemoteData();
-                        this.$refs.modalResolucionFacultad.close();
-                    }
-                })
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$refs.raptorContratos.loadRemoteData();
+                            this.$refs.modalResolucionFacultad.close();
+                        }
+                    })
         },
         saveResolucionConsejo() {
             let form = $('#formResolucionConsejo');
@@ -321,15 +327,15 @@ new Vue({
                 return;
             }
             AXIOS.post(`/academico/profesor/contrato/${this.resolucion.id}/resolucionconsejo`, form.serialize())
-                .then(response => {
-                    if (response.data.success) {
-                        this.$refs.raptorContratos.loadRemoteData();
-                        this.$refs.modalResolucionConsejo.close();
-                    }
-                })
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$refs.raptorContratos.loadRemoteData();
+                            this.$refs.modalResolucionConsejo.close();
+                        }
+                    })
         },
-        finalizar(item){
-             bootbox.confirm({
+        finalizar(item) {
+            bootbox.confirm({
                 message: `¿Seguro que desea finalizar el contrato?`,
                 buttons: {
                     confirm: {label: 'Sí, seguro', className: 'btn-danger'},
@@ -338,11 +344,11 @@ new Vue({
                 callback: (result) => {
                     if (result) {
                         AXIOS.post(`/academico/profesor/contrato/${item.id}/finalizar`)
-                            .then(response => {
-                                if (response.data.success) {
-                                    this.$refs.raptorContratos.loadRemoteData();
-                                }
-                            })
+                                .then(response => {
+                                    if (response.data.success) {
+                                        this.$refs.raptorContratos.loadRemoteData();
+                                    }
+                                })
                     }
                 }
             });

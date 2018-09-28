@@ -69,6 +69,17 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
     }
 
     @Override
+    public List<Facultad> allNormal() {
+        Octavia sql = Octavia.query()
+                .from(Facultad.class, "fa")
+                .join("compania")
+                .between("codigo", "010", "080")
+                .filter("estado", EstadoEnum.ACT);
+
+        return all(sql);
+    }
+
+    @Override
     public Facultad findByCodigo(String codigo) {
         Octavia sql = Octavia.query()
                 .from(Facultad.class, "fa")

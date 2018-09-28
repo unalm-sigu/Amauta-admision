@@ -2,12 +2,14 @@ package pe.edu.lamolina.pivot.controller.academico.cargaadicional.docente;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import static com.helger.commons.io.stream.StreamHelper.close;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -27,6 +29,7 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.ConfiguraCargaAdicional;
 import pe.edu.lamolina.model.academico.DocenteCiclo;
@@ -61,7 +64,7 @@ public class CargaAdicionalDocenteController {
             List<DocenteCiclo> list = service.allByDynatable(filter, ds.getCicloAcademico());
 
             for (DocenteCiclo item : list) {
-                array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                     "id",
                     "docente.id",
                     "docente.codigo",
@@ -74,13 +77,17 @@ public class CargaAdicionalDocenteController {
                     "docente.departamentoAcademico.nombre",
                     "docente.departamentoAcademico.facultad.id",
                     "docente.departamentoAcademico.facultad.nombre",
+                    "categoriaDocente.nombre",
+                    "situacionDocente.nombre",
                     "promedioAlumnos",
                     "creditosTotal",
                     "creditosExceso",
                     "factor1",
                     "factor2",
                     "monto"
-                }));
+                });
+                node.put("montoVer", NumberFormat.precio(item.getMonto()));
+                array.add(node);
             }
 
             json.setData(array);

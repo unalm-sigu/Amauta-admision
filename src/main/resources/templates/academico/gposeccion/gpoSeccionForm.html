@@ -19,15 +19,42 @@
             transform: translateX(10px);
             opacity: 0;
         }
+        .nav-gposec-gray {
+            color: #c8c8c8;
+        }
+        .nav-gposec-primary {
+            color: #0275D8;
+            cursor: pointer;
+        }
+        .avatar-gposecc {
+            display: block;
+            position: relative;
+            border-radius: 50%;
+            width: 54px;
+            height: 54px;
+            overflow: hidden;
+            line-height: 54px;
+            background-color: #F5B041;
+            color: #fff;
+            text-align: center;
+            font-size: 24px;
+            text-indent: 0;
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+        .text-curso {
+            font-size: 18px;
+            color: #0275D8;
+        }
     </style>
 </head>
 
 <body>
     <section  layout:fragment="main">
         <header class="header b-b padder-lg">
-            <h2>Programacion de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
+            <h2>Programación de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
             <div class="pull-right m-t-md">
-                <a class="btn btn-default"   th:href="@{/academico/gposeccion}"  >Regresar</a>
+                <a class="btn btn-default"   th:href="${origen}"  >Regresar</a>
             </div>
         </header>
         <div id="pageGpoSeccion">
@@ -39,36 +66,66 @@
                         <section class="panel m-b-xs">
                             <section class="panel-body">
                                 <div class="row">
-                                    <div class="form-group">
-                                        <label for="cboAnexo" class="col-md-2 control-label">Anexo</label>
-                                        <div class="col-md-4">
-                                            <span  th:text="|${grupoSeccion.anexoBoletin.codigo} - ${grupoSeccion.anexoBoletin.nombre}|"></span>
-                                        </div>
-
-                                        <label for="cboCategoria" class="col-md-2 control-label">Categoria</label>
-                                        <div class="col-md-4">
-                                            <span  th:text="|${grupoSeccion.anexoBoletin.anexoSuperior.codigo} - ${grupoSeccion.anexoBoletin.anexoSuperior.nombre}|"></span>
-                                        </div>
+                                    <div class="col-md-1">
+                                        <div class="avatar-gposecc"
+                                             v-text='avatarGpo()'>234</div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group">
-                                        <label for="cboCurso" class="col-md-2 control-label">Curso</label>
-                                        <div class="col-md-10">
-                                            <span vclass="form-control" th:text="|${grupoSeccion.curso.codigo} - ${grupoSeccion.curso.nombre}|"></span>
+
+                                    <div class="col-md-9">
+                                        <div class="row m-b-xs">
+                                            <div class="col-md-2 bold">Anexo</div>
+                                            <div class="col-md-10">
+                                                <span class="block bold" v-text="grupoSeccion.anexoBoletin.codigo + ' - ' + grupoSeccion.anexoBoletin.nombre"></span>
+                                                <small class="block" v-text="grupoSeccion.anexoBoletin.anexoSuperior.codigo + ' - ' + grupoSeccion.anexoBoletin.anexoSuperior.nombre"></small>
+                                            </div>
                                         </div>
+
+                                        <div class="row m-b-xs">
+                                            <div class="col-md-2 text-curso">Curso</div>
+                                            <div class="col-md-10">
+                                                <span class="block text-curso" v-text="grupoSeccion.curso.codigo + ' - ' + grupoSeccion.curso.nombre"></span>
+                                                <span class="block bold" v-text="grupoSeccion.curso.tpc"></span>
+                                            </div>
+                                        </div>
+                                        <!--div class="row">
+                                            <div class="col-md-2 bold text-primary">Periodo</div>
+                                            <div class="col-md-10">
+                                                
+                                            </div>
+                                        </div-->
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group">
-                                        <label  class="col-md-2 control-label">Estructura</label>
-                                        <div class="col-md-1">
-                                            <span  th:text="${grupoSeccion.curso.codigo}"></span>
+
+                                    <div class="col-md-2">
+
+                                        <div class="text-right">
+                                            <span v-bind:class="classBtnPrev()" 
+                                                  v-on:click="prevGpoSecc()">
+                                                <span class="fa-stack fa-lg">
+                                                    <i v-if="btnNavega.left" class="fa fa-circle fa-stack-2x"></i>
+                                                    <i v-if="btnNavega.left" 
+                                                       class="fa fa-arrow-left fa-stack-1x fa-inverse"></i>
+                                                    <i v-else="" class="fa fa-spinner fa-spin fa-2x fa-fw"></i>
+                                                </span>
+
+
+                                            </span>
+
+                                            <span v-bind:class="classBtnNext()" 
+                                                  v-on:click="nextGpoSecc()">
+                                                <span class="fa-stack fa-lg">
+                                                    <i v-if="btnNavega.right" class="fa fa-circle fa-stack-2x"></i>
+                                                    <i v-if="btnNavega.right" class="fa fa-arrow-right fa-stack-1x fa-inverse"></i>
+                                                    <i v-else="" class="fa fa-spinner fa-spin fa-2x fa-fw"></i>
+                                                </span>
+
+                                            </span>
+
                                         </div>
-                                        <div class="col-md-1">
-                                            <span  th:text="${grupoSeccion.curso.tpc}"></span>
-
-
+                                        <div class="text-right">
+                                            <small class="text-muted m-r">
+                                                {{(navega.position+1)}} de 
+                                                {{navega.arrayGpoSecciones.length}}
+                                            </small>
                                         </div>
                                     </div>
                                 </div>
@@ -81,7 +138,7 @@
                                 <table class="table" >
                                     <thead> 
                                         <tr class=""> 
-                                            <th class="col-md-1 text-center v-middle">Sección </th>
+                                            <th class="col-md-1 text-center v-middle">Sección</th>
                                             <th class="col-md-1 text-center v-middle">Aula</th>
                                             <th class="col-md-1 text-center v-middle">Grupo</th>
                                             <th class="col-md-2 text-center v-middle">Restricción modalidad facultad especialidad</th>
@@ -99,16 +156,18 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr  v-for="(seccion, index) in secciones" 
-                                             v-bind:class="{'active' : (seccionSeleccionada!=null &amp;&amp; seccionSeleccionada.id==seccion.id)}">
+                                        <tr v-for="(seccion, index) in secciones" 
+                                            v-bind:class="{'active' : (seccionSeleccionada!=null &amp;&amp; seccionSeleccionada.id==seccion.id)}">
+
                                             <td class="text-center v-middle">
-                                                <a v-on:click="seleccionarSeccion(seccion)" 
+                                                <a v-on:click="seleccionarSeccion(index)" 
                                                    style="cursor:pointer;">{{ seccion.codigo2 }}
                                                 </a>
                                                 <div>
                                                     {{ seccion.tipoSeccionEvaluacionValue }}
                                                 </div>
                                             </td>
+
                                             <td class="text-center v-middle">
 
                                                 <a v-if="seccion.aula.id=='' &amp;&amp; !directEditSecciones"
@@ -172,7 +231,7 @@
                                                    style="cursor:pointer;">
                                                     {{SIN_RESTRICCION_TEXT}}
                                                 </a>
-                                                <div class="col-md-12 text-center"
+                                                <div class="text-center"
                                                      v-if="seccion.isTieneRestriccion &amp;&amp; !seccion.isTipoSeccionTCUR">
 
                                                     <div class="col-md-12">
@@ -197,17 +256,18 @@
                                                        v-if="seccion.isTieneRestriccionCarrera"
                                                        v-for="restCarrera in seccion.restriccionesCarrera"
                                                        style="cursor:pointer;"
-                                                       class="col-md-3"> 
-                                                        <span class="label label-primary">
+                                                       class="m-t-xs label-varios"> 
+                                                        <span class="label label-primary m-l-xs">
                                                             {{restCarrera.carrera.codigo}}  
                                                         </span>
                                                     </a>  
+
                                                     <a v-on:click="showModalRestriccion(seccion)" 
                                                        v-if="seccion.isTieneRestriccionFacultad"
                                                        v-for="restFacultad in seccion.restriccionesFacultad" 
                                                        style="cursor:pointer;"
-                                                       class="col-md-3"> 
-                                                        <span class="label label-primary">
+                                                       class="m-t-xs label-varios"> 
+                                                        <span class="label label-primary m-l-xs">
                                                             {{restFacultad.facultad.codigo}} 
                                                         </span>
                                                     </a> 
@@ -216,8 +276,8 @@
                                                        v-if="seccion.isTieneRestriccionModalidad"
                                                        v-for="restModalidad in seccion.restriccionesModalidad" 
                                                        style="cursor:pointer;"
-                                                       class="col-md-3"> 
-                                                        <span class="label label-primary">
+                                                       class="m-t-xs label-varios"> 
+                                                        <span class="label label-primary m-l-xs">
                                                             {{restModalidad.modalidadEstudio.codigo}} 
                                                         </span>
                                                     </a> 
@@ -232,13 +292,13 @@
                                                     {{SIN_RESTRICCION_TEXT}}
                                                 </a>
 
-                                                <div class="col-md-12">
+                                                <div class="row">
                                                     <a v-on:click="showModalTipoRepitencia(seccion)" 
                                                        v-if="seccion.isTieneRestriccionRepitencia  &amp;&amp; !seccion.isTipoSeccionTCUR"
                                                        v-for="restRepitencia in seccion.restriccionesRepitencia"
                                                        style="cursor:pointer;"
-                                                       class="col-md-3"> 
-                                                        <span class="label label-primary">
+                                                       class="m-t-xs label-varios"> 
+                                                        <span class="label label-primary m-l-xs">
                                                             {{restRepitencia.tipoRepitencia.codigo}}  
                                                         </span>
                                                     </a>  
@@ -247,9 +307,6 @@
 
                                             </td>
                                             <td class="text-center v-middle">
-                                                <!--div v-if="seccion.isTipoSeccionTCUR" >
-                                                    {{ seccion.restriccionCapa }}
-                                                </div-->
 
                                                 <div v-if="!seccion.isTipoSeccionTCUR &amp;&amp; seccion.restriccionCapa!='' " 
                                                      v-show="!seccion.editRestriccionCapa &amp;&amp; !directEditSecciones">
@@ -291,10 +348,6 @@
                                                        v-on:blur="changeVacantes(seccion,$event)"
                                                        v-on:keyup.enter="changeVacantes(seccion,$event)">
                                                 </input>
-                                                <!--
-                                                 v-on:blur="seccion.editVacantes=false; $emit('update')"
-                                                       v-on:keyup.enter = "seccion.editVacantes=false; $emit('update')"
-                                                -->
                                             </td>
                                             <td class="text-center v-middle">
                                                 {{ seccion.matriculados }}
@@ -311,12 +364,6 @@
                                                 <span class="label" v-bind:class="getEstadoClass(seccion.estado)">{{ seccion.estadoEnum.value }}</span>
                                             </td>
                                             <td class="v-middle">
-                                                <!-- 
-                                                <a  v-if="index == secciones.length - 1 &amp;&amp; secciones.length > 0"
-                                                    v-on:click="deleteSeccion(seccion)"
-                                                    class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
-                                                v-if="index == secciones.length - 1 &amp;&amp; secciones.length > 0"
-                                                -->
 
                                                 <div class="dropdown actions" 
                                                      v-if="index > 0">
@@ -351,11 +398,11 @@
                                 </table>
 
                                 <a class="btn btn-info btn-sm pull-right m-t-xs"
-                                   th:if="${grupoSeccion.curso.tipoCursoTEOPRA}"
-                                   v-on:click="addSeccion"
-                                   >
+                                   v-if="grupoSeccion.curso.tipoCursoEnum.name == 'TEOPRA' "
+                                   v-on:click="addSeccion">
                                     <i class="fa fa-plus add-seccion" aria-hidden="true"></i> <strong> Agregar Sección</strong>
                                 </a>
+
                             </section>
                         </section>
 
@@ -406,7 +453,7 @@
                        v-bind:okaction="saveAula"
                        v-bind:cancelaction="closeAula">
                 <div slot="body">
-                    <aula-component></aula-component>
+                    <aula-component ref="aulaComponent"></aula-component>
                 </div>
             </modal-vik>
 
@@ -459,37 +506,24 @@
         <div th:substituteby="academico/gposeccion/components/restriccionComponent"/>
         <div th:substituteby="academico/gposeccion/components/repitenciaComponent"/>
 
-        <!-- 
-              <div id="autocomplete-doc">
-                  <input class="input-s-full" v-bind:rel="rel" type="hidden"  />
-              </div>
-      
-              <div id="tablaHorarioReg"></div>
-            
-                      <script type="text/x-template" id="select2-template">
-                          <input class="input-s-full" type="text" />
-                      </script>
-              
-                      <div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
-                          {{:personaNombre}}  {{:personaPaterno}}  {{:personaMaterno}}
-                      </div>
-        -->
     </section>
 
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:inline="javascript">
-            var gpoSeccionJson = [[${grupoSeccionJson}]];
+            var gpoSeccionJson = /*[[${grupoSeccionJson}]]*/ {};
+            var navigationJson = /*[[${navigationJson}]]*/ {};
         </script>
+
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script th:src="@{/app/gposeccion/dynatableComponents.js}" charset="utf-8"></script>
-        <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/aulaComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/aulaHorarioComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/grupoHorarioComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/restriccionComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/repitenciaComponent.js}" charset="utf-8"></script>
         <script th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>

@@ -19,7 +19,7 @@ Vue.component("autocomplete-doc", {
         $(this.$el).select2({
             containerCss: "width:400px !important;",
             containerCssClass: "buscarDocClass",
-            minimumInputLength: 3,
+            minimumInputLength: 1,
             ajax: {
                 url: APP.url("academico/gposeccion/buscarDocentes"),
                 dataType: 'json',
@@ -35,7 +35,11 @@ Vue.component("autocomplete-doc", {
                 }
             },
             formatResult: function (info) {
-                return info.apellidosNombres;
+                var conte = '<span class="bold block">' + info.apellidosNombres + '</span>';
+                conte += '<small class="block">Dpto.Acad.: ' + info.departamento + '</small>';
+                conte += '<span class="bold block">' + info.codigo + '</span>';
+
+                return conte;
             },
             formatSelection: function (info) {
                 return info.personaNombre + " " + info.personaPaterno + " " + info.personaMaterno;
@@ -48,9 +52,8 @@ Vue.component("autocomplete-doc", {
             escapeMarkup: function (m) {
                 return m;
             }
-        }
 
-        ).on('select2-selecting', function (e) {
+        }).on('select2-selecting', function (e) {
             vm.$emit('input', e.object.id);
 
             let docSeccion = vm.$options.propsData.docseccion;
@@ -66,6 +69,8 @@ Vue.component("autocomplete-doc", {
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
+                        vm.$emit('oncomplete');
+
                     } else {
                         notify(response.message, "error");
                     }
@@ -79,7 +84,6 @@ Vue.component("autocomplete-doc", {
         $(this.$el).off().select2('destroy')
     },
     watch: function () {
-
     }
 });
 
@@ -87,26 +91,28 @@ Vue.component("seccion-det-component", {
     template: "#seccionDetComp",
     props: {
         seccion: null
-    }, watch: {
+    },
+    watch: {
         seccion(newValue) {
-
         }
     }
 });
-
 
 var app = new Vue({
     el: '#pageGpoSeccion',
     data: {
         SIN_RESTRICCION_TEXT: "Todos",
         grupoSeccion: {},
+        navega: {},
+        btnNavega: {left: true, right: true},
+        idxSeccion: 0,
         secciones: null,
         directEditSecciones: false,
         docentesSeccion: [],
         seccionSeleccionada: null,
         verDocentes: false,
         seccionModal: null,
-        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning"},
+        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", INA: "danger", BLO: "warning", FUS: "warning"},
         grupoModal: {
             id: 'modalGrupo',
             header: true,
@@ -131,14 +137,14 @@ var app = new Vue({
         restriccionModal: {
             id: 'modalRestriccion',
             header: true,
-            title: 'Restricciones',
+            title: 'Restricciones Modalidad / Facultad / Especialidad',
             okbtn: 'Aceptar',
             modalsize: 'modal-lg'
         },
         tipoRepitenciaModal: {
             id: 'modalTipoRepitencia',
             header: true,
-            title: 'Tipo Repitencia',
+            title: 'Aplicar restricción repitencia / retirados / ingresantes',
             okbtn: 'Aceptar',
             modalsize: 'modal-lg'
         },
@@ -149,8 +155,9 @@ var app = new Vue({
     },
     created: function () {
         this.grupoSeccion = JSON.parse(gpoSeccionJson);
-        this.loadGpoSeccionForm();
-        this.loadSecciones();
+        this.navega = JSON.parse(navigationJson);
+        this.loadDataPantalla();
+
     },
     mounted: function () {
         let $vue = this;
@@ -163,13 +170,139 @@ var app = new Vue({
         $global.$on("afterSaveRestriccion", function (response) {
             $vue.afterSaveRestriccion(response, $vue);
         });
-
         $global.$on("afterSaveTipoRepRestriccion", function (response) {
             $vue.afterSaveTipoRepRestriccion(response, $vue);
         });
 
+        this.loadGpoSeccionForm();
+
     },
     methods: {
+        reloadProfes() {
+            let $vue = this;
+            $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+        },
+        loadDataPantalla() {
+            let $vue = this;
+            $vue.verDocentes = false;
+            $vue.secciones = this.grupoSeccion.secciones;
+            if ($vue.idxSeccion >= $vue.secciones.length) {
+                $vue.idxSeccion = 0;
+            }
+            $vue.seccionSeleccionada = $vue.secciones[$vue.idxSeccion];
+            $vue.docentesSeccion = $vue.seccionSeleccionada.docenteSeccion;
+            setTimeout(function () {
+                $vue.verDocentes = true;
+            }, 300);
+        },
+        avatarGpo() {
+            let $vue = this;
+            return $vue.secciones[0].codigo2.substring(0, 3);
+        },
+        loadGpoSeccion(idGpoSecc, dir) {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/' + idGpoSecc + '/get'),
+                success(response) {
+                    $vue.liberarBtn(dir);
+                    if (response.success) {
+                        $vue.grupoSeccion = response.data.grupoSeccion;
+                        $vue.loadDataPantalla();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $vue.liberarBtn(dir);
+                }
+            });
+        },
+        liberarBtn(dir) {
+            let $vue = this;
+            setTimeout(function () {
+                if (dir == "left") {
+                    $vue.btnNavega.left = true;
+                } else {
+                    $vue.btnNavega.right = true;
+                }
+            }, 200);
+        },
+        classBtnPrev() {
+            let $vue = this;
+            if ($vue.navega.position <= 0) {
+                return "nav-gposec-gray";
+            }
+            return "nav-gposec-primary";
+        },
+        classBtnNext() {
+            let $vue = this;
+            if ($vue.navega.position + 1 >= $vue.navega.arrayGpoSecciones.length) {
+                return "nav-gposec-gray";
+            }
+            return "nav-gposec-primary";
+        },
+        prevGpoSecc() {
+            let $vue = this;
+            if (!$vue.btnNavega.left) {
+                return;
+            }
+            if ($vue.navega.position <= 0) {
+                return;
+            }
+            $vue.btnNavega.left = false;
+
+            let url = window.location.href;
+            let oldGpoSecc = "/academico/gposeccion/" + $vue.navega.current + "/";
+            let newGpoSecc = "/academico/gposeccion/" + $vue.navega.prev + "/";
+            $vue.navega.position = $vue.navega.position - 1;
+
+            $vue.navega.prev = null;
+            $vue.navega.next = null;
+            if ($vue.navega.position > 0) {
+                $vue.navega.prev = $vue.navega.arrayGpoSecciones[$vue.navega.position - 1].id;
+            }
+            if ($vue.navega.position + 1 < $vue.navega.arrayGpoSecciones.length) {
+                $vue.navega.next = $vue.navega.arrayGpoSecciones[$vue.navega.position + 1].id;
+            }
+            $vue.navega.current = $vue.navega.arrayGpoSecciones[$vue.navega.position].id;
+
+            let newUrl = url.replace(oldGpoSecc, newGpoSecc);
+            history.pushState(null, null, newUrl);
+            $vue.loadGpoSeccion($vue.navega.current, "left");
+
+        },
+        nextGpoSecc() {
+            let $vue = this;
+            if (!$vue.btnNavega.right) {
+                return;
+            }
+            if ($vue.navega.position + 1 >= $vue.navega.arrayGpoSecciones.length) {
+                return;
+            }
+            $vue.btnNavega.right = false;
+
+            let url = window.location.href;
+            let oldGpoSecc = "/academico/gposeccion/" + $vue.navega.current + "/";
+            let newGpoSecc = "/academico/gposeccion/" + $vue.navega.next + "/";
+            $vue.navega.position = $vue.navega.position + 1;
+
+            $vue.navega.prev = null;
+            $vue.navega.next = null;
+            if ($vue.navega.position > 0) {
+                $vue.navega.prev = $vue.navega.arrayGpoSecciones[$vue.navega.position - 1].id;
+            }
+            if ($vue.navega.position + 1 < $vue.navega.arrayGpoSecciones.length) {
+                $vue.navega.next = $vue.navega.arrayGpoSecciones[$vue.navega.position + 1].id;
+            }
+            $vue.navega.current = $vue.navega.arrayGpoSecciones[$vue.navega.position].id;
+
+            let newUrl = url.replace(oldGpoSecc, newGpoSecc);
+            history.pushState(null, null, newUrl);
+            $vue.loadGpoSeccion($vue.navega.current, "right");
+
+        },
         addSeccion: function () {
             let $vue = this;
             $.ajax({
@@ -181,11 +314,13 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        $vue.loadSecciones();
+                        //$vue.loadSecciones();
+                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
                     } else {
                         notify(response.message, "error");
                     }
-                }, error: function () {
+                },
+                error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
@@ -201,8 +336,9 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        $vue.loadSecciones();
-                        $vue.loadDocentesSec();
+                        //$vue.loadSecciones();
+                        //$vue.loadDocentesSec();
+                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
                     } else {
                         notify(response.message, "error");
                     }
@@ -211,10 +347,13 @@ var app = new Vue({
                 }
             });
         },
-        seleccionarSeccion: function (seccion) {
-            this.verDocentes = false;
-            this.seccionSeleccionada = seccion;
-            this.loadDocentesSec();
+        seleccionarSeccion: function (index) {
+            let $vue = this;
+//            $vue.verDocentes = false;
+            $vue.idxSeccion = index;
+            $vue.loadDataPantalla();
+            //this.seccionSeleccionada = seccion;
+            //this.loadDocentesSec();
         },
         cambiarDocPrincipal: function (docSeccion) {
             let $vue = this;
@@ -228,7 +367,8 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        $vue.loadDocentesSec();
+//                        $vue.loadDocentesSec();
+                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
 
                     } else {
                         notify(response.message, "error");
@@ -258,9 +398,11 @@ var app = new Vue({
                         porcentajeAvance: parseFloat(docSeccion.porcentajeCarga)
                     },
                     success: function (response) {
+                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
                         if (response.success) {
                             notify(response.message, "info");
-                            $vue.loadSecciones();
+
+                            //$vue.loadSecciones();
                             // $vue.docentesSeccion = [];
                             MODAL.hideWait();
                         } else {
@@ -438,8 +580,9 @@ var app = new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
-                                    $vue.loadSecciones();
-                                    $vue.loadDocentesSec();
+                                    $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+                                    //$vue.loadSecciones();
+                                    //$vue.loadDocentesSec();
                                     MODAL.hideWait();
                                 } else {
                                     notify(response.message, "error");
@@ -472,19 +615,11 @@ var app = new Vue({
             });
         },
         loadSecciones: function () {
-            let $vue = this;
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/gposeccion/' + this.grupoSeccion.id + '/findSecciones'),
-                success: function (response) {
-                    if (response.success) {
-                        $vue.secciones = response.data;
-                    }
-                }
-            });
+//            let $vue = this;
+//            $vue.secciones = $vue.grupoSeccion.secciones;
         },
         loadDocentesSec: function () {
-            let $vue = this;
+//            let $vue = this;
             //$vue.docentesSeccion = null;
             /*
              for (let idx in this.$refs.datePicker) {
@@ -497,29 +632,29 @@ var app = new Vue({
              element.$mount('#elementidhere')
              }*/
             //MODAL.showWait("Espere un momento por favor");
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/gposeccion/findDocentesSecciones'),
-                data: {
-                    seccion: $vue.seccionSeleccionada.id
-                },
-                success: function (response) {
-                    if (response.success) {
-
-                        $vue.docentesSeccion = response.data;
-                        $vue.verDocentes = true;
-                        //MODAL.hideWait();
-                    } else {
-                        $vue.docentesSeccion = null;
-                    }
-                }
-            });
+//            $.ajax({
+//                method: 'POST',
+//                url: APP.url('academico/gposeccion/findDocentesSecciones'),
+//                data: {
+//                    seccion: $vue.seccionSeleccionada.id
+//                },
+//                success: function (response) {
+//                    if (response.success) {
+//
+//                        $vue.docentesSeccion = response.data;
+//                        $vue.verDocentes = true;
+//                        //MODAL.hideWait();
+//                    } else {
+//                        $vue.docentesSeccion = null;
+//                    }
+//                }
+//            });
         },
         showModalGrupos(seccion) {
             var tabs = $("#tab-grupos");
             tabs.find("li").removeClass("active");
             tabs.find(".tab-pane").removeClass("active");
-            
+
             let $vue = this;
             $global.$emit('loadGrupoComponent', seccion.id);
             this.$refs.modalGrupo.open();
@@ -655,9 +790,9 @@ var app = new Vue({
             tabs.find("li").removeClass("active");
             tabs.find(".tab-pane").removeClass("active");
 
-            let $vue = this;
-            $global.$emit('loadAulaComponent', seccion.id);
+            this.$refs.aulaComponent.loadAula(seccion);
             this.$refs.modalAula.open();
+
 
         },
         showModalAulaHorario(aula) {
@@ -735,7 +870,9 @@ var app = new Vue({
                         //     $vue.loadDocentesSec();
                         notify(response.message, "info");
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(response.message, "error");
+                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+                        MODAL.hideWait();
                     }
                 },
                 error: function (response) {
@@ -769,7 +906,9 @@ var app = new Vue({
                         // $vue.loadDocentesSec();
                         notify(response.message, "info");
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(response.message, "error");
+                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+                        MODAL.hideWait();
                     }
                 },
                 error: function (response) {
@@ -839,4 +978,4 @@ var app = new Vue({
             e.target.value = e.target.value.toUpperCase()
         }
     }
-})
+});

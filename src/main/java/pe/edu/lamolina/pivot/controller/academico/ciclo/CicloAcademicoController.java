@@ -19,7 +19,6 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -120,7 +119,7 @@ public class CicloAcademicoController {
                     });
             response.setData(cicloJson);
             response.setSuccess(Boolean.TRUE);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -271,21 +270,4 @@ public class CicloAcademicoController {
         return response;
     }
 
-    @RequestMapping("changeciclo")
-    public String changeciclo(HttpSession session, Model model) {
-        List<CicloAcademico> ciclos = service.allCicloAcademico(25);
-        model.addAttribute("cicloAcademicos", ciclos);
-        return "academico/cicloacademico/cicloland";
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "cicloland", method = RequestMethod.POST)
-    public void cicloland(HttpSession session, @RequestParam("ciclo") Long ciclo) throws Exception {
-
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico cicloAcademico = service.getCicloAcademico(ciclo);
-        ds.setCicloAcademico(cicloAcademico);
-        session.setAttribute(Constantine.SESSION_USUARIO, ds);
-
-    }
 }

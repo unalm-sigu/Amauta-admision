@@ -60,6 +60,11 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allByModalidadEstudioName(ModalidadEstudio modalidad, String nombre);
 
-    List<CicloAcademico> allByLikeName(String nombre, ModalidadEstudio modalidad, List<CicloAcademico> notInt, Integer limit);
+    List<CicloAcademico> allCicloByNameDescendent(String nombre, ModalidadEstudio modalidad);
 
+    List<CicloAcademico> allAnteriores(int ciclos, CicloAcademico cicloAcademico);
+
+    List<CicloAcademico> allByEstados(List<String> estados);
+
+    List<CicloAcademico> allByLikeName(String nombre, ModalidadEstudio modalidad, List<CicloAcademico> notInt, Integer limit);
 }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -24,6 +25,7 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
@@ -33,7 +35,6 @@ import pe.edu.lamolina.pivot.dao.encuesta.EncuestaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaCursoDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaEstudiantilDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PeriodoEncuestaDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -58,6 +59,8 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
     PeriodoEncuestaDAO periodoEncuestaDAO;
     @Autowired
     EncuestaCursoDAO encuestaCursoDAO;
+    @Autowired
+    CursoDAO cursoDAO;
 
     @Autowired
     VisorEncuestaCurso visorEncuestaCurso;
@@ -84,15 +87,15 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
         ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaEstudiantil);
         List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuestaEstudiantil);
 
-        List<CursoSinEncuesta> cursosNoEncuestar = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
-        Map<Long, Curso> mapCursosNoEncuestar = TypesUtil.convertListToMap("curso.di", "curso", cursosNoEncuestar);
-
+        List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
+        Map<Long, Curso> mapCursosSinEncuesta = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
         visorEncuestaCurso.iniciarConteo(mapGposSeccion.size());
+
         for (GrupoSeccion grupoSeccion : mapGposSeccion.values()) {
             saveEncuestaCurso(
                     grupoSeccion,
                     mapAlumnos,
-                    mapCursosNoEncuestar,
+                    mapCursosSinEncuesta,
                     configuraEncuesta,
                     periodosEncuesta,
                     encuestaEstudiantil, ds);
@@ -100,13 +103,12 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
         }
 
         encuestaEstudiantilDAO.update(encuestaEstudiantil);
-
     }
 
     private void saveEncuestaCurso(
             GrupoSeccion grupoSeccion,
             Map<Long, List<Alumno>> mapAlumnos,
-            Map<Long, Curso> mapCursosNoEncuestar,
+            Map<Long, Curso> mapCursosSinEncuesta,
             ConfiguraEncuesta configuraEncuesta,
             List<PeriodoEncuesta> periodosEncuesta,
             EncuestaEstudiantil encuestaEstudiantil,
@@ -123,7 +125,7 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
         }
 
         Curso curso = grupoSeccion.getCurso();
-        Curso cursoNoEnc = mapCursosNoEncuestar.get(curso.getId());
+        Curso cursoNoEnc = mapCursosSinEncuesta.get(curso.getId());
         if (cursoNoEnc != null) {
             impedido = (impedido == null ? "" : impedido);
             impedido += "Anulada porque este curso está configurado para no ser encuestado. ";
@@ -144,20 +146,22 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
             return;
         }
 
-        EncuestaCurso enc = new EncuestaCurso();
-        enc.setAlumnosFin((long) alumnos.size());
-        enc.setAlumnosInicio((long) alumnos.size());
-        enc.setAlumnosEncuestados(0L);
-        enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-        enc.setEncuestaEstudiantil(encuestaEstudiantil);
-        enc.setFechaEncuestaInicio(periodosEncuesta.get(0).getFechaInicio());
-        enc.setFechaEncuestaFin(periodosEncuesta.get(0).getFechaFin());
-        enc.setGrupoSeccion(grupoSeccion);
-        enc.setUserRegistro(ds.getUsuario());
-        enc.setFechaRegistro(new Date());
-        encuestaCursoDAO.save(enc);
+        for (PeriodoEncuesta periodoEncuesta : periodosEncuesta) {
+            EncuestaCurso enc = new EncuestaCurso();
+            enc.setAlumnosFin((long) alumnos.size());
+            enc.setAlumnosInicio((long) alumnos.size());
+            enc.setAlumnosEncuestados(0L);
+            enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
+            enc.setEncuestaEstudiantil(encuestaEstudiantil);
+            enc.setFechaEncuestaInicio(periodoEncuesta.getFechaInicio());
+            enc.setFechaEncuestaFin(periodoEncuesta.getFechaFin());
+            enc.setGrupoSeccion(grupoSeccion);
+            enc.setUserRegistro(ds.getUsuario());
+            enc.setFechaRegistro(new Date());
+            encuestaCursoDAO.save(enc);
+            saveEncuestaAlumno(enc, alumnos, ds);
+        }
 
-        saveEncuestaAlumno(enc, alumnos, ds);
         encuestaEstudiantil.setObjetivosEncuesta(encuestaEstudiantil.getObjetivosEncuesta() + 1);
         encuestaEstudiantil.setEncuestasProgramadas(encuestaEstudiantil.getEncuestasProgramadas() + alumnos.size());
     }

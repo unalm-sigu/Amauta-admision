@@ -195,6 +195,7 @@ $(function () {
                     }
                 });
             }
+
         },
         verPestanaCicloCurObl($this, e) {
             var ciclo = parseInt($this.attr("rel"));
@@ -385,6 +386,90 @@ $(function () {
                     $("#cboTipoCursoCurriculaElec").select2();
                     $("#cboCursosRequistosElectivo").select2(NuevaCurricula.select2RequisitoCursoOpcional);
 
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        editarCursoAdc($this, e) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatableCursosAdc.settings.dataset.records[idx];
+
+            MODAL.init("md");
+            MODAL.title("Edición Curso " + rec.curso);
+            MODAL.buttons('<a class="btn btn-primary" id="btnAddCurAdc">Aceptar</a>');
+            MODAL.show();
+
+            $.ajax({
+                url: APP.url('academico/planCurricular/' + rec.id + '/editarCursoAdicional'),
+                type: 'POST',
+                async: false,
+                success: function (response) {
+                    MODAL.body(response);
+
+                    $("[name='cicloFin.id']").select2({
+                        minimumInputLength: 1,
+                        ajax: {
+                            url: APP.url("academico/profesor/contrato/searchciclo"),
+                            dataType: 'json',
+                            type: 'post',
+                            data: function (term, page) {
+                                return {nombre: term, page: page};
+                            },
+                            results: function (response, page) {
+                                return {results: response.data};
+                            }
+                        },
+                        formatResult: function (info) {
+                            return info.descripcion;
+                        },
+                        formatSelection: function (info) {
+                            return info.descripcion;
+                        }
+                    }).on('select2-selecting', function (e) {
+                        $("[name='cicloFin.id']").val(e.object.id);
+                    });
+
+
+                    $("[name='cicloInicio.id']").select2({
+                        minimumInputLength: 1,
+                        ajax: {
+                            url: APP.url("academico/profesor/contrato/searchciclo"),
+                            dataType: 'json',
+                            type: 'post',
+                            data: function (term, page) {
+                                return {nombre: term, page: page};
+                            },
+                            results: function (response, page) {
+                                return {results: response.data};
+                            }
+                        },
+                        initSelection: function (element, callback) {
+                            return null;
+                        },
+                        formatResult: function (info) {
+                            return info.descripcion;
+                        },
+                        formatSelection: function (info) {
+                            return info.descripcion;
+                        },
+                        escapeMarkup: function (m) {
+                            return m;
+                        }
+                    });
+
+                    axios.post(`/academico/planCurricular/findCursoAdicional/${rec.id}`)
+                            .then(response => {
+                                if (response.data.data.cicloInicio.id) {
+                                    $("[name='cicloInicio.id']").select2("data", response.data.data.cicloInicio);
+                                }
+                                if (response.data.data.cicloFin.id) {
+                                    $("[name='cicloFin.id']").select2("data", response.data.data.cicloFin);
+                                }
+                            })
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -705,26 +790,54 @@ $(function () {
                 success: function (response) {
                     MODAL.body(response);
 
-                    $("#cboCursoAdc").select2(NuevaCurricula.cursosAdicionales).on('select2-selecting', function (e) {
-                        $("#cboCursoAdc").val(e.object.id);
-                    });
-
-
-                    $.ajax({
-                        url: APP.url('academico/planCurricular/cursoPorTipoCurricula'),
-                        type: 'POST',
-                        async: false,
-                        data: {tipoCurricula: "ADIC"},
-                        success: function (response) {
-                            if (response.success) {
-                                $("#cboCursoAdc").select2("data", response.data);
+                    $("[name='cicloFin.id']").select2({
+                        minimumInputLength: 1,
+                        ajax: {
+                            url: APP.url("academico/profesor/contrato/searchciclo"),
+                            dataType: 'json',
+                            type: 'post',
+                            data: function (term, page) {
+                                return {nombre: term, page: page};
+                            },
+                            results: function (response, page) {
+                                return {results: response.data};
                             }
                         },
-                        error: function () {
-                            notify(MESSAGES.errorComunicacion, "error");
+                        formatResult: function (info) {
+                            return info.descripcion;
+                        },
+                        formatSelection: function (info) {
+                            return info.descripcion;
+                        }
+                    });
+                    $("[name='cicloInicio.id']").select2({
+                        minimumInputLength: 1,
+                        ajax: {
+                            url: APP.url("academico/profesor/contrato/searchciclo"),
+                            dataType: 'json',
+                            type: 'post',
+                            data: function (term, page) {
+                                return {nombre: term, page: page};
+                            },
+                            results: function (response, page) {
+                                return {results: response.data};
+                            }
+                        },
+                        formatResult: function (info) {
+                            return info.descripcion;
+                        },
+                        formatSelection: function (info) {
+                            return info.descripcion;
+                        },
+                        escapeMarkup: function (m) {
+                            return m;
                         }
                     });
 
+
+                    $("#cboCursoAdc").select2(NuevaCurricula.cursosAdicionales).on('select2-selecting', function (e) {
+                        $("#cboCursoAdc").val(e.object.id);
+                    });
 
                 },
                 error: function () {
@@ -1194,6 +1307,33 @@ $(function () {
 
                         dynatableCursosElec.queries.add("planc", NuevaCurricula.idPlan);
                         dynatableCursosElec.process();
+                    } else {
+                        MODAL.activateButtons();
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    MODAL.activateButtons();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        addCursoAdicional: function (btn) {
+            var form = $("[id='frmAgregarCursoAdc']");
+
+            MODAL.disableButtons(btn);
+            $.ajax({
+                url: APP.url('academico/planCurricular/saveCursoAdicional'),
+                type: 'POST',
+                async: true,
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        MODAL.hide();
+                        notify(response.message, "info");
+
+                        dynatableCursosAdc.queries.add("planc", NuevaCurricula.idPlan);
+                        dynatableCursosAdc.process();
                     } else {
                         MODAL.activateButtons();
                         notify(response.message, "error");
@@ -1879,7 +2019,7 @@ $(function () {
     $("body").delegate("#btnGuardarGrupoEquivalente", "click", function (e) {
         NuevaCurricula.guardarGrupoEquivalente();
     });
-    
+
     $("body").delegate("#btnGuardarGrupoEquivalenteElectivo", "click", function (e) {
         NuevaCurricula.guardarGrupoEquivalenteElectivo();
     });
@@ -1922,6 +2062,10 @@ $(function () {
 
     $("body").delegate(".editar-cur-elec", "click", function (e) {
         NuevaCurricula.editarCursoElec($(this), e);
+    });
+
+    $("body").delegate(".editar-cur-adc", "click", function (e) {
+        NuevaCurricula.editarCursoAdc($(this), e);
     });
 
     $("body").delegate(".delete-cur-obl", "click", function (e) {

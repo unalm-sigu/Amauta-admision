@@ -148,9 +148,9 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
         RangeMap<BigDecimal, Factor2CargaAdicional> mapFactor2 = TreeRangeMap.create();
         for (Factor2CargaAdicional factor : factores2) {
             if (factor.getCantidadFin() != null) {
-                mapFactor2.put(Range.closed(new BigDecimal(factor.getCantidadInicio()), new BigDecimal(factor.getCantidadFin())), factor);
+                mapFactor2.put(Range.closedOpen(new BigDecimal(factor.getCantidadInicio()), new BigDecimal(factor.getCantidadFin())), factor);
             } else {
-                mapFactor2.put(Range.closed(new BigDecimal(factor.getCantidadInicio()), new BigDecimal(999)), factor);
+                mapFactor2.put(Range.closedOpen(new BigDecimal(factor.getCantidadInicio()), new BigDecimal(999)), factor);
             }
         }
 
@@ -160,13 +160,14 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
 
         Map<Docente, List<DocenteSeccion>> mapDocenteSeccion = docenteSeccion.stream().collect(Collectors.groupingBy(DocenteSeccion::getDocente));
 
+        BigDecimal cien = new BigDecimal(100L);
+
         for (Map.Entry<Docente, List<DocenteSeccion>> entry : mapDocenteSeccion.entrySet()) {
             Docente docente = entry.getKey();
             List<DocenteSeccion> docenteSeccions = entry.getValue();
 
             BigDecimal cantidadCreditos = BigDecimal.ZERO;
             BigDecimal promedioAlumnos = BigDecimal.ZERO;
-            BigDecimal sumatoriaMatriculados = BigDecimal.ZERO;
             BigDecimal sumatoriaPorcentajeCarga = BigDecimal.ZERO;
 
             for (DocenteSeccion docenteSeccion1 : docenteSeccions) {
@@ -182,17 +183,9 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
                         ? new BigDecimal(docenteSeccion1.getSeccion().getMatriculados())
                         : BigDecimal.ZERO;
 
-                cantidadCreditos = cantidadCreditos.add(porcentajeCarga.multiply(creditos).multiply(matriculados));
-                sumatoriaMatriculados = sumatoriaMatriculados.add(matriculados);
-
+                cantidadCreditos = cantidadCreditos.add(porcentajeCarga.multiply(creditos).divide(cien, 4, RoundingMode.HALF_UP));
                 promedioAlumnos = promedioAlumnos.add(porcentajeCarga.multiply(matriculados));
                 sumatoriaPorcentajeCarga = sumatoriaPorcentajeCarga.add(porcentajeCarga);
-            }
-
-            if (sumatoriaMatriculados.compareTo(BigDecimal.ZERO) > 0) {
-                cantidadCreditos = cantidadCreditos.divide(sumatoriaMatriculados, 4, RoundingMode.HALF_UP);
-            } else {
-                cantidadCreditos = BigDecimal.ZERO;
             }
 
             if (sumatoriaPorcentajeCarga.compareTo(BigDecimal.ZERO) > 0) {
@@ -201,45 +194,47 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
                 promedioAlumnos = BigDecimal.ZERO;
             }
 
-            DocenteCiclo dc = new DocenteCiclo();
+            DocenteCiclo profeCiclo = new DocenteCiclo();
 
-            dc.setDocente(docente);
-            dc.setCicloAcademico(cicloAcademico);
-            dc.setPromedioAlumnos(promedioAlumnos);
-            dc.setCreditosTotal(cantidadCreditos);
-            dc.setModalidadEstudio(modalidadEstudio);
+            profeCiclo.setDocente(docente);
+            profeCiclo.setCicloAcademico(cicloAcademico);
+            profeCiclo.setPromedioAlumnos(promedioAlumnos);
+            profeCiclo.setCreditosTotal(cantidadCreditos);
+            profeCiclo.setModalidadEstudio(modalidadEstudio);
+            profeCiclo.setCategoriaDocente(docente.getCategoria());
+            profeCiclo.setSituacionDocente(docente.getSituacion());
 
             if (docente.getSituacion() == null || docente.getCategoria() == null) {
-                dc.setFactor1(BigDecimal.ZERO);
-                dc.setCreditosExceso(BigDecimal.ZERO);
+                profeCiclo.setFactor1(BigDecimal.ZERO);
+                profeCiclo.setCreditosExceso(BigDecimal.ZERO);
             } else {
                 Factor1CargaAdicional factor = mapFactor1.get(String.format("%s-%s", docente.getSituacion().getCodigo(), docente.getCategoria().getCodigo()));
                 if (factor == null) {
-                    dc.setFactor1(BigDecimal.ZERO);
-                    dc.setCreditosExceso(BigDecimal.ZERO);
+                    profeCiclo.setFactor1(BigDecimal.ZERO);
+                    profeCiclo.setCreditosExceso(BigDecimal.ZERO);
                 } else {
-                    dc.setFactor1(factor.getFactor());
-                    dc.setCreditosExceso(dc.getCreditosTotal().subtract(new BigDecimal(factor.getCreditosMinimo())));
-                    if (dc.getCreditosExceso().compareTo(BigDecimal.ZERO) < 0) {
-                        dc.setCreditosExceso(BigDecimal.ZERO);
+                    profeCiclo.setFactor1(factor.getFactor());
+                    profeCiclo.setCreditosExceso(profeCiclo.getCreditosTotal().subtract(new BigDecimal(factor.getCreditosMinimo())));
+                    if (profeCiclo.getCreditosExceso().compareTo(BigDecimal.ZERO) < 0) {
+                        profeCiclo.setCreditosExceso(BigDecimal.ZERO);
                     }
                 }
             }
 
             if (promedioAlumnos.equals(BigDecimal.ZERO)) {
-                dc.setFactor2(BigDecimal.ZERO);
+                profeCiclo.setFactor2(BigDecimal.ZERO);
             } else {
-                Factor2CargaAdicional factor = mapFactor2.get(dc.getPromedioAlumnos());
+                Factor2CargaAdicional factor = mapFactor2.get(profeCiclo.getPromedioAlumnos());
                 if (factor != null) {
-                    dc.setFactor2(factor.getFactor());
+                    profeCiclo.setFactor2(factor.getFactor());
                 } else {
-                    dc.setFactor2(BigDecimal.ZERO);
+                    profeCiclo.setFactor2(BigDecimal.ZERO);
                 }
             }
 
-            dc.setFechaRegistro(new Date());
-            dc.setUserRegistro(ds.getUsuario());
-            docenteCicloDAO.save(dc);
+            profeCiclo.setFechaRegistro(new Date());
+            profeCiclo.setUserRegistro(ds.getUsuario());
+            docenteCicloDAO.save(profeCiclo);
 
         }
 
@@ -254,15 +249,15 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
         for (int i = 0; i < factores.size(); i++) {
             Factor2CargaAdicional factor = factores.get(i);
             if (i == 0) {
-                Assert.isTrue(factor.getCantidadInicio() == 1, "El factor 2 no está configurado");
+                Assert.isTrue(factor.getCantidadInicio() == 0, "El factor 2 no está configurado");
             } else if (i == factores.size() - 1) {
                 Factor2CargaAdicional factorAnterior = factores.get(i - 1);
                 Assert.isNull(factor.getCantidadFin(), "El factor 2 no está configurado");
-                Assert.isTrue(factor.getCantidadInicio() == factorAnterior.getCantidadFin() + 1, "El factor 2 no está configurado");
+                Assert.isTrue(factor.getCantidadInicio() == factorAnterior.getCantidadFin(), "El factor 2 no está configurado");
             } else {
                 Factor2CargaAdicional factorAnterior = factores.get(i - 1);
                 Assert.isTrue(factor.getCantidadInicio() != 1, "El factor 2 no está configurado");
-                Assert.isTrue(factor.getCantidadInicio() == factorAnterior.getCantidadFin() + 1, "El factor 2 no está configurado");
+                Assert.isTrue(factor.getCantidadInicio() == factorAnterior.getCantidadFin(), "El factor 2 no está configurado");
                 Assert.isNotNull(factor.getCantidadFin(), "Los intervalos del factor 2 se cruzan");
             }
         }
@@ -276,7 +271,7 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
             return;
         }
         docenteCicloDAO.generarMontos(cicloAcademico, conf.getRca());
-        
+
         conf.setUserCalculaMontos(ds.getUsuario());
         conf.setFechaCalculaMontos(new Date());
         conf.setEstado(ConfiguraCargaAdicionalEstadoEnum.MONTO);
@@ -342,7 +337,7 @@ public class CargaAdicionalDocenteServiceImp implements CargaAdicionalDocenteSer
     @Override
     @Transactional
     public void cerrar(CicloAcademico cicloAcademico, DataSessionPivot ds) {
-          ConfiguraCargaAdicional conf = configuraCargaAdicionalDAO.findByCicloAcademico(cicloAcademico);
+        ConfiguraCargaAdicional conf = configuraCargaAdicionalDAO.findByCicloAcademico(cicloAcademico);
         if (conf.getEstadoEnum() != ConfiguraCargaAdicionalEstadoEnum.MONTO) {
             return;
         }

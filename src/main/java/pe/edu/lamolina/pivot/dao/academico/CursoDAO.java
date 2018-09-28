@@ -44,5 +44,7 @@ public interface CursoDAO extends EasyDAO<Curso> {
 
     List<Curso> allByModalidadEstudioNombre(ModalidadEstudioEnum moda, String nombre);
 
+    List<Curso> allNoEncuestar();
+
     List<Curso> searchLikeNombre(String nombre, Integer limit);
 }

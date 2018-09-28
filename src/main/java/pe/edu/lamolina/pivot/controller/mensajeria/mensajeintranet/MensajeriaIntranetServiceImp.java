@@ -45,6 +45,9 @@ public class MensajeriaIntranetServiceImp implements MensajeriaIntranetService {
     @Override
     @Transactional
     public void saveMensajeria(MensajeIntranet mensajeria, CicloAcademico cicloAcademico, Usuario usuario) {
+        if (mensajeria.getConCronograma() == null) {
+            mensajeria.setConCronograma(0);
+        }
         mensajeria.setCicloAcademico(cicloAcademico);
         mensajeria.setUserRegistro(usuario);
         mensajeria.setFechaRegistro(new Date());

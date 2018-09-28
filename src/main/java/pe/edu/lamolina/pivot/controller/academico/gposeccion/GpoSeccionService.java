@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface GpoSeccionService {
 
@@ -38,6 +39,8 @@ public interface GpoSeccionService {
     List<Oficina> allOficinas(Compania compania);
 
     List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
+
+    List<GrupoSeccion> allCleanByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     void cambiarEstadoGpoSeccion(SeccionEstadoEnum estadoEnum, GrupoSeccion grupoSeccion, Usuario usuario);
 
@@ -158,7 +161,7 @@ public interface GpoSeccionService {
 
     List<TipoRepitencia> allTipoRepitencia();
 
-    void saveTipoRepitenciaRestriccion(Seccion seccion, Usuario usuario, List<TipoRepitencia> tiposRepitencia);
+    void saveTipoRepitenciaRestriccion(Seccion seccion, List<TipoRepitencia> tiposRepitencia, DataSessionPivot ds);
 
     List<EventoCicloAcademico> allEventoCicloAcademicoForPeriodo(CicloAcademico cicloAcademico);
 
@@ -168,7 +171,6 @@ public interface GpoSeccionService {
 
     void updateDocenteSecFechaFin(DocenteSeccion docenteSeccion);
 
-    //void analizedDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico);
     List<DocenteSeccion> analizedDocenteSeccion(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
 
     Aula findAulaActiveByCode(String codigoAula);
@@ -178,5 +180,7 @@ public interface GpoSeccionService {
     void actualizarSeccionResctriccionCapa(Seccion seccionForm, Usuario usuario);
 
     List<HorarioSeccion> allHorarioSeccion(Seccion seccion);
+
+    void evaluateSeccion(Seccion seccion);
 
 }

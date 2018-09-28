@@ -5,8 +5,11 @@
             type="hidden" 
             th:value="${planCurricular.id}"/>
 
+   <input name="id" type="hidden" th:value="${cursoAdicional.id}"
+               th:if="${cursoAdicional.id}"/>
 
-    <div class="form-group">
+   
+    <div class="form-group" th:if="${!edita}">
         <label for="txtTipo">Curso</label>
 
         <input id="cboCursoAdc" class="form-control" 
@@ -16,4 +19,18 @@
     </div>
 
 
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label> Ciclo Inicio </label>
+                <input class="form-control" name="cicloInicio.id" required="" tjvalue="${}"/>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label> Ciclo Fin </label>
+                <input class="form-control" name="cicloFin.id" required=""/>
+            </div>
+        </div>
+    </div>
 </form>

@@ -23,8 +23,8 @@ public class ContratoDocenteDAOH extends AbstractEasyDAO<ContratoDocente> implem
     public List<ContratoDocente> allByDynatableProfesor(DynatableFilter filter, Docente docente) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(ContratoDocente.class, "cd")
-                .join("categoria", "situacion", "dedicacion", "cicloInicioContrato", "docente d")
-                .left("cicloFinContrato")
+                .join("cicloInicioContrato", "docente d")
+                .left("categoria", "situacion", "dedicacion", "cicloFinContrato")
                 .filter("d.id", docente)
                 .orderBy("cd.id desc");
 

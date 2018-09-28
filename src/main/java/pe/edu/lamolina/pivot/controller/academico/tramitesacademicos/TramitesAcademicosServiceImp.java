@@ -53,8 +53,6 @@ import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
-import pe.edu.lamolina.pivot.controller.academico.infoacademico.infoAcademicoService;
-import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.flujo.FlujoTramiteAcademicoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -81,6 +79,8 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfContent;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfGenerator;
 import pe.edu.lamolina.pivot.zelper.pdf.TipoPdfEnum;
+import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 
 @Service
 @Transactional(readOnly = true)
@@ -140,7 +140,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     PdfGenerator pdfGenerator;
 
     @Autowired
-    infoAcademicoService infoAcademicoService;
+    InfoAcademicoService infoAcademicoService;
 
     @Autowired
     HoraDAO horaDAO;

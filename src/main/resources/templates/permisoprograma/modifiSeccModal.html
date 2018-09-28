@@ -1,0 +1,50 @@
+<modal-vik ref="modalModifySecc"
+           v-bind="modalModifySecc"
+           v-bind:okaction="update" >
+
+    <div slot="body">
+        <form id="formEnviarRevision"  data-parsley-validate="true">
+            <div class="step1">
+                <div class=" row">
+                    <div class="col-sm-12" >
+                        <div class="form-group">
+                            <label >Eventos  </label>
+                            <multiselect 
+                                v-model="colaboradorAnexo.permisoProgramacion"
+                                v-bind:options='programaSeccion'
+                                label='nombre'
+                                placeholder="Selecciones un evento"
+                                track-by='id'
+                                required="true" 
+                                v-on:select="eventoSelect">
+                                <template slot="singleLabel" slot-scope="props">
+                                    <span v-text="props.option.nombre"></span>
+                                </template>
+                            </multiselect>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class=" row">
+                    <div class="col-sm-12" >
+                        <div class="form-group">
+                            <div v-if="objCrud.textoAgregar!=null" class="col-sm-4">
+                                <span v-text="objCrud.textoAgregar"></span>
+                                <input v-model="colaboradorAnexo.puedeAgregar" type="checkbox" class="form-check-input" id="exampleCheck1"/>
+                            </div>
+                            <div v-if="objCrud.textoEliminar!=null" class="col-sm-4">
+                                <span v-text="objCrud.textoEliminar"></span>
+                                <input v-model="colaboradorAnexo.puedeEliminar" type="checkbox" class="form-check-input" id="exampleCheck1"/>
+                            </div>
+                            <div v-if="objCrud.textoModificar!=null" class="col-sm-4">
+                                <span v-text="objCrud.textoModificar"></span>
+                                <input v-model="colaboradorAnexo.puedeModificar" type="checkbox" class="form-check-input" id="exampleCheck1"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</modal-vik>

@@ -10,6 +10,8 @@ public interface EncuestaDocenteModalidadDAO extends EasyDAO<EncuestaDocenteModa
 
     List<EncuestaDocenteModalidad> allByCiclo(CicloAcademico cicloAcademico);
 
+    List<EncuestaDocenteModalidad> allConEncuestadosByCiclo(CicloAcademico cicloAcademico);
+
     List<EncuestaDocenteModalidad> allByDynatableCicloAcademico(DynatableFilter filter, CicloAcademico ciclo);
 
 }
