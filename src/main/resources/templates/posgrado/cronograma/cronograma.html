@@ -1,0 +1,211 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Cronograma </title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div  id="main">
+
+                <header class="header b-b padder-lg">
+
+                    <div class="btn-group pull-right m-t-md">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                           Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" v-on:click="generarCronograma()"> Generar Cronograma </a></li>
+                            <li><a href="#" v-on:click="eliminarCronograma()"> Eliminar Cronograma </a></li>
+                        </ul>
+                    </div>
+
+                    <h2 th:inline="text">Cronograma de pagos </h2>
+                    <h4 class="block" th:text="${session.SESSION_USUARIO.cicloAcademico.descripcion2}"></h4>
+
+                </header>
+
+
+
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            
+
+                            <table class="table table-striped table-hover">
+
+
+                                <thead> 
+                                    <tr>
+                                        <th class="col-xs-2 v-middle">Cuota</th>
+                                        <th class="col-xs-5 text-center v-middle">Fecha Emisión</th>
+                                        <th class="col-xs-5 text-center v-middle">Fecha Pago</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+
+
+                                <tbody>
+
+                                    <tr v-for="item in cronogramas">
+
+                                        <td class="v-middle">
+                                            <p v-text="item.numeroCuota"></p>
+                                        </td>
+
+
+                                        <td class="v-middle text-center">
+                                            <p v-text="item.fechaEmision"></p>
+                                        </td>
+
+                                        <td class="v-middle text-center">
+                                            <p v-text="item.fechaPago"></p>
+                                        </td>
+                                        
+                                        <td class="v-middle">
+                                            <div class="actions">
+
+                                                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+
+                                                <ul class="dropdown-menu pull-right">
+                                                    <li><a href="#" v-on:click.prevent="modificar(item)">Modificar Fecha Cuota</a></li>
+                                                </ul>
+
+                                            </div>
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+                            </table>
+
+
+
+                        </section>
+                    </section>
+                </section>
+
+
+                <modal-vik  ref="modalgenerar" 
+                            v-bind:okaction="saveGenerarCronograma"
+                            v-bind="dataModalGenerarCronograma"  >
+
+                    <div slot="body">
+
+                        <form method="POST" class="form-horizontal" id="formGenerar">
+
+                            <input type="hidden" name="cicloAcademico.id" th:value="${session.SESSION_USUARIO.cicloAcademico.id}" />
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Fecha Inicio</label>
+                                <div class="col-sm-9">
+                                    <div  class="input-group date">
+                                        <input type="text"
+                                               class="form-control"
+                                               name="fechaEmision"
+                                               data-parsley-errors-container="#errorfechaInicio"
+                                               v-bind:value="cronograma.fechaEmision"
+                                               required="true"/>
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                    <span id="errorfechaInicio"></span>
+                                </div>
+                            </div>
+                            
+                            
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Número de Cuotas</label>
+                                <div class="col-sm-9">
+                                    <input type="number"
+                                           class="form-control"
+                                           name="numeroCuota"
+                                           maxlength="2"
+                                           v-bind:value="cronograma.numeroCuota"
+                                           required="true"/>
+                                </div>
+                            </div>
+                            
+                            
+
+                        </form>
+
+                    </div>
+
+                </modal-vik>
+
+
+                <modal-vik  ref="modaleditar" 
+                            v-bind:okaction="updateCronograma"
+                            v-bind="dataEditarCronograma"  >
+
+                    <div slot="body">
+
+                        <form method="POST" class="form-horizontal" id="formUpdate">
+
+                            <input type="hidden" name="id" v-bind:value="cronograma.id" />
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Fecha Emisión</label>
+                                <div class="col-sm-9">
+                                    <div  class="input-group date">
+                                        <input type="text"
+                                               class="form-control"
+                                               name="fechaEmision"
+                                               data-parsley-errors-container="#errorfechaInicio"
+                                               v-bind:value="cronograma.fechaEmision"
+                                               required="true"/>
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                    <span id="errorfechaInicio"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Fecha Pago</label>
+                                <div class="col-sm-9">
+                                    <div  class="input-group date">
+                                        <input type="text"
+                                               class="form-control"
+                                               name="fechaPago"
+                                               data-parsley-errors-container="#errorfechaPago"
+                                               v-bind:value="cronograma.fechaPago"
+                                               required="true"/>
+                                        <span class="input-group-addon">
+                                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                    <span id="errorfechaPago"></span>
+                                </div>
+                            </div>
+
+
+                        </form>
+
+                    </div>
+
+                </modal-vik>
+
+            </div>
+
+
+        </div>
+
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var ciclo = /*[[${session.SESSION_USUARIO.cicloAcademico.id}]]*/ '';
+                /*]]>*/
+            </script>
+            <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+            <div th:substituteby="_modules/vue-modal2"></div>
+            <script th:src="@{/app/posgrado/cronograma/cronograma.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
