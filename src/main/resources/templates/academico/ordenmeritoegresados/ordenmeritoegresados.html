@@ -38,12 +38,8 @@
                                     <thead>
                                         <tr>
                                             <th class="col-md-3">Escala</th>
-                                            <th class="text-center">Total de alumnos</th>
-                                            <th class="text-center">Computados</th>
-                                            <th class="text-center">No computados</th>
-                                            <th class="text-center">Notas completas</th>
-                                            <th class="text-center">Notas incompletas</th>
-                                            <th class="col-md-1 text-center">Estado</th>
+                                            <th class="text-center">Total de egresados</th>
+                                            <th class="col-md-2 text-center">Estado</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -58,19 +54,7 @@
                                                 </a>
                                             </td>
                                             <td class="v-middle text-center">
-                                                <span> {{ item.totalAlumnos }} </span>
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                <a v-bind:href="`${URL}/${item.id}/control`"> {{ item.alumnosComputados }} </a>
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                <span> {{ item.noComputados }} </span>
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                <span> {{ item.alumnosCompletos }} </span>
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                <span> {{ item.alumnosIncompletos }} </span>
+                                                <a v-bind:href="`${URL}/${item.id}/control`"> {{ item.totalAlumnos }} </a>
                                             </td>
                                             <td class="v-middle text-center">
                                                 <span class="label label-default" v-if="item.estadoEnum.name==='CRE'"> {{ item.estadoEnum.value }} </span>
@@ -97,7 +81,7 @@
             /*]]>*/
         </script>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/ordenmerito/ordenmerito.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/ordenmeritoegresados/ordenmeritoegresados.js}" charset="utf-8"></script>
     </div>
 
 </body>

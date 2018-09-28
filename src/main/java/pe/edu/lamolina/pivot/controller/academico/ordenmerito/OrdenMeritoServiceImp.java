@@ -241,9 +241,9 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
             alumnoCiclo.setOrdenMeritoCiclo(puesto);
         }
 
-        Integer cuadroCiclo = puesto / 10;
-        Integer quintoCiclo = puesto / 5;
-        Integer tercioCiclo = puesto / 3;
+        Integer cuadroCiclo = Math.max(1, puesto / 10);
+        Integer quintoCiclo = Math.max(1, puesto / 5);
+        Integer tercioCiclo = Math.max(1, puesto / 3);
 
         List<Alumno> alumnos = alumnoCiclos.stream().map(AlumnoCiclo::getAlumno).collect(Collectors.toList());
         List<MatriculaResumen> mrs = matriculaResumenDAO.findNotasIncompletas(alumnos, cicloAcademico);
@@ -303,9 +303,9 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
                 alumnoCiclo.setOrdenMeritoFacultad(puesto);
             }
 
-            Integer cuadro = puesto / 10;
-            Integer quinto = puesto / 5;
-            Integer tercio = puesto / 3;
+            Integer cuadro = Math.max(1, puesto / 10);
+            Integer quinto = Math.max(1, puesto / 5);
+            Integer tercio = Math.max(1, puesto / 3);
 
             for (AlumnoCiclo alumnoCiclo : entry.getValue()) {
                 Integer puestoAlumno = alumnoCiclo.getOrdenMeritoFacultad();
@@ -353,9 +353,9 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
                 alumnoCiclo.setOrdenMeritoCarrera(puesto);
             }
 
-            Integer cuadro = puesto / 10;
-            Integer quinto = puesto / 5;
-            Integer tercio = puesto / 3;
+            Integer cuadro = Math.max(1, puesto / 10);
+            Integer quinto = Math.max(1, puesto / 5);
+            Integer tercio = Math.max(1, puesto / 3);
 
             for (AlumnoCiclo alumnoCiclo : entry.getValue()) {
                 Integer puestoAlumno = alumnoCiclo.getOrdenMeritoCarrera();
@@ -435,9 +435,9 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
                 }
             }
 
-            Integer cuadro = puesto / 10;
-            Integer quinto = puesto / 5;
-            Integer tercio = puesto / 3;
+            Integer cuadro = Math.max(1, puesto / 10);
+            Integer quinto = Math.max(1, puesto / 5);
+            Integer tercio = Math.max(1, puesto / 3);
 
             for (AlumnoCiclo alumnoCiclo : as) {
                 Integer puestoAlumno;

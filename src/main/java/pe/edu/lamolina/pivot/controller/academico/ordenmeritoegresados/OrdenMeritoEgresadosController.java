@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.ordenmerito;
+package pe.edu.lamolina.pivot.controller.academico.ordenmeritoegresados;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -22,21 +22,20 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.ControlOrdenMerito;
+import pe.edu.lamolina.model.academico.ControlMeritoEgresado;
+import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.pivot.controller.academico.ordenmeritoegresados.OrdenMeritoEgresadosService;
 
 @Controller
-@RequestMapping("academico/ordenmerito")
-public class OrdenMeritoController {
+@RequestMapping("academico/ordenmeritoegresados")
+public class OrdenMeritoEgresadosController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    OrdenMeritoService service;
+    OrdenMeritoEgresadosService service;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -50,7 +49,7 @@ public class OrdenMeritoController {
         model.addAttribute("ciclos", ciclos);
         model.addAttribute("esCicloActivo", cicloActivo.getId().equals(ciclo.getId()));
 
-        return "academico/ordenmerito/ordenmerito";
+        return "academico/ordenmeritoegresados/ordenmeritoegresados";
     }
 
     @RequestMapping("{id}/control")
@@ -58,7 +57,7 @@ public class OrdenMeritoController {
             @PathVariable Long id,
             Model model, HttpSession session) {
 
-        ControlOrdenMerito control = service.find(id);
+        ControlMeritoEgresado control = service.find(id);
         ObjectNode json = JsonHelper.createJson(control, JsonNodeFactory.instance, new String[]{
             "id",
             "cicloAcademico.descripcion",
@@ -69,7 +68,7 @@ public class OrdenMeritoController {
         });
         model.addAttribute("control", control);
         model.addAttribute("controlJson", json);
-        return "academico/ordenmerito/ordenmeritoControl";
+        return "academico/ordenmeritoegresados/ordenmeritoegresadosControl";
     }
 
     @ResponseBody
@@ -78,10 +77,10 @@ public class OrdenMeritoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
-        List<ControlOrdenMerito> list = service.allByDynatable(filter, findCicloAcademico(ds, session));
+        List<ControlMeritoEgresado> list = service.allByDynatable(filter, findCicloAcademico(ds, session));
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-        for (ControlOrdenMerito item : list) {
+        for (ControlMeritoEgresado item : list) {
             array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "id",
                 "escalaEnum",
@@ -91,10 +90,6 @@ public class OrdenMeritoController {
                 "carrera.nombre",
                 "carrera.codigo",
                 "totalAlumnos",
-                "alumnosComputados",
-                "noComputados",
-                "alumnosCompletos",
-                "alumnosIncompletos"
             }));
         }
 
@@ -106,17 +101,16 @@ public class OrdenMeritoController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "{id}/control/{nivel}/alumnos", method = RequestMethod.GET)
-    public DynatableResponse alumnos(DynatableFilter filter, HttpSession session, @PathVariable Long id, @PathVariable Integer nivel) {
+    @RequestMapping(value = "{id}/control/alumnos", method = RequestMethod.GET)
+    public DynatableResponse alumnos(DynatableFilter filter, HttpSession session, @PathVariable Long id) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
-        List<AlumnoCiclo> list = service.allAlumnoCicloByControlNivel(filter, new ControlOrdenMerito(id), nivel);
+        List<Egresado> list = service.allAlumnoCicloByControl(filter, new ControlMeritoEgresado(id));
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-        for (AlumnoCiclo item : list) {
+        for (Egresado item : list) {
             array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                "creditosAcumulados", "creditosConvalidados", "nivel",
                 "alumno.persona.nombreCompleto",
                 "alumno.codigo",
                 "carrera.nombre",
@@ -139,22 +133,6 @@ public class OrdenMeritoController {
                 "tercioSuperiorCarrera",
                 "tercioSuperiorCiclo",
                 "tercioSuperiorFacultad",
-                //--  --//
-                "ordenMeritoCarreraNivel",
-                "ordenMeritoCicloNivel",
-                "ordenMeritoFacultadNivel",
-                //--  --//
-                "cuadroHonorCarreraNivel",
-                "cuadroHonorCicloNivel",
-                "cuadroHonorFacultadNivel",
-                //--  --//
-                "quintoSuperiorCarreraNivel",
-                "quintoSuperiorCicloNivel",
-                "quintoSuperiorFacultadNivel",
-                //--  --//
-                "tercioSuperiorCarreraNivel",
-                "tercioSuperiorCicloNivel",
-                "tercioSuperiorFacultadNivel",
                 //--  --//
                 "promedioAcumulado"
             }));
