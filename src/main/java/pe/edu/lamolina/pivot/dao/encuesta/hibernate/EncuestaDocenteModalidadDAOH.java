@@ -7,6 +7,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteModalidadDAO;
 
@@ -53,6 +54,23 @@ public class EncuestaDocenteModalidadDAOH extends AbstractEasyDAO<EncuestaDocent
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .filter("ca.id", ciclo)
                 //.filter("me.codigo", ModalidadEstudioEnum.PRE)
+                .orderBy("edm.id desc");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<EncuestaDocenteModalidad> allByDynatableCicloAcademicoDocente(DynatableFilter filter, CicloAcademico ciclo, Docente docente) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(EncuestaDocenteModalidad.class, "edm")
+                .join("docente d", "modalidadEstudio me", "cicloAcademico ca", "d.persona per", "per.tipoDocumento tdoc")
+                .join("d.departamentoAcademico da", "da.facultad fa")
+                .searchFields("per.numeroDocIdentidad", "per.telefono", "per.celular", "per.emailCompania", "tdoc.simbolo")
+                .searchFields("da.nombre", "fa.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .filter("ca.id", ciclo)
+                .filter("d.id", docente)
                 .orderBy("edm.id desc");
 
         return all(sql);

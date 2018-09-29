@@ -93,7 +93,7 @@ import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
 @Service
 @Transactional(readOnly = true)
-public class CargaAcademicaServiceImp implements CargaAcademicaService {
+public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
