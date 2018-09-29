@@ -41,9 +41,11 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
-import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
@@ -70,6 +72,43 @@ public class TramitesAcademicosController {
     ReunionConsejoService reunionConsejoService;
     @Autowired
     InfoAcademicoService infoAcademicoService;
+
+    private String[] alumnoCicloMapper = new String[]{"*",
+        "alumno.id",
+        "alumno.codigo",
+        "alumno.persona.id",
+        "alumno.persona.nombres",
+        "alumno.persona.paterno",
+        "alumno.persona.materno",
+        "cicloAcademico.*",
+        "carrera.*",
+        "carrera.facultad.*",
+        "controlMeritoCiclo.*",
+        "orientacionCarrera.*",
+        "situacionInicio.id",
+        "situacionInicio.codigo",
+        "situacionInicio.nombre",
+        "situacionFinal.id",
+        "situacionFinal.codigo",
+        "situacionFinal.nombre",
+        //  "alumnoCicloCurso.*",
+        "alumnoCicloCurso.id",
+        "alumnoCicloCurso.estado",
+        "alumnoCicloCurso.creditos",
+        "alumnoCicloCurso.nota",
+        "alumnoCicloCurso.estaAprobado",
+        "alumnoCicloCurso.registroActivo",
+        "alumnoCicloCurso.vecesCursado",
+        "alumnoCicloCurso.estadoEnum",
+        "alumnoCicloCurso.curso.id",
+        "alumnoCicloCurso.curso.codigo",
+        "alumnoCicloCurso.curso.nombre",
+        "alumnoCicloCurso.isEstadoMatriculado",
+        "alumnoCicloCurso.isEstadoNotaModificada",
+        "alumnoCicloCurso.estaActivo",
+        "alumnoCicloCurso.autorizacionRegistro.id",
+        "alumnoCicloCurso.isHijo"
+    };
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -141,7 +180,8 @@ public class TramitesAcademicosController {
                 "estadoTramite.nombre",
                 "estadoTramite.esSolicitudReincorporacion",
                 "estadoTramite.esSolicitudHistorialRevisado",
-                "estadoTramite.esConsejoFacultad"
+                "estadoTramite.esConsejoFacultad",
+                "estadoTramite.isVisibleBandeja"
             };
 
             String[] mapperTramiteComplex = (String[]) ArrayUtils.addAll(mapperTramite, mapperEstadoTramite);
@@ -165,8 +205,15 @@ public class TramitesAcademicosController {
                     tramiteJson.set("tramiteReunionConsejo", JsonHelper.createJson(tramiteReunionConsejo, jc, false, mapperReunionConsejo));
                 }
                 ArrayNode accionesTramiteJson = new ArrayNode(jc);
+
                 for (AccionTramiteAcademico accionTramiteAcademico : tramite.getAccionesTramitesAcademico()) {
-                    accionesTramiteJson.add(JsonHelper.createJson(accionTramiteAcademico, jc, new String[]{"*"}));
+                    accionesTramiteJson.add(JsonHelper.createJson(accionTramiteAcademico, jc, new String[]{
+                        "*",
+                        "estadoTramiteInicio.id",
+                        "estadoTramiteInicio.nombre",
+                        "estadoTramiteFinal.id",
+                        "estadoTramiteFinal.nombre"
+                    }));
                 }
                 tramiteJson.set("accionesTramite", accionesTramiteJson);
                 array.add(tramiteJson);
@@ -181,33 +228,6 @@ public class TramitesAcademicosController {
             json.setTotal(0);
         }
         return json;
-    }
-
-    @ResponseBody
-    @RequestMapping("cambiarEstadoReincorporacion")
-    public JsonResponse cambiarAulaDirect(
-            @RequestParam("tramite") Long tramiteId,
-            @RequestParam("estado") String estadoDestino,
-            HttpSession session) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            if (EstadoTramiteEnum.REV_HIS.name().equals(estadoDestino)) {
-                tramitesAcademicosService.aceptarSolReincorporacion(new Tramite(tramiteId), ds.getUsuario());
-                response.setMessage("Solicitud aceptada.");
-            }
-
-            response.setSuccess(Boolean.TRUE);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
     }
 
     @RequestMapping("agendareuniones")
@@ -355,7 +375,7 @@ public class TramitesAcademicosController {
             horasJson.add(JsonHelper.createJson(hora, JsonNodeFactory.instance, true, new String[]{"*"}));
         }
 
-        model.addAttribute("horasBD", horasJson);
+        model.addAttribute("horasBD", horasJson.toString());
 
         return "academico/tramitescademicos/proceso/procesarTramite";
     }
@@ -428,6 +448,32 @@ public class TramitesAcademicosController {
     }
 
     @ResponseBody
+    @RequestMapping("cambiarEstadoReincorporacion")
+    public JsonResponse cambiarAulaDirect(
+            @RequestParam("tramite") Long tramiteId,
+            @RequestParam("accionTramite") Long accionTramiteId,
+            HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            tramitesAcademicosService.aceptarSolReincorporacion(new Tramite(tramiteId), new AccionTramiteAcademico(accionTramiteId), ds);
+            response.setMessage("Solicitud Procesada.");
+
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("procesarTramite")
     public JsonResponse procesarTramite(@RequestBody ObjectNode tramiteNode,
             Model model,
@@ -437,6 +483,9 @@ public class TramitesAcademicosController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             Tramite tramite = new Tramite(tramiteNode.get("tramite").asLong());
+            AccionTramiteAcademico accionTramiteAcademico = new AccionTramiteAcademico(tramiteNode.get("accionTramite").asLong());
+            accionTramiteAcademico = tramitesAcademicosService.findAccionTramiteAcademico(accionTramiteAcademico);
+
             if (tramiteNode.get("motivo") != null) {
                 tramite.setObservacion(tramiteNode.get("motivo").asText());
             }
@@ -445,7 +494,6 @@ public class TramitesAcademicosController {
                 tramite.getTramiteReunionConsejo().setReunionConsejo(new ReunionConsejo(tramiteNode.get("reunionConsejo").asText()));
             }
 
-            AccionTramiteAcademico accionTramiteAcademico = new AccionTramiteAcademico(tramiteNode.get("accionTramite").asLong());
             tramitesAcademicosService.procesarTramite(tramite, accionTramiteAcademico, ds);
             response.setSuccess(true);
 
@@ -508,4 +556,209 @@ public class TramitesAcademicosController {
             }
         }
     }
+
+    @ResponseBody
+    @RequestMapping("{alumno}/loadRevisarHistorialComponent")
+    public JsonResponse loadRevisarHistorialComponent(@PathVariable("alumno") Long alumnoId, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Curso> cursos = tramitesAcademicosService.allCursos();
+
+            ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
+
+            ArrayNode cursosJson = new ArrayNode(JsonNodeFactory.instance);
+
+            cursos = cursos.subList(0, 10);
+            cursos.forEach(x -> cursosJson.add(JsonHelper.createJson(x, JsonNodeFactory.instance, new String[]{"*"})));
+
+            data.set("cursos", cursosJson);
+
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{alumno}/{tramite}/loadConfirmarHistorialComponent")
+    public JsonResponse loadConfirmarHistorialComponent(@PathVariable("alumno") Long alumnoId, @PathVariable("tramite") Long tramiteId, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            List<Curso> cursos = tramitesAcademicosService.allCursos();
+
+            ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
+
+            ArrayNode cursosJson = new ArrayNode(JsonNodeFactory.instance);
+
+            cursos = cursos.subList(0, 10);
+            cursos.forEach(x -> cursosJson.add(JsonHelper.createJson(x, JsonNodeFactory.instance, new String[]{"*"})));
+
+            data.set("cursos", cursosJson);
+
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("asyncFindCursos")
+    public JsonResponse asyncFindCursos(
+            @RequestParam("nombreCurso") String nombreCurso,
+            HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<Curso> cursos = tramitesAcademicosService.allCursosByName(nombreCurso, 10);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Curso curso : cursos) {
+                ObjectNode json = JsonHelper.createJson(curso, jsonFactory, true, new String[]{"*"});
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("asyncFindCiclosAcad")
+    public JsonResponse asyncFindCiclosAcad(
+            @RequestParam("nombreCiclo") String nombreCiclo,
+            @RequestParam("alumno") Long alumnoId,
+            HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<CicloAcademico> ciclos = tramitesAcademicosService.allCiclosAcademicosByName(nombreCiclo, new Alumno(alumnoId));
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (CicloAcademico ciclo : ciclos) {
+                ObjectNode json = JsonHelper.createJson(ciclo, jsonFactory, true, new String[]{"*"});
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idTramite}/{idAlumnoCiclo}/historial")
+    public JsonResponse alumnoHistorial(@PathVariable("idTramite") Long idTramite, @PathVariable("idAlumnoCiclo") Long idAlumnoCiclo, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            AlumnoCiclo alumnoCiclo = tramitesAcademicosService.findAlumnoCiclo(new AlumnoCiclo(idAlumnoCiclo), new Tramite(idTramite));
+
+            ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
+            ObjectNode alumnoCicloJson = JsonHelper.createJson(alumnoCiclo, JsonNodeFactory.instance,
+                    alumnoCicloMapper
+            );
+            data.set("promedios", alumnoCicloJson);
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idTramite}/{idAlumno}/historialAll")
+    public JsonResponse alumnoHistorialAll(@PathVariable("idTramite") Long idTramite, @PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            List<AlumnoCiclo> alumnoCiclos = tramitesAcademicosService.allAlumnoCicloByAlumno(new Alumno(idAlumno), new Tramite(idTramite));
+
+            ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+                ObjectNode alumnoCicloJson = JsonHelper.createJson(alumnoCiclo, JsonNodeFactory.instance,
+                        alumnoCicloMapper
+                );
+                array.add(alumnoCicloJson);
+            }
+
+            data.set("promedios", array);
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idTramite}/saveRevAlumnoCiclo")
+    public JsonResponse saveRevAlumnoCiclo(
+            @PathVariable("idTramite") Long idTramite,
+            @RequestBody AlumnoCiclo alumnoCiclo,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            String message = "Save Seccion Grupo.";
+
+            tramitesAcademicosService.saveAlumnoCicloFromRevision(alumnoCiclo, idTramite, ds);
+
+            response.setSuccess(true);
+            response.setMessage(message);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }

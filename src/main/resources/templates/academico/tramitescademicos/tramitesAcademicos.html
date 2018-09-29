@@ -79,7 +79,7 @@
                                                 </small>
                                             </td>
                                             <td>
-                                                <div class="dropdown actions" v-if="item.accionesTramite">
+                                                <div class="dropdown actions" v-if="item.accionesTramite &amp;&amp; item.estadoTramite.isVisibleBandeja">
                                                     <a class="dropdown-toggle" data-toggle="dropdown">
                                                         <i class="glyphicon glyphicon-cog"></i>
                                                     </a> 
@@ -92,7 +92,7 @@
                                                         </li>
                                                         <li v-for="accion in item.accionesTramite" v-if="item.formularioEstadoTramite.id==null">
                                                             <a class="btn-link pointer" 
-                                                               v-on:click="cambiarEstadoReincorporacion(item,'REV_HIS',$event)">
+                                                               v-on:click="cambiarEstadoReincorporacion(item,accion.id,$event)">
                                                                 {{accion.opcion}}</a>
                                                         </li>
                                                     </ul>

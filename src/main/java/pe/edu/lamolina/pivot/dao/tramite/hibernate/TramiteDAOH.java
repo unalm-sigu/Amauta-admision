@@ -52,7 +52,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
         octavia.set(tramite, "fechaModificacion");
         this.update(octavia);
     }
-    
+
     @Override
     public void updateObservacion(Tramite tramite) {
         Octavia octavia = Octavia.update(Tramite.class);

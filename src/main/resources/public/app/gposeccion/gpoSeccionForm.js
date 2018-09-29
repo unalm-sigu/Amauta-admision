@@ -860,9 +860,7 @@ var app = new Vue({
                 contentType: "application/json",
                 type: 'POST',
                 async: true,
-                data:
-                        JSON.stringify(docSeccionSend)
-                ,
+                data: JSON.stringify(docSeccionSend),
                 success: function (response) {
                     if (response.success) {
                         MODAL.hideWait();

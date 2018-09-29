@@ -25,7 +25,9 @@
 <body>
     <section  layout:fragment="main">
         <header class="header b-b padder-lg">
-            <h2>Nueva Resolución <span th:text="${cicloAcademico.descripcion}"></span></h2>
+
+            <h2 th:unless="${resolucion.isEstadoDocConf}">Nueva Resolución <span th:text="${cicloAcademico.descripcion}"></span></h2>
+            <h2 th:if="${resolucion.isEstadoDocConf}">Confirmar Resolución <span th:text="${cicloAcademico.descripcion}"></span></h2>
             <div class="pull-right m-t-md">
                 <a class="btn btn-default"   th:href="@{/academico/resolucion}"  >Regresar</a>
             </div>
@@ -44,7 +46,7 @@
                                             <multiselect 
                                                 v-model="resolucion.tipoResolucion" 
                                                 v-bind:options="tiposResoluciones"
-                                                v-bind:disabled="resolucion.esEdicion"
+                                                v-bind:disabled="resolucion.esEdicion || resolucion.isEstadoDocConf"
                                                 v-if='tiposResoluciones'
                                                 v-on:input="loadTramitesConsejo" 
                                                 label="nombre"
@@ -61,6 +63,7 @@
                                                            v-model="resolucion.fecha"
                                                            required="true"
                                                            class="col-md-6"
+                                                           v-bind:disabled="resolucion.isEstadoDocConf"
                                                            ></v-date-picker>
                                         </div>
                                     </div>
@@ -72,7 +75,8 @@
                                             <input type="text"
                                                    v-model="resolucion.serie"
                                                    class="form-control" 
-                                                   required="true"></input>
+                                                   required="true"
+                                                   v-bind:disabled="resolucion.isEstadoDocConf"></input>
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
@@ -81,7 +85,8 @@
                                             <input type="text"
                                                    v-model="resolucion.numero"
                                                    class="form-control" 
-                                                   required="true"> </input>
+                                                   required="true"
+                                                   v-bind:disabled="resolucion.isEstadoDocConf"> </input>
                                         </div>
                                     </div>
                                 </div>
@@ -216,7 +221,7 @@
                                                         {{ item.tramite.tipoTramite.nombre}}
                                                     </td>
                                                     <td class="v-middle text-left">
-                                                        <small class="block text-muted">Tramite:  {{ item.tramite.estadoEnum}}</small>
+                                                        <small class="block text-muted">Tramite:  {{ item.tramite.estadoEnum.value}}</small>
                                                         <small class="block text-muted" 
                                                                v-if="item.tramite.tipoTramite.esTipoTramiteRei">
                                                             Reincorporación: {{item.tramite.reincorporaciones[0].estadoTramite.nombre}}
@@ -231,6 +236,7 @@
                                                             <input type="checkbox" 
                                                                    v-bind:value="item.seleccionado" 
                                                                    v-model="item.seleccionado"
+                                                                   v-bind:disabled="resolucion.isEstadoDocConf"
                                                                    checked="1"/>
                                                             <span class="slider round"></span>
                                                         </label>
@@ -246,7 +252,12 @@
                                                                     <i aria-hidden="true" class="fa fa-plus add-seccion"></i> <strong> Agregar Sección</strong></a>
                                 -->
                                 <button type="button" v-on:click="saveResolucion($event)" 
+                                        th:unless="${resolucion.isEstadoDocConf}"
                                         class="btn btn-success pull-right m-t-xs">Guardar</button>
+
+                                <button type="button" v-on:click="saveConfirmarResVB($event)" 
+                                        th:if="${resolucion.isEstadoDocConf}"
+                                        class="btn btn-success pull-right m-t-xs">Confirmar</button>
                             </section>
                         </section>
                     </form>

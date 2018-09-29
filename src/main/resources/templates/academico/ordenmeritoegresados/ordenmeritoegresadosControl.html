@@ -1,0 +1,106 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Orden de Mérito</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+<body>
+    <div layout:fragment="main">
+        <div id="ordenmeritocontrolVUE" v-cloak="">
+
+            <header class="header b-b padder-lg">
+                <a class="btn btn-sm btn-default pull-right" v-bind:href="URL"> Regresar </a>
+                <p class="h2 m-b-n" th:inline="text"> Orden de Mérito [[${control.cicloAcademico.descripcion}]] </p>
+
+                <div class="block m-b-sm m-t-n">
+                    <p class="h4" th:if="${control.escala=='CICLO'}" th:inline="text"> Nivel: [[${control.escalaEnum.value}]] </p>
+                    <p class="h4" th:if="${control.escala=='FAC'}" th:inline="text"> Nivel: [[${control.escalaEnum.value}]]  de [[${control.facultad?.nombre}]]</p>
+                    <p class="h4" th:if="${control.escala=='ESPE'}" th:inline="text"> Nivel: [[${control.escalaEnum.value}]]  de [[${control.carrera?.nombre}]]</p>
+                </div>
+            </header>
+            <section class="wrapper-lg m-b-xs">
+                <section class="panel">           
+                    <section class="panel-body">
+                        <raptor-table v-bind:url="`${URL}/${control.id}/control/alumnos`" ref="raptor">
+                            <template scope="props">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th rowspan="2" class="col-md-3 v-middle">Alumno</th>
+                                            <th v-if="control.escalaEnum.name=='FAC'"
+                                                rowspan="2" class="col-md-2 v-middle text-center">Facultad</th>
+                                            <th v-if="control.escalaEnum.name=='ESPE'"
+                                                rowspan="2" class="col-md-2 v-middle text-center">Especialidad</th>
+
+                                            <th rowspan="2" class=" text-center v-middle">Promedio</th>
+                                            <th rowspan="2" class=" text-center v-middle b-l">Orden de Mérito</th>
+                                            <th rowspan="2" class=" text-center v-middle">Cuadro de Honor</th>
+                                            <th rowspan="2" class=" text-center v-middle">Quinto Superior</th>
+                                            <th rowspan="2" class=" text-center v-middle">Tercio Superior</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in props.data"> 
+                                            <td class="v-middle">
+                                                <span class="block text-primary">  {{ item.alumno.persona.nombreCompleto }} </span>
+                                                <span class="block text-muted small">  {{ item.alumno.codigo }} </span>
+                                            </td>
+                                            <td class="v-middle text-center" v-if="['FAC', 'ESPE'].includes(control.escalaEnum.name)">
+                                                <span v-if="item.carrera.codigo == item.carrera.facultad.codigo"
+                                                      class="block text-success"> {{item.carrera.facultad.nombre}}</span>
+
+                                                <span v-if="item.carrera.codigo != item.carrera.facultad.codigo"
+                                                      class="block text-success"> {{item.carrera.nombre}}</span>
+                                                <small v-if="item.carrera.codigo != item.carrera.facultad.codigo"
+                                                       class="block bold"> {{item.carrera.facultad.nombre}}</small>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span> {{ item.promedioAcumulado.toFixed(2) }} </span>
+                                            </td>
+
+                                            <td class="v-middle text-center">
+                                                <span v-if="control.escalaEnum.name === 'ESPE'"> {{ item.ordenMeritoCarrera }} </span>
+                                                <span v-if="control.escalaEnum.name === 'FAC'"> {{ item.ordenMeritoFacultad }} </span>
+                                                <span v-if="control.escalaEnum.name === 'CICLO'"> {{ item.ordenMeritoCiclo }} </span>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.cuadroHonorCarrera"> Sí </span>
+                                                <span v-if="control.escalaEnum.name === 'FAC' &amp;&amp; item.cuadroHonorFacultad"> Sí </span>
+                                                <span v-if="control.escalaEnum.name === 'CICLO' &amp;&amp; item.cuadroHonorCiclo"> Sí </span>
+
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.quintoSuperiorCarrera"> Sí </span>
+                                                <span v-if="control.escalaEnum.name === 'FAC' &amp;&amp; item.quintoSuperiorFacultad"> Sí </span>
+                                                <span v-if="control.escalaEnum.name === 'CICLO' &amp;&amp; item.quintoSuperiorCiclo"> Sí </span>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span v-if="control.escalaEnum.name === 'ESPE' &amp;&amp; item.tercioSuperiorCarrera"> Sí </span>
+                                                <span v-if="control.escalaEnum.name === 'FAC' &amp;&amp; item.tercioSuperiorFacultad"> Sí </span>
+                                                <span v-if="control.escalaEnum.name === 'CICLO' &amp;&amp; item.tercioSuperiorCiclo"> Sí </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </template>
+                        </raptor-table>
+                    </section>
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <div layout:fragment="js">
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <div th:substituteby="_modules/vue-modal"/>
+        <div th:substituteby="_modules/vue-raptor-table"/>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var control = /*[[${controlJson.toString()}]]*/ 'json';
+            /*]]>*/
+        </script>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/ordenmeritoegresados/ordenmeritoegresadosControl.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

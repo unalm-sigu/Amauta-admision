@@ -9,15 +9,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,9 +28,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.model.inscripcion.ContenidoCartaVariable;
 import pe.edu.lamolina.model.inscripcion.ContenidoVariable;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -108,28 +113,57 @@ public class EditorContenidoController {
         return json;
     }
 
-    @RequestMapping("{idContenido}")
+    @RequestMapping("{idContenido}/update")
     public String editarContenido(@PathVariable("idContenido") Long idContenido,
             Model model, HttpSession session) {
 
         ContenidoCarta contenido = service.findContenidoCartaById(idContenido);
-
-        List<ContenidoVariable> variables = service.allVariablesByContenido(idContenido);
-        for (ContenidoVariable variable : variables) {
-            logger.debug("Variable {}", variable.getDescripcion());
-        }
-
+        List<ContenidoCartaVariable> variablesCarta = service.allVariablesCartaByContenido(idContenido);
+        List<ContenidoVariable> variables = service.allVariables();
         List<Sistema> sistemas = service.allSistema();
-        logger.debug("sistemas {} ", sistemas.size());
-        for (Sistema sistema : sistemas) {
-            logger.debug("getNombre {}", sistema.getNombre());
-        }
-        model.addAttribute("sistemas", sistemas);
 
-        model.addAttribute("contenido", contenido);
-        model.addAttribute("variables", variables);
+        ArrayNode sistemasJson = new ArrayNode(JsonNodeFactory.instance);
+        for (Sistema sis : sistemas) {
+            ObjectNode itemJson = JsonHelper.createJson(sis, JsonNodeFactory.instance, true, new String[]{"*"});
+            sistemasJson.add(itemJson);
+        }
+
+        ArrayNode variablesJson = new ArrayNode(JsonNodeFactory.instance);
+        for (ContenidoVariable var : variables) {
+            ObjectNode itemJson = JsonHelper.createJson(var, JsonNodeFactory.instance, true, new String[]{"*"});
+            variablesJson.add(itemJson);
+        }
+
+        ArrayNode variablesCartaJson = new ArrayNode(JsonNodeFactory.instance);
+        for (ContenidoCartaVariable var : variablesCarta) {
+            ObjectNode itemJson = JsonHelper.createJson(var, JsonNodeFactory.instance, true, new String[]{
+                "*", "contenidoVariable.*", "contenidoCarta.id"
+            });
+            variablesCartaJson.add(itemJson);
+        }
+
+        ObjectNode contenidoJson = JsonHelper.createJson(contenido, JsonNodeFactory.instance, true, new String[]{
+            "*", "sistema.*"
+        });
+
+        model.addAttribute("contenidoJson", contenidoJson.toString());
+        model.addAttribute("variablesCartaJson", variablesCartaJson.toString());
+        model.addAttribute("variablesJson", variablesJson.toString());
+        model.addAttribute("sistemasJson", sistemasJson.toString());
 
         return "configuracion/editorContenido/contenido";
+    }
+
+    @RequestMapping("{idContenido}/ver")
+    public String ver(@PathVariable("idContenido") Long idContenido,
+            Model model, HttpServletResponse response, HttpSession session) {
+
+        response.setHeader("X-Frame-Options", "SAMEORIGIN");
+
+        ContenidoCarta contenido = service.findSoloContenidoCartaById(idContenido);
+        model.addAttribute("contenido", contenido);
+
+        return "configuracion/editorContenido/verContenido";
     }
 
     @ResponseBody
@@ -202,6 +236,103 @@ public class EditorContenidoController {
                 response.setMessage("Se Agregó un Nuevo Taller");
             }
 
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idContenido}/addVariable")
+    public JsonResponse addVariable(
+            @PathVariable("idContenido") Long idContenido,
+            @RequestBody ContenidoCartaVariable contVariable, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            service.addVariable(contVariable, idContenido);
+            response.setMessage("Variable agregada satisfctoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idVariable}/deleteVariable")
+    public JsonResponse deleteVariable(
+            @PathVariable("idVariable") Long idContVariable, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            service.deleteVariable(idContVariable);
+            response.setMessage("Variable eliminada satisfctoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("updateVariable")
+    public JsonResponse updateContVariable(@RequestBody ContenidoCartaVariable contVariable, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            service.updateContVariable(contVariable);
+            response.setMessage("Variable actualizada satisfctoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idContenido}/allVariables")
+    public JsonResponse allVariables(
+            @PathVariable("idContenido") Long idContenido, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            List<ContenidoCartaVariable> variablesCarta = service.allVariablesCartaByContenido(idContenido);
+            ArrayNode variablesCartaJson = new ArrayNode(JsonNodeFactory.instance);
+            for (ContenidoCartaVariable var : variablesCarta) {
+                ObjectNode itemJson = JsonHelper.createJson(var, JsonNodeFactory.instance, true, new String[]{
+                    "*", "contenidoVariable.*", "contenidoCarta.id"
+                });
+                variablesCartaJson.add(itemJson);
+            }
+
+            response.setData(variablesCartaJson);
+            response.setMessage("Variable agregada satisfctoriamente");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

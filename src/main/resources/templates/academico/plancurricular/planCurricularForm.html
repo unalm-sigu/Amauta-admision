@@ -10,6 +10,18 @@
             width: 110px;
             text-align: center;
         }
+        .nota-danger {
+            background-color: #EB4429;
+            padding: 3px 5px 3px 5px;
+            border-radius: 5px;
+            color:#ffffff;
+        }
+        .nota-primary {
+            background-color: #0275D8;;
+            padding: 3px 5px 3px 5px;
+            border-radius: 5px;
+            color:#ffffff;
+        }
     </style>
 </head>
 
@@ -91,7 +103,7 @@
 
                 </section>
 
-               
+
             </section>
         </div>
 
@@ -116,8 +128,8 @@
 
     <div layout:fragment="js">
         <script charset="utf-8">
-               var datepicker = $.fn.datepicker.noConflict();
-               $.fn.datepickerBoot = datepicker;
+            var datepicker = $.fn.datepicker.noConflict();
+            $.fn.datepickerBoot = datepicker;
         </script>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <div th:substituteby="_layout/includes :: svgjs"/>

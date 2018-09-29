@@ -24,7 +24,9 @@ public interface ResolucionService {
 
     List<TipoResolucion> allTiposResolucion();
 
-    void saveResolucion(Resolucion resolucion, Usuario usuario, CicloAcademico cicloAcademico);
+    void saveResolucion(Resolucion resolucion, DataSessionPivot ds, CicloAcademico cicloAcademico);
+    
+    void saveConfirmarResVB(Resolucion resolucion, DataSessionPivot ds, CicloAcademico cicloAcademico);
 
     List<Tramite> allTramitesByTipoEstadoTram(TipoTramiteEnum tipoTramiteEnum, EstadoTramiteEnum estadoTramiteEnum);
 
@@ -40,7 +42,7 @@ public interface ResolucionService {
 
     void uploadResolucionFile(Resolucion resolucion, MultipartFile file, DataSessionPivot ds);
 
-    void saveConfirmar(Resolucion resolucion, DataSessionPivot ds);
+    void saveConfirmarSubirDocumento(Resolucion resolucion, DataSessionPivot ds);
 
     List<CicloAcademico> allCiclosToReincorporacion();
 

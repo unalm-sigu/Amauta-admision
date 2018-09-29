@@ -89,6 +89,7 @@
                                                 </a>
                                                 <a class="aceptar-expandir-sistema" v-if="item.esEstadoCre || item.esEstadoAct" v-on:click="loadModalSubirDoc(item,$event)" href="#">Subir Pdf</a>
                                                 <a v-if="item.esEstadoAct"  v-on:click="loadModalConfirmar(item,$event)" href="#">Confirmar</a>
+                                                <a v-if="item.isEstadoDocConf"  v-on:click="editarResolucion(item,$event)" href="#">V.B. Resolución</a>
                                             </li>
                                         </ul>
                                     </td>
@@ -199,7 +200,7 @@
                 <modal-vik ref="modalConfirmar"
                            modalsize="modal-lg"
                            v-bind="confirmarModal"
-                           v-bind:okaction="saveConfirmar">
+                           v-bind:okaction="saveConfirmarSubirDocumento">
                     <div slot="body">
                         <form id="frmConfirmar">
                             <div class="row">
@@ -247,7 +248,7 @@
                                                     {{ item.tramite.persona.apellidosNombres}}
                                                 </td> 
                                                 <td>
-                                                    <small class="block text-muted">Tramite:  {{ item.tramite.estadoEnum}}</small>
+                                                    <small class="block text-muted">Tramite:  {{ item.tramite.estadoEnum.value}}</small>
                                                     <small class="block text-muted" 
                                                            v-if="item.tramite.tipoTramite.esTipoTramiteRei">
                                                         Reincorporación: {{item.estadoTramite.nombre}}

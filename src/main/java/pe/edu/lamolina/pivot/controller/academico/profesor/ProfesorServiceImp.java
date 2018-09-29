@@ -2,8 +2,10 @@ package pe.edu.lamolina.pivot.controller.academico.profesor;
 
 import com.google.common.base.Strings;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -17,10 +19,14 @@ import pe.albatross.zelpers.aws.S3Service;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
@@ -34,6 +40,7 @@ import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
+import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.general.PaisDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
@@ -71,6 +78,9 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Autowired
     PaisDAO paisDAO;
+
+    @Autowired
+    DocenteSeccionDAO docenteSeccionDAO;
 
     @Autowired
     S3Service s3Service;
@@ -551,12 +561,33 @@ public class ProfesorServiceImp implements ProfesorService {
         return "/phobos/images/unalm/unknown-person.gif";
     }
 
-    public void uploadS3(String fileName) {
+    private void uploadS3(String fileName) {
         logger.debug("upload to s3 args   {}  {}   {}  {} {}", Constantine.S3_BUKET, "public-unalm/profile/", Constantine.TMP_DIR, fileName, true);
         File f = new File(Constantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
             s3Service.uploadFile(Constantine.S3_BUKET, Constantine.S3_FOLDER, Constantine.TMP_DIR, fileName, true);
         }
+    }
+
+    @Override
+    public List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
+        Map<Long, GrupoSeccion> mapGpoSecc = new LinkedHashMap();
+
+        List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosByDocenteCiclo(docente, ciclo);
+        for (DocenteSeccion profeSecc : profeSecciones) {
+            Seccion secc = profeSecc.getSeccion();
+            secc.setDocenteSeccion(new ArrayList());
+            secc.getDocenteSeccion().add(profeSecc);
+            GrupoSeccion gpoSeccBD = secc.getGrupoSeccion();
+            GrupoSeccion gpoSecc = mapGpoSecc.get(gpoSeccBD.getId());
+            if (gpoSecc == null) {
+                mapGpoSecc.put(gpoSeccBD.getId(), gpoSeccBD);
+                gpoSecc = gpoSeccBD;
+                gpoSecc.setSecciones(new ArrayList());
+            }
+            gpoSecc.getSecciones().add(secc);
+        }
+        return new ArrayList(mapGpoSecc.values());
     }
 
 }

@@ -2,7 +2,7 @@
     <td class="v-middle text-center" rel="{{:index}}">
         <span name="codigoCurCur{{:index}}">{{:codigo}}</span>
         {{if codigo2}}
-            <small class="block bold text-primary">{{:codigo2}}</small>
+        <small class="block bold text-primary">{{:codigo2}}</small>
         {{/if}}
     </td>
 
@@ -14,7 +14,26 @@
         <span>{{:creditos}}</span>
     </td>
 
-    <td class="col-md-1 v-middle">
-        <a  rel="{{:index}}" class="delete-cur-adc pointer"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
+    <td class="col-md-1 v-middle text-center">
+        <span>{{:cicloInicio}}</span>
+
+    </td>
+
+    <td class="col-md-1 v-middle text-center">
+        <span>{{:cicloFin}}</span>
+    </td>
+
+    <td class="v-middle text-center">
+        <div class="dropdown actions">
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+            <ul class="dropdown-menu pull-right" >
+                <li role="presentation">
+                    <a class="editar-cur-adc" href="#">Editar</a>
+                </li>
+                <li role="presentation">
+                    <a  rel="{{:index}}" class="delete-cur-adc pointer"> Eliminar </a>
+                </li>
+            </ul>
+        </div>
     </td>
 </tr>

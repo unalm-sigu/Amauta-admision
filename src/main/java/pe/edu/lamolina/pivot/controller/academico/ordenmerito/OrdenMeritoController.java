@@ -27,6 +27,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlOrdenMerito;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.controller.academico.ordenmeritoegresados.OrdenMeritoEgresadosService;
 
 @Controller
 @RequestMapping("academico/ordenmerito")

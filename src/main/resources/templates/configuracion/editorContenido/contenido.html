@@ -1,72 +1,138 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title th:text="${contenido.nombre}">Título</title>
+        <title v-text="contenido.nombre">Título</title>
+        <style>
+            .div-variable {
+                border-radius: 5px;
+                border: 1px solid #AEBDCD;
+                zoom: 1;
+            }
+            .close-btn {
+                position: absolute;
+                top: -13px;
+                right: -1px;
+                z-index: 100;
+                border-radius: 50px;
+                padding: 5px 10px;
+            }
+        </style>
     </head>
 
     <body>
         <div layout:fragment="main">
+            <div id="contenidoVUE" v-cloak="">
 
-            <header class="header b-b padder-lg">
-                <h2 th:text="${contenido.nombre}">Titulo</h2>
-            </header>
+                <header class="header b-b padder-lg">
+                    <h2 v-text="contenido.nombre" class="m-b-n">Titulo</h2>
+                    <small v-text="contenido.codigo" class="block bold m-t-xs m-b-xs text-primary"></small>
+                </header>
 
-            <input type="hidden" th:value='${contenido.tipo}' id='tipo'/>
+                <input type="hidden" :value="contenido.tipo" id='tipo'/>
 
-            <section class="wrapper-lg">
+                <section class="wrapper-lg">
 
-                <section class="panel  m-b-n-lg">
-                    <section class="panel-body">
-                        <div class="form-group row">
-                            <label for="" class="col-xs-12 control-label">Sistema</label>
-                            <div class="col-xs-4">
-                                <select name="sistema.id" id="sistema" required="true" class="form-control select2 buscar-sistema" >
-                                    <option></option>
-                                    <option th:each="item :${sistemas}"
-                                            th:text="${item.nombre}"
-                                            th:value="${item.id}"
-                                            th:selected="${contenido.sistema!=null} ? ${contenido.sistema.id==item.id}" >
-                                    </option>
-                                </select>
+                    <section class="panel  m-b-n-lg">
+                        <section class="panel-body">
+                            <input :value="sistema.id" id="sistema" type="hidden"/>
+                            <div class="form-group row">
+                                <div class="col-xs-4">
+                                    <h4><a class="bold" v-text="sistema.nombre"></a></h4>
+                                </div>
                             </div>
-                        </div>
+                        </section>
                     </section>
+
+
+                    <section v-if="contenido.tipo == 'CONT' " class="panel">
+
+                        <section class="panel-body">
+                            <input id="idCont" type="hidden" :value="contenido.id"/>
+                            <textarea class="form-control vresize" id="contenido" name="contenido" placeholder="Escribe Aquí" v-text="contenido.contenido"></textarea>
+                        </section>
+
+                        <section class="panel-body text-center v-middle">
+                            <a href="/configuracion/editorcontenido" class="btn btn-link btn-lg">Regresar</a>
+                            <a class="btn btn-primary btn-lg" id="updateContenido">Guardar</a>
+                            <a class="btn btn-warning btn-lg" id="preview">Visualización</a>
+                        </section>
+                    </section>
+
+                    <section v-if="contenido.tipo == 'IMG' " class="panel m-b-xs">
+                        <section class="panel-body">
+                            <input id="idCont" type="hidden" :value="contenido.id"/>
+                            <input id="imgUrl" type="hidden" />
+                            <div class="col-md-12">
+                                <img :src="contenido.imgUrl" class="img-thumbnail img-responsive" id="imagen" width="100%"/>
+                            </div>
+                            <div class="col-md-12">
+                                <input type="file" class="form-control" name="file" id="fileupload" accept="image/*"/>
+                            </div>
+                        </section>
+                        <section class="panel-body text-center v-middle">
+                            <a href="/configuracion/editorcontenido" class="btn btn-link btn-lg">Regresar</a>
+                            <button class="btn btn-primary btn-lg" id="updateImg">Guardar</button>
+                        </section>
+                    </section>
+
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <h3>Variables</h3>
+                            <div class="qrow">
+                                <div v-for="item in variablesCarta" class="col-sm-3 panel">
+                                    <button class="btn btn-danger btn-sm close-btn" v-on:click="deleteVariable(item)">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+
+                                    <div class="div-variable panel-body">
+                                        <span v-text="item.contenidoVariable.codigo" class="text-danger bold block"></span>
+                                        <span v-text="item.contenidoVariable.descripcion" class="text-primary bold block"></span>
+                                        <input type="text" class="form-control" v-model="item.ejemplo" v-on:keyup.enter="updateVariable(item)"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-3 panel">
+                                    <button class="btn btn-success btn-sm close-btn" v-on:click="addVariable()">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+
+                                    <div class="div-variable panel-body">
+                                        <div class="form-group">
+                                            <multiselect v-model="contVariable.contenidoVariable" 
+                                                         v-bind:options='variables'
+                                                         label='codigo'
+                                                         track-by='id'
+                                                         deselect-label=""
+                                                         select-label=""
+                                                         v-bind:allow-empty="false"
+                                                         v-bind:hide-selected="true"
+                                                         v-on:input="">
+                                            </multiselect>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="Ingrese ejemplo" v-model="contVariable.ejemplo"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </section>
+                    </section>
+
                 </section>
-
-
-                <section th:if="${contenido.tipo == 'CONT'}" class="panel">
-                    
-                    <section class="panel-body">
-                        <input id="idCont" type="hidden" th:value="${contenido.id}"/>
-                        <textarea class="form-control vresize" id="contenido" name="contenido" placeholder="Escribe Aquí" th:text="${contenido.contenido}"></textarea>
-                    </section>
-                    <section class="panel-body text-center v-middle">
-                        <a href="/configuracion/editorcontenido" class="btn btn-link btn-lg">Regresar</a>
-                        <button class="btn btn-primary btn-lg" id="updateContenido">Guardar</button>
-                    </section>
-                </section>
-
-                <section th:if="${contenido.tipo == 'IMG'}" class="panel">
-                    <section class="panel-body">
-                        <input id="idCont" type="hidden" th:value="${contenido.id}"/>
-                        <input id="imgUrl" type="hidden" />
-                        <div class="col-md-12">
-                            <img th:src="${contenido.imgUrl}" class="img-thumbnail img-responsive" id="imagen" width="100%"/>
-                        </div>
-                        <div class="col-md-12">
-                            <input type="file" class="form-control" name="file" id="fileupload" accept="image/*"/>
-                        </div>
-                    </section>
-                    <section class="panel-body text-center v-middle">
-                        <a href="/configuracion/editorcontenido" class="btn btn-link btn-lg">Regresar</a>
-                        <button class="btn btn-primary btn-lg" id="updateImg">Guardar</button>
-                    </section>
-                </section>
-
-            </section>
+            </div>
+            <div th:substituteby="templates/modal"/>
 
         </div>
 
         <div layout:fragment="js" th:remove='tag'>
+            <script th:inline="javascript">
+                var variablesCartaJson = /*[[${variablesCartaJson}]]*/ {};
+                var variablesJson = /*[[${variablesJson}]]*/ {};
+                var sistemasJson = /*[[${sistemasJson}]]*/ {};
+                var contenidoJson = /*[[${contenidoJson}]]*/ {};
+            </script>
             <div th:substituteby="_layout/includes :: javascript-upload" th:remove='tag'></div>
             <div th:substituteby="_layout/includes :: javascript-ckeditor" th:remove="tag"></div>
             <script th:src="@{/app/configuracion/editorcontenido/contenido.js}" charset="utf-8"></script>

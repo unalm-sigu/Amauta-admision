@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.promedio;
 
+import java.math.BigDecimal;
 import org.joda.time.DateTime;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -28,5 +29,9 @@ public interface PromedioService {
             DateTime today);
 
     void calulcarSituacionAcademica(Alumno alumno, Usuario usuario);
+
+    Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno);
+
+    Integer evaluateEstaAprobado(MatriculaCurso matriculaCurso, Alumno alumno);
 
 }

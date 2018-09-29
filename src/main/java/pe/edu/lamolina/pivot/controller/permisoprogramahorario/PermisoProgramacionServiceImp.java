@@ -8,21 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.bean.ColaboradorAnexoBean;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.enums.PermisoProgramacionHorarioEstadoEnum;
-import pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum;
 import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.CURSO;
 import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.DOCENTE;
 import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.GPOSECC;
 import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.SECCION;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.FuncionColaborador;
-import pe.edu.lamolina.model.interceptor.LoggerPermisoProgramacion;
 import pe.edu.lamolina.model.permisoprogramacion.ColaboradorAnexo;
 import pe.edu.lamolina.model.permisoprogramacion.PermisoProgramacion;
 import pe.edu.lamolina.model.permisoprogramacion.PermisosProgramacionHorarios;
@@ -126,18 +123,10 @@ public class PermisoProgramacionServiceImp implements PermisoProgramacionService
             programacionHorarios.setFechaRegistro(new Date());
             programacionHorarios.setUserRegistro(usuario);
             programacionHorarios.setPermisoProgramacion(permisosHorariosForm.getPermisoProgramacion());
-            programacionHorarios.setPuedeAgregar(0);
-            programacionHorarios.setPuedeEliminar(0);
-            programacionHorarios.setPuedeModificar(0);
-            if (permisosHorariosForm.getPuedeAgregar() != null) {
-                programacionHorarios.setPuedeAgregar(1);
-            }
-            if (permisosHorariosForm.getPuedeEliminar() != null) {
-                programacionHorarios.setPuedeEliminar(1);
-            }
-            if (permisosHorariosForm.getPuedeModificar() != null) {
-                programacionHorarios.setPuedeModificar(1);
-            }
+            programacionHorarios.setPuedeAgregar(permisosHorariosForm.getPuedeAgregar());
+            programacionHorarios.setPuedeEliminar(permisosHorariosForm.getPuedeEliminar());
+            programacionHorarios.setPuedeModificar(permisosHorariosForm.getPuedeModificar());
+
             permisoProgramacionHorariosDAO.save(programacionHorarios);
 
 //            LoggerPermisoProgramacion loggerPermisoProgramacion = new LoggerPermisoProgramacion();
@@ -173,6 +162,7 @@ public class PermisoProgramacionServiceImp implements PermisoProgramacionService
     }
 
     @Override
+    @Transactional
     public void savepermiso(ColaboradorAnexoBean colaboradorAnexoForm, DataSessionPivot ds) {
         Usuario usuario = ds.getUsuario();
 
@@ -218,5 +208,20 @@ public class PermisoProgramacionServiceImp implements PermisoProgramacionService
 //            loggerPermisoProgramacionDAO.save(loggerPermisoProgramacion);
         }
 
+    }
+
+    @Override
+    @Transactional
+    public void updatepermiso(ColaboradorAnexoBean colaboradorAnexoForm, DataSessionPivot ds) {
+        Usuario usuario = ds.getUsuario();
+        PermisosProgramacionHorarios permisosPrograma = permisoProgramacionHorariosDAO.find(colaboradorAnexoForm.getIdPermiso());
+        ColaboradorAnexo colaboradorAnexo = colaboradorAnexoDAO.findColaborador(colaboradorAnexoForm.getColaborador(),colaboradorAnexoForm.getAnexoBoletin());
+        for (PermisosProgramacionHorarios permisosProgramacionForm : colaboradorAnexoForm.getPermisosProgramacionHorarios()) {
+            permisosPrograma.setColaboradorAnexo(colaboradorAnexo);
+            permisosPrograma.setPuedeAgregar(permisosProgramacionForm.getPuedeAgregar());
+            permisosPrograma.setPuedeEliminar(permisosProgramacionForm.getPuedeEliminar());
+            permisosPrograma.setPuedeModificar(permisosProgramacionForm.getPuedeModificar());
+            permisoProgramacionHorariosDAO.update(permisosPrograma);
+        }
     }
 }
