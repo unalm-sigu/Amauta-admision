@@ -147,21 +147,33 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
 
     @Override
     @Transactional
-    public void addVariable(ContenidoVariable variable, Long idContenido) {
+    public void addVariable(ContenidoCartaVariable contVariableForm, Long idContenido) {
         ContenidoCarta conteBD = contenidoCartaDAO.find(idContenido);
         List<ContenidoCartaVariable> vars = contenidoCartaVariableDAO.allByIdContenido(idContenido);
         for (ContenidoCartaVariable var : vars) {
-            if (variable.getId() == var.getContenidoVariable().getId().longValue()) {
+            if (contVariableForm.getContenidoVariable().getId() == var.getContenidoVariable().getId().longValue()) {
                 throw new PhobosException("Esta variable ya existe en este contenido");
             }
         }
 
         ContenidoCartaVariable newVar = new ContenidoCartaVariable();
         newVar.setContenidoCarta(conteBD);
-        newVar.setContenidoVariable(variable);
-        newVar.setEjemplo("");
+        newVar.setContenidoVariable(contVariableForm.getContenidoVariable());
+        newVar.setEjemplo(contVariableForm.getEjemplo());
         contenidoCartaVariableDAO.save(newVar);
 
+    }
+
+    @Override
+    @Transactional
+    public void deleteVariable(Long idContVariable) {
+        contenidoCartaVariableDAO.delete(idContVariable);
+    }
+
+    @Override
+    @Transactional
+    public void updateContVariable(ContenidoCartaVariable contVariable) {
+        contenidoCartaVariableDAO.update(contVariable);
     }
 
 }

@@ -128,6 +128,7 @@ new Vue({
         variablesCarta: JSON.parse(variablesCartaJson),
         variables: JSON.parse(variablesJson),
         sistemas: JSON.parse(sistemasJson),
+        contVariable: {},
         variable: {},
         sistema: {},
     },
@@ -143,6 +144,7 @@ new Vue({
                 url: APP.url('configuracion/editorcontenido/' + $vue.contenido.id + '/allVariables'),
                 success: function (response) {
                     if (response.success) {
+                        $vue.contVariable = {};
                         $vue.variablesCarta = response.data;
                     } else {
                         notify(response.message, "error");
@@ -159,7 +161,7 @@ new Vue({
             $.ajax({
                 method: 'POST',
                 url: APP.url('configuracion/editorcontenido/' + $vue.contenido.id + '/addVariable'),
-                data: JSON.stringify($vue.variable),
+                data: JSON.stringify($vue.contVariable),
                 dataType: "json",
                 contentType: "application/json",
                 success: function (response) {
@@ -175,6 +177,47 @@ new Vue({
                 }
             });
 
+        },
+        deleteVariable(item) {
+            let $vue = this;
+            console.log(item);
+            $.ajax({
+                method: 'POST',
+                url: APP.url('configuracion/editorcontenido/' + item.id + '/deleteVariable'),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.reloadVariables();
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        updateVariable(item) {
+            let $vue = this;
+            console.log(item);
+            $.ajax({
+                method: 'POST',
+                url: APP.url('configuracion/editorcontenido/updateVariable'),
+                data: JSON.stringify(item),
+                dataType: "json",
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.reloadVariables();
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     }
 });

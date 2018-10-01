@@ -45,9 +45,9 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
-import static pe.edu.lamolina.model.enums.ContenidoVariableEnum.__ESTIMADO__;
-import static pe.edu.lamolina.model.enums.ContenidoVariableEnum.__NOMBREPERSONA__;
 import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
+import static pe.edu.lamolina.model.enums.VariableContenidoEnum.ESTIMADO;
+import static pe.edu.lamolina.model.enums.VariableContenidoEnum.NOMBRE_PERSONA;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Idioma;
@@ -65,10 +65,10 @@ import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
 
 @Controller
 @RequestMapping("tramite/solicitudconstancia/updatehistorial")
-public class UpdateHistorialAcademicoController {
+public class ConstanciaSolicitudController {
 
     @Autowired
-    UpdateHistorialAcademicoService service;
+    ConstanciaSolicitudService service;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -228,6 +228,7 @@ public class UpdateHistorialAcademicoController {
                 json.put("facultad", alumno.getCarrera().getFacultad().getNombre());
                 json.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
                 json.put("numero", alumno.getPersona().getNumeroDocIdentidad());
+                json.put("tipoFoto", alumno.getPersona().getTipoFoto());
                 json.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
                 jAlumno.add(json);
             }
@@ -484,8 +485,8 @@ public class UpdateHistorialAcademicoController {
         CuentaBancaria cuenta = precioDocumento.getCuentaBancaria();
         String montoString = precioDocumento.getPrecio().toString();
 
-        cabecera = cabecera.replaceAll(__NOMBREPERSONA__.name(), persona.getNombreCompleto());
-        cabecera = cabecera.replaceAll(__ESTIMADO__.name(), estimado);
+        cabecera = cabecera.replaceAll(NOMBRE_PERSONA.getValue(), persona.getNombreCompleto());
+        cabecera = cabecera.replaceAll(ESTIMADO.getValue(), estimado);
 
         model.addAttribute("cabecera", cabecera);
         model.addAttribute("pieBoleta", pieBoleta);

@@ -252,13 +252,56 @@ public class EditorContenidoController {
     @RequestMapping("{idContenido}/addVariable")
     public JsonResponse addVariable(
             @PathVariable("idContenido") Long idContenido,
-            @RequestBody ContenidoVariable variable, HttpSession session) {
+            @RequestBody ContenidoCartaVariable contVariable, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            service.addVariable(variable, idContenido);
+            service.addVariable(contVariable, idContenido);
             response.setMessage("Variable agregada satisfctoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idVariable}/deleteVariable")
+    public JsonResponse deleteVariable(
+            @PathVariable("idVariable") Long idContVariable, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            service.deleteVariable(idContVariable);
+            response.setMessage("Variable eliminada satisfctoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("updateVariable")
+    public JsonResponse updateContVariable(@RequestBody ContenidoCartaVariable contVariable, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            service.updateContVariable(contVariable);
+            response.setMessage("Variable actualizada satisfctoriamente");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -274,8 +317,7 @@ public class EditorContenidoController {
     @ResponseBody
     @RequestMapping("{idContenido}/allVariables")
     public JsonResponse allVariables(
-            @PathVariable("idContenido") Long idContenido,
-            @RequestBody ContenidoVariable variable, HttpSession session) {
+            @PathVariable("idContenido") Long idContenido, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
@@ -288,7 +330,7 @@ public class EditorContenidoController {
                 });
                 variablesCartaJson.add(itemJson);
             }
-            
+
             response.setData(variablesCartaJson);
             response.setMessage("Variable agregada satisfctoriamente");
             response.setSuccess(true);

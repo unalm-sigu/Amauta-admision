@@ -29,6 +29,10 @@ public interface EditorContenidoService {
 
     List<ContenidoVariable> allVariables();
 
-    void addVariable(ContenidoVariable variable, Long idContenido);
+    void addVariable(ContenidoCartaVariable variable, Long idContenido);
+
+    public void deleteVariable(Long idVariable);
+
+    public void updateContVariable(ContenidoCartaVariable contVariable);
 
 }

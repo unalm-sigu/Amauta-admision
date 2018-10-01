@@ -33,20 +33,10 @@
 
                     <section class="panel  m-b-n-lg">
                         <section class="panel-body">
+                            <input :value="sistema.id" id="sistema" type="hidden"/>
                             <div class="form-group row">
-                                <label for="" class="col-xs-12 control-label">Sistema</label>
                                 <div class="col-xs-4">
-                                    <multiselect v-model="sistema" 
-                                        v-bind:options='sistemas'
-                                        label='nombre'
-                                        track-by='id'
-                                        deselect-label=""
-                                        select-label=""
-                                        v-bind:allow-empty="false"
-                                        v-bind:hide-selected="true"
-                                        v-on:input="">
-                                    </multiselect>
-                                    
+                                    <h4><a class="bold" v-text="sistema.nombre"></a></h4>
                                 </div>
                             </div>
                         </section>
@@ -90,14 +80,14 @@
                             <h3>Variables</h3>
                             <div class="qrow">
                                 <div v-for="item in variablesCarta" class="col-sm-3 panel">
-                                    <button class="btn btn-danger btn-sm close-btn">
+                                    <button class="btn btn-danger btn-sm close-btn" v-on:click="deleteVariable(item)">
                                         <i class="fa fa-times"></i>
                                     </button>
 
                                     <div class="div-variable panel-body">
                                         <span v-text="item.contenidoVariable.codigo" class="text-danger bold block"></span>
                                         <span v-text="item.contenidoVariable.descripcion" class="text-primary bold block"></span>
-                                        <input type="text" class="form-control" :value="item.ejemplo"/>
+                                        <input type="text" class="form-control" v-model="item.ejemplo" v-on:keyup.enter="updateVariable(item)"/>
                                     </div>
                                 </div>
 
@@ -107,21 +97,24 @@
                                     </button>
 
                                     <div class="div-variable panel-body">
-                                        
-                                        <multiselect v-model="variable" 
-                                            v-bind:options='variables'
-                                            label='codigo'
-                                            track-by='id'
-                                            deselect-label=""
-                                            select-label=""
-                                            v-bind:allow-empty="false"
-                                            v-bind:hide-selected="true"
-                                            v-on:input="">
-                                        </multiselect>
-                                        
+                                        <div class="form-group">
+                                            <multiselect v-model="contVariable.contenidoVariable" 
+                                                         v-bind:options='variables'
+                                                         label='codigo'
+                                                         track-by='id'
+                                                         deselect-label=""
+                                                         select-label=""
+                                                         v-bind:allow-empty="false"
+                                                         v-bind:hide-selected="true"
+                                                         v-on:input="">
+                                            </multiselect>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="Ingrese ejemplo" v-model="contVariable.ejemplo"/>
+                                        </div>
                                     </div>
                                 </div>
-                                
+
                             </div>
 
                         </section>
