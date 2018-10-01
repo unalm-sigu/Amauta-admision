@@ -67,8 +67,19 @@
 
             <template   type="text/x-template" id="alumnoItem">
                 <div class="row">
-                    <div class="pull-left m-l-sm m-r-xs" >
-                        <img class="img-responsive img-thumbnail img-circle" v-bind:src="alumno.rutaFoto" ></img>
+                    <div class="pull-left">
+                        <div v-if="alumno.tipoFoto=='POSTUL' "
+                             class="img-responsive img-thumbnail img-circle div-foto-list">
+                            <img class="img-foto-list" v-bind:src="alumno.rutaFoto" />
+                        </div>
+
+                        <img v-else-if="alumno.tipoFoto=='COMUN' " 
+                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                             v-bind:src="alumno.rutaFoto" />
+
+                        <img v-else="" 
+                             class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                             v-bind:src="alumno.rutaFoto" />
                     </div>
                     <span class="block bold m-t-sm">{{alumno.nombre}}</span>
                     <span class="block">Especialida de {{alumno.carrera}}    Facultad de {{alumno.facultad}} </span>

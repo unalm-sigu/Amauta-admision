@@ -21,7 +21,7 @@ import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-public interface UpdateHistorialAcademicoService {
+public interface ConstanciaSolicitudService {
 
     Alumno allInfo(Alumno alumno);
 

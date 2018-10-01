@@ -77,7 +77,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
-public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcademicoService {
+public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

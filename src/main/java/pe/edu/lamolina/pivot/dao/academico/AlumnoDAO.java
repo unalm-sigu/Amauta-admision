@@ -18,6 +18,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     public List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades);
 
+    List<Alumno> allByModalidadesDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<String> modalidades);
+
     Alumno findByCodigo(String codigoAlumno);
 
     Alumno findFlatByCodigo(String codigoAlumno);

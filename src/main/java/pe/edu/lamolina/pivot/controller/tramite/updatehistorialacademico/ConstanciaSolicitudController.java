@@ -65,10 +65,10 @@ import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
 
 @Controller
 @RequestMapping("tramite/solicitudconstancia/updatehistorial")
-public class UpdateHistorialAcademicoController {
+public class ConstanciaSolicitudController {
 
     @Autowired
-    UpdateHistorialAcademicoService service;
+    ConstanciaSolicitudService service;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -228,6 +228,7 @@ public class UpdateHistorialAcademicoController {
                 json.put("facultad", alumno.getCarrera().getFacultad().getNombre());
                 json.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
                 json.put("numero", alumno.getPersona().getNumeroDocIdentidad());
+                json.put("tipoFoto", alumno.getPersona().getTipoFoto());
                 json.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
                 jAlumno.add(json);
             }
