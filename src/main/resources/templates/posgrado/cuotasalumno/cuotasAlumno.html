@@ -15,7 +15,7 @@
 
     <body>
         <div layout:fragment="main">
-            <div id="gpoSeccionesVUE" v-cloak="">
+            <div id="cuotasMain" > <!-- v-cloak=""-->
 
                 <header class="header b-b padder-lg">
 
@@ -24,22 +24,68 @@
                             <a type="button" class="btn btn-success nuevo-grupo-sec">Nuevo Grupo</a>
                         </div>
                     </div> 
-                    <h2 th:text="|Cuotas Alumnos ${ciclo.descripcion}|">Grupo Sección</h2>
+                    <h2 th:text="|Cuotas Alumnos ${ciclo.descripcion}|">Cuotas Alumno</h2>
                 </header>
                 <section class="wrapper-lg">
-                    <section class="panel m-b-md">
+                    <section class="panel m-b-xs">
                         <section class="panel-body">
-                            <div class="col-md-12">
-                                <div class="row">
-                                    registros basicos
+                            <div class="row">
+                                <div class="form-group">
+                                    <label for="docIdentidad" class="col-md-2 bold">Tarifo</label>
+
+                                    <div class="col-md-10">
+                                        Tarifa
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label  class="col-md-2 bold">Creditos</label>
+
+                                    <div class="col-md-2">
+                                        cred
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 bold">Exceso</label>
+
+                                    <div class="col-md-2">
+                                        exceso
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 bold">Pago Al Cash</label>
+                                    <div class="col-md-2">
+                                        pago
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label  class="col-md-2 bold">Monto Inicial</label>
+
+                                    <div class="col-md-2">
+                                        mini
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 bold">Cuotas</label>
+
+                                    <div class="col-md-2">
+                                        cuot
+                                    </div>
                                 </div>
                             </div>
                         </section>
                     </section>
-
-                    <section class="panel">
+                    <section class="panel m-b-xs">
                         <section class="panel-body">
-                            Tabla
+                            tablita
+                        </section>
+                    </section>
+                    <section class="panel m-b-xs">
+                        <section class="panel-body">
+                            Cronograma
                         </section>
                     </section>
                 </section>
