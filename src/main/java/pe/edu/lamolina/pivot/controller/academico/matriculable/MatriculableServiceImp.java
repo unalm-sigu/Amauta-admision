@@ -265,14 +265,9 @@ public class MatriculableServiceImp implements MatriculableService {
             }
         }
 
-        int loop = 0;
         for (MatriculaResumen mr : matriculables) {
-            if (mr.getPuntajePrioridad() != null) {
-                loop++;
-            }
             matriculaResumenDAO.update(mr);
         }
-        System.out.println(loop + " matriculables con prioridad");
     }
 
     public void asignarTurno(CicloAcademico ciclo) {
