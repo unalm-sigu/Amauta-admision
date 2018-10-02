@@ -1,12 +1,12 @@
-$(function() {
+$(function () {
 
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         $('#timeHoraInicio').timepicker({'timeFormat': 'H:i'});
 
     });
 });
-Vue.component("date-picker", window.DatePicker.default);
+Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 new Vue({
     el: '#configuracion',
     data: {
@@ -21,8 +21,11 @@ new Vue({
         horas: [],
         idConfig: {},
         test: "",
-        flag: true
-
+        flag: true,
+        configDate: {
+            format: "DD/MM/YYYY",
+            useCurrent: false
+        }
     },
     created() {
         let $vue = this;
@@ -49,6 +52,7 @@ new Vue({
 
         },
         save(e) {
+            console.log("LALALALA");
             var self = $(e.currentTarget);
             self.btnDisabled();
             $(".mx-input").attr("required", true);
@@ -67,7 +71,7 @@ new Vue({
                 url: APP.url('academico/configuracionturno/configuracion'),
                 contentType: "application/json",
                 data: JSON.stringify($cfg),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         $vue.config.id = response.data;
                         $vue.Arryconfig.push($vue.config);
@@ -91,7 +95,7 @@ new Vue({
                 url: APP.url('academico/configuracionturno/list'),
                 contentType: "application/json",
                 data: JSON.stringify(config),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
 
                         $vue.horas = response.data[0];
@@ -106,7 +110,7 @@ new Vue({
         tabs() {
             let $vue = this;
             $vue.lstTabs.splice(0, $vue.lstTabs.length);
-            $vue.Arryconfig.forEach(function(elem) {
+            $vue.Arryconfig.forEach(function (elem) {
                 $vue.lstTabs.push(elem);
             });
             if ($vue.lstTabs.length > 0) {
@@ -129,17 +133,17 @@ new Vue({
                     confirm: {label: 'Si, eliminar', className: "btn-danger"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         $.ajax({
                             method: 'DELETE',
                             url: APP.url('academico/configuracionturno/deleteconfiguracion'),
                             contentType: "application/json",
                             data: JSON.stringify($vue.idConfig),
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     var i = 0;
-                                    $vue.lstTabs.forEach(function(elem) {
+                                    $vue.lstTabs.forEach(function (elem) {
                                         if ($vue.idConfig.id == elem.id || $vue.idConfig == elem.id) {
                                             $vue.lstTabs.splice(i, 1);
                                             $vue.Arryconfig.splice(i, 1);
@@ -173,17 +177,17 @@ new Vue({
         },
         jquery(horas) {
             let $vue = this;
-            $(function() {
-                $(document).ready(function() {
+            $(function () {
+                $(document).ready(function () {
                     $.fn.editable.defaults.mode = 'inline';
-                    horas.forEach(function(elem) {
-                        elem.turnos.forEach(function(turnos) {
+                    horas.forEach(function (elem) {
+                        elem.turnos.forEach(function (turnos) {
                             $('#' + turnos.id).editable({
                                 url: APP.url('academico/configuracionturno/updateturnos'),
                                 contentType: 'application/json',
                                 type: 'text',
                                 pk: turnos.id,
-                                success: function(response) {
+                                success: function (response) {
                                     if (response.success) {
 
                                         $vue.horas = response.data.data[0];
@@ -198,7 +202,7 @@ new Vue({
                 });
             });
         },
-        matricular: function(turno) {
+        matricular: function (turno) {
             var url = APP.url('academico/matricular/' + turno.id);
             window.open(url, '_blank');
         }

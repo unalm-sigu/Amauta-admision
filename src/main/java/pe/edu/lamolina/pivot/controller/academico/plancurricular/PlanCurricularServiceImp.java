@@ -142,6 +142,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     public Long countAlumnosByPlanCurricular(PlanCurricular planCurricular) {
+        logger.debug("ID PLAN CURRICULAR {}", planCurricular.getId());
         return alumnoDAO.countByPlanCurricular(planCurricular);
     }
 
@@ -1062,15 +1063,15 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional
     public void updateCursoAdicional(CursoAdicionalCurricula cursoAdicionalCurricula, DataSessionPivot ds) {
         CursoAdicionalCurricula cacBD = cursoAdicionalCurriculaDAO.find(cursoAdicionalCurricula.getId());
-        
+
         cacBD.setCicloInicio(cursoAdicionalCurricula.getCicloInicio());
-        
-        if(cursoAdicionalCurricula.getCicloFin().getId() != null){
+
+        if (cursoAdicionalCurricula.getCicloFin().getId() != null) {
             cacBD.setCicloFin(cursoAdicionalCurricula.getCicloFin());
-        }else{
+        } else {
             cacBD.setCicloFin(null);
         }
-        
+
         cursoAdicionalCurriculaDAO.update(cacBD);
     }
 

@@ -2,36 +2,52 @@
     <td class="v-middle">
         <div class="pull-left m-r">
 
-            <img class="img-responsive img-thumbnail img-circle" src="{{:rutaFoto}}" />
+            <img class="img-responsive img-thumbnail img-circle div-foto-alumno-list" src="{{:alumno.persona.rutaFoto}}" />
         </div>
 
         <div class="">
             <span>{{:puntajePrioridad}}</span>
-            <a href="#"><span class="block text-primary bold detallePostulante" >{{:nombre}}</span></a>
+            <a href="#"><span class="block text-primary bold detallePostulante" >{{:alumno.persona.apellidosNombres}}</span></a>
             <span class="block">
-                Matrícula: {{:codigo}} 
+                Matrícula: {{:alumno.codigo}} 
             </span>
-            <span class="block">{{:tipoDoc}}: {{:numeroDoc}} <small class="text-white" style="font-size: 4px;">{{:lagos}}</small></span>
+            {{if alumno.carrera.codigo != alumno.carrera.facultad.codigo}}
+            <span class="block">
+                {{:alumno.carrera.nombre}}
+            </span>
+            {{/if}}
+            <span class="block">
+                {{:alumno.carrera.facultad.nombre}}
+            </span>
         </div>
     </td>
 
     <td class="v-middle text-center">
-
-        <span class="block">Facultad: {{:facultad}}</span>
-        <span class="block">Carrera: {{:carrera}}</span>
-
+        <span class="block">{{:puntajePrioridad}}</span>
+        {{if situacionInicio.id != ''}}
+        <span class="block">I: {{:situacionInicio.nombre}} </span>
+        {{/if}}
+        {{if situacionFinal.id != ''}}
+        <span class="block">F: {{:situacionFinal.nombre}} </span>
+        {{/if}}
+        
     </td>
 
     <td class="v-middle">
-        <span class="block">Situacion Académica: {{:situacion}}</span>
-        <span class="block">Ciclo Ingreso: {{:cicloIngreso}}</span>
-        <span class="block">Ciclo Activo: {{:cicloActivo}}</span>
+        {{:prioridad}}
+        {{if prioridadAnterior != ''}}
+        Antes: {{:prioridadAnterior}}
+        {{/if}}
     </td>
 
-    <td>
-        <span class="block">PPA: {{:ppa}}</span>
-        <span class="block">CCA: {{:cca}}</span>
-        <span class="block">CAPA: {{:capa}}</span>
+    <td class='v-middle text-center'>
+        <span class="block">Mat: {{:cursosMatriculados}}</span>
+        <span class="block">Ret: {{:cursosRetirados}}</span>
+    </td>
+    
+    <td class='v-middle text-center'>
+        <span class="block">Mat: {{:creditosMatriculados}}</span>
+        <span class="block">Ret: {{:creditosRetirados}}</span>
     </td>
 
     <td class="text-center v-middle">
@@ -39,7 +55,7 @@
             {{if estado == "ANU"}}
             <a href="#" data-toggle="tooltip" data-html="true" data-placement="left" title='{{:motivo}}'><span class="label label-{{:colorEstado}}">{{:estadoEnum}} </span></a>
             {{else}}
-            <span class="label label-{{:colorEstado}}">{{:estadoEnum}} </span>
+            <span class="label label-{{:colorEstado}}">{{:estadoEnum.value}} </span>
             {{/if}}
         </span>
     </td>
