@@ -12,6 +12,7 @@ var app = new Vue({
         getEstadoClass(estado) {
             return "label " + APP.getEstadoClass(estado);
         }, controlarSeccion(seccion, e) {
+            console.log(seccion);
             e.preventDefault();
             location.href = APP.url('academico/docente/asistenciaacademica/' + seccion.id + '/lecciones');
         }

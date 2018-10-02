@@ -31,6 +31,7 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.Egresado;
@@ -194,40 +195,84 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional(readOnly = false)
     public void generarPrioridad(CicloAcademico ciclo) {
         DateTime today = new DateTime();
+        CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo.getId());
 
-        if (ciclo.getFechaMatriculables() == null) {
+        if (cicloBD.getFechaMatriculables() == null) {
             throw new PhobosException("Primero debe generar los Alumnos matriculables");
         }
 
-        ciclo.setFechaPrioridades(today.toDate());
-        cicloAcademicoDAO.updateFechaPrioridades(ciclo);
+        cicloBD.setFechaPrioridades(today.toDate());
+        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
 
-        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(ciclo);
+        List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allActivosRegularesByCicloResumen(cicloBD);
+        Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumno.id", alumnosCiclos);
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloBD);
+
+        int cachimbos = 8000;
+        int escuela = 10000;
         for (MatriculaResumen matriculable : matriculables) {
-            matriculableConector.procesarPrioridadAlumno(matriculable);
-        }
+            matriculable.setPrioridad(null);
+            matriculable.setPuntajePrioridad(null);
+            matriculable.setTurnoAtencion(null);
 
-        matriculables = matriculaResumenDAO.allByCiclo(ciclo);
+            SituacionAcademica sit = matriculable.getAlumno().getSituacionAcademica();
+            if (Arrays.asList(S_8, S_9).contains(sit.getCodigoEnum())) {
+                matriculable.setPrioridad(BigDecimal.valueOf(cachimbos));
+                matriculable.setPuntajePrioridad(BigDecimal.ZERO);
+                cachimbos++;
+                continue;
+            }
 
-        List<MatriculaResumen> matriculablesConPuntajePrioridad = matriculables.stream().filter(x -> (x.getPuntajePrioridad() != null && x.getPuntajePrioridad().compareTo(BigDecimal.ZERO) != 0)).collect(Collectors.toList());
-        Collections.sort(matriculablesConPuntajePrioridad, (p1, p2) -> p2.getPuntajePrioridad().compareTo(p1.getPuntajePrioridad()));
-        List<MatriculaResumen> matriculablesConPuntajeUltimosCiclos = matriculablesConPuntajePrioridad.stream().filter(x -> x.getAlumno().getCreditosAprobados() > 180).collect(Collectors.toList());
+            ModalidadEstudio modalidad = matriculable.getAlumno().getModalidadEstudio();
+            if (Arrays.asList(ModalidadEstudioEnum.EPG, ModalidadEstudioEnum.ESP).contains(modalidad.getCodigoEnum())) {
+                matriculable.setPrioridad(BigDecimal.valueOf(escuela));
+                escuela++;
+                continue;
+            }
 
-        int indice = 0;
-        for (MatriculaResumen matriculaResumenEach : matriculablesConPuntajeUltimosCiclos) {
-            indice++;
-            matriculaResumenEach.setPrioridad(BigDecimal.valueOf(indice));
-            matriculaResumenDAO.updatePrioridad(matriculaResumenEach);
-        }
-
-        for (MatriculaResumen matriculaResumenEach : matriculablesConPuntajePrioridad) {
-            if (!matriculablesConPuntajeUltimosCiclos.contains(matriculaResumenEach)) {
-                indice++;
-                matriculaResumenEach.setPrioridad(BigDecimal.valueOf(indice));
-                matriculaResumenDAO.updatePrioridad(matriculaResumenEach);
+            AlumnoCiclo alumnoCiclo = mapAlumnoCiclo.get(matriculable.getAlumno().getId());
+            if (alumnoCiclo != null) {
+                matriculableConector.procesarPrioridadAlumno(matriculable, alumnoCiclo);
             }
         }
 
+        List<MatriculaResumen> matriculablesConPuntaje = matriculables.stream()
+                .filter(x -> (x.getPuntajePrioridad() != null && x.getPuntajePrioridad().compareTo(BigDecimal.ZERO) != 0))
+                .collect(Collectors.toList());
+        Collections.sort(matriculablesConPuntaje, (p1, p2) -> p2.getPuntajePrioridad().compareTo(p1.getPuntajePrioridad()));
+
+        List<MatriculaResumen> matriculablesUltimoCiclo = matriculablesConPuntaje.stream()
+                .filter(x -> x.getAlumno().getCreditosAprobados() > 180)
+                .collect(Collectors.toList());
+
+        int indice = 0;
+        for (MatriculaResumen mr : matriculablesUltimoCiclo) {
+            indice++;
+            mr.setPrioridad(BigDecimal.valueOf(indice));
+        }
+
+        for (MatriculaResumen mr : matriculablesConPuntaje) {
+            if (mr.getPrioridad() == null) {
+                indice++;
+                mr.setPrioridad(BigDecimal.valueOf(indice));
+            }
+        }
+
+        for (MatriculaResumen mr : matriculables) {
+            if (mr.getPrioridad() == null) {
+                indice++;
+                mr.setPrioridad(BigDecimal.valueOf(indice));
+            }
+        }
+
+        int loop = 0;
+        for (MatriculaResumen mr : matriculables) {
+            if (mr.getPuntajePrioridad() != null) {
+                loop++;
+            }
+            matriculaResumenDAO.update(mr);
+        }
+        System.out.println(loop + " matriculables con prioridad");
     }
 
     public void asignarTurno(CicloAcademico ciclo) {
@@ -241,21 +286,22 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     @Transactional
-    public void procesarTurnoMatricula(CicloAcademico cicloAcademico, Long configuracionTurnoAtencion) {
+    public void procesarTurnoMatricula(CicloAcademico ciclo, Long configuracionTurnoAtencion) {
         DateTime today = new DateTime();
+        CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo.getId());
 
-        if (cicloAcademico.getFechaPrioridades() == null) {
+        if (cicloBD.getFechaPrioridades() == null) {
             throw new PhobosException("Primero debe procesar las prioridades de los Alumnos");
         }
 
-        cicloAcademico.setFechaTurnosAsignados(today.toDate());
-        cicloAcademicoDAO.updateFechaPrioridades(cicloAcademico);
+        cicloBD.setFechaTurnosAsignados(today.toDate());
+        cicloAcademicoDAO.updateFechaPrioridades(ciclo);
 
         ConfiguracionTurnosAtencion configuracionTurnosAtencion = configuracionTurnosAtencionDAO.find(configuracionTurnoAtencion);
         List<TurnoAtencion> turnosAtencion = turnoAtencionDAO.allByConfiguracion(configuracionTurnosAtencion);
 
         for (TurnoAtencion turnoAtencionEach : turnosAtencion) {
-            matriculaResumenDAO.updateTurnoAtencion(cicloAcademico, turnoAtencionEach);
+            matriculaResumenDAO.updateTurnoAtencion(ciclo, turnoAtencionEach);
         }
 
     }

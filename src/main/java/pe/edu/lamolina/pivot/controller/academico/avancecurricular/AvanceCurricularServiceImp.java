@@ -150,6 +150,9 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         for (Alumno alumno : alumnos) {
             avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
             avanceCurricularAsincronoService.deleteAllAlumnoCursoCurriculaByAlumno(alumno);
+
+            alumno.setPlanCurricular(null);
+            alumnoDAO.update(alumno);
         }
     }
 

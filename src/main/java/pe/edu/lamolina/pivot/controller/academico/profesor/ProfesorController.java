@@ -62,11 +62,11 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.FotoHelper;
-import pe.edu.lamolina.pivot.controller.academico.notasacademicas.CargaAcademicaService;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.controller.academico.notasacademicas.NotaAcademicaService;
 
 @Controller
 @RequestMapping("academico/profesor")
@@ -79,7 +79,7 @@ public class ProfesorController {
     SpringTemplateEngine springHtml;
 
     @Autowired
-    CargaAcademicaService cargaAcademicaService;
+    NotaAcademicaService cargaAcademicaService;
 
     @Autowired
     VerificadorService verificadorService;

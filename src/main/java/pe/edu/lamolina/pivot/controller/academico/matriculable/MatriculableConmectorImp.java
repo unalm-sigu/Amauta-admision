@@ -52,44 +52,42 @@ public class MatriculableConmectorImp implements MatriculableConnector {
     EgresadoDAO egresadoDAO;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    public void procesarPrioridadAlumno(MatriculaResumen matriculaResumen) {
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(matriculaResumen.getAlumno());
+    @Transactional
+    public void procesarPrioridadAlumno(MatriculaResumen matriculaResumen, AlumnoCiclo alumnoCiclo) {
+
+//        MatriculaResumen matriculaResumen = new MatriculaResumen();
+//        matriculaResumen.setId(matriculaResumen.getId());
+        matriculaResumen.setPuntajePrioridad(null);
 
         if (matriculaResumen.getAlumno().getSituacionAcademica().isCodigoS8()) {
-            MatriculaResumen matriculaResumenUpd = new MatriculaResumen();
-
-            matriculaResumenUpd.setId(matriculaResumen.getId());
-            matriculaResumenUpd.setPuntajePrioridad(BigDecimal.valueOf(6000));
-
-            matriculaResumenDAO.updatePuntajePrioridad(matriculaResumenUpd);
+            matriculaResumen.setPuntajePrioridad(BigDecimal.valueOf(6000));
+            //matriculaResumenDAO.updatePuntajePrioridad(matriculaResumenUpd);
             return;
         }
-        if (alumnoCiclo != null) {
-            if (alumnoCiclo.getCreditosAcumulados().compareTo(BigDecimal.ZERO.intValue()) == 0
-                    || alumnoCiclo.getCreditosCursadosCiclo().compareTo(BigDecimal.ZERO.intValue()) == 0) {
-                logger.debug("capa 0");
-                return;
-            }
 
-            logger.debug("registro {}", matriculaResumen.getAlumno().getCicloActivo().getDescripcion());
-            BigDecimal capa = new BigDecimal(matriculaResumen.getAlumno().getCreditosAprobados());
-            BigDecimal cca = new BigDecimal(alumnoCiclo.getCreditosAcumulados());
+//        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(matriculaResumen.getAlumno());
+        BigDecimal capa = new BigDecimal(alumnoCiclo.getCreditosAprobadosAcumulados());
+        BigDecimal cca = new BigDecimal(alumnoCiclo.getCreditosAcumulados());
+        BigDecimal caps = new BigDecimal(alumnoCiclo.getCreditosAprobadosCiclo());
+        BigDecimal ccs = new BigDecimal(alumnoCiclo.getCreditosCursadosCiclo());
 
-            BigDecimal caps = new BigDecimal(alumnoCiclo.getCreditosAprobadosCiclo());
-            BigDecimal ccs = new BigDecimal(alumnoCiclo.getCreditosCursadosCiclo());
-
-            BigDecimal factor1 = capa.divide(cca, 12, RoundingMode.HALF_UP);
-            BigDecimal factor2 = caps.divide(ccs, 12, RoundingMode.HALF_UP);
-
-            MatriculaResumen matriculaResumenUpd = new MatriculaResumen();
-            BigDecimal resultFactor = factor1.multiply(factor2);
-            resultFactor = resultFactor.multiply(alumnoCiclo.getPromedioCiclo());
-            matriculaResumenUpd.setId(matriculaResumen.getId());
-            matriculaResumenUpd.setPuntajePrioridad(resultFactor);
-
-            matriculaResumenDAO.updatePuntajePrioridad(matriculaResumenUpd);
+        if (alumnoCiclo.getCreditosAcumulados().compareTo(BigDecimal.ZERO.intValue()) == 0
+                || alumnoCiclo.getCreditosCursadosCiclo().compareTo(BigDecimal.ZERO.intValue()) == 0) {
+//            logger.debug("capa 0");
+            System.out.println(matriculaResumen.getAlumno().getId() + " cca=" + cca + " ccs=" + ccs);
+            return;
         }
+
+//        logger.debug("registro {}", matriculaResumen.getAlumno().getCicloActivo().getDescripcion());
+        BigDecimal factor1 = capa.divide(cca, 12, RoundingMode.HALF_UP);
+        BigDecimal factor2 = caps.divide(ccs, 12, RoundingMode.HALF_UP);
+
+        BigDecimal puntajePrioridad = factor1.multiply(factor2);
+        puntajePrioridad = puntajePrioridad.multiply(alumnoCiclo.getPromedioCiclo());
+        System.out.println(matriculaResumen.getAlumno().getId() + " => " + puntajePrioridad);
+        matriculaResumen.setPuntajePrioridad(puntajePrioridad);
+//        }
+//        matriculaResumenDAO.updatePuntajePrioridad(matriculaResumen);
     }
 
     @Override

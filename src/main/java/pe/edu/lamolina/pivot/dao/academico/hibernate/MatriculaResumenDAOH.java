@@ -11,7 +11,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -47,7 +46,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     public List<MatriculaResumen> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
-                .join("alumno alu", "cicloAcademico ca")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
                 .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
                 .filter("ca.id", ciclo);
 
@@ -117,11 +116,11 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                         .join("ca.modalidadEstudio moe", "car.facultad fac")
                         .leftJoin("al.cicloIngreso ci", "al.cicloActivo cia", "turnoAtencion ta")
                         .filter("ca.id", ciclo)
-                        .searchFields("car.nombre", "fac.nombre", "al.estado", "al.codigo", "mr.prioridad", "mr.puntajePrioridad")
+                        .searchFields("car.nombre", "fac.nombre", "al.codigo", "mr.prioridad", "mr.puntajePrioridad")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                         .in("car.id", filtros)
-                        .orderBy("mr.puntajePrioridad asc");
+                        .orderBy("mr.prioridad", "per.paterno", "per.materno", "per.nombres");
                 break;
             case TODO:
             default:
@@ -130,10 +129,10 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                         .join("ca.modalidadEstudio moe", "car.facultad fac")
                         .leftJoin("al.cicloIngreso ci", "al.cicloActivo cia", "turnoAtencion ta")
                         .filter("ca.id", ciclo)
-                        .searchFields("car.nombre", "fac.nombre", "al.estado", "al.codigo", "mr.prioridad", "mr.puntajePrioridad")
+                        .searchFields("car.nombre", "fac.nombre", "al.codigo", "mr.prioridad", "mr.puntajePrioridad")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                        .orderBy("mr.puntajePrioridad asc");
+                        .orderBy("mr.prioridad", "per.paterno", "per.materno", "per.nombres");
                 break;
         }
 
@@ -249,7 +248,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .in("alu.id", alumnos)
                 .filter("estado", EstadoMatriculaEnum.MAT)
                 .filter("ca.id", cicloAcademico);
-        
+
         return sql.all(getCurrentSession());
     }
 

@@ -97,15 +97,18 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteAllAlumnoCursoCurriculaByAlumno(Alumno alumno) {
         alumnoCursoCurriculaDAO.deleteAllByAlumno(alumno);
+        logger.debug("deleteAllAlumnoCursoCurriculaByAlumno");
+        logger.debug("ALUMNO ID {}", alumno.getId());
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteAllAlumnoCursoSimultaneoByAlumno(Alumno alumno) {
         alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumno);
+        logger.debug("deleteAllByAlumno");
+        logger.debug("ALUMNO ID {}", alumno.getId());
     }
 
-    @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void procesarAlumno(
