@@ -127,13 +127,11 @@ public class EncuestaDocenteController {
         JsonResponse response = new JsonResponse();
 
         try {
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             service.saveDetalleConfigEncuesta(encuestaEstudiantil, ciclo, ds);
             response.setMessage("Encuesta configurada satisfactoriamente");
             response.setSuccess(true);
-
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
