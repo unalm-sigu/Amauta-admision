@@ -21,10 +21,8 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import static pe.edu.lamolina.model.enums.EstadoCursoCachimboEnum.ACT;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import pe.edu.lamolina.model.general.Aula;
 
 @Repository
 public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
@@ -40,7 +38,7 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
     public Curso find(long idCurso) {
         Octavia sql = Octavia.query()
                 .from(Curso.class, "cu")
-                .leftJoin("modalidadEstudio")
+                .leftJoin("modalidadEstudio", "carrera", "coordinador")
                 .leftJoin("planCalificacion pc", "departamentoAcademico da", "da.facultad")
                 .filter("cu.id", idCurso);
 

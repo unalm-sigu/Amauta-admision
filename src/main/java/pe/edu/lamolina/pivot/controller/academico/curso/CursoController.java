@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -20,6 +21,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,12 +38,14 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCarreraEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoEnum;
 import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -132,40 +136,17 @@ public class CursoController {
         return json;
     }
 
-    @RequestMapping("nuevo")
-    public String nuevo(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-        Curso curso = new Curso();
-        curso.setDepartamentoAcademico(new DepartamentoAcademico());
-        curso.setCoordinador(new Docente());
-        curso.setNombreCurso(new ArrayList());
-
-        Compania cia = ds.getCompania();
-
-        List tiposCurricula = new ArrayList();
-        tiposCurricula.add(TipoCurriculaEnum.REG);
-        tiposCurricula.add(TipoCurriculaEnum.ADIC);
-
-        model.addAttribute("curso", curso);
-        model.addAttribute("tiposCurso", TipoCursoEnum.values());
-        model.addAttribute("modalidadesEstudio", service.modalidadesEstudioPrePost(cia));
-        model.addAttribute("tiposCurricula", tiposCurricula);
-        model.addAttribute("idiomas", service.allIdiomas());
-
-        return "academico/curso/cursoForm";
-    }
-
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(Curso curso, HttpSession session) {
+    public JsonResponse save(@RequestBody Curso curso, HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             String mensaje = curso.getId() != null ? Messages.UPDATED : Messages.CREATED;
-            service.save(curso, ds.getUsuario());
+            Curso cursoBD = service.save(curso, ds);
+            response.setData(cursoBD.getId());
             response.setMessage(mensaje);
             response.setSuccess(true);
 
@@ -177,45 +158,116 @@ public class CursoController {
         return response;
     }
 
-    @RequestMapping("editar/{id}")
-    public String editar(@PathVariable("id") Long id, Model model, HttpSession session) {
+    @RequestMapping("nuevo")
+    public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        Curso curso = new Curso();
         Compania cia = ds.getCompania();
 
-        List tiposCurricula = new ArrayList();
-        tiposCurricula.add(TipoCurriculaEnum.REG);
-        tiposCurricula.add(TipoCurriculaEnum.ADIC);
-
-        Curso curso = service.find(id);
-        model.addAttribute("curso", curso);
-        model.addAttribute("tiposCurso", TipoCursoEnum.values());
-        model.addAttribute("modalidadesEstudio", service.modalidadesEstudioPrePost(cia));
-        model.addAttribute("tiposCurricula", tiposCurricula);
-        model.addAttribute("idiomas", service.allIdiomas());
-
+        settingJson(curso, cia, model);
         return "academico/curso/cursoForm";
     }
 
+    @RequestMapping("{id}/editar")
+    public String editar(@PathVariable("id") Long id, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        Compania cia = ds.getCompania();
+        Curso curso = service.find(id);
+
+        settingJson(curso, cia, model);
+        return "academico/curso/cursoForm";
+    }
+
+    private void settingJson(Curso curso, Compania cia, Model model) {
+        model.addAttribute("cursoJson", getCursoJson(curso).toString());
+        model.addAttribute("modalidadesJson", getModalidadesJson(cia).toString());
+        model.addAttribute("tiposCursoJson", JsonHelper.enumToJson(TipoCursoEnum.values()).toString());
+        model.addAttribute("tiposCurriculaJson", JsonHelper.enumToJson(TipoCurriculaEnum.values()).toString());
+        model.addAttribute("idiomasJson", getIdiomasJson().toString());
+        model.addAttribute("departamentosJson", getDptosAcademicosJson(cia).toString());
+        model.addAttribute("carrerasJson", getCarrerasJson().toString());
+    }
+
+    private ObjectNode getCursoJson(Curso curso) {
+        ObjectNode cursoJson = JsonHelper.createJson(curso, JsonNodeFactory.instance, true, new String[]{
+            "id", "codigo", "codigoAnterior1", "nombre", "tpc", "creditos", "creditosVariables", "creditosTeoria", "creditosPractica",
+            "horasTeoria", "horasPractica", "horasTeoriaVerano", "horasPracticaVerano", "tipoCurso", "tipoCursoEnum", "tipoCredito", "tipoCreditoEnum",
+            "tipoCurricula", "tipoCurriculaEnum", "nivel", "noEncuestar", "noCargaAdicional",
+            "departamentoAcademico.id",
+            "departamentoAcademico.codigo",
+            "departamentoAcademico.nombre",
+            "coordinador.codigo",
+            "coordinador.persona.nombreCompleto",
+            "coordinador.departamentoAcademico.id",
+            "modalidadEstudio.id",
+            "modalidadEstudio.codigo",
+            "modalidadEstudio.nombre",
+            "carrera.id",
+            "carrera.tipoEnum",
+            "carrera.codigo",
+            "carrera.nombre"
+        });
+        return cursoJson;
+    }
+
+    private ArrayNode getDptosAcademicosJson(Compania cia) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<DepartamentoAcademico> departementos = service.allDepartamentos(cia);
+        for (DepartamentoAcademico dpto : departementos) {
+            ObjectNode node = JsonHelper.createJson(dpto, JsonNodeFactory.instance, true, new String[]{
+                "id", "codigo", "nombre",
+                "facultad.id",
+                "facultad.codigo",
+                "facultad.nombre"
+            });
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ArrayNode getCarrerasJson() {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<Carrera> carreras = service.allCarrerasByPostgrado();
+        Collections.sort(carreras, new Carrera.CompareNombrePosgrado());
+        for (Carrera carr : carreras) {
+            ObjectNode node = JsonHelper.createJson(carr, JsonNodeFactory.instance, true, new String[]{
+                "id", "codigo", "nombre", "tipoEnum",
+                "facultad.id",
+                "facultad.codigo",
+                "facultad.nombre"
+            });
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ArrayNode getIdiomasJson() {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<Idioma> idiomas = service.allIdiomas();
+        for (Idioma idioma : idiomas) {
+            ObjectNode node = JsonHelper.createJson(idioma, JsonNodeFactory.instance, true, new String[]{"*"});
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ArrayNode getModalidadesJson(Compania cia) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<ModalidadEstudio> modalidades = service.modalidadesEstudioPrePost(cia);
+        for (ModalidadEstudio mod : modalidades) {
+            ObjectNode node = JsonHelper.createJson(mod, JsonNodeFactory.instance, true, new String[]{"*"});
+            array.add(node);
+        }
+        return array;
+    }
+
     @ResponseBody
-    @RequestMapping(value = "find/{id}", method = RequestMethod.GET)
+    @RequestMapping("{id}/find")
     public JsonResponse find(@PathVariable("id") Long id, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             Curso curso = service.find(id);
-            response.setData(JsonHelper.createJson(curso, JsonNodeFactory.instance, new String[]{
-                "id",
-                "nivel",
-                "codigo",
-                "nombre",
-                "tipoCurso",
-                "horasTeoria",
-                "horasPractica",
-                "tipoCredito",
-                "creditos",
-                "modalidadEstudio.nombre",
-                "departamentoAcademico.nombre",
-                "coordinador.persona.nombreCompleto"
-            }));
+            response.setData(getCursoJson(curso));
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -312,6 +364,42 @@ public class CursoController {
                 array.add(json);
             }
             response.setData(array);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idDepartamento}/allDocentes")
+    public JsonResponse allDocentes(
+            @PathVariable("idDepartamento") Long idDepartamento,
+            @RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Docente> docentes = service.allDocentesByDepartamento(nombre, new DepartamentoAcademico(idDepartamento));
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Docente profe : docentes) {
+                ObjectNode json = JsonHelper.createJson(profe, jsonFactory, true, new String[]{
+                    "id", "codigo",
+                    "persona.apellidosNombres",
+                    "departamentoAcademico.codigo",
+                    "departamentoAcademico.nombre"
+                });
+
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
             response.setSuccess(true);
 
         } catch (PhobosException e) {

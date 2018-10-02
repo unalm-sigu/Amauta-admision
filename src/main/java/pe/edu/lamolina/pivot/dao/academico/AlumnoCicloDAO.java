@@ -58,7 +58,9 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     List<AlumnoCiclo> allByControlesOrdenMerito(List<ControlOrdenMerito> coms);
 
-    void deleteInfoOrdenMeritoByCicloAcademico(CicloAcademico cicloAcademico);
+    void deleteControlMeritoByCiclo(CicloAcademico cicloAcademico);
+
+    void deleteOrdenMeritoByCiclo(CicloAcademico cicloAcademico);
 
     List<AlumnoCiclo> allByControlMeritoCiclo(DynatableFilter filter, ControlOrdenMerito controlBD);
 

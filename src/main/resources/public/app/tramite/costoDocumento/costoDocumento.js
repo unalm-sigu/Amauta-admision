@@ -127,8 +127,9 @@ new Vue({
         save: function (e) {
             var self = $(e.currentTarget);
             self.btnDisabled();
-            $(".tipoDocumento").find('.multiselect__input').attr("required", true);
+            //$(".tipoDocumento").find('.multiselect__input').attr("required", true);
             $(".mx-input").attr("required", true);
+            
             if (!$("#formConfig").parsley().validate()) {
                 self.btnEnable();
                 return;

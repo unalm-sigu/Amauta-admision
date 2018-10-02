@@ -390,7 +390,6 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             promedio.setAlumnoCicloCurso(cursos);
         }
 
-        
         Collections.sort(promedios, new AlumnoCiclo.CompareReverseCiclo());
         ArrayNode promediosCicloJson = new ArrayNode(JsonNodeFactory.instance);
         for (AlumnoCiclo promedio : promedios) {
@@ -398,6 +397,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "id", "estadoEnum", "estaAprobado",
                 "creditosCursadosCiclo", "creditosAprobadosCiclo", "promedioCiclo", "puntajeCiclo",
                 "creditosAcumulados", "creditosAprobadosAcumulados", "promedioAcumulado", "puntajeAcumulado",
+                "creditosConvalidados",
                 /* --- */
                 "tercioSuperiorCarrera",
                 "tercioSuperiorFacultad",
@@ -412,9 +412,38 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "ordenMeritoFacultad",
                 "ordenMeritoCiclo",
                 /* --- */
+                "nivel",
+                "tercioSuperiorCarreraNivel",
+                "tercioSuperiorFacultadNivel",
+                "tercioSuperiorCicloNivel",
+                "quintoSuperiorCarreraNivel",
+                "quintoSuperiorFacultadNivel",
+                "quintoSuperiorCicloNivel",
+                "cuadroHonorCarreraNivel",
+                "cuadroHonorFacultadNivel",
+                "cuadroHonorCicloNivel",
+                "ordenMeritoCarreraNivel",
+                "ordenMeritoFacultadNivel",
+                "ordenMeritoCicloNivel",
+                /* --- */
                 "controlMeritoCiclo.alumnosComputados",
+                "controlMeritoCiclo.computadosNivel1",
+                "controlMeritoCiclo.computadosNivel2",
+                "controlMeritoCiclo.computadosNivel3",
+                "controlMeritoCiclo.computadosNivel4",
+                "controlMeritoCiclo.computadosNivel5",
                 "controlMeritoFacultad.alumnosComputados",
+                "controlMeritoFacultad.computadosNivel1",
+                "controlMeritoFacultad.computadosNivel2",
+                "controlMeritoFacultad.computadosNivel3",
+                "controlMeritoFacultad.computadosNivel4",
+                "controlMeritoFacultad.computadosNivel5",
                 "controlMeritoCarrera.alumnosComputados",
+                "controlMeritoCarrera.computadosNivel1",
+                "controlMeritoCarrera.computadosNivel2",
+                "controlMeritoCarrera.computadosNivel3",
+                "controlMeritoCarrera.computadosNivel4",
+                "controlMeritoCarrera.computadosNivel5",
                 /* --- */
                 "orientacionCarrera.id",
                 "orientacionCarrera.nombre",

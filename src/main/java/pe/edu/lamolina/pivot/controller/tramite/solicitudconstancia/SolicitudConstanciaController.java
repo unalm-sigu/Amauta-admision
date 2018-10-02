@@ -59,7 +59,7 @@ public class SolicitudConstanciaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
-        return "";
+        return "tramite/solicitudConstancia";
     }
 
     @ResponseBody

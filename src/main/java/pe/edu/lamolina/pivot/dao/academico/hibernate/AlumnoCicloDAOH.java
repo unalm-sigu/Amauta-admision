@@ -333,14 +333,27 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
-    public void deleteInfoOrdenMeritoByCicloAcademico(CicloAcademico cicloAcademico) {
+    public void deleteControlMeritoByCiclo(CicloAcademico cicloAcademico) {
         StringBuilder sql = new StringBuilder();
 
         sql.append("update AlumnoCiclo set ");
 
         sql.append("controlMeritoCarrera = null, ");
         sql.append("controlMeritoCiclo = null, ");
-        sql.append("controlMeritoFacultad = null, ");
+        sql.append("controlMeritoFacultad = null ");
+
+        sql.append("where cicloAcademico.id = :CICLO");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameter("CICLO", cicloAcademico.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void deleteOrdenMeritoByCiclo(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("update AlumnoCiclo set ");
 
         sql.append("ordenMeritoCarrera = null, ");
         sql.append("ordenMeritoCiclo = null, ");
@@ -389,6 +402,9 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("cicloAcademico ca")
                 .join("controlMeritoCiclo control")
                 .filter("control.id", controlBD)
+                .searchFields("alu.codigo", "car.nombre", "fac.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("ac.ordenMeritoCiclo");
 
         return all(sql);
@@ -402,6 +418,9 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("cicloAcademico ca")
                 .join("controlMeritoCarrera control")
                 .filter("control.id", controlBD)
+                .searchFields("alu.codigo", "car.nombre", "fac.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("ac.ordenMeritoCarrera");
 
         return all(sql);
@@ -415,6 +434,9 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("cicloAcademico ca")
                 .join("controlMeritoFacultad control")
                 .filter("control.id", controlBD)
+                .searchFields("alu.codigo", "car.nombre", "fac.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("ac.ordenMeritoFacultad");
 
         return all(sql);
@@ -429,6 +451,9 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("controlMeritoCiclo control")
                 .filter("nivel", nivel)
                 .filter("control.id", controlBD)
+                .searchFields("alu.codigo", "car.nombre", "fac.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("ac.ordenMeritoCiclo");
 
         return all(sql);
@@ -443,6 +468,9 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("controlMeritoCarrera control")
                 .filter("nivel", nivel)
                 .filter("control.id", controlBD)
+                .searchFields("alu.codigo", "car.nombre", "fac.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("ac.ordenMeritoCiclo");
 
         return all(sql);
@@ -457,6 +485,9 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("controlMeritoFacultad control")
                 .filter("nivel", nivel)
                 .filter("control.id", controlBD)
+                .searchFields("alu.codigo", "car.nombre", "fac.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("ac.ordenMeritoCiclo");
 
         return all(sql);

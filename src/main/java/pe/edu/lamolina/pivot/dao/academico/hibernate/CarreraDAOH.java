@@ -97,7 +97,8 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
                 .filter("ca.id", id);
-        return (Carrera) sql.find(getCurrentSession());
+        
+        return find(sql);
     }
 
     @Override
@@ -106,6 +107,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
                 .filter("ca.nombre", "like", nombre);
+        
         return all(sql);
     }
 
@@ -116,7 +118,8 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .join("modalidadEstudio me", "facultad fa")
                 .filter("me.codigo", codigoEstudio)
                 .filter("ca.nombre", "like", nombre);
-        return sql.all(getCurrentSession());
+        
+        return all(sql);
     }
 
     @Override
@@ -162,7 +165,8 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
                 .orderBy("ca.codigo desc");
-        return sql.all(getCurrentSession());
+        
+        return all(sql);
     }
 
     @Override
@@ -175,7 +179,8 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .filter("car.nombre", "like", nombre)
                 .filter("me.id", modalidadEstudio)
                 .limit(15);
-        return sql.all(getCurrentSession());
+        
+        return all(sql);
     }
 
     @Override
@@ -186,7 +191,8 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .filter("ca.estado", EstadoCarreraEnum.ACT)
                 .filter("me.id", modalidadEstudio)
                 .orderBy("ca.codigo");
-        return sql.all(getCurrentSession());
+        
+        return all(sql);
     }
 
     @Override
@@ -198,7 +204,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .filter("me.id", modalidadEstudio)
                 .orderBy("ca.codigo desc");
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -211,7 +217,8 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .filter("car.nombre", "like", nombre)
                 .in("me.id", modalidadEstudio)
                 .limit(15);
-        return sql.all(getCurrentSession());
+        
+        return all(sql);
     }
 
     @Override
@@ -224,7 +231,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .filter("car.nombre", "like", nombre)
                 .filter("co.id", cia)
                 .limit(15);
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -233,7 +240,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
                 .filter("ca.estado", EstadoCarreraEnum.ACT.name());
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -244,7 +251,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .filter("ca.estado", EstadoCarreraEnum.ACT.name())
                 .in("me.codigo", modalidadesCodes);
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -253,7 +260,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me")
                 .filter("me.codigo", modalidad);
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -263,7 +270,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .join("modalidadEstudio me", "facultad fa")
                 .filter("ca.estado", EstadoCarreraEnum.ACT.name())
                 .filter("me.codigo", modalidad);
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
 }
