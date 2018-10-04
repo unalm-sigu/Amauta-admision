@@ -151,7 +151,15 @@ var app = new Vue({
         fecha: null,
         minFechaPeriodo: null,
         maxFechaPeriodo: null,
-        modulosCombo: {}
+        modulosCombo: {},
+        vecesClon: 1,
+        clonacionModal: {
+            id: 'modalClonacion',
+            header: true,
+            title: '',
+            okbtn: 'Clonar',
+            modalsize: 'modal-sm'
+        },
     },
     created: function () {
         this.grupoSeccion = JSON.parse(gpoSeccionJson);
@@ -974,6 +982,14 @@ var app = new Vue({
         },
         upper(e) {
             e.target.value = e.target.value.toUpperCase()
+        },
+        openClonar(){
+            this.$refs.modalClonacion.open();
+        },
+        clonar(){
+            AXIOS.post(`${APP.url('academico/gposeccion')}/${this.grupoSeccion.id}/clonar/${this.vecesClon}`)
+                .then(response => {
+                })
         }
     }
 });

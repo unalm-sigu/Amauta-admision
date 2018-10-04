@@ -2338,4 +2338,27 @@ public class GpoSeccionController {
         return jsonResponse;
     }
 
+    @ResponseBody
+    @RequestMapping("{gruposeccion}/clonar/{veces}")
+    public JsonResponse clonar(@PathVariable("gruposeccion") Long gruposeccionId, @PathVariable Integer veces, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<GrupoSeccion> gps = service.clonar(new GrupoSeccion(gruposeccionId),veces, ds);
+            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+            for (GrupoSeccion gp : gps) {
+                arr.add(gp.getId());
+            }
+            response.setData(arr);
+            response.setMessage(String.format("%d nuevos registros agregados", veces));
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
 }
