@@ -398,14 +398,8 @@ var app = new Vue({
             bootbox.confirm({
                 message: "¿Está seguro que desea eliminar esta traducción?",
                 buttons: {
-                    confirm: {
-                        label: 'Si, eliminar',
-                        className: 'btn-danger'
-                    },
-                    cancel: {
-                        label: 'Cancelar',
-                        className: 'btn-link'
-                    }
+                    confirm: {label: 'Si, eliminar', className: 'btn-danger'},
+                    cancel: {label: 'Cancelar', className: 'btn-link'}
                 },
                 callback: function (aceptar) {
                     if (aceptar) {
