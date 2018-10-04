@@ -32,13 +32,13 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SistemaNotas;
-import pe.edu.lamolina.pivot.controller.academico.notasacademicas.CargaAcademicaService;
+import pe.edu.lamolina.pivot.controller.academico.notasacademicas.NotaAcademicaService;
 
 @Component
 public class ReporteActasView extends AbstractPOIExcelView {
 
     @Autowired
-    CargaAcademicaService cargaAcademicaService;
+    NotaAcademicaService cargaAcademicaService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";

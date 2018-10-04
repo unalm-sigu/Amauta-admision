@@ -25,7 +25,7 @@ Vue.component("avance-component", {
             if ($vue.alumno.carrera)
                 return 'Avance Curricular en ' + $vue.alumno.carrera.nombre;
             else
-                return '';
+                return 'wwww';
         }
     },
     beforeMount() {

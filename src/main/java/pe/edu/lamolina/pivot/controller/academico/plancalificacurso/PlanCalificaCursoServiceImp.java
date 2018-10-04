@@ -13,12 +13,12 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
-import pe.edu.lamolina.pivot.controller.academico.notasacademicas.CargaAcademicaService;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.controller.academico.notasacademicas.NotaAcademicaService;
 
 @Service
 @Transactional(readOnly = true)
@@ -36,7 +36,7 @@ public class PlanCalificaCursoServiceImp implements PlanCalificaCursoService {
     DocenteSeccionDAO docenteSeccionDAO;
 
     @Autowired
-    CargaAcademicaService cargaAcademicaService;
+    NotaAcademicaService cargaAcademicaService;
 
     @Override
     @Transactional

@@ -83,44 +83,7 @@ public class InfoAcademicoController {
         JsonNodeFactory factory = JsonNodeFactory.instance;
 
         Alumno alumno = service.findWithallInfo(new Alumno(idAlumno));
-        ObjectNode alumnoJson = JsonHelper.createJson(alumno, factory, true, new String[]{
-            "*",
-            "carrera.codigo",
-            "carrera.nombre",
-            "carrera.tipoEnum",
-            "carrera.orientacionCarrera.id",
-            "carrera.orientacionCarrera.nombre",
-            "carrera.facultad.codigo",
-            "carrera.facultad.nombre",
-            "orientacionCarrera.id",
-            "orientacionCarrera.nombre",
-            "cicloIngreso.descripcion",
-            "cicloActivo.descripcion",
-            "cicloActivoRegular.descripcion",
-            "situacionAcademica.codigo",
-            "situacionAcademica.nombre",
-            "postulantePregrado.modalidadIngreso.nombre",
-            "planCurricular.id",
-            "planCurricular.carrera.nombre",
-            "planCurricular.orientacionCarrera.id",
-            "planCurricular.orientacionCarrera.nombre",
-            "planCurricular.cicloInicioVigencia.descripcion",
-            "modalidadEstudio.codigo",
-            "modalidadEstudio.nombre",
-            "postulantePregrado.modalidadIngreso.nombre",
-            "persona.apellidos",
-            "persona.paterno",
-            "persona.materno",
-            "persona.nombres",
-            "persona.sexo",
-            "persona.sexoEnum",
-            "persona.nombreCompleto",
-            "persona.apellidosNombres",
-            "persona.numeroDocIdentidad",
-            "persona.rutaFoto",
-            "persona.tipoFoto",
-            "persona.tipoDocumento.simbolo"
-        });
+        ObjectNode alumnoJson = createAlumnoJson(alumno);
 
         ArrayNode planesJson = new ArrayNode(JsonNodeFactory.instance);
 
@@ -132,9 +95,7 @@ public class InfoAcademicoController {
             planesJson.add(planJson);
         }
 
-        ObjectNode cicloJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{
-            "id", "descripcion", "descripcion2", "modalidadEstudio.*"
-        });
+        ObjectNode cicloJson = createCicloJson(ciclo);
 
         model.addAttribute("alumno", alumnoJson);
         model.addAttribute("ciclo", cicloJson);
@@ -232,20 +193,7 @@ public class InfoAcademicoController {
 
             List<MatriculaCurso> matriculaCursos = service.allCursosMatriculadosByAlumnoCiclo(alumno, ciclo);
             for (MatriculaCurso matriculaCurso : matriculaCursos) {
-                ObjectNode matriCursoJson = JsonHelper.createJson(matriculaCurso, factory, true, new String[]{
-                    "id", "creditos", "creditosAprobados", "estado", "estadoEnum", "notaFinal", "notaAvance",
-                    "curso.codigo",
-                    "curso.nombre",
-                    "curso.tpc",
-                    "curso.tipoCurso",
-                    "curso.departamentoAcademico.nombre",
-                    "matriculaSeccion.seccion.codigo2",
-                    "matriculaSeccion.seccion.tipoSeccion",
-                    "matriculaSeccion.seccion.grupoHoras.codigo",
-                    "matriculaSeccion.seccion.aula.codigo",
-                    "matriculaSeccion.seccion.docenteSeccion.docente.codigo",
-                    "matriculaSeccion.seccion.docenteSeccion.docente.persona.nombreCompleto"
-                });
+                ObjectNode matriCursoJson = createMatriculaCursoJson(matriculaCurso);
                 cursosJson.add(matriCursoJson);
             }
             data.set("cursos", cursosJson);
@@ -256,7 +204,7 @@ public class InfoAcademicoController {
                 "cursosMatriculados"
             }));
 
-            data.set("ciclo", JsonHelper.createJson(ciclo, factory));
+            data.set("ciclo", createCicloJson(ciclo));
             response.setData(data);
             response.setSuccess(Boolean.TRUE);
 
@@ -373,44 +321,7 @@ public class InfoAcademicoController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Alumno alumno = service.findWithallInfo(new Alumno(idAlumno));
-            ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
-                "*",
-                "carrera.codigo",
-                "carrera.nombre",
-                "carrera.tipoEnum",
-                "carrera.orientacionCarrera.id",
-                "carrera.orientacionCarrera.nombre",
-                "carrera.facultad.codigo",
-                "carrera.facultad.nombre",
-                "orientacionCarrera.id",
-                "orientacionCarrera.nombre",
-                "cicloIngreso.descripcion",
-                "cicloActivo.descripcion",
-                "cicloActivoRegular.descripcion",
-                "situacionAcademica.codigo",
-                "situacionAcademica.nombre",
-                "postulantePregrado.modalidadIngreso.nombre",
-                "planCurricular.id",
-                "planCurricular.carrera.nombre",
-                "planCurricular.orientacionCarrera.id",
-                "planCurricular.orientacionCarrera.nombre",
-                "planCurricular.cicloInicioVigencia.descripcion",
-                "modalidadEstudio.codigo",
-                "modalidadEstudio.nombre",
-                "postulantePregrado.modalidadIngreso.nombre",
-                "persona.apellidos",
-                "persona.paterno",
-                "persona.materno",
-                "persona.nombres",
-                "persona.sexo",
-                "persona.sexoEnum",
-                "persona.nombreCompleto",
-                "persona.apellidosNombres",
-                "persona.numeroDocIdentidad",
-                "persona.rutaFoto",
-                "persona.tipoFoto",
-                "persona.tipoDocumento.simbolo"
-            });
+            ObjectNode alumnoJson = createAlumnoJson(alumno);
             response.setData(alumnoJson);
             response.setSuccess(Boolean.TRUE);
 
@@ -528,4 +439,73 @@ public class InfoAcademicoController {
         return response;
     }
 
+    private ObjectNode createAlumnoJson(Alumno alumno) {
+        ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
+            "*",
+            "carrera.codigo",
+            "carrera.nombre",
+            "carrera.tipoEnum",
+            "carrera.orientacionCarrera.id",
+            "carrera.orientacionCarrera.nombre",
+            "carrera.facultad.codigo",
+            "carrera.facultad.nombre",
+            "orientacionCarrera.id",
+            "orientacionCarrera.nombre",
+            "cicloIngreso.descripcion",
+            "cicloActivo.descripcion",
+            "cicloActivoRegular.descripcion",
+            "situacionAcademica.codigo",
+            "situacionAcademica.nombre",
+            "postulantePregrado.modalidadIngreso.nombre",
+            "planCurricular.id",
+            "planCurricular.carrera.nombre",
+            "planCurricular.orientacionCarrera.id",
+            "planCurricular.orientacionCarrera.nombre",
+            "planCurricular.cicloInicioVigencia.descripcion",
+            "modalidadEstudio.codigo",
+            "modalidadEstudio.nombre",
+            "postulantePregrado.modalidadIngreso.nombre",
+            "persona.apellidos",
+            "persona.paterno",
+            "persona.materno",
+            "persona.nombres",
+            "persona.sexo",
+            "persona.sexoEnum",
+            "persona.nombreCompleto",
+            "persona.apellidosNombres",
+            "persona.numeroDocIdentidad",
+            "persona.rutaFoto",
+            "persona.tipoFoto",
+            "persona.tipoDocumento.simbolo"
+        });
+        return alumnoJson;
+    }
+
+    private ObjectNode createCicloJson(CicloAcademico ciclo) {
+        ObjectNode cicloJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{
+            "id", "codigo", "tipo", "descripcion", "descripcion2",
+            "modalidadEstudio.id",
+            "modalidadEstudio.codigo",
+            "modalidadEstudio.nombre"
+        });
+        return cicloJson;
+    }
+
+    private ObjectNode createMatriculaCursoJson(MatriculaCurso matriculaCurso) {
+        ObjectNode matriCursoJson = JsonHelper.createJson(matriculaCurso, JsonNodeFactory.instance, true, new String[]{
+            "id", "creditos", "creditosAprobados", "estado", "estadoEnum", "notaFinal", "notaAvance",
+            "curso.codigo",
+            "curso.nombre",
+            "curso.tpc",
+            "curso.tipoCurso",
+            "curso.departamentoAcademico.nombre",
+            "matriculaSeccion.seccion.codigo2",
+            "matriculaSeccion.seccion.tipoSeccion",
+            "matriculaSeccion.seccion.grupoHoras.codigo",
+            "matriculaSeccion.seccion.aula.codigo",
+            "matriculaSeccion.seccion.docenteSeccion.docente.codigo",
+            "matriculaSeccion.seccion.docenteSeccion.docente.persona.nombreCompleto"
+        });
+        return matriCursoJson;
+    }
 }

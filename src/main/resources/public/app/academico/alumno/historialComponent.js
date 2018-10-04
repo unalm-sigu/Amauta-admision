@@ -56,51 +56,196 @@ Vue.component("historial-component", {
             }
             return true;
         },
-        tieneMeritoCiclo(item) {
-            if (item.cuadroHonorCiclo == "" && item.quintoSuperiorCiclo == "" && item.tercioSuperiorCiclo == "") {
-                return false;
+        tieneMerito(tipo, item) {
+            if (tipo == "CICLO") {
+                if (item.cuadroHonorCiclo == "" && item.quintoSuperiorCiclo == "" && item.tercioSuperiorCiclo == "") {
+                    return false;
+                }
+                return true;
+            } else if (tipo == "FAC") {
+                if (item.cuadroHonorFacultad == "" && item.quintoSuperiorFacultad == "" && item.tercioSuperiorFacultad == "") {
+                    return false;
+                }
+                return true;
+            } else if (tipo == "CARR") {
+                if (item.cuadroHonorCarrera == "" && item.quintoSuperiorCarrera == "" && item.tercioSuperiorCarrera == "") {
+                    return false;
+                }
+                return true;
             }
-            return true;
+            return false;
         },
-        tieneMeritoFacultad(item) {
-            if (item.cuadroHonorFacultad == "" && item.quintoSuperiorFacultad == "" && item.tercioSuperiorFacultad == "") {
-                return false;
+        tieneMeritoNivel(tipo, item) {
+            if (tipo == "CICLO") {
+                if (item.cuadroHonorCicloNivel == "" && item.quintoSuperiorCicloNivel == "" && item.tercioSuperiorCicloNivel == "") {
+                    return false;
+                }
+                return true;
+            } else if (tipo == "FAC") {
+                if (item.cuadroHonorFacultadNivel == "" && item.quintoSuperiorFacultadNivel == "" && item.tercioSuperiorFacultadNivel == "") {
+                    return false;
+                }
+                return true;
+            } else if (tipo == "CARR") {
+                if (item.cuadroHonorCarreraNivel == "" && item.quintoSuperiorCarreraNivel == "" && item.tercioSuperiorCarreraNivel == "") {
+                    return false;
+                }
+                return true;
             }
-            return true;
+            return false;
         },
-        tieneMeritoCarrera(item) {
-            if (item.cuadroHonorCarrera == "" && item.quintoSuperiorCarrera == "" && item.tercioSuperiorCarrera == "") {
-                return false;
-            }
-            return true;
-        },
-        getMeritoCiclo(item) {
-            if (item.cuadroHonorCiclo !== "") {
-                return "C.Honor";
-            } else if (item.quintoSuperiorCiclo !== "") {
-                return "5to.Super.";
-            } else if (item.tercioSuperiorCiclo !== "") {
-                return "3cio.Super.";
+        getOrdenMerito(tipo, item) {
+            let separator = "/";
+            if (tipo == "CICLO") {
+                if (item.cuadroHonorCiclo !== "") {
+                    return item.cuadroHonorCiclo + separator + item.controlMeritoCiclo.alumnosComputados;
+                } else if (item.quintoSuperiorCiclo !== "") {
+                    return item.quintoSuperiorCiclo + separator + item.controlMeritoCiclo.alumnosComputados;
+                } else if (item.tercioSuperiorCiclo !== "") {
+                    return item.tercioSuperiorCiclo + separator + item.controlMeritoCiclo.alumnosComputados;
+                }
+            } else if (tipo == "FAC") {
+                if (item.cuadroHonorFacultad !== "") {
+                    return item.cuadroHonorFacultad + separator + item.controlMeritoFacultad.alumnosComputados;
+                } else if (item.quintoSuperiorFacultad !== "") {
+                    return item.quintoSuperiorFacultad + separator + item.controlMeritoFacultad.alumnosComputados;
+                } else if (item.tercioSuperiorFacultad !== "") {
+                    return item.tercioSuperiorFacultad + separator + item.controlMeritoFacultad.alumnosComputados;
+                }
+            } else if (tipo == "CARR") {
+                if (item.cuadroHonorCarrera !== "") {
+                    return item.cuadroHonorCarrera + separator + item.controlMeritoCarrera.alumnosComputados;
+                } else if (item.quintoSuperiorCarrera !== "") {
+                    return item.quintoSuperiorCarrera + separator + item.controlMeritoCarrera.alumnosComputados;
+                } else if (item.tercioSuperiorCarrera !== "") {
+                    return item.tercioSuperiorCarrera + separator + item.controlMeritoCarrera.alumnosComputados;
+                }
             }
             return "";
         },
-        getMeritoFacultad(item) {
-            if (item.cuadroHonorFacultad !== "") {
-                return "C.Honor";
-            } else if (item.quintoSuperiorFacultad !== "") {
-                return "5to.Super.";
-            } else if (item.tercioSuperiorFacultad !== "") {
-                return "3cio.Super.";
+        getOrdenMeritoNivel(tipo, item) {
+            let $vue = this;
+            let separator = "/";
+            if (tipo == "CICLO") {
+                if (item.cuadroHonorCicloNivel !== "") {
+                    return item.cuadroHonorCiclo + separator + $vue.getComputados(tipo, item);
+                } else if (item.quintoSuperiorCicloNivel !== "") {
+                    return item.quintoSuperiorCicloNivel + separator + $vue.getComputados(tipo, item);
+                } else if (item.tercioSuperiorCicloNivel !== "") {
+                    return item.tercioSuperiorCicloNivel + separator + $vue.getComputados(tipo, item);
+                }
+            } else if (tipo == "FAC") {
+                if (item.cuadroHonorFacultadNivel !== "") {
+                    return item.cuadroHonorFacultadNivel + separator + $vue.getComputados(tipo, item);
+                } else if (item.quintoSuperiorFacultadNivel !== "") {
+                    return item.quintoSuperiorFacultadNivel + separator + $vue.getComputados(tipo, item);
+                } else if (item.tercioSuperiorFacultadNivel !== "") {
+                    return item.tercioSuperiorFacultadNivel + separator + $vue.getComputados(tipo, item);
+                }
+            } else if (tipo == "CARR") {
+                if (item.cuadroHonorCarreraNivel !== "") {
+                    return item.cuadroHonorCarreraNivel + separator + $vue.getComputados(tipo, item);
+                } else if (item.quintoSuperiorCarreraNivel !== "") {
+                    return item.quintoSuperiorCarreraNivel + separator + $vue.getComputados(tipo, item);
+                } else if (item.tercioSuperiorCarreraNivel !== "") {
+                    return item.tercioSuperiorCarreraNivel + separator + $vue.getComputados(tipo, item);
+                }
             }
             return "";
         },
-        getMeritoCarrera(item) {
-            if (item.cuadroHonorCarrera !== "") {
-                return "C.Honor";
-            } else if (item.quintoSuperiorCarrera !== "") {
-                return "5to.Super.";
-            } else if (item.tercioSuperiorCarrera !== "") {
-                return "3cio.Super.";
+        getComputados(tipo, item) {
+            if (tipo == "CICLO") {
+                if (item.nivel == 1) {
+                    return item.controlMeritoCiclo.computadosNivel1;
+                } else if (item.nivel == 2) {
+                    return item.controlMeritoCiclo.computadosNivel2;
+                } else if (item.nivel == 3) {
+                    return item.controlMeritoCiclo.computadosNivel3;
+                } else if (item.nivel == 4) {
+                    return item.controlMeritoCiclo.computadosNivel4;
+                } else if (item.nivel == 5) {
+                    return item.controlMeritoCiclo.computadosNivel5;
+                }
+            } else if (tipo == "FAC") {
+                if (item.nivel == 1) {
+                    return item.controlMeritoFacultad.computadosNivel1;
+                } else if (item.nivel == 2) {
+                    return item.controlMeritoFacultad.computadosNivel2;
+                } else if (item.nivel == 3) {
+                    return item.controlMeritoFacultad.computadosNivel3;
+                } else if (item.nivel == 4) {
+                    return item.controlMeritoFacultad.computadosNivel4;
+                } else if (item.nivel == 5) {
+                    return item.controlMeritoFacultad.computadosNivel5;
+                }
+            } else if (tipo == "CARR") {
+                if (item.nivel == 1) {
+                    return item.controlMeritoCarrera.computadosNivel1;
+                } else if (item.nivel == 2) {
+                    return item.controlMeritoCarrera.computadosNivel2;
+                } else if (item.nivel == 3) {
+                    return item.controlMeritoCarrera.computadosNivel3;
+                } else if (item.nivel == 4) {
+                    return item.controlMeritoCarrera.computadosNivel4;
+                } else if (item.nivel == 5) {
+                    return item.controlMeritoCarrera.computadosNivel5;
+                }
+            }
+            return "";
+        },
+        getMerito(tipo, item) {
+            if (tipo == "CICLO") {
+                if (item.cuadroHonorCiclo !== "") {
+                    return "C.Honor";
+                } else if (item.quintoSuperiorCiclo !== "") {
+                    return "5to.Super.";
+                } else if (item.tercioSuperiorCiclo !== "") {
+                    return "3cio.Super.";
+                }
+            } else if (tipo == "FAC") {
+                if (item.cuadroHonorFacultad !== "") {
+                    return "C.Honor";
+                } else if (item.quintoSuperiorFacultad !== "") {
+                    return "5to.Super.";
+                } else if (item.tercioSuperiorFacultad !== "") {
+                    return "3cio.Super.";
+                }
+            } else if (tipo == "CARR") {
+                if (item.cuadroHonorCarrera !== "") {
+                    return "C.Honor";
+                } else if (item.quintoSuperiorCarrera !== "") {
+                    return "5to.Super.";
+                } else if (item.tercioSuperiorCarrera !== "") {
+                    return "3cio.Super.";
+                }
+            }
+            return "";
+        },
+        getMeritoNivel(tipo, item) {
+            if (tipo == "CICLO") {
+                if (item.cuadroHonorCicloNivel !== "") {
+                    return "C.Honor";
+                } else if (item.quintoSuperiorCicloNivel !== "") {
+                    return "5to.Super.";
+                } else if (item.tercioSuperiorCicloNivel !== "") {
+                    return "3cio.Super.";
+                }
+            } else if (tipo == "FAC") {
+                if (item.cuadroHonorFacultadNivel !== "") {
+                    return "C.Honor";
+                } else if (item.quintoSuperiorFacultadNivel !== "") {
+                    return "5to.Super.";
+                } else if (item.tercioSuperiorFacultadNivel !== "") {
+                    return "3cio.Super.";
+                }
+            } else if (tipo == "CARR") {
+                if (item.cuadroHonorCarreraNivel !== "") {
+                    return "C.Honor";
+                } else if (item.quintoSuperiorCarreraNivel !== "") {
+                    return "5to.Super.";
+                } else if (item.tercioSuperiorCarreraNivel !== "") {
+                    return "3cio.Super.";
+                }
             }
             return "";
         },

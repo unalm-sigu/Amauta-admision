@@ -52,44 +52,24 @@ public class MatriculableConmectorImp implements MatriculableConnector {
     EgresadoDAO egresadoDAO;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    public void procesarPrioridadAlumno(MatriculaResumen matriculaResumen) {
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(matriculaResumen.getAlumno());
+    @Transactional
+    public void procesarPrioridadAlumno(MatriculaResumen matriculaResumen, AlumnoCiclo alumnoCiclo) {
+        BigDecimal capa = new BigDecimal(alumnoCiclo.getCreditosAprobadosAcumulados());
+        BigDecimal cca = new BigDecimal(alumnoCiclo.getCreditosAcumulados());
+        BigDecimal caps = new BigDecimal(alumnoCiclo.getCreditosAprobadosCiclo());
+        BigDecimal ccs = new BigDecimal(alumnoCiclo.getCreditosCursadosCiclo());
 
-        if (matriculaResumen.getAlumno().getSituacionAcademica().isCodigoS8()) {
-            MatriculaResumen matriculaResumenUpd = new MatriculaResumen();
-
-            matriculaResumenUpd.setId(matriculaResumen.getId());
-            matriculaResumenUpd.setPuntajePrioridad(BigDecimal.valueOf(6000));
-
-            matriculaResumenDAO.updatePuntajePrioridad(matriculaResumenUpd);
+        if (alumnoCiclo.getCreditosAcumulados().compareTo(BigDecimal.ZERO.intValue()) == 0
+                || alumnoCiclo.getCreditosCursadosCiclo().compareTo(BigDecimal.ZERO.intValue()) == 0) {
             return;
         }
-        if (alumnoCiclo != null) {
-            if (alumnoCiclo.getCreditosAcumulados().compareTo(BigDecimal.ZERO.intValue()) == 0
-                    || alumnoCiclo.getCreditosCursadosCiclo().compareTo(BigDecimal.ZERO.intValue()) == 0) {
-                logger.debug("capa 0");
-                return;
-            }
 
-            logger.debug("registro {}", matriculaResumen.getAlumno().getCicloActivo().getDescripcion());
-            BigDecimal capa = new BigDecimal(matriculaResumen.getAlumno().getCreditosAprobados());
-            BigDecimal cca = new BigDecimal(alumnoCiclo.getCreditosAcumulados());
-
-            BigDecimal caps = new BigDecimal(alumnoCiclo.getCreditosAprobadosCiclo());
-            BigDecimal ccs = new BigDecimal(alumnoCiclo.getCreditosCursadosCiclo());
-
-            BigDecimal factor1 = capa.divide(cca, 12, RoundingMode.HALF_UP);
-            BigDecimal factor2 = caps.divide(ccs, 12, RoundingMode.HALF_UP);
-
-            MatriculaResumen matriculaResumenUpd = new MatriculaResumen();
-            BigDecimal resultFactor = factor1.multiply(factor2);
-            resultFactor = resultFactor.multiply(alumnoCiclo.getPromedioCiclo());
-            matriculaResumenUpd.setId(matriculaResumen.getId());
-            matriculaResumenUpd.setPuntajePrioridad(resultFactor);
-
-            matriculaResumenDAO.updatePuntajePrioridad(matriculaResumenUpd);
-        }
+        BigDecimal factor1 = capa.divide(cca, 12, RoundingMode.HALF_UP);
+        BigDecimal factor2 = caps.divide(ccs, 12, RoundingMode.HALF_UP);
+        BigDecimal puntajePrioridad = factor1.multiply(factor2);
+        puntajePrioridad = puntajePrioridad.multiply(alumnoCiclo.getPromedioCiclo());
+        
+        matriculaResumen.setPuntajePrioridad(puntajePrioridad);
     }
 
     @Override

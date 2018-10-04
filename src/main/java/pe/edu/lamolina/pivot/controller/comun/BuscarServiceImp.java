@@ -117,6 +117,7 @@ public class BuscarServiceImp implements BuscarService {
     public List<Empresa> allEmpresaByName(Pais pais, String nombre) {
         return empresaDAO.allEmpresaByName(pais, this.forLike(nombre));
     }
+   
 
     @Override
     public List<SituacionAcademica> allSituaciones() {

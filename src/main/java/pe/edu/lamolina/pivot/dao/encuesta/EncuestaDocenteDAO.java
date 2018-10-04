@@ -26,5 +26,6 @@ public interface EncuestaDocenteDAO extends EasyDAO<EncuestaDocente> {
 
     EncuestaDocente findByDocenteSeccion(DocenteSeccion get);
 
+    List<EncuestaDocente> allByDynatableDocente(DynatableFilter filter, CicloAcademico ciclo, Docente docente);
 
 }

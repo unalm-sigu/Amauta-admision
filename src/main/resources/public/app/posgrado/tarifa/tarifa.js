@@ -26,6 +26,9 @@ new Vue({
         })
     },
     methods: {
+        verCarrera(item) {
+            return item.tipoEnum.name + " - " + item.nombre;
+        },
         reload() {
             this.$refs.raptor.loadRemoteData();
         },

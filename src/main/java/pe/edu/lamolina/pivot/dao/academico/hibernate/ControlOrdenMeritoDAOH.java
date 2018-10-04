@@ -21,9 +21,6 @@ public class ControlOrdenMeritoDAOH extends AbstractEasyDAO<ControlOrdenMerito> 
 
     @Override
     public List<ControlOrdenMerito> allByDynatableCicloAcademico(DynatableFilter filter, CicloAcademico cicloAcademico) {
-        System.out.println(cicloAcademico.getDescripcion2());
-        System.out.println(cicloAcademico.getDescripcion2());
-        System.out.println(cicloAcademico.getDescripcion2());
         DynatableSql sql = new DynatableSql(filter)
                 .from(ControlOrdenMerito.class, "com")
                 .join("cicloAcademico ca")

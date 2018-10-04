@@ -2,7 +2,7 @@ $(function () {
 
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
-            ajaxUrl: APP.url('academico/docente/cargaacademica/list'),
+            ajaxUrl: APP.url('academico/docente/notasacademica/list'),
             perPageDefault: 100,
             recordCountText: '{x} to {y} out of {z} {params.records}'
         },
@@ -92,11 +92,11 @@ $(function () {
             /*             * 
              +
              '<a class="btn btn-danger new-sis-calificacion pull-left">Solicita modificación</a>'
-             url: APP.url('academico/docente/cargaacademica/' + rec.idSistemaCalificacion + "/" + rec.id + '/aceptarSistemaCalificacion'),
+             url: APP.url('academico/docente/notasacademica/' + rec.idSistemaCalificacion + "/" + rec.id + '/aceptarSistemaCalificacion'),
              */
             MODAL.body('');
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + rec.id + '/aceptarSistemaCalificacion'),
+                url: APP.url('academico/docente/notasacademica/' + rec.id + '/aceptarSistemaCalificacion'),
                 type: 'POST',
                 async: false,
                 success: function (response) {
@@ -123,7 +123,7 @@ $(function () {
                 MODAL.buttons('<a class="btn btn-danger" id="cmbRechazar">Aceptar rechazo</a>');
             }
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + plan + "/" + rec.id + '/detalleSistemaCalificacion'),
+                url: APP.url('academico/docente/notasacademica/' + plan + "/" + rec.id + '/detalleSistemaCalificacion'),
                 type: 'POST',
                 async: false,
                 success: function (response) {
@@ -153,7 +153,7 @@ $(function () {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
-                            url: APP.url('academico/docente/cargaacademica/aceptarPropuesta'),
+                            url: APP.url('academico/docente/notasacademica/aceptarPropuesta'),
                             type: 'POST',
                             async: true,
                             data:
@@ -190,7 +190,7 @@ $(function () {
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 }, callback: function (result) {
                     if (result) {
-                        location.href = APP.url("academico/docente/cargaacademica/expandir/" + $("#txtSeccion").val());
+                        location.href = APP.url("academico/docente/notasacademica/expandir/" + $("#txtSeccion").val());
                     }
                 }
             });
@@ -200,14 +200,14 @@ $(function () {
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
             var rec = dynatable.settings.dataset.records[idx];
-            location.href = APP.url("academico/docente/cargaacademica/expandir/" + rec.id);
+            location.href = APP.url("academico/docente/notasacademica/expandir/" + rec.id);
         },
         notasAcademicas: function ($this, e) {
             var tr = $this.closest("tr");
             var idx = $this.attr("rel");
             //var rec = dynatable.settings.dataset.records[idx];
 
-            location.href = APP.url('academico/docente/cargaacademica/') + idx + '/notasAcademicas';
+            location.href = APP.url('academico/docente/notasacademica/') + idx + '/notasAcademicas';
         },
         verAlumnos: function ($this, e) {
             var tr = $this.closest("tr");
@@ -216,7 +216,7 @@ $(function () {
         },
         verNuevoSC: function (e) {
             e.preventDefault();
-            location.href = APP.url("academico/docente/cargaacademica/nuevo/" + $("#txtGrupo").val());
+            location.href = APP.url("academico/docente/notasacademica/nuevo/" + $("#txtGrupo").val());
         },
         noVerAlumnos: function ($this, e) {
             notify("Usted no es docente de esta clave", "error");
@@ -249,7 +249,7 @@ $(function () {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
-                            url: APP.url('academico/docente/cargaacademica/aceptarRechazo'),
+                            url: APP.url('academico/docente/notasacademica/aceptarRechazo'),
                             type: 'POST',
                             async: true,
                             data: {
@@ -328,7 +328,7 @@ $(function () {
                         var rec = dynatable.settings.dataset.records[idx];
 
                         $.ajax({
-                            url: APP.url('academico/docente/cargaacademica/desvincularPlanCalificacion'),
+                            url: APP.url('academico/docente/notasacademica/desvincularPlanCalificacion'),
                             type: 'POST',
                             async: true,
                             data: {
@@ -389,7 +389,7 @@ $(function () {
             var cboSistemaAceptar = $this.val();
 
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + $("#txtGrupo").val() + '/ aceptarSistemaCalificacion'),
+                url: APP.url('academico/docente/notasacademica/' + $("#txtGrupo").val() + '/ aceptarSistemaCalificacion'),
                 type: 'POST',
                 async: false,
                 data: {planCalificacion: cboSistemaAceptar},

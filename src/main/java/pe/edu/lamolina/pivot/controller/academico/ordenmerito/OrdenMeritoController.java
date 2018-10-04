@@ -27,7 +27,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlOrdenMerito;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.pivot.controller.academico.ordenmeritoegresados.OrdenMeritoEgresadosService;
 
 @Controller
 @RequestMapping("academico/ordenmerito")
@@ -94,7 +93,12 @@ public class OrdenMeritoController {
                 "alumnosComputados",
                 "noComputados",
                 "alumnosCompletos",
-                "alumnosIncompletos"
+                "alumnosIncompletos",
+                "computadosNivel1",
+                "computadosNivel2",
+                "computadosNivel3",
+                "computadosNivel4",
+                "computadosNivel5"
             }));
         }
 
@@ -111,13 +115,13 @@ public class OrdenMeritoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
-        List<AlumnoCiclo> list = service.allAlumnoCicloByControlNivel(filter, new ControlOrdenMerito(id), nivel);
+        List<AlumnoCiclo> alumnosCiclo = service.allAlumnoCicloByControlNivel(filter, new ControlOrdenMerito(id), nivel);
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-        for (AlumnoCiclo item : list) {
-            array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+        for (AlumnoCiclo aluCiclo : alumnosCiclo) {
+            array.add(JsonHelper.createJson(aluCiclo, JsonNodeFactory.instance, new String[]{
                 "creditosAcumulados", "creditosConvalidados", "nivel",
-                "alumno.persona.nombreCompleto",
+                "alumno.persona.apellidosNombres",
                 "alumno.codigo",
                 "carrera.nombre",
                 "carrera.codigo",

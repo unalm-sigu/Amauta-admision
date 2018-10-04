@@ -208,13 +208,13 @@
                                             <td class="v-middle b-l">Promedio ponderado</td>
                                             <td class="v-middle" v-text="verNota(tab.promedioAcumulado)"></td>
                                             <td class="text-center v-middle b-l">
-                                                <span v-if="tieneMeritoCiclo(tab)" v-text="getMeritoCiclo(tab)"></span>
+                                                <span v-if="tieneMerito('CICLO',tab)" v-text="getMerito('CICLO',tab)"></span>
                                             </td>
                                             <td class="text-center v-middle b-l">
-                                                <span v-if="tieneMeritoFacultad(tab)" v-text="getMeritoFacultad(tab)"></span>
+                                                <span v-if="tieneMerito('FAC',tab)" v-text="getMerito('FAC',tab)"></span>
                                             </td>
                                             <td class="text-center v-middle b-l" v-if="verCarrera(tab)">
-                                                <span v-if="tieneMeritoCarrera(tab)" v-text="getMeritoCarrera(tab)"></span>
+                                                <span v-if="tieneMerito('CARR',tab)" v-text="getMerito('CARR',tab)"></span>
                                             </td>
                                         </tr>
 
@@ -308,9 +308,12 @@
                 <thead>
                     <tr>
                         <th rowspan="2" class="v-middle text-center">Ciclo</th>
-                        <th rowspan="2" class="v-middle text-center">Situación Académica</th>
-                        <th colspan="3" class="v-middle text-center">Mérito Alcanzado</th>
-                        <th colspan="4" class="v-middle text-center">Semestral</th>
+                        <th rowspan="2" class="v-middle text-center">
+                            Situación Académica <br/> Nivel
+                        </th>
+                        <th colspan="3" class="v-middle text-center">Mérito Alcanzado - Nivel</th>
+                        <th colspan="3" class="v-middle text-center">Mérito Alcanzado - General</th>
+                        <th colspan="5" class="v-middle text-center">Semestral</th>
                         <th colspan="4" class="v-middle text-center">Acumulado</th>
 
                     </tr>
@@ -318,8 +321,12 @@
                         <th class="v-middle text-center col-md-1">Ciclo</th>
                         <th class="v-middle text-center col-md-1">Facultad</th>
                         <th class="v-middle text-center col-md-1">Especial.</th>
+                        <th class="v-middle text-center col-md-1">Ciclo</th>
+                        <th class="v-middle text-center col-md-1">Facultad</th>
+                        <th class="v-middle text-center col-md-1">Especial.</th>
                         <th class="v-middle text-center">Créd Cur</th>
                         <th class="v-middle text-center">Créd Apr</th>
+                        <th class="v-middle text-center">Créd Conv</th>
                         <th class="v-middle text-center">Pje</th>
                         <th class="v-middle text-center">Prom</th>
                         <th class="v-middle text-center">Créd Cur</th>
@@ -334,29 +341,48 @@
                         <td class="v-middle">
                             <span class="block">{{tab.cicloAcademico.descripcion}} {{tab.cicloAcademico.tipoEnum.value}}</span>
                             <small class="block">{{tab.estadoEnum.value}}</small>
-                            <small class="block text-primary">{{tab.carrera.nombre}}</small>
+                            <!--<small class="block text-primary">{{tab.carrera.nombre}}</small>-->
                         </td>
 
                         <td class="v-middle" colspan="12"
                             v-if="!verCiclo(tab)"></td>
 
-                        <td class="v-middle" v-if="verCiclo(tab)"
-                            v-text="tab.situacionFinal.nombre"></td>
+                        <td class="v-middle" v-if="verCiclo(tab)">
+                            <span v-text="tab.situacionFinal.nombre" class="block"></span>
+                            <span v-text="'Nivel ' + tab.nivel" class="block"></span>
+                        </td>
 
                         <td class="v-middle text-center b-l" v-if="verCiclo(tab)">
-                            <span v-if="tab.ordenMeritoCiclo != '' " class="block">{{tab.ordenMeritoCiclo}} de {{tab.controlMeritoCiclo.alumnosComputados}}</span>
-                            <small v-if="tieneMeritoCiclo(tab)" class="block">{{getMeritoCiclo(tab)}}</small>
+                            <span v-if="tab.ordenMeritoCiclo != '' " class="block" v-text="getOrdenMeritoNivel('CICLO',tab)"></span>
+                            <small v-if="tieneMeritoNivel('CICLO',tab)" class="block" v-text="getMeritoNivel('CICLO',tab)"></small>
                         </td>
 
                         <td class="v-middle text-center" v-if="verCiclo(tab)">
-                            <span v-if="tab.ordenMeritoFacultad != '' " class="block">{{tab.ordenMeritoFacultad}} de {{tab.controlMeritoFacultad.alumnosComputados}}</span>
-                            <small v-if="tieneMeritoFacultad(tab)" class="block">{{getMeritoFacultad(tab)}}</small>
+                            <span v-if="tab.ordenMeritoFacultad != '' " class="block" v-text="getOrdenMeritoNivel('FAC',tab)"></span>
+                            <small v-if="tieneMeritoNivel('FAC',tab)" class="block" v-text="getMeritoNivel('FAC',tab)"></small>
                         </td>
 
                         <td class="v-middle text-center" v-if="verCiclo(tab)">
                             <span v-if="verCarrera(tab)">
-                                <span v-if="tab.ordenMeritoCarrera != '' " class="block">{{tab.ordenMeritoCarrera}} de {{tab.controlMeritoCarrera.alumnosComputados}}</span>
-                                <small v-if="tieneMeritoCarrera(tab)" class="block">{{getMeritoCarrera(tab)}}</small>
+                                <span v-if="tab.ordenMeritoCarrera != '' " class="block" v-text="getOrdenMeritoNivel('CARR',tab)"></span>
+                                <small v-if="tieneMeritoNivel('CARR',tab)" class="block" v-text="getMeritoNivel('CARR',tab)"></small>
+                            </span>
+                        </td>
+
+                        <td class="v-middle text-center b-l" v-if="verCiclo(tab)">
+                            <span v-if="tab.ordenMeritoCiclo != '' " class="block" v-text="getOrdenMerito('CICLO',tab)"></span>
+                            <small v-if="tieneMerito('CICLO',tab)" class="block" v-text="getMerito('CICLO',tab)"></small>
+                        </td>
+
+                        <td class="v-middle text-center" v-if="verCiclo(tab)">
+                            <span v-if="tab.ordenMeritoFacultad != '' " class="block" v-text="getOrdenMerito('FAC',tab)"></span>
+                            <small v-if="tieneMerito('FAC',tab)" class="block" v-text="getMerito('FAC',tab)"></small>
+                        </td>
+
+                        <td class="v-middle text-center" v-if="verCiclo(tab)">
+                            <span v-if="verCarrera(tab)">
+                                <span v-if="tab.ordenMeritoCarrera != '' " class="block" v-text="getOrdenMerito('CARR',tab)"></span>
+                                <small v-if="tieneMerito('CARR',tab)" class="block" v-text="getMerito('CARR',tab)"></small>
                             </span>
                         </td>
 
@@ -367,6 +393,10 @@
                         <td class="v-middle text-center" 
                             v-if="verCiclo(tab)"
                             v-text="tab.creditosAprobadosCiclo"></td>
+
+                        <td class="v-middle text-center" 
+                            v-if="verCiclo(tab)"
+                            v-text="tab.creditosConvalidados"></td>
 
                         <td class="v-middle text-center"
                             v-if="verCiclo(tab)"
