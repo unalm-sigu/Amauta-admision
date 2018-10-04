@@ -91,7 +91,7 @@ public class TarifaServiceImp implements TarifaService {
         tarifaBD.setCreditosMinimo(tc.getCreditosMinimo());
         tarifaBD.setDescuentoCash(tc.getDescuentoCash());
         tarifaBD.setDescuentoSegundoCash(tc.getDescuentoSegundoCash());
-        tarifaBD.setIntereses(tc.getIntereses());
+        tarifaBD.setTasaInteres(tc.getTasaInteres());
         tarifaBD.setMaximoCuotas(tc.getMaximoCuotas());
         tarifaBD.setMonto(tc.getMonto());
         tarifaBD.setMora(tc.getMora());
