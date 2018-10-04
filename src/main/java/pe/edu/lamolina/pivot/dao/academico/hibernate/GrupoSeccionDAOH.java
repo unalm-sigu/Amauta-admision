@@ -98,18 +98,28 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
     @Override
     public List<String> allCodigoByCiclo(CicloAcademico cicloAcademico) {
-        /*  Octavia sql = Octavia.query()
-                .from(GrupoSeccion.class, "gs")
-                .join("cicloAcademico ca")
-                .filter("ca.id", cicloAcademico)
-                .orderBy("gs.id desc")
-                .limit(1);
-             return find(sql);*/
 
         StringBuilder strb = new StringBuilder();
-        strb.append("Select gs.codigo from GrupoSeccion gs ");
-        strb.append(" join gs.cicloAcademico cs ");
-        strb.append(" where cs.id=:prm_ciclo ");
+        strb.append("Select gs.codigo ");
+        strb.append("  from GrupoSeccion gs ");
+        strb.append("  join gs.cicloAcademico cs ");
+        strb.append(" where cs.id = :prm_ciclo ");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_ciclo", cicloAcademico.getId());
+
+        return query.list();
+    }
+
+    @Override
+    public List<String> allCodigo2ByCiclo(CicloAcademico cicloAcademico) {
+
+        StringBuilder strb = new StringBuilder();
+        strb.append("Select distinct substring(s.codigo2,1,3) as codigo ");
+        strb.append("  from Seccion s ");
+        strb.append("  join s.grupoSeccion gs ");
+        strb.append("  join gs.cicloAcademico cs ");
+        strb.append(" where cs.id = :prm_ciclo ");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("prm_ciclo", cicloAcademico.getId());

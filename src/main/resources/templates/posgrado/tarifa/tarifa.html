@@ -11,8 +11,7 @@
                     <a class="btn btn-success pull-right" v-on:click="nuevo">
                         Nuevo
                     </a>
-                    <h2 th:inline="text"> Tarifas  </h2>
-                    <h4 class="block" th:text="${session.SESSION_USUARIO.cicloAcademico.descripcion2}"></h4>
+                    <h2 th:inline="text"> Tarifas Programas Posgrado </h2>
                 </header>
                 <section class="wrapper-lg">
                     <section class="panel">
@@ -80,7 +79,12 @@
                                                 v-model="tarifa.carrera"
                                                 v-bind:options="carreras"
                                                 v-bind:show-labels="false"
-                                                v-bind:limit="15">
+                                                v-bind:limit="15"
+                                                v-bind:custom-label="verCarrera">
+                                                <template slot="option" slot-scope="props">
+                                                    <div class="block bold" v-text="props.option.nombre"></div>
+                                                    <small class="block" v-text="props.option.tipoEnum.value"></small>
+                                                </template>
                                             </multiselect>
                                         </div>
                                     </div>
@@ -116,13 +120,13 @@
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Monto </label>
+                                            <label> Monto Base</label>
                                             <input class="form-control numeric" v-model="tarifa.monto"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Máximo cuotas </label>
+                                            <label> Cant. máxima de cuotas </label>
                                             <input class="form-control numeric" v-model="tarifa.maximoCuotas"/>
                                         </div>
                                     </div>
@@ -130,25 +134,25 @@
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Descuento cash (%) </label>
+                                            <label> Dscto. por pago total (%) </label>
                                             <input class="form-control numeric" v-model="tarifa.descuentoCash"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Descuento segundo cash (%) </label>
+                                            <label> Dscto. por 2do pago total (%) </label>
                                             <input class="form-control numeric" v-model="tarifa.descuentoSegundoCash"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Intereses </label>
+                                            <label> Intereses (%) </label>
                                             <input class="form-control numeric" v-model="tarifa.intereses"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Mora </label>
+                                            <label> Mora (%) </label>
                                             <input class="form-control numeric" v-model="tarifa.mora"/>
                                         </div>
                                     </div>
@@ -156,25 +160,25 @@
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Créditos mínimo </label>
+                                            <label> Mín. créd. p/monto base </label>
                                             <input class="form-control numeric" v-model="tarifa.creditosMinimo"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Créditos máximo </label>
+                                            <label> Máx. créd. p/monto base </label>
                                             <input class="form-control numeric" v-model="tarifa.creditosMaximo"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Costo créditos mínimo </label>
+                                            <label> Costo/créd. debajo del mín. </label>
                                             <input class="form-control numeric" v-model="tarifa.costoCreditoMinimo"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Costo créditos exceso </label>
+                                            <label> Costo/créd. encima del máx. </label>
                                             <input class="form-control numeric" v-model="tarifa.costoCreditoExceso"/>
                                         </div>
                                     </div>
@@ -184,12 +188,12 @@
                                         <table class="table table-striped table-condensed">
                                             <thead>
                                                 <tr>
-                                                    <th class="col-md-3">Concepto</th>
-                                                    <th class="col-md-2">Monto (S/.)</th>
-                                                    <th class="col-md-2">Monto mínimo inicial (S/.)</th>
-                                                    <th class="col-md-2">Porcentaje mínimo inicial (%)</th>
-                                                    <th class="col-md-2">Porcentaje inicial (%) </th>
-                                                    <th class="col-md-1">Fraccionable</th>
+                                                    <th class="col-md-3 v-middle text-center">Concepto</th>
+                                                    <th class="col-md-2 v-middle text-center">Monto (S/.)</th>
+                                                    <th class="col-md-2 v-middle text-center">Monto mínimo inicial (S/.)</th>
+                                                    <th class="col-md-2 v-middle text-center">Porcentaje mínimo inicial (%)</th>
+                                                    <th class="col-md-2 v-middle text-center">Porcentaje inicial (%) </th>
+                                                    <th class="col-md-1 v-middle text-center">Fraccionable</th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
@@ -208,20 +212,25 @@
                                                             </multiselect>
                                                         </div>
                                                     </td>
-                                                    <td class="v-middle text-right">
+                                                    <td class="v-middle">
                                                         <input class="form-control numeric" v-model="item.monto"/>
                                                     </td>
-                                                    <td class="v-middle text-right">
+                                                    <td class="v-middle">
                                                         <input class="form-control numeric" v-model="item.montoMinimoInicial"/>
                                                     </td>
-                                                    <td class="v-middle text-right">
+                                                    <td class="v-middle">
                                                         <input class="form-control numeric" v-model="item.porcentajeMinimoInicial"/>
                                                     </td>
-                                                    <td class="v-middle text-right">
+                                                    <td class="v-middle">
                                                         <input class="form-control numeric" v-model="item.porcentajeInicial" v-bind:disabled="!item.fraccionable"/>
                                                     </td>
-                                                    <td class="v-middle text-right">
-                                                        <input type="checkbox" class="checkbox" v-model="item.fraccionable" v-on:change="actualizarConcepto(item)"/>
+                                                    <td class="v-middle text-center">
+                                                        <label class="switch">
+                                                            <input type="checkbox" v-model="item.fraccionable"
+                                                                   v-on:change="actualizarConcepto(item)"/>
+                                                            <span></span>
+                                                        </label>
+                                                        <!--<input type="checkbox" class="checkbox" v-model="item.fraccionable" v-on:change="actualizarConcepto(item)"/>-->
                                                     </td>
                                                     <td class="v-middle text-center">
                                                         <a v-on:click="eliminar(index)" class="pointer" title="Eliminar"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
