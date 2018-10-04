@@ -354,9 +354,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional
     public GrupoSeccion saveGpoSeccionHeader(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico) {
         List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(cicloAcademico);
+        List<String> codigos2ByCiclo = grupoSeccionDAO.allCodigo2ByCiclo(cicloAcademico);
         //logger.debug(String.join(",", codigosByCiclo));
         Curso curso = cursoDAO.find(grupoSeccion.getCurso().getId());
         String codigo = CodeGenerator.getNextCode(codigosByCiclo, 0);
+        String codigo2 = CodeGenerator.getNextCode(codigos2ByCiclo, 0);
 
         grupoSeccion.setCodigo(codigo);
         grupoSeccion.setVersion(BigDecimal.ONE.toString());
@@ -380,15 +382,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (curso.isTipoCursoTEO()) {
             Seccion seccionTEO = new Seccion();
             seccionTEO.setGrupoSeccion(grupoSeccion);
-            seccionTEO.setCodigo(grupoSeccion.getCodigo() + "0");
-            seccionTEO.setCodigo2(seccionTEO.getCodigo());
+            seccionTEO.setCodigo(codigo + "0");
+            seccionTEO.setCodigo2(codigo2 + "0");
             seccionTEO.setEstadoEnum(SeccionEstadoEnum.CRE);
             seccionTEO.setTipoSeccionEnum(TipoSeccionEnum.TEO);
             seccionTEO.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
-            /*
-            seccionTEO.setHorasPractica(curso.getHorasPractica());
-            seccionTEO.setHorasTeoria(curso.getHorasTeoria());
-             */
             seccionTEO.setHorasSemanales(horasTeoria);
 
             seccionTEO.setDocenteSeccion(new ArrayList<>());
@@ -408,14 +406,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             Seccion seccionPRA = new Seccion();
             seccionPRA.setGrupoSeccion(grupoSeccion);
             seccionPRA.setCodigo(codigo + "1");
-            seccionPRA.setCodigo2(seccionPRA.getCodigo());
+            seccionPRA.setCodigo2(codigo2 + "1");
             seccionPRA.setEstadoEnum(SeccionEstadoEnum.CRE);
             seccionPRA.setTipoSeccionEnum(TipoSeccionEnum.PRA);
             seccionPRA.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
-            /*
-            seccionPRA.setHorasPractica(curso.getHorasPractica());
-            seccionPRA.setHorasTeoria(curso.getHorasTeoria());
-             */
             seccionPRA.setHorasSemanales(horasPractica);
 
             seccionPRA.setDocenteSeccion(new ArrayList<>());
@@ -435,12 +429,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             Seccion seccionTCUR = new Seccion();
             seccionTCUR.setGrupoSeccion(grupoSeccion);
             seccionTCUR.setCodigo(codigo + "0");
-            seccionTCUR.setCodigo2(seccionTCUR.getCodigo());
+            seccionTCUR.setCodigo2(codigo2 + "0");
             seccionTCUR.setEstadoEnum(SeccionEstadoEnum.CRE);
             seccionTCUR.setTipoSeccionEnum(TipoSeccionEnum.TCUR);
             seccionTCUR.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
-            //   seccionTCUR.setHorasPractica(curso.getHorasPractica());
-            //   seccionTCUR.setHorasTeoria(curso.getHorasTeoria());
             seccionTCUR.setHorasSemanales(horasTeoria);
 
             seccionTCUR.setDocenteSeccion(new ArrayList<>());
@@ -459,12 +451,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             Seccion seccionPCUR = new Seccion();
             seccionPCUR.setGrupoSeccion(grupoSeccion);
             seccionPCUR.setCodigo(codigo + "1");
-            seccionPCUR.setCodigo2(seccionPCUR.getCodigo());
+            seccionPCUR.setCodigo2(codigo2 + "1");
             seccionPCUR.setEstadoEnum(SeccionEstadoEnum.CRE);
             seccionPCUR.setTipoSeccionEnum(TipoSeccionEnum.PCUR);
             seccionPCUR.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
-            //  seccionPCUR.setHorasPractica(curso.getHorasPractica());
-            //   seccionPCUR.setHorasTeoria(curso.getHorasTeoria());
             seccionPCUR.setHorasSemanales(horasPractica);
 
             seccionPCUR.setDocenteSeccion(new ArrayList<>());
@@ -480,6 +470,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
             grupoSeccion.getSecciones().add(seccionPCUR);
         }
+
         grupoSeccionDAO.save(grupoSeccion);
         return grupoSeccion;
     }

@@ -1,7 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Curso</title>
-        <!--<div th:substituteby="_layout/includes :: styles-dynatable"></div>-->
     </head>
 
     <body>
@@ -50,7 +49,7 @@
                                             <input name="tipoCurricula" class="hide" v-model="tipoCurriculaEnum.name"  required=""/>
                                         </template>
                                         <span v-else="" class='form-control' v-text="curso.tipoCurriculaEnum.value"></span>
-                                        
+
                                     </div>
                                 </div>
 
@@ -71,7 +70,7 @@
                                             <input name="modalidadCurso.id" class="hide" v-model="modalidadCurso.id" required=""/>
                                         </template>
                                         <span v-else="" class='form-control' v-text="curso.modalidadEstudio.nombre"></span>
-                                        
+
                                     </div>
                                 </div>
 
@@ -91,7 +90,7 @@
                                             <input name="nivel" class="hide" v-model="nivelCurso.id" required=""/>
                                         </template>
                                         <span v-else="" class='form-control' v-text="curso.nivel"></span>
-                                        
+
                                     </div>
                                 </div>
 
@@ -116,7 +115,7 @@
                                         <span v-else="" class='form-control' v-text="curso.departamentoAcademico.nombre"></span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-lg-6"
                                      v-if="modalidadCurso.id == 2">
                                     <div class="form-group  ">
@@ -139,7 +138,7 @@
                                             <input name="carrera.id" class="hide" v-model="carreraCurso.id" required=""/>
                                         </template>
                                         <span v-else="" class='form-control' v-text="curso.carrera.tipoEnum.value + ' - ' + curso.carrera.nombre"></span>
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -162,7 +161,7 @@
                                             <input name="tipoCurso" class="hide" v-model="curso.tipoCursoEnum.name" required=""/>
                                         </template>
                                         <span v-else="" class='form-control' v-text="curso.tipoCursoEnum.value"></span>
-                                        
+
 
                                     </div>
                                 </div>
@@ -303,100 +302,95 @@
                                 </div>
                             </div>
 
-                            <div class="row" v-if="curso.id != '' &amp;&amp; !isComodinAdicionalExterno(tipoCurriculaEnum.name) ">
-                                <!--div class="col-lg-12">
-                                    <div class="form-group">
-                                        <label>Nombre en otros idiomas</label>
-                                        <table  class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Idioma</th>
-                                                    <th>Nombre</th>
-                                                    <th></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="bodyTabla">
-
-
-                                                <tr th:if="${curso.nombreCurso.size() &gt; 0}"
-                                                    th:each="itemPadre,iter : ${curso.nombreCurso}">
-                                                    <td>
-
-                                                        <select class="form-control"  name="idIdioma" placeholder="Seleccione el idiomas" data-trigger="change">
-                                                            <option></option>
-                                                            <option th:each="item, iter : ${idiomas}"
-                                                                    th:value="${item.id}" 
-                                                                    th:text="${item.nombre}"
-                                                                    th:selected="${itemPadre.id != null} ? ${item.id == itemPadre.idioma.id} : '' "/>
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-control" name="nombreIdioma" th:value='${itemPadre.nombre}'/>
-                                                    </td>
-                                                    <td class="v-middle">
-                                                        <a class="btn btn-warning btn-sm delete-idioma" ><i class="fa fa-times pointer" aria-hidden="true"></i></a>
-                                                    </td>
-
-                                                </tr>
-                                                <tr th:unless="${curso.nombreCurso.size() &gt; 0}">
-                                                    <td>
-                                                        <select class="form-control" name="idIdioma" placeholder="Seleccione el idiomas" data-trigger="change">
-                                                            <option></option>
-                                                            <option th:each="item,iter : ${idiomas}"
-                                                                    th:value="${item.id}" 
-                                                                    th:text="${item.nombre}"/>
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" class="form-control" name="nombreIdioma"/>
-                                                    </td>
-                                                    <td class="v-middle">
-                                                        <a class="btn btn-warning btn-sm delete-idioma" ><i class="fa fa-times pointer" aria-hidden="true"></i></a>
-                                                    </td>
-
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-center add-idioma" colspan="3"><a class="btn btn-default btn-sm"><i class="fa fa-plus" aria-hidden="true"></i> Agregar Idioma</a></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div-->     
-                            </div>
-
-
                             <div class=" text-center">
                                 <a v-if="curso.id == '' " class="btn btn-primary " v-on:click="save()">Crear Curso</a>
                                 <a v-else="" class="btn btn-primary save-update-curso" v-on:click="save()" >Actualizar Curso</a>
                             </div>
+                            
+                            <!--<pre>{{idiomaCurso}}</pre>-->
 
+                            <div class="row" v-if="curso.id != '' &amp;&amp; !isComodinAdicionalExterno(tipoCurriculaEnum.name) ">
+                                <div class="col-lg-8 col-lg-offset-2 m-t-lg">
+                                    <div class="form-group">
+                                        <h3>Nombre en otros idiomas</h3>
+                                        <table class="table table-striped table-hover">
+                                            <thead> 
+                                                <tr>
+                                                    <th></th>
+                                                    <th class="col-md-5">Idioma</th>
+                                                    <th class="col-md-7">Nombre</th>
+                                                    <th></th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(nm,index) in idiomaCurso">
+                                            <template v-if="nm.id != '' ">
+                                                <td class="v-middle">
+                                                    <a v-if="nm.locked" class="btn btn-warning btn-sm" v-on:click="desbloquearIdioma(index)"><i class="fa fa-lock pointer"></i></a>
+                                                    <a v-else="" class="btn btn-primary btn-sm" v-on:click="bloquearIdioma(index)"><i class="fa fa-unlock pointer"></i></a>
+                                                </td>
+
+                                                <td v-text="nm.idioma.nombre"  class="v-middle"></td>
+
+                                                <td class="v-middle">
+                                                    <span v-if="nm.locked" v-text="nm.nombre"></span>
+                                                    <input v-else="" type="text" class="form-control" v-model="nm.nombre"/>
+                                                </td>
+
+                                                <td class="v-middle" >
+                                                    <a v-if="!nm.locked" class="btn btn-success btn-sm" v-on:click="saveIdioma(nm,index)"><i class="fa fa-cloud-upload pointer"></i></a>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <a v-if="!nm.locked" class="btn btn-danger btn-sm" v-on:click="deleteIdioma(nm,index)"><i class="fa fa-times pointer"></i></a>
+                                                </td>
+                                            </template>
+
+                                            <template v-if="nm.id == '' ">
+                                                <td></td>
+                                                <td>
+                                                <multiselect v-model='nm.idioma'
+                                                             v-bind:options='idiomas'
+                                                             v-bind:allow-empty="false"
+                                                             label='nombre'
+                                                             placeholder="Seleccione un idioma"
+                                                             deselect-label=""
+                                                             select-label="Seleccione este idioma"
+                                                             track-by='id'>
+                                                </multiselect>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" v-model="nm.nombre"/>
+                                                </td>
+
+                                                <td class="v-middle" >
+                                                    <a class="btn btn-success btn-sm" v-on:click="saveIdioma(nm,index)"><i class="fa fa-cloud-upload pointer"></i></a>
+                                                </td>
+
+                                                <td class="v-middle" >
+                                                    <a class="btn btn-danger btn-sm" v-on:click="removeIdioma(index)"><i class="fa fa-times pointer"></i></a>
+                                                </td>
+                                            </template>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="text-right">
+                                                    <a class="btn btn-default btn-sm" v-on:click="addIdioma()">Agregar idioma</a>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>  
+                            </div>
                         </form>
                     </section>
                 </section>
             </section>
         </div>
 
-        <script id="divNombreCurso" type="text/x-jsrender" class="hide" >
-            <tr>
-            <td>
-            <select class="form-control" name="idIdioma" required="true" placeholder="Seleccione el idiomas" data-trigger="change">
-            <option></option>
-            <option th:each="item : ${idiomas}"
-            th:value="${item.id}" 
-            th:text="${item.nombre}"/>
-            </select>
-            </td>
-            <td>
-            <input type="text" class="form-control" name="nombreIdioma"/>
-            </td>
-            <td class="v-middle"> 
-            <a class="btn btn-warning btn-sm delete-idioma" ><i class="fa fa-times pointer" aria-hidden="true"></i></a>
-            </td>
-            </tr>
-        </script>
+
 
         <div layout:fragment="js">
-            <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
             <script th:inline="javascript">
                 var cursoJson = /*[[${cursoJson}]]*/ {};
                 var modalidadesJson = /*[[${modalidadesJson}]]*/ {};
@@ -406,7 +400,6 @@
                 var departamentosJson = /*[[${departamentosJson}]]*/ {};
                 var carrerasJson = /*[[${carrerasJson}]]*/ {};
             </script>
-            <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/curso/cursoForm.js}" charset="utf-8"></script>
         </div>
 

@@ -41,7 +41,7 @@ public class TarifaController {
         List<Carrera> list = service.allCarreraMaestria();
         ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
         for (Carrera item : list) {
-            arr.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{"id", "nombre"}));
+            arr.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{"id", "codigo", "tipoEnum", "nombre"}));
         }
         model.addAttribute("carreras", arr);
 
