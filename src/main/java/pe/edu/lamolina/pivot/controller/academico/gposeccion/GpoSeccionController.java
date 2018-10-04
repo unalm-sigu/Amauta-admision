@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -182,7 +183,9 @@ public class GpoSeccionController {
     @RequestMapping("{gruposeccion}/editar")
     public String editar(
             @PathVariable("gruposeccion") Long gpoSeccId,
-            @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
+            @RequestParam(value = "origen", required = false) String origen,
+            @RequestParam(value = "ids", required = false) String ids,
+            Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<Date> fechas = service.allDatesEventoCicloAcademicoForPeriodo(ds.getCicloAcademico());
@@ -194,26 +197,35 @@ public class GpoSeccionController {
         }
 
         GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId);
+
         ObjectNode gpoSeccionJson = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax);
 
         String ruta = getOrigen(origen);
 
+        List<GrupoSeccion> gpos = obtenerGruposSeccion(ids);
+        gpos.add(gpoSeccion);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
-        model.addAttribute("navigationJson", createNavegationJson(ruta, gpoSeccId, ds.getCicloAcademico()).toString());
+        model.addAttribute("navigationJson", createNavegationJson(ruta, gpos, gpoSeccId, ds.getCicloAcademico()).toString());
         model.addAttribute("origen", ruta);
 
         return "academico/gposeccion/gpoSeccionForm";
     }
 
-    private ObjectNode createNavegationJson(String ruta, Long idGpoSeccEdit, CicloAcademico ciclo) {
+    private ObjectNode createNavegationJson(String ruta, List<GrupoSeccion> ids, Long idGpoSeccEdit, CicloAcademico ciclo) {
         ObjectNode nodeJson = new ObjectNode(JsonNodeFactory.instance);
         Integer position = -1;
         Long next = null;
         Long prev = null;
 
         DynatableFilter filter = createFilter(ruta);
-        List<GrupoSeccion> gpoSecciones = service.allCleanByDynatable(filter, ciclo);
+        List<GrupoSeccion> gpoSecciones;
+        if (ids.size() > 1) {
+            gpoSecciones = service.allCleanByDynatableGruposSeccion(filter, ciclo, ids);
+        } else {
+            gpoSecciones = service.allCleanByDynatable(filter, ciclo);
+        }
+
         ArrayNode arrayGpoSeccJson = new ArrayNode(JsonNodeFactory.instance);
 
         Integer loop = 0;
@@ -2336,6 +2348,46 @@ public class GpoSeccionController {
         jsonResponse.setSuccess(true);
         jsonResponse.setData(array);
         return jsonResponse;
+    }
+
+    @ResponseBody
+    @RequestMapping("{gruposeccion}/clonar/{veces}")
+    public JsonResponse clonar(@PathVariable("gruposeccion") Long gruposeccionId, @PathVariable Integer veces, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<GrupoSeccion> gps = service.clonar(new GrupoSeccion(gruposeccionId), veces, ds);
+            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+            String ids = String.join(",", gps.stream().map(x -> x.getId().toString()).collect(Collectors.toList()));
+
+            for (GrupoSeccion gp : gps) {
+                arr.add(gp.getId());
+            }
+            response.setData(ids);
+            response.setMessage(String.format("%d nuevos registros agregados", veces));
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
+    private List<GrupoSeccion> obtenerGruposSeccion(String ids) {
+        if (ids == null) {
+            return new ArrayList<>();
+        }
+        byte[] decoded = Base64.getMimeDecoder().decode(ids);
+        String output = new String(decoded);
+        String[] str = output.split(",");
+        List<GrupoSeccion> gpos = new ArrayList<>();
+        for (String string : str) {
+            System.out.println(string + " ELGEIDO");
+            gpos.add(new GrupoSeccion(Long.parseLong(string)));
+        }
+        return gpos;
     }
 
 }

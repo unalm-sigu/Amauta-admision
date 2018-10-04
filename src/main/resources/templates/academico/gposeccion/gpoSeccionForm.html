@@ -69,6 +69,7 @@
                                     <div class="col-md-1">
                                         <div class="avatar-gposecc"
                                              v-text='avatarGpo()'>234</div>
+                                        <a href="#" v-on:click="openClonar"> Clonar </a>
                                     </div>
 
                                     <div class="col-md-9">
@@ -489,6 +490,17 @@
                 </div>
             </modal-vik>
 
+
+            <modal-vik ref="modalClonacion"
+                       v-bind="clonacionModal"
+                       v-bind:okaction="clonar">
+                <div slot="body">
+                    <div class="form-group">
+                        <label> Cantidad de veces a clonarse </label>
+                        <input class="form-control" v-model="vecesClon"/>
+                    </div>
+                </div>
+            </modal-vik>
 
         </div>
 
