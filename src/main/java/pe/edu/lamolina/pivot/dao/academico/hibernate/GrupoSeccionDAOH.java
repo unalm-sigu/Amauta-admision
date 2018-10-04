@@ -482,4 +482,30 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         return resultados;
     }
 
+    @Override
+    public List<GrupoSeccion> allByDynatableGruposSeccion(DynatableFilter filter, CicloAcademico ciclo, List<GrupoSeccion> gpos) {
+        Octavia subQuery = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("docente doc", "seccion se", "se.grupoSeccion ggss")
+                .left("doc.persona per", "se.grupoHoras gh", "se.aula au");
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(GrupoSeccion.class, "gs")
+                .join("cicloAcademico ca", "curso cu")
+                .leftJoin("anexoBoletin ab", "ab.anexoSuperior abs", "planCalificacion pc")
+                .filter("ca.id", ciclo)
+                .in("gs.id", gpos)
+                .searchFields("cu.nombre", "cu.codigo", "ab.nombre", "abs.nombre")
+                .searchSubquery(subQuery)
+                .subqueryLinkedBy("gs.id", "ggss.id")
+                .searchSubqueryFields("doc.codigo", "se.codigo2", "gh.codigo", "au.codigo")
+                .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("gs.id asc");
+
+        sql.beginRelativeFilters();
+        this.setGrupoAnexo(filter, sql);
+
+        return sql.all(getCurrentSession());
+    }
 }

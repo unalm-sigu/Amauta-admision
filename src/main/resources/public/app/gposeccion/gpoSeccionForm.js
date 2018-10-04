@@ -983,13 +983,22 @@ var app = new Vue({
         upper(e) {
             e.target.value = e.target.value.toUpperCase()
         },
-        openClonar(){
+        openClonar() {
+            this.clonacionModal.title = `Clonar grupo`;
             this.$refs.modalClonacion.open();
         },
-        clonar(){
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
+        },
+        clonar() {
             AXIOS.post(`${APP.url('academico/gposeccion')}/${this.grupoSeccion.id}/clonar/${this.vecesClon}`)
-                .then(response => {
-                })
+                    .then(response => {
+                        if (response.data.success) {
+                            let ids = response.data.data;
+                            window.location.href = APP.url("academico/gposeccion/" + this.grupoSeccion.id + "/editar") + this.getOrigenURL() + `&ids=${Base64.encode(ids)}`;
+                        }
+                    })
         }
     }
 });

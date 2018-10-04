@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Propagation;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.Commutator;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -2021,31 +2022,70 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         return horarioSeccionDAO.allBySeccion(seccion);
     }
 
+    private int cociente(int acumulador, int dvdo, int dvsor) {
+        if (dvdo > dvsor) {
+            return cociente(acumulador + 1, dvdo - dvsor, dvsor);
+        } else {
+            return acumulador;
+        }
+    }
+
+    public List<String> getCodes(int inicio, int cantidad) {
+        List<String> codes = new ArrayList();
+        for (int i = inicio; i < cantidad + inicio; i++) {
+            codes.add(getCode(i));
+        }
+        return codes;
+    }
+
+    private String getCode(int i) {
+        if (i < 1000) {
+            return NumberFormat.codigo(i, 3, '0');
+        }
+        int r = (i) % 100;
+        int q = cociente(0, (i - 999), 100);
+        String le = Character.toString((char) (65 + q));
+        if (i > 1990 && i < 2010) {
+
+            logger.debug("i = {} {}, r {}, q {} ", i, le, r, q);
+        }
+
+        return le + NumberFormat.codigo(r, 2, '0');
+    }
+
     @Override
+    @Transactional
     public List<GrupoSeccion> clonar(GrupoSeccion grupoSeccion, Integer veces, DataSessionPivot ds) {
         GrupoSeccion gsBD = grupoSeccionDAO.find(grupoSeccion.getId());
         Curso curso = gsBD.getCurso();
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
         List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(cicloAcademico);
+        List<String> codigos2ByCiclo = grupoSeccionDAO.allCodigo2ByCiclo(cicloAcademico);
 
         List<GrupoSeccion> clones = new ArrayList<>();
         for (int i = 0; i < veces; i++) {
             GrupoSeccion clon = new GrupoSeccion();
 
-            logger.debug(String.join(",", codigosByCiclo));
-            for (String string : codigosByCiclo) {
-                logger.debug("code -> {}", string);
-            }
             String codigo = CodeGenerator.getNextCode(codigosByCiclo, 0);
-            logger.debug("nuevocod {}", codigo);
+            String codigo2 = CodeGenerator.getNextCode(codigos2ByCiclo, 0);
+
+
             codigosByCiclo.add(codigo);
+            codigos2ByCiclo.add(codigo2);
+
 
             clon.setCurso(curso);
             clon.setCodigo(codigo);
+            clon.setCodigo2(codigo2);
             clon.setVersion(BigDecimal.ONE.toString());
             clon.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
             clon.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
             clon.setCicloAcademico(cicloAcademico);
+            clon.setEstadoEnum(gsBD.getEstadoEnum());
+            
+            clon.setAnexoBoletin(gsBD.getAnexoBoletin());
+            
 
             Integer horasTeoria = curso.getHorasTeoria() == null ? 0 : curso.getHorasTeoria();
             Integer horasPractica = curso.getHorasPractica() == null ? 0 : curso.getHorasPractica();
@@ -2169,6 +2209,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         }
         return clones;
+    }
+
+    @Override
+    public List<GrupoSeccion> allCleanByDynatableGruposSeccion(DynatableFilter filter, CicloAcademico ciclo, List<GrupoSeccion> gpos) {
+        return grupoSeccionDAO.allByDynatableGruposSeccion(filter, ciclo, gpos);
     }
 
 }
