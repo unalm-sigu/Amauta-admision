@@ -48,11 +48,10 @@
                                                              track-by='id'
                                                              v-bind:searchable="false" v-bind:allow-empty="false"
                                                              placeholder="Seleccione un tipo de constancia"
-                                                             v-bind:close-on-select="false"
-                                                             v-bind:preserve-search="true"
+                                                             v-bind:close-on-select="true"
+                                                             v-bind:preserve-search="false"
                                                              v-bind:custom-label="nameWithCodeEspecial" 
                                                              class="tipoDocumento"
-                                                             required="true"
                                                              >
                                                     <template slot="option" slot-scope="props">    
                                                         <div class="option__desc">

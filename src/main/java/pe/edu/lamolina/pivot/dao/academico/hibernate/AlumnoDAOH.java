@@ -200,6 +200,25 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
+    public List<Alumno> allByModalidadesDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<String> modalidades) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Alumno.class, "al")
+                .join("persona per", "carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac", "al.cicloActivo aca")
+                .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci")
+                .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                // .filter("ca.id", cicloAcademico)
+                .in("moe.codigo", modalidades)
+                .orderBy("al.id desc");
+
+        sql.beginRelativeFilters();
+        setCondicionModalidad(filter, sql);
+
+        return all(sql);
+    }
+
+    @Override
     public List<Alumno> allByPersona(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")

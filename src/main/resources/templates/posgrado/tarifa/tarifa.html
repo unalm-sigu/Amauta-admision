@@ -1,0 +1,271 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Tarifa Carrera </title> 
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div id="tarifaVUE" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <a class="btn btn-success pull-right" v-on:click="nuevo">
+                        Nuevo
+                    </a>
+                    <h2 th:inline="text"> Tarifas Programas Posgrado </h2>
+                </header>
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table v-bind:url="`${URL}/list`" ref="raptor">
+                                <template scope="props">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-md-4">Carrera</th>
+                                                <th class="col-md-7">Ciclo inicial</th>
+                                                <th class="col-md-1 text-center">Estado</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data"> 
+                                                <td class="v-middle">
+                                                    <span>{{ item.carrera.nombre }}</span>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <span>{{ item.cicloInicio.descripcion2 }}</span>
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <span v-if="item.estado === 'CRE'" class="label label-default"> Creado </span> 
+                                                    <span v-if="item.estado === 'ACT'" class="label label-success"> Activo </span> 
+                                                </td>
+                                                <td class="v-middle"> 
+                                                    <div class="dropdown actions" v-if="item.estado !== 'INVI'">                
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="glyphicon glyphicon-option-vertical"></i>
+                                                        </a> 
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a href="#" v-on:click="editar(item)">Editar</a></li>
+                                                            <li><a href="#" v-on:click="clonar(item)">Clonar</a></li>
+                                                            <li v-if="item.estado === 'CRE'"><a href="#" v-on:click="activar(item)">Activar</a></li>
+                                                            <li v-if="item.estado === 'CRE'"><a href="#" v-on:click="eliminarTarifa(item)">Eliminar</a></li>
+                                                        </ul>                
+                                                    </div>
+                                                </td>        
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+                        </section>
+                    </section>
+
+                </section>
+
+                <modal-vik ref="modalEditar"
+                           v-bind="modalEditar"
+                           v-bind:okaction="guardar">
+                    <div slot="body">
+                        <div>
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-6" v-if="!tarifa.id">
+                                        <div class="form-group">
+                                            <label> Carera </label>
+                                            <multiselect 
+                                                label="nombre"
+                                                placeholder=""
+                                                track-by="id"
+                                                v-model="tarifa.carrera"
+                                                v-bind:options="carreras"
+                                                v-bind:show-labels="false"
+                                                v-bind:limit="15"
+                                                v-bind:custom-label="verCarrera">
+                                                <template slot="option" slot-scope="props">
+                                                    <div class="block bold" v-text="props.option.nombre"></div>
+                                                    <small class="block" v-text="props.option.tipoEnum.value"></small>
+                                                </template>
+                                            </multiselect>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label> Ciclo inicial </label>
+                                            <multiselect 
+                                                label="descripcion2"
+                                                placeholder=""
+                                                track-by="id"
+                                                v-model="tarifa.cicloInicio"
+                                                v-bind:options="ciclos"
+                                                v-bind:show-labels="false"
+                                                v-bind:limit="15">
+                                            </multiselect>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label> Tipo monto </label>
+                                            <multiselect 
+                                                label="value"
+                                                placeholder=""
+                                                track-by="name"
+                                                v-model="tarifa.tipoMontoEnum"
+                                                v-bind:options="tiposMonto"
+                                                v-bind:show-labels="false"
+                                                v-bind:limit="15">
+                                            </multiselect>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label> Monto Base</label>
+                                            <input class="form-control numeric" v-model="tarifa.monto"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label> Cant. máxima de cuotas </label>
+                                            <input class="form-control numeric" v-model="tarifa.maximoCuotas"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label> Dscto. por pago total (%) </label>
+                                            <input class="form-control numeric" v-model="tarifa.descuentoCash"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label> Dscto. por 2do pago total (%) </label>
+                                            <input class="form-control numeric" v-model="tarifa.descuentoSegundoCash"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label> Intereses (%) </label>
+                                            <input class="form-control numeric" v-model="tarifa.intereses"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label> Mora (%) </label>
+                                            <input class="form-control numeric" v-model="tarifa.mora"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label> Mín. créd. p/monto base </label>
+                                            <input class="form-control numeric" v-model="tarifa.creditosMinimo"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label> Máx. créd. p/monto base </label>
+                                            <input class="form-control numeric" v-model="tarifa.creditosMaximo"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label> Costo/créd. debajo del mín. </label>
+                                            <input class="form-control numeric" v-model="tarifa.costoCreditoMinimo"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label> Costo/créd. encima del máx. </label>
+                                            <input class="form-control numeric" v-model="tarifa.costoCreditoExceso"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table class="table table-striped table-condensed">
+                                            <thead>
+                                                <tr>
+                                                    <th class="col-md-3 v-middle text-center">Concepto</th>
+                                                    <th class="col-md-2 v-middle text-center">Monto (S/.)</th>
+                                                    <th class="col-md-2 v-middle text-center">Monto mínimo inicial (S/.)</th>
+                                                    <th class="col-md-2 v-middle text-center">Porcentaje mínimo inicial (%)</th>
+                                                    <th class="col-md-2 v-middle text-center">Porcentaje inicial (%) </th>
+                                                    <th class="col-md-1 v-middle text-center">Fraccionable</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(item, index) in tarifa.tarifaConcepto">
+                                                    <td class="v-middle">
+                                                        <div>
+                                                            <multiselect 
+                                                                label="nombre"
+                                                                placeholder=""
+                                                                track-by="id"
+                                                                v-model="item.conceptoPosgrado"
+                                                                v-bind:options="conceptos"
+                                                                v-bind:show-labels="false"
+                                                                v-bind:limit="15">
+                                                            </multiselect>
+                                                        </div>
+                                                    </td>
+                                                    <td class="v-middle">
+                                                        <input class="form-control numeric" v-model="item.monto"/>
+                                                    </td>
+                                                    <td class="v-middle">
+                                                        <input class="form-control numeric" v-model="item.montoMinimoInicial"/>
+                                                    </td>
+                                                    <td class="v-middle">
+                                                        <input class="form-control numeric" v-model="item.porcentajeMinimoInicial"/>
+                                                    </td>
+                                                    <td class="v-middle">
+                                                        <input class="form-control numeric" v-model="item.porcentajeInicial" v-bind:disabled="!item.fraccionable"/>
+                                                    </td>
+                                                    <td class="v-middle text-center">
+                                                        <label class="switch">
+                                                            <input type="checkbox" v-model="item.fraccionable"
+                                                                   v-on:change="actualizarConcepto(item)"/>
+                                                            <span></span>
+                                                        </label>
+                                                        <!--<input type="checkbox" class="checkbox" v-model="item.fraccionable" v-on:change="actualizarConcepto(item)"/>-->
+                                                    </td>
+                                                    <td class="v-middle text-center">
+                                                        <a v-on:click="eliminar(index)" class="pointer" title="Eliminar"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
+                                                    </td>
+                                                </tr>   
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row text-center m-b-sm">
+                                    <a href="#" v-on:click="agregar"> Agregar concepto </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </modal-vik>
+            </div>
+
+
+        </div>
+
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var ciclo = /*[[${session.SESSION_USUARIO.cicloAcademico.id}]]*/ '';
+                var carrerasJson = /*[[${carreras.toString()}]]*/ '';
+                var ciclosJson = /*[[${ciclos.toString()}]]*/ '';
+                var conceptosJson = /*[[${conceptosPosgrado.toString()}]]*/ '';
+                /*]]>*/
+            </script>
+            <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+            <div th:substituteby="_modules/vue-modal2"></div>
+            <div th:substituteby="_modules/vue-raptor-table"/>
+            <script th:src="@{/app/posgrado/tarifa/tarifa.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

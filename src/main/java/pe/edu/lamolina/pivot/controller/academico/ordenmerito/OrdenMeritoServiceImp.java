@@ -60,7 +60,8 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
     @Override
     @Transactional
     public void generarDatos(CicloAcademico cicloAcademico, DataSessionPivot ds) {
-        alumnoCicloDAO.deleteInfoOrdenMeritoByCicloAcademico(cicloAcademico);
+        alumnoCicloDAO.deleteControlMeritoByCiclo(cicloAcademico);
+        alumnoCicloDAO.deleteOrdenMeritoByCiclo(cicloAcademico);
         controlOrdenMeritoDAO.deleteByCicloAcademico(cicloAcademico);
 
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByCicloAcademico(cicloAcademico);
@@ -75,9 +76,20 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
         comCiclo.setAlumnosComputados(0);
         comCiclo.setAlumnosIncompletos(0);
         comCiclo.setNoComputados(0);
+        comCiclo.setComputadosNivel1(0);
+        comCiclo.setComputadosNivel2(0);
+        comCiclo.setComputadosNivel3(0);
+        comCiclo.setComputadosNivel4(0);
+        comCiclo.setComputadosNivel5(0);
 
         comCiclo.setUserRegistro(ds.getUsuario());
         comCiclo.setFechaRegistro(now);
+
+        Integer completosCicloNivel1 = 0;
+        Integer completosCicloNivel2 = 0;
+        Integer completosCicloNivel3 = 0;
+        Integer completosCicloNivel4 = 0;
+        Integer completosCicloNivel5 = 0;
 
         List<Carrera> carreras = carreraDAO.allActivasByModalidadEnum(ModalidadEstudioEnum.PRE);
         Collections.sort(carreras, new Carrera.CompareCodigo());
@@ -92,14 +104,11 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
             fac.setCarrera(carrerasFac);
         }
 
-        List<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toList());
-        Collections.sort(facultadUnica, new Facultad.CompareCodigo());
-        List<Facultad> noFacultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() > 1).collect(Collectors.toList());
-        Collections.sort(noFacultadUnica, new Facultad.CompareCodigo());
+        Collections.sort(facultades, new Facultad.CompareCodigo());
+        List<Facultad> facultadesConCarreras = facultades.stream().filter(fac -> fac.getCarrera().size() > 1).collect(Collectors.toList());
+        Collections.sort(facultadesConCarreras, new Facultad.CompareCodigo());
 
-        Map<Facultad, List<AlumnoCiclo>> mapAlumnoByFacultad = alumnoCiclos.stream().filter(ac -> facultadUnica.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera().getFacultad()));
-        Map<Carrera, List<AlumnoCiclo>> mapAlumnosByCarrera = alumnoCiclos.stream().filter(ac -> noFacultadUnica.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera()));
-
+        Map<Facultad, List<AlumnoCiclo>> mapAlumnoByFacultad = alumnoCiclos.stream().filter(ac -> facultades.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera().getFacultad()));
         Map<Long, List<AlumnoCiclo>> mapAlumnosByIdFac = TypesUtil.convertListToMapList("carrera.facultad.id", alumnoCiclos);
         Map<Long, List<AlumnoCiclo>> mapAlumnosByIdCarr = TypesUtil.convertListToMapList("carrera.id", alumnoCiclos);
 
@@ -107,19 +116,22 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
         for (Map.Entry<Facultad, List<AlumnoCiclo>> entry : mapAlumnoByFacultad.entrySet()) {
             total += entry.getValue().size();
         }
-        for (Map.Entry<Carrera, List<AlumnoCiclo>> entry : mapAlumnosByCarrera.entrySet()) {
-            total += entry.getValue().size();
-        }
+
         comCiclo.setTotalAlumnos(total);
         controlOrdenMeritoDAO.save(comCiclo);
 
         Integer completosCiclo = 0;
         Integer incompletosCiclo = 0;
 
-        for (Facultad fac : facultadUnica) {
+        for (Facultad fac : facultades) {
             ControlOrdenMerito com = new ControlOrdenMerito();
-            System.out.println("fac ==> " + fac.getCodigo());
             List<AlumnoCiclo> alumnosCiclo = mapAlumnosByIdFac.get(fac.getId());
+
+            Integer completosNivel1 = 0;
+            Integer completosNivel2 = 0;
+            Integer completosNivel3 = 0;
+            Integer completosNivel4 = 0;
+            Integer completosNivel5 = 0;
 
             com.setFacultad(fac);
             com.setCicloAcademico(cicloAcademico);
@@ -130,6 +142,11 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
             com.setAlumnosComputados(0);
             com.setAlumnosIncompletos(0);
             com.setNoComputados(0);
+            com.setComputadosNivel1(0);
+            com.setComputadosNivel2(0);
+            com.setComputadosNivel3(0);
+            com.setComputadosNivel4(0);
+            com.setComputadosNivel5(0);
 
             com.setUserRegistro(ds.getUsuario());
             com.setFechaRegistro(now);
@@ -142,6 +159,28 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
             for (AlumnoCiclo alumnoCiclo : alumnosCiclo) {
                 if (alumnoCiclo.getPromedioAcumulado() != null) {
                     completos++;
+                    switch (alumnoCiclo.getNivel()) {
+                        case 1:
+                            completosNivel1++;
+                            completosCicloNivel1++;
+                            break;
+                        case 2:
+                            completosNivel2++;
+                            completosCicloNivel2++;
+                            break;
+                        case 3:
+                            completosNivel3++;
+                            completosCicloNivel3++;
+                            break;
+                        case 4:
+                            completosNivel4++;
+                            completosCicloNivel4++;
+                            break;
+                        case 5:
+                            completosNivel5++;
+                            completosCicloNivel5++;
+                            break;
+                    }
                 } else {
                     incompletos++;
                 }
@@ -154,15 +193,25 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
 
             com.setAlumnosComputados(completos);
             com.setNoComputados(incompletos);
+            com.setComputadosNivel1(completosNivel1);
+            com.setComputadosNivel2(completosNivel2);
+            com.setComputadosNivel3(completosNivel3);
+            com.setComputadosNivel4(completosNivel4);
+            com.setComputadosNivel5(completosNivel5);
             controlOrdenMeritoDAO.update(com);
         }
 
-        for (Facultad fac : noFacultadUnica) {
+        for (Facultad fac : facultadesConCarreras) {
             for (Carrera carr : fac.getCarrera()) {
 
                 ControlOrdenMerito com = new ControlOrdenMerito();
-                System.out.println("esp ==> " + carr.getCodigo());
                 List<AlumnoCiclo> alumnosCiclo = mapAlumnosByIdCarr.get(carr.getId());
+
+                Integer completosNivel1 = 0;
+                Integer completosNivel2 = 0;
+                Integer completosNivel3 = 0;
+                Integer completosNivel4 = 0;
+                Integer completosNivel5 = 0;
 
                 com.setCarrera(carr);
                 com.setCicloAcademico(cicloAcademico);
@@ -173,6 +222,11 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
                 com.setAlumnosComputados(0);
                 com.setAlumnosIncompletos(0);
                 com.setNoComputados(0);
+                com.setComputadosNivel1(0);
+                com.setComputadosNivel2(0);
+                com.setComputadosNivel3(0);
+                com.setComputadosNivel4(0);
+                com.setComputadosNivel5(0);
 
                 com.setUserRegistro(ds.getUsuario());
                 com.setFechaRegistro(now);
@@ -184,6 +238,23 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
                 for (AlumnoCiclo alumnoCiclo : alumnosCiclo) {
                     if (alumnoCiclo.getPromedioAcumulado() != null) {
                         completos++;
+                        switch (alumnoCiclo.getNivel()) {
+                            case 1:
+                                completosNivel1++;
+                                break;
+                            case 2:
+                                completosNivel2++;
+                                break;
+                            case 3:
+                                completosNivel3++;
+                                break;
+                            case 4:
+                                completosNivel4++;
+                                break;
+                            case 5:
+                                completosNivel5++;
+                                break;
+                        }
                     } else {
                         incompletos++;
                     }
@@ -191,29 +262,32 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
                     alumnoCiclo.setControlMeritoCiclo(comCiclo);
                 }
 
-                completosCiclo += completos;
-                incompletosCiclo += incompletos;
-
                 com.setAlumnosComputados(completos);
                 com.setNoComputados(incompletos);
+                com.setComputadosNivel1(completosNivel1);
+                com.setComputadosNivel2(completosNivel2);
+                com.setComputadosNivel3(completosNivel3);
+                com.setComputadosNivel4(completosNivel4);
+                com.setComputadosNivel5(completosNivel5);
                 controlOrdenMeritoDAO.update(com);
             }
         }
 
         comCiclo.setAlumnosComputados(completosCiclo);
         comCiclo.setNoComputados(incompletosCiclo);
+        comCiclo.setComputadosNivel1(completosCicloNivel1);
+        comCiclo.setComputadosNivel2(completosCicloNivel2);
+        comCiclo.setComputadosNivel3(completosCicloNivel3);
+        comCiclo.setComputadosNivel4(completosCicloNivel4);
+        comCiclo.setComputadosNivel5(completosCicloNivel5);
         controlOrdenMeritoDAO.update(comCiclo);
-
-        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-            Integer creditos = alumnoCiclo.getCreditosAprobadosAcumulados() + alumnoCiclo.getCreditosConvalidados();
-            alumnoCiclo.setNivel(creditos / 40 + 1);
-            alumnoCicloDAO.update(alumnoCiclo);
-        }
     }
 
     @Override
     @Transactional
     public void calcularMeritos(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+
+        alumnoCicloDAO.deleteOrdenMeritoByCiclo(cicloAcademico);
 
         List<ControlOrdenMerito> coms = controlOrdenMeritoDAO.allByCicloAcademico(cicloAcademico);
 

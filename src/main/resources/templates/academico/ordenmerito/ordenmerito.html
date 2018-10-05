@@ -32,18 +32,27 @@
                                 </select>
                             </div>
                         </div>
-                        <raptor-table v-bind:url="`${URL}/list`" v-bind:paginate="false" v-bind:pagination="{ 'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true}" ref="raptor">
+                        <raptor-table v-bind:url="`${URL}/list`" v-bind:paginate="false" v-bind:searcher="false" 
+                                      v-bind:pagination="{ 'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true}" ref="raptor">
                             <template scope="props">
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th class="col-md-3">Escala</th>
-                                            <th class="text-center">Total de alumnos</th>
-                                            <th class="text-center">Computados</th>
-                                            <th class="text-center">No computados</th>
-                                            <th class="text-center">Notas completas</th>
-                                            <th class="text-center">Notas incompletas</th>
-                                            <th class="col-md-1 text-center">Estado</th>
+                                            <th rowspan="2" class="col-md-3">Escala</th>
+                                            <th rowspan="2" class="text-center">Total de alumnos</th>
+                                            <th colspan="6" class="text-center">Computados</th>
+                                            <th rowspan="2" class="text-center">No computados</th>
+                                            <th rowspan="2" class="text-center">Notas completas</th>
+                                            <th rowspan="2" class="text-center">Notas incompletas</th>
+                                            <th rowspan="2" class="col-md-1 text-center">Estado</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Total</th>
+                                            <th>N1</th>
+                                            <th>N2</th>
+                                            <th>N3</th>
+                                            <th>N4</th>
+                                            <th>N5</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -60,9 +69,16 @@
                                             <td class="v-middle text-center">
                                                 <span> {{ item.totalAlumnos }} </span>
                                             </td>
+                                            
                                             <td class="v-middle text-center">
                                                 <a v-bind:href="`${URL}/${item.id}/control`"> {{ item.alumnosComputados }} </a>
                                             </td>
+                                            <td class="v-middle text-center"><span> {{ item.computadosNivel1 }} </span></td>
+                                            <td class="v-middle text-center"><span> {{ item.computadosNivel2 }} </span></td>
+                                            <td class="v-middle text-center"><span> {{ item.computadosNivel3 }} </span></td>
+                                            <td class="v-middle text-center"><span> {{ item.computadosNivel4 }} </span></td>
+                                            <td class="v-middle text-center"><span> {{ item.computadosNivel5 }} </span></td>
+                                            
                                             <td class="v-middle text-center">
                                                 <span> {{ item.noComputados }} </span>
                                             </td>

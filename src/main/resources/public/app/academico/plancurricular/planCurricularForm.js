@@ -1128,6 +1128,9 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
                     } else {
                         notify(response.message, "error");
                     }
@@ -1150,6 +1153,9 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
                     } else {
                         notify(response.message, "error");
                     }

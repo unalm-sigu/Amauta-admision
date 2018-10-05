@@ -75,13 +75,13 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfService;
 
 @Controller
-@RequestMapping("academico/docente/cargaacademica")
-public class CargaAcademicaController {
+@RequestMapping("academico/docente/notasacademica")
+public class NotaAcademicaController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    CargaAcademicaService cargaAcademicaService;
+    NotaAcademicaService cargaAcademicaService;
 
     @Autowired
     PdfService pdfService;

@@ -17,6 +17,16 @@ public class NombreCursoDAOH extends AbstractEasyDAO<NombreCurso> implements Nom
     }
 
     @Override
+    public NombreCurso find(long id) {
+        Octavia sql = Octavia.query()
+                .from(NombreCurso.class, "nc")
+                .join("curso cu", "idioma id")
+                .filter("nc.id", id);
+
+        return find(sql);
+    }
+
+    @Override
     public List<NombreCurso> allByCurso(Curso curso) {
         Octavia sql = Octavia.query()
                 .from(NombreCurso.class, "nc")

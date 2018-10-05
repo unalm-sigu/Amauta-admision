@@ -1,15 +1,21 @@
 package pe.edu.lamolina.pivot.zelper;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import pe.albatross.zelpers.miscelanea.CodeGenerator;
+
 public class Laboratory {
 
-    private static final String fmt = "  %11s:  %s %s%n";
-
     public static void main666(String[] args) {
-        String code = "<p>@(ESTIMADO)&nbsp;@(NOMBRE-PERSONA):</p>nn<p>Sea bienvenido a la Universidad Agraria La Molina. Le informamos que hemos creado una cuenta de correo electr&oacute;nico para comunicarnos oficialmente con usted. La cuenta es:</p>nn<p>@(CORREO-NUEVO)</p>nn<p>&nbsp;</p>nn<p>Saludos<br />nUniversidad Nacional Agraria La Molina</p>";
 
-        System.out.println(code.indexOf("@(ESTIMADO)")+" :::: ");
-        System.out.println(code.replace("@(ESTIMADO)", "EsTiMaDo")+" :::: ");
+        List<String> codigos = new ArrayList();
 
+        for (int i = 0; i < 2000; i++) {
+            String codigo = StringUtils.leftPad(CodeGenerator.getNextCode(codigos, 0), 3, '0');
+            System.out.println(codigo);
+            codigos.add(codigo);
+        }
     }
 
 }

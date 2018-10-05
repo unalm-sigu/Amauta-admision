@@ -6,68 +6,124 @@
 
 <body>
     <div layout:fragment="main">
+        <div id="pageAnexosVUE" v-cloak="">
 
-        <header class="header b-b padder-lg">
+            <header class="header b-b padder-lg">
 
-            <div class="pull-right m-t-md">                 
-                <div class="btn-group">
-                    <a type="button" class="btn btn-success" th:href="@{/academico/anexo/nuevo}" >Nuevo</a>
-                </div>
-            </div> 
-            <h2>Anexos</h2>
-        </header>
-        <section class="wrapper-lg">
-            <section class="panel m-b-md">
-                <section class="panel-body">
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-3 text-center">
-                                <a href="#" class="view-count text-danger" rel="ingresantes">
-                                    <span class="h1 block bold" th:text="${resumen.ingresantes}">23</span>
-                                    <small class="block m-b-xs">Ingresantes</small>
-                                </a>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <a href="#" class="view-count text-black" rel="departamentos">
-                                    <span class="h1 block bold" th:text="${resumen.departamentos}">23</span>
-                                    <small class="block m-b-xs">Departamentos</small>
-                                </a>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <a href="#" class="view-count text-success" rel="postGrados">
-                                    <span class="h1 block bold" th:text="${resumen.postGrados}">23</span>
-                                    <small class="block m-b-xs">Posgrado</small>
-                                </a>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <a href="#" class="view-count text-warning" rel="actividades">
-                                    <span class="h1 block bold" th:text="${resumen.actividades}">23</span>
-                                    <small class="block m-b-xs">Actividades Deportivas</small>
-                                </a>
+                <div class="pull-right m-t-md">                 
+                    <div class="btn-group">
+                        <a type="button" class="btn btn-success" th:href="@{/academico/anexo/nuevo}" >Nuevo</a>
+                    </div>
+                </div> 
+                <h2>Anexos</h2>
+            </header>
+            <section class="wrapper-lg">
+                <section class="panel m-b-md">
+                    <section class="panel-body">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-3 text-center">
+                                    <a href="#" class="view-count text-danger" rel="ingresantes">
+                                        <span class="h1 block bold" th:text="${resumen.ingresantes}">23</span>
+                                        <small class="block m-b-xs">Ingresantes</small>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <a href="#" class="view-count text-black" rel="departamentos">
+                                        <span class="h1 block bold" th:text="${resumen.departamentos}">23</span>
+                                        <small class="block m-b-xs">Departamentos</small>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <a href="#" class="view-count text-success" rel="postGrados">
+                                        <span class="h1 block bold" th:text="${resumen.postGrados}">23</span>
+                                        <small class="block m-b-xs">Posgrado</small>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <a href="#" class="view-count text-warning" rel="actividades">
+                                        <span class="h1 block bold" th:text="${resumen.actividades}">23</span>
+                                        <small class="block m-b-xs">Actividades Deportivas</small>
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
+                </section>
+
+                <section class="panel">
+                    <section class="panel-body">
+                        <raptor-table v-bind:url="anexosURL" ref="raptorAnexos">
+                            <template scope="props" >
+                                <table class="table table-striped table-hover">
+                                    <thead> 
+                                        <tr> 
+                                            <th class="col-md-5"></th>
+                                            <th class="col-md-3 text-left">Especialidad Posgrado</th>
+                                            <th class="col-md-3 text-left">Departamento Académico</th>
+                                            <th class="col-md-1">Estado</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody v-for="item in props.data">
+                                        <tr>
+                                            <td class="v-middle">
+                                                <span class="block text-primary bold h5 m-t-xs">{{item.nombre}}</span>
+                                                <span class="block">{{item.anexoSuperior.nombre}}</span>
+                                                <span class="block">Código {{item.codigo}}</span>
+                                                <span class="block bold">Orden {{item.orden}}</span>
+                                            </td>
+                                            <td class="v-middle text-left">
+                                                <span class="block">{{item.carrera}}</span>
+                                            </td>
+                                            <td class="v-middle text-left">
+                                                <span class="block">{{item.departamento}}</span>
+                                            </td>
+                                            <td class=" v-middle">
+                                                <span class="clear">
+                                                    <span v-if="item.estado == 'ACT' " class="label label-success"> {{item.estadoEnum.value}} </span>
+                                                    <label v-else="" class="label label-danger" data-toggle="tooltip" v-bind:title="item.motivo">Desactivado</label>
+                                                </span>
+                                            </td> 
+
+                                            <td class="v-middle"> 
+                                                <div class="dropdown actions">
+                                                    <a class="dropdown-toggle" data-toggle="dropdown">
+                                                        <i class="glyphicon glyphicon-cog"></i>
+                                                    </a> 
+                                                    <ul class="dropdown-menu pull-right">
+                                                        {{if estado == 'ACT'}}
+                                                        <li><a class="btn-link pointer change-estado" rel="{{:id}}" rev="{{:estado}}">Desactivar</a></li>
+                                                        {{/if}}
+                                                        {{if estado == 'INA' || estado == 'CRE'}}
+                                                        <li><a class="btn-link pointer change-estado" rel="{{:id}}" rev="{{:estado}}">Activar</a></li>
+                                                        {{/if}}
+                                                        <li><a class="btn-link pointer" th:href="@{'/academico/anexo/editar/{{:id}}'}" rev="{{:estado}}">Editar</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </template>
+                        </raptor-table>
+
+                        <table class="table table-striped" id="dynaTable">
+                            <thead> 
+                                <tr> 
+                                    <th class="col-md-5"></th>
+                                    <th class="col-md-3 text-left">Especialidad Posgrado</th>
+                                    <th class="col-md-3 text-left">Departamento Académico</th>
+                                    <th class="col-md-1">Estado</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </section>
                 </section>
             </section>
-
-            <section class="panel">
-                <section class="panel-body">
-
-                    <table class="table table-striped" id="dynaTable">
-                        <thead> 
-                            <tr> 
-                                <th class="col-md-5"></th>
-                                <th class="col-md-3 text-left">Carrera</th>
-                                <th class="col-md-3 text-left">Departamento</th>
-                                <th class="col-md-1">Estado</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </section>
-            </section>
-        </section>
+        </div>
 
         <div th:substituteby="academico/anexoboletin/modalAnexo"/>
         <div th:substituteby="templates/modal"/>

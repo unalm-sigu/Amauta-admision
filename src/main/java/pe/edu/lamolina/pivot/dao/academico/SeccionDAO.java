@@ -56,4 +56,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allUnusedByCiclo(CicloAcademico ciclo);
 
+     List<Seccion> allByCicloClone(CicloAcademico cicloOrigen);
+
 }

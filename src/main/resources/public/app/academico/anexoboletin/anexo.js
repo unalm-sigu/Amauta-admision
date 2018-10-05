@@ -110,5 +110,17 @@ $(function () {
         Anexo.viewCount($(this), e);
     });
 
+});
 
+
+new Vue({
+    el: '#pageAnexosVUE',
+    data: {
+        anexosURL: APP.url('academico/anexo/list'),
+    },
+    mounted: function () {
+    },
+    methods: {
+        
+    }
 });

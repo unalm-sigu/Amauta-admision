@@ -128,6 +128,7 @@ new Vue({
             var self = $(e.currentTarget);
             self.btnDisabled();
             $(".mx-input").attr("required", true);
+            
             if (!$("#formConfig").parsley().validate()) {
                 self.btnEnable();
                 return;

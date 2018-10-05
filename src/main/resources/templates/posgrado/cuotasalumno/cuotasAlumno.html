@@ -1,0 +1,289 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Cuotas Alumno</title>
+        <style>
+            .td-vacio {
+                padding-right: 4px !important;
+                padding-left: 4px !important;
+            }
+            .bg-row {
+                background-color: #f9fafc;
+            }
+            .row{
+                margin-bottom: 15px;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="cuotasAlumnoMain" > <!-- v-cloak=""-->
+
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success nuevo-grupo-sec" th:if="false">Nuevo Grupo</a>
+                        </div>
+                    </div> 
+                    <h2 th:text="|Cuotas Alumnos ${ciclo.descripcion}|">Cuotas Alumno</h2>
+                </header>
+                <section class="wrapper-lg">
+                    <section class="panel m-b-xs">
+                        <section class="panel-body">
+                            <div class="row">
+                                <div class="form-group">
+                                    <label class="col-md-2 bold">Tarifa</label>
+
+                                    <div class="col-md-5">
+                                        <multiselect 
+                                            v-model="alumnoResumenCuotas.tarifaCarrera"
+                                            v-on:input="changeTarifa"
+                                            placeholder=""
+                                            track-by="id"
+                                            v-bind:options="tarifasCarreras"
+                                            v-bind:custom-label='labelTarifa'
+                                            >
+                                        </multiselect>
+                                    </div>
+
+                                    <div class="col-md-1">
+                                        Creditos Minimo
+                                    </div>
+                                    <span class="col-md-1" v-if="alumnoResumenCuotas.tarifaCarrera"
+                                          v-text="alumnoResumenCuotas.tarifaCarrera.creditosMinimo">
+
+                                    </span>
+                                    <div class="col-md-1">
+                                        Creditos Maximo
+                                    </div>
+                                    <span class="col-md-1" 
+                                          v-if="alumnoResumenCuotas.tarifaCarrera"
+                                          v-text="alumnoResumenCuotas.tarifaCarrera.creditosMaximo">
+
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label  class="col-md-2 bold">Creditos</label>
+
+                                    <div class="col-md-2">
+                                        <input type="number" 
+                                               v-model="alumnoResumenCuotas.creditosMaximo"
+                                               v-bind:min="0"
+                                               v-bind:max="100"
+                                               v-on:change="calcularCreditosExceso"
+                                               v-on:blur="calcularCreditosExceso"
+                                               class="form-control"/>
+                                    </div>
+
+                                    <label class="col-md-2 bold">Exceso</label>
+
+                                    <div class="col-md-2">
+                                        <input type="number"
+                                               v-model="alumnoResumenCuotas.creditosExceso"
+                                               class="form-control"
+                                               disabled="true"/>
+                                    </div>
+
+                                    <label class="col-md-2 bold">Pago Al Cash</label>
+                                    <div class="col-md-2">
+                                        <label class="switch"
+                                               >
+                                            <input  type="checkbox" 
+                                                    v-model="alumnoResumenCuotas.pagoCash"
+                                                    v-on:change="pagoAlCash"
+                                                    />
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label  class="col-md-2 bold">Monto Inicial</label>
+
+                                    <div class="col-md-2">
+                                        <div class="input-group">
+                                            <input type="text" 
+                                                   v-model="alumnoResumenCuotas.porcentajeMontoInicial"
+                                                   class="form-control"
+                                                   v-bind:min="alumnoResumenCuotas.tarifaCarrera!=null &amp;&amp; alumnoResumenCuotas.tarifaCarrera.tarifasConcepto !=null ? alumnoResumenCuotas.tarifaCarrera.tarifasConcepto[1].porcentajeMinimoInicial : 0 "
+                                                   v-bind:disabled="alumnoResumenCuotas.pagoCash"/>
+                                            <span class="input-group-addon"><i>%</i></span>
+                                        </div>
+                                    </div>
+
+                                    <label class="col-md-2 bold">Cuotas</label>
+
+                                    <div class="col-md-2">
+                                        <input type="number" 
+                                               v-model="alumnoResumenCuotas.cuotas"
+                                               v-bind:disabled="alumnoResumenCuotas.pagoCash"
+                                               v-bind:min="0"
+                                               class="form-control"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <div class="text-center">
+
+
+                                        <a type="button" v-on:click="generarCuotas" 
+                                           class="btn btn-success nuevo-grupo-sec">Generar</a>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </section>
+                    <section class="panel m-b-xs"
+                             v-if="alumnoResumenCuotas.alumnoConceptosMatricula">
+                        <section class="panel-body">
+
+                            <div class="form-group">
+                                <div class="text-center">
+                                    <table class="table table-striped" 
+                                           >
+                                        <thead>
+                                            <tr>
+                                                <th class="col-md-4 text-center">
+                                                    Concepto
+                                                </th>
+                                                <th class="col-md-3 text-center">
+                                                    Monto
+                                                </th>
+                                                <th class="col-md-3 text-center">
+                                                    Inicial
+                                                </th>
+                                                <th class="col-md-2 text-center">
+                                                    Fraccion
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="alumnoConceptoMatricula in alumnoResumenCuotas.alumnoConceptosMatricula"
+                                                v-if="alumnoResumenCuotas.alumnoConceptosMatricula">
+                                                <td class="text-center">
+                                                    <span v-if="alumnoConceptoMatricula.conceptoPosgrado" 
+                                                          v-text="alumnoConceptoMatricula.conceptoPosgrado.nombre" >
+
+                                                    </span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span v-text="alumnoConceptoMatricula.monto"></span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span v-text="alumnoConceptoMatricula.inicial"></span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span v-text='alumnoConceptoMatricula.fraccionado' ></span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </section>
+                    </section>
+                    <section class="panel m-b-xs"  v-if="alumnoResumenCuotas.alumnoCuotasMatricula &amp;&amp; !alumnoResumenCuotas.pagoCash">
+                        <section class="panel-body">
+
+                            <table  class="table table-striped"
+
+                                    >
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Cuota
+                                        </th>
+                                        <th>
+                                            Matricula
+                                        </th>
+                                        <th>
+                                            Enseñanza
+                                        </th>
+                                        <th>
+                                            Total
+                                        </th>
+                                        <th>
+                                            Fecha
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr >
+                                        <td>
+                                            Matricula
+                                        </td>
+                                        <td>
+                                            <span v-text="alumnoResumenCuotas.alumnoConceptosMatricula[0].monto"></span>
+                                        </td>
+                                        <td>
+                                            <span v-text="alumnoResumenCuotas.alumnoConceptosMatricula[1].inicial"></span>
+                                        </td>
+                                        <td>
+                                            <span v-text="alumnoResumenCuotas.alumnoConceptosMatricula[0].monto+alumnoResumenCuotas.alumnoConceptosMatricula[1].inicial"></span>
+                                        </td>
+                                        <td>
+                                <format-date v-bind:datetext="alumnoResumenCuotas.alumnoConceptosMatricula[1].fechaRegistro"></format-date>
+                                </td>
+                                </tr>
+                                <tr v-if="alumnoResumenCuotas.alumnoCuotasMatricula"
+                                    v-for="alumnoCuotas in alumnoResumenCuotas.alumnoCuotasMatricula">
+                                    <td v-text="alumnoCuotas.numeroCuota">
+
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td v-text="alumnoCuotas.montoCuota">
+
+                                    </td>
+                                    <td v-text="alumnoCuotas.montoCuota">
+
+                                    </td>
+                                    <td>
+                                <format-date v-bind:datetext="alumnoCuotas.fechaEmision"></format-date>
+                                </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    </section>
+                    <section class="panel m-b-xs"
+                             v-if="alumnoResumenCuotas.alumnoConceptosMatricula">
+                        <section class="panel-body text-center">
+                            <a type="button" v-on:click="grabarCuotasAlumno" 
+                               class="btn btn-success nuevo-grupo-sec">Grabar</a>
+                        </section>
+                    </section>
+                </section>
+
+                <!-- modals -->
+
+                <!--<script id="gpoSeccionTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/gposeccion/gpoSeccionTemplate"/></script>-->
+            </div>
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="templates/modal"/>
+        </div>
+
+        <div layout:fragment="js">
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-generalComponents.js}"></script>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:inline="javascript">
+                var alumnoResumenCuotasJson = /*[[${alumnoResumenCuotasJson}]]*/{};
+                var tarifasCarrerasJson = /*[[${tarifasCarrerasJson}]]*/{};
+            </script>
+
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/posgrado/cuotasalumno/cuotasAlumno.js}" charset="utf-8"></script>
+        </div>
+
+
+    </body>
+</html>

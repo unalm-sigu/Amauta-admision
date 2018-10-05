@@ -17,14 +17,14 @@ public interface OrdenMeritoService {
 
     CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico);
 
-    public List<CicloAcademico> allCicloAcademicoForSelect();
+    List<CicloAcademico> allCicloAcademicoForSelect();
 
     CicloAcademico findCicloActivo();
 
-    public List<AlumnoCiclo> allAlumnoCicloByControl(DynatableFilter filter, ControlOrdenMerito controlOrdenMerito);
+    List<AlumnoCiclo> allAlumnoCicloByControl(DynatableFilter filter, ControlOrdenMerito controlOrdenMerito);
 
     ControlOrdenMerito find(Long id);
 
-    public List<AlumnoCiclo> allAlumnoCicloByControlNivel(DynatableFilter filter, ControlOrdenMerito controlOrdenMerito, Integer nivel);
+    List<AlumnoCiclo> allAlumnoCicloByControlNivel(DynatableFilter filter, ControlOrdenMerito controlOrdenMerito, Integer nivel);
 
 }

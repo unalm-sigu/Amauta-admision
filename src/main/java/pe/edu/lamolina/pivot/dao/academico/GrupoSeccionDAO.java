@@ -42,6 +42,8 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     List<String> allCodigoByCiclo(CicloAcademico cicloAcademico);
 
+    List<String> allCodigo2ByCiclo(CicloAcademico cicloAcademico);
+
     void updateEstadoFechaModUsuarioMod(GrupoSeccion grupoSeccion);
 
     GrupoSeccion findLock(Long id);
@@ -59,5 +61,11 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
     Map<Long, Long> allCountAlumnos(List<GrupoSeccion> grupos);
 
     Map<Long, Long> allCountAlumnosWithNf(List<GrupoSeccion> grupos);
+
+    List<GrupoSeccion> allByDynatableGruposSeccion(DynatableFilter filter, CicloAcademico ciclo, List<GrupoSeccion> gpos);
+
+    Long contarByCiclo(CicloAcademico ciclo);
+
+    List<GrupoSeccion> allByCicloClone(CicloAcademico cicloOrigen);
 
 }

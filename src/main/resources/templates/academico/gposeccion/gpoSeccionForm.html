@@ -39,8 +39,8 @@
             text-align: center;
             font-size: 24px;
             text-indent: 0;
+            margin: auto;
             margin-top: 10px;
-            margin-left: 10px;
         }
         .text-curso {
             font-size: 18px;
@@ -66,9 +66,10 @@
                         <section class="panel m-b-xs">
                             <section class="panel-body">
                                 <div class="row">
-                                    <div class="col-md-1">
+                                    <div class="col-md-1 text-center">
                                         <div class="avatar-gposecc"
                                              v-text='avatarGpo()'>234</div>
+                                        <a class="label label-primary m-t-xs" v-on:click="openClonar"> Clonar </a>
                                     </div>
 
                                     <div class="col-md-9">
@@ -489,6 +490,17 @@
                 </div>
             </modal-vik>
 
+
+            <modal-vik ref="modalClonacion"
+                       v-bind="clonacionModal"
+                       v-bind:okaction="clonar">
+                <div slot="body">
+                    <div class="form-group">
+                        <label> Cantidad de veces a clonarse </label>
+                        <input class="form-control" v-model="vecesClon"/>
+                    </div>
+                </div>
+            </modal-vik>
 
         </div>
 
