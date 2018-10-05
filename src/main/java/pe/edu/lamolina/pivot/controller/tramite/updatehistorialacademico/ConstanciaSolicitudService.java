@@ -1,15 +1,10 @@
 package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
-import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -23,31 +18,15 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ConstanciaSolicitudService {
 
-    Alumno allInfo(Alumno alumno);
-
     void updateHistorialAcademico(Alumno alumnoForm, DataSessionPivot ds);
-
-    List<CicloAcademico> allCicloAcademico();
-
-    ObjectNode toJson(Object object);
 
     List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);
 
-    List<Curso> allCursoByName(String nombre);
-
-    List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter);
-
     void updateTramiteDocumentoAcademico(TramiteDocumentoAcademico solicitudConstanciaForm, DataSessionPivot ds);
-
-    TramiteDocumentoAcademico findTramiteDocumentoAcademico(TramiteDocumentoAcademico solicitudConstanciaForm);
-
-    void delete(TramiteDocumentoAcademico solicitudConstancia);
 
     List<MatriculaResumen> allMatriculaResumenByAlumno(Alumno alumno);
 
     List<Idioma> allIdiomas();
-
-    List<TipoDocumentoAcademico> allTipoDocumentoAcademico();
 
     Alumno findAlumno(Alumno alumnoSesssion);
 
@@ -56,14 +35,6 @@ public interface ConstanciaSolicitudService {
     Persona findPersona(Persona persona);
 
     void fillTipoDocumentoAcademico(ArrayNode arrayTipoDocumentoAcademico);
-
-    void saveTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
-
-    void cancelar(TramiteDocumentoAcademico solicitudConstancia, DataSessionPivot ds);
-
-    List<PrecioDocumento> allPrecioDocumento();
-
-    String getCostoDocumento(TramiteDocumentoAcademico tramiteDoc, Map<Long, List<PrecioDocumento>> preciosMap);
 
     TramiteDocumentoAcademico findTramite(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm);
 
@@ -75,14 +46,14 @@ public interface ConstanciaSolicitudService {
 
     List<Colaborador> allColaboradorByName(String nombre);
 
-    void revision(TramiteDocumentoAcademico solicitudConstancia);
-
-    List<Curso> allCursoByNameExceptList(String nombre, ArrayList<Long> cursos);
-
-    List<CicloAcademico> allCicloByNameExceptList(String nombre, ArrayList<Long> idCiclos);
-
-    List<TipoDocumentoAcademico> allTipoDocumentoAcademicoByName(String nombre);
-
     void updateFotoTemporal(Persona imagenForm);
+
+    public void save(TramiteDocumentoAcademico documentoAcademico, DataSessionPivot ds);
+
+    public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter);
+
+    public List<PrecioDocumento> allPrecioDocumento();
+
+    public List<TipoDocumentoAcademico> allTipoDocumentoAcademico();
 
 }
