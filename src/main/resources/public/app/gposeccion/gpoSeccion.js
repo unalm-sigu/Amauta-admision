@@ -28,8 +28,13 @@ new Vue({
             //okbtn: 'Aceptar',
             modalsize: 'modal-md'
         },
+        dataCloneCiclo: {
+            id: 'modalCloneCiclo',
+            title: 'Clonar Ciclo'
+        },
         seccionSelect: {},
-        tipoRestriccion: ''
+        tipoRestriccion: '',
+        ciclo:{}
     },
     mounted: function () {
         let $vue = this;
@@ -240,6 +245,10 @@ new Vue({
             $vue.settingUrlAnexoSelect();
             $vue.$refs.load.loadRemoteData();
 
+        },
+        clonarCiclo() {
+            let $vue = this;
+            $vue.$refs.modalCloneCiclo.open();
         }
     }
 });

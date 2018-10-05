@@ -66,4 +66,6 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     Long contarByCiclo(CicloAcademico ciclo);
 
+    List<GrupoSeccion> allByCicloClone(CicloAcademico cicloOrigen);
+
 }
