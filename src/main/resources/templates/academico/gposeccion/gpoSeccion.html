@@ -21,7 +21,8 @@
 
                     <div class="pull-right m-t-md">                 
                         <div class="btn-group">
-                            <a type="button" class="btn btn-success nuevo-grupo-sec">Nuevo Grupo</a>
+                            <a th:if="${cantidad > 0}" type="button" class="btn btn-success nuevo-grupo-sec">Nuevo Grupo</a>
+                            <a th:if="${cantidad == 0}" type="button" class="btn btn-success">Clonar Ciclo</a>
                         </div>
                     </div> 
                     <h2 th:text="|Programación de horarios ${ciclo.descripcion}|">Grupo Sección</h2>
@@ -356,7 +357,7 @@
             </div>
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="academico/gposeccion/components/seccionDetalleComponent"/>
-            <div th:substituteby="templates/modal"/>
+            <!--<div th:substituteby="templates/modal"/>-->
         </div>
 
         <div layout:fragment="js">

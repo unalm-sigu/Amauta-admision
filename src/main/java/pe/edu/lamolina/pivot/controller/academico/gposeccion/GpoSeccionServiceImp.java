@@ -1874,7 +1874,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo) {
-        return grupoSeccionDAO.resumenByCiclo(ciclo);
+        GpoSeccionResumen resumen = grupoSeccionDAO.resumenByCiclo(ciclo);
+        resumen.setActividades(resumen.getActividades() == null ? 0 : resumen.getActividades());
+        resumen.setDepartamentos(resumen.getDepartamentos() == null ? 0 : resumen.getDepartamentos());
+        resumen.setIngresantes(resumen.getIngresantes() == null ? 0 : resumen.getIngresantes());
+        resumen.setPostGrados(resumen.getPostGrados() == null ? 0 : resumen.getPostGrados());
+
+        return resumen;
     }
 
     @Override
@@ -2070,10 +2076,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             String codigo = CodeGenerator.getNextCode(codigosByCiclo, 0);
             String codigo2 = CodeGenerator.getNextCode(codigos2ByCiclo, 0);
 
-
             codigosByCiclo.add(codigo);
             codigos2ByCiclo.add(codigo2);
-
 
             clon.setCurso(curso);
             clon.setCodigo(codigo);
@@ -2083,9 +2087,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             clon.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
             clon.setCicloAcademico(cicloAcademico);
             clon.setEstadoEnum(gsBD.getEstadoEnum());
-            
+
             clon.setAnexoBoletin(gsBD.getAnexoBoletin());
-            
 
             Integer horasTeoria = curso.getHorasTeoria() == null ? 0 : curso.getHorasTeoria();
             Integer horasPractica = curso.getHorasPractica() == null ? 0 : curso.getHorasPractica();
@@ -2214,6 +2217,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public List<GrupoSeccion> allCleanByDynatableGruposSeccion(DynatableFilter filter, CicloAcademico ciclo, List<GrupoSeccion> gpos) {
         return grupoSeccionDAO.allByDynatableGruposSeccion(filter, ciclo, gpos);
+    }
+
+    @Override
+    public Long contarGpoSecc(CicloAcademico ciclo) {
+        return grupoSeccionDAO.contarByCiclo(ciclo);
     }
 
 }

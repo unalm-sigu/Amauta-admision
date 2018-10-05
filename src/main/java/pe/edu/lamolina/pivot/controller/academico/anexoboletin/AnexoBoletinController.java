@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
@@ -87,18 +88,26 @@ public class AnexoBoletinController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (AnexoBoletin anexo : anexos) {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-                node.put("id", anexo.getId());
-                node.put("codigo", anexo.getCodigo());
-                node.put("nombre", anexo.getNombre());
-                node.put("departamento", anexo.getDepartamentoAcademico() != null ? anexo.getDepartamentoAcademico().getNombre() : "");
-                node.put("carrera", anexo.getCarrera() != null ? anexo.getCarrera().getNombre() : "");
-                node.put("anexoSuperior", anexo.getAnexoSuperior() != null ? anexo.getAnexoSuperior().getNombre() : "");
-                node.put("orden", anexo.getOrden());
-                node.put("estado", anexo.getEstado());
-                node.put("estadoName", EstadoEnum.valueOf(anexo.getEstado()).getValue());
-                node.put("motivo", anexo.getMotivoAnulacion());
+                ObjectNode node = JsonHelper.createJson(anexo, JsonNodeFactory.instance, true, new String[]{
+                    "id", "codigo", "nombre", "orden", "estado", "estadoEnum", "motivo",
+                    "departamentoAcademico.id",
+                    "departamentoAcademico.nombre",
+                    "carrera.id",
+                    "carrera.nombre",
+                    "anexoSuperior.id",
+                    "anexoSuperior.nombre"
+                });
+//
+//                node.put("id", anexo.getId());
+//                node.put("codigo", anexo.getCodigo());
+//                node.put("nombre", anexo.getNombre());
+//                node.put("departamento", anexo.getDepartamentoAcademico() != null ? anexo.getDepartamentoAcademico().getNombre() : "");
+//                node.put("carrera", anexo.getCarrera() != null ? anexo.getCarrera().getNombre() : "");
+//                node.put("anexoSuperior", anexo.getAnexoSuperior() != null ? anexo.getAnexoSuperior().getNombre() : "");
+//                node.put("orden", anexo.getOrden());
+//                node.put("estado", anexo.getEstado());
+//                node.put("estadoName", EstadoEnum.valueOf(anexo.getEstado()).getValue());
+//                node.put("motivo", anexo.getMotivoAnulacion());
                 array.add(node);
             }
             json.setData(array);

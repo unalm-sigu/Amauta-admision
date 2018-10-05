@@ -62,6 +62,8 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     Map<Long, Long> allCountAlumnosWithNf(List<GrupoSeccion> grupos);
 
-    public List<GrupoSeccion> allByDynatableGruposSeccion(DynatableFilter filter, CicloAcademico ciclo, List<GrupoSeccion> gpos);
+    List<GrupoSeccion> allByDynatableGruposSeccion(DynatableFilter filter, CicloAcademico ciclo, List<GrupoSeccion> gpos);
+
+    Long contarByCiclo(CicloAcademico ciclo);
 
 }
