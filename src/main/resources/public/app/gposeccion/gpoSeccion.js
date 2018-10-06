@@ -12,6 +12,7 @@ Vue.component("seccion-det-component", {
 
 new Vue({
     el: '#gpoSeccionesVUE',
+    mixins: [VueLoader],
     data: {
         gpoSeccionesURL: APP.url('academico/gposeccion/list'),
         seleccionado: '',
@@ -30,11 +31,12 @@ new Vue({
         },
         dataCloneCiclo: {
             id: 'modalCloneCiclo',
-            title: 'Clonar Ciclo'
+            title: 'Copiar Ciclo',
+            header: true,
         },
         seccionSelect: {},
         tipoRestriccion: '',
-        ciclo:{}
+        ciclo: {}
     },
     mounted: function () {
         let $vue = this;
@@ -249,6 +251,28 @@ new Vue({
         clonarCiclo() {
             let $vue = this;
             $vue.$refs.modalCloneCiclo.open();
+        },
+        saveCloneCiclo() {
+            let $vue = this;
+            $vue.showLoader();
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/clonarciclo'),
+                async: false,
+                data: {id: $vue.ciclo.id},
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, 'info');
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                    $vue.hideLoader();
+                },
+                error: function () {
+                    $vue.hideLoader();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     }
 });

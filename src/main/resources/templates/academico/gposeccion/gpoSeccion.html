@@ -354,24 +354,29 @@
                 </modal-vik>
 
                 <modal-vik ref="modalCloneCiclo"
-                           v-bind="dataCloneCiclo" >
+                           v-bind="dataCloneCiclo" 
+                           v-bind:okaction="saveCloneCiclo">
 
                     <div slot="body">
 
+                        <form class="panel-body">
 
-                        <div class="col-sm-6">
-                            <div class="form-group">
+                            <p class="col-xs-12 text-primary h5 m-t-xs" th:text="|Los datos se copiaran al ciclo ${ciclo.descripcion}|"></p>
 
-                                <label>Seleccione el ciclo acádemico de origen</label>
+                            <div class="col-xs-12">
+                                <div class="form-group">
 
-                                <vuelect 
-                                    v-bind:nombre="'ciclo.id'"  
-                                    v-bind:ciclo="ciclo"
-                                    />
+                                    <label>Seleccione el ciclo acádemico de origen</label>
 
+                                    <vuelect 
+                                        v-bind:nombre="'ciclo.id'"  
+                                        v-bind:ciclo="ciclo"
+                                        />
+
+                                </div>
                             </div>
-                        </div>
 
+                        </form>
 
                     </div>
 
@@ -386,6 +391,7 @@
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_layout/includes :: vue-loader"/>
             <div th:substituteby="academico/gposeccion/vuelect2"></div>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/gposeccion/gpoSeccion.js}" charset="utf-8"></script>
