@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.curso;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -131,7 +129,7 @@ public class CursoServiceImp implements CursoService {
         cursoBD.setCoordinador(curso.getCoordinador());
 
         cursoDAO.update(cursoBD);
-
+     
         return cursoBD;
 
     }
