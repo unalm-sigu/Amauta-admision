@@ -98,6 +98,20 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
+    public List<Seccion> allWithMatriculadosByGposSeccion(List<GrupoSeccion> gruposSeccion) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .leftJoin("aula", "grupoHoras", "seccionSuperior")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("matriculados", ">", 0)
+                .in("gs.id", gruposSeccion)
+                .orderBy("sec.codigo2");
+
+        return all(sql);
+    }
+
+    @Override
     public List<Seccion> allActivosByGpoSeccion(GrupoSeccion gruposSeccion) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
@@ -280,6 +294,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
 
     @Override
     public List<Seccion> allUnusedByCiclo(CicloAcademico ciclo) {
+
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "se")
                 .join("grupoSeccion gs", "gs.cicloAcademico ca")
@@ -287,15 +302,22 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .filter("se.codigo", "like", "Y%")
                 .orderBy("se.codigo");
         return all(sql);
+
     }
 
     @Override
-    public List<Seccion> allByCicloClone(CicloAcademico ciclo) {
+    public List<Seccion> allByGrupoSeccionByClone(List<GrupoSeccion> gsOrigenes) {
+
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
-                .filter("ca.id", ciclo);
+                .in("gs.id", gsOrigenes)
+                .filter("sec.vacantes", ">", 0)
+                .filter("sec.matriculados", ">", 0)
+                .orderBy("sec.codigo", "sec.codigo2");
+
         return all(sql);
+
     }
 
 }
