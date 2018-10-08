@@ -1,11 +1,26 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title th:text="${tipoDocumentoNombre}">Título</title>
+        <style>
+            .div-variable {
+                border-radius: 5px;
+                border: 1px solid #AEBDCD;
+                zoom: 1;
+            }
+            .close-btn {
+                position: absolute;
+                top: -13px;
+                right: -1px;
+                z-index: 100;
+                border-radius: 50px;
+                padding: 5px 10px;
+            }
+        </style>
     </head>
 
     <body>
         <div layout:fragment="main">
-            <div id="main">
+            <div id="main" v-cloak="">
                 <header class="header b-b padder-lg">
                     <a th:href="@{/tramite/plantillaconstancia}" class="btn btn-default btn-sm pull-right">Regresar</a>
                     <h2 th:text=" ${tipoDocumentoNombre}">Titulo</h2>
@@ -15,17 +30,6 @@
                 <section class="wrapper-lg">
 
                     <section  class="panel">
-                        <section class="panel-body">
-                            <div class="col-sm-6 col-sm-offset-4">
-                                <div class="form-group">
-                                    <alumnosearch   v-bind:alumno="alumno"  />
-                                </div>
-                            </div>
-                            <div class="col-sm-2">
-                                <button type="button" v-on:click.prevent="previewHtml" class="btn btn-default btn-sm"><i class="fa fa-html5" aria-hidden="true"></i></button>
-                                <button type="button" v-on:click.prevent="previewPdf($event)" class="btn btn-default btn-sm"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
-                            </div>
-                        </section>
 
                         <section class="panel-body">
                             <form id="form" method="POST" >
@@ -41,58 +45,67 @@
                         <section class="panel-body text-center v-middle">
                             <a href="/tramite/plantillaconstancia" class="btn btn-link">Regresar</a>
                             <button v-on:click="updateContenido" class="btn btn-primary" id="updateContenido">Guardar</button>
+                            <button type="button" v-on:click.prevent="previewHtml" class="btn btn-warning btn-sm ">Visualización</button>
                         </section>
-
+                    </section>
+                    <section class="panel">
                         <section class="panel-body">
-                            <h4>Variables</h4>
-                            <div v-for="variable in variables" class="col-sm-6">
-                                <p v-bind:class="{ 'text-danger' : variable.variableGenerica.id=='' }" class="" >{{variable.variableGenerica.codigo}} : {{variable.variableGenerica.descripcion}} </p>
+
+                            <h3>Variables</h3>
+                            <div class="qrow">
+                                <div v-for="item in variablePlantilla" class="col-sm-3 panel">
+                                    <button class="btn btn-danger btn-sm close-btn" v-on:click="deleteVariable(item)">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+
+                                    <div class="div-variable panel-body">
+                                        <span v-text="item.variableGenerica.codigo" class="text-danger bold block"></span>
+                                        <span v-text="item.variableGenerica.descripcion" class="text-primary bold block"></span>
+                                        <input type="text" class="form-control" v-model="item.ejemplo" v-on:keyup.enter="updateVariable(item)"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-3 panel">
+                                    <button class="btn btn-success btn-sm close-btn" v-on:click="addVariable()">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+
+                                    <div class="div-variable panel-body">
+                                        <div class="form-group">
+                                            <multiselect v-model="contVariable.variableGenerica" 
+                                                         v-bind:options='variables'
+                                                         label='codigo'
+                                                         track-by='id'
+                                                         deselect-label=""
+                                                         select-label=""
+                                                         v-bind:allow-empty="false"
+                                                         v-bind:hide-selected="true"
+                                                         v-on:input="">
+                                            </multiselect>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="Ingrese ejemplo" v-model="contVariable.ejemplo"/>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </section>
-
                     </section>
                 </section>
 
-                <div th:substituteby="tramite/editarContenido/contenidopreview"/>
+                <div th:substituteby="tramite/editarContenido/contenidopreview"></div>
 
-            </div>
+            </div> 
 
-            <template id="alumnoTemp">
-                <input type="text"
-                       class="form-control"
-                       data-trigger="change"
-                       v-model="alumno.id"
-                       />
-            </template>
-
-            <template   type="text/x-template" id="alumnoItem">
-                <div class="row">
-                    <div class="pull-left">
-                        <div v-if="alumno.tipoFoto=='POSTUL' "
-                             class="img-responsive img-thumbnail img-circle div-foto-list">
-                            <img class="img-foto-list" v-bind:src="alumno.rutaFoto" />
-                        </div>
-
-                        <img v-else-if="alumno.tipoFoto=='COMUN' " 
-                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
-                             v-bind:src="alumno.rutaFoto" />
-
-                        <img v-else="" 
-                             class="img-foto-tempo img-responsive img-thumbnail img-circle" 
-                             v-bind:src="alumno.rutaFoto" />
-                    </div>
-                    <span class="block bold m-t-sm">{{alumno.nombre}}</span>
-                    <span class="block">Especialida de {{alumno.carrera}}    Facultad de {{alumno.facultad}} </span>
-                    <span class="text-sm block"> {{alumno.tipo}}   {{alumno.numero}}   Nro Matrícula  {{alumno.codigoMatricula}} </span>
-                </div>
-            </template>
-
-            <div th:substituteby="_modules/vue-modal"/>
-
+            <div th:substituteby="_modules/vue-modal"> </div>
         </div>
 
-        <div layout:fragment="js" th:remove='tag'>
-
+    <div layout:fragment="js" th:remove='tag'>
+        <script th:inline="javascript">
+            var variablePlantillaJson = /*[[${variablePlantilla}]]*/ {};
+            var variablesJson = /*[[${variables}]]*/ {};
+            var id = /*[[${id}]]*/ {};
+            </script>
             <div th:substituteby="_layout/includes :: javascript-upload" th:remove='tag'></div>
             <div th:substituteby="_layout/includes :: javascript-ckeditor" th:remove="tag"></div>
             <div th:substituteby="_layout/includes :: vuemodal"/>
