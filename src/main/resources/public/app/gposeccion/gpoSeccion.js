@@ -5,7 +5,6 @@ Vue.component("seccion-det-component", {
         seccion: null
     }, watch: {
         seccion(newValue) {
-
         }
     }
 });

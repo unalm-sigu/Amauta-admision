@@ -27,7 +27,7 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
-    public List<Colaborador> allColaborador(List<Oficina> oficinas) {
+    public List<Colaborador> allByOficinas(List<Oficina> oficinas) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .join("oficina ofi", "cargo car", "persona per")
@@ -37,7 +37,7 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
-    public List<Colaborador> allColaboradorByOficina(Oficina oficina) {
+    public List<Colaborador> allByOficina(Oficina oficina) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .join("oficina ofi", "cargo car", "persona per")
@@ -58,6 +58,17 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
+    public List<Colaborador> allActivosByOficina(Oficina oficina) {
+        Octavia sql = Octavia.query()
+                .from(Colaborador.class, "co")
+                .join("oficina ofi", "cargo car", "persona per")
+                .filter("ofi.id", oficina)
+                .in("co.estado", Arrays.asList(ACT, VAC, DSC, PER));
+
+        return all(sql);
+    }
+
+    @Override
     public Colaborador allActivosByPersonaAndOficina(Oficina oficina, Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
@@ -70,7 +81,7 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
-    public Colaboradores countColaboradores(List<Oficina> oficinas) {
+    public Colaboradores countByOficinas(List<Oficina> oficinas) {
         Octavia sql = Octavia.query()
                 .select("sum(case co.estado when 'ACT' then 1 else 0 end)",
                         "sum(case co.estado when 'VAC' then 1 else 0 end)",
@@ -88,7 +99,7 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
-    public List<Colaborador> allByOficina(DynatableFilter filter, List<Oficina> oficinas) {
+    public List<Colaborador> allDynatableByOficina(DynatableFilter filter, List<Oficina> oficinas) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Colaborador.class, "co")
                 .join("persona per", "oficina ofi")
