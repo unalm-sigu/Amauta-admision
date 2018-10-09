@@ -4,6 +4,7 @@ new Vue({
         solicitudURL: APP.url('tramite/solicitudconstancia/list'),
         persona: {},
         solicitud: {},
+        tramiteDocumento: {},
         colaborador: {},
         mensajeerror: "",
         dataCargarFoto: {
@@ -30,28 +31,31 @@ new Vue({
     },
     methods: {
         classEstado(value) {
+            console.log(value)
             switch (value) {
                 case 'ACEP':
-                case 'PEND':
+                case 'PAG':
                 case 'DEV':
                 case 'ENV':
                 case 'CRE':
-                    return "label label-default ";
+                    return "label label-default";
                     break;
                 case 'ANU':
-                    return "label label-danger ";
+                    return "label label-danger";
                     break;
                 case 'ACT':
-                    return "label label-primary ";
+                case 'FVAL':
+                    return "label label-primary";
                     break;
 
             }
         },
         cargarfoto: function (item) {
-            var vue = this;
-            vue.persona = item.tramite.alumno.persona;
-            vue.dataCargarFoto.title = 'Cargar fotografía para ' + item.tramite.alumno.persona.apellidosNombres;
-            vue.$refs.cargarFoto.open();
+            var $vue = this;
+            $vue.persona = item.tramite.alumno.persona;
+            $vue.tramiteDocumento = item;
+            $vue.dataCargarFoto.title = 'Cargar fotografía para ' + item.tramite.alumno.persona.apellidosNombres;
+            $vue.$refs.cargarFoto.open();
         },
         createEnviarRevision: function () {
             var vue = this;
@@ -74,19 +78,19 @@ new Vue({
                 }
             });
         },
-        createCargarFoto: function (solicitud) {
-            var vue = this;
+        createCargarFoto: function () {
+            var $vue = this;
             $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
-
+            $vue.tramiteDocumento.tramite.alumno.persona = $vue.persona;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/solicitudconstancia/onlyfoto'),
                 contentType: "application/json",
-                data: JSON.stringify(vue.persona),
+                data: JSON.stringify($vue.tramiteDocumento),
                 success: function (response) {
                     if (response.success) {
-                        vue.$refs.cargarFoto.close();
-                        vue.$refs.load.loadRemoteData();
+                        $vue.$refs.cargarFoto.close();
+                        $vue.$refs.load.loadRemoteData();
                     } else {
                         notify(response.message, 'error');
                     }
@@ -115,6 +119,14 @@ new Vue({
             }).catch(function () {
                 console.log('FAILURE!!');
             });
+        },
+        update(tram, accion) {
+            var $vue = this;
+            $vue.tramiteDocumento = tram;
+            $vue.tramiteDocumento.estadoTramite = accion.estadoTramiteFinal;
+            if (accion.estadoTramiteFinal.codigo == 'PIMP') {
+                
+            }
         }
     }
 });
