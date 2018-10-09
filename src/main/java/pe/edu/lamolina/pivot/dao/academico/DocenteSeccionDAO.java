@@ -66,6 +66,6 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     List<DocenteSeccion> allActivosByDocenteCiclo(Docente docente, CicloAcademico ciclo);
 
-    List<DocenteSeccion> allByCicloClone(CicloAcademico cicloOrigen);
+    List<DocenteSeccion> allSeccionByClone(List<Seccion> secciones);
 
 }

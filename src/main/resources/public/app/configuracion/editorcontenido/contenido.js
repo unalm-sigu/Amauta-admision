@@ -154,7 +154,6 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-
         },
         addVariable() {
             let $vue = this;

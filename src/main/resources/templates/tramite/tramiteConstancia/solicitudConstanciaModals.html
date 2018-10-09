@@ -1,0 +1,48 @@
+<!--<modal-vik ref="enviarRevision"
+           v-bind="dataEnviarRevision"
+           v-bind:okaction="createEnviarRevision">
+
+    <div slot="body">
+
+        <form id="formEnviarRevision"  data-parsley-validate="true">
+
+            <div class="form-group">
+                <label>Colaborador</label>
+                <input type="text"
+                       class="form-control"
+                       name="colaborador.id"
+                       v-model="colaborador.id"
+                       required="true"/>
+            </div>
+        </form>
+
+    </div>
+</modal-vik>-->
+
+<modal-vik ref="cargarFoto"
+           v-bind="dataCargarFoto"
+           v-bind:okaction="createCargarFoto">
+
+    <div slot="body">
+        <form enctype="multipart/form-data" id="my-form">
+            <template >
+                <div>
+                    <div class="v-bottom m-t" style="width: 180px;">
+                        <img alt=""    class="img-responsive img-thumbnail img-circle" style="width: 200px;border-radius: 20%;"
+                             v-bind:src="persona.fullRutaFotoTemporal"
+                             data-holder-rendered="true" />
+                    </div>
+                    <div class="form-group">
+                            <input type="file" name="image" v-on:change="getImage" accept="image/*"/>
+                    </div>
+                    <!--                    <a class="btn m-l-md btn-sm btn-link" v-on:click.prevent="open" href="#">Subir imagen</a>
+                                        <i class="fa fa-folder-open-o" aria-hidden="true"></i>&nbsp;Seleccionar un archivo
+                                        <input type="file" accept=".pdf" name="myfile"/>-->
+                </div>
+                <div>
+                    <p class="text-danger" v-text="mensajeerror"></p>
+                </div>
+            </template>
+        </form>
+    </div>
+</modal-vik>

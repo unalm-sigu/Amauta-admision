@@ -116,7 +116,7 @@ new Vue({
             }
             $.ajax({
                 method: 'POST',
-                url: APP.url('tramite/solicitudconstancia/updatehistorial/save'),
+                url: APP.url('tramite/solicitudconstancia/save'),
                 data: $('#formSolicitudConstancia').serialize(),
                 success: function (response) {
                     if (response.success) {

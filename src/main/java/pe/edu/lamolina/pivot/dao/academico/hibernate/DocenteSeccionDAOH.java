@@ -417,8 +417,8 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
     }
 
     @Override
-    public List<DocenteSeccion> allByCicloClone(CicloAcademico cicloOrigen) {
-        
+    public List<DocenteSeccion> allSeccionByClone(List<Seccion> secciones) {
+                
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
@@ -426,7 +426,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
                 .filter("ds.estado", EstadoEnum.ACT)
                 .filter("sec.estado", EstadoEnum.ACT)
-                .filter("ca.id", cicloOrigen)
+                .in("sec.id", secciones)
                 .orderBy("cur.nombre", "sec.codigo2");
         return all(sql);
         

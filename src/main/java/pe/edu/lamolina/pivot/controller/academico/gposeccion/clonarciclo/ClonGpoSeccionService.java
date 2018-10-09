@@ -1,10 +1,15 @@
 package pe.edu.lamolina.pivot.controller.academico.gposeccion.clonarciclo;
 
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ClonGpoSeccionService {
 
-     void clonarCiclo(CicloAcademico cicloOrigen, CicloAcademico cicloDestino, DataSessionPivot ds);
+    void clonarCiclo(CicloAcademico cicloOrigen, CicloAcademico cicloDestino, DataSessionPivot ds);
+
+    Long contarGpoSecc(CicloAcademico ciclo);
+
+    public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
 
 }
