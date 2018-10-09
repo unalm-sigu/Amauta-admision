@@ -3,12 +3,15 @@ package pe.edu.lamolina.pivot.dao.tramite;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.bienestar.TipoSubvencion;
-import pe.edu.lamolina.model.tramite.AccionTramiteBienestar;
+import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
+import pe.edu.lamolina.model.tramite.EstadoTramite;
+import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 
 public interface AccionTramiteDocumentoDAO extends EasyDAO<AccionTramiteDocumento> {
 
+    List<AccionTramiteDocumento> allNextByEstadoInicio(EstadoTramite estadoTramite);
 
-    List<AccionTramiteDocumento> allNextByEstadoInicio(TipoSubvencion tipoSubvencion, String string);
+    public AccionTramiteDocumento findOrderOneByTipoDocumento(TipoDocumentoAcademico tipoDocumentoAcademico, Long order);
 
 }

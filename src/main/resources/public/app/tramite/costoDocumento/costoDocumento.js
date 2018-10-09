@@ -29,7 +29,7 @@ Vue.component("dynatable", {
             $dynatable = $('#dynaTable').dynatable({
                 dataset: {
                     type: 'GET',
-                    ajaxUrl: APP.url("tramite/costodocuemento/list"),
+                    ajaxUrl: APP.url("tramite/costodocumento/list"),
                     perPageDefault: 10
                 },
                 writers: {_rowWriter: $vue.writter},
@@ -111,7 +111,7 @@ new Vue({
             $vue.costoDocumento.tipoDocumento.costoCiclo = $vue.costoDocumento.tipoDocumento.costoCiclo == true ? 1 : 0;
             $.ajax({
                 method: 'POST',
-                url: APP.url('tramite/costodocuemento/update'),
+                url: APP.url('tramite/costodocumento/update'),
                 contentType: "application/json",
                 data: JSON.stringify($vue.costoDocumento),
                 success: function (response) {
@@ -140,7 +140,7 @@ new Vue({
             $vue.costoDocumento.tipoDocumento.costoCiclo = $vue.costoDocumento.tipoDocumento.costoCiclo == true ? 1 : 0;
             $.ajax({
                 method: 'POST',
-                url: APP.url('tramite/costodocuemento/save'),
+                url: APP.url('tramite/costodocumento/save'),
                 contentType: "application/json",
                 data: JSON.stringify($vue.costoDocumento),
                 success: function (response) {

@@ -69,14 +69,14 @@ new Vue({
             let $vue = this;
 
             console.log($vue.solicitud.tipoDocumentoAcademico);
-            if ($vue.solicitud.tipoDocumentoAcademico.tipo == 'CONS') {
+//            if ($vue.solicitud.tipoDocumentoAcademico.tipo == 'CONS') {
                 $vue.solicitud.tipoDocumentoAcademico.precioDocumento.forEach(function (item) {
                     if (item.idioma.id == value.id) {
                         $vue.showCostoDocumento = true;
                         $vue.costoDocumento = item.precio;
                     }
                 })
-            }
+//            }
         },
         customLabel( { persona}) {
             return `${persona.apellidosNombres}`
