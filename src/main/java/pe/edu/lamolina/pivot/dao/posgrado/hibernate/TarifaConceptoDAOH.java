@@ -5,6 +5,7 @@ import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.posgrado.ConceptoPosgrado;
 import pe.edu.lamolina.model.posgrado.TarifaCarrera;
 import pe.edu.lamolina.model.posgrado.TarifaConcepto;
 import pe.edu.lamolina.pivot.dao.posgrado.TarifaConceptoDAO;
@@ -32,6 +33,15 @@ public class TarifaConceptoDAOH extends AbstractEasyDAO<TarifaConcepto> implemen
         Query query = getCurrentSession().createQuery("delete from TarifaConcepto where tarifaCarrera = :TARIFACARRERA");
         query.setParameter("TARIFACARRERA", tarifaCarrera);
         query.executeUpdate();
+    }
+
+    @Override
+    public TarifaConcepto findByConceptoPosgrado(ConceptoPosgrado conceptoPosgrado) {
+        Octavia sql = Octavia.query(TarifaConcepto.class, "tc")
+                .join("tarifaCarrera tcar", "conceptoPosgrado cp")
+                .filter("cp.id", conceptoPosgrado)
+                .orderBy("cp.nombre asc");
+        return find(sql);
     }
 
 }
