@@ -265,11 +265,12 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .subqueryLinkedBy("gs.id", "ggss.id")
                 .searchSubqueryFields("doc.codigo", "se.codigo2", "gh.codigo", "au.codigo")
                 .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .orderBy("gs.id desc");
+                .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
+                //.orderBy("gs.id desc");
 
         sql.beginRelativeFilters();
         this.setGrupoAnexo(filter, sql);
+        this.setOrder(filter, sql);
 
         return sql.all(getCurrentSession());
     }
@@ -297,6 +298,23 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
             }
             sql.filter("ab.id", queries.get(key));
         }
+    }
+
+    private void setOrder(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            sql.orderBy("gs.id desc");
+            return;
+        }
+        for (String key : queries.keySet()) {
+            if (key.equals("order-codigo")) {
+                sql.orderBy("gs.codigo asc");
+                return;
+            }
+        }
+        sql.orderBy("gs.id desc");
+        return;
+
     }
 
     @Override
@@ -526,10 +544,10 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
         Octavia subquery = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
-                .join("seccion sec","sec.grupoSeccion ggss")
+                .join("seccion sec", "sec.grupoSeccion ggss")
                 .filter("ds.estado", EstadoEnum.ACT)
                 .filter("sec.estado", EstadoEnum.ACT)
-                .filter("sec.matriculados",">", 0);
+                .filter("sec.matriculados", ">", 0);
 
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
@@ -540,7 +558,21 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .exists(subquery)
                 .linkedBy("gs.id", "ggss.id")
                 .orderBy("asu.orden", "ab.orden", "cur.nombre");
-        
+
+        return all(sql);
+
+    }
+
+    @Override
+    public List<GrupoSeccion> allOrdenadoByCiclo(CicloAcademico ciclo) {
+
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("curso cur", "cicloAcademico ca", "anexoBoletin ab")
+                .join("ab.anexoSuperior asu")
+                .filter("ca.id", ciclo)
+                .orderBy("asu.orden", "ab.orden", "cur.nombre");
+
         return all(sql);
 
     }

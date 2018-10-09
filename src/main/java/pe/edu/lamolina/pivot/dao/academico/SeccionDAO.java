@@ -60,4 +60,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allByGrupoSeccionByClone(List<GrupoSeccion> gsOrigenes);
 
+    List<Seccion> allSeccionOrderByciclo(CicloAcademico ciclo);
+
 }

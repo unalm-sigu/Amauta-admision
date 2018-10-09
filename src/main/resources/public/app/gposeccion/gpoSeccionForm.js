@@ -999,6 +999,7 @@ var app = new Vue({
                             window.location.href = APP.url("academico/gposeccion/" + this.grupoSeccion.id + "/editar") + this.getOrigenURL() + `&ids=${Base64.encode(ids)}`;
                         }
                     })
-        }
+        },
+        
     }
 });

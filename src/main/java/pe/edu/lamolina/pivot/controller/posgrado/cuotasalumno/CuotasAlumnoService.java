@@ -7,7 +7,9 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.posgrado.AlumnoConceptoMatricula;
 import pe.edu.lamolina.model.posgrado.AlumnoResumenCuotas;
+import pe.edu.lamolina.model.posgrado.ConceptoPosgrado;
 import pe.edu.lamolina.model.posgrado.TarifaCarrera;
+import pe.edu.lamolina.model.posgrado.TarifaConcepto;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CuotasAlumnoService {
@@ -24,4 +26,7 @@ public interface CuotasAlumnoService {
 
     void grabarCuotasAlumno(AlumnoResumenCuotas alumnoResumenCuotas, DataSessionPivot ds);
 
+    AlumnoResumenCuotas findAlumnoResumenCuotaByAlumnoAndCiclo(Alumno alumno, CicloAcademico cicloAcademico);
+
+    TarifaConcepto findTarifaConceptoByConceptoPosgrado(ConceptoPosgrado conceptoPosgrado);
 }
