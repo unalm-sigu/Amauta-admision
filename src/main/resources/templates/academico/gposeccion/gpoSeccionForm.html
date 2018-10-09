@@ -412,6 +412,12 @@
                                 <section class="panel-body">
 
                                     <header class="page-header m-t-xs m-b-xs">
+
+                                        <a class="btn btn-info btn-sm pull-right m-t-xs" href="#"
+                                           v-on:click.prevent="solicitarIncremento()">
+                                             Solicitar Incremento
+                                        </a>
+
                                         <h4 class="text-primary">Configuración sección {{seccionSeleccionada.codigo2}}</h4>
 
                                         <div class="tabbable-line" style="margin-top: 8px;">	
@@ -535,6 +541,7 @@
         <script th:src="@{/app/gposeccion/restriccionComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/repitenciaComponent.js}" charset="utf-8"></script>
         <script th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/gpoSolicitarIncremento.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
     </div>
 </body>
