@@ -81,6 +81,7 @@ import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
@@ -190,6 +191,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     PeriodoEncuestaDAO periodoEncuestaDAO;
     @Autowired
     ConfiguraEncuestaDAO configuraEncuestaDAO;
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
 
     @Override
     public Oficina findOficinaOera() {
@@ -1137,6 +1140,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccionDAO.update(profeSeccBDMain);
 
         evaluateSeccion(profeSeccBDMain.getSeccion());
+        this.actualizarBoletin();
     }
 
     @Override
@@ -2222,6 +2226,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public Long contarGpoSecc(CicloAcademico ciclo) {
         return grupoSeccionDAO.contarByCiclo(ciclo);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void actualizarBoletin() {
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findCicloAcademicoActivoPRE();
+        CicloAcademico cicloUpd = new CicloAcademico();
+        cicloUpd.setId(cicloActivo.getId());
+        cicloUpd.setActualizarBoletin(Boolean.TRUE);
+        cicloAcademicoDAO.updateActualizarBoletin(cicloUpd);
     }
 
 }
