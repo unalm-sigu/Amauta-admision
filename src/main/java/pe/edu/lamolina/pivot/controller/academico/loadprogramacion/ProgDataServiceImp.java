@@ -1419,7 +1419,7 @@ public class ProgDataServiceImp implements ProgDataService {
             loadDataMatriculadoService.load(matriSecc, mapResumenes, mapSecciones, ciclo, ds);
 
             Alumno alumno = alumnoDAO.findFlatByCodigo(matriSecc.getCodigoAlumno());
-            alumnoDAO.update(alumno);
+            //alumnoDAO.update(alumno);
             System.out.println("\talumno 222 " + alumno.getCodigo() + " desbloqueado en XYZ-loadDataMatriculados");
 
         } catch (Exception e) {

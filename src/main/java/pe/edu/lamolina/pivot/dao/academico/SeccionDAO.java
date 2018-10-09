@@ -26,6 +26,8 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allActivosByGpoSeccion(GrupoSeccion gruposSeccion);
 
+    List<Seccion> allWithMatriculadosByGposSeccion(List<GrupoSeccion> gsOrigenes);
+
     List<Seccion> allByGpoSeccionEstados(GrupoSeccion gruposSeccion, List<SeccionEstadoEnum> estadoEnums);
 
     List<Seccion> allByGposSeccion(GrupoSeccion gruposSeccion);
@@ -44,7 +46,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allMatriculablesBySecciones(List<Seccion> secciones);
 
-    public void allRegenerateReservadoByCiclo(CicloAcademico cicloAcademico);
+    void allRegenerateReservadoByCiclo(CicloAcademico cicloAcademico);
 
     void updateEstadoFechaModUsuarioMod(Seccion seccion);
 
@@ -56,6 +58,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allUnusedByCiclo(CicloAcademico ciclo);
 
-     List<Seccion> allByCicloClone(CicloAcademico cicloOrigen);
+    List<Seccion> allByGrupoSeccionByClone(List<GrupoSeccion> gsOrigenes);
 
 }

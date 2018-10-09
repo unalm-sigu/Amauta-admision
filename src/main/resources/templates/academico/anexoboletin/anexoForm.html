@@ -1,93 +1,98 @@
-<html layout:decorator="_layout/layout">
-    <head>
-        <title>Anexo Boletín</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-</head>
-
-<body>
-    <div layout:fragment="main">
-
-         <header class="header b-b padder-lg">
-            <h2 th:text="${anexo.id != null ? 'Editar anexo' : 'Nueva anexo'}">Nuevo Anexo</h2>
-        </header>
-
-        <div class="col-lg-12">
-            <section class="panel">
-                <section class="panel-body">
-                    <form data-parsley-validate="true" id="formularioAula" method="POST" th:action="@{'/academico/anexo/save'}">
-
-                        <input type="hidden" th:value="${anexo.id} != null ? ${anexo.id} : ''" name="id"/>
-
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <div class="form-group">
-                                    <label>Nombre</label>
-                                    <input name="nombre" class="form-control" required="true" th:value="${anexo} != null ? ${anexo.nombre} : ''"  data-trigger="change"/>
-                                </div>
-                            </div>
+<modal-vik ref="nuevoAnexoModal"
+           v-bind="cfgNuevoAnexo"
+           v-bind:okaction="verSaveAnexo">
+    <div slot="body">
+        <div class="panel-body">
+            <div class="row">
+                <form data-parsley-validate="true" id="formAnexo" >
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Grupo de Anexos</label>
+                            <template v-if="anexoTempo.id == '' ">
+                                <multiselect v-model='anexoTempo.anexoSuperior'
+                                             v-bind:options='anexosSuper'
+                                             v-bind:allow-empty="false"
+                                             placeholder="Ingresa un caracter como mínimo"
+                                             deselect-label=""
+                                             label="nombre"
+                                             track-by="id"
+                                             select-label="Seleccione este anexo">
+                                </multiselect>
+                                <input type="text" required="" class="hide" v-model="anexoTempo.anexoSuperior.id" data-trigger="change"/>
+                            </template>
+                            <span v-else="" v-text="anexoTempo.anexoSuperior.nombre" class="form-control"></span>
                         </div>
+                    </div>
 
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <div class="form-group">
-                                    <label>Grupos</label>
-                                    <select class="form-control" name="anexoSuperior.id" placeholder="Seleccione un anexo" data-trigger="change" required="true" >
-                                        <option></option>
-                                        <option th:each="item : ${anexos}"
-                                                th:value="${item.id}"
-                                                th:text="${item.nombre}"
-                                                th:selected="${anexo.anexoSuperior} ? ${item.id == anexo.anexoSuperior.id}">
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input v-model="anexoTempo.nombre" class="form-control" required="true" data-trigger="change"/>
                         </div>
+                    </div>
 
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <div class="form-group">
-                                    <label>Departamento</label>
-                                    <input type='text' name="departamentoAcademico.id" class='form-control' th:value="${anexo.departamentoAcademico != null} ? ${anexo.departamentoAcademico.id}:''" 
-                                           th:rel="${anexo.id != null and anexo.departamentoAcademico != null} ? ${anexo.departamentoAcademico.nombre}:''" data-trigger="change" />
-                                </div>
-                            </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Código</label>
+                            <input v-model="anexoTempo.codigo" v-on:keyup="upper($event)"
+                                   class="form-control" maxlength="10" required="true" data-trigger="change"/>
                         </div>
+                    </div>
 
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <div class="form-group">
-                                    <label>Carrera</label>
-                                    <input type='text' name="carrera.id" class='form-control' th:value="${anexo.carrera != null} ? ${anexo.carrera.id}:''" 
-                                           th:rel="${anexo.id != null and anexo.carrera != null} ? ${anexo.carrera.nombre}:''" data-trigger="change" />
-                                </div>
-                            </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Orden</label>
+                            <input v-model="anexoTempo.orden" v-bind:readonly="anexoTempo.id != '' "
+                                   class="form-control numerico" maxlength="2" required="true" data-trigger="change"/>
                         </div>
+                    </div>
 
-                        <div class="row">
-                            <div class="col-lg-4">
-                                <div class="form-group">
-                                    <label>Orden</label>
-                                    <input name="orden" class="form-control numero" required="true" th:value="${anexo} != null ? ${anexo.orden} : ''"  data-trigger="change"/>
-                                </div>
-                            </div>
+                    <div v-if="anexoTempo.anexoSuperior.id == 2 || anexoTempo.anexoSuperior.id == 3 "
+                         class="col-md-12">
+                        <div class="form-group">
+                            <label>Departamento Académico</label>
+                            <multiselect v-model='anexoTempo.departamentoAcademico'
+                                         v-bind:options='departamentos'
+                                         v-bind:allow-empty="false"
+                                         placeholder="Ingresa un caracter como mínimo"
+                                         deselect-label=""
+                                         label="nombre"
+                                         track-by="id"
+                                         select-label="Seleccione este departamento">
+                                <template slot="option" slot-scope="props">
+                                    <span class="block bold" v-text="props.option.nombre"></span>
+                                    <small v-if="props.option.facultad.id != '' " class="block" v-text="'Facultad de ' + props.option.facultad.nombre"></small>
+                                </template>
+                            </multiselect>
+                            <input type="text" required="" class="hide" v-model="anexoTempo.departamentoAcademico.id" data-trigger="change"/>
                         </div>
+                    </div>
 
-
-                        <div class=" text-center">
-                            <a class="btn btn-link" th:href="@{'/academico/anexo'}">Regresar</a>
-                            <a class="btn btn-success save-update-anexo"  th:text="${anexo.id != null ? 'Actualizar' : 'Crear anexo'}">Crear anexo</a>
+                    <div v-if="anexoTempo.anexoSuperior.id == 4 "
+                         class="col-md-12">
+                        <div class="form-group">
+                            <label>Especialidad Posgrado</label>
+                            <multiselect v-model='anexoTempo.carrera'
+                                         v-bind:options='carreras'
+                                         v-bind:allow-empty="false"
+                                         placeholder="Ingresa un caracter como mínimo"
+                                         deselect-label=""
+                                         label="nombre"
+                                         track-by="id"
+                                         select-label="Seleccione esta especialidad"
+                                         v-bind:custom-label="labelCarrera">
+                                <template slot="option" slot-scope="props">
+                                    <span class="block bold" v-text="props.option.nombre"></span>
+                                    <small class="block" v-text="props.option.tipoEnum.value"></small>
+                                </template>
+                            </multiselect>
+                            <input type="text" required="" class="hide" v-model="anexoTempo.carrera.id" data-trigger="change"/>
                         </div>
-                    </form>
-                </section>
-            </section>
+                    </div>
+
+                </form>
+
+            </div>
         </div>
-
     </div>
-
-    <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/anexoboletin/anexoForm.js}" charset="utf-8"></script>
-    </div>
-
-</body>
-</html>
+</modal-vik>

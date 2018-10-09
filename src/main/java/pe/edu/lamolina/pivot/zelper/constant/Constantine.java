@@ -92,5 +92,6 @@ public interface Constantine {
     Long ID_TIPO_TRAMITE_SUBVENCION = 1l;
 
     String CICLO_ORDEN_MERITO = "CICLO_ORDEN_MERITO";
+    String CICLO_ANEXO_BOLETIN = "CICLO_ANEXO_BOLETIN";
 
 }
