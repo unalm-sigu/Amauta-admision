@@ -159,7 +159,6 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 
             grupoSeccionDAO.save(gs);
 
-            //Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
             List<Seccion> seccionesOrigen = ggss.getSecciones();
 
             int loopPCUR = 1;
@@ -292,5 +291,66 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
     public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo) {
         return gpoSeccionService.resumenByCiclo(ciclo);
     }
-      
+
+    @Override
+    @Transactional
+    public void limpiarCodigo2(CicloAcademico ciclo, DataSessionPivot ds) {
+
+        List<Seccion> secciones = seccionDAO.allByCiclo(ciclo);
+        logger.debug("Seccion size  {}", secciones.size());
+        for (Seccion seccione : secciones) {
+            seccione.setCodigo2(null);
+            seccionDAO.update(seccione);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void reordenar(CicloAcademico ciclo, DataSessionPivot ds) {
+
+        List<GrupoSeccion> gsOrigenes = grupoSeccionDAO.allOrdenadoByCiclo(ciclo);
+        logger.debug("GrupoSeccion size  {}", gsOrigenes.size());
+
+        List<Seccion> secciones = seccionDAO.allSeccionOrderByciclo(ciclo);
+        Map<Long, List<Seccion>> seccionesMap = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
+
+        for (GrupoSeccion gsOrigene : gsOrigenes) {
+            gsOrigene.setSecciones(seccionesMap.get(gsOrigene.getId()));
+        }
+
+        List<String> codigos = new ArrayList();
+
+        for (GrupoSeccion ggss : gsOrigenes) {
+
+            String codigo = StringUtils.leftPad(CodeGenerator.getNextCode(codigos, 0), 3, '0');
+
+            List<Seccion> seccionesOrigen = ggss.getSecciones();
+
+            int loopPCUR = 1;
+            Seccion seccionSup = null;
+            
+            codigos.add(codigo);
+
+            for (Seccion seccion : seccionesOrigen) {
+
+                seccion.setSeccionSuperior(seccionSup);
+
+                if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.TEO || seccion.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
+                    seccion.setCodigo2(codigo + "0");
+                    seccionSup = seccion;
+                } else if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PRA) {
+                    seccion.setCodigo2(codigo + "1");
+                } else if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                    seccion.setCodigo2(codigo + loopPCUR);
+                    loopPCUR++;
+                }
+
+                seccionDAO.update(seccion);
+
+            }
+
+        }
+
+    }
+
 }

@@ -68,4 +68,6 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     List<GrupoSeccion> allWithDocenteSeccionActivosByCiclo(CicloAcademico cicloOrigen);
 
+    List<GrupoSeccion> allOrdenadoByCiclo(CicloAcademico ciclo);
+
 }

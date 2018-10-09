@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -31,7 +30,7 @@ public class ClonGpoSeccionController {
 
     @ResponseBody
     @RequestMapping("clonarciclo")
-    public JsonResponse clonarCiclo(CicloAcademico ciclo, Model model, HttpSession session) {
+    public JsonResponse clonarCiclo(CicloAcademico ciclo, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -97,6 +96,32 @@ public class ClonGpoSeccionController {
             ObjectNode noderesumen = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
             
             response.setData(noderesumen);
+            response.setMessage(Messages.UPDATED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+
+    }
+    
+    
+    @ResponseBody
+    @RequestMapping("reordenar")
+    public JsonResponse reordenar(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            service.limpiarCodigo2(ciclo, ds);
+            service.reordenar(ciclo, ds);
+
             response.setMessage(Messages.UPDATED);
             response.setSuccess(true);
 
