@@ -4,13 +4,13 @@ public class AnexoResumen {
 
     private Long ingresantes;
     private Long departamentos;
-    private Long postGrados;
+    private Long posgrados;
     private Long actividades;
 
     public AnexoResumen(Long ingresantes, Long departamentos, Long postGrados, Long actividades) {
         this.ingresantes = ingresantes;
         this.departamentos = departamentos;
-        this.postGrados = postGrados;
+        this.posgrados = postGrados;
         this.actividades = actividades;
     }
 
@@ -30,12 +30,12 @@ public class AnexoResumen {
         this.departamentos = departamentos;
     }
 
-    public Long getPostGrados() {
-        return postGrados;
+    public Long getPosgrados() {
+        return posgrados;
     }
 
-    public void setPostGrados(Long postGrados) {
-        this.postGrados = postGrados;
+    public void setPosgrados(Long posgrados) {
+        this.posgrados = posgrados;
     }
 
     public Long getActividades() {

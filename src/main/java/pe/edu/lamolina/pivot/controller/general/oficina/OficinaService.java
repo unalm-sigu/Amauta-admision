@@ -27,7 +27,7 @@ public interface OficinaService {
 
     void save(Oficina oficina, DataSessionPivot ds);
 
-    void delete(Oficina oficina);
+//    void delete(Oficina oficina);
 
     List<Colaborador> allColaborador(List<Oficina> oficinas);
 
@@ -39,7 +39,7 @@ public interface OficinaService {
 
     List<Facultad> allFacultad(Compania compania);
 
-    void estado(Oficina oficina);
+    void cambiarEstado(Oficina oficina, String accion);
 
     List<Persona> allPersona(String nombre);
 
@@ -73,7 +73,7 @@ public interface OficinaService {
 
     List<TipoDocIdentidad> allDocumentosIdentidad();
 
-    public List<Oficina> findOficinas(Oficina oficina);
+    public List<Oficina> allOficinasByOficinaMain(Oficina oficina);
 
     public List<PerfilCompania> allCargos(Oficina oficina);
 

@@ -1,141 +1,141 @@
 $(function () {
-
-    var dynatable = $('#dynaTable').dynatable({
-        dataset: {
-            ajaxUrl: APP.url('general/oficina/all'),
-            perPageDefault: 10
-        },
-        writers: {_rowWriter: ulWriter},
-        table: {bodyRowSelector: 'tbody tr'}
-    }).data('dynatable');
-
-    function ulWriter(rowIndex, record, columns, cellWriter) {
-        var colorEstado = {ACT: "success", INA: "default"};
-        record.colorEstado = colorEstado[record.estado];
-        record.index = rowIndex;
-
-        var html = $.templates("#oficinaTemplate").render(record);
-        return $(html).prop('outerHTML');
-    }
+    ///*
+//    var dynatable = $('#dynaTable').dynatable({
+//        dataset: {
+//            ajaxUrl: APP.url('general/oficina/all'),
+//            perPageDefault: 10
+//        },
+//        writers: {_rowWriter: ulWriter},
+//        table: {bodyRowSelector: 'tbody tr'}
+//    }).data('dynatable');
+//
+//    function ulWriter(rowIndex, record, columns, cellWriter) {
+//        var colorEstado = {ACT: "success", INA: "default"};
+//        record.colorEstado = colorEstado[record.estado];
+//        record.index = rowIndex;
+//
+//        var html = $.templates("#oficinaTemplate").render(record);
+//        return $(html).prop('outerHTML');
+//    }
 
     var Oficina = {
         init: function () {},
         body: $("body"),
         form: {},
-        estado: function (e) {
-
-            e.preventDefault();
-            var self = $(e.currentTarget);
-            var estado = self.attr('rev');
-            var id = self.attr('rel');
-
-            Oficina.form.id = id;
-
-            var mimodal = bootbox.confirm({
-                title: "Cambiar Estado",
-                size: 'small',
-                message: '¿Desea cambiar el estado de la oficina?',
-                buttons: {
-                    confirm: {label: "Cambiar Estado", className: "btn-info"},
-                    cancel: {label: "Cancelar", className: "btn-link"}
-                },
-                callback: function (result) {
-                    if (result) {
-                        Oficina.saveEstado(mimodal);
-                    } else {
-                        mimodal.modal('hide');
-                    }
-                    return false;
-                }
-            });
-        },
-        saveEstado: function (mimodal) {
-            $.ajax({
-                url: APP.url('general/oficina/estado'),
-                type: 'POST',
-                async: false,
-                data: Oficina.form,
-                success: function (response) {
-                    if (response.success) {
-                        dynatable.process();
-                        mimodal.modal('hide');
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error: function () {
-                    mimodal.modal('hide');
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
-        eliminar: function (e) {
-            e.preventDefault();
-            var self = $(e.currentTarget);
-            var id = self.attr("rel");
-            bootbox.confirm({
-                message: "¿Está seguro que desea eliminar la oficina?",
-                size: 'small',
-                buttons: {
-                    confirm: {label: 'Sí, Eliminar', className: "btn-danger"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
-                },
-                callback: function (result) {
-                    if (result) {
-                        $.ajax({
-                            url: APP.url('general/oficina/delete'),
-                            type: 'POST',
-                            async: false,
-                            data: {id: id},
-                            success: function (response) {
-                                if (response.success) {
-                                    notify(response.message, "info");
-                                    dynatable.process();
-                                } else {
-                                    notify(response.message, "error");
-                                }
-                            },
-                            error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
-                            }
-                        });
-                    }
-                }
-            });
-        },
-        colaborador: function (e) {
-            e.preventDefault();
-            var self = $(e.currentTarget);
-            var id = self.attr("rel");
-            var mialert = bootbox.alert({
-                message: "¿Está seguro que desea eliminar la oficina?",
-                title: "Colaboradores",
-                buttons: {
-                    ok: {label: 'Cerrar', className: "btn-primary"},
-                },
-                callback: function (result) {
-                    if (result) {
-                    }
-                }
-            });
-            $.ajax({
-                url: APP.url('general/oficina/allColaborador'),
-                type: 'POST',
-                async: false,
-                data: {id: id},
-                success: function (response) {
-                    if (response.success) {
-                        var html = $.templates("#colaboradorTemplate").render(response.data);
-                        mialert.find('.bootbox-body').html(html);
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
+//        estado: function (e) {
+//
+//            e.preventDefault();
+//            var self = $(e.currentTarget);
+//            var estado = self.attr('rev');
+//            var id = self.attr('rel');
+//
+//            Oficina.form.id = id;
+//
+//            var mimodal = bootbox.confirm({
+//                title: "Cambiar Estado",
+//                size: 'small',
+//                message: '¿Desea cambiar el estado de la oficina?',
+//                buttons: {
+//                    confirm: {label: "Cambiar Estado", className: "btn-info"},
+//                    cancel: {label: "Cancelar", className: "btn-link"}
+//                },
+//                callback: function (result) {
+//                    if (result) {
+//                        Oficina.saveEstado(mimodal);
+//                    } else {
+//                        mimodal.modal('hide');
+//                    }
+//                    return false;
+//                }
+//            });
+//        },
+//        saveEstado: function (mimodal) {
+//            $.ajax({
+//                url: APP.url('general/oficina/estado'),
+//                type: 'POST',
+//                async: false,
+//                data: Oficina.form,
+//                success: function (response) {
+//                    if (response.success) {
+//                        dynatable.process();
+//                        mimodal.modal('hide');
+//                    } else {
+//                        notify(response.message, "error");
+//                    }
+//                },
+//                error: function () {
+//                    mimodal.modal('hide');
+//                    notify(MESSAGES.errorComunicacion, "error");
+//                }
+//            });
+//        },
+//        eliminar: function (e) {
+//            e.preventDefault();
+//            var self = $(e.currentTarget);
+//            var id = self.attr("rel");
+//            bootbox.confirm({
+//                message: "¿Está seguro que desea eliminar la oficina?",
+//                size: 'small',
+//                buttons: {
+//                    confirm: {label: 'Sí, Eliminar', className: "btn-danger"},
+//                    cancel: {label: 'Cancelar', className: "btn-link"}
+//                },
+//                callback: function (result) {
+//                    if (result) {
+//                        $.ajax({
+//                            url: APP.url('general/oficina/delete'),
+//                            type: 'POST',
+//                            async: false,
+//                            data: {id: id},
+//                            success: function (response) {
+//                                if (response.success) {
+//                                    notify(response.message, "info");
+//                                    dynatable.process();
+//                                } else {
+//                                    notify(response.message, "error");
+//                                }
+//                            },
+//                            error: function () {
+//                                notify(MESSAGES.errorComunicacion, "error");
+//                            }
+//                        });
+//                    }
+//                }
+//            });
+//        },
+//        colaborador: function (e) {
+//            e.preventDefault();
+//            var self = $(e.currentTarget);
+//            var id = self.attr("rel");
+//            var mialert = bootbox.alert({
+//                message: "¿Está seguro que desea eliminar la oficina?",
+//                title: "Colaboradores",
+//                buttons: {
+//                    ok: {label: 'Cerrar', className: "btn-primary"},
+//                },
+//                callback: function (result) {
+//                    if (result) {
+//                    }
+//                }
+//            });
+//            $.ajax({
+//                url: APP.url('general/oficina/allColaborador'),
+//                type: 'POST',
+//                async: false,
+//                data: {id: id},
+//                success: function (response) {
+//                    if (response.success) {
+//                        var html = $.templates("#colaboradorTemplate").render(response.data);
+//                        mialert.find('.bootbox-body').html(html);
+//                    } else {
+//                        notify(response.message, "error");
+//                    }
+//                },
+//                error: function () {
+//                    notify(MESSAGES.errorComunicacion, "error");
+//                }
+//            });
+//        },
         previoRetirarJefe: function (e) {
             e.preventDefault();
             var rec = APP.recDynatable(dynatable, e);
@@ -473,32 +473,150 @@ $(function () {
         }
     };
 
-    Oficina.body.delegate(".asignar-jefe", "click", function (e) {
-        Oficina.asignarJefe(e);
-    });
-
-    Oficina.body.delegate(".asignar-encargado", "click", function (e) {
-        Oficina.previoAsignarEncargado(e);
-    });
-
-    Oficina.body.delegate(".retirar-jefe", "click", function (e) {
-        Oficina.previoRetirarJefe(e);
-    });
-
-    Oficina.body.delegate(".retirar-encargado", "click", function (e) {
-        Oficina.previoRetirarEncargado(e);
-    });
-
-    Oficina.body.delegate(".delete", "click", function (e) {
-        Oficina.eliminar(e);
-    });
-
-    Oficina.body.delegate(".colaborador", "click", function (e) {
-        Oficina.colaborador(e);
-    });
-
-    Oficina.body.delegate(".estado", "click", function (e) {
-        Oficina.estado(e);
-    });
-
+//    Oficina.body.delegate(".asignar-jefe", "click", function (e) {
+//        Oficina.asignarJefe(e);
+//    });
+//
+//    Oficina.body.delegate(".asignar-encargado", "click", function (e) {
+//        Oficina.previoAsignarEncargado(e);
+//    });
+//
+//    Oficina.body.delegate(".retirar-jefe", "click", function (e) {
+//        Oficina.previoRetirarJefe(e);
+//    });
+//
+//    Oficina.body.delegate(".retirar-encargado", "click", function (e) {
+//        Oficina.previoRetirarEncargado(e);
+//    });
+//
+//    Oficina.body.delegate(".delete", "click", function (e) {
+//        Oficina.eliminar(e);
+//    });
+//
+//    Oficina.body.delegate(".colaborador", "click", function (e) {
+//        Oficina.colaborador(e);
+//    });
+//
+//    Oficina.body.delegate(".estado", "click", function (e) {
+//        Oficina.estado(e);
+//    });
+    //*/
 });
+
+new Vue({
+    el: '#pageOficinasVUE',
+    data: {
+        oficinasURL: APP.url('general/oficina/all'),
+        cfgColaboradores: {
+            id: 'colaboradoresModal',
+            header: true,
+            title: 'Relación de colaboradores',
+            showaccept: false,
+            cancelbtn: 'Aceptar'
+        },
+        colaboradores: [],
+        modalBootbox: {},
+    },
+    mounted() {
+
+    },
+    methods: {
+        classEstado(item) {
+            var classesEstado = {ACT: "label-success", INA: "label-danger"};
+            return classesEstado[item.estado];
+        },
+        urlEditar(item) {
+            return APP.url('general/oficina/' + item.id + '/update');
+        },
+        urlColaboradores(item) {
+            return APP.url('general/oficina/' + item.id + '/colaboradores');
+        },
+        cambiarEstado(item, accion) {
+            let $vue = this;
+            let title = "Cambiar estado de la Oficina";
+            let msg = "¿Desea cambiar el estado de la oficina?";
+            let classBtn = "btn-info";
+            let labelBtn = "Cambiar Estado";
+
+            if (accion == "activar") {
+                title = "Activar oficina";
+                msg = "¿Está seguro que desea activar esta oficina?";
+                classBtn = "btn-success";
+                labelBtn = "Si, activar";
+            } else if (accion == "desactivar") {
+                title = "Desactivar oficina";
+                msg = "¿Está seguro que desea desactivar esta oficina?";
+                classBtn = "btn-warning";
+                labelBtn = "Si, desactivar";
+            } else if (accion == "eliminar") {
+                title = "Eliminar oficina";
+                msg = "¿Está seguro que desea eliminar esta oficina?";
+                classBtn = "btn-danger";
+                labelBtn = "Si, eliminar";
+            }
+
+            $vue.modalBootbox = bootbox.confirm({
+                title: title,
+                size: 'small',
+                message: msg,
+                buttons: {
+                    confirm: {label: labelBtn, className: classBtn},
+                    cancel: {label: "Cancelar", className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $vue.saveEstado(item, accion);
+                    } else {
+                        $vue.modalBootbox.modal('hide');
+                    }
+                    return false;
+                }
+            });
+        },
+        saveEstado(item, accion) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url('general/oficina/cambiarEstado/' + accion),
+                dataType: 'json',
+                type: 'POST',
+                contentType: "application/json",
+                async: true,
+                data: JSON.stringify(item),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.raptorOficinas.loadRemoteData();
+                        $vue.modalBootbox.modal('hide');
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        verColaboradores(item) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url('general/oficina/allColaborador'),
+                type: 'POST',
+                async: false,
+                data: {id: item.id},
+                success: function (response) {
+                    if (response.success) {
+                        $vue.cfgColaboradores.title = "Colaboradores: " + item.nombre;
+                        $vue.colaboradores = response.data;
+                        $vue.$refs.colaboradoresModal.open();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        }
+    }
+});
+    

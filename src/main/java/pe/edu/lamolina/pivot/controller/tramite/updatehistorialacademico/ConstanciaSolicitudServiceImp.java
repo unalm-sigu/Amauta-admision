@@ -403,7 +403,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramiteDAO.save(tramite);
 
         tramiteDocumentoAcademico.setTramite(tramite);
-        tramiteDocumentoAcademico.setEstadoEnum(TramiteEstadoEnum.CRE);
+//        tramiteDocumentoAcademico.setEstadoEnum(TramiteEstadoEnum.CRE);
         tramiteDocumentoAcademico.setCantidadCiclos(1);
         tramiteDocumentoAcademicoDAO.save(tramiteDocumentoAcademico);
 
@@ -561,7 +561,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     public void cancelar(TramiteDocumentoAcademico solicitudConstancia, DataSessionPivot ds) {
         TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(solicitudConstancia.getId());
         AcreenciaTramiteDocumento atd = acreenciaTramiteDocumentoDAO.findByTramiteDocumentoAcademico(tda);
-        tda.setEstadoEnum(TramiteEstadoEnum.ANU);
+//        tda.setEstadoEnum(TramiteEstadoEnum.ANU);
         atd.setEstadoEnum(EstadoAcreenciaTramiteEnum.ANU);
         tramiteDocumentoAcademicoDAO.update(tda);
         atd.setFechaAnulacion(new Date());
@@ -619,7 +619,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Transactional
     public void revision(TramiteDocumentoAcademico solicitudConstancia) {
         TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(solicitudConstancia);
-        tda.setEstadoEnum(TramiteEstadoEnum.ENV);
+//        tda.setEstadoEnum(TramiteEstadoEnum.ENV);
         tramiteDocumentoAcademicoDAO.update(tda);
     }
 

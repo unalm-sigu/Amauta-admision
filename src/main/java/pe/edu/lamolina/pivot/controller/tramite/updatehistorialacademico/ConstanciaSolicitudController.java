@@ -282,8 +282,8 @@ public class ConstanciaSolicitudController {
                 node.put("numero", tramiteDoc.getTramite().getSerie() + "-" + tramiteDoc.getTramite().getNumero());
                 node.put("documento", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.nombre"));
                 node.put("fecha", new DateTime(tramite.getFechaRegistro()).toString("dd/MM/yyyy"));
-                node.put("estado", tramiteDoc.getEstado());
-                node.put("estadoEnum", tramiteDoc.getEstadoEnum().getValue());
+//                node.put("estado", tramiteDoc.getEstado());
+//                node.put("estadoEnum", tramiteDoc.getEstadoEnum().getValue());
                 array.add(node);
             }
             json.setData(array);

@@ -697,8 +697,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 break;
             }
             if (procesadosAntes != procesados) {
-                logger.debug("\tloadDataMatriculados procesados {} de {}", procesados, matriculasSecciones.size());
-                //t1 = System.currentTimeMillis();
+                //logger.debug("\tloadDataMatriculados procesados {} de {}", procesados, matriculasSecciones.size());
             }
             if (t2 - t1 > 5000) {
                 ver = true;
