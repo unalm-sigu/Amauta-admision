@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Propagation;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.Commutator;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -1873,7 +1874,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo) {
-        return grupoSeccionDAO.resumenByCiclo(ciclo);
+        GpoSeccionResumen resumen = grupoSeccionDAO.resumenByCiclo(ciclo);
+        resumen.setActividades(resumen.getActividades() == null ? 0 : resumen.getActividades());
+        resumen.setDepartamentos(resumen.getDepartamentos() == null ? 0 : resumen.getDepartamentos());
+        resumen.setIngresantes(resumen.getIngresantes() == null ? 0 : resumen.getIngresantes());
+        resumen.setPostGrados(resumen.getPostGrados() == null ? 0 : resumen.getPostGrados());
+
+        return resumen;
     }
 
     @Override
@@ -2019,6 +2026,202 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public List<HorarioSeccion> allHorarioSeccion(Seccion seccion) {
         return horarioSeccionDAO.allBySeccion(seccion);
+    }
+
+    private int cociente(int acumulador, int dvdo, int dvsor) {
+        if (dvdo > dvsor) {
+            return cociente(acumulador + 1, dvdo - dvsor, dvsor);
+        } else {
+            return acumulador;
+        }
+    }
+
+    public List<String> getCodes(int inicio, int cantidad) {
+        List<String> codes = new ArrayList();
+        for (int i = inicio; i < cantidad + inicio; i++) {
+            codes.add(getCode(i));
+        }
+        return codes;
+    }
+
+    private String getCode(int i) {
+        if (i < 1000) {
+            return NumberFormat.codigo(i, 3, '0');
+        }
+        int r = (i) % 100;
+        int q = cociente(0, (i - 999), 100);
+        String le = Character.toString((char) (65 + q));
+        if (i > 1990 && i < 2010) {
+
+            logger.debug("i = {} {}, r {}, q {} ", i, le, r, q);
+        }
+
+        return le + NumberFormat.codigo(r, 2, '0');
+    }
+
+    @Override
+    @Transactional
+    public List<GrupoSeccion> clonar(GrupoSeccion grupoSeccion, Integer veces, DataSessionPivot ds) {
+        GrupoSeccion gsBD = grupoSeccionDAO.find(grupoSeccion.getId());
+        Curso curso = gsBD.getCurso();
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(cicloAcademico);
+        List<String> codigos2ByCiclo = grupoSeccionDAO.allCodigo2ByCiclo(cicloAcademico);
+
+        List<GrupoSeccion> clones = new ArrayList<>();
+        for (int i = 0; i < veces; i++) {
+            GrupoSeccion clon = new GrupoSeccion();
+
+            String codigo = CodeGenerator.getNextCode(codigosByCiclo, 0);
+            String codigo2 = CodeGenerator.getNextCode(codigos2ByCiclo, 0);
+
+            codigosByCiclo.add(codigo);
+            codigos2ByCiclo.add(codigo2);
+
+            clon.setCurso(curso);
+            clon.setCodigo(codigo);
+            clon.setCodigo2(codigo2);
+            clon.setVersion(BigDecimal.ONE.toString());
+            clon.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
+            clon.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
+            clon.setCicloAcademico(cicloAcademico);
+            clon.setEstadoEnum(gsBD.getEstadoEnum());
+
+            clon.setAnexoBoletin(gsBD.getAnexoBoletin());
+
+            Integer horasTeoria = curso.getHorasTeoria() == null ? 0 : curso.getHorasTeoria();
+            Integer horasPractica = curso.getHorasPractica() == null ? 0 : curso.getHorasPractica();
+
+            clon.setHorasPractica(horasPractica);
+            clon.setHorasTeoria(horasTeoria);
+
+            //  grupoSeccion.se
+            Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
+
+            DateTime today = new DateTime();
+            final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
+
+            clon.setSecciones(new ArrayList<Seccion>());
+            if (curso.isTipoCursoTEO()) {
+                Seccion seccionTEO = new Seccion();
+                seccionTEO.setGrupoSeccion(clon);
+                seccionTEO.setCodigo(clon.getCodigo() + "0");
+                seccionTEO.setCodigo2(seccionTEO.getCodigo());
+                seccionTEO.setEstadoEnum(SeccionEstadoEnum.CRE);
+                seccionTEO.setTipoSeccionEnum(TipoSeccionEnum.TEO);
+                seccionTEO.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
+                /*
+            seccionTEO.setHorasPractica(curso.getHorasPractica());
+            seccionTEO.setHorasTeoria(curso.getHorasTeoria());
+                 */
+                seccionTEO.setHorasSemanales(horasTeoria);
+
+                seccionTEO.setDocenteSeccion(new ArrayList<>());
+                DocenteSeccion docenteSeccion = new DocenteSeccion();
+                docenteSeccion.setDocente(docenteDefault);
+                docenteSeccion.setCodigoSeccion(seccionTEO.getCodigo());
+                docenteSeccion.setEstado(EstadoEnum.ACT.name());
+                docenteSeccion.setFechaInicio(cicloAcademico.getFechaRegistro());
+                docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
+                docenteSeccion.setSeccion(seccionTEO);
+                docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
+                seccionTEO.getDocenteSeccion().add(docenteSeccion);
+
+                clon.getSecciones().add(seccionTEO);
+            }
+            if (curso.isTipoCursoPRA()) {
+                Seccion seccionPRA = new Seccion();
+                seccionPRA.setGrupoSeccion(clon);
+                seccionPRA.setCodigo(codigo + "1");
+                seccionPRA.setCodigo2(seccionPRA.getCodigo());
+                seccionPRA.setEstadoEnum(SeccionEstadoEnum.CRE);
+                seccionPRA.setTipoSeccionEnum(TipoSeccionEnum.PRA);
+                seccionPRA.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
+                /*
+            seccionPRA.setHorasPractica(curso.getHorasPractica());
+            seccionPRA.setHorasTeoria(curso.getHorasTeoria());
+                 */
+                seccionPRA.setHorasSemanales(horasPractica);
+
+                seccionPRA.setDocenteSeccion(new ArrayList<>());
+                DocenteSeccion docenteSeccion = new DocenteSeccion();
+                docenteSeccion.setDocente(docenteDefault);
+                docenteSeccion.setCodigoSeccion(seccionPRA.getCodigo());
+                docenteSeccion.setEstado(EstadoEnum.ACT.name());
+                docenteSeccion.setFechaInicio(cicloAcademico.getFechaRegistro());
+                docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
+                docenteSeccion.setSeccion(seccionPRA);
+                docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
+                seccionPRA.getDocenteSeccion().add(docenteSeccion);
+
+                clon.getSecciones().add(seccionPRA);
+            }
+            if (curso.isTipoCursoTEOPRA()) {
+                Seccion seccionTCUR = new Seccion();
+                seccionTCUR.setGrupoSeccion(clon);
+                seccionTCUR.setCodigo(codigo + "0");
+                seccionTCUR.setCodigo2(seccionTCUR.getCodigo());
+                seccionTCUR.setEstadoEnum(SeccionEstadoEnum.CRE);
+                seccionTCUR.setTipoSeccionEnum(TipoSeccionEnum.TCUR);
+                seccionTCUR.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
+                //   seccionTCUR.setHorasPractica(curso.getHorasPractica());
+                //   seccionTCUR.setHorasTeoria(curso.getHorasTeoria());
+                seccionTCUR.setHorasSemanales(horasTeoria);
+
+                seccionTCUR.setDocenteSeccion(new ArrayList<>());
+                DocenteSeccion docenteSeccion = new DocenteSeccion();
+                docenteSeccion.setDocente(docenteDefault);
+                docenteSeccion.setCodigoSeccion(seccionTCUR.getCodigo());
+                docenteSeccion.setEstado(EstadoEnum.ACT.name());
+                docenteSeccion.setFechaInicio(cicloAcademico.getFechaRegistro());
+                docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
+                docenteSeccion.setSeccion(seccionTCUR);
+                docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
+                seccionTCUR.getDocenteSeccion().add(docenteSeccion);
+
+                clon.getSecciones().add(seccionTCUR);
+
+                Seccion seccionPCUR = new Seccion();
+                seccionPCUR.setGrupoSeccion(clon);
+                seccionPCUR.setCodigo(codigo + "1");
+                seccionPCUR.setCodigo2(seccionPCUR.getCodigo());
+                seccionPCUR.setEstadoEnum(SeccionEstadoEnum.CRE);
+                seccionPCUR.setTipoSeccionEnum(TipoSeccionEnum.PCUR);
+                seccionPCUR.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
+                //  seccionPCUR.setHorasPractica(curso.getHorasPractica());
+                //   seccionPCUR.setHorasTeoria(curso.getHorasTeoria());
+                seccionPCUR.setHorasSemanales(horasPractica);
+
+                seccionPCUR.setDocenteSeccion(new ArrayList<>());
+                DocenteSeccion docenteSeccion2 = new DocenteSeccion();
+                docenteSeccion2.setDocente(docenteDefault);
+                docenteSeccion2.setCodigoSeccion(seccionPCUR.getCodigo());
+                docenteSeccion2.setEstado(EstadoEnum.ACT.name());
+                docenteSeccion2.setFechaInicio(cicloAcademico.getFechaRegistro());
+                docenteSeccion2.setPrincipal(BigDecimal.ONE.intValue());
+                docenteSeccion2.setSeccion(seccionPCUR);
+                docenteSeccion2.setPorcentajeCarga(PORCENTAJE_CARGA);
+                seccionPCUR.getDocenteSeccion().add(docenteSeccion2);
+
+                clon.getSecciones().add(seccionPCUR);
+            }
+            grupoSeccionDAO.save(clon);
+
+            clones.add(clon);
+
+        }
+        return clones;
+    }
+
+    @Override
+    public List<GrupoSeccion> allCleanByDynatableGruposSeccion(DynatableFilter filter, CicloAcademico ciclo, List<GrupoSeccion> gpos) {
+        return grupoSeccionDAO.allByDynatableGruposSeccion(filter, ciclo, gpos);
+    }
+
+    @Override
+    public Long contarGpoSecc(CicloAcademico ciclo) {
+        return grupoSeccionDAO.contarByCiclo(ciclo);
     }
 
 }

@@ -1,21 +1,48 @@
-<div id="divEstadoAnexo" type="text/x-jsrender" class="hide" >
+<modal-vik ref="anularAnexoModal"
+           v-bind="cfgAnularAnexo"
+           v-bind:okaction="saveCambioEstado">
+    <div slot="body">
 
-    <form id="{{:form}}" method="POST">
-        <input type="hidden" name="id" value="{{:id}}"/>
-        <div class="row m-b-md">
-            <input class='hide' name="id"/>
+        <div class="form-group">
+            <label class="bold text-danger">¿Está seguro que desea anular este anexo?</label>
+            <span class="text-primary form-control">{{anexoTempo.nombre}}</span>
+        </div>
+
+        <form>
             <div class="form-group">
-                <div class="col-md-12">
-                    {{if activo}}
-                    <div class="form-group">
-                        <label class="bold">Indique el motivo por el cual esta desactivando anexo</label>
-                        <textarea class='form-control' name='motivoAnulacion' required='true'></textarea>
+                <div class="row">
+                    <div class="col-sm-5">
+                        <div class="m-l">
+                            <div class="col-sm-6">
+
+                                <label class="radio inline">
+                                    <input type="radio" v-model="anularAnexo" v-on:change="changeAnular()"
+                                           required="true"
+                                           name="anular"
+                                           value="SI" /> Sí &nbsp;&nbsp;&nbsp;&nbsp;
+                                </label>
+
+                            </div>
+                            <div class="col-sm-6">
+
+                                <label class="radio inline">
+                                    <input type="radio" v-model="anularAnexo" v-on:change="changeAnular()"
+                                           required="true"
+                                           name="anular"
+                                           value="NO"  /> No &nbsp;&nbsp;&nbsp;&nbsp;
+                                </label>
+
+                            </div>
+                        </div>
                     </div>
-                    {{else}}
-                    ¿Desea realmente activar el anexo?
-                    {{/if}}
                 </div>
             </div>
-        </div>
-    </form>
-</div>
+
+            <div class="form-group"
+                 v-if="anularAnexo == 'SI' ">
+                <label class="">Indique el motivo de la anulación</label>
+                <textarea class="form-control" v-model="anexoTempo.motivoAnulacion" rows="3"></textarea>
+            </div>
+        </form>
+    </div>
+</modal-vik>

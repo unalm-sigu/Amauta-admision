@@ -23,6 +23,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.enums.EstadoCursoCachimboEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.ABI;
@@ -264,11 +265,12 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .subqueryLinkedBy("gs.id", "ggss.id")
                 .searchSubqueryFields("doc.codigo", "se.codigo2", "gh.codigo", "au.codigo")
                 .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .orderBy("gs.id desc");
+                .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
+                //.orderBy("gs.id desc");
 
         sql.beginRelativeFilters();
         this.setGrupoAnexo(filter, sql);
+        this.setOrder(filter, sql);
 
         return sql.all(getCurrentSession());
     }
@@ -296,6 +298,23 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
             }
             sql.filter("ab.id", queries.get(key));
         }
+    }
+
+    private void setOrder(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            sql.orderBy("gs.id desc");
+            return;
+        }
+        for (String key : queries.keySet()) {
+            if (key.equals("order-codigo")) {
+                sql.orderBy("gs.codigo asc");
+                return;
+            }
+        }
+        sql.orderBy("gs.id desc");
+        return;
+
     }
 
     @Override
@@ -480,6 +499,82 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
             resultados.put(TypesUtil.getLong(object[0]), TypesUtil.getLong(object[1]));
         }
         return resultados;
+    }
+
+    @Override
+    public List<GrupoSeccion> allByDynatableGruposSeccion(DynatableFilter filter, CicloAcademico ciclo, List<GrupoSeccion> gpos) {
+        Octavia subQuery = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("docente doc", "seccion se", "se.grupoSeccion ggss")
+                .left("doc.persona per", "se.grupoHoras gh", "se.aula au");
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(GrupoSeccion.class, "gs")
+                .join("cicloAcademico ca", "curso cu")
+                .leftJoin("anexoBoletin ab", "ab.anexoSuperior abs", "planCalificacion pc")
+                .filter("ca.id", ciclo)
+                .in("gs.id", gpos)
+                .searchFields("cu.nombre", "cu.codigo", "ab.nombre", "abs.nombre")
+                .searchSubquery(subQuery)
+                .subqueryLinkedBy("gs.id", "ggss.id")
+                .searchSubqueryFields("doc.codigo", "se.codigo2", "gh.codigo", "au.codigo")
+                .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("gs.id asc");
+
+        sql.beginRelativeFilters();
+        this.setGrupoAnexo(filter, sql);
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public Long contarByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .selectCount()
+                .from(GrupoSeccion.class, "gs")
+                .join("cicloAcademico ca")
+                .filter("ca.id", ciclo);
+
+        return (Long) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<GrupoSeccion> allWithDocenteSeccionActivosByCiclo(CicloAcademico ciclo) {
+
+        Octavia subquery = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion ggss")
+                .filter("ds.estado", EstadoEnum.ACT)
+                .filter("sec.estado", EstadoEnum.ACT)
+                .filter("sec.matriculados", ">", 0);
+
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("curso cur", "cicloAcademico ca", "anexoBoletin ab")
+                .join("ab.anexoSuperior asu")
+                .filter("gs.estado", EstadoCursoCachimboEnum.ACT.name())
+                .filter("ca.id", ciclo)
+                .exists(subquery)
+                .linkedBy("gs.id", "ggss.id")
+                .orderBy("asu.orden", "ab.orden", "cur.nombre");
+
+        return all(sql);
+
+    }
+
+    @Override
+    public List<GrupoSeccion> allOrdenadoByCiclo(CicloAcademico ciclo) {
+
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("curso cur", "cicloAcademico ca", "anexoBoletin ab")
+                .join("ab.anexoSuperior asu")
+                .filter("ca.id", ciclo)
+                .orderBy("asu.orden", "ab.orden", "cur.nombre");
+
+        return all(sql);
+
     }
 
 }

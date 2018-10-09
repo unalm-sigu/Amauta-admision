@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
+import pe.edu.lamolina.model.enums.VariableContenidoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
@@ -28,9 +29,9 @@ public class MailerServiceImp implements MailerService {
         String contenido = contenidoCarta.getContenido();
         String banner = contenidoCarta.getImgUrl();
 
-        contenido = contenido.replaceAll("__ESTIMADO__", estimado);
-        contenido = contenido.replaceAll("__NOMBREPERSONA__", persona.getNombreCompleto());
-        contenido = contenido.replaceAll("__CORREOCREADO__", persona.getEmailCompania());
+        contenido = contenido.replaceAll(VariableContenidoEnum.ESTIMADO.getValue(), estimado);
+        contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), persona.getNombreCompleto());
+        contenido = contenido.replaceAll(VariableContenidoEnum.CORREO_CREADO.getValue(), persona.getEmailCompania());
 
         Context ctx = new Context();
         ctx.setVariable("contenido", contenido);
@@ -49,7 +50,7 @@ public class MailerServiceImp implements MailerService {
     public void enviarNotificacionSolicitudConstanciaCreacion(TramiteDocumentoAcademico tramiteDocumentoAcademico, ContenidoCarta contenidoCarta) {
 
         String contenido = contenidoCarta.getContenido();
-        contenido = contenido.replaceAll("__NOMBREPERSONA__", tramiteDocumentoAcademico.getPersonaContacto());
+        contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), tramiteDocumentoAcademico.getPersonaContacto());
 
         Context ctx = new Context();
         ctx.setVariable("contenido", contenido);
@@ -59,7 +60,7 @@ public class MailerServiceImp implements MailerService {
         mail.setTemplate("mail/mailSolicitudConstancia");
         mail.setSubject("Solicitud de constancia");
         mail.setDestinatarios(new String[]{tramiteDocumentoAcademico.getEmail()});
-        //mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
+//        mail.setDestinatarios(new String[]{"davd.1491@gmail.com"});
         mailerConnector.sendMail(mail);
     }
 }

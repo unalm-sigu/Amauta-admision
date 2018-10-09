@@ -52,4 +52,27 @@ public class TipoConstanciaDAOH extends AbstractEasyDAO<TipoDocumentoAcademico> 
         return all(sql);
     }
 
+    @Override
+    public List<TipoDocumentoAcademico> allTipoDocumento() {
+        Octavia subQuery = Octavia.query()
+                .select("td.id")
+                .from(PrecioDocumento.class, "pc")
+                .join("tipoDocumento td", "idioma idi");
+        Octavia sql = Octavia.query()
+                .from(TipoDocumentoAcademico.class, "tipo");
+        return all(sql);
+    }
+
+    @Override
+    public List<TipoDocumentoAcademico> allWhyPrecios() {
+        Octavia subQuery = Octavia.query()
+                .select("td.id")
+                .from(PrecioDocumento.class, "pc")
+                .join("tipoDocumento td", "idioma idi");
+        Octavia sql = Octavia.query()
+                .from(TipoDocumentoAcademico.class, "tipo")
+                .in("tipo.id", subQuery);
+        return all(sql);
+    }
+
 }

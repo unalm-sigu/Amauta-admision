@@ -46,10 +46,11 @@
                                                              v-bind:options='tipoConstancia'
                                                              label='nombre'
                                                              track-by='id'
-                                                             v-bind:searchable="false" v-bind:allow-empty="false"
+                                                             v-bind:searchable="true" 
+                                                             v-bind:allow-empty="false"
                                                              placeholder="Seleccione un tipo de constancia"
                                                              v-bind:close-on-select="true"
-                                                             v-bind:preserve-search="false"
+                                                             v-bind:preserve-search="true"
                                                              v-bind:custom-label="nameWithCodeEspecial" 
                                                              class="tipoDocumento"
                                                              >

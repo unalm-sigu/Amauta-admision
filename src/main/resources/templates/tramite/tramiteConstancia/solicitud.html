@@ -1,0 +1,202 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Solicitud Constancia </title>
+    </head>
+    <body>
+
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <a class="pull-right btn btn-default  btn-sm"
+                       th:href="@{/tramite/solicitudconstancia}" >
+                        Regresar
+                    </a>
+
+                    <h1 v-text="solicitud.id!=null?'Edicion de Solicitud de Constancia':'Nueva Solicitud de Constancia'">Nueva Solicitud de Constancia</h1>
+
+                </header>
+
+                <section class="wrapper-lg m-b-xs">
+                    <section class="panel">
+                        <section class="panel-body m-t-sm">
+
+                            <transition name="fade">
+                                <div v-if="solicitud.alumno!=null" class="row m-b-lg">
+                                    <div class="col-xs-12">
+                                        <div class="text-center pull-left m-l-sm m-r-md " >
+                                            <img class="img-responsive img-thumbnail img-circle" v-bind:src="solicitud.alumno.persona.rutaFoto" ></img>
+                                        </div>
+                                        <span class="block bold" v-text="solicitud.alumno.persona.apellidosNombres"></span>
+                                        <span class="block"  v-text=" 'Especialida de  '+solicitud.alumno.carrera.nombre  " > </span>
+                                        <span class="block"  v-text=" 'Facultad de  '+solicitud.alumno.carrera.facultad.nombre  " > </span>
+                                        <span class="text-sm block" v-if="solicitud.alumno.persona.numeroDocIdentidad!=null" >{{solicitud.alumno.persona.tipoDocumento.simbolo}} - {{solicitud.alumno.persona.numeroDocIdentidad}}</span>
+                                        <span class="text-sm block" >Nro Matrícula:  {{solicitud.alumno.codigo}}</span>
+                                    </div>
+                                </div>
+                            </transition>
+
+                            <form  method="post" id="formSolicitudConstancia"   data-parsley-validate="true">
+
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label>Alumno</label>
+                                        <multiselect                                                   
+                                            v-model='tramite.alumno'
+                                            v-bind:internal-search='false'
+                                            v-bind:limit='15'
+                                            v-on:search-change="searchAlumnos"
+                                            v-bind:options='alumnos'
+                                            placeholder="Ingrese un digito"
+                                            v-bind:custom-label="customLabel"
+                                            v-bind:show-labels="false"
+                                            v-bind:allow-empty="false"
+                                            track-by="id"
+                                            >
+                                        </multiselect>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12">
+                                    <div class="form-group">
+                                        <label>¿Que documento necesita?</label>
+                                        <multiselect                                                   
+                                            v-model='solicitud.tipoDocumentoAcademico'
+                                            v-bind:internal-search='false'
+                                            v-bind:limit='15'
+                                            v-bind:options='tiposDocumentoAcademico'
+                                            placeholder="Seleccione un tipo de documento"
+                                            label="nombre"
+                                            v-bind:show-labels="false"
+                                            v-bind:allow-empty="false"
+                                            track-by="id"
+                                            v-on:select="idiomaDocumento"
+                                            >
+                                        </multiselect>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6 col-xs-12">
+                                    <div class="form-group">
+                                        <label>Idioma</label>
+                                        <multiselect                                                   
+                                            v-model='solicitud.idioma'
+                                            v-bind:internal-search='false'
+                                            v-bind:limit='15'
+                                            v-bind:options='idiomas'
+                                            placeholder="Seleccione un idioma"
+                                            label="nombre"
+                                            v-bind:show-labels="false"
+                                            v-bind:allow-empty="false"
+                                            track-by="id"
+                                            v-on:select="costoDocumento"
+                                            >
+                                        </multiselect>
+                                    </div>
+                                </div>
+
+                                <div v-if="showCostoDocumento" class="col-xs-12">
+                                    <div class="form-group">
+                                        <label>Importe a pagar</label>
+                                        <p  class="form-control-static" >  S./  {{costoDocumento}}</p>
+                                    </div>
+                                </div>
+
+
+                                <div v-if="solicitud.tipoDocumentoAcademico!= null" class="col-xs-12 col-sm-12">
+                                    <div class="form-group" v-if="solicitud.tipoDocumentoAcademico.requiereFoto==1">
+                                        <a v-on:click.prevent="subirFoto"  href="#">Subir foto</a>
+                                    </div>
+                                </div>
+
+
+
+                                <div v-if='tramite.alumno!=null'>
+                                    <div class="col-xs-12">
+                                        <h4  class="m-b-md m-t-md">Información de Contacto</h4>
+                                    </div>
+                                    <div class="col-xs-12">
+                                        <div class="form-group">
+                                            <label>Nombre del contacto</label>
+                                            <input type="text"
+                                                   class="form-control"
+                                                   name="personaContacto"
+                                                   v-model="solicitud.personaContacto"
+                                                   required="true"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Celular</label>
+                                            <input type="text"
+                                                   class="form-control"
+                                                   name="celular"
+                                                   v-model="solicitud.celular"
+                                                   required="true"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Teléfono</label>
+                                            <input type="text"
+                                                   class="form-control"
+                                                   name="telefono"
+                                                   v-model="solicitud.telefono"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6 col-xs-12">
+                                        <div class="form-group">
+                                            <label>Correo electrónico</label>
+                                            <input type="email"
+                                                   class="form-control"
+                                                   name="email"
+                                                   v-model="solicitud.email"
+                                                   required="true"/>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="panel-footer col-xs-12 text-center">
+
+                                        <button  type="button"
+                                                 class="btn btn-success"
+                                                 v-on:click.prevent="submitForm"
+                                                 v-bind:disabled="guardando">
+                                            <i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>Guardar
+                                        </button>
+
+                                    </div>
+                                </div>
+
+                            </form>
+
+                        </section>
+                    </section>
+                </section>
+                <th:block th:replace="tramite/tramiteConstancia/solicitudConstanciaModals"/>
+            </div>
+
+            <div th:substituteby="_modules/vue-modal"/>
+
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var tiposDocumentoAcademicoJson = /*[[${tiposDocumentoAcademico.toString()}]]*/ 'json';
+                var solicitudJson = /*[[${solicitud.toString()}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_layout/includes :: vuejs"/>
+            <!--<div th:substituteby="_layout/includes :: javascript-upload"/>-->
+            <div th:substituteby="_layout/includes :: vuemodal"/>
+            <script th:src="@{/app/tramite/tramiteConstancia/solicitud.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

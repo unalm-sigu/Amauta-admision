@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.curso;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -83,34 +81,6 @@ public class CursoServiceImp implements CursoService {
         } else {
             cursoBD = this.updateCurso(curso);
         }
-
-        if (curso.getIdIdioma() == null) {
-            return cursoBD;
-        }
-
-        List<NombreCurso> listaNombres = new ArrayList();
-        for (int i = 0; i < curso.getIdIdioma().length; i++) {
-            NombreCurso nombreCurso = new NombreCurso();
-            nombreCurso.setCurso(curso);
-            nombreCurso.setFechaRegistro(new Date());
-            nombreCurso.setUserRegistro(ds.getUsuario());
-            nombreCurso.setIdioma(new Idioma(curso.getIdIdioma()[i]));
-            nombreCurso.setNombre(curso.getNombreIdioma()[i]);
-
-            listaNombres.add(nombreCurso);
-        }
-
-        ListsInspector inspector = TypesUtil.analizeLists(cursoBD.getNombreCurso(), listaNombres, "idioma.id");
-
-        List<NombreCurso> nuevos = inspector.getNewList();
-        for (NombreCurso nuevo : nuevos) {
-            nombreCursoDAO.save(nuevo);
-        }
-
-        List<NombreCurso> eliminables = inspector.getDeadList();
-        for (NombreCurso eliminable : eliminables) {
-            nombreCursoDAO.delete(eliminable);
-        }
         return cursoBD;
     }
 
@@ -159,7 +129,7 @@ public class CursoServiceImp implements CursoService {
         cursoBD.setCoordinador(curso.getCoordinador());
 
         cursoDAO.update(cursoBD);
-
+     
         return cursoBD;
 
     }

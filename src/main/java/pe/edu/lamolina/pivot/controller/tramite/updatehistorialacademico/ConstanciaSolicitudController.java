@@ -3,23 +3,19 @@ package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Strings;
 import de.akquinet.commons.image.io.Image;
 import de.akquinet.commons.image.io.ImageMetadata;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FilenameUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,19 +29,10 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
-import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
-import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.Facultad;
-import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
-import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import static pe.edu.lamolina.model.enums.VariableContenidoEnum.ESTIMADO;
 import static pe.edu.lamolina.model.enums.VariableContenidoEnum.NOMBRE_PERSONA;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
@@ -54,17 +41,18 @@ import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.misc.FotoHelper;
+import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
-import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
+import pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia.PlantillaGenerica;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
 
 @Controller
-@RequestMapping("tramite/solicitudconstancia/updatehistorial")
+@RequestMapping("tramite/solicitudconstancia")
 public class ConstanciaSolicitudController {
 
     @Autowired
@@ -77,170 +65,7 @@ public class ConstanciaSolicitudController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        return "tramite/updatehistorialacademico/updateHistorialAcademicoList";
-    }
-
-    @RequestMapping("{idAlumno}/updatehistorial")
-    public String datoacademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
-        Alumno alumno = service.allInfo(new Alumno(idAlumno));
-        List<CicloAcademico> ciclosAcademico = service.allCicloAcademico();
-
-        JsonNodeFactory factory = JsonNodeFactory.instance;
-        ObjectNode alumnoJson = JsonHelper.createJson(alumno, factory, true, new String[]{
-            "*",
-            "carrera.*",
-            "carrera.orientacionCarrera.*",
-            "situacionAcademica.*",
-            "planCurricular.*",
-            "modalidadEstudio.*",
-            "persona.*",
-            "persona.tipoDocumento.*"});
-
-        model.addAttribute("datoAlumno", alumnoJson);
-        model.addAttribute("ciclosAcademico", ciclosAcademico);
-        return "tramite/updatehistorialacademico/updateHistorialAcademico";
-    }
-
-    @ResponseBody
-    @RequestMapping("savehistorial")
-    public JsonResponse update(Alumno alumnoForm, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        try {
-            service.updateHistorialAcademico(alumnoForm, ds);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("notas")
-    public JsonResponse notas(Alumno alumnoForm) {
-        JsonResponse response = new JsonResponse();
-
-        try {
-
-            List<AlumnoCiclo> notas = service.allPromediosByAlumno(alumnoForm);
-            ArrayNode arrayNotas = new ArrayNode(JsonNodeFactory.instance);
-            for (AlumnoCiclo nota : notas) {
-
-                SituacionAcademica situacionAcademica = nota.getSituacionFinal();
-                CicloAcademico cicloAcademico = nota.getCicloAcademico();
-
-                ObjectNode alumnoCicloNode = service.toJson(nota);
-                alumnoCicloNode.put("cicloAcademico", service.toJson(cicloAcademico));
-                alumnoCicloNode.put("situacionAcademica", service.toJson(situacionAcademica));
-
-                List<AlumnoCicloCurso> cursos = nota.getAlumnoCicloCurso();
-                ArrayNode cursosArray = new ArrayNode(JsonNodeFactory.instance);
-
-                for (AlumnoCicloCurso alumnoCicloCurso : cursos) {
-                    ObjectNode alumnoCicloCursoNode = service.toJson(alumnoCicloCurso);
-                    Curso curso = alumnoCicloCurso.getCurso();
-                    alumnoCicloCursoNode.put("curso", service.toJson(curso));
-                    cursosArray.add(alumnoCicloCursoNode);
-                }
-
-                alumnoCicloNode.set("alumnociclocursos", cursosArray);
-                arrayNotas.add(alumnoCicloNode);
-            }
-
-            response.setData(arrayNotas);
-            response.setTotal(arrayNotas.size());
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("searchcurso")
-    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, @RequestParam("idCursos[]") ArrayList<Long> idCursos) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-        try {
-            List<Curso> cursos = service.allCursoByNameExceptList(nombre, idCursos);
-            ArrayNode jCursos = new ArrayNode(jsonFactory);
-            for (Curso curso : cursos) {
-                jCursos.add(service.toJson(curso));
-            }
-            response.setData(jCursos);
-            response.setTotal(jCursos.size());
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("searchciclo")
-    public JsonResponse searchciclo(@RequestParam("nombre") String nombre, @RequestParam("idCiclos[]") ArrayList<Long> idCiclos) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-        try {
-            List<CicloAcademico> ciclos = service.allCicloByNameExceptList(nombre, idCiclos);
-            ArrayNode jCiclo = new ArrayNode(jsonFactory);
-            for (CicloAcademico ciclo : ciclos) {
-                jCiclo.add(service.toJson(ciclo));
-            }
-            response.setData(jCiclo);
-            response.setTotal(jCiclo.size());
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("searchalumno")
-    public JsonResponse searchalumno(@RequestParam("nombre") String nombre) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-        try {
-            FotoHelper helper = new FotoHelper();
-            List<Alumno> alumnos = service.allAlumnoByName(nombre);
-            ArrayNode jAlumno = new ArrayNode(jsonFactory);
-            for (Alumno alumno : alumnos) {
-
-                ObjectNode json = new ObjectNode(jsonFactory);
-
-                json.put("id", alumno.getId());
-                json.put("nombre", alumno.getPersona().getNombreCompleto());
-                json.put("email", alumno.getPersona().getEmailCompania());
-                json.put("telefono", alumno.getPersona().getTelefono());
-                json.put("celular", alumno.getPersona().getCelular());
-                json.put("codigoMatricula", alumno.getCodigo());
-                json.put("carrera", alumno.getCarrera().getNombre());
-                json.put("facultad", alumno.getCarrera().getFacultad().getNombre());
-                json.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
-                json.put("numero", alumno.getPersona().getNumeroDocIdentidad());
-                json.put("tipoFoto", alumno.getPersona().getTipoFoto());
-                json.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
-                jAlumno.add(json);
-            }
-            response.setData(jAlumno);
-            response.setTotal(jAlumno.size());
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
+        return "tramite/tramiteConstancia/solicitudConstancia";
     }
 
     @ResponseBody
@@ -251,39 +76,31 @@ public class ConstanciaSolicitudController {
         try {
             List<TramiteDocumentoAcademico> tipos = service.allTramiteDocumentoAcademico(filter);
             List<PrecioDocumento> precios = service.allPrecioDocumento();
-            Map<Long, List<PrecioDocumento>> preciosMap = TypesUtil.convertListToMapList("tipoDocumento.id", precios);
-            FotoHelper helper = new FotoHelper();
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (TramiteDocumentoAcademico tramiteDoc : tipos) {
 
-                ObjectNode node = service.toJson(tramiteDoc.toJson());
-                Tramite tramite = tramiteDoc.getTramite();
-                Alumno alumno = tramiteDoc.getTramite().getAlumno();
-                TipoDocumentoAcademico tipoDocumento = tramiteDoc.getTipoDocumentoAcademico();
-                Carrera carrera = alumno.getCarrera();
-                Facultad facultad = carrera.getFacultad();
+                ObjectNode node = JsonHelper.createJson(tramiteDoc, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "idioma.*",
+                    "estadoTramite.*",
+                    "tramite.*",
+                    "tramite.alumno.*",
+                    "tramite.alumno.carrera.*",
+                    "tramite.alumno.carrera.facultad.*",
+                    "tramite.alumno.persona.*",
+                    "tramite.alumno.persona.tipoDocumento.*",
+                    "tipoDocumentoAcademico.*"});
 
-                node.put("id", tramiteDoc.getId());
-
-                node.put("nombre", alumno.getPersona().getApellidosNombres());
-                node.put("idalumno", alumno.getId());
-                node.put("carrera", alumno.getCarrera().getNombre());
-                node.put("facultad", alumno.getCarrera().getFacultad().getNombre());
-                node.put("codigoMatricula", alumno.getCodigo());
-                node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
-                node.put("dni", alumno.getPersona().getNumeroDocIdentidad());
-                node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
-                node.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
-                if (!Strings.isNullOrEmpty(tipoDocumento.getTipo())) {
-                    node.put("documentoName", TipoConstanciaEnum.valueOf(tipoDocumento.getTipo()).getValue());
+                List<AccionTramiteDocumento> acciones = service.findEstadoByEstadoInicio(tramiteDoc.getEstadoTramite());
+                ArrayNode arrayAcciones = new ArrayNode(JsonNodeFactory.instance);
+                for (AccionTramiteDocumento accion : acciones) {
+                    if (!accion.getEstadoTramiteFinal().getCodigo().equals("PAG")) {
+                        arrayAcciones.add(JsonHelper.createJson(accion, JsonNodeFactory.instance, new String[]{
+                            "*",
+                            "estadoTramiteFinal.*"}));
+                    }
                 }
-                node.put("documentoTipo", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.tipo"));
-                node.put("showUpdateHistorial", TipoConstanciaEnum.CERT.name().equalsIgnoreCase(tipoDocumento.getTipo()));
-                node.put("numero", tramiteDoc.getTramite().getSerie() + "-" + tramiteDoc.getTramite().getNumero());
-                node.put("documento", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.nombre"));
-                node.put("fecha", new DateTime(tramite.getFechaRegistro()).toString("dd/MM/yyyy"));
-                node.put("estado", tramiteDoc.getEstado());
-                node.put("estadoEnum", tramiteDoc.getEstadoEnum().getValue());
+                node.set("estados", arrayAcciones);
                 array.add(node);
             }
             json.setData(array);
@@ -297,166 +114,37 @@ public class ConstanciaSolicitudController {
     }
 
     @ResponseBody
-    @RequestMapping("save")
-    public JsonResponse save(TramiteDocumentoAcademico solicitudConstanciaForm, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        response.setSuccess(false);
-        try {
-
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-            if (solicitudConstanciaForm.getId() == null) {
-                service.saveTramiteDocumentoAcademico(solicitudConstanciaForm, ds);
-                response.setMessage("Solicitud creado satisfactoriamente");
-            } else {
-                service.updateTramiteDocumentoAcademico(solicitudConstanciaForm, ds);
-                response.setMessage("Solicitud actualizado satisfactoriamente");
-            }
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("delete")
-    public JsonResponse delete(TramiteDocumentoAcademico solicitudConstancia) {
+    @RequestMapping("searchalumno")
+    public JsonResponse searchalumno(@RequestParam("nombre") String nombre) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
-            service.delete(solicitudConstancia);
-            response.setMessage("Tipo de documento eliminado satisfactoriamente");
-            response.setSuccess(Boolean.TRUE);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("cancelar")
-    public JsonResponse cancelar(TramiteDocumentoAcademico solicitudConstancia, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.cancelar(solicitudConstancia, ds);
-            response.setMessage("Tipo de documento cancelado satisfactoriamente");
-            response.setSuccess(Boolean.TRUE);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @RequestMapping("nuevo")
-    public String nuevo(Model model, HttpSession session, RedirectAttributes redirectAttr) {
-
-        try {
-
-            List<Idioma> idiomas = service.allIdiomas();
-            List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
-            model.addAttribute("idiomas", idiomas);
-            model.addAttribute("tiposDocumentoAcademico", tiposDocumentoAcademico);
-            model.addAttribute("solicitud", new TramiteDocumentoAcademico());
-
-        } catch (PhobosException ex) {
-            ExceptionHandler.handleException(ex, redirectAttr);
-            return "redirect:/tramite/solicitudconstancia/updatehistorial";
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, redirectAttr);
-            return "redirect:/tramite/solicitudconstancia/updatehistorial";
-        }
-
-        return "tramite/updatehistorialacademico/updateHistorialAcademicoForm";
-    }
-
-    @RequestMapping("{idTramite}/update")
-    public String update(@PathVariable("idTramite") Long idTramite, Model model, HttpSession session, RedirectAttributes redirectAttr) {
-        try {
-
-            List<Idioma> idiomas = service.allIdiomas();
-            List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
-            model.addAttribute("idiomas", idiomas);
-            model.addAttribute("tiposDocumentoAcademico", tiposDocumentoAcademico);
-            model.addAttribute("solicitud", new TramiteDocumentoAcademico(idTramite));
-
-        } catch (PhobosException ex) {
-            ExceptionHandler.handleException(ex, redirectAttr);
-            return "redirect:/tramite/solicitudconstancia/updatehistorial";
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, redirectAttr);
-            return "redirect:/tramite/solicitudconstancia/updatehistorial";
-        }
-        return "tramite/updatehistorialacademico/updateHistorialAcademicoForm";
-    }
-
-    @ResponseBody
-    @RequestMapping("update")
-    public JsonResponse update(TramiteDocumentoAcademico solicitudConstancia) {
-        JsonResponse response = new JsonResponse();
-        try {
-
-            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             FotoHelper helper = new FotoHelper();
+            List<Alumno> alumnos = service.allAlumnoByName(nombre);
+            ArrayNode jAlumno = new ArrayNode(jsonFactory);
+            for (Alumno alumno : alumnos) {
 
-            ObjectNode data = new ObjectNode(jsonFactory);
-            TramiteDocumentoAcademico tramiteDocumento = service.findTramiteDocumentoAcademico(solicitudConstancia);
-            Alumno alumno = tramiteDocumento.getTramite().getAlumno();
+                ObjectNode json = JsonHelper.createJson(alumno, jsonFactory, new String[]{
+                    "*",
+                    "persona.*",
+                    "persona.nombreCompleto",
+                    "persona.emailCompania",
+                    "persona.telefono",
+                    "persona.numeroDocIdentidad",
+                    "persona.tipoFoto",
+                    "persona.rutaFoto",
+                    "persona.fullRutaFotoTemporal",
+                    "persona.tipoDocumento.*",
+                    "persona.tipoDocumento.simbolo",
+                    "carrera.*",
+                    "carrera.nombre",
+                    "carrera.facultad.*",
+                    "carrera.facultad.nombre",});
 
-            ObjectNode jSolicitudConstancia = JsonHelper.createJson(tramiteDocumento, jsonFactory, true, new String[]{
-                "*",
-                "tramite.*",
-                "tramite.persona.fullRutaFotoTemporal",
-                "tramite.persona.rutaFotoTemporal",
-                "tipoDocumentoAcademico.*",
-                "idioma.*"
-            });
-
-            data.put("solicitud", jSolicitudConstancia);
-            Persona persona = alumno.getPersona();
-            Carrera carrera = alumno.getCarrera();
-            Facultad facultad = carrera.getFacultad();
-
-            ObjectNode jAlumno = service.toJson(alumno);
-            jAlumno.put("nombre", persona.getNombreCompleto());
-            jAlumno.put("email", persona.getEmailCompania());
-            jAlumno.put("telefono", persona.getTelefono());
-            jAlumno.put("celular", persona.getCelular());
-            jAlumno.put("tipo", persona.getTipoDocumento().getSimbolo());
-            jAlumno.put("numero", persona.getNumeroDocIdentidad());
-            jAlumno.put("rutaFoto", helper.getRutaFoto(persona.getFoto(), persona.getSexo()));
-            jAlumno.put("codigoMatricula", alumno.getCodigo());
-            jAlumno.put("carrera", alumno.getCarrera().getNombre());
-            jAlumno.put("facultad", alumno.getCarrera().getFacultad().getNombre());
-            jAlumno.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
-            data.put("alumno", jAlumno);
-
-            response.setData(data);
-            response.setSuccess(Boolean.TRUE);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("tipodocumento")
-    public JsonResponse tipodocumento(HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        response.setSuccess(false);
-        try {
-            ArrayNode arrayTipoDocumentoAcademico = new ArrayNode(JsonNodeFactory.instance);
-            service.fillTipoDocumentoAcademico(arrayTipoDocumentoAcademico);
-            response.setData(arrayTipoDocumentoAcademico);
+                jAlumno.add(json);
+            }
+            response.setData(jAlumno);
+            response.setTotal(jAlumno.size());
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -539,27 +227,11 @@ public class ConstanciaSolicitudController {
     }
 
     @ResponseBody
-    @RequestMapping("revision")
-    public JsonResponse revision(TramiteDocumentoAcademico solicitudConstancia) {
-        JsonResponse response = new JsonResponse();
-        try {
-            service.revision(solicitudConstancia);
-            response.setMessage("solicitud enviada a revisión satisfactoriamente");
-            response.setSuccess(Boolean.TRUE);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
     @RequestMapping("upload")
     public JsonResponse upload(@RequestParam("file") MultipartFile archivo, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-
+        response.setSuccess(Boolean.FALSE);
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
@@ -578,63 +250,63 @@ public class ConstanciaSolicitudController {
 
             logger.debug("validando dpi...");
             logger.debug("DpiHeight {}", metadata.getDpiHeight());
-            if (Constantine.IMAGE_DPIHEIGHT > metadata.getDpiHeight()) {
-                formatook = Boolean.FALSE;
-                nocumplerequisito.append(Constantine.IMAGE_DPIHEIGHT_MSG);
-                nocumplerequisito.append(" , ");
-                logger.debug("{}", Constantine.IMAGE_DPIHEIGHT_MSG);
-            }
-            logger.debug("DpiWidth {}", metadata.getDpiWidth());
-            if (Constantine.IMAGE_DPIWIDTH > metadata.getDpiWidth()) {
-                formatook = Boolean.FALSE;
-                nocumplerequisito.append(Constantine.IMAGE_DPIWIDTH_MSG);
-                nocumplerequisito.append(" , ");
-                logger.debug("{}", Constantine.IMAGE_DPIWIDTH_MSG);
-            }
-            logger.debug("Height {}", metadata.getHeight());
-            int sizeHeight = Math.abs(Constantine.IMAGE_HEIGHT - metadata.getHeight());
-            if (sizeHeight > Constantine.IMAGE_DELTA_SIZE) {
-                formatook = Boolean.FALSE;
-                nocumplerequisito.append(Constantine.IMAGE_HEIGHT_MSG);
-                nocumplerequisito.append(" , ");
-                logger.debug("{}", Constantine.IMAGE_HEIGHT_MSG);
-            }
-            logger.debug("Width {}", metadata.getWidth());
-            int sizeWidth = Math.abs(Constantine.IMAGE_WIDTH - metadata.getWidth());
-            if (sizeWidth > Constantine.IMAGE_DELTA_SIZE) {
-                formatook = Boolean.FALSE;
-                nocumplerequisito.append(Constantine.IMAGE_WIDTH_MSG);
-                nocumplerequisito.append(" , ");
-                logger.debug("{}", Constantine.IMAGE_WIDTH_MSG);
-            }
-            logger.debug("Format {}", metadata.getFormat());
-            if (!Arrays.asList(Constantine.IMAGE_FORMAT).contains(metadata.getFormat().toString())) {
-                formatook = Boolean.FALSE;
-                nocumplerequisito.append(Constantine.IMAGE_FORMAT_MSG);
-                nocumplerequisito.append(" , ");
-                logger.debug("{}", Constantine.IMAGE_FORMAT_MSG);
-            }
-            logger.debug("ColorType {}", metadata.getColorType());
-            if (!Constantine.IMAGE_COLORTYPE.equalsIgnoreCase(metadata.getColorType().toString())) {
-                formatook = Boolean.FALSE;
-                nocumplerequisito.append(Constantine.IMAGE_COLORTYPE_MSG);
-                nocumplerequisito.append(" , ");
-                logger.debug("{}", Constantine.IMAGE_COLORTYPE_MSG);
-            }
-            logger.debug("BitsPerPixel {}", metadata.getBitsPerPixel());
-            if (Constantine.IMAGE_BITSPERPIXEL > metadata.getBitsPerPixel()) {
-                formatook = Boolean.FALSE;
-                nocumplerequisito.append(Constantine.IMAGE_BITSPERPIXEL_MSG);
-                nocumplerequisito.append(" , ");
-                logger.debug("{}", Constantine.IMAGE_BITSPERPIXEL_MSG);
-            }
-            logger.debug("Transparent {}", metadata.isTransparent());
-            if (metadata.isTransparent()) {
-                formatook = Boolean.FALSE;
-                nocumplerequisito.append(Constantine.IMAGE_TRANSPARENT_MSG);
-                nocumplerequisito.append(" , ");
-                logger.debug("{}", Constantine.IMAGE_TRANSPARENT_MSG);
-            }
+//            if (Constantine.IMAGE_DPIHEIGHT > metadata.getDpiHeight()) {
+//                formatook = Boolean.FALSE;
+//                nocumplerequisito.append(Constantine.IMAGE_DPIHEIGHT_MSG);
+//                nocumplerequisito.append(" , ");
+//                logger.debug("{}", Constantine.IMAGE_DPIHEIGHT_MSG);
+//            }
+//            logger.debug("DpiWidth {}", metadata.getDpiWidth());
+//            if (Constantine.IMAGE_DPIWIDTH > metadata.getDpiWidth()) {
+//                formatook = Boolean.FALSE;
+//                nocumplerequisito.append(Constantine.IMAGE_DPIWIDTH_MSG);
+//                nocumplerequisito.append(" , ");
+//                logger.debug("{}", Constantine.IMAGE_DPIWIDTH_MSG);
+//            }
+//            logger.debug("Height {}", metadata.getHeight());
+//            int sizeHeight = Math.abs(Constantine.IMAGE_HEIGHT - metadata.getHeight());
+//            if (sizeHeight > Constantine.IMAGE_DELTA_SIZE) {
+//                formatook = Boolean.FALSE;
+//                nocumplerequisito.append(Constantine.IMAGE_HEIGHT_MSG);
+//                nocumplerequisito.append(" , ");
+//                logger.debug("{}", Constantine.IMAGE_HEIGHT_MSG);
+//            }
+//            logger.debug("Width {}", metadata.getWidth());
+//            int sizeWidth = Math.abs(Constantine.IMAGE_WIDTH - metadata.getWidth());
+//            if (sizeWidth > Constantine.IMAGE_DELTA_SIZE) {
+//                formatook = Boolean.FALSE;
+//                nocumplerequisito.append(Constantine.IMAGE_WIDTH_MSG);
+//                nocumplerequisito.append(" , ");
+//                logger.debug("{}", Constantine.IMAGE_WIDTH_MSG);
+//            }
+//            logger.debug("Format {}", metadata.getFormat());
+//            if (!Arrays.asList(Constantine.IMAGE_FORMAT).contains(metadata.getFormat().toString())) {
+//                formatook = Boolean.FALSE;
+//                nocumplerequisito.append(Constantine.IMAGE_FORMAT_MSG);
+//                nocumplerequisito.append(" , ");
+//                logger.debug("{}", Constantine.IMAGE_FORMAT_MSG);
+//            }
+//            logger.debug("ColorType {}", metadata.getColorType());
+//            if (!Constantine.IMAGE_COLORTYPE.equalsIgnoreCase(metadata.getColorType().toString())) {
+//                formatook = Boolean.FALSE;
+//                nocumplerequisito.append(Constantine.IMAGE_COLORTYPE_MSG);
+//                nocumplerequisito.append(" , ");
+//                logger.debug("{}", Constantine.IMAGE_COLORTYPE_MSG);
+//            }
+//            logger.debug("BitsPerPixel {}", metadata.getBitsPerPixel());
+//            if (Constantine.IMAGE_BITSPERPIXEL > metadata.getBitsPerPixel()) {
+//                formatook = Boolean.FALSE;
+//                nocumplerequisito.append(Constantine.IMAGE_BITSPERPIXEL_MSG);
+//                nocumplerequisito.append(" , ");
+//                logger.debug("{}", Constantine.IMAGE_BITSPERPIXEL_MSG);
+//            }
+//            logger.debug("Transparent {}", metadata.isTransparent());
+//            if (metadata.isTransparent()) {
+//                formatook = Boolean.FALSE;
+//                nocumplerequisito.append(Constantine.IMAGE_TRANSPARENT_MSG);
+//                nocumplerequisito.append(" , ");
+//                logger.debug("{}", Constantine.IMAGE_TRANSPARENT_MSG);
+//            }
 
             json.put("ok", formatook);
             json.put("nocumplerequisito", nocumplerequisito.toString());
@@ -657,46 +329,34 @@ public class ConstanciaSolicitudController {
     }
 
     @ResponseBody
-    @RequestMapping("allTipoDocumento")
-    public JsonResponse allTipoDocumento(@RequestParam("nombre") String nombre, HttpSession session) {
-
+    @RequestMapping("save")
+    public JsonResponse save(@RequestBody TramiteDocumentoAcademico documentoAcademico, HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            if (documentoAcademico.getId() == null) {
 
-            ArrayNode jsonList = new ArrayNode(jsonFactory);
-            List<TipoDocumentoAcademico> tipos = service.allTipoDocumentoAcademicoByName(nombre);
-            for (TipoDocumentoAcademico tipo : tipos) {
-
-                ObjectNode nodeTipoDocumento = JsonHelper.createJson(tipo, jsonFactory, true, new String[]{
-                    "*",
-                    "precioDocumento.*",
-                    "precioDocumento.idioma.*",
-                    "precioDocumento.tipoDocumento.*"
-                });
-
-                nodeTipoDocumento.put("tipoName", TipoConstanciaEnum.valueOf(tipo.getTipo()).getValue());
-                jsonList.add(nodeTipoDocumento);
+                service.save(documentoAcademico, ds);
+            } else {
+                service.updateTramiteDocumentoAcademico(documentoAcademico, ds);
             }
-
-            response.setData(jsonList);
-            response.setTotal(jsonList.size());
             response.setSuccess(true);
-
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-
         return response;
     }
 
     @ResponseBody
     @RequestMapping("onlyfoto")
-    public JsonResponse onlyfoto(Persona imagenForm, HttpSession session) {
+    public JsonResponse onlyfoto(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            service.updateFotoTemporal(imagenForm);
+            service.updateFotoTemporal(tramiteDocumentoAcademico, ds);
             response.setSuccess(Boolean.TRUE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
@@ -704,4 +364,110 @@ public class ConstanciaSolicitudController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("update")
+    public JsonResponse update(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.update(tramiteDocumentoAcademico, ds);
+            response.setSuccess(Boolean.TRUE);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("downloadWord")
+    public JsonResponse downloadWord(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.downloadWord(tramiteDocumentoAcademico, ds);
+            response.setSuccess(Boolean.TRUE);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @RequestMapping("solicitud/{idSolicitud}")
+    public String nuevo(@PathVariable(value = "idSolicitud") Long idSolicitud, Model model, HttpSession session, RedirectAttributes redirectAttr) {
+
+        try {
+
+//            List<Idioma> idiomas = service.allIdiomas();
+            List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
+            TramiteDocumentoAcademico documentoAcademico = idSolicitud == null ? null : service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            if (documentoAcademico != null) {
+                node = JsonHelper.createJson(documentoAcademico, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "idioma.*",
+                    "tramite.*",
+                    "estadoTramite.*",
+                    "tramite.alumno.*",
+                    "tramite.alumno.carrera.*",
+                    "tramite.alumno.carrera.facultad.*",
+                    "tramite.alumno.persona.*",
+                    "tramite.alumno.persona.tipoDocumento.*",
+                    "tipoDocumentoAcademico.*"
+                });
+            }
+
+            ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+            for (TipoDocumentoAcademico tipoDocumentoAcademico : tiposDocumentoAcademico) {
+                ArrayNode arrayIdiomas = new ArrayNode(JsonNodeFactory.instance);
+                ObjectNode objectNode = JsonHelper.createJson(tipoDocumentoAcademico, JsonNodeFactory.instance, new String[]{
+                    "*"
+                });
+                ArrayNode arrayPrecios = new ArrayNode(JsonNodeFactory.instance);
+                for (PrecioDocumento precioDocumento : tipoDocumentoAcademico.getPrecioDocumento()) {
+                    arrayPrecios.add(JsonHelper.createJson(precioDocumento, JsonNodeFactory.instance, new String[]{
+                        "*",
+                        "idioma.*"
+                    }));
+                    arrayIdiomas.add(JsonHelper.createJson(precioDocumento.getIdioma(), JsonNodeFactory.instance, new String[]{
+                        "*"
+                    }));
+                }
+                objectNode.set("idiomas", arrayIdiomas);
+                objectNode.set("precioDocumento", arrayPrecios);
+                arrayNode.add(objectNode);
+            }
+
+            model.addAttribute("tiposDocumentoAcademico", arrayNode);
+            model.addAttribute("solicitud", node);
+
+        } catch (PhobosException ex) {
+            ExceptionHandler.handleException(ex, redirectAttr);
+            return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, redirectAttr);
+            return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
+        }
+
+        return "tramite/tramiteConstancia/solicitud";
+    }
+
+    @RequestMapping("view/{idSolicitud}")
+    public String view(@PathVariable(value = "idSolicitud") Long idSolicitud, Model model, HttpSession session, RedirectAttributes redirectAttr) {
+
+        try {
+
+//            List<Idioma> idiomas = service.allIdiomas();
+            List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
+            TramiteDocumentoAcademico documentoAcademico = service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
+            PlantillaGenerica plantilla = service.findPlantillaHtml(documentoAcademico);
+        } catch (PhobosException ex) {
+            ExceptionHandler.handleException(ex, redirectAttr);
+            return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, redirectAttr);
+            return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
+        }
+
+        return "tramite/tramiteConstancia/solicitud";
+    }
 }

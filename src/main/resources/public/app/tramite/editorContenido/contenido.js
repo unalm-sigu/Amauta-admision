@@ -1,9 +1,12 @@
+Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     data: {
-        variables: [],
         alumno: {id: null},
         contenidoPreview: null,
+        variablePlantilla: JSON.parse(variablePlantillaJson),
+        variables: JSON.parse(variablesJson),
+        id: JSON.parse(id),
         dataModalPreview: {
             id: 'modalPreview',
             header: true,
@@ -13,6 +16,7 @@ new Vue({
             modalscroll: 'modal-scroll-600',
             showaccept: false
         },
+        contVariable: {}
     },
     mounted() {
         let vue = this;
@@ -31,7 +35,7 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, 'info');
-                        vue.variables = response.data.variablePlantilla;
+                        vue.variablePlantilla = response.data.variablePlantilla;
                     } else {
                         notify(response.message, 'error');
                     }
@@ -40,35 +44,6 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        },
-        previewPdf: function (el) {
-
-            let vue = this;
-            let self = $(el.currentTarget);
-            
-            self.find('i').removeClass('fa-file-pdf-o').addClass('fa-spinner fa-spin');
-            self.prop("disabled", true);
-            
-            let urll = APP.url('tramite/plantillaconstancia/previewpdf');
-
-            $.fileDownload(urll, {
-                httpMethod: "POST",
-                data: $('form').serialize(),
-            }).done(function () {
-                setTimeout(function () {
-                    self.find('i').removeClass('fa-spinner fa-spin').addClass('fa-file-pdf-o');
-                    self.removeProp("disabled");
-                }, 2000);
-            }).fail(function () {
-                setTimeout(function () {
-                    self.find('i').removeClass('fa-spinner fa-spin').addClass('fa-file-pdf-o');
-                    self.removeProp("disabled");
-                }, 2000);
-                notify(MESSAGES.errorComunicacion, "error");
-            });
-
-
-
         },
         previewHtml: function () {
 
@@ -97,6 +72,90 @@ new Vue({
                 }
             });
 
+        },
+        reloadVariables() {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('tramite/plantillaconstancia/' + $vue.id + '/allVariable'),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.contVariable = {};
+                        $vue.variablePlantilla = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        addVariable() {
+            let $vue = this;
+            $vue.contVariable.plantillaDocumentoAcademico = {};
+            $vue.contVariable.plantillaDocumentoAcademico.id = $vue.id;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('tramite/plantillaconstancia/saveVariable'),
+                data: JSON.stringify($vue.contVariable),
+                dataType: "json",
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.reloadVariables();
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        deleteVariable(item) {
+            let $vue = this;
+            console.log(item);
+            $.ajax({
+                method: 'POST',
+                url: APP.url('tramite/plantillaconstancia/' + item.id + '/deleteVariable'),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.reloadVariables();
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        updateVariable(item) {
+            let $vue = this;
+            console.log(item);
+            item.plantillaDocumentoAcademico = {};
+            item.plantillaDocumentoAcademico.id = $vue.id;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('tramite/plantillaconstancia/updateVariable'),
+                data: JSON.stringify(item),
+                dataType: "json",
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.reloadVariables();
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         },
         saveModalPreview: function () {
 

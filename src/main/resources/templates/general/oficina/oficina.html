@@ -1,54 +1,140 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Administración de Oficinas</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-</head>
-<body>
-    <div layout:fragment="main">
+        <!--<div th:substituteby="_layout/includes :: styles-dynatable"></div>-->
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div id="pageOficinasVUE" v-cloak="">
 
-        <header class="header b-b padder-lg">
+                <header class="header b-b padder-lg">
 
-            <div class="pull-right m-t-md">                 
-                <a class="btn btn-success btn-sm" type="button" th:href="@{/general/oficina/nuevo}" >Nuevo</a>
-            </div>  
+                    <div class="pull-right m-t-md">                 
+                        <a class="btn btn-success btn-sm" type="button" th:href="@{/general/oficina/nuevo}" >Nuevo</a>
+                    </div>  
 
-            <h2>Oficinas de la Institución</h2>
+                    <h2>Oficinas de la Institución</h2>
 
-        </header>
-        <section class="wrapper-lg">
-            <section class="panel">
+                </header>
 
-                <section class="panel-body">
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
 
-                    <table id="dynaTable" class="table table-striped">
-                        <thead class="panel panel-heading">
-                            <tr>
-                                <th class="col-xs-5 v-middle">Unidad</th>                    
-                                <th class="col-xs-2 v-middle">Dependencia</th>                    
-                                <th class="col-xs-3 text-center"><span>Jefatura</span></th>
-                                <th class="col-xs-1 text-center"><span>Colaboradores</span></th>
-                                <th class="col-xs-1 text-center"><span>Estado</span></th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                            <raptor-table v-bind:url="oficinasURL" ref="raptorOficinas">
 
+                                <div slot="header"></div>
+                                <template scope="props" >
+
+                                    <table class="table table-striped">
+                                        <thead class="panel panel-heading">
+                                            <tr>
+                                                <th class="col-xs-5 v-middle">Unidad</th>                    
+                                                <th class="col-xs-2 v-middle">Dependencia</th>                    
+                                                <th class="col-xs-3 text-center"><span>Jefatura</span></th>
+                                                <th class="col-xs-1 text-center"><span>Colaboradores</span></th>
+                                                <th class="col-xs-1 text-center"><span>Estado</span></th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+
+                                                <td class="v-middle">
+                                                    <div class="h5 text-primary m-t-xs m-b-xs">{{item.nombre}}</div>
+                                                    <p class="text-sm">Código {{item.codigo}}</p>
+                                                    <p class="text-sm">Tipo {{item.tipoOficina.codigoEnum.value}}</p>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <span v-if="item.oficinaSuperior.id != '' ">{{item.oficinaSuperior.nombre}}</span>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span class="block">{{item.cargoJefe.nombre}}</span>
+                                                    <template v-if="item.jefeEncargado.id != '' ">
+                                                        <span class="text-primary block">{{item.jefeEncargado.nombreConTitulo}}</span>
+                                                        <span v-if="item.fechaEncargatura != '' " class="text-sm block m-b">
+                                                            (Encargado desde el {{item.fechaEncargatura}})
+                                                        </span>
+                                                        <span v-else="" class="text-sm block m-b">(Encargado)</span>
+                                                    </template>
+
+                                                    <span v-if="item.personaJefe.id != '' " class="text-primary block">{{item.personaJefe.nombreConTitulo}}</span>
+
+                                                    <span v-if="item.fechaInicioJefatura != '' " class="text-sm block">Desde el {{item.fechaInicioJefatura}}</span>
+
+                                                    <p v-if="item.motivoAusenciaJefe != '' " class="text-sm block text-danger">({{item.motivoAusenciaJefe}})</p>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span class="badge pointer" v-on:click="verColaboradores(item)">{{item.colaboradores}}</span>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <label class="label" v-bind:class="classEstado(item)" >{{item.estadoEnum.value}}</label>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <div class="actions">
+
+                                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+
+                                                        <ul class="dropdown-menu pull-right" >
+                                                            <li role="presentation"><a class="btn-link modificar" v-bind:href="urlEditar(item)">Editar</a></li>
+
+                                                            <li role="presentation">
+                                                                <a v-if="item.estado == 'ACT' " class="btn-link" v-on:click="cambiarEstado(item,'desactivar')">Desactivar</a>
+                                                                <a v-if="item.estado == 'INA' " class="btn-link" v-on:click="cambiarEstado(item,'activar')">Activar</a>
+                                                            </li>
+
+                                                            <li role="presentation" class="divider"></li>
+
+                                                            <li v-if="item.personaJefe.id != '' "><a class="btn-link retirar-jefe" v-bind:rel="item.id">Retirar Jefe</a></li>
+                                                            <li v-else=""><a class="btn-link asignar-jefe" v-bind:rel="item.id"> Asignar Jefe</a></li>
+
+                                                            <li v-if="item.jefeEncargado.id != '' "><a class="btn-link retirar-encargado" v-bind:rel="item.id" href="#">Retirar Encargado</a></li>
+                                                            <li v-else=""><a class="btn-link asignar-encargado" v-bind:rel="item.id" href="#">Asignar Encargado</a></li>
+
+                                                            <li role="presentation" class="divider"></li>
+                                                            <li><a class="btn-link" v-on:click="cambiarEstado(item,'eliminar')">Eliminar</a></li>
+                                                            <li v-if="item.tipoOficina.nivelEnum.name == 'OFI' "><a class="btn-link" v-bind:href="urlColaboradores(item)">Colaboradores</a></li>
+                                                        </ul>
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+                            
+                            
+
+                        </section>
+
+                    </section>
+                    
                 </section>
+                
+                <div th:substituteby="general/oficina/oficinaModals"/>
+            </div>
+            
+            <div th:substituteby="_modules/vue-modal"/>
+            
 
-            </section>
-        </section>
+            <!--<div th:substituteby="templates/modal"/>--> 
+            <!--<div th:substituteby="general/oficina/oficinaModals"/>-->
+            <!--<script id="oficinaTemplate" type="text/x-jsrender" class="hide" ><div th:substituteby="general/oficina/oficinaTemplate"/></script>-->
 
-        <div th:substituteby="templates/modal"/> 
-        <div th:substituteby="general/oficina/oficinaModals"/>
-        <script id="oficinaTemplate" type="text/x-jsrender" class="hide" ><div th:substituteby="general/oficina/oficinaTemplate"/></script>
+        </div>
 
-    </div>
+        <div layout:fragment="js">
+            <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/general/oficina/oficina.js}" charset="utf-8"></script>
+        </div>
 
-    <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/general/oficina/oficina.js}" charset="utf-8"></script>
-    </div>
-
-</body>
+    </body>
 </html>
