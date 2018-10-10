@@ -1,0 +1,74 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Alumno Tarifa</title>
+    </head>
+    ​
+    <body>
+        <div layout:fragment="main">
+            <div id="alumnotarifaVUE">
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success" href="#">Nuevo</a>
+                        </div>
+                    </div> 
+                    <h2>Alumno Tarifa</h2>
+                </header>
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table v-bind:url="alumnotarifaURL" ref="raptorAlumnoTarifa">
+
+                                <template  scope="props" >
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-2">Estado</th>
+                                                <th class="col-md-2">Fecha Aceptar Tarifa</th>
+                                                <th class="col-md-2">Fecha de Activacion</th>
+                                                <th class="col-md-2">Fecha de Registro</th>
+                                                <th class="col-md-2">Tarifa Carrera</th>
+                                                <th class="col-md-2">Nombre de la Carrera</th>
+                                                <th class="col-md-2">Descripcion</th>
+                                                <th class="col-md-2">Descripcion2</th>
+                                                <th class="col-md-2">Código</th>
+                                                <th class="col-md-2">Tipo de Carrera</th>
+                                                <th class="col-md-2">Carrera</th>
+                                                <th class="col-md-2">Alumnos</th>                           
+                         
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td v-text="item.estado"></td>
+                                                <td v-text="item.fechaAceptaTarifa"></td>
+                                                <td v-text="item.fechaActivacion"></td>
+                                                <td v-text="item.fechaRegistro"></td>
+                                                <td v-text="item.tarifaCarrera.carrera.tipoEnum"></td>
+                                                <td v-text="item.tarifaCarrera.cicloinicio.descripcion"></td>
+                                                <td v-text="item.tarifaCarrera.cicloinicio.descripcion2"></td>
+                                                <td v-text="item.alumno.codigo"></td>
+                                                <td v-text="item.alumno.carrera.tipoEnum"></td>
+                                                <td v-text="item.alumno.carrera.nombre"></td>
+                                                <td v-text="item.persona.apellidosNombres"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+                        </section>
+                    </section>
+                </section>
+            </div>
+        </div>
+        ​
+        <div layout:fragment="js">
+             <div th:substituteby="_modules/vue-raptor-table"/>
+            <script th:src="@{/app/posgrado/alumnotarifa/alumnotarifa.js}" charset="utf-8"></script>
+           
+        </div>
+        
+        ​
+    </body>
+</html>
