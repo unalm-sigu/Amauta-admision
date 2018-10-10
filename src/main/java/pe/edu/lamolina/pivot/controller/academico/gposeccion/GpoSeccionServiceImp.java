@@ -595,6 +595,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         profeSeccDB.setFechaInicio(profeSeccForm.getFechaInicio());
         docenteSeccionDAO.updateFechaInicio(profeSeccDB);
         evaluateSeccion(profeSeccDB.getSeccion());
+        this.actualizarBoletin();
     }
 
     @Override
@@ -638,6 +639,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         profeSeccDB.setFechaFin(profeSeccForm.getFechaFin());
         docenteSeccionDAO.updateFechaFin(profeSeccDB);
         evaluateSeccion(profeSeccDB.getSeccion());
+
+        this.actualizarBoletin();
     }
 
     @Override
@@ -750,6 +753,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionDAO.updateEstadoFechaModUsuarioMod(seccion);
 
         this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), usuario, today);
+        this.actualizarBoletin();
     }
 
     @Override
@@ -790,6 +794,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionDAO.updateEstadoFechaModUsuarioMod(seccion);
         }
         this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), usuario, today);
+        this.actualizarBoletin();
     }
 
     @Override
@@ -939,6 +944,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
         docenteSeccionDAO.updatePrincipal(docenteSeccion);
+        this.actualizarBoletin();
     }
 
     @Override
@@ -1026,6 +1032,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
         this.actualizarVacantesTCUR(grupoSeccion, usuario, today);
+        this.actualizarBoletin();
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -1517,6 +1524,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         seccionDAO.updateSeccionGrupoHora(seccion);
+        this.actualizarBoletin();
     }
 
     @Override
@@ -1739,6 +1747,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 restriccionFacultadDAO.updateEstadoFechaUsuario(restriccionFacultadEach);
             }
         }
+        this.actualizarBoletin();
     }
 
     @Override
