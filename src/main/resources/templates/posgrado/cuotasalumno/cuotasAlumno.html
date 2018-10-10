@@ -24,7 +24,10 @@
 
                     <div class="pull-right m-t-md">                 
                         <div class="btn-group">
-                            <a type="button" class="btn btn-success nuevo-grupo-sec" th:if="false">Nuevo Grupo</a>
+                            <a type="button" class="btn btn-success nuevo-grupo-sec" 
+                               th:href="@{/posgrado/cuotasalumno}">
+                                Regresar
+                            </a>
                         </div>
                     </div> 
                     <h2 th:text="|Cuotas Alumnos ${ciclo.descripcion}|">Cuotas Alumno</h2>

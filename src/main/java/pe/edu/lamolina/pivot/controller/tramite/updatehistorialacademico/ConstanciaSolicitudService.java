@@ -11,9 +11,13 @@ import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
+import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
+import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
+import pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia.PlantillaGenerica;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ConstanciaSolicitudService {
@@ -46,7 +50,7 @@ public interface ConstanciaSolicitudService {
 
     List<Colaborador> allColaboradorByName(String nombre);
 
-    void updateFotoTemporal(Persona imagenForm);
+    void updateFotoTemporal(TramiteDocumentoAcademico documentoAcademico, DataSessionPivot ds);
 
     public void save(TramiteDocumentoAcademico documentoAcademico, DataSessionPivot ds);
 
@@ -55,5 +59,13 @@ public interface ConstanciaSolicitudService {
     public List<PrecioDocumento> allPrecioDocumento();
 
     public List<TipoDocumentoAcademico> allTipoDocumentoAcademico();
+
+    public List<AccionTramiteDocumento> findEstadoByEstadoInicio(EstadoTramite estadoTramite);
+
+    public void update(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
+
+    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
+
+    public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico);
 
 }

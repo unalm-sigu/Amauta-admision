@@ -69,14 +69,14 @@ new Vue({
             let $vue = this;
 
             console.log($vue.solicitud.tipoDocumentoAcademico);
-            if ($vue.solicitud.tipoDocumentoAcademico.tipo == 'CONS') {
-                $vue.solicitud.tipoDocumentoAcademico.precioDocumento.forEach(function (item) {
-                    if (item.idioma.id == value.id) {
-                        $vue.showCostoDocumento = true;
-                        $vue.costoDocumento = item.precio;
-                    }
-                })
-            }
+//            if ($vue.solicitud.tipoDocumentoAcademico.tipo == 'CONS') {
+            $vue.solicitud.tipoDocumentoAcademico.precioDocumento.forEach(function (item) {
+                if (item.idioma.id == value.id) {
+                    $vue.showCostoDocumento = true;
+                    $vue.costoDocumento = item.precio;
+                }
+            })
+//            }
         },
         customLabel( { persona}) {
             return `${persona.apellidosNombres}`
@@ -84,12 +84,12 @@ new Vue({
         createCargarFoto: function () {
             var $vue = this;
             $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
-
+            $vue.solicitud.tramite = $vue.tramite;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/solicitudconstancia/onlyfoto'),
                 contentType: "application/json",
-                data: JSON.stringify($vue.tramite.alumno.persona),
+                data: JSON.stringify($vue.solicitud),
                 success: function (response) {
                     if (response.success) {
                         $vue.$refs.cargarFoto.close();

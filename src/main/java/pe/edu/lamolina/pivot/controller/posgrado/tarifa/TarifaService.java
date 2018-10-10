@@ -24,10 +24,12 @@ public interface TarifaService {
 
     List<TarifaCarrera> allByDynatable(DynatableFilter filter);
 
-    public List<Carrera> allCarreraMaestria();
+    List<Carrera> allCarreraMaestria();
 
-    public List<CicloAcademico> allCicloAcademico();
-    
-    public List<ConceptoPosgrado> allConceptoPosgrado();
+    List<CicloAcademico> allCicloAcademico();
+
+    List<ConceptoPosgrado> allConceptoPosgrado();
+
+    List<CicloAcademico> allCiclosByNombre(String nombre);
 
 }

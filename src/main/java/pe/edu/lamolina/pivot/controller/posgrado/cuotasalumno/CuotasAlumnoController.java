@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.posgrado.cuotasalumno;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -25,8 +26,10 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.posgrado.AlumnoConceptoMatricula;
 import pe.edu.lamolina.model.posgrado.AlumnoResumenCuotas;
 import pe.edu.lamolina.model.posgrado.TarifaCarrera;
+import pe.edu.lamolina.model.posgrado.TarifaConcepto;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -109,22 +112,59 @@ public class CuotasAlumnoController {
         JsonNodeFactory nc = JsonNodeFactory.instance;
 
         Alumno alumno = cuotasAlumnoService.findAlumno(new Alumno(alumnoId));
-        ObjectNode alumnoJson = JsonHelper.createJson(alumno, nc, false, new String[]{
+        /*    ObjectNode alumnoJson = JsonHelper.createJson(alumno, nc, false, new String[]{
             "*",
             "carrera.*"
         });
+         */
+        AlumnoResumenCuotas alumnoResumenCuotas = cuotasAlumnoService.findAlumnoResumenCuotaByAlumnoAndCiclo(alumno, ds.getCicloAcademico());
+        ObjectNode alumnoResumenCuotasJson = null;
+        if (alumnoResumenCuotas == null) {
+            alumnoResumenCuotas = new AlumnoResumenCuotas();
+            alumnoResumenCuotas.setTarifaCarrera(new TarifaCarrera());
+            alumnoResumenCuotas.setPagoCash(Boolean.FALSE);
+            alumnoResumenCuotas.setAlumnoConceptosMatricula(null);
+            alumnoResumenCuotas.setAlumnoCuotasMatricula(null);
 
-        AlumnoResumenCuotas alumnoResumenCuotas = new AlumnoResumenCuotas();
-        alumnoResumenCuotas.setTarifaCarrera(new TarifaCarrera());
-        alumnoResumenCuotas.setPagoCash(Boolean.FALSE);
-        ObjectNode alumnoResumenCuotasJson = JsonHelper.createJson(alumnoResumenCuotas, nc, true, new String[]{
-            "*",
-            "cicloAcademico.*",
-            "tarifaCarrera.*",
-            "userRegistro.*"
-        });
-        //     alumnoResumenCuotasJson.put("pagoCash", false);
-        alumnoResumenCuotasJson.set("alumno", alumnoJson);
+            alumnoResumenCuotasJson = JsonHelper.createJson(alumnoResumenCuotas, nc, true, new String[]{
+                "*",
+                "cicloAcademico.*",
+                "tarifaCarrera.*",
+                "userRegistro.*"
+            });
+        } else {
+            for (AlumnoConceptoMatricula alumnoConceptoMatricula : alumnoResumenCuotas.getAlumnoConceptosMatricula()) {
+                TarifaConcepto tarifaConcepto = cuotasAlumnoService.findTarifaConceptoByConceptoPosgrado(alumnoConceptoMatricula.getConceptoPosgrado());
+                if (tarifaConcepto.getFraccionable()) {
+                    BigDecimal porcentajeInicial = BigDecimal.valueOf(100).multiply(alumnoConceptoMatricula.getInicial());
+                    porcentajeInicial = porcentajeInicial.divide(alumnoConceptoMatricula.getMonto());
+                    alumnoResumenCuotas.setPorcentajeMontoInicial(porcentajeInicial);
+
+                    if (alumnoResumenCuotas.getPagoCash() != null && !alumnoResumenCuotas.getPagoCash()) {
+                        if (alumnoResumenCuotas.getPorcentajeMontoInicial().compareTo(new BigDecimal(100)) == 0) {
+                            alumnoResumenCuotas.setPagoCash(Boolean.TRUE);
+                        } else {
+                            alumnoResumenCuotas.setPagoCash(Boolean.FALSE);
+                        }
+                    }
+                }
+
+            }
+            if (alumnoResumenCuotas.getPorcentajeMontoInicial().compareTo(new BigDecimal(100)) == 0) {
+                alumnoResumenCuotas.setPagoCash(Boolean.TRUE);
+            }
+            alumnoResumenCuotasJson = JsonHelper.createJson(alumnoResumenCuotas, nc, true, new String[]{
+                "*",
+                "cicloAcademico.*",
+                "tarifaCarrera.*",
+                "userRegistro.*",
+                "alumnoConceptosMatricula.*",
+                "alumnoConceptosMatricula.conceptoPosgrado.*",
+                "alumnoCuotasMatricula.*"
+            });
+        }
+
+        //   alumnoResumenCuotasJson.set("alumno", alumnoJson);
         model.addAttribute("alumnoResumenCuotasJson", alumnoResumenCuotasJson.toString());
 
         List<TarifaCarrera> tarifasCarreras = cuotasAlumnoService.allByCarrera(alumno.getCarrera());

@@ -19,12 +19,18 @@
 
                 <header class="header b-b padder-lg">
 
-                    <div class="pull-right m-t-md">                 
-                        <div class="btn-group">
-                            <a v-if="cantidadGrupoSeccion > 0" type="button" class="btn btn-success nuevo-grupo-sec">Nuevo Grupo</a>
-                            <a v-if="cantidadGrupoSeccion == 0" type="button" href="#" class="btn btn-success" v-on:click.prevent="clonarCiclo" >Clonar Ciclo</a>
-                        </div>
-                    </div> 
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a v-if="cantidadGrupoSeccion > 0" type="button" href="#"  class="nuevo-grupo-sec">Nuevo Grupo</a></li>
+                            <li><a v-if="cantidadGrupoSeccion == 0" type="button" href="#"  v-on:click.prevent="clonarCiclo" >Clonar Ciclo</a></li>
+                            <li><a v-if="cantidadGrupoSeccion > 0" type="button" href="#"  v-on:click.prevent="ordenarCiclo" >Ordenar Código</a></li>
+                        </ul>
+                    </div>
+
+
                     <h2 th:text="|Programación de horarios ${ciclo.descripcion}|">Grupo Sección</h2>
                 </header>
                 <section class="wrapper-lg">
@@ -67,7 +73,8 @@
 
                             <raptor-table v-bind:url="gpoSeccionesURL" v-bind:preload="false" ref="load">
                                 <div slot="header">
-                                    <div class="col-md-8">
+
+                                    <div class="col-md-6">
                                         <multiselect v-model='anexoSelect'
                                                      v-bind:options='anexosVisibles'
                                                      label='nombre'
@@ -85,6 +92,18 @@
                                                      v-on:mousedown.prevent.stop="clearAll(props.search)"></div>
                                             </template>
                                         </multiselect>
+                                    </div>
+
+                                    <div class="col-md-2">
+
+                                        <div class="form-group" title="Ordenar por código" data-toggle="tooltip" data-placement="top">
+                                            <label class="switch">
+                                                <input type="checkbox" v-model="orderbycodigo" name="orderbycodigo" value="1" autocomplete="off" /> 
+                                                <span></span> 
+                                                <i></i>
+                                            </label>
+                                        </div>
+
                                     </div>
                                 </div>
 
@@ -395,6 +414,7 @@
                 var cantidad = /*[[${cantidad}]]*/ '';
                 /*]]>*/
             </script>
+            <div th:substituteby="_layout/includes :: sweetalert"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vue-loader"/>
             <div th:substituteby="academico/gposeccion/vuelect2"></div>

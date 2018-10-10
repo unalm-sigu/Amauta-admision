@@ -1,139 +1,193 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Anexos</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-</head>
+        <style>
+            .text-muted-orden {
+                color: #CAD2DC;
+            }
+            .multiselect, .multiselect__input, .multiselect__single {
+                font-size: 15px !important;
+            }
+        </style>
+    </head>
 
-<body>
-    <div layout:fragment="main">
-        <div id="pageAnexosVUE" v-cloak="">
+    <body>
+        <div layout:fragment="main">
+            <div id="pageAnexosVUE" v-cloak="">
 
-            <header class="header b-b padder-lg">
+                <header class="header b-b padder-lg">
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a class="btn btn-success" v-on:click="verNuevoAnexo()" >Nuevo</a>
+                        </div>
+                    </div> 
 
-                <div class="pull-right m-t-md">                 
-                    <div class="btn-group">
-                        <a type="button" class="btn btn-success" th:href="@{/academico/anexo/nuevo}" >Nuevo</a>
-                    </div>
-                </div> 
-                <h2>Anexos</h2>
-            </header>
-            <section class="wrapper-lg">
-                <section class="panel m-b-md">
-                    <section class="panel-body">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-3 text-center">
-                                    <a href="#" class="view-count text-danger" rel="ingresantes">
-                                        <span class="h1 block bold" th:text="${resumen.ingresantes}">23</span>
-                                        <small class="block m-b-xs">Ingresantes</small>
-                                    </a>
-                                </div>
-                                <div class="col-md-3 text-center">
-                                    <a href="#" class="view-count text-black" rel="departamentos">
-                                        <span class="h1 block bold" th:text="${resumen.departamentos}">23</span>
-                                        <small class="block m-b-xs">Departamentos</small>
-                                    </a>
-                                </div>
-                                <div class="col-md-3 text-center">
-                                    <a href="#" class="view-count text-success" rel="postGrados">
-                                        <span class="h1 block bold" th:text="${resumen.postGrados}">23</span>
-                                        <small class="block m-b-xs">Posgrado</small>
-                                    </a>
-                                </div>
-                                <div class="col-md-3 text-center">
-                                    <a href="#" class="view-count text-warning" rel="actividades">
-                                        <span class="h1 block bold" th:text="${resumen.actividades}">23</span>
-                                        <small class="block m-b-xs">Actividades Deportivas</small>
-                                    </a>
+                    <h2>Anexos del Boletín</h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel m-b-md">
+                        <section class="panel-body">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['ingresantes']">
+                                        <a class="text-danger pointer" v-on:click="verAnexosInferiores('ingresantes')">
+                                            <span class="h1 block bold" th:text="${resumen.ingresantes}">23</span>
+                                            <small class="block m-b-xs">Ingresantes</small>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['departamentos']">
+                                        <a class="text-black pointer" v-on:click="verAnexosInferiores('departamentos')">
+                                            <span class="h1 block bold" th:text="${resumen.departamentos}">23</span>
+                                            <small class="block m-b-xs">Departamentos</small>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['posgrados']">
+                                        <a class="text-success pointer" v-on:click="verAnexosInferiores('posgrados')">
+                                            <span class="h1 block bold" th:text="${resumen.posgrados}">23</span>
+                                            <small class="block m-b-xs">Posgrado</small>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['actividades']">
+                                        <a class="text-warning pointer" v-on:click="verAnexosInferiores('actividades')">
+                                            <span class="h1 block bold" th:text="${resumen.actividades}">23</span>
+                                            <small class="block m-b-xs">Actividades Deportivas</small>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </section>
+                    </section>
+
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table v-bind:url="anexosURL" 
+                                          v-bind:preload="false" 
+                                          v-bind:paginate="false"
+                                          v-bind:pagination="pagination"
+                                          v-bind:timesleep="0" ref="raptorAnexos">
+
+                                <div slot="header">
+                                    <div class="col-md-8">
+                                        <multiselect v-model='cicloAnexos'
+                                                     v-bind:internal-search='false'
+                                                     v-bind:limit='15'
+                                                     v-on:search-change="searchCiclos"
+                                                     v-bind:options='ciclos'
+                                                     v-bind:allow-empty="false"
+                                                     placeholder="Ingresa un caracter como mínimo"
+                                                     deselect-label=""
+                                                     label="descripcion2"
+                                                     select-label="Seleccione este ciclo"
+                                                     v-bind:loading="isSearchingCiclos"
+                                                     v-on:input="changeCiclo">
+                                        </multiselect>
+                                    </div>
+                                </div>
+
+                                <template scope="props" >
+                                    <table class="table table-striped table-hover">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-1 text-center v-middle">Orden</th>
+                                                <th></th>
+                                                <th class="col-md-4 text-center v-middle">Nombre</th>
+                                                <th class="col-md-3 text-center v-middle">Especialidad Posgrado</th>
+                                                <th class="col-md-3 text-center v-middle">Departamento Académico</th>
+                                                <th class="text-center v-middle">Grupos</th>
+                                                <th class="col-md-1 text-center v-middle">Estado</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="text-center v-middle">
+                                                    <h2 v-if="item.estado == 'ACT' " class="bold" v-bind:class="textColorClass(item)">{{item.orden}}</h2>
+                                                    <h2 v-else="" class="text-muted-orden" >{{item.orden}}</h2>
+                                                </td>
+
+                                                <td class="v-middle text-center" v-bind:class="textColorClass(item)">
+                                                    <template v-if="item.estado == 'ACT' ">
+                                                        <i v-if="item.orden &gt; 1" class="fa fa-arrow-up pointer" v-on:click="cambiarOrden(item,'bajar')"></i>
+                                                        <i v-if="item.orden &lt; item.ordenMaximo" class="fa fa-arrow-down pointer" v-on:click="cambiarOrden(item,'subir')"></i>
+                                                    </template>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <span v-if="item.estado == 'ACT' " v-bind:class="textColorClass(item)"
+                                                          class="block bold h5 m-t-xs m-b-xs">
+                                                        {{item.codigo}} - {{item.nombre}}
+                                                    </span>
+                                                    <span v-else=""
+                                                          class="block bold h5 m-t-xs m-b-xs">
+                                                        {{item.codigo}} - {{item.nombre}}
+                                                    </span>
+                                                    <span class="block">{{item.anexoSuperior.nombre}}</span>
+                                                </td>
+
+                                                <td class="v-middle text-left">
+                                                    <span class="block bold">{{item.carrera.nombre}}</span>
+                                                    <small v-if="item.carrera.id != '' " class="block">{{item.carrera.tipoEnum.value}}</small>
+                                                </td>
+
+                                                <td class="v-middle text-left">
+                                                    <span class="block">{{item.departamentoAcademico.nombre}}</span>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span>{{item.cantidadGpoSecc}}</span>
+                                                </td>
+
+                                                <td class="text-center v-middle">
+                                                    <span class="clear">
+                                                        <span v-if="item.estado == 'ACT' " class="label label-success"> {{item.estadoEnum.value}} </span>
+                                                        <span v-else-if="item.estado == 'CRE' " class="label label-warning"> {{item.estadoEnum.value}} </span>
+                                                        <label v-else="" class="label label-danger" data-toggle="tooltip" v-bind:title="item.motivoAnulacion">{{item.estadoEnum.value}}</label>
+                                                    </span>
+                                                </td> 
+
+                                                <td class="v-middle"> 
+                                                    <div class="dropdown actions">
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="glyphicon glyphicon-cog"></i>
+                                                        </a> 
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li v-if="item.estado == 'ACT' "><a class="btn-link pointer" v-on:click="verEditar(item)">Editar</a></li>
+                                                            <li v-if="item.estado == 'ACT' "><a class="btn-link pointer" v-on:click="verCambiarEstado(item,'desactivar')">Desactivar</a></li>
+                                                            <li v-if="item.estado == 'INA' || item.estado == 'CRE' " v-on:click="cambiarEstado(item,'activar')"><a class="btn-link pointer" >Activar</a></li>
+                                                            <li v-if="item.estado == 'INA' || item.estado == 'CRE' " v-on:click="cambiarEstado(item,'eliminar')"><a class="btn-link pointer" >Eliminar</a></li>
+                                                            <!--<li><a class="btn-link pointer" v-bind:href="@{'/academico/anexo/editar/{{:id}}'}" rev="{{:estado}}">Editar</a></li>-->
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
                     </section>
                 </section>
 
-                <section class="panel">
-                    <section class="panel-body">
-                        <raptor-table v-bind:url="anexosURL" ref="raptorAnexos">
-                            <template scope="props" >
-                                <table class="table table-striped table-hover">
-                                    <thead> 
-                                        <tr> 
-                                            <th class="col-md-5"></th>
-                                            <th class="col-md-3 text-left">Especialidad Posgrado</th>
-                                            <th class="col-md-3 text-left">Departamento Académico</th>
-                                            <th class="col-md-1">Estado</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody v-for="item in props.data">
-                                        <tr>
-                                            <td class="v-middle">
-                                                <span class="block text-primary bold h5 m-t-xs">{{item.nombre}}</span>
-                                                <span class="block">{{item.anexoSuperior.nombre}}</span>
-                                                <span class="block">Código {{item.codigo}}</span>
-                                                <span class="block bold">Orden {{item.orden}}</span>
-                                            </td>
-                                            <td class="v-middle text-left">
-                                                <span class="block">{{item.carrera}}</span>
-                                            </td>
-                                            <td class="v-middle text-left">
-                                                <span class="block">{{item.departamento}}</span>
-                                            </td>
-                                            <td class=" v-middle">
-                                                <span class="clear">
-                                                    <span v-if="item.estado == 'ACT' " class="label label-success"> {{item.estadoEnum.value}} </span>
-                                                    <label v-else="" class="label label-danger" data-toggle="tooltip" v-bind:title="item.motivo">Desactivado</label>
-                                                </span>
-                                            </td> 
+                <div th:substituteby="academico/anexoboletin/modalAnexo"/>
+                <div th:substituteby="academico/anexoboletin/anexoForm"/>
+            </div>
 
-                                            <td class="v-middle"> 
-                                                <div class="dropdown actions">
-                                                    <a class="dropdown-toggle" data-toggle="dropdown">
-                                                        <i class="glyphicon glyphicon-cog"></i>
-                                                    </a> 
-                                                    <ul class="dropdown-menu pull-right">
-                                                        {{if estado == 'ACT'}}
-                                                        <li><a class="btn-link pointer change-estado" rel="{{:id}}" rev="{{:estado}}">Desactivar</a></li>
-                                                        {{/if}}
-                                                        {{if estado == 'INA' || estado == 'CRE'}}
-                                                        <li><a class="btn-link pointer change-estado" rel="{{:id}}" rev="{{:estado}}">Activar</a></li>
-                                                        {{/if}}
-                                                        <li><a class="btn-link pointer" th:href="@{'/academico/anexo/editar/{{:id}}'}" rev="{{:estado}}">Editar</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </template>
-                        </raptor-table>
-
-                        <table class="table table-striped" id="dynaTable">
-                            <thead> 
-                                <tr> 
-                                    <th class="col-md-5"></th>
-                                    <th class="col-md-3 text-left">Especialidad Posgrado</th>
-                                    <th class="col-md-3 text-left">Departamento Académico</th>
-                                    <th class="col-md-1">Estado</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </section>
-                </section>
-            </section>
+            <div th:substituteby="_modules/vue-modal"/>
         </div>
 
-        <div th:substituteby="academico/anexoboletin/modalAnexo"/>
-        <div th:substituteby="templates/modal"/>
-        <script id="anexoTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/anexoboletin/anexoTemplate"/></script>
-    </div>
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                var cicloJson = /*[[${cicloJson}]]*/ {};
+                var anexosSuperJson = /*[[${anexosSuperJson}]]*/ {};
+                var departamentosJson = /*[[${departamentosJson}]]*/ {};
+                var carrerasJson = /*[[${carrerasJson}]]*/ {};
+            </script>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/academico/anexoboletin/anexo.js}" charset="utf-8"></script>
+        </div>
 
-    <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/anexoboletin/anexo.js}" charset="utf-8"></script>
-    </div>
-
-</body>
+    </body>
 </html>

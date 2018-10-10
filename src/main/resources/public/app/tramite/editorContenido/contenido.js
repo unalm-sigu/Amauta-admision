@@ -35,7 +35,7 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, 'info');
-                        vue.variables = response.data.variablePlantilla;
+                        vue.variablePlantilla = response.data.variablePlantilla;
                     } else {
                         notify(response.message, 'error');
                     }

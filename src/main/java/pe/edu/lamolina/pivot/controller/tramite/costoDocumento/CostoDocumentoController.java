@@ -31,7 +31,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("tramite/costodocuemento")
+@RequestMapping("tramite/costodocumento")
 public class CostoDocumentoController {
 
     @Autowired

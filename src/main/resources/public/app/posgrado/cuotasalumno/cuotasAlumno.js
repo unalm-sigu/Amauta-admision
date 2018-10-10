@@ -10,8 +10,10 @@ var app = new Vue({
         totalTarifaConceptoMonto: 0
     },
     created: function () {
-        this.alumnoResumenCuotas.alumnoConceptosMatricula = null;
-        this.alumnoResumenCuotas.alumnoCuotasMatricula = null;
+        /*
+         this.alumnoResumenCuotas.alumnoConceptosMatricula = null;
+         this.alumnoResumenCuotas.alumnoCuotasMatricula = null;
+         */
     },
     mounted: function () {
     },

@@ -3,19 +3,12 @@ package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Strings;
 import de.akquinet.commons.image.io.Image;
 import de.akquinet.commons.image.io.ImageMetadata;
 import java.io.File;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.http.HttpSession;
-import javax.websocket.server.PathParam;
 import org.apache.commons.io.FilenameUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,19 +29,10 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
-import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
-import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.Facultad;
-import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
-import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import static pe.edu.lamolina.model.enums.VariableContenidoEnum.ESTIMADO;
 import static pe.edu.lamolina.model.enums.VariableContenidoEnum.NOMBRE_PERSONA;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
@@ -57,10 +41,11 @@ import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.misc.FotoHelper;
+import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
-import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
+import pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia.PlantillaGenerica;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
@@ -69,34 +54,35 @@ import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
 @Controller
 @RequestMapping("tramite/solicitudconstancia")
 public class ConstanciaSolicitudController {
-    
+
     @Autowired
     ConstanciaSolicitudService service;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     PdfHtmlView pdfHtmlView;
-    
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         return "tramite/tramiteConstancia/solicitudConstancia";
     }
-    
+
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse allByDynatable(DynatableFilter filter) {
-        
+
         DynatableResponse json = new DynatableResponse();
         try {
             List<TramiteDocumentoAcademico> tipos = service.allTramiteDocumentoAcademico(filter);
             List<PrecioDocumento> precios = service.allPrecioDocumento();
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (TramiteDocumentoAcademico tramiteDoc : tipos) {
-                
+
                 ObjectNode node = JsonHelper.createJson(tramiteDoc, JsonNodeFactory.instance, new String[]{
                     "*",
                     "idioma.*",
+                    "estadoTramite.*",
                     "tramite.*",
                     "tramite.alumno.*",
                     "tramite.alumno.carrera.*",
@@ -104,27 +90,17 @@ public class ConstanciaSolicitudController {
                     "tramite.alumno.persona.*",
                     "tramite.alumno.persona.tipoDocumento.*",
                     "tipoDocumentoAcademico.*"});
-//node.put("id", tramiteDoc.getId());
-//
-//                node.put("nombre", alumno.getPersona().getApellidosNombres());
-//                node.put("idalumno", alumno.getId());
-//                node.put("carrera", alumno.getCarrera().getNombre());
-//                node.put("facultad", alumno.getCarrera().getFacultad().getNombre());
-//                node.put("codigoMatricula", alumno.getCodigo());
-//                node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
-//                node.put("dni", alumno.getPersona().getNumeroDocIdentidad());
-//                node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
-//                node.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
-//                if (!Strings.isNullOrEmpty(tipoDocumento.getTipo())) {
-//                    node.put("documentoName", TipoConstanciaEnum.valueOf(tipoDocumento.getTipo()).getValue());
-//                }
-//                node.put("documentoTipo", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.tipo"));
-//                node.put("showUpdateHistorial", TipoConstanciaEnum.CERT.name().equalsIgnoreCase(tipoDocumento.getTipo()));
-//                node.put("numero", tramiteDoc.getTramite().getSerie() + "-" + tramiteDoc.getTramite().getNumero());
-//                node.put("documento", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.nombre"));
-//                node.put("fecha", new DateTime(tramite.getFechaRegistro()).toString("dd/MM/yyyy"));
-//                node.put("estado", tramiteDoc.getEstado());
-//                node.put("estadoEnum", tramiteDoc.getEstadoEnum().getValue());
+
+                List<AccionTramiteDocumento> acciones = service.findEstadoByEstadoInicio(tramiteDoc.getEstadoTramite());
+                ArrayNode arrayAcciones = new ArrayNode(JsonNodeFactory.instance);
+                for (AccionTramiteDocumento accion : acciones) {
+                    if (!accion.getEstadoTramiteFinal().getCodigo().equals("PAG")) {
+                        arrayAcciones.add(JsonHelper.createJson(accion, JsonNodeFactory.instance, new String[]{
+                            "*",
+                            "estadoTramiteFinal.*"}));
+                    }
+                }
+                node.set("estados", arrayAcciones);
                 array.add(node);
             }
             json.setData(array);
@@ -136,7 +112,7 @@ public class ConstanciaSolicitudController {
         }
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("searchalumno")
     public JsonResponse searchalumno(@RequestParam("nombre") String nombre) {
@@ -147,7 +123,7 @@ public class ConstanciaSolicitudController {
             List<Alumno> alumnos = service.allAlumnoByName(nombre);
             ArrayNode jAlumno = new ArrayNode(jsonFactory);
             for (Alumno alumno : alumnos) {
-                
+
                 ObjectNode json = JsonHelper.createJson(alumno, jsonFactory, new String[]{
                     "*",
                     "persona.*",
@@ -164,7 +140,7 @@ public class ConstanciaSolicitudController {
                     "carrera.nombre",
                     "carrera.facultad.*",
                     "carrera.facultad.nombre",});
-                
+
                 jAlumno.add(json);
             }
             response.setData(jAlumno);
@@ -177,29 +153,29 @@ public class ConstanciaSolicitudController {
         }
         return response;
     }
-    
+
     @RequestMapping("imprimir")
     public ModelAndView imprimir(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm, Model model, HttpSession session) {
-        
+
         TramiteDocumentoAcademico tramiteDocumentoAcademico = service.findTramite(tramiteDocumentoAcademicoForm);
         Persona persona = tramiteDocumentoAcademico.getTramite().getPersona();
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
         TipoDocumentoAcademico tipoDocumento = tramiteDocumentoAcademico.getTipoDocumentoAcademico();
-        
+
         String estimado = persona.esFemenino() ? "Estimada" : "Estimado";
-        
+
         ContenidoCarta headBoletaPdf = service.findContenidoBoletaByCodigoEnum(ContenidoCartaEnum.BOLETA001);
         ContenidoCarta footBoletaPdf = service.findContenidoBoletaByCodigoEnum(ContenidoCartaEnum.BOLETA002);
-        
+
         String cabecera = headBoletaPdf.getContenido();
         String pieBoleta = footBoletaPdf.getContenido();
         PrecioDocumento precioDocumento = service.findPrecioDocumentoByTipoIdioma(tipoDocumento, idioma);
         CuentaBancaria cuenta = precioDocumento.getCuentaBancaria();
         String montoString = precioDocumento.getPrecio().toString();
-        
+
         cabecera = cabecera.replaceAll(NOMBRE_PERSONA.getValue(), persona.getNombreCompleto());
         cabecera = cabecera.replaceAll(ESTIMADO.getValue(), estimado);
-        
+
         model.addAttribute("cabecera", cabecera);
         model.addAttribute("pieBoleta", pieBoleta);
         model.addAttribute("estimado", estimado);
@@ -210,10 +186,10 @@ public class ConstanciaSolicitudController {
         model.addAttribute("montoString", montoString);
         model.addAttribute("formatoEnum", PDFFormatoEnum.BOLETA_PAGO_SOL);
         model.addAttribute("nombrePdf", "BoletaPagoSolicitudConstancia");
-        
+
         return new ModelAndView(pdfHtmlView);
     }
-    
+
     @ResponseBody
     @RequestMapping("searchcolaborador")
     public JsonResponse searchcolaborador(@RequestParam("nombre") String nombre, HttpSession session) {
@@ -224,9 +200,9 @@ public class ConstanciaSolicitudController {
             List<Colaborador> colaboradores = service.allColaboradorByName(nombre);
             ArrayNode jColaborador = new ArrayNode(jsonFactory);
             for (Colaborador colaborador : colaboradores) {
-                
+
                 ObjectNode json = new ObjectNode(jsonFactory);
-                
+
                 json.put("id", colaborador.getId());
                 json.put("nombre", colaborador.getPersona().getNombreCompleto());
                 json.put("email", colaborador.getPersona().getEmailCompania());
@@ -249,18 +225,18 @@ public class ConstanciaSolicitudController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("upload")
     public JsonResponse upload(@RequestParam("file") MultipartFile archivo, HttpSession session) {
-        
+
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.FALSE);
         try {
-            
+
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             ObjectNode json = new ObjectNode(jsonFactory);
-            
+
             String fileExt = TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())).toLowerCase();
             String fileName = TypesUtil.getUnixTime() + "." + fileExt;
             String absoluteName = Constantine.TMP_DIR + fileName;
@@ -268,10 +244,10 @@ public class ConstanciaSolicitudController {
             FileHelper.saveToDisk(archivo, absoluteName);
             Boolean formatook = Boolean.TRUE;
             StringBuilder nocumplerequisito = new StringBuilder();
-            
+
             Image img = new Image(new File(absoluteName));
             ImageMetadata metadata = img.getMetadata();
-            
+
             logger.debug("validando dpi...");
             logger.debug("DpiHeight {}", metadata.getDpiHeight());
 //            if (Constantine.IMAGE_DPIHEIGHT > metadata.getDpiHeight()) {
@@ -337,21 +313,21 @@ public class ConstanciaSolicitudController {
             json.put("ruta", fileName);
             json.put("mime", TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())));
             json.put("size", archivo.getSize());
-            
+
             response.setData(json);
             response.setSuccess(true);
             response.setMessage("Carga satisfactoria del archivo");
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-        
+
         return response;
-        
+
     }
-    
+
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody TramiteDocumentoAcademico documentoAcademico, HttpSession session) {
@@ -360,7 +336,7 @@ public class ConstanciaSolicitudController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             if (documentoAcademico.getId() == null) {
-                
+
                 service.save(documentoAcademico, ds);
             } else {
                 service.updateTramiteDocumentoAcademico(documentoAcademico, ds);
@@ -373,23 +349,52 @@ public class ConstanciaSolicitudController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("onlyfoto")
-    public JsonResponse onlyfoto(@RequestBody Persona persona, HttpSession session) {
+    public JsonResponse onlyfoto(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            service.updateFotoTemporal(persona);
+            service.updateFotoTemporal(tramiteDocumentoAcademico, ds);
             response.setSuccess(Boolean.TRUE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
         return response;
     }
-    
+
+    @ResponseBody
+    @RequestMapping("update")
+    public JsonResponse update(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.update(tramiteDocumentoAcademico, ds);
+            response.setSuccess(Boolean.TRUE);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("downloadWord")
+    public JsonResponse downloadWord(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.downloadWord(tramiteDocumentoAcademico, ds);
+            response.setSuccess(Boolean.TRUE);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
     @RequestMapping("solicitud/{idSolicitud}")
     public String nuevo(@PathVariable(value = "idSolicitud") Long idSolicitud, Model model, HttpSession session, RedirectAttributes redirectAttr) {
-        
+
         try {
 
 //            List<Idioma> idiomas = service.allIdiomas();
@@ -401,6 +406,7 @@ public class ConstanciaSolicitudController {
                     "*",
                     "idioma.*",
                     "tramite.*",
+                    "estadoTramite.*",
                     "tramite.alumno.*",
                     "tramite.alumno.carrera.*",
                     "tramite.alumno.carrera.facultad.*",
@@ -409,10 +415,10 @@ public class ConstanciaSolicitudController {
                     "tipoDocumentoAcademico.*"
                 });
             }
-            
+
             ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-            ArrayNode arrayIdiomas = new ArrayNode(JsonNodeFactory.instance);
             for (TipoDocumentoAcademico tipoDocumentoAcademico : tiposDocumentoAcademico) {
+                ArrayNode arrayIdiomas = new ArrayNode(JsonNodeFactory.instance);
                 ObjectNode objectNode = JsonHelper.createJson(tipoDocumentoAcademico, JsonNodeFactory.instance, new String[]{
                     "*"
                 });
@@ -430,10 +436,10 @@ public class ConstanciaSolicitudController {
                 objectNode.set("precioDocumento", arrayPrecios);
                 arrayNode.add(objectNode);
             }
-            
+
             model.addAttribute("tiposDocumentoAcademico", arrayNode);
             model.addAttribute("solicitud", node);
-            
+
         } catch (PhobosException ex) {
             ExceptionHandler.handleException(ex, redirectAttr);
             return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
@@ -441,7 +447,28 @@ public class ConstanciaSolicitudController {
             ExceptionHandler.handleException(e, redirectAttr);
             return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
         }
-        
+
         return "tramite/tramiteConstancia/solicitud";
+    }
+
+    @RequestMapping("view/{idSolicitud}")
+    public String view(@PathVariable(value = "idSolicitud") Long idSolicitud, Model model, HttpSession session, RedirectAttributes redirectAttr) {
+
+        try {
+
+//            List<Idioma> idiomas = service.allIdiomas();
+            List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
+            TramiteDocumentoAcademico documentoAcademico = service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
+            PlantillaGenerica plantilla = service.findPlantillaHtml(documentoAcademico);
+            model.addAttribute("contenido", plantilla.getContenido());
+        } catch (PhobosException ex) {
+            ExceptionHandler.handleException(ex, redirectAttr);
+            return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, redirectAttr);
+            return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
+        }
+
+        return "tramite/tramiteConstancia/viewContenido";
     }
 }
