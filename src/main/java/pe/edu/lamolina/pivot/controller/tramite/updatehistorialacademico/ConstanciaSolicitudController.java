@@ -460,6 +460,7 @@ public class ConstanciaSolicitudController {
             List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
             TramiteDocumentoAcademico documentoAcademico = service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
             PlantillaGenerica plantilla = service.findPlantillaHtml(documentoAcademico);
+            model.addAttribute("contenido", plantilla.getContenido());
         } catch (PhobosException ex) {
             ExceptionHandler.handleException(ex, redirectAttr);
             return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
@@ -468,6 +469,6 @@ public class ConstanciaSolicitudController {
             return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
         }
 
-        return "tramite/tramiteConstancia/solicitud";
+        return "tramite/tramiteConstancia/viewContenido";
     }
 }
