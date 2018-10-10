@@ -1,0 +1,56 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Solicitud Constancia </title>
+    </head>
+    <body>
+
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <a class="pull-right btn btn-default  btn-sm"
+                       th:href="@{/tramite/solicitudconstancia}" >
+                        Regresar
+                    </a>
+
+                    <h1 >Nueva Solicitud de Constancia</h1>
+
+                </header>
+
+                <section class="wrapper-lg m-b-xs">
+                    <section class="panel">
+                        <section class="panel-body m-t-sm">
+
+                            <section class="panel-body">
+                                <form id="form" method="POST" >
+
+                                    <!--<input  type="hidden" name="idalumno" v-bind:value="alumno.id"/>-->
+
+                                    <input  type="hidden" name="id" th:value="${id}"/>
+                                    <textarea class="form-control vresize"  name="contenido" placeholder="Escribe Aquí" th:text="${contenido}"></textarea>
+
+                                </form>
+                            </section>
+                        </section>
+                    </section>
+                </section>
+            </div>
+
+            <div th:substituteby="_modules/vue-modal"/>
+
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var contenido = /*[[${contenido.toString()}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_layout/includes :: vuejs"/>
+            <!--<div th:substituteby="_layout/includes :: javascript-upload"/>-->
+            <div th:substituteby="_layout/includes :: vuemodal"/>
+            <script th:src="@{/app/tramite/tramiteConstancia/viewContenido.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>
