@@ -1,0 +1,108 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Idioma</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="aulaVUE">
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success" v-on:click="nuevo()">Nuevo</a>
+                        </div>
+                    </div> 
+                    <h2>Idiomas</h2>
+                </header>
+                
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+
+                            <raptor-table v-bind:url="idiomasURL" ref="raptorIdiomas" v-bind:timesleep="2000">
+
+                                <template  scope="props" >
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-9">Nombre</th>
+                                                <th class="col-md-3">Código</th>
+                                                <th class="col-md-3">Código</th>
+                                                <th class="col-md-3">Código</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle">
+                                                    <span class="block h3 text-primary m-t-xs">{{item.nombre}}</span>
+                                                    <span class="block">734798374</span>
+                                                </td>
+                                                <td v-text="item.codigo"></td>
+                                                <td>
+                                                    <i v-if="item.codigo == 'qu' " class="fa fa-area-chart text-warning"></i>
+                                                    <i v-else="" class="fa fa-book fa-lg"></i>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <span class="label label-success">Activo</span>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <div class="actions">
+                                                        <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="fa fa-ellipsis-v fa-lg"> </i></a>
+
+                                                        <ul class="dropdown-menu pull-right" >
+                                                            <li role="presentation"><a class="btn-link" v-on:click="editar(item)">Editar</a></li>
+                                                            <li role="presentation">
+                                                                <a class="btn-link estado" href="#">Desactivar</a>
+                                                            </li>
+                                                            <li role="presentation" class="divider"></li>
+                                                            <li role="presentation"><a class="btn-link" >Editar</a></li>
+
+                                                        </ul>
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+                
+                
+                <modal-vik ref="modalConfirmar"
+                           v-bind="confirmarModal"
+                           v-bind:okaction="guardar">
+                    <div slot="body">
+                        
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input class="form-control" type="text" v-model="idiomaEdit.nombre"/>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Código</label>
+                            <input class="form-control" type="text" v-model="idiomaEdit.codigo"/>
+                        </div>
+                        
+                    </div>
+                </modal-vik>
+                
+            </div>
+            
+            <div th:substituteby="_modules/vue-modal"/>
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
+            <script th:src="@{/app/general/idioma/idioma.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
