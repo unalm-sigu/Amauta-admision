@@ -512,7 +512,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionPCUR.getDocenteSeccion().add(docenteSeccion2);
 
         seccionDAO.save(seccionPCUR);
-
+        this.actualizarBoletin();
     }
 
     private String getNextCode1(List<Seccion> secciones) {
@@ -1594,6 +1594,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         seccionDAO.updateSeccionAula(seccion);
+        this.actualizarBoletin();
     }
 
     @Override
