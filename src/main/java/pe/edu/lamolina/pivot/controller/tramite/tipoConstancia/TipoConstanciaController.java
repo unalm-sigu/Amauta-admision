@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
@@ -157,7 +158,7 @@ public class TipoConstanciaController {
             List<Oficina> oficinas = service.allOficina(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             for (Oficina oficina : oficinas) {
-                jsonList.add(oficina.toJson());
+                jsonList.add(createOficinaJson(oficina));
             }
             response.setData(jsonList);
             response.setTotal(jsonList.size());
@@ -182,7 +183,7 @@ public class TipoConstanciaController {
             List<TipoOficina> TipoOficinas = service.allTipoOficina(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             for (TipoOficina tipoOficina : TipoOficinas) {
-                jsonList.add(tipoOficina.toJson());
+                jsonList.add(JsonHelper.createJson(tipoOficina, jsonFactory, true, new String[]{"*"}));
             }
             response.setData(jsonList);
             response.setTotal(jsonList.size());
@@ -225,6 +226,23 @@ public class TipoConstanciaController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    private ObjectNode createOficinaJson(Oficina oficina) {
+        ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
+            "id", "nombre", "codigo", "estadoEnum", "estado", "motivoAusenciaJefe",
+            "fechaInicioJefatura", "fechaEncargatura",
+            "tipoOficina.nivelEnum",
+            "tipoOficina.codigoEnum",
+            "oficinaSuperior.id",
+            "oficinaSuperior.nombre",
+            "cargoJefe.nombre",
+            "jefeEncargado.id",
+            "jefeEncargado.nombreConTitulo",
+            "personaJefe.id",
+            "personaJefe.nombreConTitulo"
+        });
+        return node;
     }
 
 }

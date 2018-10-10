@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -173,18 +174,17 @@ public class OficinaServiceImp implements OficinaService {
         oficinaDAO.save(oficina);
     }
 
-    @Override
-    @Transactional
-    public void delete(Oficina oficina) {
-        oficinaDAO.delete(oficina);
-    }
-
+//    @Override
+//    @Transactional
+//    public void delete(Oficina oficina) {
+//        oficinaDAO.delete(oficina);
+//    }
     @Override
     public List<Colaborador> allColaborador(List<Oficina> oficinas) {
         if (oficinas.size() < 1) {
             return new ArrayList();
         }
-        return colaboradorDAO.allColaborador(oficinas);
+        return colaboradorDAO.allByOficinas(oficinas);
     }
 
     @Override
@@ -209,14 +209,28 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     @Transactional
-    public void estado(Oficina oficina) {
+    public void cambiarEstado(Oficina oficina, String accion) {
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
-        if (OficinaEstadoEnum.INA.name().equalsIgnoreCase(oficinaBD.getEstado())) {
-            oficinaBD.setEstadoEnum(OficinaEstadoEnum.ACT);
-        } else {
+        Assert.isNotNull(oficinaBD, "El registro de la oficina no existe en el sistema");
+
+        if (accion.equals("desactivar")) {
+            Assert.isFalse(oficinaBD.getEstadoEnum() == OficinaEstadoEnum.INA, "La oficina ya se encuentra desactivada");
+            List<Colaborador> colaboradores = colaboradorDAO.allActivosByOficina(oficinaBD);
+            Assert.isTrue(colaboradores.isEmpty(), "No puede desactivar una oficina que contiene colaboradores activos");
+
             oficinaBD.setEstadoEnum(OficinaEstadoEnum.INA);
+            oficinaDAO.update(oficinaBD);
+
+        } else if (accion.equals("activar")) {
+            Assert.isFalse(oficinaBD.getEstadoEnum() == OficinaEstadoEnum.ACT, "La oficina ya se encuentra activada");
+            oficinaBD.setEstadoEnum(OficinaEstadoEnum.ACT);
+            oficinaDAO.update(oficinaBD);
+
+        } else if (accion.equals("eliminar")) {
+            List<Colaborador> colaboradores = colaboradorDAO.allByOficina(oficinaBD);
+            Assert.isTrue(colaboradores.isEmpty(), "El registro de esta oficina se encuentra relacionada a otros elementos del sistema y no podrá ser eliminada");
+            oficinaDAO.delete(oficinaBD);
         }
-        oficinaDAO.update(oficinaBD);
     }
 
     @Override
@@ -226,7 +240,7 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     public List<Colaborador> allColaboradorByOficina(Oficina oficina) {
-        return colaboradorDAO.allColaboradorByOficina(oficina);
+        return colaboradorDAO.allByOficina(oficina);
     }
 
     @Override
@@ -496,7 +510,7 @@ public class OficinaServiceImp implements OficinaService {
     @Override
     public Colaboradores countColaborador(Oficina oficina) {
         List<Oficina> oficinas = allOficinasByMain(oficina);
-        Colaboradores colaboradors = colaboradorDAO.countColaboradores(oficinas);
+        Colaboradores colaboradors = colaboradorDAO.countByOficinas(oficinas);
         return colaboradors;
     }
 
@@ -504,7 +518,7 @@ public class OficinaServiceImp implements OficinaService {
     public ArrayNode getColaboradoresJson(DynatableFilter filter, Oficina oficinaMain) {
         List<Oficina> oficinas = allOficinasByMain(oficinaMain);
 
-        List<Colaborador> colaboradors = colaboradorDAO.allByOficina(filter, oficinas);
+        List<Colaborador> colaboradors = colaboradorDAO.allDynatableByOficina(filter, oficinas);
         ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         List<FuncionColaborador> funcion = funcionColaboradorDAO.findFuncionByColaborador();
@@ -640,7 +654,7 @@ public class OficinaServiceImp implements OficinaService {
     }
 
     @Override
-    public List<Oficina> findOficinas(Oficina oficina) {
+    public List<Oficina> allOficinasByOficinaMain(Oficina oficina) {
         return allOficinasByMain(oficina);
     }
 

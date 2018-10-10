@@ -20,6 +20,7 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.posgrado.AlumnoConceptoMatricula;
 import pe.edu.lamolina.model.posgrado.AlumnoCuotaMatricula;
 import pe.edu.lamolina.model.posgrado.AlumnoResumenCuotas;
+import pe.edu.lamolina.model.posgrado.ConceptoPosgrado;
 import pe.edu.lamolina.model.posgrado.TarifaCarrera;
 import pe.edu.lamolina.model.posgrado.TarifaConcepto;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -67,6 +68,18 @@ public class CuotasAlumnoServiceImp implements CuotasAlumnoService {
     }
 
     @Override
+    public AlumnoResumenCuotas findAlumnoResumenCuotaByAlumnoAndCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+        AlumnoResumenCuotas alumnoResumenCuotas = alumnoResumenCuotasDAO.findByAlumnoAndCiclo(alumno, cicloAcademico);
+        if (alumnoResumenCuotas != null) {
+            List<AlumnoCuotaMatricula> alumnoCuotasMatricula = alumnoCuotaMatriculaDAO.allAlumnoResumenCuotas(alumnoResumenCuotas);
+            List<AlumnoConceptoMatricula> alumnoConceptoMatricula = alumnoConceptoMatriculaDAO.allAlumnoResumenCuotas(alumnoResumenCuotas);
+            alumnoResumenCuotas.setAlumnoConceptosMatricula(alumnoConceptoMatricula);
+            alumnoResumenCuotas.setAlumnoCuotasMatricula(alumnoCuotasMatricula);
+        }
+        return alumnoResumenCuotas;
+    }
+
+    @Override
     public List<TarifaCarrera> allByCarrera(Carrera carrera) {
         List<TarifaCarrera> tarifasCarrera = tarifaCarreraDAO.allByCarrera(carrera);
         for (TarifaCarrera tarifaCarrera : tarifasCarrera) {
@@ -80,6 +93,11 @@ public class CuotasAlumnoServiceImp implements CuotasAlumnoService {
     @Override
     public Alumno findAlumno(Alumno alumno) {
         return alumnoDAO.find(alumno);
+    }
+
+    @Override
+    public TarifaConcepto findTarifaConceptoByConceptoPosgrado(ConceptoPosgrado conceptoPosgrado) {
+        return tarifaConceptoDAO.findByConceptoPosgrado(conceptoPosgrado);
     }
 
     @Override

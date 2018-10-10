@@ -54,17 +54,18 @@
                                                 </td>
 
                                                 <td class="v-middle">
-                                                    <span   v-bind:class="classEstado(item.estado)">{{item.estadoEnum.value}}</span>
+                                                    <span   v-bind:class="classEstado(item.estadoTramite.codigo)">{{item.estadoTramite.nombre}}</span>
                                                 </td>
 
                                                 <td class="v-middle">
-                                                    <div class="dropdown actions" v-if="item.estadoEnum.name!='ANU' ">
+                                                    <div class="dropdown actions" v-if="item.estadoTramite.codigo!='ANU' ">
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
                                                             <i class="glyphicon glyphicon-option-vertical"></i>
                                                         </a>
                                                         <ul  class="dropdown-menu pull-right">
-                                                            <li v-if="item.tipoDocumentoAcademico.tipoDocumentoEnum.name == 'CERT'"><a  >Actualizar historial academico</a></li> <!--v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.idalumno+'/updatehistorial')"-->
+                                                            <li v-if="item.tipoDocumentoAcademico.tipoDocumentoEnum.name == 'CERT'"><a>Actualizar historial academico</a></li> <!--v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.idalumno+'/updatehistorial')"-->
                                                             <li><a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Editar Solicitud Documento</a></li><!-- -->
+                                                            <li v-for="estado in item.estados"><a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">{{estado.opcion}}</a></li><!-- -->
                                                             <li> <a v-on:click.prevent="cargarfoto(item)"  href="#">Cargar fotografía</a></li>
                                                             <!--                                                                <li> <a v-on:click.prevent="enviarrevision(solicitud)"  href="#">Enviar a Revisión</a></li>
                                                                                                                             <li class="divider"></li>

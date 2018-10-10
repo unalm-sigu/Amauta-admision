@@ -10,15 +10,17 @@ import pe.edu.lamolina.pivot.controller.general.oficina.Colaboradores;
 
 public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
-    List<Colaborador> allColaborador(List<Oficina> oficinas);
+    List<Colaborador> allByOficinas(List<Oficina> oficinas);
 
-    List<Colaborador> allColaboradorByOficina(Oficina oficina);
+    List<Colaborador> allByOficina(Oficina oficina);
 
     List<Colaborador> allActivosByPersona(Persona persona);
 
-    Colaboradores countColaboradores(List<Oficina> oficina);
+    List<Colaborador> allActivosByOficina(Oficina oficinaBD);
 
-    List<Colaborador> allByOficina(DynatableFilter filter, List<Oficina> oficinas);
+    Colaboradores countByOficinas(List<Oficina> oficina);
+
+    List<Colaborador> allDynatableByOficina(DynatableFilter filter, List<Oficina> oficinas);
 
     Colaborador findMaxCodigo();
 
@@ -26,7 +28,8 @@ public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
     Colaborador allActivosByPersonaAndOficina(Oficina oficina, Persona persona);
 
-    public List<Colaborador> allByName(String nombre);
+    List<Colaborador> allByName(String nombre);
 
-    public Colaborador findByPersona(Persona persona);
+    Colaborador findByPersona(Persona persona);
+
 }

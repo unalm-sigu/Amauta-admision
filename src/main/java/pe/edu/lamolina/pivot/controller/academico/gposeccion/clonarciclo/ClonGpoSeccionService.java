@@ -10,6 +10,10 @@ public interface ClonGpoSeccionService {
 
     Long contarGpoSecc(CicloAcademico ciclo);
 
-    public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
+    GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
+
+    void reordenar(CicloAcademico ciclo, DataSessionPivot ds);
+
+    public void limpiarCodigo2(CicloAcademico ciclo, DataSessionPivot ds);
 
 }

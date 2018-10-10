@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -27,31 +26,31 @@ import pe.edu.lamolina.pivot.controller.academico.departamento.DepartamentoCurso
 
 @Repository
 public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcademico> implements DepartamentoAcademicoDAO {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     public DepartamentoAcademicoDAOH() {
         super();
         setClazz(DepartamentoAcademico.class);
     }
-
+    
     @Override
     public DepartamentoAcademico find(Long id) {
         Octavia sql = Octavia.query()
                 .from(DepartamentoAcademico.class, "da")
                 .join("facultad fa")
                 .filter("da.id", id);
-
+        
         return find(sql);
     }
-
+    
     @Override
     public List<DepartamentoAcademico> allActiveByDyna(DynatableFilter filter, List<DepartamentoAcademico> dptos, CicloAcademico ciclo) {
         Octavia subquery = Octavia.query()
                 .from(Seccion.class, "se")
                 .join("se.grupoSeccion ggss")
                 .filter("se.estado", EstadoEnum.ACT);
-
+        
         DynatableSql sql = new DynatableSql(filter)
                 .selectDistinct("da")
                 .from(GrupoSeccion.class, "gs")
@@ -65,7 +64,7 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
                 .orderBy("da.nombre");
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<DepartamentoAcademico> countByFilter(List<Long> ids, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico) {
         StringBuilder strb = new StringBuilder();
@@ -97,26 +96,26 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
         }
         query.setParameter("prm_ciclo", cicloAcademico.getId());
         query.setParameterList("prm_departamentos", ids);
-
+        
         List<DepartamentoAcademico> result = new ArrayList<>();
         List<Map> lstData = query.list();
-
+        
         for (Map map : lstData) {
             result.add(new DepartamentoAcademico(map.get("id"), map.get("cantidadGruposCerrados"), map.get("cantidadGruposAbiertos"), map.get("totalGrupos")));
         }
         return result;
     }
-
+    
     @Override
     public List<DepartamentoAcademico> allByCompania(Compania compania) {
         Octavia sql = Octavia.query()
                 .from(DepartamentoAcademico.class, "de")
                 .join("facultad fa", "fa.compania co")
                 .filter("co.id", compania);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<DepartamentoAcademico> allDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
@@ -126,20 +125,20 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
                 .orderBy("da.estado", "da.id desc");
         return all(sql);
     }
-
+    
     @Override
     public DepartamentoAcademico findDepartamentoAcademico(Long idDepartamentoAcademico) {
-
+        
         Octavia sql = Octavia.query()
                 .from(DepartamentoAcademico.class, "da")
                 .filter("da.id", idDepartamentoAcademico);
-
+        
         return (DepartamentoAcademico) sql.find(getCurrentSession());
     }
-
+    
     @Override
     public List<DepartamentoCursoDocente> allDepartamentoCursoDocente(List<Long> departamentosList) {
-
+        
         StringBuilder sql = new StringBuilder();
         sql.append("  select new ").append(DepartamentoCursoDocente.class.getName()).append(" ( ");
         sql.append("  da.id, ");
@@ -168,7 +167,7 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
         sql.append("  ) ");
         sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
         sql.append("  where da.id in :DEPARTAMENTOS ");
-
+        
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameterList("DEPARTAMENTOS", departamentosList);
         query.setString("ACTIVO_CURSO", EstadoEnum.ACT.name());
@@ -177,7 +176,7 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
         query.setString("INACTIVO_DOCENTE", EstadoEnum.INA.name());
         return query.list();
     }
-
+    
     @Override
     public List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania) {
         Octavia sql = Octavia.query()
@@ -190,17 +189,29 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
                 .filter("co.id", compania)
                 .orderBy("da.nombre")
                 .limit(10);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<DepartamentoAcademico> allDepartamentos(String nombre) {
         Octavia sql = Octavia.query()
                 .from(DepartamentoAcademico.class, "da")
                 .join("facultad fa")
                 .filter("da.nombre", "like", nombre);
-
+        
         return all(sql);
     }
+    
+    @Override
+    public List<DepartamentoAcademico> allActivos() {
+        Octavia sql = Octavia.query()
+                .from(DepartamentoAcademico.class, "da")
+                .leftJoin("facultad fa")
+                .filter("da.estado", EstadoEnum.ACT)
+                .orderBy("da.nombre");
+        
+        return all(sql);
+    }
+    
 }

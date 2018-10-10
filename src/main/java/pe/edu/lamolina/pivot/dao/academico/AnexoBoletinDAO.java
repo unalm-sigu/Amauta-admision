@@ -9,18 +9,24 @@ import pe.edu.lamolina.pivot.controller.academico.anexoboletin.AnexoResumen;
 
 public interface AnexoBoletinDAO extends EasyDAO<AnexoBoletin> {
 
+    AnexoBoletin findByCode(String codigo);
+
+    AnexoResumen resumen();
+
     List<AnexoBoletin> allByDynatable(DynatableFilter filter);
 
     List<AnexoBoletin> allAnexosSuperiores();
-
-    AnexoBoletin find(Long id);
-
-    AnexoResumen resumen();
 
     List<AnexoBoletin> allAnexosHijos();
 
     List<AnexoBoletin> all();
 
     List<AnexoBoletin> allBySuperiorCiclo(AnexoBoletin anexoSuperior, CicloAcademico ciclo);
+
+    AnexoBoletin findActivoByOrdenAnexoSuperior(Integer orden, AnexoBoletin anexoSuperior);
+
+    List<AnexoBoletin> allBySuperior(AnexoBoletin anexoSuperior);
+
+    List<AnexoBoletin> countGpoSeccByCiclo(CicloAcademico ciclo);
 
 }
