@@ -1,4 +1,4 @@
-Vue.component("multiselect", window.VueMultiselect.default) 
+Vue.component("multiselect", window.VueMultiselect.default)
 
 new Vue({
     el: '#tarifaVUE',
@@ -53,8 +53,12 @@ new Vue({
             this.$set(this.tarifa, 'tipoMonto', this.tarifa.tipoMontoEnum.name);
             AXIOS.post(`${this.URL}/save`, this.tarifa)
                     .then(response => {
-                        this.reload();
-                        this.$refs.modalEditar.close();
+                        if (response.data.success) {
+                            this.reload();
+                            this.$refs.modalEditar.close();
+                        } else {
+                            notify(response.data.message, 'error');
+                        }
                     })
         },
         activar(item) {
