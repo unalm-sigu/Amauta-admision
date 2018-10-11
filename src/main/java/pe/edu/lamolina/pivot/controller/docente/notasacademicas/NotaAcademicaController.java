@@ -75,7 +75,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfService;
 
 @Controller
-@RequestMapping("academico/docente/notasacademica")
+@RequestMapping("docente/notasacademica")
 public class NotaAcademicaController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -121,14 +121,14 @@ public class NotaAcademicaController {
         logger.debug("el docente logeado es {}", ds.getDocente().getId());
 
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
-        return "academico/docente/cargaacademica/cargaAcademica";
+        return "docente/notaacademica/cargaAcademica";
     }
 
     @RequestMapping("sistemaCurso")
     public String sistemaCurso(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        return "academico/docente/cargaacademica/sistemaCurso";
+        return "docente/notaacademica/sistemaCurso";
     }
 
     @ResponseBody
@@ -406,7 +406,7 @@ public class NotaAcademicaController {
 
         model.addAttribute("tieneCursos", (!cursosByPlan.isEmpty()));
 
-        return "academico/docente/cargaacademica/detalleSistemaCalificacion";
+        return "docente/notaacademica/detalleSistemaCalificacion";
     }
 
     @RequestMapping("{grupoSeccion}/aceptarSistemaCalificacion")
@@ -434,7 +434,7 @@ public class NotaAcademicaController {
         model.addAttribute("planesCalificacionCurso", planesCalificacionCurso);
         model.addAttribute("tieneCursos", false);
 
-        return "academico/docente/cargaacademica/aceptarSistemaCalificacion";
+        return "docente/notaacademica/aceptarSistemaCalificacion";
     }
 
     @RequestMapping("expandir/{grupoSeccion}")
@@ -486,7 +486,7 @@ public class NotaAcademicaController {
         logger.debug("la evaluacion seccion es {}", evalSeccion.getId());
         service.createEvaluacionExpPorEvalSeccion(evalSeccion, EstadoPlanCalificaEnum.ACEP, new Date(), ds.getUsuario());
 
-        return "academico/docente/cargaacademica/expandirSistemaCalificacion";
+        return "docente/notaacademica/expandirSistemaCalificacion";
     }
 
     @RequestMapping("nuevo/{grupo}")
@@ -517,7 +517,7 @@ public class NotaAcademicaController {
         model.addAttribute("sistemasNotas", service.allSistemasNotas());
         model.addAttribute("tiposSeccion", TipoSeccionEvalEnum.values());
 
-        return "academico/docente/cargaacademica/nuevoSistemaCalificacion";
+        return "docente/notaacademica/nuevoSistemaCalificacion";
     }
 
     @ResponseBody
@@ -715,7 +715,7 @@ public class NotaAcademicaController {
         model.addAttribute("evaluacion", evaluacionExp);
         model.addAttribute("evaluaciones", evaluacionExp.getEvaluacionesExpandidas());
         model.addAttribute("tieneEvaluaciones", evaluacionExp.getEvaluacionesExpandidas() != null && !evaluacionExp.getEvaluacionesExpandidas().isEmpty() ? true : false);
-        return "academico/docente/cargaacademica/detalleExpandirEvaluacion";
+        return "docente/notaacademica/detalleExpandirEvaluacion";
     }
 
     @ResponseBody
@@ -798,7 +798,7 @@ public class NotaAcademicaController {
 
         evaluacionExpandida.setEvaluaciones(evaluacionByEvalExp);
         model.addAttribute("evaluacionExpandida", evaluacionExpandida);
-        return "academico/docente/cargaacademica/detalleAsignarDocente";
+        return "docente/notaacademica/detalleAsignarDocente";
     }
 
     @ResponseBody
@@ -874,7 +874,7 @@ public class NotaAcademicaController {
         model.addAttribute("matriculaCursoMap", matriculaCursoMap);
         model.addAttribute("esDocentePrincipal", esDocentePrincipal);
 
-        return "academico/docente/cargaacademica/notasAcademicas";
+        return "docente/notaacademica/notasAcademicas";
     }
 
     @RequestMapping("{seccion}/alumnos")
@@ -956,7 +956,7 @@ public class NotaAcademicaController {
         model.addAttribute("notas", mapNotas);
         model.addAttribute("matriculaCursoMap", matriculaCursoMap);
 
-        return "academico/docente/cargaacademica/notasAcademicasReload";
+        return "docente/notaacademica/notasAcademicasReload";
     }
 
     @RequestMapping("reporteDeActas")
@@ -1027,7 +1027,7 @@ public class NotaAcademicaController {
 
         Evaluacion evaluacion = service.findEvaluacion(idEvaluacion);
         model.addAttribute("evaluacion", evaluacion);
-        return "academico/docente/cargaacademica/notasAcademicas";
+        return "docente/notaacademica/notasAcademicas";
     }
 
     @RequestMapping("detalleCambioNota")
@@ -1074,7 +1074,7 @@ public class NotaAcademicaController {
         }
         model.addAttribute("evaluacionesDisp", evaluacionesDisponibles);
 
-        return "academico/docente/cargaacademica/detalleCambioNota";
+        return "docente/notaacademica/detalleCambioNota";
     }
 
     @RequestMapping("unalm")
@@ -1090,7 +1090,7 @@ public class NotaAcademicaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("evaluacion {}", evaluacionId);
 
-        return "academico/docente/cargaacademica/detalleNotasAcademicas";
+        return "docente/notaacademica/detalleNotasAcademicas";
     }
 
     @ResponseBody
@@ -1294,6 +1294,7 @@ public class NotaAcademicaController {
 
             Evaluacion evaluacion = new Evaluacion(alumnoEvaluaciones[0].getEvaluacion().getId());
             evaluacion = service.findEvaluacion(evaluacion.getId());
+            List<MatriculaSeccion> matriculasSeccion = service.saveIngresoNotas(evaluacion, alumnoEvaluaciones, ds);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());

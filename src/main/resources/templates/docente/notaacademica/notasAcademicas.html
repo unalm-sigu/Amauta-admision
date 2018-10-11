@@ -12,7 +12,7 @@
                 <a th:if="${esDocentePrincipal and !grupoSeccion.estadoGrupoCerrado}" class="btn btn-success cerrar-acta" href="#" >Entregar Acta</a>
 
                 <a class="btn btn-primary" href="#" id="cmbReporteNotas">Descargar Reporte</a>
-                <a class="btn btn-default"   th:href="@{/academico/docente/cargaacademica}"  >Regresar</a>
+                <a class="btn btn-default"   th:href="@{/docente/notasacademica}"  >Regresar</a>
             </div>
 
             <h2><span th:text='|${curso.nombre} - ${session["SESSION_USUARIO"].cicloAcademico.descripcion}: Registro de Notas|'>2016-II</span></h2>
@@ -270,12 +270,12 @@
         </section>
 
         <div th:substituteby="templates/modal"/>
-        <div class="divEvaluacion" th:substituteby="academico/docente/cargaacademica/detalleNotasAcademicas"/>
-        <div th:substituteby="academico/docente/cargaacademica/modalNotasAcademicas"/>
+        <div class="divEvaluacion" th:substituteby="docente/notaacademica/detalleNotasAcademicas"/>
+        <div th:substituteby="docente/notaacademica/modalNotasAcademicas"/>
     </div>
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/docente/cargaacademica/notasAcademicas.js}" charset="utf-8"></script>
+        <script th:src="@{/app/docente/notasacademica/notasAcademicas.js}" charset="utf-8"></script>
     </div>
 
 
