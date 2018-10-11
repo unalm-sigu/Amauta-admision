@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.notasacademicas;
+package pe.edu.lamolina.pivot.controller.docente.notasacademicas;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -81,7 +81,7 @@ public class NotaAcademicaController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    NotaAcademicaService cargaAcademicaService;
+    NotaAcademicaService service;
 
     @Autowired
     PdfService pdfService;
@@ -119,7 +119,6 @@ public class NotaAcademicaController {
         model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         logger.debug("el docente logeado es {}", ds.getDocente().getId());
-        //    cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente(), ds);
 
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "academico/docente/cargaacademica/cargaAcademica";
@@ -145,7 +144,7 @@ public class NotaAcademicaController {
             CicloAcademico ciclo = ds.getCicloAcademico();
             Docente docente = ds.getDocente();
 
-            List<GrupoSeccion> gruposSeccion = cargaAcademicaService.allGrupoByDocente(docente, ciclo, ds);
+            List<GrupoSeccion> gruposSeccion = service.allGrupoByDocente(docente, ciclo, ds);
             logger.debug(this.getClass() + " Lista grupos por docente {}", gruposSeccion.size());
 
             for (GrupoSeccion grupoSeccion : gruposSeccion) {
@@ -161,7 +160,6 @@ public class NotaAcademicaController {
                 node.put("codigo", grupoSeccion.getCurso().getCodigo());
                 node.put("estadoGrupoEnum", grupoSeccion.getEstadoGrupoEnum().getValue());
                 node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
-                //(String) ObjectUtil.getParentTree(docSeccion, "seccion.aula.nombre")
 
                 String secciones = "";
 
@@ -170,17 +168,12 @@ public class NotaAcademicaController {
 
                     if (ObjectUtil.getParentTree(seccion, "grupoHoras") != null) {
                         secciones += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + "|";
-                        //grupoHoras += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + ",";
                     } else {
                         secciones += " | |";
                     }
                     secciones += (seccion.getVerInformacion() ? "VER" : "NO-VER") + ",";
                 }
                 node.put("secciones", secciones.substring(0, secciones.length() - 1));
-//                if (!"".equals(grupoHoras)) {
-//                    grupoHoras = grupoHoras.substring(0, grupoHoras.length() - 1);
-//                }
-//                node.put("grupoHoras", grupoHoras);
 
                 boolean tienePlanCalificacion = false;
                 boolean verOpciones = false;
@@ -271,13 +264,12 @@ public class NotaAcademicaController {
 
         logger.debug("la evaluacion seccion {}", evaluacionSeccionId);
         try {
-            EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvaluacionSeccion(evaluacionSeccionId);
+            EvaluacionSeccion evaluacionSeccion = service.findEvaluacionSeccion(evaluacionSeccionId);
             GrupoSeccion grupoSeccion = evaluacionSeccion.getGrupoSeccion();
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            List<EvaluacionExpandida> lstEvaluacionPlan = cargaAcademicaService.allEvaluacionesExpByEvalSeccion(new EvaluacionSeccion(evaluacionSeccionId));
-            //  List<Evaluacion> lstEvaluacionPlan = dntEvaluacionPlan;
+            List<EvaluacionExpandida> lstEvaluacionPlan = service.allEvaluacionesExpByEvalSeccion(new EvaluacionSeccion(evaluacionSeccionId));
             logger.debug("Lista {}", lstEvaluacionPlan.size());
             boolean editarPorcentajeGeneral = false;
 
@@ -302,11 +294,6 @@ public class NotaAcademicaController {
                 }
                 node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
                 array.add(node);
-                /*
-                BigDecimal totalHija = BigDecimal.ZERO;
-                for (EvaluacionExpandida evaluacionHija : evaluacionExpandida.getEvaluacionesExpandidas()) {
-                    totalHija = totalHija.add(evaluacionHija.getPeso());
-                }*/
 
                 for (EvaluacionExpandida evaluacionHija : evaluacionExpandida.getEvaluacionesExpandidas()) {
                     logger.debug("Hija Id {} - Tipo evaluacion {}, Peso {}",
@@ -315,24 +302,12 @@ public class NotaAcademicaController {
                             evaluacionHija.getPeso()
                     );
                     ObjectNode nodeHijo = castEvaluacionExpandida(evaluacionHija);
-                    //            nodeHijo.put("editarPorcentaje", evaluacionHija.isPorcentajeVariable() && !estaEvaluado && !evaluacionHija.isDesagregado());
                     nodeHijo.put("editarPorcentaje", false);
                     nodeHijo.put("esHijo", true);
                     nodeHijo.put("esNieto", false);
                     nodeHijo.put("esAbuelo", false);
-                    /*
-                    if (totalHija.compareTo(evaluacionExpandida.getPeso()) == 0) {
-                        nodeHijo.put("porcentajeFail", false);
-                    } else {
-                        nodeHijo.put("porcentajeFail", true);
-                    }*/
                     nodeHijo.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
                     array.add(nodeHijo);
-                    /*
-                    BigDecimal totalNietas = BigDecimal.ZERO;
-                    for (EvaluacionExpandida evaluacionNieta : evaluacionHija.getEvaluacionesExpandidas()) {
-                        totalNietas = totalNietas.add(evaluacionNieta.getPeso());
-                    }*/
 
                     for (EvaluacionExpandida evaluacionNieta : evaluacionHija.getEvaluacionesExpandidas()) {
                         logger.debug("Nieta Id {} - Tipo evaluacion {}, Peso {}",
@@ -341,16 +316,9 @@ public class NotaAcademicaController {
                                 evaluacionNieta.getPeso());
 
                         ObjectNode nodeNieta = castEvaluacionExpandida(evaluacionNieta);
-                        //            nodeNieta.put("editarPorcentaje", evaluacionExpandida.isPorcentajeVariable() && !estaEvaluado && !evaluacionExpandida.isDesagregado());
                         nodeNieta.put("editarPorcentaje", false);
                         nodeNieta.put("esNieto", true);
                         nodeNieta.put("esAbuelo", false);
-                        /*
-                        if (totalNietas.compareTo(evaluacionHija.getPeso()) == 0) {
-                            nodeNieta.put("porcentajeFail", false);
-                        } else {
-                            nodeNieta.put("porcentajeFail", true);
-                        }*/
 
                         nodeNieta.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
                         array.add(nodeNieta);
@@ -428,9 +396,9 @@ public class NotaAcademicaController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("plan calificacion {}, grupo seccion {}", idSistemaCalificacion, idGrupoSeccion);
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(idGrupoSeccion);
-        PlanCalificacion planCalificacion = cargaAcademicaService.findPlanCalificacion(idSistemaCalificacion);
-        List<Curso> cursosByPlan = cargaAcademicaService.allActiveCursosByPlan(planCalificacion);
+        GrupoSeccion grupoSeccion = service.findGrupo(idGrupoSeccion);
+        PlanCalificacion planCalificacion = service.findPlanCalificacion(idSistemaCalificacion);
+        List<Curso> cursosByPlan = service.allActiveCursosByPlan(planCalificacion);
 
         model.addAttribute("planCalificacion", planCalificacion);
         model.addAttribute("curso", grupoSeccion.getCurso());
@@ -440,7 +408,6 @@ public class NotaAcademicaController {
 
         return "academico/docente/cargaacademica/detalleSistemaCalificacion";
     }
-//      @PathVariable("sistemaCalificacion") Long idSistemaCalificacion, {sistemaCalificacion}/
 
     @RequestMapping("{grupoSeccion}/aceptarSistemaCalificacion")
     public String aceptarSistemaCalificacion(
@@ -451,14 +418,14 @@ public class NotaAcademicaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("grupo seccion {}", idGrupoSeccion);
         logger.debug("planCalificacion {}", planCalificacion);
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(idGrupoSeccion);
+        GrupoSeccion grupoSeccion = service.findGrupo(idGrupoSeccion);
 
-        List<PlanCalificacionCurso> planesCalificacionCurso = cargaAcademicaService.findAllActivePlanCalificacionCursos(grupoSeccion.getCurso(),
+        List<PlanCalificacionCurso> planesCalificacionCurso = service.findAllActivePlanCalificacionCursos(grupoSeccion.getCurso(),
                 ds.getCicloAcademico().getTipoEnum());
         PlanCalificacion planCalifica = planesCalificacionCurso.get(0).getPlanCalificacion();
         if (planCalificacion != null) {
             logger.debug("buscara el sistema calificacion");
-            planCalifica = cargaAcademicaService.findPlanCalificacion(planCalificacion);
+            planCalifica = service.findPlanCalificacion(planCalificacion);
         }
 
         model.addAttribute("planCalificacion", planCalifica);
@@ -474,12 +441,12 @@ public class NotaAcademicaController {
     public String expandir(Model model, HttpSession session, @PathVariable("grupoSeccion") Long grupoSeccionId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(grupoSeccionId);
+        GrupoSeccion grupoSeccion = service.findGrupo(grupoSeccionId);
         logger.debug("El grupo seccion es {}", grupoSeccion.getId());
 
         logger.debug("El docente es {}", ds.getDocente().getId());
 
-        List<EvaluacionPlan> evaluacionPlanes = cargaAcademicaService.allEvaluacionPlanByPlanCalifica(grupoSeccion.getPlanCalificacion().getId());
+        List<EvaluacionPlan> evaluacionPlanes = service.allEvaluacionPlanByPlanCalifica(grupoSeccion.getPlanCalificacion().getId());
         ObjectNode evalPlanJson = new ObjectNode(JsonNodeFactory.instance);
         for (EvaluacionPlan evaPlanEach : evaluacionPlanes) {
             ObjectNode evaPlan2 = new ObjectNode(JsonNodeFactory.instance);
@@ -495,7 +462,7 @@ public class NotaAcademicaController {
             claves.append(sec.getCodigo2());
             claves.append(",");
             if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
-                docenteSeccion = cargaAcademicaService.findDocenteSeccionByFilter(ds.getDocente(), sec);
+                docenteSeccion = service.findDocenteSeccionByFilter(ds.getDocente(), sec);
                 if (docenteSeccion != null && docenteSeccion.getEstadoEnum().equals(EstadoEnum.ACT)) {
                     if (docenteSeccion.esDocentePrincipal()) {
                         permiteAsignar = true;
@@ -513,12 +480,11 @@ public class NotaAcademicaController {
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("evalPlanJson", evalPlanJson);
 
-        //   Long idPlanCalificacion = seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getId();
         Long idGrupoSeccion = grupoSeccion.getId();
-        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, idGrupoSeccion, null);
+        EvaluacionSeccion evalSeccion = service.findEvalSeccByPlanCalGrupoSec(null, idGrupoSeccion, null);
         model.addAttribute("evaluacionSeccion", evalSeccion);
         logger.debug("la evaluacion seccion es {}", evalSeccion.getId());
-        cargaAcademicaService.createEvaluacionExpPorEvalSeccion(evalSeccion, EstadoPlanCalificaEnum.ACEP, new Date(), ds.getUsuario());
+        service.createEvaluacionExpPorEvalSeccion(evalSeccion, EstadoPlanCalificaEnum.ACEP, new Date(), ds.getUsuario());
 
         return "academico/docente/cargaacademica/expandirSistemaCalificacion";
     }
@@ -527,8 +493,7 @@ public class NotaAcademicaController {
     public String nuevo(Model model, HttpSession session, @PathVariable("grupo") Long idGrupo) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(idGrupo);
-        // PlanCalificacion planCalificacion = cargaAcademicaService.findPlanCalificacion(idPlanCalificacion);
+        GrupoSeccion grupoSeccion = service.findGrupo(idGrupo);
 
         StringBuilder claves = new StringBuilder();
         for (Seccion sec : grupoSeccion.getSecciones()) {
@@ -540,7 +505,7 @@ public class NotaAcademicaController {
         model.addAttribute("curso", grupoSeccion.getCurso());
         model.addAttribute("claves", claves.substring(0, claves.length() - 1));
 
-        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
+        EvaluacionSeccion evalSeccion = service.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         logger.debug("La evaluacion seccion es {}", evalSeccion != null ? evalSeccion.getId().toString() : "no se encontro");
         model.addAttribute("evaluacionSeccion", evalSeccion);
 
@@ -548,8 +513,8 @@ public class NotaAcademicaController {
 
         model.addAttribute("planCalificacion", planCalificacion);
         model.addAttribute("grupoSeccion", grupoSeccion);
-        model.addAttribute("tipoEvaluaciones", cargaAcademicaService.allTipoEvaluacion());
-        model.addAttribute("sistemasNotas", cargaAcademicaService.allSistemasNotas());
+        model.addAttribute("tipoEvaluaciones", service.allTipoEvaluacion());
+        model.addAttribute("sistemasNotas", service.allSistemasNotas());
         model.addAttribute("tiposSeccion", TipoSeccionEvalEnum.values());
 
         return "academico/docente/cargaacademica/nuevoSistemaCalificacion";
@@ -562,31 +527,10 @@ public class NotaAcademicaController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            cargaAcademicaService.saveExpansionEvaluacion(evaluacion, ds);
+            service.saveExpansionEvaluacion(evaluacion, ds);
 
-            cargaAcademicaService.saveEstructuraEvaluacion(evaluacion, LoggerAccionEnum.ESTRUCTURA_EVALUACION_UPD, session);
+            service.saveEstructuraEvaluacion(evaluacion, LoggerAccionEnum.ESTRUCTURA_EVALUACION_UPD, session);
 
-            /*
-            List<MatriculaSeccion> alumnosSeccion = cargaAcademicaService.allMatriculaSeccionByFilter(evaluacion, ds.getCicloAcademico());
-            int loop = 1;
-            for (MatriculaSeccion ms : alumnosSeccion) {
-                Seccion seccion = ms.getSeccion();
-                GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
-                Alumno alumno = ms.getMatriculaResumen().getAlumno();
-
-                if (gpoSecc.getPlanCalificacion() == null) {
-                    break;
-                }
-
-                if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
-                    continue;
-                }
-
-                cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
-                loop++;
-
-            }
-             */
             response.setSuccess(true);
             response.setMessage("Evaluacion Expandida");
 
@@ -610,13 +554,8 @@ public class NotaAcademicaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            cargaAcademicaService.saveAsignacionDocentes(evaluacionExpandida, ds);
+            service.saveAsignacionDocentes(evaluacionExpandida, ds);
 
-            /*
-            List<Evaluacion> evaluaciones = cargaAcademicaService.allEvaluacionesByEvalSeccion(evaluacion.getEvaluacionSeccion());
-            model.addAttribute("dntEvaluacionPlan", evaluaciones);
-            session.setAttribute("dntEvaluacionPlan", evaluaciones);
-             */
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             response.setData(node);
             response.setSuccess(true);
@@ -646,8 +585,8 @@ public class NotaAcademicaController {
                 planCalificacion.setDepartamentoAcademico(ds.getDepartamentoAcademico());
                 planCalificacion.setOrigenEnum(OrigenPlanCalificaEnum.DOC);
                 planCalificacion.setUserRegistro(ds.getUsuario());
-                cargaAcademicaService.saveSistemaCalifica(planCalificacion, grupoSeccionId, ds);
-                cargaAcademicaService.saveEstructuraEvaluacion(new GrupoSeccion(grupoSeccionId),
+                service.saveSistemaCalifica(planCalificacion, grupoSeccionId, ds);
+                service.saveEstructuraEvaluacion(new GrupoSeccion(grupoSeccionId),
                         LoggerAccionEnum.ESTRUCTURA_EVALUACION_UPD, session);
                 message = "Creado exitosamente.";
 
@@ -680,8 +619,8 @@ public class NotaAcademicaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("Sistema Notas {}", idSistemaNotas);
 
-            SistemaNotas sistemaNotas = cargaAcademicaService.findSistemaNotaById(idSistemaNotas);
-            GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(idGrupoSeccion);
+            SistemaNotas sistemaNotas = service.findSistemaNotaById(idSistemaNotas);
+            GrupoSeccion grupoSeccion = service.findGrupo(idGrupoSeccion);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("esNumerico", sistemaNotas.isNumerico());
@@ -727,7 +666,7 @@ public class NotaAcademicaController {
             RedirectAttributes redirectAttr, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            cargaAcademicaService.cambiarTipoSeccionEvaluacion(new EvaluacionExpandida(evaluacionExp), TipoSeccionEvalEnum.valueOf(tipoSeccionEval));
+            service.cambiarTipoSeccionEvaluacion(new EvaluacionExpandida(evaluacionExp), TipoSeccionEvalEnum.valueOf(tipoSeccionEval));
             response.setMessage("Cambio de sección, correcto.");
             response.setSuccess(true);
         } catch (PhobosException e) {
@@ -750,7 +689,7 @@ public class NotaAcademicaController {
         try {
             logger.debug("Anular nota minima {}, Evaluacion Exp {}", notaMinimaAnulable, evaluacionExp);
 
-            cargaAcademicaService.cambiarAnularNotaminima(new EvaluacionExpandida(evaluacionExp), notaMinimaAnulable);
+            service.cambiarAnularNotaminima(new EvaluacionExpandida(evaluacionExp), notaMinimaAnulable);
 
             response.setMessage("Se cambio la anulación de nota mínima.");
             response.setSuccess(true);
@@ -769,8 +708,8 @@ public class NotaAcademicaController {
             @RequestParam(value = "evaluacion", required = false) Long evaluacionId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("la evaluacion expandida es {}", evaluacionId);
-        EvaluacionExpandida evaluacionExp = cargaAcademicaService.findEvaluacionExpandida(evaluacionId);
-        List<TipoEvaluacion> lstTipoEvas = cargaAcademicaService.allTipoEvaluacion();
+        EvaluacionExpandida evaluacionExp = service.findEvaluacionExpandida(evaluacionId);
+        List<TipoEvaluacion> lstTipoEvas = service.allTipoEvaluacion();
 
         model.addAttribute("tipoEvaluaciones", lstTipoEvas);
         model.addAttribute("evaluacion", evaluacionExp);
@@ -788,12 +727,10 @@ public class NotaAcademicaController {
         try {
             logger.debug("Evaluacion Expandida {}", evaluacionExp);
 
-            cargaAcademicaService.anularEvaluacionExp(new EvaluacionExpandida(evaluacionExp));
+            service.anularEvaluacionExp(new EvaluacionExpandida(evaluacionExp));
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Anulado correctamente.");
 
-            //   List<MatriculaSeccion> matriculasSeccion = cargaAcademicaService.eliminarNotas(new Evaluacion(evaluacionId), ds);
-            //   cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -812,15 +749,15 @@ public class NotaAcademicaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("detalleAsignarDocente, evaluacion expandida es {}", evaluacionId);
 
-        EvaluacionExpandida evaluacionExpandida = cargaAcademicaService.findEvaluacionExpandida(evaluacionId);
+        EvaluacionExpandida evaluacionExpandida = service.findEvaluacionExpandida(evaluacionId);
 
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(grupoSeccionId);
+        GrupoSeccion grupoSeccion = service.findGrupo(grupoSeccionId);
         logger.debug("Grupo Seccion {}", grupoSeccion.getId());
 
-        List<Evaluacion> evaluacionByEvalExp = cargaAcademicaService.allEvaluacionesByEvalExpandida(evaluacionExpandida);
+        List<Evaluacion> evaluacionByEvalExp = service.allEvaluacionesByEvalExpandida(evaluacionExpandida);
         logger.debug("Cantidad de evaluaciones {}", evaluacionByEvalExp.size());
 
-        List<DocenteSeccion> allDocenteSeccionByGrupo = cargaAcademicaService.allDocenteSeccionByGrupo(grupoSeccion);
+        List<DocenteSeccion> allDocenteSeccionByGrupo = service.allDocenteSeccionByGrupo(grupoSeccion);
         logger.debug("cantidad de docentes seccion por grupo {}", allDocenteSeccionByGrupo.size());
 
         DocenteSeccion docenteSeccionTCUR = null;
@@ -874,7 +811,7 @@ public class NotaAcademicaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             String message = "Evaluación eliminada exitosamente.";
-            cargaAcademicaService.deleteEvaluacionExpandida(evaluacion);
+            service.deleteEvaluacionExpandida(evaluacion);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             response.setData(node);
             response.setSuccess(true);
@@ -897,26 +834,26 @@ public class NotaAcademicaController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
+        Seccion seccion = service.findSeccion(idSeccion);
         logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
+        GrupoSeccion grupoSeccion = service.findGrupo(seccion.getGrupoSeccion().getId());
         Curso curso = grupoSeccion.getCurso();
-        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
-        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(seccion);
-        List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
+        EvaluacionSeccion evaluacionSeccion = service.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
+        List<Evaluacion> evaluacionesBySeccionFinal = service.allEvaluacionesByTipoSeccion(seccion);
+        List<MatriculaSeccion> matriculasSeccionByFilter = service.allMatriculaSeccionBySeccion(seccion);
 
         logger.debug("El docente es {}", ds.getDocente().getId());
 
         logger.debug("Consultara notas por seccion");
-        Map<String, AlumnoEvaluacion> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
+        Map<String, AlumnoEvaluacion> mapNotas = service.allAlumnoEvaluacionBySeccion(seccion.getId());
 
-        Map<Long, MatriculaCurso> matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
+        Map<Long, MatriculaCurso> matriculaCursoMap = service.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
 
         boolean esDocentePrincipal = false;
         for (Seccion sec : grupoSeccion.getSecciones()) {
 
             if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
-                DocenteSeccion docenteSeccion = cargaAcademicaService.findDocenteSeccionByFilter(ds.getDocente(), sec);
+                DocenteSeccion docenteSeccion = service.findDocenteSeccionByFilter(ds.getDocente(), sec);
                 if (docenteSeccion != null && docenteSeccion.getEstadoEnum().equals(EstadoEnum.ACT)) {
                     if (docenteSeccion.esDocentePrincipal()) {
                         esDocentePrincipal = true;
@@ -926,7 +863,6 @@ public class NotaAcademicaController {
 
         }
 
-        //     model.addAttribute("docenteSeccion", docenteSeccion);
         model.addAttribute("seccion", seccion);
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
@@ -934,7 +870,6 @@ public class NotaAcademicaController {
 
         model.addAttribute("evaluacionesByTipoSeccion", evaluacionesBySeccionFinal);
         model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
-        //    model.addAttribute("matriculasCursoMap", matriculasCursoMap);
         model.addAttribute("notas", mapNotas);
         model.addAttribute("matriculaCursoMap", matriculaCursoMap);
         model.addAttribute("esDocentePrincipal", esDocentePrincipal);
@@ -950,25 +885,25 @@ public class NotaAcademicaController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
+        Seccion seccion = service.findSeccion(idSeccion);
         logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
-        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
-        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(seccion);
-        List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
+        GrupoSeccion grupoSeccion = service.findGrupo(seccion.getGrupoSeccion().getId());
+        EvaluacionSeccion evaluacionSeccion = service.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
+        List<Evaluacion> evaluacionesBySeccionFinal = service.allEvaluacionesByTipoSeccion(seccion);
+        List<MatriculaSeccion> matriculasSeccionByFilter = service.allMatriculaSeccionBySeccion(seccion);
 
         logger.debug("El docente es {}", ds.getDocente().getId());
         logger.debug("Consultara notas por seccion");
 
-        Map<String, AlumnoEvaluacion> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
+        Map<String, AlumnoEvaluacion> mapNotas = service.allAlumnoEvaluacionBySeccion(seccion.getId());
         Curso curso = grupoSeccion.getCurso();
-        Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
+        Map matriculaCursoMap = service.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
 
         boolean esDocentePrincipal = false;
         for (Seccion sec : grupoSeccion.getSecciones()) {
 
             if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
-                DocenteSeccion docenteSeccion = cargaAcademicaService.findDocenteSeccionByFilter(ds.getDocente(), sec);
+                DocenteSeccion docenteSeccion = service.findDocenteSeccionByFilter(ds.getDocente(), sec);
                 if (docenteSeccion != null && docenteSeccion.getEstadoEnum().equals(EstadoEnum.ACT)) {
                     if (docenteSeccion.esDocentePrincipal()) {
                         esDocentePrincipal = true;
@@ -978,7 +913,6 @@ public class NotaAcademicaController {
 
         }
 
-        //     model.addAttribute("docenteSeccion", docenteSeccion);
         model.addAttribute("seccion", seccion);
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
@@ -999,20 +933,19 @@ public class NotaAcademicaController {
         logger.debug("la seccion es {}", idSeccion);
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
-        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
-        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(seccion);
-        List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
+        Seccion seccion = service.findSeccion(idSeccion);
+        GrupoSeccion grupoSeccion = service.findGrupo(seccion.getGrupoSeccion().getId());
+        EvaluacionSeccion evaluacionSeccion = service.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
+        List<Evaluacion> evaluacionesBySeccionFinal = service.allEvaluacionesByTipoSeccion(seccion);
+        List<MatriculaSeccion> matriculasSeccionByFilter = service.allMatriculaSeccionBySeccion(seccion);
 
         logger.debug("Consultara notas por seccion");
-        Map<String, AlumnoEvaluacion> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
+        Map<String, AlumnoEvaluacion> mapNotas = service.allAlumnoEvaluacionBySeccion(seccion.getId());
 
         Curso curso = grupoSeccion.getCurso();
 
-        Map<Long, MatriculaCurso> matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
+        Map<Long, MatriculaCurso> matriculaCursoMap = service.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
 
-        //     model.addAttribute("docenteSeccion", docenteSeccion);
         model.addAttribute("seccion", seccion);
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
@@ -1035,7 +968,7 @@ public class NotaAcademicaController {
         logger.debug("docente seccion {}", idSeccion);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        Seccion secc = cargaAcademicaService.findSeccion(idSeccion);
+        Seccion secc = service.findSeccion(idSeccion);
         Curso cur = secc.getGrupoSeccion().getCurso();
         String nom = "ActaNotas_" + cur.getCodigo() + "_" + secc.getCodigo2();
 
@@ -1077,7 +1010,7 @@ public class NotaAcademicaController {
             HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        Seccion secc = cargaAcademicaService.findSeccion(idSeccion);
+        Seccion secc = service.findSeccion(idSeccion);
         Curso cur = secc.getGrupoSeccion().getCurso();
 
         model.addAttribute("seccion", secc);
@@ -1091,13 +1024,8 @@ public class NotaAcademicaController {
     @RequestMapping("{evaluacion}/evaluacion")
     public String evaluacion(@PathVariable("evaluacion") Long idEvaluacion, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        /*
-        Evaluacion eval = new Evaluacion();
-        eval.setTipoEvaluacion(new TipoEvaluacion());
-        eval.getTipoEvaluacion().setCodigo("PC1");
-         */
 
-        Evaluacion evaluacion = cargaAcademicaService.findEvaluacion(idEvaluacion);
+        Evaluacion evaluacion = service.findEvaluacion(idEvaluacion);
         model.addAttribute("evaluacion", evaluacion);
         return "academico/docente/cargaacademica/notasAcademicas";
     }
@@ -1110,8 +1038,8 @@ public class NotaAcademicaController {
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         logger.debug("matricula seccion {}", matriculaSeccionId);
-        MatriculaSeccion matriculaSeccion = cargaAcademicaService.findMatriculaSeccion(matriculaSeccionId);
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(matriculaSeccion.getSeccion().getGrupoSeccion().getId());
+        MatriculaSeccion matriculaSeccion = service.findMatriculaSeccion(matriculaSeccionId);
+        GrupoSeccion grupoSeccion = service.findGrupo(matriculaSeccion.getSeccion().getGrupoSeccion().getId());
         logger.debug("alumno {}", matriculaSeccion.getMatriculaResumen().getAlumno().getPersona().getNombreCompleto());
         logger.debug("curso {}", matriculaSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
 
@@ -1121,11 +1049,10 @@ public class NotaAcademicaController {
         model.addAttribute("seccion", matriculaSeccion.getSeccion());
         model.addAttribute("sistemaNotas", grupoSeccion.getPlanCalificacion().getSistemaNotas());
 
-        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(matriculaSeccion.getSeccion());
+        List<Evaluacion> evaluacionesBySeccionFinal = service.allEvaluacionesByTipoSeccion(matriculaSeccion.getSeccion());
 
-        List<AlumnoEvaluacion> alumnosEvaluaciones = cargaAcademicaService.allEvaluacionsByFilter(matriculaSeccion.getMatriculaResumen().getAlumno(),
+        List<AlumnoEvaluacion> alumnosEvaluaciones = service.allEvaluacionsByFilter(matriculaSeccion.getMatriculaResumen().getAlumno(),
                 matriculaSeccion.getSeccion().getGrupoSeccion().getCurso(), cicloAcademico);
-        //evaluacionesDisponibles se muestra en el modal
         List<Evaluacion> evaluacionesDisponibles = new ArrayList<>();
 
         for (AlumnoEvaluacion alumnoEvaluacion : alumnosEvaluaciones) {
@@ -1162,7 +1089,6 @@ public class NotaAcademicaController {
             HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("evaluacion {}", evaluacionId);
-        Evaluacion evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
 
         return "academico/docente/cargaacademica/detalleNotasAcademicas";
     }
@@ -1177,7 +1103,7 @@ public class NotaAcademicaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             String message = "Expandido correctamente.";
-            cargaAcademicaService.aceptarExpansion(evaluacionSeccionId, ds);
+            service.aceptarExpansion(evaluacionSeccionId, ds);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             response.setData(node);
             response.setSuccess(true);
@@ -1205,7 +1131,7 @@ public class NotaAcademicaController {
             logger.debug("Curso {}, Grupo {}", cursoId, grupoId);
             String message = "Rechazado correctamente.";
 
-            cargaAcademicaService.aceptarRechazo(cursoId, grupoId, ds);
+            service.aceptarRechazo(cursoId, grupoId, ds);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             response.setData(node);
@@ -1234,13 +1160,13 @@ public class NotaAcademicaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("Curso {}, Grupo {}", cursoId, grupoId);
             String message = "Aceptado correctamente.";
-            GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(grupoId);
+            GrupoSeccion grupoSeccion = service.findGrupo(grupoId);
 
             if (ObjectUtil.getParentTree(grupoSeccion, "planCalificacion.id") != null) {
                 throw new PhobosException("El grupo ya cuenta con un plan calificación aceptado.");
             }
-            cargaAcademicaService.aceptarPlanCalificacion(planCalificacion, cursoId, grupoId, ds);
-            cargaAcademicaService.saveEstructuraEvaluacion(new GrupoSeccion(grupoId), LoggerAccionEnum.ESTRUCTURA_EVALUACION_CRE, session);
+            service.aceptarPlanCalificacion(planCalificacion, cursoId, grupoId, ds);
+            service.saveEstructuraEvaluacion(new GrupoSeccion(grupoId), LoggerAccionEnum.ESTRUCTURA_EVALUACION_CRE, session);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             response.setData(node);
             response.setSuccess(true);
@@ -1269,7 +1195,7 @@ public class NotaAcademicaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            ObjectNode node = cargaAcademicaService.getDetalleEvaluacion(evaluacionId, seccionId);
+            ObjectNode node = service.getDetalleEvaluacion(evaluacionId, seccionId);
 
             response.setData(node);
             response.setSuccess(true);
@@ -1299,9 +1225,9 @@ public class NotaAcademicaController {
             logger.debug("evaluacion {}, Fecha evauacion {}", evaluacionId, fechaEvaluacion);
             Evaluacion evaluacion = null;
             if (fechaEvaluacion != null) {
-                evaluacion = cargaAcademicaService.activarEvaluacion(evaluacionId, fechaEvaluacion, ds);
+                evaluacion = service.activarEvaluacion(evaluacionId, fechaEvaluacion, ds);
             } else {
-                evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
+                evaluacion = service.findEvaluacion(evaluacionId);
             }
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
@@ -1336,10 +1262,7 @@ public class NotaAcademicaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("evaluacion {}", evaluacionId);
 
-            Evaluacion evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
-
-            List<MatriculaSeccion> matriculasSeccion = cargaAcademicaService.eliminarNotas(new Evaluacion(evaluacionId), ds);
-            //    cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
+            Evaluacion evaluacion = service.findEvaluacion(evaluacionId);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
@@ -1370,9 +1293,7 @@ public class NotaAcademicaController {
             logger.debug("Notas {}", alumnoEvaluaciones.length);
 
             Evaluacion evaluacion = new Evaluacion(alumnoEvaluaciones[0].getEvaluacion().getId());
-            evaluacion = cargaAcademicaService.findEvaluacion(evaluacion.getId());
-            List<MatriculaSeccion> matriculasSeccion = cargaAcademicaService.saveIngresoNotas(evaluacion, alumnoEvaluaciones, ds);
-            //     cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
+            evaluacion = service.findEvaluacion(evaluacion.getId());
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
@@ -1406,7 +1327,7 @@ public class NotaAcademicaController {
             logger.debug("Motivo {}", reclamoNota.getMotivo());
             logger.debug("nota inicial {}, nota final {}", reclamoNota.getNotaInicial(), reclamoNota.getNotaFinal());
 
-            cargaAcademicaService.saveReclamoNota(reclamoNota, ds);
+            service.saveReclamoNota(reclamoNota, ds);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             response.setData(node);
             response.setMessage("Modificación ingresada.");
@@ -1436,7 +1357,7 @@ public class NotaAcademicaController {
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             if (evaluacionId != null && alumnoId != null) {
-                AlumnoEvaluacion alumnoEvaluacion = cargaAcademicaService.findAlumnoEvaluacion(null, evaluacionId, alumnoId);
+                AlumnoEvaluacion alumnoEvaluacion = service.findAlumnoEvaluacion(null, evaluacionId, alumnoId);
                 node.put("nota", alumnoEvaluacion.getNota());
                 node.put("notaNumerica", alumnoEvaluacion.getValorNumerico());
 
@@ -1470,7 +1391,7 @@ public class NotaAcademicaController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            cargaAcademicaService.deletePlanCalificacion(idPlanCalifica, ds);
+            service.deletePlanCalificacion(idPlanCalifica, ds);
 
             response.setMessage("Plan de Calificacion eliminado satisfactoriamente");
             response.setSuccess(true);
@@ -1495,7 +1416,7 @@ public class NotaAcademicaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            cargaAcademicaService.saveAceptarExpandir(evaluacionesExpandidas);
+            service.saveAceptarExpandir(evaluacionesExpandidas);
 
             response.setMessage("Evaluaciones actualizadas.");
             response.setSuccess(true);
@@ -1517,7 +1438,7 @@ public class NotaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        cargaAcademicaService.saveCerrarActa(new GrupoSeccion(grupoId), ds.getUsuario());
+        service.saveCerrarActa(new GrupoSeccion(grupoId), ds.getUsuario());
         String message = "Acta cerrada correctamente";
         response.setMessage(message);
         response.setSuccess(true);
@@ -1532,13 +1453,10 @@ public class NotaAcademicaController {
             RedirectAttributes redirectAttr) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        //  ds.getDocente();
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
-        cargaAcademicaService.desvincularPlanCalificacion(new GrupoSeccion(grupoId));
+        service.desvincularPlanCalificacion(new GrupoSeccion(grupoId));
 
-        //     cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente(), ds);
-        // Notificaciones.crearMsg("Desvinculado satisfactoriamente", redirectAttr);
         response.setMessage("Desvinculado satisfactoriamente");
         response.setSuccess(true);
         return response;
@@ -1556,7 +1474,7 @@ public class NotaAcademicaController {
             response.setSuccess(true);
             return response;
         }
-        List<AlumnoEvaluacion> alumnosEvaluaciones = cargaAcademicaService.allAlumnosEvaluacionesPorEvaluacionExpandida(evalExpandidaId);
+        List<AlumnoEvaluacion> alumnosEvaluaciones = service.allAlumnosEvaluacionesPorEvaluacionExpandida(evalExpandidaId);
         logger.debug("Alumnos Evaluaciones {}", alumnosEvaluaciones.size());
         response.setSuccess(true);
         if (!alumnosEvaluaciones.isEmpty()) {

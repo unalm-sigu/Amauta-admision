@@ -22,13 +22,11 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
-import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;
-import pe.edu.lamolina.model.enums.DocumentoPdfEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -41,7 +39,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.pivot.controller.academico.notasacademicas.NotaAcademicaService;
+import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
 
 @Service
 @Transactional(readOnly = true)
@@ -53,7 +51,7 @@ public class PdfServiceImp implements PdfService {
     PdfGenerator pdfGenerator;
 
     @Autowired
-    NotaAcademicaService cargaAcademicaService;
+    NotaAcademicaService notaAcademicaService;
 
     @Autowired
     CursoDAO cursoDAO;
@@ -128,7 +126,7 @@ public class PdfServiceImp implements PdfService {
         int ind = 0;
         List<MatriculaSeccion> lstMatriculaSeccion = new ArrayList<>();
 
-        Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(cicloAcademico, curso);
+        Map matriculaCursoMap = notaAcademicaService.getMapMatriculasCursoByCicloCurso(cicloAcademico, curso);
 
         for (MatriculaSeccion matriculaSeccion : matriculasSeccionByFilter) {
             ind++;
