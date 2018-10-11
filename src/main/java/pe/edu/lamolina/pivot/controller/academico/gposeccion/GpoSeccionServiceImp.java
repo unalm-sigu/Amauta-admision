@@ -81,6 +81,7 @@ import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
@@ -190,6 +191,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     PeriodoEncuestaDAO periodoEncuestaDAO;
     @Autowired
     ConfiguraEncuestaDAO configuraEncuestaDAO;
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
 
     @Override
     public Oficina findOficinaOera() {
@@ -509,7 +512,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionPCUR.getDocenteSeccion().add(docenteSeccion2);
 
         seccionDAO.save(seccionPCUR);
-
+        this.actualizarBoletin();
     }
 
     private String getNextCode1(List<Seccion> secciones) {
@@ -592,6 +595,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         profeSeccDB.setFechaInicio(profeSeccForm.getFechaInicio());
         docenteSeccionDAO.updateFechaInicio(profeSeccDB);
         evaluateSeccion(profeSeccDB.getSeccion());
+        this.actualizarBoletin();
     }
 
     @Override
@@ -635,6 +639,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         profeSeccDB.setFechaFin(profeSeccForm.getFechaFin());
         docenteSeccionDAO.updateFechaFin(profeSeccDB);
         evaluateSeccion(profeSeccDB.getSeccion());
+
+        this.actualizarBoletin();
     }
 
     @Override
@@ -747,6 +753,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionDAO.updateEstadoFechaModUsuarioMod(seccion);
 
         this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), usuario, today);
+        this.actualizarBoletin();
     }
 
     @Override
@@ -787,6 +794,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionDAO.updateEstadoFechaModUsuarioMod(seccion);
         }
         this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), usuario, today);
+        this.actualizarBoletin();
     }
 
     @Override
@@ -936,6 +944,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
         docenteSeccionDAO.updatePrincipal(docenteSeccion);
+        this.actualizarBoletin();
     }
 
     @Override
@@ -1023,6 +1032,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
         this.actualizarVacantesTCUR(grupoSeccion, usuario, today);
+        this.actualizarBoletin();
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -1137,6 +1147,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccionDAO.update(profeSeccBDMain);
 
         evaluateSeccion(profeSeccBDMain.getSeccion());
+        this.actualizarBoletin();
     }
 
     @Override
@@ -1513,6 +1524,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         seccionDAO.updateSeccionGrupoHora(seccion);
+        this.actualizarBoletin();
     }
 
     @Override
@@ -1590,6 +1602,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         seccionDAO.updateSeccionAula(seccion);
+        this.actualizarBoletin();
     }
 
     @Override
@@ -1734,6 +1747,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 restriccionFacultadDAO.updateEstadoFechaUsuario(restriccionFacultadEach);
             }
         }
+        this.actualizarBoletin();
     }
 
     @Override
@@ -2222,6 +2236,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public Long contarGpoSecc(CicloAcademico ciclo) {
         return grupoSeccionDAO.contarByCiclo(ciclo);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void actualizarBoletin() {
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findCicloAcademicoActivoPRE();
+        CicloAcademico cicloUpd = new CicloAcademico();
+        cicloUpd.setId(cicloActivo.getId());
+        cicloUpd.setActualizarBoletin(Boolean.TRUE);
+        cicloAcademicoDAO.updateActualizarBoletin(cicloUpd);
     }
 
 }

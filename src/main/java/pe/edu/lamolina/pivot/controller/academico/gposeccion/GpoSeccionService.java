@@ -188,4 +188,6 @@ public interface GpoSeccionService {
 
     Long contarGpoSecc(CicloAcademico ciclo);
 
+    void actualizarBoletin();
+
 }
