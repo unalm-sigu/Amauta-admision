@@ -6,7 +6,6 @@
 
         <div layout:fragment="main">
             <div id="main" v-cloak="">
-
                 <header class="header b-b padder-lg">
 
                     <a class="pull-right btn btn-default  btn-sm"
@@ -18,37 +17,41 @@
 
                 </header>
 
-                <section class="wrapper-lg m-b-xs">
-                    <section class="panel">
-                        <section class="panel-body m-t-sm">
+                <section class="wrapper-lg">
+                    <section  class="panel">
+                        <section class="panel-body">
+                            <div slot="body">
 
-                            <section class="panel-body">
-                                <form id="form" method="POST" >
+                                <iframe    id="myframe"  width="1080"  height="400">
 
-                                    <!--<input  type="hidden" name="idalumno" v-bind:value="alumno.id"/>-->
+                                </iframe>
 
-                                    <input  type="hidden" name="id" th:value="${id}"/>
-                                    <textarea class="form-control vresize"  name="contenido" placeholder="Escribe Aquí" th:text="${contenido}"></textarea>
-
-                                </form>
-                            </section>
+                            </div>
                         </section>
                     </section>
                 </section>
+                <section class="panel-body text-center v-middle">
+                  
+                    <button v-on:click="updateContenido" class="btn btn-primary" id="updateContenido">Guardar</button>
+                    <a class="btn btn-primary" v-bind:href="'/tramite/solicitudconstancia/downloadWord/' + id">Generar Word</a>
+                    <button type="button" v-on:click.prevent="previewHtml" class="btn btn-warning btn-sm ">Finalizar</button>
+                </section>
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
-
+            <!--<div th:substituteby="_modules/vue-modal">  </div>-->
         </div>
 
         <div layout:fragment="js">
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var contenido = /*[[${contenido.toString()}]]*/ 'json';
+                var contenidoJson = /*[[${contenido.toString()}]]*/ 'json';
+                var id = /*[[${id.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
-            <div th:substituteby="_layout/includes :: vuejs"/>
-            <!--<div th:substituteby="_layout/includes :: javascript-upload"/>-->
+            <!--<div th:substituteby="_layout/includes :: vuejs"/>-->
+            <div th:substituteby="_layout/includes :: javascript-upload" th:remove='tag'></div>
+            <div th:substituteby="_layout/includes :: javascript-ckeditor" th:remove="tag"></div>
+            <div th:substituteby="_layout/includes :: javascript-filedownload"/>
             <div th:substituteby="_layout/includes :: vuemodal"/>
             <script th:src="@{/app/tramite/tramiteConstancia/viewContenido.js}" charset="utf-8"></script>
         </div>

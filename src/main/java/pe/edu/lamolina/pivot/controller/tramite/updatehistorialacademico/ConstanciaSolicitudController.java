@@ -7,6 +7,7 @@ import de.akquinet.commons.image.io.Image;
 import de.akquinet.commons.image.io.ImageMetadata;
 import java.io.File;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -378,18 +379,11 @@ public class ConstanciaSolicitudController {
         return response;
     }
 
-    @ResponseBody
-    @RequestMapping("downloadWord")
-    public JsonResponse downloadWord(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        try {
-            service.downloadWord(tramiteDocumentoAcademico, ds);
-            response.setSuccess(Boolean.TRUE);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
+    @RequestMapping("downloadWord/{id}")
+    public void downloadWord(@PathVariable Long id, HttpSession session, HttpServletResponse respons) {
+
+        service.downloadWord(new TramiteDocumentoAcademico(id), respons);
+
     }
 
     @RequestMapping("solicitud/{idSolicitud}")
@@ -456,10 +450,9 @@ public class ConstanciaSolicitudController {
 
         try {
 
-//            List<Idioma> idiomas = service.allIdiomas();
-            List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
             TramiteDocumentoAcademico documentoAcademico = service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
             PlantillaGenerica plantilla = service.findPlantillaHtml(documentoAcademico);
+            model.addAttribute("id", idSolicitud);
             model.addAttribute("contenido", plantilla.getContenido());
         } catch (PhobosException ex) {
             ExceptionHandler.handleException(ex, redirectAttr);

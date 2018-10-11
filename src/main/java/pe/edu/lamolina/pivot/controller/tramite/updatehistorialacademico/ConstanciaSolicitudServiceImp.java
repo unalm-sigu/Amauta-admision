@@ -4,13 +4,19 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
+import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
@@ -340,89 +346,11 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         return promedios;
     }
 
-//    @Override
-//    public List<Curso> allCursoByName(String nombre) {
-//        return cursoDAO.allCursoByName(nombre);
-//    }
     @Override
     public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter) {
         return tramiteDocumentoAcademicoDAO.allTramiteDocumentoAcademico(filter);
     }
 
-//    @Override
-//    @Transactional
-//    public void delete(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
-//        tramiteDocumentoAcademicoDAO.delete(tramiteDocumentoAcademico);
-//    }
-//    @Override
-//    public TramiteDocumentoAcademico findTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
-//        return tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
-//    }
-//    @Override
-//    @Transactional
-//    public void saveTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
-//
-//        Usuario usuario = ds.getUsuario();
-//        CicloAcademico cicloAcademico = ds.getCicloAcademico();
-//        Compania compania = ds.getCompania();
-//        DateTime today = new DateTime();
-//
-//        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
-//        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
-//        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CONS.name());
-//
-//        Tramite tramite = tramiteDocumentoAcademico.getTramite();
-//        Alumno alumno = alumnoDAO.find(tramite.getAlumno());
-//        Persona persona = alumno.getPersona();
-//
-//        String rutaFotoTemporal = (String) ObjectUtil.getParentTree(tramite, "persona.rutaFotoTemporal");
-//        if (!Strings.isNullOrEmpty(rutaFotoTemporal)) {
-//            persona.setRutaFotoTemporal(rutaFotoTemporal);
-//            personaDAO.update(persona);
-//            this.uploadS3(persona.getRutaFotoTemporal());
-//        }
-//
-//        tramite.setAlumno(alumno);
-//        tramite.setCicloAcademico(cicloAcademico);
-//        tramite.setCompania(compania);
-//        tramite.setEstadoEnum(TramiteEstadoEnum.PEND);
-//        tramite.setFechaRegistro(today.toDate());
-//        tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
-//        tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-//        tramite.setTipoTramite(tipoTramite);
-//        tramite.setUserRegistro(usuario);
-//        tramite.setPersona(persona);
-//        tramiteDAO.save(tramite);
-//
-//        tramiteDocumentoAcademico.setTramite(tramite);
-////        tramiteDocumentoAcademico.setEstadoEnum(TramiteEstadoEnum.CRE);
-//        tramiteDocumentoAcademico.setCantidadCiclos(1);
-//        tramiteDocumentoAcademicoDAO.save(tramiteDocumentoAcademico);
-//
-//        TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
-//        Idioma idioma = tramiteDocumentoAcademico.getIdioma();
-//        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
-//
-//        AcreenciaTramiteDocumento acreencia = new AcreenciaTramiteDocumento();
-//        acreencia.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
-//        acreencia.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
-//        acreencia.setUserRegistro(usuario);
-//        acreencia.setFechaRegistro(new Date());
-//        LocalDate localDate = LocalDate.now();
-//        LocalDate fechaVencimiento = localDate.plusDays(3);
-//        acreencia.setFechaVencimiento(fechaVencimiento.toDate());
-//
-//        acreencia.setPrecio(BigDecimal.ZERO);
-//        if (precio != null) {
-//            if (precio.getPrecio() != null) {
-//                acreencia.setPrecio(new BigDecimal(precio.getPrecio()));
-//            }
-//        }
-//
-//        acreenciaTramiteDocumentoDAO.save(acreencia);
-//        this.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico);
-//
-//    }
     private void enviarNotificacionSolicitudConstanciaCreacion(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
         ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigoEnum(ContenidoCartaEnum.NOTIFYSOLICITUD);
         mailerService.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico, contenidoCarta);
@@ -547,38 +475,11 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         }
     }
 
-//    @Override
-//    @Transactional
-//    public void cancelar(TramiteDocumentoAcademico solicitudConstancia, DataSessionPivot ds) {
-//        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(solicitudConstancia.getId());
-//        AcreenciaTramiteDocumento atd = acreenciaTramiteDocumentoDAO.findByTramiteDocumentoAcademico(tda);
-////        tda.setEstadoEnum(TramiteEstadoEnum.ANU);
-//        atd.setEstadoEnum(EstadoAcreenciaTramiteEnum.ANU);
-//        tramiteDocumentoAcademicoDAO.update(tda);
-//        atd.setFechaAnulacion(new Date());
-//        atd.setUserAnulacion(ds.getUsuario());
-//        acreenciaTramiteDocumentoDAO.update(atd);
-//    }
     @Override
     public List<PrecioDocumento> allPrecioDocumento() {
         return precioDocumentoDAO.allPrecioDocumento();
     }
 
-//    @Override
-//    public String getCostoDocumento(TramiteDocumentoAcademico tramiteDoc, Map<Long, List<PrecioDocumento>> preciosMap) {
-//        TipoDocumentoAcademico tpa = tramiteDoc.getTipoDocumentoAcademico();
-//        Idioma idioma = tramiteDoc.getIdioma();
-//        List<PrecioDocumento> precios = preciosMap.get(tpa.getId());
-//        if (precios == null) {
-//            return "0.0";
-//        }
-//        for (PrecioDocumento precio : precios) {
-//            if (precio.getIdioma().getId() == idioma.getId().longValue()) {
-//                return precio.getPrecio().toString();
-//            }
-//        }
-//        return "0.0";
-//    }
     @Override
     public TramiteDocumentoAcademico findTramite(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm) {
         return tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademicoForm);
@@ -604,31 +505,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         return colaboradorDAO.allByName(nombre);
     }
 
-//    @Override
-//    @Transactional
-//    public void revision(TramiteDocumentoAcademico solicitudConstancia) {
-//        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(solicitudConstancia);
-////        tda.setEstadoEnum(TramiteEstadoEnum.ENV);
-//        tramiteDocumentoAcademicoDAO.update(tda);
-//    }
-//
-//    @Override
-//    public List<Curso> allCursoByNameExceptList(String nombre, ArrayList<Long> cursos) {
-//        List<Curso> cursoss = new ArrayList();
-//        for (Long curso : cursos) {
-//            cursoss.add(new Curso(curso));
-//        }
-//        return cursoDAO.allCursoByNameExceptList(nombre, cursoss);
-//    }
-//
-//    @Override
-//    public List<CicloAcademico> allCicloByNameExceptList(String nombre, ArrayList<Long> idCiclos) {
-//        List<CicloAcademico> ciclos = new ArrayList();
-//        for (Long ciclo : idCiclos) {
-//            ciclos.add(new CicloAcademico(ciclo));
-//        }
-//        return cicloAcademicoDAO.allCicloByNameExceptList(nombre, ciclos);
-//    }
     public void uploadS3(String fileName) {
         logger.debug("upload to s3    {}  {}   {}  {} {}", Constantine.S3_BUKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
         File f = new File(Constantine.TMP_DIR + fileName);
@@ -755,15 +631,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         this.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico);
     }
 
-//    @Override
-//    public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter) {
-//        return tramiteDocumentoAcademicoDAO.allTramiteDocumentoAcademico(filter);
-//    }
-//
-//    @Override
-//    public List<PrecioDocumento> allPrecioDocumento() {
-//        return precioDocumentoDAO.allPrecioDocumento();
-//    }
     @Override
     public List<TipoDocumentoAcademico> allTipoDocumentoAcademico() {
         return tipoDocumentoAcademicoDAO.allWhyPrecios();
@@ -780,12 +647,27 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     @Override
-    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) {
+        PlantillaGenerica generica = findPlantillaHtml(tramiteDocumentoAcademico);
+
+        try {
+
+            response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setContentType("application/msword");
+            response.setHeader("Content-Disposition", "inline; filename=\"" + generica.getNombre() + ".doc\"");
+
+            OutputStream outputStream = response.getOutputStream();
+            outputStream.write(generica.getContenido().getBytes());
+            outputStream.flush();
+            outputStream.close();
+        } catch (IOException ex) {
+            logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), generica.getNombre());
+        }
     }
 
     @Override
     public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico) {
+        documentoAcademico = tramiteDocumentoAcademicoDAO.find(documentoAcademico);
         PlantillaGenerica plantillaGene = new PlantillaGenerica();
         switch (documentoAcademico.getTipoDocumentoAcademico().getCodigoDocumentoEnum()) {
             case ALIANZAESTRATEGICAEMPRESARIAL:
@@ -806,7 +688,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         String html = plantilla.getContenido();
         for (VariablePlantilla var : variable) {
             while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
-                switch (var.getVariableGenerica().getCodigoEnum()) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
                     case NOMBRE_PERSONA:
                         html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
                         break;
@@ -818,7 +700,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 }
             }
         }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
         plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
         return plantillaGene;
     }
 
@@ -831,7 +715,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         String html = plantilla.getContenido();
         for (VariablePlantilla var : variable) {
             while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
-                switch (var.getVariableGenerica().getCodigoEnum()) {
+
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
                     case NOMBRE_PERSONA:
                         html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
                         break;
@@ -841,15 +726,14 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     case FACULTAD:
                         html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
                         break;
-                    case CICLO_ACADEMICO:
+                    case CICLO_MATRICULA:
                         html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloActivo().getDescripcion2());
                         break;
-                    default:
-                        throw new AssertionError();
                 }
             }
         }
         plantillaGene.setContenido(html);
+        plantillaGene.setNombre(plantilla.getTipoDocumentoAcademico().getNombre());
         return plantillaGene;
     }
 }
