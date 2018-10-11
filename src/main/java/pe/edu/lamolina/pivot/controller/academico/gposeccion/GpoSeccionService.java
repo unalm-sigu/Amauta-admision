@@ -2,7 +2,6 @@ package pe.edu.lamolina.pivot.controller.academico.gposeccion;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -182,5 +181,13 @@ public interface GpoSeccionService {
     List<HorarioSeccion> allHorarioSeccion(Seccion seccion);
 
     void evaluateSeccion(Seccion seccion);
+
+    List<GrupoSeccion> clonar(GrupoSeccion grupoSeccion, Integer veces, DataSessionPivot ds);
+
+    List<GrupoSeccion> allCleanByDynatableGruposSeccion(DynatableFilter filter, CicloAcademico ciclo, List<GrupoSeccion> gpos);
+
+    Long contarGpoSecc(CicloAcademico ciclo);
+
+    void actualizarBoletin();
 
 }

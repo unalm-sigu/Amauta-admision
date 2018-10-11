@@ -19,11 +19,18 @@
 
                 <header class="header b-b padder-lg">
 
-                    <div class="pull-right m-t-md">                 
-                        <div class="btn-group">
-                            <a type="button" class="btn btn-success nuevo-grupo-sec">Nuevo Grupo</a>
-                        </div>
-                    </div> 
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a v-if="cantidadGrupoSeccion > 0" type="button" href="#"  class="nuevo-grupo-sec">Nuevo Grupo</a></li>
+                            <li><a v-if="cantidadGrupoSeccion == 0" type="button" href="#"  v-on:click.prevent="clonarCiclo" >Clonar Ciclo</a></li>
+                            <li><a v-if="cantidadGrupoSeccion > 0" type="button" href="#"  v-on:click.prevent="ordenarCiclo" >Ordenar Código</a></li>
+                        </ul>
+                    </div>
+
+
                     <h2 th:text="|Programación de horarios ${ciclo.descripcion}|">Grupo Sección</h2>
                 </header>
                 <section class="wrapper-lg">
@@ -34,25 +41,25 @@
 
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['ingresantes']">
                                         <a v-on:click="verAnexos('ingresantes')" class="text-danger pointer" rel="ingresantes">
-                                            <span class="h1 block bold" th:text="${resumen.ingresantes}">23</span>
+                                            <span class="h1 block bold" v-text="resumen.ingresantes">23</span>
                                             <small class="block m-b-xs">Ingresantes</small>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['departamentos']">
                                         <a v-on:click="verAnexos('departamentos')" class="text-black pointer" rel="departamentos">
-                                            <span class="h1 block bold" th:text="${resumen.departamentos}">23</span>
+                                            <span class="h1 block bold" v-text="resumen.departamentos">23</span>
                                             <small class="block m-b-xs">Departamentos</small>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['postgrados']">
                                         <a v-on:click="verAnexos('postgrados')" class="text-success pointer" rel="postgrados">
-                                            <span class="h1 block bold" th:text="${resumen.postGrados}">23</span>
+                                            <span class="h1 block bold" v-text="resumen.postGrados">23</span>
                                             <small class="block m-b-xs">Posgrado</small>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['actividades']">
                                         <a v-on:click="verAnexos('actividades')" class="text-warning pointer" rel="actividades">
-                                            <span class="h1 block bold" th:text="${resumen.actividades}">23</span>
+                                            <span class="h1 block bold" v-text="resumen.actividades">23</span>
                                             <small class="block m-b-xs">Actividades Deportivas</small>
                                         </a>
                                     </div>
@@ -66,7 +73,8 @@
 
                             <raptor-table v-bind:url="gpoSeccionesURL" v-bind:preload="false" ref="load">
                                 <div slot="header">
-                                    <div class="col-md-8">
+
+                                    <div class="col-md-6">
                                         <multiselect v-model='anexoSelect'
                                                      v-bind:options='anexosVisibles'
                                                      label='nombre'
@@ -84,6 +92,18 @@
                                                      v-on:mousedown.prevent.stop="clearAll(props.search)"></div>
                                             </template>
                                         </multiselect>
+                                    </div>
+
+                                    <div class="col-md-2">
+
+                                        <div class="form-group" title="Ordenar por código" data-toggle="tooltip" data-placement="top">
+                                            <label class="switch">
+                                                <input type="checkbox" v-model="orderbycodigo" name="orderbycodigo" value="1" autocomplete="off" /> 
+                                                <span></span> 
+                                                <i></i>
+                                            </label>
+                                        </div>
+
                                     </div>
                                 </div>
 
@@ -352,15 +372,52 @@
                     </div>
                 </modal-vik>
 
+                <modal-vik ref="modalCloneCiclo"
+                           v-bind="dataCloneCiclo" 
+                           v-bind:okaction="saveCloneCiclo">
+
+                    <div slot="body">
+
+                        <form data-parsley-validate="true" class="panel-body">
+
+                            <p class="col-xs-12 text-primary h5 m-t-xs" th:text="|Los datos se copiaran al ciclo ${ciclo.descripcion}|"></p>
+
+                            <div class="col-xs-12">
+                                <div class="form-group">
+
+                                    <label>Seleccione el ciclo acádemico de origen</label>
+
+                                    <vuelect 
+                                        v-bind:nombre="'ciclo.id'"  
+                                        v-bind:ciclo="ciclo"
+                                        />
+
+                                </div>
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </modal-vik>
+
                 <!--<script id="gpoSeccionTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/gposeccion/gpoSeccionTemplate"/></script>-->
             </div>
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="academico/gposeccion/components/seccionDetalleComponent"/>
-            <div th:substituteby="templates/modal"/>
+            <!--<div th:substituteby="templates/modal"/>-->
         </div>
 
         <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var cantidad = /*[[${cantidad}]]*/ '';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_layout/includes :: sweetalert"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_layout/includes :: vue-loader"/>
+            <div th:substituteby="academico/gposeccion/vuelect2"></div>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/gposeccion/gpoSeccion.js}" charset="utf-8"></script>
         </div>

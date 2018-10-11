@@ -156,7 +156,8 @@ new Vue({
                     if (response.success) {
                         $global.$emit("reloadDyntable");
                         notify(response.message, 'info');
-
+                    } else {
+                        notify(response.message, 'error');
                     }
                 }
             });

@@ -1,114 +1,288 @@
-$(function () {
+Vue.component("multiselect", window.VueMultiselect.default);
 
-    var dynatable = $('#dynaTable').dynatable({
-        dataset: {
-            ajaxUrl: APP.url('academico/anexo/list'),
-            perPageDefault: 10
+new Vue({
+    el: '#pageAnexosVUE',
+    data: {
+        cicloAnexos: JSON.parse(cicloJson),
+        anexosSuper: JSON.parse(anexosSuperJson),
+        departamentos: JSON.parse(departamentosJson),
+        carreras: JSON.parse(carrerasJson),
+        anexosURL: APP.url('academico/anexo/list'),
+        pagination: {'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true},
+        seleccionado: "",
+        bgColorClass: {ingresantes: '', posgrados: '', departamentos: '', actividades: ''},
+        ordenSelect: 0,
+        cfgAnularAnexo: {
+            id: 'anularAnexoModal',
+            header: true,
+            title: 'Anulación de Anexo',
+            showaccept: false,
+            cancelbtn: 'Cancelar',
+            okbtn: 'Si, anular anexo',
+            okclass: 'btn-danger'
         },
-        writers: {
-            _rowWriter: ulWriter
+        cfgNuevoAnexo: {
+            id: 'nuevoAnexoModal',
+            header: true,
+            title: 'Nuevo Anexo',
+            showaccept: true,
+            cancelbtn: 'Cancelar',
+            okbtn: 'Guardar',
+            okclass: 'btn-primary'
         },
-        table: {
-            bodyRowSelector: 'tbody tr'
+        anexoTempo: {id: '', departamentoAcademico: {}, carrera: {}, anexoSuperior: {}},
+        anularAnexo: "abc",
+        ciclos: [],
+        isSearchingCiclos: false
+    },
+    mounted: function () {
+        $(".numerico").numeric({negative: false});
+
+        let $vue = this;
+        let tipo = $vue.$refs.raptorAnexos.getParameterByName('queries[anexo-superior]');
+        tipo = (tipo == null) ? 'ingresantes' : tipo;
+        if (tipo != '') {
+            $vue.bgColorClass[tipo] = 'bg-light';
+            $vue.seleccionado = tipo;
+            $vue.$refs.raptorAnexos.querie.push({name: 'anexo-superior', value: tipo});
         }
-    }).bind('dynatable:afterUpdate', function (e, dynatable) {
-        $('[data-toggle="tooltip"]').tooltip();
-    }).data('dynatable');
-
-    function ulWriter(rowIndex, record, columns, cellWriter) {
-        var labelColor = {CRE: 'default', ACT: 'success', INA: 'danger'};
-        record.index = rowIndex;
-        record.esActivo = record.estado == 'ACT' || record.estado == 'CRE';
-        record.esInactivo = record.estado == 'INA';
-        record.colorEstado = labelColor[record.estado];
-        var html = $.templates("#anexoTemplate").render(record);
-        return html;
-    }
-
-    var Anexo = {
-        form: null,
-        divSeleccionado: null,
-        viewModal: function (e, $this) {
-            e.preventDefault();
-
-            var estado = $this.attr("rev");
-
-            var record = {
-                form: "formEstadoAnexo",
-                activo: estado == 'ACT',
-                id: $this.attr("rel")
-            };
-
-            MODAL.init("md");
-            MODAL.title("");
-            MODAL.body($.templates("#divEstadoAnexo").render(record));
-            MODAL.buttons('<button type="button" class="btn btn-primary cambio-estado-anexo">Aceptar</button>');
-            MODAL.show();
-            Anexo.form = $("#" + record.form);
+        $vue.$refs.raptorAnexos.repreload();
+    },
+    methods: {
+        getAnexoSuper() {
+            let $vue = this;
+            let idsAnexosSuper = {ingresantes: 1, posgrados: 4, departamentos: 2, actividades: 3};
+            for (var i = 0; i < $vue.anexosSuper.length; i++) {
+                if ($vue.anexosSuper[i].id == idsAnexosSuper[$vue.seleccionado]) {
+                    return $vue.anexosSuper[i];
+                }
+            }
+            return {};
         },
-        cambioEstado: function (e) {
-            e.preventDefault();
-            var form = Anexo.form;
+        verEditar(item) {
+            let $vue = this;
+            $vue.cfgNuevoAnexo.title = "Edición: " + item.nombre;
+            $vue.anexoTempo = Object.assign({}, item);
+            $vue.$refs.nuevoAnexoModal.open();
+        },
+        verNuevoAnexo() {
+            let $vue = this;
+            $vue.cfgNuevoAnexo.title = "Nuevo Anexo";
+            $vue.anexoTempo = {id: '', departamentoAcademico: {}, carrera: {}, anexoSuperior: $vue.getAnexoSuper()};
+            $vue.$refs.nuevoAnexoModal.open();
+        },
+        upper(e) {
+            e.target.value = e.target.value.toUpperCase();
+        },
+        labelCarrera(item) {
+            if (item.id == undefined) {
+                return "";
+            }
+            if (item.tipoEnum == undefined) {
+                return "";
+            }
+            return item.tipoEnum.value + ' - ' + item.nombre;
+        },
+        verSaveAnexo() {
+            var form = $("#formAnexo");
             if (!form.parsley().validate()) {
                 return;
             }
 
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea guarda este anexo?',
+                buttons: {
+                    confirm: {label: 'Si, guardar', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (aceptar) {
+                    if (aceptar) {
+                        setTimeout(function () {
+                            $vue.saveAnexo();
+                        }, 200);
+                    }
+                }
+            });
+        },
+        saveAnexo() {
+            console.log("save save save save save save save save save ")
+            let $vue = this;
             $.ajax({
-                url: APP.url('academico/anexo/cambiarEstado'),
+                url: APP.url('academico/anexo/save'),
+                dataType: 'json',
                 type: 'POST',
+                contentType: "application/json",
                 async: true,
-                data: form.serialize(),
-                success: function (response) {
+                data: JSON.stringify($vue.anexoTempo),
+                success(response) {
                     if (response.success) {
-                        MODAL.hide();
                         notify(response.message, "info");
-                        dynatable.process();
+                        $vue.$refs.nuevoAnexoModal.close();
+                        $vue.$refs.raptorAnexos.loadRemoteData();
                     } else {
                         notify(response.message, "error");
                     }
                 },
-                error: function () {
+                error() {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
-        viewCount: function ($this, e) {
-            e.preventDefault();
-            var div = $this.closest("div");
-            console.log(div)
-            var classColor = 'bg-light';
-            var tieneBgColor = div.hasClass(classColor);
-            console.log(tieneBgColor)
-            dynatable.queries.remove("ass.id");
+        changeCiclo(item) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url('academico/anexo/changeCiclo'),
+                dataType: 'json',
+                type: 'POST',
+                contentType: "application/json",
+                async: true,
+                data: JSON.stringify(item),
+                success(response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $vue.$refs.raptorAnexos.loadRemoteData();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        searchCiclos(search) {
+            let $vue = this;
+            $vue.isSearchingCiclos = true;
 
-            if (Anexo.divSeleccionado != null) {
-                Anexo.divSeleccionado.removeClass(classColor);
-                Anexo.divSeleccionado = null;
+            $.ajax({
+                url: APP.url('academico/anexo/allCiclos'),
+                dataType: 'json',
+                type: 'POST',
+                async: true,
+                data: {nombre: search},
+                success(response) {
+                    $vue.isSearchingCiclos = false;
+                    if (response.success) {
+                        $vue.ciclos = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        changeAnular() {
+            let $vue = this;
+            if ($vue.anularAnexo == "SI") {
+                $vue.cfgAnularAnexo.showaccept = true;
+            } else {
+                $vue.cfgAnularAnexo.showaccept = false;
             }
-
-            if (!tieneBgColor) {
-                div.addClass(classColor);
-                console.log(div)
-                Anexo.divSeleccionado = div;
-                var grupo = $this.attr("rel");
-                dynatable.queries.add("ass.id", grupo);
-            }
-            dynatable.process();
         }
+        ,
+        textColorClass(item) {
+            let $vue = this;
+            if (item.id == $vue.ordenSelect) {
+                setTimeout(function () {
+                    $vue.ordenSelect = 0;
+                }, 1500);
+                return "text-warning";
+            }
+            return "text-primary";
+        },
+        cambiarOrden(item, direccion) {
+            let $vue = this;
+            $vue.ordenSelect = item.id;
+            $.ajax({
+                url: APP.url('academico/anexo/' + item.id + '/cambiarOrden/' + direccion),
+                dataType: "json",
+                type: 'POST',
+                async: true,
+                success(response) {
+                    if (response.success) {
+                        $vue.$refs.raptorAnexos.loadRemoteData();
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error(response) {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        verCambiarEstado(item, accion) {
+            let $vue = this;
+            if (accion == 'activar') {
+                bootbox.confirm({
+                    message: '¿Está seguro que desea activar este anexo?',
+                    buttons: {
+                        confirm: {label: 'Si, activar', className: 'btn-success'},
+                        cancel: {label: 'No', className: 'btn-link'}
+                    },
+                    callback: function (aceptar) {
+                        if (aceptar) {
+                            $vue.cambiarEstado(item, accion);
+                        }
+                    }
+                });
 
+            } else if (accion == 'desactivar') {
+                $vue.anularAnexo = "abc";
+                $vue.anexoTempo = Object.assign({}, item);
+                $vue.$refs.anularAnexoModal.open();
+            }
+        },
+        saveCambioEstado() {
+            let $vue = this;
+            $vue.cambiarEstado($vue.anexoTempo, "desactivar");
+        },
+        cambiarEstado(item, accion) {
+            let $vue = this;
+            $vue.ordenSelect = item.id;
+            $.ajax({
+                url: APP.url('academico/anexo/cambiarEstado/' + accion),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify(item),
+                success(response) {
+                    if (response.success) {
+                        $vue.$refs.anularAnexoModal.close();
+                        $vue.$refs.raptorAnexos.loadRemoteData();
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error(response) {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        verAnexosInferiores(tipo) {
+            let $vue = this;
+            if ($vue.seleccionado === '') {
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
+
+                $vue.$refs.raptorAnexos.querie.push({name: 'anexo-superior', value: tipo});
+                $vue.$refs.raptorAnexos.loadRemoteData();
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
+
+                $vue.$refs.raptorAnexos.querie.push({name: 'anexo-superior', value: tipo});
+                $vue.$refs.raptorAnexos.loadRemoteData();
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
+            }
+        }
     }
-
-    $("body").delegate(".change-estado", "click", function (e) {
-        Anexo.viewModal(e, $(this));
-    });
-
-    $("body").delegate(".cambio-estado-anexo", "click", function (e) {
-        Anexo.cambioEstado(e);
-    });
-
-    $("body").delegate(".view-count", "click", function (e) {
-        Anexo.viewCount($(this), e);
-    });
-
-
 });

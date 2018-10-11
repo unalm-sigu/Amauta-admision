@@ -39,6 +39,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.NombreCurso;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCarreraEnum;
@@ -158,6 +159,58 @@ public class CursoController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("saveIdioma")
+    public JsonResponse saveIdioma(@RequestBody NombreCurso nombreCurso, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            NombreCurso nombreCursoBD = nombreCurso.getId() == null
+                    ? service.saveIdioma(nombreCurso, ds)
+                    : service.updateIdioma(nombreCurso, ds);
+            ObjectNode json = JsonHelper.createJson(nombreCursoBD, JsonNodeFactory.instance, true, new String[]{
+                "id",
+                "nombre",
+                "fechaRegistro",
+                "curso.id",
+                "idioma.id",
+                "idioma.codigo",
+                "idioma.nombre"
+            });
+            response.setData(json);
+            response.setMessage("Nombre de curso en otro idioma guardado satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("deleteIdioma")
+    public JsonResponse deleteIdioma(@RequestBody NombreCurso nombreCurso, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.deleteIdioma(nombreCurso, ds);
+            response.setMessage("Nombre de curso eliminado satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -205,7 +258,14 @@ public class CursoController {
             "carrera.id",
             "carrera.tipoEnum",
             "carrera.codigo",
-            "carrera.nombre"
+            "carrera.nombre",
+            "nombreCurso.id",
+            "nombreCurso.nombre",
+            "nombreCurso.fechaRegistro",
+            "nombreCurso.curso.id",
+            "nombreCurso.idioma.id",
+            "nombreCurso.idioma.codigo",
+            "nombreCurso.idioma.nombre"
         });
         return cursoJson;
     }

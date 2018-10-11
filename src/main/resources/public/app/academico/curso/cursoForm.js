@@ -1,361 +1,5 @@
 $(function () {
-
-    var CursoForm = {
-//        idCurso: $("#idCurso").val(),
-        init: function () {
-
-            $(".numerico").numeric({negative: false});
-//            $('[name="tipoCurso"]').select2({placeholder: "Seleccione el tipo curso"});
-//
-//            if (CursoForm.idCurso == '') {
-//                $('[name="modalidadEstudio.id"]').select2({
-//                    placeholder: "Seleccione la modalidad de estudio"
-//                }).on("select2-selecting", function (e) {
-//                    console.log("selecting val=" + e.val + " choice=" + JSON.stringify(e.choice));
-//                });
-//            }
-//            $('[name="tipoCurricula"]').select2({allowClear: true, placeholder: "Seleccione el tipo curricula"});
-//            $('[name="idIdioma"]').select2({placeholder: "Seleccione el idioma"});
-//
-//
-//            if ($("[name='departamentoAcademico.id']").val() != '') {
-//                CursoForm.loadCoordinadores($("[name='departamentoAcademico.id']").val())
-//            }
-//            CursoForm.loadDepartamentos();
-//
-//            var modCodigo = $("#codigoModalidad").val();
-//            console.log(modCodigo)
-//
-//            if (modCodigo == 'PRE') {
-//                //CursoForm.loadNiveles(modCodigo);
-//                CursoForm.validarDivEspecialidad(modCodigo);
-//            } else if (modCodigo == 'EPG') {
-//                CursoForm.loadEspecialidades(modCodigo);
-//                CursoForm.validarDivEspecialidad(modCodigo);
-//            }
-//
-//            CursoForm.tipoCredito($("[name='tipoCredito']:checked"));
-
-        },
-//        loadDepartamentos: function () {
-//            if (CursoForm.idCurso != '') {
-//                return;
-//            }
-//
-//            $("[name='departamentoAcademico.id']").select2({
-//                allowClear: true,
-//                placeholder: "Seleccione un departamento",
-//                minimumInputLength: 1,
-//                ajax: {
-//                    url: APP.url("comun/buscar/allDepartamentoAcademico"),
-//                    dataType: 'json',
-//                    type: 'post',
-//                    data: function (term, page) {
-//                        return {nombre: term, page: page};
-//                    },
-//                    results: function (response, page) {
-//                        return {results: response.data};
-//                    }
-//                },
-//                initSelection: function (element, callback) {
-//                    if (element.val() != "") {
-//                        var datos = {
-//                            id: element.val(),
-//                            nombre: element.attr("rel")
-//                        };
-//                        callback(datos);
-//                    }
-//                },
-//                formatResult: function (info) {
-//                    var data = '<span class="block bold">' + info.nombre + '</span>';
-//                    data += '<span class="block">Facultad de ' + info.facultad + '</span>';
-//                    return data;
-//                },
-//                formatSelection: function (info) {
-//                    return info.nombre;
-//                },
-//                escapeMarkup: function (m) {
-//                    return m;
-//                }
-//            });
-//        },
-//        loadCoordinadores: function (idDpto) {
-//            $("[name='coordinador.id']").select2({
-//                placeholder: "Seleccione un coordinador",
-//                allowClear: true,
-//                minimumInputLength: 1,
-//                ajax: {
-//                    url: APP.url("comun/buscar/allCoordinadores"),
-//                    dataType: 'json',
-//                    type: 'post',
-//                    data: function (term, page) {
-//                        return {dpto: idDpto, nombre: term, page: page};
-//                    },
-//                    results: function (response, page) {
-//                        return {results: response.data};
-//                    }
-//                },
-//                initSelection: function (element, callback) {
-//                    if (element.val() != "") {
-//                        var datos = {
-//                            id: element.val(),
-//                            nombre: element.attr("rel")
-//                        };
-//                        callback(datos);
-//                    }
-//                },
-//                formatResult: function (info) {
-//                    return  info.nombre;
-//                },
-//                formatSelection: function (info) {
-//                    return info.nombre;
-//                },
-//                escapeMarkup: function (m) {
-//                    return m;
-//                }
-//            });
-//        },
-//        saveUpdate: function () {
-//            var form = $("#formularioCurso");
-//            if (!form.parsley().validate()) {
-//                return;
-//            }
-//            if ($("[name='tipoCredito']:checked").val() == 'FIJO') {
-//                var credTotal = +$("[name='creditos']").val();
-//                var credprac = +$("[name='creditosPractica']").val();
-//                var credTeo = +$("[name='creditosTeoria']").val();
-//
-//                if (credTotal != credprac + credTeo) {
-//                    notify("La suma de créditos no coincide con el total.", "error");
-//                    $("[name='creditosPractica']").focus();
-//                    return;
-//                }
-//            }
-//
-//            $.ajax({
-//                url: APP.url('academico/curso/save'),
-//                type: 'POST',
-//                async: true,
-//                data: form.serialize(),
-//                success: function (response) {
-//                    if (response.success) {
-//                        notify(response.message, "info");
-//                        setTimeout(function () {
-//                            location.href = APP.url("academico/curso");
-//                        }, 1500);
-//                    } else {
-//                        notify(response.message, "error");
-//                    }
-//                },
-//                error: function () {
-//                    notify(MESSAGES.errorComunicacion, "error");
-//                }
-//            });
-//        },
-//        changeModalidad: function ($this, e) {
-//            var codModalidad = $this.find(":selected").data("codigo");
-//            $('[name="nivel"]').select2('val', "");
-//            $('[name="carrera.id"]').select2("val", "");
-//            $('[name="tipoCurricula"]').select2("val", "");
-//
-//            CursoForm.loadNiveles(codModalidad);
-//            CursoForm.loadEspecialidades(codModalidad);
-//        },
-//        loadNiveles: function (codigo) {
-//            console.log("creando niveles")
-//            $('[name="nivel"]').select2({
-//                allowClear: true,
-//                placeholder: "Seleccione",
-//                minimumInputLength: -1,
-//                ajax: {
-//                    url: APP.url("academico/curso/nivel"),
-//                    dataType: 'json',
-//                    type: 'post',
-//                    data: function (term, page) {
-//                        return {codigo: codigo, page: page};
-//                    },
-//                    results: function (response, page) {
-//                        return {results: response.data};
-//                    }
-//                },
-//                initSelection: function (element, callback) {
-//                    if (element.val() != "") {
-//                        var datos = {
-//                            id: element.val(),
-//                            text: element.val()
-//                        };
-//                        callback(datos);
-//                    }
-//                },
-//                formatResult: function (info) {
-//                    return  info.text;
-//                },
-//                formatSelection: function (info) {
-//                    return info.text;
-//                },
-//                escapeMarkup: function (m) {
-//                    return m;
-//                }
-//            });
-//        },
-//        loadEspecialidades: function (codigo) {
-//            CursoForm.validarDivEspecialidad(codigo);
-//            $('[name="carrera.id"]').select2({
-//                allowClear: true,
-//                placeholder: "Seleccione la especialidad",
-//                minimumInputLength: 1,
-//                ajax: {
-//                    url: APP.url("academico/curso/allCarreras"),
-//                    dataType: 'json',
-//                    type: 'post',
-//                    data: function (term, page) {
-//                        return {codigo: codigo, nombre: term, page: page};
-//                    },
-//                    results: function (response, page) {
-//                        return {results: response.data};
-//                    }
-//                },
-//                initSelection: function (element, callback) {
-//                    if (element.val() != "") {
-//                        var datos = {
-//                            id: element.val(),
-//                            nombre: element.attr("rel")
-//                        };
-//                        callback(datos);
-//                    }
-//                },
-//                formatResult: function (info) {
-//                    var data = '<span class="block bold">' + info.nombre + ' - ' + info.codigo + '</span>';
-//                    data += '<span class="block"> ' + (info.tipoEstudio != '' ? (info.tipoEstudio + ' - ') : '') + info.modalidadEstudio + '</span>';
-//                    return data;
-//                },
-//                formatSelection: function (info) {
-//                    return info.nombre;
-//                },
-//                escapeMarkup: function (m) {
-//                    return m;
-//                }
-//            });
-//        },
-//        validarDivEspecialidad: function (codigo) {
-//            if (codigo == 'PRE') {
-//                $(".divEspecialidad").addClass("hide");
-//                $(".divTipoCurricula").removeClass("hide");
-//            } else {
-//                $(".divEspecialidad").removeClass("hide");
-//                $(".divTipoCurricula").addClass("hide");
-//            }
-//        },
-//        addIdioma: function () {
-//            var html = $.templates("#divNombreCurso").render({id: Math.random()});
-//
-//            $(".bodyTabla tr:last").before(html);
-//            $(".bodyTabla").find('[name="idIdioma"]').select2();
-//        },
-//        existeIdioma: function ($this, e) {
-//            e.preventDefault();
-//            var idioma = $this.find("option:selected").val();
-//            var count = 0;
-//
-//            $(".bodyTabla tr").each(function () {
-//
-//                var td = $(this).find("td:first");
-//                var valor = td.find('[name="idIdioma"]').select2();
-//
-//                if (idioma == valor.val()) {
-//                    count++;
-//                    if (count == 2) {
-//                        bootbox.alert("Idioma existente!");
-//                        CursoForm.deleteRowIdioma($this)
-//                    }
-//                }
-//            });
-//        },
-//        deleteRowIdioma: function ($this) {
-//            var tr = $this.closest("tr");
-//            tr.remove();
-//        },
-//        validandoHoras: function ($this) {
-//            var tipo = $this.val();
-//            console.log("tipo:: " + tipo)
-//            if (tipo == 'TEO') {
-//                $('[name="horasTeoria"]').attr("required", true);
-//                $('[name="horasTeoria"]').attr("readonly", false);
-//                $('[name="horasPractica"]').attr("readonly", true);
-//                $('[name="horasPractica"]').val(0);
-//            } else if (tipo == 'PRA') {
-//                $('[name="horasPractica"]').attr("required", true);
-//                $('[name="horasPractica"]').attr("readonly", false);
-//                $('[name="horasTeoria"]').attr("readonly", true);
-//                $('[name="horasTeoria"]').val(0);
-//            } else {
-//                $('[name="horasPractica"]').attr("required", true);
-//                $('[name="horasPractica"]').attr("readonly", false);
-//                $('[name="horasTeoria"]').attr("readonly", false);
-//                $('[name="horasTeoria"]').attr("required", true);
-//                $('[name="horasTeoria"]').val(0);
-//            }
-//        },
-//        tipoCredito($this) {
-//            console.log($this.val());
-//            if ($this.val() == 'VAR') {
-//                $("#credPract").addClass('hide');
-//                $("#credTeoria").addClass('hide');
-//                $("[name='creditosPractica']").val('');
-//                $("[name='creditosPractica']").attr('required', false);
-//                $("[name='creditosTeoria']").val('');
-//                $("[name='creditosTeoria']").attr('required', false);
-//            } else if ($this.val() == 'FIJO') {
-//                $("[name='creditosTeoria']").attr('required', true);
-//                $("[name='creditosPractica']").attr('required', true);
-//                $("#credPract").removeClass('hide');
-//                $("#credTeoria").removeClass('hide');
-//            }
-//        }
-    };
-
-    CursoForm.init();
-
-//    $("body").delegate(".save-update-curso", "click", function (e) {
-//        CursoForm.saveUpdate(e);
-//    });
-//    $("body").delegate("[name='coordinador.id']", "change", function () {
-//        $(this).parsley().destroy();
-//    });
-//    $("body").delegate("[name='departamentoAcademico.id']", "change", function () {
-//        $(this).parsley().destroy();
-//    });
-//    $("body").delegate("[name='tipoCurso']", "change", function () {
-//        $(this).parsley().destroy();
-//    });
-//    $("body").delegate("[name='nivel']", "change", function () {
-//        $(this).parsley().destroy();
-//    });
-//    $("body").delegate("[name='tipoCurricula']", "change", function () {
-//        $(this).parsley().destroy();
-//    });
-//    $("body").delegate("[name='modalidadEstudio.id']", "change", function (e) {
-//        CursoForm.changeModalidad($(this), e);
-//    });
-//    $("body").delegate("[name='departamentoAcademico.id']", "change", function () {
-//        $(this).parsley().destroy();
-//        CursoForm.loadCoordinadores($(this).val());
-//    });
-//    $("body").delegate(".add-idioma", "click", function () {
-//        CursoForm.addIdioma();
-//    });
-//    $("body").delegate('[name="idIdioma"]', "change", function (e) {
-//        CursoForm.existeIdioma($(this), e);
-//    });
-//    $("body").delegate(".delete-idioma", "click", function () {
-//        CursoForm.deleteRowIdioma($(this));
-//    });
-//    $("body").delegate('[name="tipoCurso"]', "change", function () {
-//        CursoForm.validandoHoras($(this));
-//    });
-//    $("body").delegate('[name="tipoCredito"]', "change", function () {
-//        CursoForm.tipoCredito($(this));
-//    });
+    $(".numerico").numeric({negative: false});
 });
 
 Vue.component("multiselect", window.VueMultiselect.default);
@@ -379,6 +23,7 @@ var app = new Vue({
         dptoCurso: {id: ""},
         carreraCurso: {id: ""},
         docentes: [],
+        idiomaCurso: [],
         isLoadingDocentes: false,
         siEncuestar: true,
         siCargaAdicional: true,
@@ -398,10 +43,15 @@ var app = new Vue({
         $vue.nivelCurso = {id: $vue.curso.nivel};
         $vue.siEncuestar = !$vue.curso.noEncuestar;
         $vue.siCargaAdicional = !$vue.curso.noCargaAdicional;
+        $vue.idiomaCurso = $vue.curso.nombreCurso;
 
 
         if ($vue.curso.tipoCurricula == '') {
             $vue.curso.tipoCurriculaEnum = {};
+        }
+
+        for (var i = 0; i < $vue.curso.nombreCurso.length; i++) {
+            $vue.curso.nombreCurso[i].locked = true;
         }
 
         $vue.tipoCurriculaEnum = $vue.curso.tipoCurriculaEnum;
@@ -411,6 +61,32 @@ var app = new Vue({
 
     },
     methods: {
+        desbloquearIdioma(index) {
+            let $vue = this;
+            let nuevo = $vue.idiomaCurso[index];
+            nuevo.locked = false;
+            $vue.$set($vue.idiomaCurso, index, nuevo);
+        },
+        bloquearIdioma(index) {
+            let $vue = this;
+            let nuevo = $vue.idiomaCurso[index];
+            nuevo.locked = true;
+            $vue.$set($vue.idiomaCurso, index, nuevo);
+        },
+        addIdioma() {
+            let $vue = this;
+            let nuevo = {
+                id: "",
+                nombre: "",
+                idioma: {id: "", nombre: ""},
+                curso: {id: $vue.curso.id},
+            };
+            $vue.curso.nombreCurso.push(nuevo);
+        },
+        removeIdioma(index) {
+            let $vue = this;
+            $vue.idiomaCurso.splice(index, 1);
+        },
         setTipoCredito() {
             let $vue = this;
             if ($vue.curso.tipoCredito == 'FIJO' && $vue.tipoCursoEnum.name == 'TEO') {
@@ -556,8 +232,6 @@ var app = new Vue({
         },
         setTipoCurso(item) {
             let $vue = this;
-//            $vue.curso.tipoCurso = item.name;
-//            $vue.curso.tipoCursoEnum = item;
 
             if ($vue.isTeoria() && $vue.isPractica()) {
             } else if ($vue.isTeoria() && !$vue.isPractica()) {
@@ -677,6 +351,78 @@ var app = new Vue({
                 },
                 error(response) {
                     notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        saveIdioma(nomCurso, index) {
+            let $vue = this;
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea guardar esta traducción?",
+                buttons: {
+                    confirm: {label: 'Si, guardar', className: 'btn-success'},
+                    cancel: {label: 'Cancelar', className: 'btn-link'}
+                },
+                callback: function (aceptar) {
+                    if (aceptar) {
+                        $.ajax({
+                            url: APP.url('academico/curso/saveIdioma'),
+                            dataType: "json",
+                            contentType: "application/json",
+                            type: 'POST',
+                            async: true,
+                            data: JSON.stringify(nomCurso),
+                            success(response) {
+                                if (response.success) {
+                                    let nuevo = response.data;
+                                    nuevo.locked = true;
+                                    $vue.$set($vue.idiomaCurso, index, nuevo);
+                                    notify(response.message, "info");
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error(response) {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+
+        },
+        deleteIdioma(nomCurso, index) {
+            let $vue = this;
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea eliminar esta traducción?",
+                buttons: {
+                    confirm: {label: 'Si, eliminar', className: 'btn-danger'},
+                    cancel: {label: 'Cancelar', className: 'btn-link'}
+                },
+                callback: function (aceptar) {
+                    if (aceptar) {
+                        $.ajax({
+                            url: APP.url('academico/curso/deleteIdioma'),
+                            dataType: "json",
+                            contentType: "application/json",
+                            type: 'POST',
+                            async: true,
+                            data: JSON.stringify(nomCurso),
+                            success(response) {
+                                if (response.success) {
+                                    $vue.idiomaCurso.splice(index, 1);
+                                    notify(response.message, "info");
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error(response) {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
                 }
             });
         }

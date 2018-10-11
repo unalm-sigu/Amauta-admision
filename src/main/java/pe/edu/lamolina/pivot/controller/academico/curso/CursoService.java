@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.NombreCurso;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -32,5 +33,11 @@ public interface CursoService {
     List<Carrera> allCarrerasByPostgrado();
 
     List<Docente> allDocentesByDepartamento(String nombre, DepartamentoAcademico departamentoAcademico);
+
+    NombreCurso saveIdioma(NombreCurso nombreCurso, DataSessionPivot ds);
+
+    NombreCurso updateIdioma(NombreCurso nombreCurso, DataSessionPivot ds);
+
+    void deleteIdioma(NombreCurso nombreCurso, DataSessionPivot ds);
 
 }

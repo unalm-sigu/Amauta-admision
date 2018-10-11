@@ -1,9 +1,9 @@
 package pe.edu.lamolina.pivot.controller.academico.curso;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -82,34 +81,6 @@ public class CursoServiceImp implements CursoService {
         } else {
             cursoBD = this.updateCurso(curso);
         }
-
-        if (curso.getIdIdioma() == null) {
-            return cursoBD;
-        }
-
-        List<NombreCurso> listaNombres = new ArrayList();
-        for (int i = 0; i < curso.getIdIdioma().length; i++) {
-            NombreCurso nombreCurso = new NombreCurso();
-            nombreCurso.setCurso(curso);
-            nombreCurso.setFechaRegistro(new Date());
-            nombreCurso.setUserRegistro(ds.getUsuario());
-            nombreCurso.setIdioma(new Idioma(curso.getIdIdioma()[i]));
-            nombreCurso.setNombre(curso.getNombreIdioma()[i]);
-
-            listaNombres.add(nombreCurso);
-        }
-
-        ListsInspector inspector = TypesUtil.analizeLists(cursoBD.getNombreCurso(), listaNombres, "idioma.id");
-
-        List<NombreCurso> nuevos = inspector.getNewList();
-        for (NombreCurso nuevo : nuevos) {
-            nombreCursoDAO.save(nuevo);
-        }
-
-        List<NombreCurso> eliminables = inspector.getDeadList();
-        for (NombreCurso eliminable : eliminables) {
-            nombreCursoDAO.delete(eliminable);
-        }
         return cursoBD;
     }
 
@@ -158,7 +129,7 @@ public class CursoServiceImp implements CursoService {
         cursoBD.setCoordinador(curso.getCoordinador());
 
         cursoDAO.update(cursoBD);
-
+     
         return cursoBD;
 
     }
@@ -274,6 +245,7 @@ public class CursoServiceImp implements CursoService {
         if (!StringUtils.isBlank(curso.getTipoCredito()) && curso.getTipoCredito().equals(TipoCreditoEnum.VAR.name())) {
             curso.setCreditos(curso.getCreditosVariables());
         }
+
         List<NombreCurso> nombres = nombreCursoDAO.allByCurso(curso);
         curso.setNombreCurso(nombres);
 
@@ -324,6 +296,49 @@ public class CursoServiceImp implements CursoService {
     @Override
     public List<Docente> allDocentesByDepartamento(String nombre, DepartamentoAcademico departamento) {
         return docenteDAO.allByNombreDepartamento(nombre, departamento, 15);
+    }
+
+    @Override
+    @Transactional
+    public NombreCurso saveIdioma(NombreCurso nombreCurso, DataSessionPivot ds) {
+        Idioma idioma = nombreCurso.getIdioma();
+        Assert.isNotNull(idioma, "No ha indicado el idioma del nombre del curso");
+        Assert.isNotBlank(nombreCurso.getNombre(), "No ha indicado la traducción al otro idioma");
+
+        List<NombreCurso> nombresBD = nombreCursoDAO.allByCurso(nombreCurso.getCurso());
+        Map<Long, NombreCurso> mapNombres = TypesUtil.convertListToMap("idioma.id", nombresBD);
+        NombreCurso nombreIdiomaExiste = mapNombres.get(idioma.getId());
+        Assert.isNull(nombreIdiomaExiste, "Ya existe un nombre en este idioma para este curso");
+
+        nombreCurso.setUserRegistro(ds.getUsuario());
+        nombreCurso.setFechaRegistro(new Date());
+        nombreCursoDAO.save(nombreCurso);
+
+        return nombreCurso;
+    }
+
+    @Override
+    @Transactional
+    public NombreCurso updateIdioma(NombreCurso nombreCurso, DataSessionPivot ds) {
+        Assert.isNotBlank(nombreCurso.getNombre(), "No ha indicado la traducción al otro idioma");
+
+        NombreCurso nombresBD = nombreCursoDAO.find(nombreCurso.getId());
+        Assert.isNotNull(nombresBD, "Este registro no existe en la base de datos");
+
+        nombresBD.setUserRegistro(ds.getUsuario());
+        nombresBD.setFechaRegistro(new Date());
+        nombresBD.setNombre(nombreCurso.getNombre());
+        nombreCursoDAO.update(nombresBD);
+
+        return nombresBD;
+    }
+
+    @Override
+    @Transactional
+    public void deleteIdioma(NombreCurso nombreCurso, DataSessionPivot ds) {
+        NombreCurso nombresBD = nombreCursoDAO.find(nombreCurso.getId());
+        Assert.isNotNull(nombresBD, "Este registro ya no existe en la base de datos");
+        nombreCursoDAO.delete(nombresBD);
     }
 
 }

@@ -5,13 +5,13 @@ Vue.component("seccion-det-component", {
         seccion: null
     }, watch: {
         seccion(newValue) {
-
         }
     }
 });
 
 new Vue({
     el: '#gpoSeccionesVUE',
+    mixins: [VueLoader],
     data: {
         gpoSeccionesURL: APP.url('academico/gposeccion/list'),
         seleccionado: '',
@@ -28,8 +28,39 @@ new Vue({
             //okbtn: 'Aceptar',
             modalsize: 'modal-md'
         },
+        dataCloneCiclo: {
+            id: 'modalCloneCiclo',
+            title: 'Copiar Ciclo',
+            header: true,
+        },
         seccionSelect: {},
-        tipoRestriccion: ''
+        tipoRestriccion: '',
+        ciclo: {},
+        cantidadGrupoSeccion: cantidad,
+        resumen: {
+            ingresantes: 0,
+            departamentos: 0,
+            postGrados: 0,
+            actividades: 0
+        },
+        orderbycodigo: false
+    },
+    watch: {
+        orderbycodigo() {
+            
+            let $vue = this;
+            
+            if ($vue.orderbycodigo) {
+                $vue.$refs.load.querie.push({name: 'order-codigo', value: 'asc'});
+            } else {
+                var myfilter = $vue.$refs.load.querie.find(item => item.name === 'order-codigo');
+                var inx = $vue.$refs.load.querie.indexOf(myfilter);
+                $vue.$refs.load.querie.splice(inx, 1);
+            }
+
+            $vue.$refs.load.loadRemoteData();
+
+        }
     },
     mounted: function () {
         let $vue = this;
@@ -49,6 +80,9 @@ new Vue({
         if (anx == '') {
             $vue.$refs.load.repreload();
         }
+
+        $vue.updateResumen();
+
     },
     methods: {
         verRestriccion(seccion, gpoSecc, tipo) {
@@ -239,6 +273,141 @@ new Vue({
             }
             $vue.settingUrlAnexoSelect();
             $vue.$refs.load.loadRemoteData();
+
+        },
+        clonarCiclo() {
+            let $vue = this;
+            $vue.ciclo = {id: null};
+            $vue.$refs.modalCloneCiclo.open();
+        },
+        saveCloneCiclo() {
+
+            let $vue = this;
+
+            if ($vue.ciclo.id == null) {
+                return;
+            }
+
+            $vue.showLoader();
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/clonarciclo'),
+                async: false,
+                data: {id: $vue.ciclo.id},
+                success: function (response) {
+                    if (response.success) {
+
+                        $vue.updateCantidadGrupoSeccion();
+                        $vue.updateResumen();
+
+                        $vue.$refs.load.loadRemoteData();
+                        $vue.$refs.modalCloneCiclo.close();
+
+                        notify(response.message, 'info');
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+
+                    $vue.hideLoader();
+                },
+                error: function () {
+                    $vue.hideLoader();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        updateCantidadGrupoSeccion() {
+
+            let $vue = this;
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/cantidadgrupo'),
+                async: false,
+                success: function (response) {
+                    if (response.success) {
+                        $vue.cantidadGrupoSeccion = response.data;
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        updateResumen() {
+
+            let $vue = this;
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/findresumen'),
+                async: false,
+                success: function (response) {
+                    if (response.success) {
+                        $vue.resumen = response.data;
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        ordenarCiclo() {
+
+            let $vue = this;
+
+            swal({
+                title: "Actulizar Registro",
+                text: "¿Desea actualizar el codigo de todos los registros?",
+                icon: "warning",
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Aceptar", closeModal: false}
+                }
+            }).then((value) => {
+
+                if (value != true) {
+                    return;
+                }
+
+                $.ajax({
+                    method: 'POST',
+                    async: false,
+                    url: APP.url('academico/gposeccion/reordenar'),
+                    success: function (response) {
+                        if (response.success) {
+
+                            notify(response.message, 'info');
+
+                            $vue.$refs.load.loadRemoteData();
+
+                            swal({text: response.message, icon: "success", button: false, timer: 1000});
+
+                        } else {
+
+                            swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        }
+                    },
+                    error: function () {
+
+                        swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                    }
+                });
+
+            }).catch(err => {
+
+                swal(MESSAGES.errorComunicacion, "error");
+
+            });
 
         }
     }

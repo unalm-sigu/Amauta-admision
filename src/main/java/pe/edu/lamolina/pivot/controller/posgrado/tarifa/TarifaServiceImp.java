@@ -14,6 +14,7 @@ import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.posgrado.ConceptoPosgrado;
@@ -84,18 +85,16 @@ public class TarifaServiceImp implements TarifaService {
     @Transactional
     public void update(TarifaCarrera tc, DataSessionPivot ds) {
         TarifaCarrera tarifaBD = tarifaCarreraDAO.find(tc.getId());
-        tarifaBD.setCicloInicio(tc.getCicloInicio());
         tarifaBD.setCostoCreditoExceso(tc.getCostoCreditoExceso());
         tarifaBD.setCostoCreditoMinimo(tc.getCostoCreditoMinimo());
         tarifaBD.setCreditosMaximo(tc.getCreditosMaximo());
         tarifaBD.setCreditosMinimo(tc.getCreditosMinimo());
         tarifaBD.setDescuentoCash(tc.getDescuentoCash());
         tarifaBD.setDescuentoSegundoCash(tc.getDescuentoSegundoCash());
-        tarifaBD.setIntereses(tc.getIntereses());
+        tarifaBD.setTasaInteres(tc.getTasaInteres());
         tarifaBD.setMaximoCuotas(tc.getMaximoCuotas());
         tarifaBD.setMonto(tc.getMonto());
         tarifaBD.setMora(tc.getMora());
-        tarifaBD.setTipoMonto(tc.getTipoMontoEnum());
         tarifaCarreraDAO.update(tarifaBD);
 
         List<TarifaConcepto> listBD = tarifaConceptoDAO.allByTarifaCarrera(tarifaBD);
@@ -106,20 +105,22 @@ public class TarifaServiceImp implements TarifaService {
         for (TarifaConcepto tcon : (List<TarifaConcepto>) inspector.getDeadList()) {
             tarifaConceptoDAO.delete(tcon);
         }
+        
         for (TarifaConcepto tcon : (List<TarifaConcepto>) inspector.getNewList()) {
             tcon.setActivo(Boolean.TRUE);
             tcon.setTarifaCarrera(tarifaBD);
             tarifaConceptoDAO.save(tcon);
         }
+        
         for (TarifaConcepto tcon : (List<TarifaConcepto>) inspector.getOldListForm()) {
             TarifaConcepto tcBD = mapTarifaConceptoBD.get(tcon.getId());
-            tcBD.setConceptoPosgrado(tcon.getConceptoPosgrado());
+//            tcBD.setConceptoPosgrado(tcon.getConceptoPosgrado());
             tcBD.setFraccionable(tcon.getFraccionable());
             tcBD.setMonto(tcon.getMonto());
             tcBD.setMontoMinimoInicial(tcon.getMontoMinimoInicial());
             tcBD.setPorcentajeInicial(tcon.getPorcentajeInicial());
             tcBD.setPorcentajeMinimoInicial(tcon.getPorcentajeMinimoInicial());
-            tarifaConceptoDAO.update(tcon);
+            tarifaConceptoDAO.update(tcBD);
         }
     }
 
@@ -165,6 +166,12 @@ public class TarifaServiceImp implements TarifaService {
     @Override
     public List<ConceptoPosgrado> allConceptoPosgrado() {
         return conceptoPosgradoDAO.all();
+    }
+
+    @Override
+    public List<CicloAcademico> allCiclosByNombre(String nombre) {
+        ModalidadEstudio pregrado = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.EPG);
+        return cicloAcademicoDAO.allByModalidadEstudioName(pregrado, nombre);
     }
 
 }

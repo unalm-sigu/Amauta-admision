@@ -120,7 +120,7 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
 
     @Override
     public List<TipoDocumentoAcademico> all() {
-        return tipoConstanciaDAO.all();
+        return tipoConstanciaDAO.allTipoDocumento();
     }
 
     @Override

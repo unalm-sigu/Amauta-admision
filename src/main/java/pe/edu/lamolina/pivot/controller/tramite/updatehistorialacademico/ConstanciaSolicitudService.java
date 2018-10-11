@@ -1,53 +1,37 @@
 package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
-import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
+import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
+import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
+import pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia.PlantillaGenerica;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ConstanciaSolicitudService {
 
-    Alumno allInfo(Alumno alumno);
-
     void updateHistorialAcademico(Alumno alumnoForm, DataSessionPivot ds);
-
-    List<CicloAcademico> allCicloAcademico();
-
-    ObjectNode toJson(Object object);
 
     List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);
 
-    List<Curso> allCursoByName(String nombre);
-
-    List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter);
-
     void updateTramiteDocumentoAcademico(TramiteDocumentoAcademico solicitudConstanciaForm, DataSessionPivot ds);
-
-    TramiteDocumentoAcademico findTramiteDocumentoAcademico(TramiteDocumentoAcademico solicitudConstanciaForm);
-
-    void delete(TramiteDocumentoAcademico solicitudConstancia);
 
     List<MatriculaResumen> allMatriculaResumenByAlumno(Alumno alumno);
 
     List<Idioma> allIdiomas();
-
-    List<TipoDocumentoAcademico> allTipoDocumentoAcademico();
 
     Alumno findAlumno(Alumno alumnoSesssion);
 
@@ -56,14 +40,6 @@ public interface ConstanciaSolicitudService {
     Persona findPersona(Persona persona);
 
     void fillTipoDocumentoAcademico(ArrayNode arrayTipoDocumentoAcademico);
-
-    void saveTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
-
-    void cancelar(TramiteDocumentoAcademico solicitudConstancia, DataSessionPivot ds);
-
-    List<PrecioDocumento> allPrecioDocumento();
-
-    String getCostoDocumento(TramiteDocumentoAcademico tramiteDoc, Map<Long, List<PrecioDocumento>> preciosMap);
 
     TramiteDocumentoAcademico findTramite(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm);
 
@@ -75,14 +51,22 @@ public interface ConstanciaSolicitudService {
 
     List<Colaborador> allColaboradorByName(String nombre);
 
-    void revision(TramiteDocumentoAcademico solicitudConstancia);
+    void updateFotoTemporal(TramiteDocumentoAcademico documentoAcademico, DataSessionPivot ds);
 
-    List<Curso> allCursoByNameExceptList(String nombre, ArrayList<Long> cursos);
+    public void save(TramiteDocumentoAcademico documentoAcademico, DataSessionPivot ds);
 
-    List<CicloAcademico> allCicloByNameExceptList(String nombre, ArrayList<Long> idCiclos);
+    public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter);
 
-    List<TipoDocumentoAcademico> allTipoDocumentoAcademicoByName(String nombre);
+    public List<PrecioDocumento> allPrecioDocumento();
 
-    void updateFotoTemporal(Persona imagenForm);
+    public List<TipoDocumentoAcademico> allTipoDocumentoAcademico();
+
+    public List<AccionTramiteDocumento> findEstadoByEstadoInicio(EstadoTramite estadoTramite);
+
+    public void update(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
+
+    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse ds);
+
+    public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico);
 
 }

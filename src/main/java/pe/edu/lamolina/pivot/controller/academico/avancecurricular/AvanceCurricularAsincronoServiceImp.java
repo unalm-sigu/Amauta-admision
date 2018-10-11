@@ -14,15 +14,16 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.AlumnoCursoSimultaneoEstadoEnum;
@@ -46,6 +47,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoEquivalenteDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
@@ -90,6 +92,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     @Autowired
     TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
+
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -181,7 +186,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Map<Long, AlumnoCursoCurricula> cursosAlumno = new HashMap();
         List<AlumnoCursoCurricula> alumnoCursoCurriculas;
         List<AlumnoCursoSimultaneo> cursosSimultaneos = new ArrayList();
-
+       
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.findCicloAcademicoActivoByModalidad(alumno.getModalidadEstudio());
+        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCiclo(alumno, cicloAcademico);
         int creditosAprobados = alumnoBD.getCreditosAprobados();
         int creditosCurriculaAprobados = alumnoBD.getCreditosCarreraAprobados();
 
@@ -201,6 +208,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarCursosComodin(alumno, cursosAlumno, mapAlumnoCursoCurriculaByCurso, ds);
         validarCursosRequisito(cursosCurricula, cursosAlumno, mapRequisitos, ds);
         validarCursosSimultaneo(cursosCurricula, cursosAlumno, cursosSimultaneos, mapRequisitos, ds);
+        validarCursosMatriculados(mapAlumnoCursoCurriculaByCurso, matriculaCursos, ds);
 
         for (AlumnoCursoCurricula alumnoCursoCurricula : cursosAlumno.values()) {
             alumnoCursoCurriculaDAO.save(alumnoCursoCurricula);
@@ -526,6 +534,13 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         }
 
         return requisitosCumplidos;
+    }
+
+    private void validarCursosMatriculados(Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaByCurso, List<MatriculaCurso> matriculaCursos, DataSessionPivot ds) {
+        for (MatriculaCurso matriculaCurso : matriculaCursos) {
+            AlumnoCursoCurricula acc = mapAlumnoCursoCurriculaByCurso.get(matriculaCurso.getCurso().getId());
+            acc.setEstado(CursoCurriculaEstadoEnum.MAT.name());
+        }
     }
 
 }

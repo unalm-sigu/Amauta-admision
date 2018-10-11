@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.VariablePlantilla;
 
 public interface PlantillaConstanciaService {
 
@@ -26,9 +27,19 @@ public interface PlantillaConstanciaService {
 
     Alumno findAlumno(Long idalumno);
 
-    PlantillaGenerica fillPlantilla(Alumno alumno,PlantillaDocumentoAcademico plantillaForm);
+    PlantillaGenerica fillPlantilla( PlantillaDocumentoAcademico plantillaForm);
 
     List<VariableGenerica> allVariableGenericaByPlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico);
-    
+
     AlumnoConstancia findAlumnoConstancia(TipoDocumentoAcademico tipoDoc, Idioma idioma, Alumno alumno, CicloAcademico cicloActual);
+
+    public List<VariablePlantilla> allVariablePlantilla(PlantillaDocumentoAcademico documentoAcademico);
+
+    public List<VariableGenerica> allVariableGeneral();
+
+    public void updateVariable(VariablePlantilla variablePlantilla, Usuario usuario);
+
+    public void saveVariable( VariablePlantilla variablePlantilla, Usuario usuario);
+
+    public void deleteVariable(Integer idVariablePlantilla);
 }

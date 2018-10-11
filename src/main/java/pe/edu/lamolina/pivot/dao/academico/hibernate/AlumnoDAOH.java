@@ -112,9 +112,15 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.MANDATORY)
     public Alumno findLock(Long id) {
-        return (Alumno) getCurrentSession().load(Alumno.class, id, LockOptions.UPGRADE);
+        StringBuilder sql = new StringBuilder()
+                .append("select {a.*} from aca_alumno as a where a.id = :ID_ALUMNO for update ");
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addEntity("a", Alumno.class);
+
+        query.setParameter("ID_ALUMNO", id);
+
+        return (Alumno) query.uniqueResult();
     }
 
     @Override

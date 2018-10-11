@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.alumnos;
+package pe.edu.lamolina.pivot.controller.academico.alumnosdocente;
 
 import java.util.List;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;

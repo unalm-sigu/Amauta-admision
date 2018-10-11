@@ -180,10 +180,10 @@ new Vue({
                 }
             });
         },
-        cargarfoto: function (solicitud) {
+        cargarfoto: function (item) {
             var vue = this;
-            vue.solicitudActiva = solicitud;
-            vue.dataCargarFoto.title = 'Cargar fotografía para ' + solicitud.nombre;
+            vue.solicitudActiva = item;
+            vue.dataCargarFoto.title = 'Cargar fotografía para ' + item.tramite.alumno.persona.apellidosNombres;
             vue.$refs.cargarFoto.open();
         },
         createCargarFoto: function (solicitud) {

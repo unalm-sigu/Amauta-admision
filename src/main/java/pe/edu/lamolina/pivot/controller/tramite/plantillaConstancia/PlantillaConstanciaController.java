@@ -1,8 +1,8 @@
 package pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Strings;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,23 +23,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
+import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.pivot.controller.tramite.tipoConstancia.TipoConstanciaService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
 
 @Controller
@@ -87,7 +83,25 @@ public class PlantillaConstanciaController {
     @RequestMapping(value = "{id}", method = RequestMethod.GET)
     public String editarContenido(@PathVariable("id") Long idPlantilla, Model model) {
         PlantillaDocumentoAcademico documentoAcademico = service.find(new PlantillaDocumentoAcademico(idPlantilla));
+        List<VariablePlantilla> variablePlantilla = service.allVariablePlantilla(documentoAcademico);
+        List<VariableGenerica> variableGeneral = service.allVariableGeneral();
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (VariablePlantilla variablePlant : variablePlantilla) {
+            arrayNode.add(JsonHelper.createJson(variablePlant, JsonNodeFactory.instance, new String[]{
+                "*",
+                "variableGenerica.*"
+            }));
+        }
+        ArrayNode arrayVariable = new ArrayNode(JsonNodeFactory.instance);
+        for (VariableGenerica variablePlant : variableGeneral) {
+            arrayVariable.add(JsonHelper.createJson(variablePlant, JsonNodeFactory.instance, new String[]{
+                "*"
+            }));
+        }
+
         model.addAttribute("id", documentoAcademico.getId());
+        model.addAttribute("variables", arrayVariable.toString());
+        model.addAttribute("variablePlantilla", arrayNode.toString());
         model.addAttribute("contenido", documentoAcademico.getContenido());
         model.addAttribute("tipoDocumentoNombre", documentoAcademico.getTipoDocumentoAcademico().getNombre());
         model.addAttribute("idioma", documentoAcademico.getIdioma().getNombre());
@@ -155,6 +169,92 @@ public class PlantillaConstanciaController {
     }
 
     @ResponseBody
+    @RequestMapping("updateVariable")
+    public JsonResponse updateVariable(@RequestBody VariablePlantilla variablePlantilla, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        response.setSuccess(false);
+        try {
+            if (variablePlantilla.getId() != null) {
+                service.updateVariable(variablePlantilla, ds.getUsuario());
+                response.setMessage("Se actualizó satisfactoriamente");
+            }
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveVariable")
+    public JsonResponse saveVariable(@RequestBody VariablePlantilla variablePlantilla, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        response.setSuccess(false);
+        try {
+            service.saveVariable(variablePlantilla, ds.getUsuario());
+            response.setMessage("Se guardó satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idPlantilla}/allVariable")
+    public JsonResponse allVariable(@PathVariable("idPlantilla") Long idPlantilla, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        response.setSuccess(false);
+        try {
+            List<VariablePlantilla> variablePlantilla = service.allVariablePlantilla(new PlantillaDocumentoAcademico(idPlantilla));
+            ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+            for (VariablePlantilla variablePlant : variablePlantilla) {
+                arrayNode.add(JsonHelper.createJson(variablePlant, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "variableGenerica.*"
+                }));
+            }
+            response.setData(arrayNode);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idVariablePlantilla}/deleteVariable")
+    public JsonResponse delete(@PathVariable("idVariablePlantilla") Integer idVariablePlantilla, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        response.setSuccess(false);
+        try {
+            service.deleteVariable(idVariablePlantilla);
+            response.setMessage("Se eliminó satisfactoriamente");
+
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody PlantillaDocumentoAcademico plantillaDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
@@ -211,21 +311,8 @@ public class PlantillaConstanciaController {
         JsonResponse response = new JsonResponse();
         try {
 
-            Alumno alumno = service.findAlumno(idalumno);
-
-            PlantillaGenerica plantillaGenerica = service.fillPlantilla(alumno, plantillaForm);
+            PlantillaGenerica plantillaGenerica = service.fillPlantilla(plantillaForm);
             String contenido = plantillaGenerica.getContenido();
-
-            List<VariableGenerica> vgs = service.allVariableGenericaByPlantilla(plantillaForm);
-            for (VariableGenerica vg : vgs) {
-                String attr = vg.getCodigo();
-                attr = attr.replaceAll("_", "");
-                attr = attr.toLowerCase();
-                String vall = (String) ObjectUtil.getParentTree(plantillaGenerica, attr);
-                if (!Strings.isNullOrEmpty(vall)) {
-                    contenido = contenido.replaceAll(vg.getCodigo(), vall);
-                }
-            }
 
             response.setData(contenido);
             response.setSuccess(Boolean.TRUE);
@@ -236,33 +323,6 @@ public class PlantillaConstanciaController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
-    }
-
-    @RequestMapping("previewpdf")
-    public ModelAndView previewpdf(PlantillaDocumentoAcademico plantillaForm, Long idalumno, Model model) {
-
-        Alumno alumno = service.findAlumno(idalumno);
-        PlantillaGenerica plantillaGenerica = service.fillPlantilla(alumno, plantillaForm);
-
-        String contenido = plantillaGenerica.getContenido();
-
-        List<VariableGenerica> vgs = service.allVariableGenericaByPlantilla(plantillaForm);
-        for (VariableGenerica vg : vgs) {
-            String attr = vg.getCodigo();
-            attr = attr.replaceAll("_", "");
-            attr = attr.toLowerCase();
-            String vall = (String) ObjectUtil.getParentTree(plantillaGenerica, attr);
-            if (!Strings.isNullOrEmpty(vall)) {
-                contenido = contenido.replaceAll(vg.getCodigo(), vall);
-            }
-        }
-
-        model.addAttribute("contenido", contenido);
-        model.addAttribute("formatoEnum", PDFFormatoEnum.PLANTILLA_CERTIFICADO);
-        model.addAttribute("nombrePdf", "CertificadoEstudio");
-        model.addAttribute("title", "untitle");
-
-        return new ModelAndView(pdfHtmlView);
     }
 
 }

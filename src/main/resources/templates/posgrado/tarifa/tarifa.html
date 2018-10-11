@@ -1,6 +1,11 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title> Tarifa Carrera </title>
+        <title> Tarifa Carrera </title> 
+        <style>
+            span.form-control {
+                background-color: #F3F5F8;
+            }
+        </style>
     </head>
 
     <body>
@@ -11,8 +16,7 @@
                     <a class="btn btn-success pull-right" v-on:click="nuevo">
                         Nuevo
                     </a>
-                    <h2 th:inline="text"> Tarifas  </h2>
-                    <h4 class="block" th:text="${session.SESSION_USUARIO.cicloAcademico.descripcion2}"></h4>
+                    <h2 th:inline="text"> Tarifas Programas Posgrado </h2>
                 </header>
                 <section class="wrapper-lg">
                     <section class="panel">
@@ -22,8 +26,9 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th class="col-md-4">Carrera</th>
-                                                <th class="col-md-7">Ciclo inicial</th>
+                                                <th class="col-md-7">Especialidad</th>
+                                                <th class="col-md-2">Ciclo inicio vigencia</th>
+                                                <th class="col-md-2">Ambito Nacionalidad</th>
                                                 <th class="col-md-1 text-center">Estado</th>
                                                 <th></th>
                                             </tr>
@@ -31,14 +36,16 @@
                                         <tbody>
                                             <tr v-for="item in props.data"> 
                                                 <td class="v-middle">
-                                                    <span>{{ item.carrera.nombre }}</span>
+                                                    <span class="block text-primary">{{ item.carrera.nombre }}</span>
+                                                    <small v-text="item.carrera.tipoEnum.value"></small>
                                                 </td>
                                                 <td class="v-middle">
                                                     <span>{{ item.cicloInicio.descripcion2 }}</span>
                                                 </td>
+                                                <td v-text="item.ambitoEnum.value" class="v-middle"></td>
                                                 <td class="v-middle text-center">
-                                                    <span v-if="item.estado === 'CRE'" class="label label-default"> Creado </span> 
-                                                    <span v-if="item.estado === 'ACT'" class="label label-success"> Activo </span> 
+                                                    <span v-if="item.estado === 'CRE'" class="label label-default" v-text="item.estadoEnum.value"> ww </span> 
+                                                    <span v-if="item.estado === 'ACT'" class="label label-success" v-text="item.estadoEnum.value"> ww </span> 
                                                 </td>
                                                 <td class="v-middle"> 
                                                     <div class="dropdown actions" v-if="item.estado !== 'INVI'">                
@@ -46,10 +53,10 @@
                                                             <i class="glyphicon glyphicon-option-vertical"></i>
                                                         </a> 
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li><a href="#" v-on:click="editar(item)">Editar</a></li>
-                                                            <li><a href="#" v-on:click="clonar(item)">Clonar</a></li>
-                                                            <li v-if="item.estado === 'CRE'"><a href="#" v-on:click="activar(item)">Activar</a></li>
-                                                            <li v-if="item.estado === 'CRE'"><a href="#" v-on:click="eliminarTarifa(item)">Eliminar</a></li>
+                                                            <li><a v-on:click="editar(item)">Editar</a></li>
+                                                            <li><a v-on:click="clonar(item)">Clonar</a></li>
+                                                            <li v-if="item.estado === 'CRE'"><a v-on:click="activar(item)">Activar</a></li>
+                                                            <li v-if="item.estado === 'CRE'"><a v-on:click="eliminarTarifa(item)">Eliminar</a></li>
                                                         </ul>                
                                                     </div>
                                                 </td>        
@@ -70,9 +77,9 @@
                         <div>
                             <form>
                                 <div class="row">
-                                    <div class="col-md-6" v-if="!tarifa.id">
+                                    <div class="col-md-12" v-if="tarifa.id == '' ">
                                         <div class="form-group">
-                                            <label> Carera </label>
+                                            <label> Especialidad </label>
                                             <multiselect 
                                                 label="nombre"
                                                 placeholder=""
@@ -80,49 +87,84 @@
                                                 v-model="tarifa.carrera"
                                                 v-bind:options="carreras"
                                                 v-bind:show-labels="false"
-                                                v-bind:limit="15">
-                                            </multiselect>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label> Ciclo inicial </label>
-                                            <multiselect 
-                                                label="descripcion2"
-                                                placeholder=""
-                                                track-by="id"
-                                                v-model="tarifa.cicloInicio"
-                                                v-bind:options="ciclos"
-                                                v-bind:show-labels="false"
-                                                v-bind:limit="15">
+                                                v-bind:limit="15"
+                                                v-bind:custom-label="verCarrera">
+                                                <template slot="option" slot-scope="props">
+                                                    <div class="block bold" v-text="props.option.nombre"></div>
+                                                    <small class="block" v-text="props.option.tipoEnum.value"></small>
+                                                </template>
                                             </multiselect>
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label> Ciclo inicio vigencia </label>
+                                            <template v-if="tarifa.id == '' ">
+                                                <multiselect v-model='tarifa.cicloInicio'
+                                                             v-bind:internal-search='false'
+                                                             v-bind:limit='15'
+                                                             v-on:search-change="searchCiclos"
+                                                             v-bind:options='ciclos'
+                                                             v-bind:allow-empty="false"
+                                                             placeholder="Ingresa un caracter como mínimo"
+                                                             deselect-label=""
+                                                             label="descripcion2"
+                                                             select-label="Seleccione este ciclo"
+                                                             v-bind:loading="isSearchingCiclos">
+                                                </multiselect>
+                                            </template>
+                                            <span v-else="" class="form-control" v-text="tarifa.cicloInicio.descripcion2"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label> Ambito Nacionalidad </label>
+                                            <template v-if="tarifa.id == '' ">
+                                                <multiselect 
+                                                    label="value"
+                                                    placeholder=""
+                                                    track-by="name"
+                                                    v-model="tarifa.ambitoEnum"
+                                                    v-bind:options="ambitos"
+                                                    v-bind:show-labels="false"
+                                                    v-bind:allow-empty="false">
+                                                </multiselect>
+                                            </template>
+                                            <span v-else="" class="form-control" v-text="tarifa.ambitoEnum.value"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label> Tipo monto </label>
-                                            <multiselect 
-                                                label="value"
-                                                placeholder=""
-                                                track-by="name"
-                                                v-model="tarifa.tipoMontoEnum"
-                                                v-bind:options="tiposMonto"
-                                                v-bind:show-labels="false"
-                                                v-bind:limit="15">
-                                            </multiselect>
+                                            <template v-if="tarifa.id == '' ">
+                                                <multiselect 
+                                                    label="value"
+                                                    placeholder=""
+                                                    track-by="name"
+                                                    v-model="tarifa.tipoMontoEnum"
+                                                    v-bind:options="tiposMonto"
+                                                    v-bind:show-labels="false"
+                                                    v-bind:limit="15">
+                                                </multiselect>
+                                            </template>
+                                            <span v-else="" class="form-control" v-text="tarifa.tipoMontoEnum.value"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Monto </label>
+                                            <label> Monto Base</label>
                                             <input class="form-control numeric" v-model="tarifa.monto"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Máximo cuotas </label>
+                                            <label> Cant. máxima de cuotas </label>
                                             <input class="form-control numeric" v-model="tarifa.maximoCuotas"/>
                                         </div>
                                     </div>
@@ -130,25 +172,25 @@
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Descuento cash (%) </label>
+                                            <label> Dscto. por pago total (%) </label>
                                             <input class="form-control numeric" v-model="tarifa.descuentoCash"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Descuento segundo cash (%) </label>
+                                            <label> Dscto. por 2do pago total (%) </label>
                                             <input class="form-control numeric" v-model="tarifa.descuentoSegundoCash"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Intereses </label>
-                                            <input class="form-control numeric" v-model="tarifa.intereses"/>
+                                            <label> Intereses (%) </label>
+                                            <input class="form-control numeric" v-model="tarifa.tasaInteres"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Mora </label>
+                                            <label> Mora (%) </label>
                                             <input class="form-control numeric" v-model="tarifa.mora"/>
                                         </div>
                                     </div>
@@ -156,25 +198,25 @@
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Créditos mínimo </label>
+                                            <label> Mín. créd. p/monto base </label>
                                             <input class="form-control numeric" v-model="tarifa.creditosMinimo"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Créditos máximo </label>
+                                            <label> Máx. créd. p/monto base </label>
                                             <input class="form-control numeric" v-model="tarifa.creditosMaximo"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Costo créditos mínimo </label>
+                                            <label> Costo/créd. debajo del mín. </label>
                                             <input class="form-control numeric" v-model="tarifa.costoCreditoMinimo"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label> Costo créditos exceso </label>
+                                            <label> Costo/créd. encima del máx. </label>
                                             <input class="form-control numeric" v-model="tarifa.costoCreditoExceso"/>
                                         </div>
                                     </div>
@@ -184,19 +226,19 @@
                                         <table class="table table-striped table-condensed">
                                             <thead>
                                                 <tr>
-                                                    <th class="col-md-3">Concepto</th>
-                                                    <th class="col-md-2">Monto (S/.)</th>
-                                                    <th class="col-md-2">Monto mínimo inicial (S/.)</th>
-                                                    <th class="col-md-2">Porcentaje mínimo inicial (%)</th>
-                                                    <th class="col-md-2">Porcentaje inicial (%) </th>
-                                                    <th class="col-md-1">Fraccionable</th>
+                                                    <th class="col-md-3 v-middle text-center">Concepto</th>
+                                                    <th class="col-md-2 v-middle text-center">Monto (S/.)</th>
+                                                    <th class="col-md-2 v-middle text-center">Monto mínimo inicial (S/.)</th>
+                                                    <th class="col-md-2 v-middle text-center">Porcentaje mínimo inicial (%)</th>
+                                                    <th class="col-md-2 v-middle text-center">Porcentaje inicial (%) </th>
+                                                    <th class="col-md-1 v-middle text-center">Fraccionable</th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr v-for="(item, index) in tarifa.tarifaConcepto">
                                                     <td class="v-middle">
-                                                        <div>
+                                                        <div v-if="item.id == '' ">
                                                             <multiselect 
                                                                 label="nombre"
                                                                 placeholder=""
@@ -207,21 +249,27 @@
                                                                 v-bind:limit="15">
                                                             </multiselect>
                                                         </div>
+                                                        <span v-else="" class="form-control" v-text="item.conceptoPosgrado.nombre"></span>
                                                     </td>
-                                                    <td class="v-middle text-right">
+                                                    <td class="v-middle">
                                                         <input class="form-control numeric" v-model="item.monto"/>
                                                     </td>
-                                                    <td class="v-middle text-right">
+                                                    <td class="v-middle">
                                                         <input class="form-control numeric" v-model="item.montoMinimoInicial"/>
                                                     </td>
-                                                    <td class="v-middle text-right">
+                                                    <td class="v-middle">
                                                         <input class="form-control numeric" v-model="item.porcentajeMinimoInicial"/>
                                                     </td>
-                                                    <td class="v-middle text-right">
+                                                    <td class="v-middle">
                                                         <input class="form-control numeric" v-model="item.porcentajeInicial" v-bind:disabled="!item.fraccionable"/>
                                                     </td>
-                                                    <td class="v-middle text-right">
-                                                        <input type="checkbox" class="checkbox" v-model="item.fraccionable" v-on:change="actualizarConcepto(item)"/>
+                                                    <td class="v-middle text-center">
+                                                        <label class="switch">
+                                                            <input type="checkbox" v-model="item.fraccionable"
+                                                                   v-on:change="actualizarConcepto(item)"/>
+                                                            <span></span>
+                                                        </label>
+                                                        <!--<input type="checkbox" class="checkbox" v-model="item.fraccionable" v-on:change="actualizarConcepto(item)"/>-->
                                                     </td>
                                                     <td class="v-middle text-center">
                                                         <a v-on:click="eliminar(index)" class="pointer" title="Eliminar"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
@@ -246,10 +294,10 @@
         <div layout:fragment="js">
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
-                var ciclo = /*[[${session.SESSION_USUARIO.cicloAcademico.id}]]*/ '';
-                var carrerasJson = /*[[${carreras.toString()}]]*/ '';
-                var ciclosJson = /*[[${ciclos.toString()}]]*/ '';
-                var conceptosJson = /*[[${conceptosPosgrado.toString()}]]*/ '';
+                var cicloJson = /*[[${ciclo}]]*/ '';
+                var carrerasJson = /*[[${carreras}]]*/ '';
+                var conceptosJson = /*[[${conceptosPosgrado}]]*/ '';
+                var ambitosJson = /*[[${ambitos}]]*/ '';
                 /*]]>*/
             </script>
             <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>

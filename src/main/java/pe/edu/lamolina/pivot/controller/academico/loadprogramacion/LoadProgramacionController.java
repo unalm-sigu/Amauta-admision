@@ -32,10 +32,10 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/loadprogramacion")
-public class ProgramaHorarioController {
+public class LoadProgramacionController {
 
     @Autowired
-    ProgramaHorarioService service;
+    LoadProgramacionService service;
     @Autowired
     EvaluacionExpandidaService evaluacionExpandidaService;
     @Autowired

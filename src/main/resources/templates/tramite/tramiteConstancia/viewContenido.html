@@ -1,0 +1,59 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Solicitud Constancia </title>
+    </head>
+    <body>
+
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+                <header class="header b-b padder-lg">
+
+                    <a class="pull-right btn btn-default  btn-sm"
+                       th:href="@{/tramite/solicitudconstancia}" >
+                        Regresar
+                    </a>
+
+                    <h1 >Nueva Solicitud de Constancia</h1>
+
+                </header>
+
+                <section class="wrapper-lg">
+                    <section  class="panel">
+                        <section class="panel-body">
+                            <div slot="body">
+
+                                <iframe    id="myframe"  width="1080"  height="400">
+
+                                </iframe>
+
+                            </div>
+                        </section>
+                    </section>
+                </section>
+                <section class="panel-body text-center v-middle">
+                  
+                    <button v-on:click="updateContenido" class="btn btn-primary" id="updateContenido">Guardar</button>
+                    <a class="btn btn-primary" v-bind:href="'/tramite/solicitudconstancia/downloadWord/' + id">Generar Word</a>
+                    <button type="button" v-on:click.prevent="previewHtml" class="btn btn-warning btn-sm ">Finalizar</button>
+                </section>
+            </div>
+
+            <!--<div th:substituteby="_modules/vue-modal">  </div>-->
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var contenidoJson = /*[[${contenido.toString()}]]*/ 'json';
+                var id = /*[[${id.toString()}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <!--<div th:substituteby="_layout/includes :: vuejs"/>-->
+            <div th:substituteby="_layout/includes :: javascript-upload" th:remove='tag'></div>
+            <div th:substituteby="_layout/includes :: javascript-ckeditor" th:remove="tag"></div>
+            <div th:substituteby="_layout/includes :: javascript-filedownload"/>
+            <div th:substituteby="_layout/includes :: vuemodal"/>
+            <script th:src="@{/app/tramite/tramiteConstancia/viewContenido.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

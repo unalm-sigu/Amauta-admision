@@ -28,4 +28,6 @@ public interface DepartamentoAcademicoDAO extends EasyDAO<DepartamentoAcademico>
 
     List<DepartamentoAcademico> allDepartamentos(String nombre);
 
+    List<DepartamentoAcademico> allActivos();
+
 }

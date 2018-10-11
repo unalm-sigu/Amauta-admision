@@ -10,6 +10,7 @@ var app = new Vue({
          this.navega = JSON.parse(navigationJson);
          this.loadDataPantalla();*/
 
+
     },
     mounted: function () {
         let $vue = this;
