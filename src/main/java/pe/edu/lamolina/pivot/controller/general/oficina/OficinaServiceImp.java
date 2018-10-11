@@ -25,6 +25,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.NivelOficinaEnum;
 import pe.edu.lamolina.model.enums.OficinaEstadoEnum;
 import pe.edu.lamolina.model.enums.PerfilEstadoEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
@@ -567,18 +568,9 @@ public class OficinaServiceImp implements OficinaService {
     }
 
     private List<Oficina> allOficinasByMain(Oficina oficinaMain) {
-        List<Oficina> oficinasTodas = oficinaDAO.all();
+        List<Oficina> oficinasTodas = getOficinasOrganizadas();
         Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinasTodas);
 
-        for (Oficina oficina : oficinasTodas) {
-            oficina.setOficinasDependientes(new ArrayList());
-        }
-        for (Oficina oficina : oficinasTodas) {
-            if (oficina.getOficinaSuperior() != null) {
-                Oficina sup = mapOficina.get(oficina.getOficinaSuperior().getId());
-                sup.getOficinasDependientes().add(oficina);
-            }
-        }
         Oficina oficinaBD = mapOficina.get(oficinaMain.getId());
         List<Oficina> oficinas = new ArrayList();
         oficinas.add(oficinaBD);
@@ -592,6 +584,57 @@ public class OficinaServiceImp implements OficinaService {
             oficinas.add(oficinasDependiente);
             agregarOficinasHijas(oficinasDependiente, oficinas);
         }
+    }
+
+    private List<Oficina> allOficinasMain(Persona persona) {
+        List<Colaborador> colaboradores = colaboradorDAO.allActivosByPersona(persona);
+        Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("oficina.id", "oficina", colaboradores);
+        List<Oficina> oficinasHijas = new ArrayList(mapOficinas.values());
+        List<Oficina> oficinasMain = new ArrayList();
+
+        List<Oficina> oficinasTodas = getOficinasOrganizadas();
+        for (Oficina ofi : oficinasHijas) {
+            Oficina main = findOficinaMain(ofi, oficinasTodas);
+            oficinasMain.add(main);
+        }
+        return oficinasMain;
+
+    }
+
+    private Oficina findOficinaMain(Oficina oficinaHija, List<Oficina> oficinas) {
+        Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinas);
+        Oficina oficinaTempo = mapOficina.get(oficinaHija.getId());
+        if (oficinaTempo.getTipoOficina().getNivelEnum() == NivelOficinaEnum.OFI) {
+            return oficinaTempo;
+        }
+        for (;;) {
+            Oficina sup = oficinaTempo.getOficinaSuperior();
+            if (sup == null) {
+                return null;
+            }
+            if (sup.getTipoOficina().getNivelEnum() == NivelOficinaEnum.OFI) {
+                return sup;
+            }
+            oficinaTempo = sup;
+        }
+
+    }
+
+    private List<Oficina> getOficinasOrganizadas() {
+        List<Oficina> oficinasTodas = oficinaDAO.all();
+        Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinasTodas);
+
+        for (Oficina oficina : oficinasTodas) {
+            oficina.setOficinasDependientes(new ArrayList());
+        }
+        for (Oficina oficina : oficinasTodas) {
+            if (oficina.getOficinaSuperior() != null) {
+                Oficina sup = mapOficina.get(oficina.getOficinaSuperior().getId());
+                sup.getOficinasDependientes().add(oficina);
+                oficina.setOficinaSuperior(sup);
+            }
+        }
+        return oficinasTodas;
     }
 
     public Long getCodigoColaborador() {
