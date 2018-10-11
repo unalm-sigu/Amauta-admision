@@ -344,7 +344,7 @@
             <groupId>com.github.albatrosscloud</groupId>
             <!--<groupId>pe.albatross</groupId>-->
             <artifactId>octavia</artifactId>
-            <version>1.0.16</version>
+            <version>1.0.17</version>
         </dependency>
         
         <dependency>
@@ -365,7 +365,7 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-            <version>0.15.11</version>
+            <version>0.15.12</version>
         </dependency>
 
     </dependencies>
