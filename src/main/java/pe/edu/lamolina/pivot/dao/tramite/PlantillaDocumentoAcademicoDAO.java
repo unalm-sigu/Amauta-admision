@@ -17,4 +17,6 @@ public interface PlantillaDocumentoAcademicoDAO extends EasyDAO<PlantillaDocumen
 
     public PlantillaDocumentoAcademico findTipoDocumento(TipoDocumentoAcademico tipoDocumentoAcademico, Idioma idioma);
 
+    List<PlantillaDocumentoAcademico> allDynatableIncrustacion(DynatableFilter filter);
+
 }
