@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -60,11 +61,11 @@ public interface ConstanciaSolicitudService {
 
     public List<TipoDocumentoAcademico> allTipoDocumentoAcademico();
 
-    public List<AccionTramiteDocumento> findEstadoByEstadoInicio(EstadoTramite estadoTramite);
+    public List<AccionTramiteDocumento> findEstadoByEstadoInicio(TipoDocumentoAcademico tipoDocumento, EstadoTramite estadoTramite);
 
     public void update(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
 
-    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
+    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse ds);
 
     public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico);
 

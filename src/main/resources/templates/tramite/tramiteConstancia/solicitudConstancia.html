@@ -33,9 +33,21 @@
                                             <tr v-for="item in props.data">
 
                                                 <td class="v-middle">
-                                                    <img class="img-circle" v-bind:src="item.tramite.alumno.persona.rutaFoto" ></img>
-                                                </td>
+                                                    <div class="pull-left">
+                                                        <div v-if="item.tramite.alumno.persona.tipoFoto=='POSTUL' "
+                                                             class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                            <img class="img-foto-list" v-bind:src="item.tramite.alumno.persona.rutaFoto" />
+                                                        </div>
 
+                                                        <img v-else-if="item.tramite.alumno.persona.tipoFoto=='COMUN' " 
+                                                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                                             v-bind:src="item.tramite.alumno.persona.rutaFoto" />
+
+                                                        <img v-else="" 
+                                                             class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                                             v-bind:src="item.tramite.alumno.persona.rutaFoto" />
+                                                    </div>
+                                                </td>
                                                 <td  class="v-middle"  >
                                                     <p  class="h5 bold text-primary" v-text="item.tramite.alumno.persona.apellidosNombres"></p>
                                                     <span class="block"> Especialida de {{item.tramite.alumno.carrera.nombre}}</span>
@@ -49,7 +61,7 @@
                                                 </td>
 
                                                 <td class="v-middle">
-                                                    <p class=""> {{ item.tipoDocumentoAcademico.tipoDocumentoEnum.value}}</p>
+                                                    <p class=""> {{ item.tipoDocumentoAcademico.tipoConstanciaEnum.value}}</p>
                                                     <p class="text-xs"> {{item.tipoDocumentoAcademico.nombre}}  </p>
                                                 </td>
 
@@ -63,10 +75,13 @@
                                                             <i class="glyphicon glyphicon-option-vertical"></i>
                                                         </a>
                                                         <ul  class="dropdown-menu pull-right">
-                                                            <li v-if="item.tipoDocumentoAcademico.tipoDocumentoEnum.name == 'CERT'"><a>Actualizar historial academico</a></li> <!--v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.idalumno+'/updatehistorial')"-->
+                                                            <li v-if="item.tipoDocumentoAcademico.tipoConstanciaEnum.name == 'CERT'"><a>Actualizar historial academico</a></li> <!--v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.idalumno+'/updatehistorial')"-->
                                                             <li><a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Editar Solicitud Documento</a></li><!-- -->
-                                                            <li v-for="estado in item.estados"><a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">{{estado.opcion}}</a></li><!-- -->
-                                                            <li> <a v-on:click.prevent="cargarfoto(item)"  href="#">Cargar fotografía</a></li>
+                                                            <li v-for="estado in item.estados">
+                                                                <a v-if="estado.url !=null" v-bind:href="estado.url + item.id">{{estado.opcion}}</a>
+                                                                <a v-else="" v-on:click="accion(estado,item)">{{estado.opcion}}</a>
+                                                            </li>
+                                                            <!--<li> <a v-on:click.prevent="cargarfoto(item)"  href="#">Cargar fotografía</a></li>-->
                                                             <!--                                                                <li> <a v-on:click.prevent="enviarrevision(solicitud)"  href="#">Enviar a Revisión</a></li>
                                                                                                                             <li class="divider"></li>
                                                                                                                             <li> <a v-on:click.prevent="cancelar(solicitud.id)"  href="#">Cancelar Solicitud Documento</a></li>-->

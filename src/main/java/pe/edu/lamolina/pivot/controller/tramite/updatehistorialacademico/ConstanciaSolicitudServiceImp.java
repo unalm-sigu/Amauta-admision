@@ -5,12 +5,15 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
@@ -20,8 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.aws.S3Service;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -340,89 +345,11 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         return promedios;
     }
 
-//    @Override
-//    public List<Curso> allCursoByName(String nombre) {
-//        return cursoDAO.allCursoByName(nombre);
-//    }
     @Override
     public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter) {
         return tramiteDocumentoAcademicoDAO.allTramiteDocumentoAcademico(filter);
     }
 
-//    @Override
-//    @Transactional
-//    public void delete(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
-//        tramiteDocumentoAcademicoDAO.delete(tramiteDocumentoAcademico);
-//    }
-//    @Override
-//    public TramiteDocumentoAcademico findTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
-//        return tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
-//    }
-//    @Override
-//    @Transactional
-//    public void saveTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
-//
-//        Usuario usuario = ds.getUsuario();
-//        CicloAcademico cicloAcademico = ds.getCicloAcademico();
-//        Compania compania = ds.getCompania();
-//        DateTime today = new DateTime();
-//
-//        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
-//        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
-//        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CONS.name());
-//
-//        Tramite tramite = tramiteDocumentoAcademico.getTramite();
-//        Alumno alumno = alumnoDAO.find(tramite.getAlumno());
-//        Persona persona = alumno.getPersona();
-//
-//        String rutaFotoTemporal = (String) ObjectUtil.getParentTree(tramite, "persona.rutaFotoTemporal");
-//        if (!Strings.isNullOrEmpty(rutaFotoTemporal)) {
-//            persona.setRutaFotoTemporal(rutaFotoTemporal);
-//            personaDAO.update(persona);
-//            this.uploadS3(persona.getRutaFotoTemporal());
-//        }
-//
-//        tramite.setAlumno(alumno);
-//        tramite.setCicloAcademico(cicloAcademico);
-//        tramite.setCompania(compania);
-//        tramite.setEstadoEnum(TramiteEstadoEnum.PEND);
-//        tramite.setFechaRegistro(today.toDate());
-//        tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
-//        tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-//        tramite.setTipoTramite(tipoTramite);
-//        tramite.setUserRegistro(usuario);
-//        tramite.setPersona(persona);
-//        tramiteDAO.save(tramite);
-//
-//        tramiteDocumentoAcademico.setTramite(tramite);
-////        tramiteDocumentoAcademico.setEstadoEnum(TramiteEstadoEnum.CRE);
-//        tramiteDocumentoAcademico.setCantidadCiclos(1);
-//        tramiteDocumentoAcademicoDAO.save(tramiteDocumentoAcademico);
-//
-//        TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
-//        Idioma idioma = tramiteDocumentoAcademico.getIdioma();
-//        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
-//
-//        AcreenciaTramiteDocumento acreencia = new AcreenciaTramiteDocumento();
-//        acreencia.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
-//        acreencia.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
-//        acreencia.setUserRegistro(usuario);
-//        acreencia.setFechaRegistro(new Date());
-//        LocalDate localDate = LocalDate.now();
-//        LocalDate fechaVencimiento = localDate.plusDays(3);
-//        acreencia.setFechaVencimiento(fechaVencimiento.toDate());
-//
-//        acreencia.setPrecio(BigDecimal.ZERO);
-//        if (precio != null) {
-//            if (precio.getPrecio() != null) {
-//                acreencia.setPrecio(new BigDecimal(precio.getPrecio()));
-//            }
-//        }
-//
-//        acreenciaTramiteDocumentoDAO.save(acreencia);
-//        this.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico);
-//
-//    }
     private void enviarNotificacionSolicitudConstanciaCreacion(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
         ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigoEnum(ContenidoCartaEnum.NOTIFYSOLICITUD);
         mailerService.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico, contenidoCarta);
@@ -547,38 +474,11 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         }
     }
 
-//    @Override
-//    @Transactional
-//    public void cancelar(TramiteDocumentoAcademico solicitudConstancia, DataSessionPivot ds) {
-//        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(solicitudConstancia.getId());
-//        AcreenciaTramiteDocumento atd = acreenciaTramiteDocumentoDAO.findByTramiteDocumentoAcademico(tda);
-////        tda.setEstadoEnum(TramiteEstadoEnum.ANU);
-//        atd.setEstadoEnum(EstadoAcreenciaTramiteEnum.ANU);
-//        tramiteDocumentoAcademicoDAO.update(tda);
-//        atd.setFechaAnulacion(new Date());
-//        atd.setUserAnulacion(ds.getUsuario());
-//        acreenciaTramiteDocumentoDAO.update(atd);
-//    }
     @Override
     public List<PrecioDocumento> allPrecioDocumento() {
         return precioDocumentoDAO.allPrecioDocumento();
     }
 
-//    @Override
-//    public String getCostoDocumento(TramiteDocumentoAcademico tramiteDoc, Map<Long, List<PrecioDocumento>> preciosMap) {
-//        TipoDocumentoAcademico tpa = tramiteDoc.getTipoDocumentoAcademico();
-//        Idioma idioma = tramiteDoc.getIdioma();
-//        List<PrecioDocumento> precios = preciosMap.get(tpa.getId());
-//        if (precios == null) {
-//            return "0.0";
-//        }
-//        for (PrecioDocumento precio : precios) {
-//            if (precio.getIdioma().getId() == idioma.getId().longValue()) {
-//                return precio.getPrecio().toString();
-//            }
-//        }
-//        return "0.0";
-//    }
     @Override
     public TramiteDocumentoAcademico findTramite(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm) {
         return tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademicoForm);
@@ -604,31 +504,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         return colaboradorDAO.allByName(nombre);
     }
 
-//    @Override
-//    @Transactional
-//    public void revision(TramiteDocumentoAcademico solicitudConstancia) {
-//        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(solicitudConstancia);
-////        tda.setEstadoEnum(TramiteEstadoEnum.ENV);
-//        tramiteDocumentoAcademicoDAO.update(tda);
-//    }
-//
-//    @Override
-//    public List<Curso> allCursoByNameExceptList(String nombre, ArrayList<Long> cursos) {
-//        List<Curso> cursoss = new ArrayList();
-//        for (Long curso : cursos) {
-//            cursoss.add(new Curso(curso));
-//        }
-//        return cursoDAO.allCursoByNameExceptList(nombre, cursoss);
-//    }
-//
-//    @Override
-//    public List<CicloAcademico> allCicloByNameExceptList(String nombre, ArrayList<Long> idCiclos) {
-//        List<CicloAcademico> ciclos = new ArrayList();
-//        for (Long ciclo : idCiclos) {
-//            ciclos.add(new CicloAcademico(ciclo));
-//        }
-//        return cicloAcademicoDAO.allCicloByNameExceptList(nombre, ciclos);
-//    }
     public void uploadS3(String fileName) {
         logger.debug("upload to s3    {}  {}   {}  {} {}", Constantine.S3_BUKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
         File f = new File(Constantine.TMP_DIR + fileName);
@@ -649,7 +524,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         }
         if (documentoAcademico.getId() != null) {
 
-            List<AccionTramiteDocumento> accion = accionTramiteDocumentoDAO.allNextByEstadoInicio(documentoAcademico.getEstadoTramite());
+            List<AccionTramiteDocumento> accion = accionTramiteDocumentoDAO.allNextByEstadoInicio(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getEstadoTramite());
             EstadoTramite estadoTramite = new EstadoTramite();
             for (AccionTramiteDocumento accionTramiteDocumento : accion) {
                 estadoTramite = accionTramiteDocumento.getEstadoTramiteFinal();
@@ -755,23 +630,14 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         this.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico);
     }
 
-//    @Override
-//    public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter) {
-//        return tramiteDocumentoAcademicoDAO.allTramiteDocumentoAcademico(filter);
-//    }
-//
-//    @Override
-//    public List<PrecioDocumento> allPrecioDocumento() {
-//        return precioDocumentoDAO.allPrecioDocumento();
-//    }
     @Override
     public List<TipoDocumentoAcademico> allTipoDocumentoAcademico() {
         return tipoDocumentoAcademicoDAO.allWhyPrecios();
     }
 
     @Override
-    public List<AccionTramiteDocumento> findEstadoByEstadoInicio(EstadoTramite estadoTramite) {
-        return accionTramiteDocumentoDAO.allNextByEstadoInicio(estadoTramite);
+    public List<AccionTramiteDocumento> findEstadoByEstadoInicio(TipoDocumentoAcademico academico, EstadoTramite estadoTramite) {
+        return accionTramiteDocumentoDAO.allNextByEstadoInicio(academico, estadoTramite);
     }
 
     @Override
@@ -780,12 +646,27 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     @Override
-    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException{
+        PlantillaGenerica generica = findPlantillaHtml(tramiteDocumentoAcademico);
+
+        try {
+
+            response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setContentType("application/msword");
+            response.setHeader("Content-Disposition", "inline; filename=\"" + generica.getNombre() + ".doc\"");
+
+            OutputStream outputStream = response.getOutputStream();
+            outputStream.write(generica.getContenido().getBytes());
+            outputStream.flush();
+            outputStream.close();
+        } catch (IOException ex) {
+            logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), generica.getNombre());
+        }
     }
 
     @Override
     public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico) {
+        documentoAcademico = tramiteDocumentoAcademicoDAO.find(documentoAcademico);
         PlantillaGenerica plantillaGene = new PlantillaGenerica();
         switch (documentoAcademico.getTipoDocumentoAcademico().getCodigoDocumentoEnum()) {
             case ALIANZAESTRATEGICAEMPRESARIAL:
@@ -793,6 +674,108 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 break;
             case ALUMNOREGULAR:
                 plantillaGene = alumnoRegular(documentoAcademico);
+                break;
+            case ALUMNO:
+                plantillaGene = alumno(documentoAcademico);
+                break;
+            case ALUMNOESPECIAL:
+                plantillaGene = alumnoEspecial(documentoAcademico);
+                break;
+            case ALUMNOVISITANTE:
+                plantillaGene = alumnoVisitante(documentoAcademico);
+                break;
+            case BACHILLERCONFECHAEGRESO:
+                plantillaGene = bachillerConFechaEgreso(documentoAcademico);
+                break;
+            case COLEGIATURA:
+                plantillaGene = colegiatura(documentoAcademico);
+                break;
+            case COMBINANDOTERICIOYQUINTO:
+                plantillaGene = convinadoTercioQuinto(documentoAcademico);
+                break;
+            case COMPARATIVO:
+                plantillaGene = comparativo(documentoAcademico);
+                break;
+            case CUADRODEHONOR:
+                plantillaGene = cuadroHonor(documentoAcademico);
+                break;
+            case ESCUELANACIONALDEAGRICULTURAESPECIAL:
+                plantillaGene = escuelaNacionalAgriculturaEspecial(documentoAcademico);
+                break;
+            case ESPECIALCOMPARATIVOYPORCENTAJE:
+                plantillaGene = especialComparativoPorcentaje(documentoAcademico);
+                break;
+            case ESPECIALCONTINUARESTUDIOSENELEXTRANJERO:
+                plantillaGene = especialContinuarEstudiosExtranjero(documentoAcademico);
+                break;
+            case ESPECIALCONVERSIONDESISTEMACALIFICACION:
+                plantillaGene = especialConversionSistemaCalificacion(documentoAcademico);
+                break;
+            case ESPECIALDURACIONCICLO:
+                plantillaGene = especialDuracionCiclo(documentoAcademico);
+                break;
+            case ESPECIALPRIMERAMATRICULA:
+                plantillaGene = especialPrimeraMatricula(documentoAcademico);
+                break;
+            case ESPECIALPROMEDIOACUMULADODELOSCICLOS:
+                plantillaGene = especialPromedioAcumuladoCiclos(documentoAcademico);
+                break;
+            case ESPECIALPROMEDIOVIGESIMAL:
+                plantillaGene = especialPromedioVigecimal(documentoAcademico);
+                break;
+            case ESTUDIOSININTERRUMPIDOSOCONTINUOS:
+                plantillaGene = estudiosIninterumpidosContinuos(documentoAcademico);
+                break;
+            case NIVELACADEMICO:
+                plantillaGene = nivelAcademico(documentoAcademico);
+                break;
+            case NIVELACADEMICODEEXALUMNOS:
+                plantillaGene = nivelAcademicoExAlumno(documentoAcademico);
+                break;
+            case NOSEPARADO:
+                plantillaGene = noSeparado(documentoAcademico);
+                break;
+            case ORDENDEMERITOALUMNO:
+                plantillaGene = ordenMeritoAlumno(documentoAcademico);
+                break;
+            case ORDENDEMERITOALUMNOSVARIOS:
+                plantillaGene = ordenMeritoAlumnosVarios(documentoAcademico);
+                break;
+            case ORDENDEMERITOEGRESADOFACULTADESPECIALIDADPROMOCION:
+                plantillaGene = ordenMeritoEgresado(documentoAcademico);
+                break;
+            case ORDENDEMERITOEGRESADOVARIOS:
+                plantillaGene = ordenMeritoEgresadoVarios(documentoAcademico);
+                break;
+            case ORDENMERITOCONTERCIOYQUINTO:
+                plantillaGene = ordenMeritoTercioQuinto(documentoAcademico);
+                break;
+            case QUINTOSUPERIORALUMNO:
+                plantillaGene = quintoSuperiorAlumno(documentoAcademico);
+                break;
+            case QUINTOSUPERIORVARIOS:
+                plantillaGene = quintoSuperioVarios(documentoAcademico);
+                break;
+            case SISTEMACALIFICACION:
+                plantillaGene = sistemaCalificacion(documentoAcademico);
+                break;
+            case TEORIAPRACTICACREDITO:
+                plantillaGene = teoriaPracticaCredito(documentoAcademico);
+                break;
+            case TERCIODELOSCICLOS:
+                plantillaGene = tercioCiclos(documentoAcademico);
+                break;
+            case TERCIOSUPERIOR:
+                plantillaGene = tercioSuperior(documentoAcademico);
+                break;
+            case TERCIOQUINTOCOMBINADOS:
+                plantillaGene = tercioQuintoCombinados(documentoAcademico);
+                break;
+            case TITULO:
+                plantillaGene = titulo(documentoAcademico);
+                break;
+            case CURSOSDELPRIMERCICLO:
+                plantillaGene = cursosDelPrimeroCiclo(documentoAcademico);
                 break;
 
         }
@@ -802,11 +785,12 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     private PlantillaGenerica alianzaEstrategicaEspecial(TramiteDocumentoAcademico documentoAcademico) {
         PlantillaGenerica plantillaGene = new PlantillaGenerica();
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        Assert.isNotNull(plantilla, "No existe Plantilla para este documento");
         List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
         String html = plantilla.getContenido();
         for (VariablePlantilla var : variable) {
             while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
-                switch (var.getVariableGenerica().getCodigoEnum()) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
                     case NOMBRE_PERSONA:
                         html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
                         break;
@@ -818,7 +802,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 }
             }
         }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
         plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
         return plantillaGene;
     }
 
@@ -831,7 +817,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         String html = plantilla.getContenido();
         for (VariablePlantilla var : variable) {
             while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
-                switch (var.getVariableGenerica().getCodigoEnum()) {
+
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
                     case NOMBRE_PERSONA:
                         html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
                         break;
@@ -841,15 +828,887 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     case FACULTAD:
                         html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
                         break;
-                    case CICLO_ACADEMICO:
+                    case CICLO_MATRICULA:
                         html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloActivo().getDescripcion2());
+                        break;
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica alumno(TramiteDocumentoAcademico documentoAcademico) {
+        Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
+
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    case FACULTAD:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
+                        break;
+                    case CICLO_MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloActivo().getDescripcion2());
+                        break;
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica alumnoEspecial(TramiteDocumentoAcademico documentoAcademico) {
+        Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
+
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    case FACULTAD:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
+                        break;
+                    case CICLO_MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloActivo().getDescripcion2());
+                        break;
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica alumnoVisitante(TramiteDocumentoAcademico documentoAcademico) {
+        Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
+
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    case FACULTAD:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
+                        break;
+                    case CICLO_MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloActivo().getDescripcion2());
+                        break;
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica bachillerConFechaEgreso(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
                         break;
                     default:
                         throw new AssertionError();
                 }
             }
         }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
         plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
         return plantillaGene;
     }
+
+    private PlantillaGenerica colegiatura(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica convinadoTercioQuinto(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica comparativo(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica cuadroHonor(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica escuelaNacionalAgriculturaEspecial(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica especialComparativoPorcentaje(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica ordenMeritoTercioQuinto(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica ordenMeritoEgresadoVarios(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica especialContinuarEstudiosExtranjero(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica especialConversionSistemaCalificacion(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica especialDuracionCiclo(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica especialPrimeraMatricula(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica especialPromedioAcumuladoCiclos(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica especialPromedioVigecimal(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica estudiosIninterumpidosContinuos(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica nivelAcademico(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica nivelAcademicoExAlumno(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica noSeparado(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica ordenMeritoAlumno(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica ordenMeritoAlumnosVarios(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica ordenMeritoEgresado(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica quintoSuperiorAlumno(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica quintoSuperioVarios(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica sistemaCalificacion(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica teoriaPracticaCredito(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica tercioCiclos(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica tercioSuperior(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica tercioQuintoCombinados(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica titulo(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
+    private PlantillaGenerica cursosDelPrimeroCiclo(TramiteDocumentoAcademico documentoAcademico) {
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        String html = plantilla.getContenido();
+        for (VariablePlantilla var : variable) {
+            while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
+                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                    case NOMBRE_PERSONA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        break;
+                    case MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+        }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        plantillaGene.setContenido(html);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
+
 }

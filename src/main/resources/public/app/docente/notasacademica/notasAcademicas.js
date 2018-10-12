@@ -12,7 +12,7 @@ $(function () {
 
             if (sistemaNotasValidate == "") {
                 $.ajax({
-                    url: APP.url('academico/docente/cargaacademica/getSistemaNotas'),
+                    url: APP.url('docente/notasacademica/getSistemaNotas'),
                     type: 'POST',
                     async: false,
                     data: {
@@ -134,7 +134,7 @@ $(function () {
             MODAL.buttons('<a class="btn btn-success" id="cmbGuardarCambio">Guardar</a>');
 
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/detalleCambioNota'),
+                url: APP.url('docente/notasacademica/detalleCambioNota'),
                 type: 'POST',
                 async: false,
                 data: {
@@ -164,7 +164,7 @@ $(function () {
              '<a class="btn btn-danger">Rechazar</a>');
              */
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/getEvaluacion'),
+                url: APP.url('docente/notasacademica/getEvaluacion'),
                 type: 'POST',
                 async: false,
                 data: {
@@ -188,11 +188,7 @@ $(function () {
                     var checkin = $('#calFechaEval').datepicker({
                         format: "dd/mm/yyyy",
                     }).on('changeDate', function (ev) {
-                        /* var newDate = new Date(ev.date)
-                         newDate.setMonth(newDate.getMonth() + INTERVAL_MMONTHS);
-                         checkout.setEndDate(newDate);
-                         checkout.setDate(newDate);
-                         ConsMorosos.buscarMorosos($(this)); */
+                        console.log(ev);
                     }).data('datepicker');
                     checkin.setEndDate(today);
                     checkin.setDate(data.evaFechaRealizada);
@@ -230,7 +226,7 @@ $(function () {
                 return;
             }
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/activarEvaluacion'),
+                url: APP.url('docente/notasacademica/activarEvaluacion'),
                 type: 'POST',
                 async: false,
                 data: {
@@ -257,13 +253,7 @@ $(function () {
                                 $("input[title='" + response.data.evaId + "']").addClass("nota-alumno");
                                 $("input[title='" + response.data.evaId + "']").val("");
                             }
-                            /*
-                             <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
-                             type="text" 
-                             class="form-control nota-alumno"
-                             readonly="false"/>
-                             */
-
+                           
                         }
                         notify(response.message, "info");
                     } else {
@@ -283,7 +273,7 @@ $(function () {
                 return;
             }
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/activarEvaluacion'),
+                url: APP.url('docente/notasacademica/activarEvaluacion'),
                 type: 'POST',
                 async: false,
                 data: {
@@ -359,7 +349,7 @@ $(function () {
                         MODAL.showWait("Espere un momento por favor");
 
                         $.ajax({
-                            url: APP.url('academico/docente/cargaacademica/eliminarNotas'),
+                            url: APP.url('docente/notasacademica/eliminarNotas'),
                             type: 'POST',
                             async: false,
                             data: {
@@ -389,14 +379,7 @@ $(function () {
 
                                     }
                                     notify(response.message, "info");
-                                    /*
-                                     <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
-                                     type="text" 
-                                     class="form-control nota-alumno"
-                                     readonly="false"/>
-                                     */
-
-
+  
                                     NotasAcademicas.reloadNotas();
                                 } else {
                                     notify(response.message, "error");
@@ -524,7 +507,7 @@ $(function () {
         grabarNotas: function (jsonObj) {
 
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/saveIngresoNotas'),
+                url: APP.url('docente/notasacademica/saveIngresoNotas'),
                 type: 'POST',
                 async: false,
                 data: JSON.stringify(jsonObj),
@@ -562,7 +545,6 @@ $(function () {
                         });
                         NotasAcademicas.reloadNotas();
 
-                        //  location.href = APP.url('academico/docente/cargaacademica/') + $("#txtSeccion").val() + '/notasAcademicas';
                     } else {
                         notify(response.message, "error");
                     }
@@ -579,7 +561,7 @@ $(function () {
         reloadNotas: function () {
             var idSeccion = $("#txtSeccion").val();
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + idSeccion + '/notasAcademicasReload'),
+                url: APP.url('docente/notasacademica/' + idSeccion + '/notasAcademicasReload'),
                 type: 'POST',
                 async: false,
                 success: function (response) {
@@ -601,7 +583,7 @@ $(function () {
             }
 
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/solicitarCambio'),
+                url: APP.url('docente/notasacademica/solicitarCambio'),
                 type: 'POST',
                 async: false,
                 data: form.serialize(),
@@ -649,7 +631,7 @@ $(function () {
             var evaluacion = $this.val();
             var alumno = $("#txtAlumnoCambiarNota").val();
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/cambiarEvaluacion'),
+                url: APP.url('docente/notasacademica/cambiarEvaluacion'),
                 type: 'POST',
                 async: false,
                 data: {
@@ -675,15 +657,15 @@ $(function () {
         },
         reporteActaNotas: function ($this, e) {
             if ($("#txtEstGrupo").val() == 'ABI') {
-                location.href = APP.url('academico/docente/cargaacademica/reporteDeActasExcel?seccion=') + $("#txtSeccion").val();
+                location.href = APP.url('docente/notasacademica/reporteDeActasExcel?seccion=') + $("#txtSeccion").val();
             } else {
-                location.href = APP.url('academico/docente/cargaacademica/reporteDeActas?seccion=') + $("#txtSeccion").val();
+                location.href = APP.url('docente/notasacademica/reporteDeActas?seccion=') + $("#txtSeccion").val();
             }
         },
         reporteActaNotasAbi: function ($this, e) {
 
 
-            location.href = APP.url('academico/docente/cargaacademica/reporteDeActasExcel?seccion=') + $("#txtSeccion").val();
+            location.href = APP.url('docente/notasacademica/reporteDeActasExcel?seccion=') + $("#txtSeccion").val();
 
         },
         cerrarActa: function ($this, e) {
@@ -709,7 +691,7 @@ $(function () {
                     if (result) {
                         if (result.toString() == "1") {
                             $.ajax({
-                                url: APP.url('academico/docente/cargaacademica/cerrarActa'),
+                                url: APP.url('docente/notasacademica/cerrarActa'),
                                 type: 'POST',
                                 async: false,
                                 data: {
@@ -826,7 +808,7 @@ $(function () {
         MODAL.hide();
         //    var evaluacion = 23;
         var evaluacion = $('#txtEvaluacionId').val();
-        location.href = APP.url("academico/docente/cargaacademica/") + evaluacion + "/evaluacion";
+        location.href = APP.url("docente/notasacademica/") + evaluacion + "/evaluacion";
     });
 
     $("body").delegate(".solicitar-cambio-nota", "click", function (e) {

@@ -20,6 +20,12 @@ new Vue({
 
     },
     methods: {
+        tipoSeccion(seccion) {
+            if (seccion.tipoSeccionEnum.value.indexOf(" ") < 0) {
+                return seccion.tipoSeccionEnum.value;
+            }
+            return seccion.tipoSeccionEnum.value.split(" ")[0];
+        },
         buildResponsable: function (record) {
             if (record.responsable != null) {
                 return '<div class="block"><strong>Responsable:</strong> ' + record.responsable + '</div>';
@@ -28,20 +34,24 @@ new Vue({
             }
         },
         buildSeccionesHtml: function (record) {
+            console.log(record.secciones);
             var seccionesHtml = "";
-            var secciones = record.secciones.split(",");
+//            var secciones = record.secciones.split(",");
+            var secciones = record.secciones;
             for (var i = 0; i < secciones.length; i++) {
+                console.log(secciones[i]);
                 seccionesHtml += '<div class="m-l-md inline"><a href="#" ';
-                if (record.estado == 'ACEP' && secciones[i].split("|")[4] == "VER") {
+                if (record.estado == 'ACEP' && secciones[i].verInformacion) {
                     seccionesHtml += 'class="notas-academicas"';
-                } else if (secciones[i].split("|")[4] == "VER") {
+                } else if (secciones[i].verInformacion) {
                     seccionesHtml += 'class="ver-alumnos"';
                 } else {
                     seccionesHtml += 'class="text-danger no-ver-alumnos"';
                 }
-                seccionesHtml += ' rel="' + secciones[i].split("|")[0] + '">' + secciones[i].split("|")[1];
-                if (secciones[i].split("|")[3] != " ") {
-                    seccionesHtml += " - " + secciones[i].split("|")[3];
+                seccionesHtml += ' rel="' + secciones[i].id + '">' + secciones[i].codigo2;
+//                if (secciones[i].split("|")[3] != " ") {
+                if (secciones[i].grupoHoras != '') {
+                    seccionesHtml += " - " + secciones[i].grupoHoras.codigo;
                 }
                 seccionesHtml += '</a></div>';
             }

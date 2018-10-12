@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -105,12 +106,16 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
 
     @Override
     @Transactional
-    public void save(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
+    public void save(PlantillaDocumentoAcademico plantilla, Usuario usuario) {
+
+        PlantillaDocumentoAcademico plantillaDocumentoAcaDB = plantillaConstanciaDAO.findTipoDocumento(plantilla.getTipoDocumentoAcademico(), plantilla.getIdioma());
+
+        Assert.isNull(plantillaDocumentoAcaDB, "Existe Plantilla en " + plantilla.getIdioma().getNombre() + " para " + plantilla.getTipoDocumentoAcademico().getNombre());
         
-        plantillaDocumentoAcademico.setFechaRegistro(new Date());
-        plantillaDocumentoAcademico.setIdUserRegistro(usuario.getId());
-        plantillaDocumentoAcademico.setContenido("Constancia");
-        plantillaConstanciaDAO.save(plantillaDocumentoAcademico);
+        plantilla.setFechaRegistro(new Date());
+        plantilla.setIdUserRegistro(usuario.getId());
+        plantilla.setContenido("Constancia");
+        plantillaConstanciaDAO.save(plantilla);
     }
 
     @Override

@@ -18,11 +18,12 @@ public class AccionTramiteDocumentoDAOH extends AbstractEasyDAO<AccionTramiteDoc
     }
     
     @Override
-    public List<AccionTramiteDocumento> allNextByEstadoInicio(EstadoTramite estadoTramite) {
+    public List<AccionTramiteDocumento> allNextByEstadoInicio(TipoDocumentoAcademico tipoDocumentoAcademico, EstadoTramite estadoTramite) {
         Octavia sql = new Octavia()
                 .from(AccionTramiteDocumento.class, "atd")
-                .join("estadoTramite eti", "estadoTramiteFinal etf")
-                .filter("eti.id", estadoTramite);
+                .join("tipoDocumentoAcademico tipo","estadoTramite eti", "estadoTramiteFinal etf")
+                .filter("eti.id", estadoTramite)
+                .filter("tipo.id", estadoTramite);
         
         return all(sql);
     }

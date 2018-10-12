@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
@@ -36,6 +37,8 @@ public class CostoDocumentoServiceImpl implements CostoDocumentoService {
     @Override
     @Transactional
     public void save(PrecioDocumento precioDocumento, Usuario usuario) {
+        PrecioDocumento precioDB = costoDocumentoDAO.findTipoDocAndIdioma(precioDocumento.getTipoDocumento(),precioDocumento.getIdioma());
+        Assert.isNull(precioDB, "Existe precio para " + precioDocumento.getTipoDocumento().getNombre());
         precioDocumento.setFechaRegistro(new Date());
         precioDocumento.setIdUserRegistro(usuario.getId());
         costoDocumentoDAO.save(precioDocumento);
