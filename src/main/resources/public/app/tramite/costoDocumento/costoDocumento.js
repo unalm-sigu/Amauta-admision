@@ -128,7 +128,7 @@ new Vue({
             var self = $(e.currentTarget);
             self.btnDisabled();
             $(".mx-input").attr("required", true);
-            
+
             if (!$("#formConfig").parsley().validate()) {
                 self.btnEnable();
                 return;
@@ -148,12 +148,14 @@ new Vue({
                         $global.$emit("reloadDyntable");
                         notify(response.message, 'info');
                         $vue.costoDocumento = {}
+                    } else {
+                        notify(response.message, 'error');
                     }
                 }
             });
             $("#myModal").modal('hide');
         },
-        nameWithCodeEspecial(tipo){
+        nameWithCodeEspecial(tipo) {
             return tipo.tipo.value + " " + tipo.nombre;
         }
     }

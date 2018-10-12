@@ -318,7 +318,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
         t1 = System.currentTimeMillis();
         logger.debug("saveAlumnos");
-        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+        //this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
 
@@ -360,13 +360,13 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
         t1 = System.currentTimeMillis();
         logger.debug("loadDataMatriculados");
-        Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
+        //Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("revisarAlumnosMatriculados");
-        revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
+        //revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
 
