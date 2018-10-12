@@ -39,7 +39,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.pivot.controller.academico.notasacademicas.NotaAcademicaService;
+import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
 
 @Service
 @Transactional(readOnly = true)
@@ -51,7 +51,7 @@ public class PdfServiceImp implements PdfService {
     PdfGenerator pdfGenerator;
 
     @Autowired
-    NotaAcademicaService cargaAcademicaService;
+    NotaAcademicaService notaAcademicaService;
 
     @Autowired
     CursoDAO cursoDAO;
@@ -126,7 +126,7 @@ public class PdfServiceImp implements PdfService {
         int ind = 0;
         List<MatriculaSeccion> lstMatriculaSeccion = new ArrayList<>();
 
-        Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(cicloAcademico, curso);
+        Map matriculaCursoMap = notaAcademicaService.getMapMatriculasCursoByCicloCurso(cicloAcademico, curso);
 
         for (MatriculaSeccion matriculaSeccion : matriculasSeccionByFilter) {
             ind++;

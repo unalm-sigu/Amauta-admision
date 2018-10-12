@@ -46,11 +46,17 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
     @Transactional
     public void update(TipoDocumentoAcademico tramiteDocumentoAcademicoForm, Usuario usuario) {
 
+        TipoDocumentoAcademico documentoAcademicoDB = tipoConstanciaDAO.find(tramiteDocumentoAcademicoForm);
+        documentoAcademicoDB.setNombre(tramiteDocumentoAcademicoForm.getNombre());
+        documentoAcademicoDB.setTipo(tramiteDocumentoAcademicoForm.getTipo());
+
         if (tramiteDocumentoAcademicoForm.getCostoCiclo() == null) {
-            tramiteDocumentoAcademicoForm.setCostoCiclo(0L);
+            documentoAcademicoDB.setCostoCiclo(0L);
+        } else {
+            documentoAcademicoDB.setCostoCiclo(tramiteDocumentoAcademicoForm.getCostoCiclo());
         }
 
-        tipoConstanciaDAO.update(tramiteDocumentoAcademicoForm);
+        tipoConstanciaDAO.update(documentoAcademicoDB);
 
         List<ConfiguracionFirmaDocumento> configuracion = tramiteDocumentoAcademicoForm.getConfiguracionFirmaDocumento();
         List<ConfiguracionFirmaDocumento> configuracionDB = configuracionFirmaDocumentoDAO.allByTipoDocumentoAcademico(tramiteDocumentoAcademicoForm);
@@ -98,6 +104,10 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
         if (tramiteDocumentoAcademico.getCostoCiclo() == null) {
             tramiteDocumentoAcademico.setCostoCiclo(0L);
         }
+        if (tramiteDocumentoAcademico.getPlazoDiasPago() == null) {
+            tramiteDocumentoAcademico.setPlazoDiasPago(0);
+        }
+        tramiteDocumentoAcademico.setConfigurado(0l);
         tipoConstanciaDAO.save(tramiteDocumentoAcademico);
         List<ConfiguracionFirmaDocumento> configuracion = tramiteDocumentoAcademico.getConfiguracionFirmaDocumento();
         for (ConfiguracionFirmaDocumento configuracionFirmaDocumento : configuracion) {
