@@ -92,7 +92,7 @@ public class ConstanciaSolicitudController {
                     "tramite.alumno.persona.tipoDocumento.*",
                     "tipoDocumentoAcademico.*"});
 
-                List<AccionTramiteDocumento> acciones = service.findEstadoByEstadoInicio(tramiteDoc.getEstadoTramite());
+                List<AccionTramiteDocumento> acciones = service.findEstadoByEstadoInicio(tramiteDoc.getTipoDocumentoAcademico(), tramiteDoc.getEstadoTramite());
                 ArrayNode arrayAcciones = new ArrayNode(JsonNodeFactory.instance);
                 for (AccionTramiteDocumento accion : acciones) {
                     if (!accion.getEstadoTramiteFinal().getCodigo().equals("PAG")) {
@@ -380,10 +380,9 @@ public class ConstanciaSolicitudController {
     }
 
     @RequestMapping("downloadWord/{id}")
-    public void downloadWord(@PathVariable Long id, HttpSession session, HttpServletResponse respons) {
+    public void downloadWord(@PathVariable Long id, HttpSession session, HttpServletResponse respons, RedirectAttributes redirectAttr) {
 
-        service.downloadWord(new TramiteDocumentoAcademico(id), respons);
-
+            service.downloadWord(new TramiteDocumentoAcademico(id), respons);
     }
 
     @RequestMapping("solicitud/{idSolicitud}")

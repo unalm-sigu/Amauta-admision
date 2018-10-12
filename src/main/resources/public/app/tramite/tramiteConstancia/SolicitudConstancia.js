@@ -41,10 +41,12 @@ new Vue({
                     return "label label-default";
                     break;
                 case 'ANU':
+                case 'NPAG':
                     return "label label-danger";
                     break;
                 case 'ACT':
                 case 'FVAL':
+                case 'PIMP':
                     return "label label-primary";
                     break;
 
@@ -125,7 +127,13 @@ new Vue({
             $vue.tramiteDocumento = tram;
             $vue.tramiteDocumento.estadoTramite = accion.estadoTramiteFinal;
             if (accion.estadoTramiteFinal.codigo == 'PIMP') {
-                
+
+            }
+        },
+        accion(estado, item) {
+            console.log(estado);
+            if (estado.estadoTramiteFinal.codigo == 'FVAL') {
+                this.cargarfoto(item);
             }
         }
     }

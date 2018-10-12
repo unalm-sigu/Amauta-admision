@@ -4,9 +4,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,7 +15,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -53,20 +49,16 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
-import pe.edu.lamolina.model.academico.PlanCalificacion;
-import pe.edu.lamolina.model.academico.PlanCalificacionCurso;
-import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.FotoHelper;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
+import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.pivot.controller.academico.notasacademicas.NotaAcademicaService;
 
 @Controller
 @RequestMapping("academico/profesor")
@@ -79,7 +71,7 @@ public class ProfesorController {
     SpringTemplateEngine springHtml;
 
     @Autowired
-    NotaAcademicaService cargaAcademicaService;
+    NotaAcademicaService notaAcademicaService;
 
     @Autowired
     VerificadorService verificadorService;
@@ -477,17 +469,20 @@ public class ProfesorController {
 
             for (GrupoSeccion grupoSeccion : gruposSeccion) {
                 ObjectNode node = JsonHelper.createJson(grupoSeccion, JsonNodeFactory.instance, true, new String[]{
-                    "id", "estadoEnum",
+                    "id", "estadoEnum", "estadoGrupoEnum",
+                    "cicloAcademico.tipoEnum",
                     "curso.codigo",
                     "curso.nombre",
                     "curso.tpc",
+                    "planCalificacion.id",
                     "secciones.tipoSeccionEnum",
                     "secciones.codigo2",
                     "secciones.matriculados",
                     "secciones.aula.codigo",
                     "secciones.aula.nombre",
                     "secciones.grupoHoras.codigo",
-                    "secciones.docenteSeccion.*"
+                    "secciones.docenteSeccion.*",
+                    "secciones.verInformacion"
                 });
 
                 array.add(node);

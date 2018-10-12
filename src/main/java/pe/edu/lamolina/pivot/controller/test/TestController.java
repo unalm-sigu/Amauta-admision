@@ -42,6 +42,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
@@ -56,7 +57,6 @@ import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.pivot.controller.academico.notasacademicas.NotaAcademicaService;
 
 @Controller
 @RequestMapping("test")
@@ -83,7 +83,7 @@ public class TestController {
     MatriculaSeccionDAO matriculaSeccionDAO;
 
     @Autowired
-    NotaAcademicaService cargaAcademicaService;
+    NotaAcademicaService notaAcademicaService;
 
     @Autowired
     CalculoNotasService calculoNotasService;
@@ -116,8 +116,7 @@ public class TestController {
     @RequestMapping("crearEvaluacionByExp")
     public String crearEvaluacionByExp(@RequestParam("idGrupoSeccion") Long idGpoSecc) {
 
-        //GrupoSeccion grupoSeccion = new GrupoSeccion(161741);
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(idGpoSecc);
+        GrupoSeccion grupoSeccion = notaAcademicaService.findGrupo(idGpoSecc);
         if (grupoSeccion.getEvaluacionSecciones().isEmpty()) {
             return "No tiene evaluacionSeccion";
         }
@@ -156,7 +155,7 @@ public class TestController {
                             evaluacion.getEvaluaciones().add(evaluacionChild);
                         }
                     }
-                    cargaAcademicaService.saveEvaluacion(evaluacion);
+                    notaAcademicaService.saveEvaluacion(evaluacion);
 
                 }
             }

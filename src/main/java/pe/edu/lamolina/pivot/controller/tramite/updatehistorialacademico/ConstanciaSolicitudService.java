@@ -61,7 +61,7 @@ public interface ConstanciaSolicitudService {
 
     public List<TipoDocumentoAcademico> allTipoDocumentoAcademico();
 
-    public List<AccionTramiteDocumento> findEstadoByEstadoInicio(EstadoTramite estadoTramite);
+    public List<AccionTramiteDocumento> findEstadoByEstadoInicio(TipoDocumentoAcademico tipoDocumento, EstadoTramite estadoTramite);
 
     public void update(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
 
