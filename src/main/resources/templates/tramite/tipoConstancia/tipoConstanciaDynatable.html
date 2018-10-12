@@ -7,6 +7,7 @@
                     <th class="v-middle  col-xs-8">Nombre</th>
                     <th class="text-center  col-xs-1 v-middle">Costo por ciclo</th>
                     <th class="v-middle col-xs-2">Tipo</th>
+                    <th class="text-center  col-xs-2">configurado</th>
                     <th class="v-middle"></th>
                 </tr>
             </thead>
@@ -30,6 +31,10 @@
         </td>
         <td class="v-middle col-xs-2 ">
             <p v-text="tipoConstancia.tipo.value"></p>
+        </td>
+        <td class="text-center col-xs-2 ">
+            <i v-if="tipoConstancia.configurado==1 " class="fa fa-check text-success"></i>
+            <i v-else="" class="fa fa-times text-danger"></i>
         </td>
         <td class="v-middle">
 
