@@ -140,7 +140,7 @@ $(function () {
                     if (result) {
 
                         $.ajax({
-                            url: APP.url('academico/docente/cargaacademica/saveSistema'),
+                            url: APP.url('docente/notasacademica/saveSistema'),
                             type: 'POST',
                             async: true,
                             data: form.serialize(),
@@ -148,7 +148,7 @@ $(function () {
                                 if (response.success) {
                                     MODAL.hide();
                                     notify(response.message, "info");
-                                    location.href = APP.url('academico/docente/cargaacademica');
+                                    location.href = APP.url('docente/notasacademica');
                                 } else {
                                     notify(response.message, "error");
                                 }
@@ -206,7 +206,7 @@ $(function () {
         },
         regresar: function (e) {
             e.preventDefault();
-            location.href = APP.url("academico/docente/cargaacademica");
+            location.href = APP.url("docente/notasacademica");
         }
     }
 

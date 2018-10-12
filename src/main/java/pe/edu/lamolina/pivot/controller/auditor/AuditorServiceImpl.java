@@ -66,7 +66,7 @@ public class AuditorServiceImpl implements AuditorService {
 
         ingresoNotas.put("grupoSeccionId", seccion.getGrupoSeccion().getId());
         ingresoNotas.put("grupoSeccionCodigo", seccion.getGrupoSeccion().getCodigo());
-        ingresoNotas.put("grupoSeccionCodigo2", seccion.getGrupoSeccion().getCodigo2());
+        ingresoNotas.put("grupoSeccionCodigo2", seccion.getGrupoSeccion().getCodigo200());
         ingresoNotas.put("grupoSeccionEstadoGrupo", seccion.getGrupoSeccion().getEstadoGrupo());
         ingresoNotas.put("grupoSeccionEstadoPlan", seccion.getGrupoSeccion().getEstadoPlan());
         ingresoNotas.put("grupoSeccionVersion", seccion.getGrupoSeccion().getVersion());

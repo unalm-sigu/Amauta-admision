@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.notasacademicas;
+package pe.edu.lamolina.pivot.controller.docente.notasacademicas;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Date;

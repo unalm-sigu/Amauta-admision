@@ -95,7 +95,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
-public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
+public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;

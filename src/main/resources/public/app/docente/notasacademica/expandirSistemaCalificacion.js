@@ -5,7 +5,7 @@ $(function () {
 
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
-            ajaxUrl: APP.url('academico/docente/cargaacademica/listEvaluacionPlan'),
+            ajaxUrl: APP.url('docente/notasacademica/listEvaluacionPlan'),
             perPageDefault: 10,
             ajaxData: {evaluacionSeccion: $("#txtEvalSeccionId").val()}
         },
@@ -82,7 +82,7 @@ $(function () {
             MODAL.buttons('<a class="btn btn-success grabar-expansion" id="cmbAceptar">Aceptar</a>');
 
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/detalleExpandirEvaluacion'),
+                url: APP.url('docente/notasacademica/detalleExpandirEvaluacion'),
                 type: 'POST',
                 async: false,
                 data: {
@@ -115,7 +115,7 @@ $(function () {
                     if (result) {
 
                         $.ajax({
-                            url: APP.url('academico/docente/cargaacademica/anularEvaluacionExp'),
+                            url: APP.url('docente/cargaacademica/anularEvaluacionExp'),
                             type: 'POST',
                             async: false,
                             data: {
@@ -163,7 +163,7 @@ $(function () {
             MODAL.buttons('<a class="btn btn-success grabar-asignacion" id="cmbSaveAssign">Aceptar</a>');
 
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/detalleAsignarDocente'),
+                url: APP.url('docente/notasacademica/detalleAsignarDocente'),
                 type: 'POST',
                 async: false,
                 data: {
@@ -197,7 +197,7 @@ $(function () {
                     if (result) {
 
                         $.ajax({
-                            url: APP.url('academico/docente/cargaacademica/deleteExpansionHija'),
+                            url: APP.url('docente/cargaacademica/deleteExpansionHija'),
                             type: 'POST',
                             async: false,
                             data: {
@@ -247,7 +247,7 @@ $(function () {
                 callback: function (result) {
                     if (result) {
                         $.ajax({
-                            url: APP.url('academico/docente/cargaacademica/validarEvaluacionesIngresadas'),
+                            url: APP.url('docente/cargaacademica/validarEvaluacionesIngresadas'),
                             type: 'POST',
                             async: true,
                             data: {evalExp: $this.attr('rel')},
@@ -298,7 +298,7 @@ $(function () {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
-                            url: APP.url('academico/docente/cargaacademica/saveExpandir'),
+                            url: APP.url('docente/notasacademica/saveExpandir'),
                             type: 'POST',
                             async: true,
                             data: form.serialize(),
@@ -342,7 +342,7 @@ $(function () {
                 callback: function (result) {
                     if (result) {
                         $.ajax({
-                            url: APP.url('academico/docente/cargaacademica/saveAsignarDocente'),
+                            url: APP.url('docente/notasacademica/saveAsignarDocente'),
                             type: 'POST',
                             async: true,
                             data: form.serialize(),
@@ -378,7 +378,7 @@ $(function () {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
-                            url: APP.url('academico/docente/cargaacademica/aceptarExpansion'),
+                            url: APP.url('docente/cargaacademica/aceptarExpansion'),
                             type: 'POST',
                             async: true,
                             data: {evaluacionSeccionId: $("#txtEvalSeccionId").val()},
@@ -387,7 +387,7 @@ $(function () {
                                 MODAL.hide();
                                 if (response.success) {
                                     notify(response.message, "info");
-                                    location.href = APP.url("academico/docente/cargaacademica");
+                                    location.href = APP.url("docente/cargaacademica");
                                 } else {
                                     notify(response.message, "error");
                                 }
@@ -413,7 +413,7 @@ $(function () {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
-                            url: APP.url('academico/docente/cargaacademica/cambiarTipoSecEval'),
+                            url: APP.url('docente/notasacademica/cambiarTipoSecEval'),
                             type: 'POST',
                             async: true,
                             data: {
@@ -442,7 +442,7 @@ $(function () {
         },
         cancelarExpansion: function (e) {
             e.preventDefault();
-            location.href = APP.url("academico/docente/cargaacademica");
+            location.href = APP.url("docente/cargaacademica");
         },
         aceptarExpandir: function (e) {
             var form = $("#frmExpansion");
@@ -473,7 +473,7 @@ $(function () {
             });
             console.dir(jsonObj)
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/aceptarExpandir'),
+                url: APP.url('docente/cargaacademica/aceptarExpandir'),
                 type: 'POST',
                 async: false,
                 data: JSON.stringify(jsonObj),
@@ -484,7 +484,7 @@ $(function () {
 
                     MODAL.showWait("Espere un momento por favor");
                     $.ajax({
-                        url: APP.url('academico/docente/cargaacademica/cambiarTipoSecEval'),
+                        url: APP.url('docente/cargaacademica/cambiarTipoSecEval'),
                         type: 'POST',
                         async: true,
                         data: {

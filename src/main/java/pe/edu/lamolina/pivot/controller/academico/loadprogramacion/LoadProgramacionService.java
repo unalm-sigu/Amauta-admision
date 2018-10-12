@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-public interface ProgramaHorarioService {
+public interface LoadProgramacionService {
 
     Map<String, String> loadArchivosHorario(MultipartFile[] files);
 
