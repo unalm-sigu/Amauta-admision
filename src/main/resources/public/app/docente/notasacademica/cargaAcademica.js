@@ -212,7 +212,7 @@ $(function () {
         verAlumnos: function ($this, e) {
             var tr = $this.closest("tr");
             var idx = $this.attr("rel");
-            location.href = APP.url('docente/alumnosDocente/') + idx + '/alumnosDocente';
+            location.href = APP.url('academico/docente/alumnosDocente/') + idx + '/alumnosDocente';
         },
         verNuevoSC: function (e) {
             e.preventDefault();
