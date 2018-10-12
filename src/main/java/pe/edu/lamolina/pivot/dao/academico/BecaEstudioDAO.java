@@ -9,14 +9,7 @@ public interface BecaEstudioDAO extends EasyDAO<BecaEstudio> {
     
     List<BecaEstudio> allDynaTable(DynatableFilter filter);
     
-    BecaEstudio find(BecaEstudio nombre);
-
-    BecaEstudio findAllInfo(Long id);
-    
-    BecaEstudio findByInstitucioOtorga(BecaEstudio nombre);
-    
-    List<BecaEstudio> allByName(String nombre);
-    
-    void updateInstitucionOtorga(BecaEstudio nombre);
+    List<BecaEstudio> allByNombre(List<String> nombre);
+   
 
 }

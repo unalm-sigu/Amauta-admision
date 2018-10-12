@@ -1,8 +1,16 @@
 new Vue({
     el: '#becaestudioVUE',
     data: {
-        alumnotarifaURL: APP.url('academico/becaestudio/list'),
-        
+        becaestudioURL: APP.url('academico/becaestudio/list'),
+        confirmarModal: {
+            id: 'modalConfirmar',
+            header: true,
+            title: 'Cambiar Institución Otorga',
+            okbtn: 'Guardar',
+            modalsize: 'modal-md'
+        },
+        becaestudioEdit: {},
+        becaestudioSelect: {}
     },
     mounted() {
         $(".numerico").numeric({negative: false});
@@ -14,12 +22,12 @@ new Vue({
             $.ajax({
                 method: "POST",
                 contentType: "application/json",
-                url: APP.url("posgrado/alumnotarifa/save"),
-                data: JSON.stringify($vue.aluTarifa)
+                url: APP.url("academico/becaestudio/save"),
+                data: JSON.stringify($vue.becaestudioEdit)
             }).then(response => {
                 if (response.success) {
-                    $vue.$refs.modalTarifa.close();
-                    $vue.$refs.raptorAlumnoTarifa.loadRemoteData();
+                    $vue.$refs.modalConfirmar.close();
+                    $vue.$refs.raptorBecasEstudios.loadRemoteData();
                     notify(response.message, "info")
                 } else {
                     notify(response.message, 'error');
@@ -33,26 +41,9 @@ new Vue({
         },
         editar(item) {
             let $vue = this;
-            $vue.aluTarifa = Object.assign({}, item);
-       
-          
-            $.ajax({
-                method: "POST",
-                contentType: "application/json",
-                url: APP.url("posgrado/alumnotarifa/allOtrasTarifas"),
-                data: JSON.stringify(item.alumno)
-            }).then(response => {
-                if (response.success) {
-                    $vue.otrasTarifas = response.data;
-                    $vue.$refs.modalTarifa.open();
-                } else {
-                    notify(response.message, 'error');
-                }
-            },
-                    error => {
-                        notify(MESSAGES.errorComunicacion, 'error');
-                    });
-
+            $vue.becaestudioSelect = item;
+            $vue.becaestudioEdit = Object.assign({}, item);
+            $vue.$refs.modalConfirmar.open();
             /*
              console.log(item.id)
              bootbox.confirm({
@@ -67,6 +58,11 @@ new Vue({
              
              });
              //*/
+        },
+        nuevo() {
+            let $vue = this;
+            $vue.becaestudioEdit = {id: ''};
+            $vue.$refs.modalConfirmar.open();
         }
     }
 });

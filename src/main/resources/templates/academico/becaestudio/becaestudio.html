@@ -10,77 +10,82 @@
 
                     <div class="pull-right m-t-md">                 
                         <div class="btn-group">
-                            <a type="button" class="btn btn-success" href="#">Nuevo</a>
+                            <a type="button" class="btn btn-success" v-on:click="nuevo()">Nuevo</a>
                         </div>
                     </div> 
-                    <h2 th:inline="text">Beca Estudio</h2>
+                    <h2>Beca Estudio</h2>
                 </header>
                 <section class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
-                            <raptor-table v-bind:url="becaestudioURL" ref="raptorBecaEstudio">
+                            <raptor-table v-bind:url="becaestudioURL" ref="raptorBecasEstudios" v-bind:timesleep="1000">
 
-                                
+                                <template  scope="props" >
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-5">Nombre</th>
+                                                <th class="col-md-5">Institución Otorga</th>
+                                                <th class="col-md-2"></th>                                              
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle">
+                                                    <span class="block text-primary">{{item.nombre}}</span>
+                                                    <span class="block"></span>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <span class="block text-primary">{{item.institucionOtorga}}</span>
+                                                    <span class="block"></span>
+                                                </td>                                                                                       
+                                                <td class="v-middle">
+                                                    <div class="actions">
+                                                        <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="fa fa-ellipsis-v fa-lg"> </i></a>
+
+                                                        <ul class="dropdown-menu pull-right" >
+                                                            <li role="presentation"><a class="btn-link" v-on:click="editar(item)">Cambiar Institución</a></li>
+                                                        </ul>
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
                             </raptor-table>
                         </section>
                     </section>
                 </section>
 
-                <!--<modal-vik ref="modalTarifa"
-                           v-bind="tarifaModal"
+                <modal-vik ref="modalConfirmar"
+                           v-bind="confirmarModal"
                            v-bind:okaction="guardar">
-                    <div slot="body"> 
-                        <div v-if="aluTarifa.id != undefined ">
+                    <div slot="body">
 
-                            <div class="form-group">
-                                <label>Alumno</label>
-                                <span class="form-control" v-text="aluTarifa.alumno.persona.apellidosNombres"></span>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Código</label>
-                                <span class="form-control" v-text="aluTarifa.alumno.codigo"></span>
-                            </div>
-                            <div class="form-group">
-                                <label>Especialidad</label>
-                                <span class="form-control" v-text="">                                    
-                                    {{aluTarifa.alumno.carrera.tipoEnum.value}},
-                                    {{aluTarifa.alumno.carrera.nombre}}
-                                </span>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Tarifa Actual</label>
-                                <span class="form-control" v-text="">
-                                    {{aluTarifa.tarifaCarrera.nombre}}
-                                </span>
-                            </div>
-                            <div class="form-group">
-                                <label> Tarifa nueva </label>
-                                <multiselect 
-                                    v-model="aluTarifa.tarifaNueva"
-                                    label="nombre"
-                                    placeholder="Seleccione una tarifa"
-                                    track-by="id"
-                                    v-bind:options="otrasTarifas"
-                                    v-bind:show-labels="false"
-                                    v-bind:allow-empty="false">                                    
-                                </multiselect>                               
-                            </div>
-                            
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input class="form-control" type="text" v-model="becaestudioEdit.nombre"/>
                         </div>
+
+                        <div class="form-group">
+                            <label>Institución Otorga</label>
+                            <input class="form-control" type="text" v-model="becaestudioEdit.institucionOtorga"/>
+                        </div>
+
                     </div>
-                </modal-vik>-->
+                </modal-vik>
 
             </div>
 
-           <!-- <div th:substituteby="_modules/vue-modal"/> -->
+            <div th:substituteby="_modules/vue-modal"/>
         </div>
         ​
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"/>
             <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
-            <script th:src="@{/app/posgrado/alumnotarifa/alumnotarifa.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/becaestudio/becaestudio.js}" charset="utf-8"></script>
 
         </div>
 
