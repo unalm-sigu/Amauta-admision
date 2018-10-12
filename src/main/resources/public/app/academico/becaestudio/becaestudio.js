@@ -1,18 +1,8 @@
-Vue.component("multiselect", window.VueMultiselect.default)
-
 new Vue({
-    el: '#alumnotarifaVUE',
+    el: '#becaestudioVUE',
     data: {
-        alumnotarifaURL: APP.url('posgrado/alumnotarifa/list'),
-        tarifaModal: {
-            id: 'modalTarifa',
-            header: true,
-            title: 'Cambiar Tarifa',
-            okbtn: 'Guardar',
-            modalsize: 'modal-md'
-        },
-        aluTarifa: {},
-        otrasTarifas: []
+        alumnotarifaURL: APP.url('academico/becaestudio/list'),
+        
     },
     mounted() {
         $(".numerico").numeric({negative: false});
@@ -77,12 +67,6 @@ new Vue({
              
              });
              //*/
-        },
-        verTarifaNueva(item) {
-            let $vue = this;
-            $vue.$set($vue.aluTarifa, "tarifaNueva", item);
-            console.log("tarifa nueva");
-            console.dir($vue.aluTarifa.tarifaNueva);
         }
     }
 });

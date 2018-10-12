@@ -7,6 +7,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.enums.AmbitoTarifaEnum;
 import pe.edu.lamolina.model.posgrado.TarifaCarrera;
 import pe.edu.lamolina.pivot.dao.posgrado.TarifaCarreraDAO;
 
@@ -34,8 +35,19 @@ public class TarifaCarreraDAOH extends AbstractEasyDAO<TarifaCarrera> implements
         Octavia sql = new Octavia()
                 .from(TarifaCarrera.class, "tc")
                 .join("carrera car", "cicloInicio ca")
+                .filter("car.id", carrera)
                 .orderBy("tc.id desc");
-        sql.filter("car.id", carrera);
+        return all(sql);
+    }
+
+    @Override
+    public List<TarifaCarrera> allByCarreraAmbito(Carrera carrera, AmbitoTarifaEnum ambito) {
+        Octavia sql = new Octavia()
+                .from(TarifaCarrera.class, "tc")
+                .join("carrera car", "cicloInicio ca")
+                .filter("car.id", carrera)
+                .filter("tc.ambito", ambito)
+                .orderBy("ca.codigo desc");
         return all(sql);
     }
 

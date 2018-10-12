@@ -8,4 +8,6 @@ public interface PaisDAO extends EasyDAO<Pais> {
 
     List<Pais> allPaisesByName(String forLike);
 
+    Pais findByCodigo(String codigo);
+
 }

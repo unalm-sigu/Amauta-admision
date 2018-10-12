@@ -1,0 +1,89 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Beca Estudio</title>
+    </head>
+    ​
+    <body>
+        <div layout:fragment="main">
+            <div id="becaestudioVUE">
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success" href="#">Nuevo</a>
+                        </div>
+                    </div> 
+                    <h2 th:inline="text">Beca Estudio</h2>
+                </header>
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table v-bind:url="becaestudioURL" ref="raptorBecaEstudio">
+
+                                
+                            </raptor-table>
+                        </section>
+                    </section>
+                </section>
+
+                <!--<modal-vik ref="modalTarifa"
+                           v-bind="tarifaModal"
+                           v-bind:okaction="guardar">
+                    <div slot="body"> 
+                        <div v-if="aluTarifa.id != undefined ">
+
+                            <div class="form-group">
+                                <label>Alumno</label>
+                                <span class="form-control" v-text="aluTarifa.alumno.persona.apellidosNombres"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Código</label>
+                                <span class="form-control" v-text="aluTarifa.alumno.codigo"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Especialidad</label>
+                                <span class="form-control" v-text="">                                    
+                                    {{aluTarifa.alumno.carrera.tipoEnum.value}},
+                                    {{aluTarifa.alumno.carrera.nombre}}
+                                </span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tarifa Actual</label>
+                                <span class="form-control" v-text="">
+                                    {{aluTarifa.tarifaCarrera.nombre}}
+                                </span>
+                            </div>
+                            <div class="form-group">
+                                <label> Tarifa nueva </label>
+                                <multiselect 
+                                    v-model="aluTarifa.tarifaNueva"
+                                    label="nombre"
+                                    placeholder="Seleccione una tarifa"
+                                    track-by="id"
+                                    v-bind:options="otrasTarifas"
+                                    v-bind:show-labels="false"
+                                    v-bind:allow-empty="false">                                    
+                                </multiselect>                               
+                            </div>
+                            
+                        </div>
+                    </div>
+                </modal-vik>-->
+
+            </div>
+
+           <!-- <div th:substituteby="_modules/vue-modal"/> -->
+        </div>
+        ​
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"/>
+            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
+            <script th:src="@{/app/posgrado/alumnotarifa/alumnotarifa.js}" charset="utf-8"></script>
+
+        </div>
+
+        ​
+    </body>
+</html>

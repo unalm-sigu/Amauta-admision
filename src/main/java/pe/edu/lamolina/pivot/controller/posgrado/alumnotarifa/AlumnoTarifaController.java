@@ -11,13 +11,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.posgrado.AlumnoTarifa;
+import pe.edu.lamolina.model.posgrado.TarifaCarrera;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -49,17 +55,22 @@ public class AlumnoTarifaController {
             for (AlumnoTarifa alumntarifa : alumnotarifa) {
                 ObjectNode node = JsonHelper.createJson(alumntarifa, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id",  "estado", "fechaAceptaTarifa",
+                            "id", "estado", "estadoEnum", "fechaAceptaTarifa",
                             "fechaActivacion", "fechaRegistro",
+                            "tarifaCarrera.nombre",
+                            "tarifaCarrera.ambitoEnum",
                             "tarifaCarrera.carrera.tipoEnum",
                             "tarifaCarrera.carrera.nombre",
-                            "tarifaCarrera.cicloinicio.descripcion",
-                            "tarifaCarrera.cicloinicio.descripcion2",
+                            "tarifaCarrera.cicloInicio.descripcion",
+                            "tarifaCarrera.cicloInicio.descripcion2",
+                            "alumno.id",
                             "alumno.codigo",
                             "alumno.carrera.tipoEnum",
                             "alumno.carrera.nombre",
-                            "alumno.persona.apellidosNombres"
-                            
+                            "alumno.persona.apellidosNombres",
+                            "alumno.persona.rutaFoto",
+                            "alumno.persona.tipoFoto"
+
                         });
 
                 array.add(node);
@@ -73,6 +84,63 @@ public class AlumnoTarifaController {
             e.printStackTrace();
             json.setTotal(0);
         }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("save")
+    public JsonResponse save(@RequestBody AlumnoTarifa alumnotarifa, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.save(alumnotarifa, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Guardado satisfactoriamnente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allOtrasTarifas")
+    public JsonResponse allOtrasTarifas(@RequestBody Alumno alumno, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<TarifaCarrera> tarifas = service.allOtrasTarifas(alumno);
+
+            ArrayNode arrayTarifas = new ArrayNode(jsonFactory);
+            for (TarifaCarrera tarifa : tarifas) {
+                ObjectNode json = createTarifaJson(tarifa);
+                arrayTarifas.add(json);
+            }
+
+            response.setData(arrayTarifas);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    private ObjectNode createTarifaJson(TarifaCarrera tarifa) {
+        ObjectNode json = JsonHelper.createJson(tarifa, JsonNodeFactory.instance, true, new String[]{
+            "id", "nombre"
+        });
         return json;
     }
 
