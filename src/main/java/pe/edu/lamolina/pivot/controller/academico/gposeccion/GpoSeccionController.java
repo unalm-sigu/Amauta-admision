@@ -117,7 +117,7 @@ public class GpoSeccionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         Long cantidad = service.contarGpoSecc(ciclo);
-        
+
         model.addAttribute("cantidad", cantidad);
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("resumen", service.resumenByCiclo(ciclo));

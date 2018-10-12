@@ -2125,6 +2125,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionTEO.setEstadoEnum(SeccionEstadoEnum.CRE);
                 seccionTEO.setTipoSeccionEnum(TipoSeccionEnum.TEO);
                 seccionTEO.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
+                seccionTEO.setPrematriculados(0);
+                seccionTEO.setReservados(0);
                 /*
             seccionTEO.setHorasPractica(curso.getHorasPractica());
             seccionTEO.setHorasTeoria(curso.getHorasTeoria());
@@ -2157,6 +2159,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionPRA.setHorasTeoria(curso.getHorasTeoria());
                  */
                 seccionPRA.setHorasSemanales(horasPractica);
+                seccionPRA.setPrematriculados(0);
+                seccionPRA.setReservados(0);
 
                 seccionPRA.setDocenteSeccion(new ArrayList<>());
                 DocenteSeccion docenteSeccion = new DocenteSeccion();
@@ -2182,6 +2186,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 //   seccionTCUR.setHorasPractica(curso.getHorasPractica());
                 //   seccionTCUR.setHorasTeoria(curso.getHorasTeoria());
                 seccionTCUR.setHorasSemanales(horasTeoria);
+                seccionTCUR.setPrematriculados(0);
+                seccionTCUR.setReservados(0);
 
                 seccionTCUR.setDocenteSeccion(new ArrayList<>());
                 DocenteSeccion docenteSeccion = new DocenteSeccion();
@@ -2206,6 +2212,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 //  seccionPCUR.setHorasPractica(curso.getHorasPractica());
                 //   seccionPCUR.setHorasTeoria(curso.getHorasTeoria());
                 seccionPCUR.setHorasSemanales(horasPractica);
+                seccionPCUR.setPrematriculados(0);
+                seccionPCUR.setReservados(0);
 
                 seccionPCUR.setDocenteSeccion(new ArrayList<>());
                 DocenteSeccion docenteSeccion2 = new DocenteSeccion();
