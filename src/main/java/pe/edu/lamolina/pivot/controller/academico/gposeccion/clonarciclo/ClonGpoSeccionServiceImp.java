@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,30 +15,42 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AmpliacionVacante;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
 import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.AmpliacionVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionService;
+import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
+import pe.edu.lamolina.pivot.dao.academico.AmpliacionVacanteDAO;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionModalidadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionRepitenciaDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -78,6 +91,18 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 
     @Autowired
     GpoSeccionService gpoSeccionService;
+
+    @Autowired
+    AmpliacionVacanteDAO ampliacionVacanteDAO;
+
+    @Autowired
+    OficinaService oficinaService;
+
+    @Autowired
+    ColaboradorDAO colaboradorDAO;
+
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
 
     @Override
     @Transactional
@@ -328,7 +353,7 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 
             int loopPCUR = 1;
             Seccion seccionSup = null;
-            
+
             codigos.add(codigo);
 
             for (Seccion seccion : seccionesOrigen) {
@@ -351,6 +376,129 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 
         }
 
+    }
+
+    @Override
+    public List<AmpliacionVacante> allAmpliacionVacante(Seccion seccion) {
+
+        return ampliacionVacanteDAO.allBySeccion(seccion);
+    }
+
+    @Override
+    @Transactional
+    public void saveAmpliacionVacante(AmpliacionVacante ampliacionVacante, DataSessionPivot ds) {
+
+        Persona persona = ds.getPersona();
+        Oficina oficina = ampliacionVacante.getOficina();
+        Colaborador colaborador = colaboradorDAO.allActivosByPersonaAndOficina(oficina, persona);
+        ampliacionVacante.setColaborador(colaborador);
+        ampliacionVacante.setFechaCreacion(new Date());
+        ampliacionVacante.setUserCreacion(ds.getUsuario());
+        ampliacionVacante.setFechaSolicitud(new Date());
+        ampliacionVacante.setUserCreacion(ds.getUsuario());
+        ampliacionVacante.setEstado(AmpliacionVacanteEstadoEnum.PENDIENTE.name());
+        ampliacionVacanteDAO.save(ampliacionVacante);
+    }
+
+    @Override
+    @Transactional
+    public void updateAmpliacionVacante(AmpliacionVacante ampliacionVacanteForm, DataSessionPivot ds) {
+
+        AmpliacionVacante ampliacionVacante = ampliacionVacanteDAO.find(ampliacionVacanteForm);
+
+        Persona persona = ds.getPersona();
+        Oficina oficina = ampliacionVacante.getOficina();
+        Colaborador colaborador = colaboradorDAO.allActivosByPersonaAndOficina(oficina, persona);
+        ampliacionVacante.setColaborador(colaborador);
+
+        ampliacionVacante.setMotivo(ampliacionVacanteForm.getMotivo());
+        ampliacionVacante.setIncremento(ampliacionVacanteForm.getIncremento());
+        ampliacionVacante.setTotal(ampliacionVacanteForm.getTotal());
+
+        ampliacionVacante.setUserModificacion(ds.getUsuario());
+        ampliacionVacante.setFechaModificacion(new Date());
+
+        ampliacionVacanteDAO.update(ampliacionVacante);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAmpliacionVacante(AmpliacionVacante ampliacionVacanteForm) {
+
+        ampliacionVacanteDAO.delete(ampliacionVacanteForm);
+    }
+
+    @Override
+    public AmpliacionVacante findAmpliacionVacante(AmpliacionVacante ampliacionVacanteForm) {
+
+        return ampliacionVacanteDAO.find(ampliacionVacanteForm);
+    }
+
+    @Override
+    public List<Oficina> allOficinaByPersona(Persona persona) {
+        return oficinaService.allOficinasMain(persona);
+    }
+
+    @Override
+    @Transactional
+    public void aceptarAmpliacionVacante(AmpliacionVacante ampliacionVacanteForm, DataSessionPivot ds) {
+
+        AmpliacionVacante ampliacionVacante = ampliacionVacanteDAO.find(ampliacionVacanteForm);
+
+        Seccion seccion = ampliacionVacante.getSeccion();
+
+        if (seccion.getMatriculados() > ampliacionVacante.getTotal()) {
+            throw new PhobosException("Todas las vacantes ya fueron acupadas");
+        }
+
+        Aula aula = seccion.getAula();
+
+        if (aula.getCapacidadAula() != null) {
+            if (ampliacionVacante.getTotal() > aula.getCapacidadAula()) {
+                throw new PhobosException("Ya ha completo la capacidad del aula");
+            }
+        }
+
+        ampliacionVacante.setEstadoEnum(AmpliacionVacanteEstadoEnum.ACEPTADO);
+        ampliacionVacante.setUserModificacion(ds.getUsuario());
+        ampliacionVacante.setFechaModificacion(new Date());
+        ampliacionVacante.setFechaRespuesta(new Date());
+        ampliacionVacanteDAO.update(ampliacionVacante);
+
+        ampliacionVacante.setComentarioRespuesta(ampliacionVacanteForm.getComentarioRespuesta());
+        seccion.setVacantes(ampliacionVacante.getTotal());
+        seccionDAO.update(seccion);
+
+    }
+
+    @Override
+    @Transactional
+    public void rechazarAmpliacionVacante(AmpliacionVacante ampliacionVacanteForm, DataSessionPivot ds) {
+
+        AmpliacionVacante ampliacionVacante = ampliacionVacanteDAO.find(ampliacionVacanteForm);
+        ampliacionVacante.setEstadoEnum(AmpliacionVacanteEstadoEnum.RECHAZADO);
+        ampliacionVacante.setUserModificacion(ds.getUsuario());
+        ampliacionVacante.setFechaModificacion(new Date());
+        ampliacionVacante.setFechaRespuesta(new Date());
+        ampliacionVacante.setComentarioRespuesta(ampliacionVacanteForm.getComentarioRespuesta());
+        ampliacionVacanteDAO.update(ampliacionVacante);
+    }
+
+    @Override
+    public List<Alumno> allAlumnoBySeccion(Seccion seccion) {
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
+        Map<Long, Alumno> alumnos = TypesUtil.convertListToMap("matriculaResumen.alumno.id", "matriculaResumen.alumno", matriculasSeccion);
+        return alumnos.values().stream().collect(Collectors.toList());
+    }
+
+    @Override
+    public void trasladar(Fusion trasladoForm) {
+        Seccion seccion = seccionDAO.find(trasladoForm.getSeccion());
+        logger.debug("seccion {}", seccion.getId());
+        List<Alumno> alumnos = trasladoForm.getAlumnos();
+        for (Alumno alumno : alumnos) {
+            logger.debug("alumno {}", alumno.getId());
+        }
     }
 
 }

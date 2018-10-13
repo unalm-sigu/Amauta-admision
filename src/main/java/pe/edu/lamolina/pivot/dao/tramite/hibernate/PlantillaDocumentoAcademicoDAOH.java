@@ -30,6 +30,16 @@ public class PlantillaDocumentoAcademicoDAOH extends AbstractEasyDAO<PlantillaDo
     }
 
     @Override
+    public List<PlantillaDocumentoAcademico> allDynatableIncrustacion(DynatableFilter filter) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(PlantillaDocumentoAcademico.class, "pda")
+                .join("idioma")
+                .searchFields("nombre")
+                .orderBy("nombre");
+        return all(sql);
+    }
+
+    @Override
     public PlantillaDocumentoAcademico find(Long id) {
         Octavia sql = new Octavia()
                 .from(PlantillaDocumentoAcademico.class, "pda")
@@ -48,7 +58,7 @@ public class PlantillaDocumentoAcademicoDAOH extends AbstractEasyDAO<PlantillaDo
     }
 
     @Override
-    public PlantillaDocumentoAcademico findTipoDocumento(TipoDocumentoAcademico tipoDocumentoAcademico,Idioma idioma) {
+    public PlantillaDocumentoAcademico findTipoDocumento(TipoDocumentoAcademico tipoDocumentoAcademico, Idioma idioma) {
         Octavia sql = new Octavia()
                 .from(PlantillaDocumentoAcademico.class, "pda")
                 .join("tipoDocumentoAcademico tda", "idioma idi")

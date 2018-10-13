@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
@@ -328,6 +329,19 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .filter("ca.id", ciclo)
                 .orderBy("sec.codigo", "sec.codigo2");
         return all(sql);
+    }
+
+    @Override
+    public Seccion find(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur")
+                .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
+                .leftJoin("grupoHoras gh", "aula au", "au.oficinaSupervisora", "au.aulaSuperior")
+                .leftJoin("seccionSuperior")
+                .filter("sec.id", seccion.getId());
+
+        return find(sql);
     }
 
 }
