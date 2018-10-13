@@ -1,0 +1,55 @@
+<div v-if="seccionSeleccionada.tipoSeccion=='TCUR' ">El tipo de sección no permite editar vacantes</div>
+
+<a  v-if="seccionSeleccionada.tipoSeccion!='TCUR' " class="btn btn-info btn-sm pull-right m-t-md m-b-md" href="#"
+   v-on:click.prevent="solicitarIncremento()">
+    Solicitar Incremento
+</a>                                            
+
+<table v-if="seccionSeleccionada.tipoSeccion!='TCUR' " class="table">
+    <thead> 
+        <tr > 
+            <th class="col-md-3">Solicitante</th>
+            <th class="col-md-4 text-center">Motivo</th>
+            <th class="col-md-1 text-center">Fecha Solicitud</th>
+            <th class="col-md-1 text-center">Fecha Respuesta</th>
+            <th class="col-md-1 text-center">Inicio</th>
+            <th class="col-md-1 text-center">Final</th>
+            <th class="col-md-1 text-center">Estado</th>
+            <th class=""></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <tr v-for="ampliacion in ampliacionVacantes">
+
+            <td class="v-middle">
+                <p class="h5">{{ampliacion.colaborador.persona.nombreCompleto}}</p>
+                <span class="text-sm text-primary block">{{ampliacion.colaborador.cargo.nombre}}</span>
+                <span class="text-sm text-primary block">{{ampliacion.oficina.nombre}}</span>
+            </td>
+            <td class="">{{ampliacion.motivo}}</td>
+            <td class="text-center">{{ampliacion.fechaSolicitud}}</td>
+            <td class="text-center">{{ampliacion.fechaRespuesta}}</td>
+            <td class="text-center">{{ampliacion.inicial}}</td>
+            <td class="text-center">{{ampliacion.total}}</td>
+            <td class="text-center v-middle">
+                <span class="label" v-bind:class="getEstadoAmpliacionClass(ampliacion.estado)">{{ ampliacion.estadoEnum.value }}</span>
+            </td>
+
+            <td class="v-middle">
+                <div  v-if="ampliacion.estado=='PENDIENTE' " class="actions">
+                    <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                    <ul class="dropdown-menu pull-right">
+                        <li><a href="#" v-on:click.prevent="aceptarSolicitud(ampliacion)">Aceptar</a></li>
+                        <li><a href="#" v-on:click.prevent="rechazarSolicitud(ampliacion)">Rechazar</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#" v-on:click.prevent="modificarSolicitud(ampliacion)">Modificar</a></li>
+                        <li><a href="#" v-on:click.prevent="eliminarSolicitud(ampliacion)">Eliminar</a></li>
+                    </ul>
+                </div>
+            </td>
+
+        </tr>
+
+    </tbody>
+</table>

@@ -113,6 +113,7 @@ var app = new Vue({
         verDocentes: false,
         seccionModal: null,
         colorEstado: {CRE: "default", ACT: "success", ANU: "danger", INA: "danger", BLO: "warning", FUS: "warning"},
+        colorEstadoAmpliacion: {PENDIENTE: "default", ACEPTADO: "success", RECHAZADO: "danger"},
         grupoModal: {
             id: 'modalGrupo',
             header: true,
@@ -159,6 +160,49 @@ var app = new Vue({
             title: '',
             okbtn: 'Clonar',
             modalsize: 'modal-sm'
+        },
+        solicitarIncrementoModal: {
+            id: 'modalSolicitarIncremento',
+            header: true,
+            title: '',
+            okbtn: 'Solicitar',
+            modalsize: 'modal-md'
+        },
+        ampliacionVacantes: [],
+        ampliacionVacante: {
+            id: 'ampliacionVacanteId',
+            incremento: null,
+            colaborador: {id: null},
+            oficina: {id: null},
+            seccion: {id: null}
+        },
+        aceptarSolicitudIncrementoModal: {
+            id: 'aceptarSolicitudIncrementoModalId',
+            header: true,
+            title: 'Aceptar ampliación de vacante',
+            okbtn: 'Aceptar',
+            modalsize: 'modal-md'
+        },
+        rechazarSolicitudIncrementoModal: {
+            id: 'rechazarSolicitudIncrementoModalId',
+            header: true,
+            title: 'Rechazar ampliación de vacante',
+            okbtn: 'Rechazar',
+            modalsize: 'modal-md'
+        },
+    },
+    watch: {
+        seccionSeleccionada: function (val) {
+            let $vue = this;
+            $vue.allSolicitarIncremento();
+        },
+        "ampliacionVacante.incremento": function () {
+            let $vue = this;
+            if ($vue.ampliacionVacante.incremento == '') {
+                $vue.ampliacionVacante.total = parseInt($vue.ampliacionVacante.inicial);
+                return;
+            }
+            $vue.ampliacionVacante.total = parseInt($vue.ampliacionVacante.incremento) + parseInt($vue.ampliacionVacante.inicial);
         },
     },
     created: function () {
@@ -224,6 +268,30 @@ var app = new Vue({
                 error() {
                     notify(MESSAGES.errorComunicacion, "error");
                     $vue.liberarBtn(dir);
+                }
+            });
+        },
+        loadGpoSeccionActual() {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/' + $vue.navega.current + '/get'),
+                success(response) {
+                    if (response.success) {
+                        $vue.grupoSeccion = response.data.grupoSeccion;
+                        //$vue.verDocentes = true;
+                        $vue.secciones = $vue.grupoSeccion.secciones;
+                        if ($vue.idxSeccion >= $vue.secciones.length) {
+                            $vue.idxSeccion = 0;
+                        }
+                        $vue.seccionSeleccionada = $vue.secciones[$vue.idxSeccion];
+                        $vue.docentesSeccion = $vue.seccionSeleccionada.docenteSeccion;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
@@ -607,6 +675,9 @@ var app = new Vue({
         },
         getEstadoClass: function (estadoCode) {
             return "label-" + this.colorEstado[estadoCode];
+        },
+        getEstadoAmpliacionClass: function (estadoCode) {
+            return "label-" + this.colorEstadoAmpliacion[estadoCode];
         },
         loadGpoSeccionForm: function () {
             let $vue = this;
@@ -1000,6 +1071,242 @@ var app = new Vue({
                         }
                     })
         },
-        
+        solicitarIncremento() {
+
+            let $vue = this;
+
+            var tipo = $vue.seccionSeleccionada.tipoSeccion;
+            if (tipo == 'TCUR') {
+                return;
+            }
+
+            $vue.ampliacionVacante = {
+                id: null,
+                incremento: null,
+                motivo: '',
+                id: null,
+                colaborador: {id: null},
+                oficina: {id: null},
+                seccion: $vue.seccionSeleccionada,
+                inicial: $vue.seccionSeleccionada.vacantes
+            }
+
+            $vue.$refs.modalSolicitarIncremento.open();
+            var el = $vue.$refs.modalSolicitarIncremento.$el;
+            $(el).find('[name="incremento"]').numeric();
+
+        },
+        solicitarIncrementoAceptar() {
+
+            let $vue = this;
+
+            if ($('#formSolicitarIncremento').parsley().validate() !== true) {
+                return;
+            }
+
+            console.log($vue.ampliacionVacante.total);
+            console.log($vue.seccionSeleccionada.matriculados);
+
+            if ($vue.ampliacionVacante.total < $vue.seccionSeleccionada.matriculados) {
+                swal({text: 'Ya existen alumnos matriculados', icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                return;
+            }
+
+            if ($vue.seccionSeleccionada.aula.capacidadAula > 0) {
+                if ($vue.ampliacionVacante.total > $vue.seccionSeleccionada.aula.capacidadAula) {
+                    swal({text: 'Ha sobrepasado la capacidad del aula', icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                    return;
+                }
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/saveampliacionvacante'),
+                data: $('#formSolicitarIncremento').serialize(),
+                success: function (response) {
+                    if (response.success) {
+
+                        $vue.allSolicitarIncremento();
+                        $vue.$refs.modalSolicitarIncremento.close();
+                        notify(response.message, 'info');
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        allSolicitarIncremento() {
+
+            let $vue = this;
+
+            if ($vue.seccionSeleccionada == null) {
+                return;
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/allampliacionvacante'),
+                data: {id: $vue.seccionSeleccionada.id},
+                success: function (response) {
+                    if (response.success) {
+                        $vue.ampliacionVacantes = response.data;
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+
+        },
+        modificarSolicitud(ampliacion) {
+
+            let $vue = this;
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/updateampliacionvacante'),
+                data: {id: ampliacion.id},
+                success: function (response) {
+                    if (response.success) {
+
+                        $vue.ampliacionVacante = response.data;
+                        $vue.$refs.modalSolicitarIncremento.open();
+                        var el = $vue.$refs.modalSolicitarIncremento.$el;
+                        $(el).find('[name="incremento"]').numeric();
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        eliminarSolicitud(ampliacion) {
+
+            let $vue = this;
+
+            swal({
+                title: "Eliminar Registro",
+                text: "¿Desea eliminar  la solicitud de ampliación de vacante?",
+                icon: "warning",
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Aceptar", closeModal: false}
+                }
+            }).then((value) => {
+
+                if (value != true) {
+                    return;
+                }
+
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url('academico/gposeccion/deleteampliacionvacante'),
+                    async: false,
+                    data: {id: ampliacion.id},
+                    success: function (response) {
+                        if (response.success) {
+                            $vue.allSolicitarIncremento();
+                            swal({text: response.message, icon: "success", button: false, timer: 1000});
+                        } else {
+                            swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        }
+                    },
+                    error: function () {
+                        swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                    }
+                });
+
+            }).catch(err => {
+                swal(MESSAGES.errorComunicacion, "error");
+            });
+        },
+        aceptarSolicitud: function (ampliacion) {
+
+            let $vue = this;
+            console.log('aceptarSolicitud');
+            $vue.ampliacionVacante = ampliacion;
+            $vue.$refs.aceptarSolicitudIncremento.open();
+
+        },
+        rechazarSolicitud: function (ampliacion) {
+
+            let $vue = this;
+            console.log('rechazarSolicitud');
+            $vue.ampliacionVacante = ampliacion;
+            $vue.$refs.rechazarSolicitudIncremento.open();
+
+        },
+        aceptarSolicitarIncrementoSave() {
+
+            let $vue = this;
+
+            if ($('#aceptarFormSolicitarIncremento').parsley().validate() !== true) {
+                return;
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/aceptarampliacionvacante'),
+                data: $('#aceptarFormSolicitarIncremento').serialize(),
+                success: function (response) {
+                    if (response.success) {
+
+                        $vue.allSolicitarIncremento();
+                        $vue.loadGpoSeccionActual();
+                        $vue.$refs.aceptarSolicitudIncremento.close();
+                        notify(response.message, 'info');
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        rechazarSolicitarIncrementoSave() {
+
+            let $vue = this;
+
+            if ($('#rechazarFormSolicitarIncremento').parsley().validate() !== true) {
+                return;
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/rechazarampliacionvacante'),
+                data: $('#rechazarFormSolicitarIncremento').serialize(),
+                success: function (response) {
+                    if (response.success) {
+
+                        $vue.allSolicitarIncremento();
+                        $vue.$refs.rechazarSolicitudIncremento.close();
+                        notify(response.message, 'info');
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
     }
 });
