@@ -63,12 +63,14 @@ import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.pivot.controller.academico.gposeccion.clonarciclo.ClonGpoSeccionService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
@@ -82,6 +84,9 @@ public class GpoSeccionController {
 
     @Autowired
     GpoSeccionService service;
+
+    @Autowired
+    ClonGpoSeccionService clonGpoSeccionService;
 
     @Autowired
     SpringTemplateEngine springHtml;
@@ -204,6 +209,9 @@ public class GpoSeccionController {
         ObjectNode gpoSeccionJson = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax);
 
         String ruta = getOrigen(origen);
+        
+        Persona persona = ds.getPersona();        
+        List<Oficina> oficinas=clonGpoSeccionService.allOficinaByPersona(persona);
 
         List<GrupoSeccion> gpos = obtenerGruposSeccion(ids);
         gpos.add(gpoSeccion);
@@ -211,6 +219,7 @@ public class GpoSeccionController {
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
         model.addAttribute("navigationJson", createNavegationJson(ruta, gpos, gpoSeccId, ds.getCicloAcademico()).toString());
         model.addAttribute("origen", ruta);
+        model.addAttribute("oficinas", oficinas);
 
         return "academico/gposeccion/gpoSeccionForm";
     }

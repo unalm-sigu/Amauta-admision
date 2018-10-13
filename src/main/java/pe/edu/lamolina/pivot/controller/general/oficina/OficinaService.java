@@ -103,4 +103,6 @@ public interface OficinaService {
 
     List<PerfilCompania> allFuncionByColaborador(Colaborador colaborador);
 
+    List<Oficina> allOficinasMain(Persona persona);
+
 }

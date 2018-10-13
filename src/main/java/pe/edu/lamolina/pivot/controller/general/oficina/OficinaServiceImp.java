@@ -586,7 +586,8 @@ public class OficinaServiceImp implements OficinaService {
         }
     }
 
-    private List<Oficina> allOficinasMain(Persona persona) {
+    @Override
+    public List<Oficina> allOficinasMain(Persona persona) {
         List<Colaborador> colaboradores = colaboradorDAO.allActivosByPersona(persona);
         Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("oficina.id", "oficina", colaboradores);
         List<Oficina> oficinasHijas = new ArrayList(mapOficinas.values());

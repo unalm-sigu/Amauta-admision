@@ -1,7 +1,9 @@
 package pe.edu.lamolina.pivot.controller.academico.gposeccion.clonarciclo;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,9 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.AmpliacionVacante;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -90,11 +94,11 @@ public class ClonGpoSeccionController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
-            
+
             GpoSeccionResumen resumen = service.resumenByCiclo(ciclo);
-            
+
             ObjectNode noderesumen = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
-            
+
             response.setData(noderesumen);
             response.setMessage(Messages.UPDATED);
             response.setSuccess(true);
@@ -108,8 +112,7 @@ public class ClonGpoSeccionController {
         return response;
 
     }
-    
-    
+
     @ResponseBody
     @RequestMapping("reordenar")
     public JsonResponse reordenar(HttpSession session) {
@@ -133,6 +136,168 @@ public class ClonGpoSeccionController {
 
         return response;
 
+    }
+
+    @ResponseBody
+    @RequestMapping("allampliacionvacante")
+    public JsonResponse allAmpliacionVacante(Seccion seccion, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            List<AmpliacionVacante> ampliaciones = service.allAmpliacionVacante(seccion);
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jFactory);
+
+            for (AmpliacionVacante ampliacion : ampliaciones) {
+                ObjectNode node = JsonHelper.createJson(ampliacion, jFactory, true,
+                        new String[]{
+                            "*",
+                            "colaborador.id",
+                            "colaborador.cargo.nombre",
+                            "oficina.id",
+                            "oficina.nombre",
+                            "seccion.id",
+                            "colaborador.persona.id",
+                            "colaborador.persona.nombreCompleto"
+                        });
+                array.add(node);
+            }
+
+            response.setData(array);
+            response.setMessage(Messages.UPDATED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("saveampliacionvacante")
+    public JsonResponse saveAmpliacionVacante(AmpliacionVacante ampliacionVacante, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            if (ampliacionVacante.getId() == null) {
+                service.saveAmpliacionVacante(ampliacionVacante, ds);
+                response.setMessage(Messages.CREATED);
+            } else {
+                service.updateAmpliacionVacante(ampliacionVacante, ds);
+                response.setMessage(Messages.UPDATED);
+            }
+
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("updateampliacionvacante")
+    public JsonResponse updateAmpliacionVacante(AmpliacionVacante ampliacionVacanteForm, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            AmpliacionVacante ampliacion = service.findAmpliacionVacante(ampliacionVacanteForm);
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ObjectNode node = JsonHelper.createJson(ampliacion, jFactory, true, new String[]{"*", "seccion.id", "oficina.id"});
+
+            response.setData(node);
+            response.setMessage(Messages.UPDATED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("deleteampliacionvacante")
+    public JsonResponse deleteAmpliacionVacante(AmpliacionVacante ampliacionVacante, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.deleteAmpliacionVacante(ampliacionVacante);
+            response.setMessage(Messages.DELETED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("aceptarampliacionvacante")
+    public JsonResponse aceptarampliacionvacante(AmpliacionVacante ampliacionVacante, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.aceptarAmpliacionVacante(ampliacionVacante, ds);
+            response.setMessage(Messages.DELETED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("rechazarampliacionvacante")
+    public JsonResponse rechazarampliacionvacante(AmpliacionVacante ampliacionVacante, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.rechazarAmpliacionVacante(ampliacionVacante, ds);
+            response.setMessage(Messages.DELETED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
     }
 
 }
