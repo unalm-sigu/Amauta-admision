@@ -1002,6 +1002,10 @@ public class ProgDataServiceImp implements ProgDataService {
         List<Curso> cursosBD = cursoDAO.all();
         Map<String, Curso> mapCursoBD = TypesUtil.convertListToMap("codigo", cursosBD);
 
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSeccionesBD);
+        Map<String, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.codigo", secciones);
+        logger.debug("Size secciones {}", secciones.size());
+
         for (GrupoSeccion gpoSecc : gruposSecciones) {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");
@@ -1032,11 +1036,21 @@ public class ProgDataServiceImp implements ProgDataService {
                 visor.agregarLog("gpoSecc", "saveGpoSecc", "Gpo-Seccion " + gpoSeccBD.getCodigo() + " nuevo", true, "info");
 
             } else {
+                List<Seccion> secs = mapSecciones.get(gpoSeccBD.getCodigo());
+                String codi2 = null;
+                if (secs != null && !StringUtils.isBlank(secs.get(0).getCodigo2())) {
+                    if (secs.get(0).getCodigo2().length() > 3) {
+                        codi2 = secs.get(0).getCodigo2().substring(0, 3);
+                    } else {
+                        codi2 = secs.get(0).getCodigo2();
+                    }
+                }
                 gpoSeccBD.setVersion(gpoSeccBD.getVersion() == null ? "1" : gpoSeccBD.getVersion());
                 gpoSeccBD.setEstadoPlanEnum(gpoSeccBD.getEstadoPlan() == null ? EstadoPlanCalificaEnum.PEND : gpoSeccBD.getEstadoPlanEnum());
                 gpoSeccBD.setEstadoGrupo(gpoSeccBD.getEstadoGrupo() == null ? EstadoGrupoSeccionEnum.ABI.name() : gpoSeccBD.getEstadoGrupo());
                 gpoSeccBD.setEstado(EstadoEnum.ACT.name());
                 gpoSeccBD.setAnexoBoletin(anexo);
+                gpoSeccBD.setCodigo2(codi2);
                 grupoSeccionDAO.update(gpoSeccBD);
 
                 visor.agregarLog("gpoSecc", "saveGpoSecc", "Gpo-Seccion " + gpoSeccBD.getCodigo() + " ya existe, se actualizo", true, "info");
