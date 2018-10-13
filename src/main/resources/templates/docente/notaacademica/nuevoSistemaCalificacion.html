@@ -97,12 +97,12 @@
             </section>
 
             <div th:substituteby="templates/modal"/> 
-            <script id="templateNuevoSistemaCalificacion" type="text/x-jsrender" class="hide"><div th:substituteby="academico/docente/cargaacademica/templateNuevoSistemaCalificacion"/></script>
+            <script id="templateNuevoSistemaCalificacion" type="text/x-jsrender" class="hide"><div th:substituteby="docente/notaacademica/templateNuevoSistemaCalificacion"/></script>
         </div>
 
         <div layout:fragment="js">
 
-            <script th:src="@{/app/academico/docente/cargaacademica/nuevoSistema.js}" charset="utf-8"></script>
+            <script th:src="@{/app/docente/notasacademica/nuevoSistema.js}" charset="utf-8"></script>
 
         </div>
     </body>

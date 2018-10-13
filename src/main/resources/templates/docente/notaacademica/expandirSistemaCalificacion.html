@@ -13,7 +13,7 @@
 <body> 
     <div layout:fragment="main">
          <header class="header b-b padder-lg">       
-            <a th:href="@{/academico/docente/cargaacademica}" class="btn btn-sm btn-default pull-right">Regresar</a>
+            <a th:href="@{/docente/notasacademica}" class="btn btn-sm btn-default pull-right">Regresar</a>
             <h2>
                 <span th:text="|${curso.nombre} - ${ciclo.descripcion}: Asignar Evaluadores|">Sistema de Calificación SC-33</span>
             </h2>
@@ -70,11 +70,11 @@
 
         <div th:substituteby="templates/modal"/>
 
-        <script id="templateEvaluacionPlan" type="text/x-jsrender" class="hide"><div th:substituteby="academico/docente/cargaacademica/templateEvaluacionPlan"/></script>
+        <script id="templateEvaluacionPlan" type="text/x-jsrender" class="hide"><div th:substituteby="docente/notaacademica/templateEvaluacionPlan"/></script>
     </div>
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/docente/cargaacademica/expandirSistemaCalificacion.js}" charset="utf-8"></script>
+        <script th:src="@{/app/docente/notasacademica/expandirSistemaCalificacion.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>

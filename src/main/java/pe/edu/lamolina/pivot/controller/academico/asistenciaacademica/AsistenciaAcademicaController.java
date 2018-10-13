@@ -43,10 +43,10 @@ import pe.edu.lamolina.model.academico.TemaLeccion;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.LeccionReprogramada;
+import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.pivot.controller.academico.notasacademicas.NotaAcademicaService;
 
 @Controller
 @RequestMapping("academico/docente/asistenciaacademica")
@@ -55,7 +55,7 @@ public class AsistenciaAcademicaController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    NotaAcademicaService cargaAcademicaService;
+    NotaAcademicaService notaAcademicaService;
 
     @Autowired
     AsistenciaAcademicaService service;
@@ -206,7 +206,7 @@ public class AsistenciaAcademicaController {
 
         Seccion seccion = service.findSeccionDia(new Seccion(idSeccion), today);
         logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
+        GrupoSeccion grupoSeccion = notaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
         Curso curso = grupoSeccion.getCurso();
 
         ObjectNode seccionJson = JsonHelper.createJson(seccion, JsonNodeFactory.instance, true,
@@ -241,7 +241,7 @@ public class AsistenciaAcademicaController {
 
         Seccion seccion = service.findSeccionDia(temaLeccion.getSeccion(), new DateTime(temaLeccion.getFecha()));
         logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
+        GrupoSeccion grupoSeccion = notaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
         Curso curso = grupoSeccion.getCurso();
 
         ObjectNode seccionJson = JsonHelper.createJson(seccion, JsonNodeFactory.instance, true,
@@ -282,7 +282,7 @@ public class AsistenciaAcademicaController {
 
         Seccion seccion = service.findSeccionDia(new Seccion(idSeccion), today);
         logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
+        GrupoSeccion grupoSeccion = notaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
         Curso curso = grupoSeccion.getCurso();
 
         ObjectNode seccionJson = JsonHelper.createJson(seccion, JsonNodeFactory.instance, true,

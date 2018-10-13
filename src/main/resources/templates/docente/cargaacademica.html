@@ -24,86 +24,94 @@
                 <section class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
-                            <raptor-table v-bind:url="`/academico/profesor/${docente.id}/listCargaAcademicaDocente`" v-bind:searcher="false" v-bind:paginate="false">
+                            <raptor-table v-bind:url="`/docente/cargaacademica/list`" v-bind:searcher="false" v-bind:paginate="false">
                                 <template scope="props">
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th class="col-md-4">Curso</th>
-                                                <th class="col-md-1 text-center">Tipo Ciclo</th>
-                                                <th class="col-md-3 text-center">Claves</th>
-                                                <th class="col-md-2 text-center">Sistema de Calificación</th>
-                                                <th class="col-md-1 text-center">Estado Plan</th>
-                                                <th class="col-md-1 text-center">Estado Acta</th>
-                                                <th class="col-md-1"></th>
+                                                <th class="col-md-5">Curso</th>
+                                                <th class="col-md-1 text-center">Tipo</th>
+                                                <th class="col-md-1 text-center">Sección</th>
+                                                <th class="col-md-1 text-center">Aula</th>
+                                                <th class="col-md-1 text-center">Grupo</th>
+                                                <th class="col-md-1 text-center">Alumnos</th>
+                                                <th class="col-md-1 text-center">% Carga</th>
+                                                <th class="col-md-2 text-center">Periodo</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <tr v-for="item in props.data"> 
-                                                <td class="v-middle padder-v" v-bind:style="item.styleHijo">
-                                                    <p class="h4 text-info">{{item.nombre}}</p>
-                                                    <small class="block text-muted">Código: {{item.codigo}}</small>
-                                                    <small class="block text-muted">TPC: {{item.tpc}}</small>
-                                                    <span v-html="buildResponsable(item)"/>
+                                        <tbody v-for="item in props.data">
+                                            <tr> 
+                                                <td class="v-middle padder-v" v-bind:style="item.styleHijo"
+                                                    v-bind:rowspan="item.secciones.length">
+                                                    <div class="h4 text-primary m-t-xs m-b-xs">{{item.curso.nombre}}</div>
+                                                    <span class="block m-b-xs">
+                                                        {{item.curso.codigo}} &nbsp;&nbsp; <i class="fa fa-bookmark-o"></i> {{item.curso.tpc}}
+                                                    </span>
+                                                </td>
+
+                                        <template v-for="(seccion,idx) in item.secciones"
+                                                  v-if="idx==0">
+                                            <td class="v-middle text-center">
+                                                <span v-if="seccion.tipoSeccionEnum.name==='PCUR'" class="fa fa-flask fa-lg"/>
+                                                <span v-else-if="seccion.tipoSeccionEnum.name==='PRA'" class="fa fa-flask  fa-lg"/>
+                                                <span v-else="" class="fa fa-book"/>
+                                                <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{seccion.codigo2}}
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{seccion.aula.codigo}}
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{seccion.grupoHoras.codigo}}
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{seccion.matriculados}}
+                                            </td>
+                                            <template v-for="profeSecc in seccion.docenteSeccion">
+                                                <td class="v-middle text-center">
+                                                    <span v-if="profeSecc.porcentajeCarga != '' ">{{profeSecc.porcentajeCarga.toFixed(2)}} </span>
                                                 </td>
                                                 <td class="v-middle text-center">
-                                                    {{item.tipoCiclo}}
+                                                    {{profeSecc.fechaInicio}}
+                                                    {{profeSecc.fechaFin}}
                                                 </td>
-                                                <td class="v-middle text-center">
-                                                    <span v-html="buildSeccionesHtml(item)"/>{{item.seccionesHtml}}
-                                                </td>
+                                            </template>
+                                        </template>
+                                        </tr>
 
-                                                <td class="text-center v-middle">
-                                                    <input type="hidden" v-bind:value="item.id"/>
-                                                    <input type="hidden" v-bind:value="item.idSistemaCalificacion"/>
+                                        <tr v-for="(seccion,idx) in item.secciones"
+                                            v-if="idx>0"> 
+                                            <td class="v-middle text-center">
+                                                <span v-if="seccion.tipoSeccionEnum.name==='PCUR'" class="fa fa-flask  fa-lg"/>
+                                                <span v-else-if="seccion.tipoSeccionEnum.name==='PRA'" class="fa fa-flask  fa-lg"/>
+                                                <span v-else="" class="fa fa-book"/>
+                                                <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{seccion.codigo2}}
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{seccion.aula.codigo}}
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{seccion.grupoHoras.codigo}}
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{seccion.matriculados}}
+                                            </td>
+                                        <template v-for="profeSecc in seccion.docenteSeccion">
+                                            <td class="v-middle text-center">
+                                                <span v-if="profeSecc.porcentajeCarga != '' ">{{profeSecc.porcentajeCarga.toFixed(2)}} </span>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{profeSecc.fechaInicio}}
+                                                {{profeSecc.fechaFin}}
+                                            </td>
+                                        </template>
+                                        </tr>
 
-                                                    <a v-if="item.sistemas === ''" href="#" class="label label-warning sistema-calificacion" rel="{{item.idSistemaCalificacion}}">{{item.sistemaCalificacion}}</a>
-                                                    <span v-if="item.sistemas !== ''">{{item.sistemasHtml}}</span>  
-
-                                                    <div v-if="item.estadoSistema === 'PRO'">
-                                                        <span class="block">
-                                                            <a href="#" class="label label-warning aceptar-sistema-calificacion">{{item.sistemaCalificacion}}</a>
-                                                        </span>
-                                                        <span class="block text-primary" >
-                                                            <a href="#" class="aceptar-sistema-calificacion"> Cursos : {{item.cantidadCursos}} </a>	
-                                                        </span>
-                                                    </div>
-
-                                                    <div v-if="item.estadoSistema === 'SOL' || item.estadoSistema === 'OBS'"> 
-                                                        <span class="block">
-                                                            <a href="#" class="label label-warning sistema-calificacion">{{item.sistemaCalificacion}}</a>
-                                                        </span>
-                                                        <span class="block text-primary" >
-                                                            <a href="#" class="sistema-calificacion"> Cursos : {{item.cantidadCursos}} </a>	
-                                                        </span>
-                                                    </div>
-
-                                                    <div v-if="['ACEP', 'EXP', 'EXPR'].includes(item.estadoSistema)">
-                                                        <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
-                                                        <span class="block"><a href="#" class="notas-academicas">Ingresar notas</a></span>
-                                                    </div>
-                                                    <div v-if="['RHZ'].includes(item.estadoSistema)">
-                                                        <span class="block"><a href="#" class="aceptar-sistema-calificacion">Rechazado</a></span>
-                                                    </div>
-                                                    <div v-if="['CER'].includes(item.estadoSistema)">
-                                                        <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
-                                                        <span class="block"><a href="#" class="ver-notas-academicas">Notas académicas</a></span>
-                                                    </div>
-                                                    <div v-if="['EXPR'].includes(item.estadoSistema)">
-
-                                                    </div>
-                                                </td>
-                                                <td class="text-center v-middle">
-                                                    <span class="label label-success">{{item.estadoEnum}}</span>
-                                                </td>
-                                                <td class="text-center v-middle">
-                                                    <span class="label label-success">{{item.estadoGrupoEnum}}</span>
-
-                                                </td>
-                                                <td class="text-center v-middle">
-
-                                                </td>
-                                            </tr>
                                         </tbody>
                                     </table>
                                 </template>
