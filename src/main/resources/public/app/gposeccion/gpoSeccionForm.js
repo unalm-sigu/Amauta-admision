@@ -190,11 +190,16 @@ var app = new Vue({
             okbtn: 'Rechazar',
             modalsize: 'modal-md'
         },
+        fusion: {
+            seccion: {id: null}
+        },
+        alumnos: []
     },
     watch: {
         seccionSeleccionada: function (val) {
             let $vue = this;
             $vue.allSolicitarIncremento();
+            $vue.allAlumnoBySeccion();
         },
         "ampliacionVacante.incremento": function () {
             let $vue = this;
@@ -1236,7 +1241,7 @@ var app = new Vue({
         aceptarSolicitud: function (ampliacion) {
 
             let $vue = this;
-            console.log('aceptarSolicitud');
+
             $vue.ampliacionVacante = ampliacion;
             $vue.$refs.aceptarSolicitudIncremento.open();
 
@@ -1244,7 +1249,7 @@ var app = new Vue({
         rechazarSolicitud: function (ampliacion) {
 
             let $vue = this;
-            console.log('rechazarSolicitud');
+
             $vue.ampliacionVacante = ampliacion;
             $vue.$refs.rechazarSolicitudIncremento.open();
 
@@ -1308,5 +1313,73 @@ var app = new Vue({
             });
 
         },
+        trasladarAlumnos() {
+
+            let $vue = this;
+
+            swal({
+                title: "Trasladar Alumnos",
+                text: "¿Desea trasladar a los alumnos seleccionados?",
+                icon: "warning",
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Aceptar", closeModal: false}
+                }
+            }).then((value) => {
+
+                if (value != true) {
+                    return;
+                }
+                
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url('academico/gposeccion/trasladar'),
+                    async: false,
+                    data: {id: ampliacion.id},
+                    success: function (response) {
+                        if (response.success) {
+                            
+                            $vue.allAlumnoBySeccion();
+                            
+                            swal({text: response.message, icon: "success", button: false, timer: 1000});
+                        } else {
+                            swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        }
+                    },
+                    error: function () {
+                        swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                    }
+                });
+
+            }).catch(err => {
+                swal(MESSAGES.errorComunicacion, "error");
+            });
+
+        },
+        allAlumnoBySeccion() {
+
+            let $vue = this;
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/allalumno'),
+                data: {id: $vue.seccionSeleccionada.id},
+                success: function (response) {
+                    if (response.success) {
+
+                        $vue.alumnos = response.data;
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+
+        }
     }
 });
