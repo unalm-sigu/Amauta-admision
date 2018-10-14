@@ -417,13 +417,13 @@
 
                                         <div class="tabbable-line" style="margin-top: 8px;">	
                                             <ul class="nav nav-tabs">
-                                                <li class="active">
+                                                <li v-bind:class="getClassTab('DOCENTES')" v-on:click="verTab('DOCENTES')">
                                                     <a href="#1Conte" data-toggle="tab">Docentes</a>
                                                 </li>
-                                                <li>
-                                                    <a href="#2Conte" data-toggle="tab">Vacantes</a>
+                                                <li v-bind:class="getClassTab('AMPLIACIONES')" v-on:click="verTab('AMPLIACIONES')">
+                                                    <a href="#2Conte" data-toggle="tab">Ampliación Vacantes</a>
                                                 </li>
-                                                <li>
+                                                <li v-bind:class="getClassTab('AULAS')" v-on:click="verTab('AULAS')">
                                                     <a href="#3Conte" data-toggle="tab">Aulas</a>
                                                 </li>
                                             </ul>
@@ -431,13 +431,13 @@
                                     </header>
 
                                     <div class="tab-content">
-                                        <div class="tab-pane active" id="1Conte">
+                                        <div class="tab-pane" v-bind:class="getClassTab('DOCENTES')" id="1Conte">
                                             <div th:substituteby="academico/gposeccion/includes/docenteSeccionForm"/>
                                         </div>
-                                        <div class="tab-pane" id="2Conte">
+                                        <div class="tab-pane" v-bind:class="getClassTab('AMPLIACIONES')" id="2Conte">
                                             <div th:substituteby="academico/gposeccion/includes/vacanteSeccionForm"/>
                                         </div>
-                                        <div class="tab-pane" id="3Conte">
+                                        <div class="tab-pane" v-bind:class="getClassTab('AULAS')" id="3Conte">
                                             <div th:substituteby="academico/gposeccion/includes/aulaSeccionForm"/>
                                         </div>
                                     </div>
@@ -509,11 +509,11 @@
 
                 <div slot="body">
 
-                    <form class="panel-body" id="formSolicitarIncremento"  data-parsley-validate="true">
+                    <form class="panel-body" id="formAmpliarVacante"  data-parsley-validate="true">
 
                         <input type="hidden" name="seccion.id"  v-bind:value="ampliacionVacante.seccion.id" />
 
-                        <input type="hidden" name="id"  v-bind:value="ampliacionVacante.id" />
+                        <!--<input type="hidden" name="id"  v-bind:value="ampliacionVacante.id" />-->
 
                         <div class="form-group" >
                             <label  class="control-label">Solicitante</label>
@@ -545,8 +545,8 @@
 
                             <div class="col-xs-3 text-center">
                                 <label>Vacante Actual </label>
-                                <input type="hidden" name="inicial"  v-bind:value="ampliacionVacante.inicial" />
-                                <p class="capitalize text-primary h5" v-text="ampliacionVacante.inicial"></p>
+                                <input type="hidden" name="vacantesInicio"  v-bind:value="ampliacionVacante.vacantesInicio" />
+                                <p class="capitalize text-primary h5" v-text="ampliacionVacante.vacantesInicio"></p>
                             </div>
 
                             <div class="col-xs-3 text-center">
@@ -556,8 +556,8 @@
 
                             <div class="col-xs-3 text-center">
                                 <label>Vacante Final </label>
-                                <input type="hidden" name="total"  v-bind:value="ampliacionVacante.total" />
-                                <p class="capitalize text-primary h5"  v-text="ampliacionVacante.total"></p>
+                                <input type="hidden" name="vacantesFin"  v-bind:value="ampliacionVacante.vacantesFin" />
+                                <p class="capitalize text-primary h5"  v-text="ampliacionVacante.vacantesFin"></p>
                             </div>
 
                             <div class="col-xs-3 text-center">
@@ -581,14 +581,8 @@
                 <div slot="body">
 
                     <form class="panel-body" id="aceptarFormSolicitarIncremento"  data-parsley-validate="true">
-
                         <input type="hidden" name="id"  v-bind:value="ampliacionVacante.id" />
-
-                        <div class="form-group" >
-                            <label  class="control-label">Motivo</label>
-                            <textarea class="form-control" maxlength="200" v-model="ampliacionVacante.comentarioRespuesta" required="true" name="motivo" ></textarea>
-                        </div>
-
+                        <p class="h4 m-t-xs m-b-xs">¿Está seguro que aceptar esta ampliación de vacantes?</p>
                     </form>
 
                 </div>
@@ -600,13 +594,13 @@
 
                 <div slot="body">
 
-                    <form class="panel-body" id="rechazarFormSolicitarIncremento"  data-parsley-validate="true">
+                    <form class="panel-body" id="formRechazaAmpliacion"  data-parsley-validate="true">
 
                         <input type="hidden" name="id"  v-bind:value="ampliacionVacante.id" />
 
                         <div class="form-group" >
-                            <label  class="control-label">Motivo</label>
-                            <textarea class="form-control" maxlength="200" v-model="ampliacionVacante.comentarioRespuesta" required="true" name="motivo" ></textarea>
+                            <label  class="control-label">Indique el motivo del rechazo</label>
+                            <textarea class="form-control" maxlength="200" v-model="ampliacionVacante.comentarioRespuesta" required="true" name="comentarioRespuesta" ></textarea>
                         </div>
 
                     </form>

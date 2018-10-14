@@ -388,7 +388,14 @@ public class GpoSeccionController {
                 "docenteSeccion.principal",
                 "docenteSeccion.porcentajeCarga",
                 "docenteSeccion.docente.codigo",
-                "docenteSeccion.docente.persona.apellidosNombres"
+                "docenteSeccion.docente.persona.apellidosNombres",
+                "ampliacionesVacantes.*",
+                "ampliacionesVacantes.seccion.id",
+                "ampliacionesVacantes.colaborador.id",
+                "ampliacionesVacantes.colaborador.cargo.nombre",
+                "ampliacionesVacantes.colaborador.persona.nombreCompleto",
+                "ampliacionesVacantes.oficina.id",
+                "ampliacionesVacantes.oficina.nombre",
             });
 
             BigDecimal porcentajeAvance = BigDecimal.ZERO;

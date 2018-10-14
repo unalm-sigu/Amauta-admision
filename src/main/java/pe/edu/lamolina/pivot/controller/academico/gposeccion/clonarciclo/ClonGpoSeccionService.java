@@ -1,7 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.gposeccion.clonarciclo;
 
 import java.util.List;
-import pe.edu.lamolina.model.academico.AmpliacionVacante;
+import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Oficina;
@@ -21,20 +21,18 @@ public interface ClonGpoSeccionService {
 
     void limpiarCodigo2(CicloAcademico ciclo, DataSessionPivot ds);
 
-    List<AmpliacionVacante> allAmpliacionVacante(Seccion seccion);
+    List<AmpliacionVacantes> allAmpliacionVacante(Seccion seccion);
 
-    AmpliacionVacante findAmpliacionVacante(AmpliacionVacante ampliacionVacanteForm);
+    AmpliacionVacantes findAmpliacionVacante(AmpliacionVacantes ampliacionVacanteForm);
 
-    void saveAmpliacionVacante(AmpliacionVacante ampliacionVacante, DataSessionPivot ds);
+    void saveAmpliacionVacante(AmpliacionVacantes ampliacionVacante, DataSessionPivot ds);
 
-    void updateAmpliacionVacante(AmpliacionVacante ampliacionVacante, DataSessionPivot ds);
-
-    void deleteAmpliacionVacante(AmpliacionVacante ampliacionVacante);
+    void deleteAmpliacionVacante(AmpliacionVacantes ampliacionVacante, DataSessionPivot ds);
 
     List<Oficina> allOficinaByPersona(Persona persona);
 
-    void rechazarAmpliacionVacante(AmpliacionVacante ampliacionVacante, DataSessionPivot ds);
+    void rechazarAmpliacionVacante(AmpliacionVacantes ampliacionVacante, DataSessionPivot ds);
 
-    void aceptarAmpliacionVacante(AmpliacionVacante ampliacionVacante, DataSessionPivot ds);
+    void aceptarAmpliacionVacante(AmpliacionVacantes ampliacionVacante, DataSessionPivot ds);
 
 }

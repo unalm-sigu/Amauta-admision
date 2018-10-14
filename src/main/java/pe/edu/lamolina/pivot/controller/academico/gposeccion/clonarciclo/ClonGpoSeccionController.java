@@ -15,7 +15,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.AmpliacionVacante;
+import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
@@ -146,11 +146,11 @@ public class ClonGpoSeccionController {
 
         try {
 
-            List<AmpliacionVacante> ampliaciones = service.allAmpliacionVacante(seccion);
+            List<AmpliacionVacantes> ampliaciones = service.allAmpliacionVacante(seccion);
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(jFactory);
 
-            for (AmpliacionVacante ampliacion : ampliaciones) {
+            for (AmpliacionVacantes ampliacion : ampliaciones) {
                 ObjectNode node = JsonHelper.createJson(ampliacion, jFactory, true,
                         new String[]{
                             "*",
@@ -181,22 +181,13 @@ public class ClonGpoSeccionController {
 
     @ResponseBody
     @RequestMapping("saveampliacionvacante")
-    public JsonResponse saveAmpliacionVacante(AmpliacionVacante ampliacionVacante, HttpSession session) {
+    public JsonResponse saveAmpliacionVacante(AmpliacionVacantes ampliacionVacante, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-
         try {
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-            if (ampliacionVacante.getId() == null) {
-                service.saveAmpliacionVacante(ampliacionVacante, ds);
-                response.setMessage(Messages.CREATED);
-            } else {
-                service.updateAmpliacionVacante(ampliacionVacante, ds);
-                response.setMessage(Messages.UPDATED);
-            }
-
+            service.saveAmpliacionVacante(ampliacionVacante, ds);
+            response.setMessage("Solictud de ampliación registrada satisfactoriamente");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -210,13 +201,13 @@ public class ClonGpoSeccionController {
 
     @ResponseBody
     @RequestMapping("updateampliacionvacante")
-    public JsonResponse updateAmpliacionVacante(AmpliacionVacante ampliacionVacanteForm, HttpSession session) {
+    public JsonResponse updateAmpliacionVacante(AmpliacionVacantes ampliacionVacanteForm, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
         try {
 
-            AmpliacionVacante ampliacion = service.findAmpliacionVacante(ampliacionVacanteForm);
+            AmpliacionVacantes ampliacion = service.findAmpliacionVacante(ampliacionVacanteForm);
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
             ObjectNode node = JsonHelper.createJson(ampliacion, jFactory, true, new String[]{"*", "seccion.id", "oficina.id"});
 
@@ -235,14 +226,14 @@ public class ClonGpoSeccionController {
 
     @ResponseBody
     @RequestMapping("deleteampliacionvacante")
-    public JsonResponse deleteAmpliacionVacante(AmpliacionVacante ampliacionVacante, HttpSession session) {
+    public JsonResponse deleteAmpliacionVacante(AmpliacionVacantes ampliacionVacante, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
         try {
-
-            service.deleteAmpliacionVacante(ampliacionVacante);
-            response.setMessage(Messages.DELETED);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.deleteAmpliacionVacante(ampliacionVacante, ds);
+            response.setMessage("Ampliación anulada");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -256,7 +247,7 @@ public class ClonGpoSeccionController {
 
     @ResponseBody
     @RequestMapping("aceptarampliacionvacante")
-    public JsonResponse aceptarampliacionvacante(AmpliacionVacante ampliacionVacante, HttpSession session) {
+    public JsonResponse aceptarampliacionvacante(AmpliacionVacantes ampliacionVacante, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
@@ -265,7 +256,7 @@ public class ClonGpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.aceptarAmpliacionVacante(ampliacionVacante, ds);
-            response.setMessage(Messages.DELETED);
+            response.setMessage("Ampliación aceptada");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -279,7 +270,7 @@ public class ClonGpoSeccionController {
 
     @ResponseBody
     @RequestMapping("rechazarampliacionvacante")
-    public JsonResponse rechazarampliacionvacante(AmpliacionVacante ampliacionVacante, HttpSession session) {
+    public JsonResponse rechazarampliacionvacante(AmpliacionVacantes ampliacionVacante, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
@@ -288,7 +279,7 @@ public class ClonGpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.rechazarAmpliacionVacante(ampliacionVacante, ds);
-            response.setMessage(Messages.DELETED);
+            response.setMessage("Ampliación rechazada");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
