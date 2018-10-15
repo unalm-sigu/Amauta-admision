@@ -318,7 +318,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
         t1 = System.currentTimeMillis();
         logger.debug("saveAlumnos");
-        //this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
 
@@ -332,7 +332,19 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         logger.debug("revisionPreviaGpoSecciones");
         progDataService.revisionPreviaGpoSecciones(gruposSecciones, ciclo);
         t2 = System.currentTimeMillis();
-        logger.debug("\revisionPreviaGpoSecciones ejecutado en {} mseg", (t2 - t1));
+        logger.debug("\trevisionPreviaGpoSecciones ejecutado en {} mseg", (t2 - t1));
+
+        t1 = System.currentTimeMillis();
+        logger.debug("codigo2NullGpoSeccion");
+        progDataService.codigo2NullGpoSeccion(ciclo);
+        t2 = System.currentTimeMillis();
+        logger.debug("\tcodigo2NullGpoSeccion ejecutado en {} mseg", (t2 - t1));
+
+        t1 = System.currentTimeMillis();
+        logger.debug("codigo2NullSeccion");
+        progDataService.codigo2NullSeccion(ciclo);
+        t2 = System.currentTimeMillis();
+        logger.debug("\tcodigo2NullSeccion ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("loadDataGpoSecciones");
@@ -360,19 +372,25 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
         t1 = System.currentTimeMillis();
         logger.debug("loadDataMatriculados");
-        //Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
+        Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("revisarAlumnosMatriculados");
-        //revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
+        revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("revisarSecciones");
         progDataService.revisarSecciones(secciones, ciclo);
+        t2 = System.currentTimeMillis();
+        logger.debug("\trevisarSecciones ejecutado en {} mseg", (t2 - t1));
+
+        t1 = System.currentTimeMillis();
+        logger.debug("revisarSecciones");
+        progDataService.revisarGrupoSecciones(gruposSecciones, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarSecciones ejecutado en {} mseg", (t2 - t1));
 
@@ -537,7 +555,6 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
     }
 
     private void revisarAlumnosMatriculados(CicloAcademico ciclo, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueados) {
-//        List<MatriculaResumen> alumnosResumen = matriculaResumenDAO.allByCiclo(ciclo);
         List<MatriculaResumen> alumnosResumen = new ArrayList(mapResumenes.values());
         int loop = 1;
         for (MatriculaResumen aluResumen : alumnosResumen) {
@@ -772,7 +789,6 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
                 String gpo = entry.getKey();
                 GrupoHoras grupo = mapGrupos.get(gpo);
                 List<DiaHoraGrupo> hdiaGpo = entry.getValue();
-                //List<DiaHoraGrupo> hdiaGpoBD = diaHoraGrupoDAO.allByGrupo(grupo, ciclo);
                 List<DiaHoraGrupo> hdiaGpoBD = mapHorarioGpos.get(grupo.getId());
                 hdiaGpoBD = (hdiaGpoBD == null) ? new ArrayList() : hdiaGpoBD;
                 ListsInspector inspector = TypesUtil.analizeLists(hdiaGpoBD, hdiaGpo, "key");
@@ -892,7 +908,6 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
                     logger.debug("\tNo existe PTM!!!!");
                 }
                 List<HorarioSeccion> horarioSecc = entry.getValue();
-                //List<HorarioSeccion> horarioSeccBD = horarioSeccionDAO.allBySeccion(seccion);
                 List<HorarioSeccion> horarioSeccBD = mapHorariosSecciones.get(seccion.getId());
                 horarioSeccBD = (horarioSeccBD == null) ? new ArrayList() : horarioSeccBD;
                 ListsInspector inspector = TypesUtil.analizeLists(horarioSeccBD, horarioSecc, "key");
@@ -934,7 +949,6 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
                     logger.debug("\tNo existe PTM!!!!");
                 }
                 List<HorarioAula> horarioSecc = entry.getValue();
-                //List<HorarioSeccion> horarioSeccBD = horarioSeccionDAO.allBySeccion(seccion);
                 List<HorarioAula> horarioAulaBD = mapHorariosAulas.get(seccion.getId());
                 horarioAulaBD = (horarioAulaBD == null) ? new ArrayList() : horarioAulaBD;
                 ListsInspector inspector = TypesUtil.analizeLists(horarioAulaBD, horarioSecc, "key");
@@ -1540,12 +1554,13 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
                 String gclave = getCellStringValue(2, row);
                 String curso = getCellStringValue(3, row);
                 String anexo = getCellStringValue(5, row);
+                String dirigido = getCellStringValue(6, row);
 
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
 
-                GrupoSeccion gpoSecc = new GrupoSeccion(gclave, curso, anexo);
+                GrupoSeccion gpoSecc = new GrupoSeccion(gclave, curso, anexo, dirigido);
                 gpoSecciones.add(gpoSecc);
             }
             logger.debug("Se han leido un total de {} grupos-secciones", loop);

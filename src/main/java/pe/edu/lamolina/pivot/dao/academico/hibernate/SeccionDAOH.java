@@ -344,4 +344,22 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         return find(sql);
     }
 
+    @Override
+    public void setCodigo2Null(CicloAcademico ciclo) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" update ").append(Seccion.class.getSimpleName()).append(" as se ");
+        sql.append("    set codigo2 = null ");
+        sql.append("  where exists ( ");
+        sql.append("      select 1 ");
+        sql.append("        from ").append(GrupoSeccion.class.getSimpleName()).append(" as gs ");
+        sql.append("       where gs.id = se.grupoSeccion.id ");
+        sql.append("         and gs.cicloAcademico.id = :CICLO ");
+        sql.append("  ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameter("CICLO", ciclo.getId());
+
+        query.executeUpdate();
+    }
+
 }

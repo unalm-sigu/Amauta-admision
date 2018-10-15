@@ -47,18 +47,19 @@ new Vue({
     },
     watch: {
         orderbycodigo() {
-            
-            let $vue = this;
-            
-            if ($vue.orderbycodigo) {
-                $vue.$refs.load.querie.push({name: 'order-codigo', value: 'asc'});
-            } else {
-                var myfilter = $vue.$refs.load.querie.find(item => item.name === 'order-codigo');
-                var inx = $vue.$refs.load.querie.indexOf(myfilter);
-                $vue.$refs.load.querie.splice(inx, 1);
-            }
 
-            $vue.$refs.load.loadRemoteData();
+            let $vue = this;
+            $vue.loadRegistros(null);
+
+//            if ($vue.orderbycodigo) {
+//                $vue.$refs.load.querie.push({name: 'order-codigo', value: 'asc'});
+//            } else {
+//                var myfilter = $vue.$refs.load.querie.find(item => item.name === 'order-codigo');
+//                var inx = $vue.$refs.load.querie.indexOf(myfilter);
+//                $vue.$refs.load.querie.splice(inx, 1);
+//            }
+//
+//            $vue.$refs.load.loadRemoteData();
 
         }
     },
@@ -73,6 +74,14 @@ new Vue({
             $vue.seleccionado = tipo;
             $vue.$refs.load.querie.push({name: 'anexo-superior', value: tipo});
         }
+
+        let orderBy = $vue.$refs.load.getParameterByName('queries[order-codigo]');
+        orderBy = (orderBy == null) ? '' : orderBy;
+        if (orderBy != '') {
+            $vue.orderbycodigo = true;
+            $vue.$refs.load.querie.push({name: 'order-codigo', value: orderBy});
+        }
+
         $vue.loadDataInicial();
 
         let anx = $vue.$refs.load.getParameterByName('queries[anexo]');
@@ -132,7 +141,7 @@ new Vue({
         clearAll() {
             let $vue = this;
             $vue.anexoSelect = {};
-            $vue.gpoSeccionesAnexo(null);
+            $vue.loadRegistros(null);
         },
         verificarAnexoSelect() {
             let $vue = this;
@@ -225,7 +234,7 @@ new Vue({
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
         },
-        verAnexos(tipo) {
+        verAnexo(tipo) {
             let $vue = this;
             $vue.$refs.load.querie = [];
 
@@ -248,11 +257,21 @@ new Vue({
 
             $vue.loadAnexosVisibles();
             $vue.verificarAnexoSelect();
-            $vue.settingUrlAnexoSelect();
+            $vue.settingUrlAnexoInferior();
+            $vue.settingUrlOrderCodigo();
             $vue.$refs.load.loadRemoteData();
 
         },
-        settingUrlAnexoSelect() {
+        settingUrlOrderCodigo() {
+            let $vue = this;
+
+            if (!$vue.orderbycodigo) {
+                $vue.$refs.load.changeUrl('queries[order-codigo]', null);
+                return;
+            }
+            $vue.$refs.load.querie.push({name: 'order-codigo', value: "asc"});
+        },
+        settingUrlAnexoInferior() {
             let $vue = this;
 
             if ($vue.anexoSelect == null) {
@@ -265,13 +284,14 @@ new Vue({
             }
             $vue.$refs.load.querie.push({name: 'anexo', value: $vue.anexoSelect.id});
         },
-        gpoSeccionesAnexo(item) {
+        loadRegistros(item) {
             let $vue = this;
             $vue.$refs.load.querie = [];
             if ($vue.seleccionado !== '') {
                 $vue.$refs.load.querie.push({name: 'anexo-superior', value: $vue.seleccionado});
             }
-            $vue.settingUrlAnexoSelect();
+            $vue.settingUrlAnexoInferior();
+            $vue.settingUrlOrderCodigo();
             $vue.$refs.load.loadRemoteData();
 
         },

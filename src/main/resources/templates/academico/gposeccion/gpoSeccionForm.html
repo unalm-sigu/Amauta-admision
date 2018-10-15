@@ -68,7 +68,7 @@
                                 <div class="row">
                                     <div class="col-md-1 text-center">
                                         <div class="avatar-gposecc"
-                                             v-text='grupoSeccion.codigo2'>234</div>
+                                             v-text='grupoSeccion.codigo2'>999</div>
                                         <a class="label label-primary m-t-xs" v-on:click="openClonar"> Clonar </a>
                                     </div>
 
@@ -85,7 +85,13 @@
                                             <div class="col-md-1 text-curso">Curso</div>
                                             <div class="col-md-11">
                                                 <span class="block text-curso" v-text="grupoSeccion.curso.codigo + ' - ' + grupoSeccion.curso.nombre"></span>
-                                                <span class="block bold" v-text="grupoSeccion.curso.tpc"></span>
+                                                <span class="block bold">
+                                                    <i class="fa fa-bookmark text-primary"></i>
+                                                    <span v-text="grupoSeccion.curso.tpc"></span> &nbsp;
+                                                    <span v-if="grupoSeccion.estado == 'ACT' " class="label label-success" v-text="grupoSeccion.estadoEnum.value"></span>
+                                                    <span v-else="" class="label label-danger" v-text="grupoSeccion.estadoEnum.value"></span> &nbsp;
+                                                    <span v-if="grupoSeccion.cursoDirigido" class="label label-primary">Curso Dirigido</span>
+                                                </span>
                                             </div>
                                         </div>
                                         <!--div class="row">
@@ -330,16 +336,16 @@
                                                 </input>   
                                             </td>
                                             <td class="text-center v-middle">
-                                                <div v-if="seccion.isTipoSeccionTCUR" >
+                                                <div v-if="seccion.isTipoSeccionTCUR || seccion.estado == 'INA' " >
                                                     {{ seccion.vacantes }}
                                                 </div>
-
-                                                <div v-if="!seccion.isTipoSeccionTCUR" 
+                                                <div v-else="" 
                                                      v-show="!seccion.editVacantes &amp;&amp; !directEditSecciones">
                                                     <a v-on:click="seccion.editVacantes=true" class="pointer"> {{ seccion.vacantes }} </a>
                                                 </div>
 
-                                                <input v-if="!seccion.isTipoSeccionTCUR" 
+                                                <template v-if="seccion.isTipoSeccionTCUR || seccion.estado == 'INA' " ></template>
+                                                <input v-else="" 
                                                        v-show="seccion.editVacantes || directEditSecciones" 
                                                        size="5"
                                                        class="form-control"
@@ -377,14 +383,12 @@
                                                             </a>
                                                             <a href="#"
                                                                v-if="seccion.isEstadoActivo || seccion.isEstadoCreado"
-                                                               v-on:click="anularSeccion(seccion)"
-                                                               >
+                                                               v-on:click="anularSeccion(seccion)">
                                                                 Anular
                                                             </a>
                                                             <a href="#"
                                                                v-if="seccion.isEstadoActivo"
-                                                               v-on:click="bloquearSeccion(seccion)"
-                                                               >
+                                                               v-on:click="bloquearSeccion(seccion)">
                                                                 Bloquear
                                                             </a>
                                                         </li>
@@ -397,7 +401,7 @@
                                 </table>
 
                                 <a class="btn btn-info btn-sm pull-right m-t-xs"
-                                   v-if="grupoSeccion.curso.tipoCursoEnum.name == 'TEOPRA' "
+                                   v-if="grupoSeccion.curso.tipoCursoEnum.name == 'TEOPRA' &amp;&amp; grupoSeccion.estado == 'ACT' "
                                    v-on:click="addSeccion">
                                     <i class="fa fa-plus add-seccion" aria-hidden="true"></i> <strong> Agregar Sección</strong>
                                 </a>
@@ -411,10 +415,10 @@
 
                                     <header class="page-header m-t-xs m-b-xs">
 
-                                        <a class="btn btn-info btn-sm pull-right m-t-xs" href="#"
+<!--                                        <a class="btn btn-info btn-sm pull-right m-t-xs" href="#"
                                            v-on:click.prevent="solicitarIncremento()">
                                             Solicitar Incremento
-                                        </a>
+                                        </a>-->
 
                                         <h4 class="text-primary">Configuración sección {{seccionSeleccionada.codigo2}}</h4>
 

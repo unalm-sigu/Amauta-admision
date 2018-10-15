@@ -46,6 +46,7 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -991,7 +992,7 @@ public class ProgDataServiceImp implements ProgDataService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo) {
-        int loop = 0;
+
         List<GrupoSeccion> gpoSeccionesBD = grupoSeccionDAO.allByCiclo(ciclo);
         Map<String, GrupoSeccion> mapGpoSeccionBD = TypesUtil.convertListToMap("codigo", gpoSeccionesBD);
 
@@ -1006,6 +1007,7 @@ public class ProgDataServiceImp implements ProgDataService {
         Map<String, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.codigo", secciones);
         logger.debug("Size secciones {}", secciones.size());
 
+        int loop = 0;
         for (GrupoSeccion gpoSecc : gruposSecciones) {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");
@@ -1028,7 +1030,8 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setVersion("1");
                 gpoSeccBD.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
                 gpoSeccBD.setEstadoGrupo(EstadoGrupoSeccionEnum.ABI.name());
-                gpoSeccBD.setEstado(EstadoEnum.ACT.name());
+                gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.ACT);
+                gpoSeccBD.setCursoDirigido(gpoSecc.getCursoDirigido());
                 gpoSeccBD.setAnexoBoletin(anexo);
 
                 grupoSeccionDAO.save(gpoSeccBD);
@@ -1036,21 +1039,12 @@ public class ProgDataServiceImp implements ProgDataService {
                 visor.agregarLog("gpoSecc", "saveGpoSecc", "Gpo-Seccion " + gpoSeccBD.getCodigo() + " nuevo", true, "info");
 
             } else {
-                List<Seccion> secs = mapSecciones.get(gpoSeccBD.getCodigo());
-                String codi2 = null;
-                if (secs != null && !StringUtils.isBlank(secs.get(0).getCodigo2())) {
-                    if (secs.get(0).getCodigo2().length() > 3) {
-                        codi2 = secs.get(0).getCodigo2().substring(0, 3);
-                    } else {
-                        codi2 = secs.get(0).getCodigo2();
-                    }
-                }
                 gpoSeccBD.setVersion(gpoSeccBD.getVersion() == null ? "1" : gpoSeccBD.getVersion());
                 gpoSeccBD.setEstadoPlanEnum(gpoSeccBD.getEstadoPlan() == null ? EstadoPlanCalificaEnum.PEND : gpoSeccBD.getEstadoPlanEnum());
                 gpoSeccBD.setEstadoGrupo(gpoSeccBD.getEstadoGrupo() == null ? EstadoGrupoSeccionEnum.ABI.name() : gpoSeccBD.getEstadoGrupo());
-                gpoSeccBD.setEstado(EstadoEnum.ACT.name());
+                gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.ACT);
+                gpoSeccBD.setCursoDirigido(gpoSecc.getCursoDirigido());
                 gpoSeccBD.setAnexoBoletin(anexo);
-                gpoSeccBD.setCodigo2(codi2);
                 grupoSeccionDAO.update(gpoSeccBD);
 
                 visor.agregarLog("gpoSecc", "saveGpoSecc", "Gpo-Seccion " + gpoSeccBD.getCodigo() + " ya existe, se actualizo", true, "info");
@@ -1078,7 +1072,7 @@ public class ProgDataServiceImp implements ProgDataService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String, Seccion> loadDataSecciones(List<Seccion> secciones, CicloAcademico ciclo, Map<String, GrupoSeccion> mapGpoSecciones, DataSessionPivot ds) {
-        int loop = 0;
+
         Map<String, List<Seccion>> mapSeccionesPCUR = new LinkedHashMap();
         Map<String, Seccion> mapSeccionesTCUR = new LinkedHashMap();
         for (Seccion seccion : secciones) {
@@ -1140,6 +1134,7 @@ public class ProgDataServiceImp implements ProgDataService {
         List<Aula> aulasBD = aulaDAO.all();
         Map<String, Aula> mapAulaBD = TypesUtil.convertListToMap("codigo", aulasBD);
 
+        int loop = 0;
         for (Seccion seccion : secciones) {
             GrupoSeccion gpoSecc = mapGpoSecciones.get(seccion.getCodigoGrupoSeccion());
             if (gpoSecc == null) {
@@ -1271,6 +1266,9 @@ public class ProgDataServiceImp implements ProgDataService {
             }
 
             gpoSecc.getSecciones().add(seccionBD);
+            gpoSecc.setCodigo2(seccion.getCodigo2().substring(0, 3));
+            grupoSeccionDAO.update(gpoSecc);
+
             seccionBD.setDocenteSeccion(new ArrayList());
             seccionBD.setMatriculaSeccion(new ArrayList());
             secciones.set(loop, seccionBD);
@@ -1551,7 +1549,8 @@ public class ProgDataServiceImp implements ProgDataService {
             logger.debug("\tanalizando anulacion de la sección {}", secc.getCodigo());
             visor.agregarLog("seccBD", "revisarSecc", "revisando seccion " + secc.getCodigo(), false, "info");
             if (seccion == null) {
-                secc.setEstado(EstadoEnum.INA.name());
+                secc.setEstadoEnum(SeccionEstadoEnum.INA);
+                secc.setCodigo2(secc.getCodigo());
                 seccionDAO.update(secc);
                 visor.agregarLog("seccBD", "revisarSecc", "Seccion " + secc.getCodigo() + " queda Inactiva", true, "info");
             } else {
@@ -1564,37 +1563,41 @@ public class ProgDataServiceImp implements ProgDataService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void revisarGrupoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo) {
-        Map<Long, GrupoSeccion> mapGrupoSecciones = new LinkedHashMap();
-        for (GrupoSeccion gpoSecc : gruposSecciones) {
-            mapGrupoSecciones.put(gpoSecc.getId(), gpoSecc);
-            Seccion seccSuperior = null;
-            List<Seccion> secciones = gpoSecc.getSecciones();
-            for (Seccion secc : secciones) {
-                if (secc.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
-                    continue;
-                }
-                seccSuperior = secc;
-                break;
-            }
-            for (Seccion secc : secciones) {
-                if (secc == seccSuperior) {
-                    continue;
-                }
-                secc.setSeccionSuperior(seccSuperior);
-                seccionDAO.update(secc);
-            }
-        }
+        Map<Long, GrupoSeccion> mapGrupoSecciones = TypesUtil.convertListToMap("id", gruposSecciones);
         List<GrupoSeccion> grupoSeccionesDB = grupoSeccionDAO.allByCiclo(ciclo);
+        List<Seccion> seccionesDB = seccionDAO.allByGposSeccion(grupoSeccionesDB);
+        Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", seccionesDB);
+        visor.inicializar("gpoSeccBD", grupoSeccionesDB.size());
+
         for (GrupoSeccion gpoSecc : grupoSeccionesDB) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             GrupoSeccion grupoSeccion = mapGrupoSecciones.get(gpoSecc.getId());
+            logger.debug("\tanalizando anulacion de la sección {}", gpoSecc.getCodigo());
+            visor.agregarLog("gpoSeccBD", "revisarGpoSecc", "revisando gpoSeccion " + gpoSecc.getCodigo(), false, "info");
+
             if (grupoSeccion == null) {
-                gpoSecc.setEstado(EstadoEnum.INA.name());
+                String code2 = null;
+                List<Seccion> seccionesGpoSecc = mapSecciones.get(gpoSecc.getId());
+                if (seccionesGpoSecc != null) {
+                    code2 = seccionesGpoSecc.get(0).getCodigo2().substring(0, 3);
+                }
+
+                gpoSecc.setCodigo2(code2);
+                gpoSecc.setEstadoEnum(SeccionEstadoEnum.INA);
                 gpoSecc.setEstadoPlanEnum(EstadoPlanCalificaEnum.CER);
                 gpoSecc.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
                 gpoSecc.setVersion("0");
                 grupoSeccionDAO.update(gpoSecc);
+                visor.agregarLog("gpoSeccBD", "revisarGpoSecc", "GpoSeccion " + gpoSecc.getCodigo() + " queda Inactiva", true, "info");
+
+            } else {
+                visor.agregarLog("gpoSeccBD", "revisarGpoSecc", "GpoSeccion " + gpoSecc.getCodigo() + " se queda ACT", true, "info");
             }
         }
+        logger.debug("\tRevision de gpoSecciones finalizada");
 
     }
 
@@ -1626,6 +1629,18 @@ public class ProgDataServiceImp implements ProgDataService {
             }
         }
 
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void codigo2NullGpoSeccion(CicloAcademico ciclo) {
+        grupoSeccionDAO.setCodigo2Null(ciclo);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void codigo2NullSeccion(CicloAcademico ciclo) {
+        seccionDAO.setCodigo2Null(ciclo);
     }
 
     @Override
