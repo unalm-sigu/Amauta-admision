@@ -3,11 +3,13 @@ new Vue({
     data: {
         showLugarNacimiento: showLugarNacimiento,
         showUbicacionDomicilio: codigoPaisDomicilio == 'PE',
+        alumno: JSON.parse(alumnoJson)
     },
     created() {
         let vue = this;
+        // console.log(alumno);
     },
-    mounted: function() {
+    mounted: function () {
         let vue = this;
 
         $(".date").datepicker();
@@ -19,45 +21,45 @@ new Vue({
         $(".buscar-distrito").select2(vue.buscarDistrito());
 
         $('#nacionalidad').select2(vue.buscarPais());
-        $('#paisNacimiento').select2(vue.buscarPais()).on('change.select2', function(e) {
+        $('#paisNacimiento').select2(vue.buscarPais()).on('change.select2', function (e) {
             vue.mostrarDirNacimiento();
         });
-        $('#paisDomicilio').select2(vue.buscarPais()).on('change.select2', function(e) {
+        $('#paisDomicilio').select2(vue.buscarPais()).on('change.select2', function (e) {
             vue.mostrarUbicacionDomicilio();
         });
     },
     methods: {
-        buscarPais: function() {
+        buscarPais: function () {
             return {
                 minimumInputLength: 2,
                 ajax: {
                     url: APP.url("comun/buscar/allPaises"),
                     dataType: 'json',
                     type: 'post',
-                    data: function(term, page) {
+                    data: function (term, page) {
                         return {nombre: term, page: page};
                     },
-                    results: function(response, page) {
+                    results: function (response, page) {
                         return {results: response.data};
                     }
                 },
-                initSelection: function(element, callback) {
+                initSelection: function (element, callback) {
                     if (element.val() != "") {
                         callback({id: element.val(), nombre: element.attr("rel"), codigo: element.attr("codigo")});
                     }
                 },
-                formatResult: function(info) {
+                formatResult: function (info) {
                     return info.nombre + " | " + info.codigo;
                 },
-                formatSelection: function(info) {
+                formatSelection: function (info) {
                     return info.nombre;
                 },
-                escapeMarkup: function(m) {
+                escapeMarkup: function (m) {
                     return m;
                 }
             };
         },
-        buscarDistrito: function() {
+        buscarDistrito: function () {
             return {
                 placeholder: "  ",
                 allowClear: true,
@@ -66,35 +68,35 @@ new Vue({
                     url: APP.url("comun/buscar/allDistritos"),
                     dataType: 'json',
                     type: 'post',
-                    data: function(term, page) {
+                    data: function (term, page) {
                         return {nombre: term, page: page};
                     },
-                    results: function(response, page) {
+                    results: function (response, page) {
                         return {results: response.data};
                     }
                 },
-                initSelection: function(element, callback) {
+                initSelection: function (element, callback) {
                     if (element.val() != "") {
                         callback({id: element.val(), nombre: element.attr("rel")});
                     }
                 },
-                formatResult: function(info) {
+                formatResult: function (info) {
                     return $.templates("#divBuscarDistrito").render(info);
                 },
-                formatSelection: function(info) {
+                formatSelection: function (info) {
                     return info.nombre;
                 },
-                escapeMarkup: function(m) {
+                escapeMarkup: function (m) {
                     return m;
                 }
             };
         },
-        mostrarDirNacimiento: function() {
+        mostrarDirNacimiento: function () {
             var vue = this;
             var dataPaisNac = $("#paisNacimiento").select2("data");
             if (dataPaisNac.codigo === "PE") {
                 vue.showLugarNacimiento = true;
-                setTimeout(function() {
+                setTimeout(function () {
                     $("#distNacimiento").select2(vue.buscarDistrito());
                 }, 500);
                 $("#distNacimiento").prop('required', true);
@@ -104,12 +106,12 @@ new Vue({
                 $("#distNacimiento").prop('required', false);
             }
         },
-        mostrarUbicacionDomicilio: function() {
+        mostrarUbicacionDomicilio: function () {
             var vue = this;
             var dataPaisUni = $("#paisDomicilio").select2("data");
             if (dataPaisUni.codigo === "PE") {
                 vue.showUbicacionDomicilio = true;
-                setTimeout(function() {
+                setTimeout(function () {
                     $('#ubicacionDomicilio').select2(vue.buscarDistrito());
                 }, 500);
                 $("#ubicacionDomicilio").prop('required', true);
@@ -119,7 +121,7 @@ new Vue({
                 $("#ubicacionDomicilio").removeProp('required');
             }
         },
-        submitForm: function(e) {
+        submitForm: function (e) {
             var self = $(e.currentTarget);
             self.btnDisabled();
             if (!$("#formAlumno").parsley().validate() == true) {
@@ -131,7 +133,7 @@ new Vue({
                 type: 'POST',
                 async: true,
                 data: $("#formAlumno").serialize(),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
                         $(location).attr('href', APP.url('academico/alumno'));
@@ -140,13 +142,13 @@ new Vue({
                         self.btnEnable();
                     }
                 },
-                error: function() {
+                error: function () {
                     self.btnEnable();
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
-        checkMatricula: function() {
+        checkMatricula: function () {
             var chkBox = $('#chkbxGenMat');
             if (chkBox.is(':checked')) {
                 $("#codigo").prop("disabled", true);
@@ -157,10 +159,10 @@ new Vue({
                 $("#codigo").prop("required", true);
             }
         },
-        sinEspacios: function(e) {
+        sinEspacios: function (e) {
             APP.eliminarEspacios($(e.currentTarget));
         },
-        nombrePersona: function(e) {
+        nombrePersona: function (e) {
             APP.revisarNombre($(e.currentTarget));
         }
     }

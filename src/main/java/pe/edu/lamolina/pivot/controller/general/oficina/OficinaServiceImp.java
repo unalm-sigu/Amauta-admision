@@ -501,7 +501,7 @@ public class OficinaServiceImp implements OficinaService {
 
     private Oficina find(Map<Long, Oficina> mapOficinasTodas, Oficina oficina) {
         Oficina ofi = mapOficinasTodas.get(oficina.getId());
-        if (ofi.getTipoOficina().getNivel().equalsIgnoreCase(TipoOficinaEnum.OFI.name())) {
+        if (ofi.getTipoOficina().getNivelEnum() == NivelOficinaEnum.OFI) {
             return ofi;
         } else {
             return find(mapOficinasTodas, ofi.getOficinaSuperior());
@@ -586,7 +586,8 @@ public class OficinaServiceImp implements OficinaService {
         }
     }
 
-    private List<Oficina> allOficinasMain(Persona persona) {
+    @Override
+    public List<Oficina> allOficinasMainByPersona(Persona persona) {
         List<Colaborador> colaboradores = colaboradorDAO.allActivosByPersona(persona);
         Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("oficina.id", "oficina", colaboradores);
         List<Oficina> oficinasHijas = new ArrayList(mapOficinas.values());
@@ -618,6 +619,22 @@ public class OficinaServiceImp implements OficinaService {
             oficinaTempo = sup;
         }
 
+    }
+
+    @Override
+    public Oficina findOficinaHija(Persona persona, Oficina oficinaMain) {
+        List<Colaborador> colaboradores = colaboradorDAO.allActivosByPersona(persona);
+        Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("oficina.id", "oficina", colaboradores);
+        List<Oficina> oficinasHijas = new ArrayList(mapOficinas.values());
+
+        List<Oficina> oficinasTodas = getOficinasOrganizadas();
+        for (Oficina ofi : oficinasHijas) {
+            Oficina main = findOficinaMain(ofi, oficinasTodas);
+            if (main.getId() == oficinaMain.getId().longValue()) {
+                return ofi;
+            }
+        }
+        return null;
     }
 
     private List<Oficina> getOficinasOrganizadas() {
@@ -799,33 +816,32 @@ public class OficinaServiceImp implements OficinaService {
 
     }
 
-    @Transactional
-    private void addRol(Persona p, RolEnum rol, Usuario userRegistro) {
-        Usuario usuario = usuarioDAO.findByPersona(p);
-        if (usuario == null) {
-            logger.debug("No se puede agregar rol porque no tiene usuario");
-            return;
-        }
-
-        Rol rolBD = rolDAO.findByCode(rol);
-        UsuarioRol ur = usuarioRolDAO.findByUsuarioAndRol(usuario, rolBD);
-
-        if (ur != null) {
-            logger.debug("No se puede agregar rol porque ya lo tiene");
-            return;
-        }
-
-        ur = new UsuarioRol();
-        ur.setRol(rolBD);
-        ur.setUsuario(usuario);
-        ur.setEstado(UserEstadoEnum.ACT);
-        ur.setFechaInicio(new Date());
-        ur.setFechaRegistro(new Date());
-        ur.setUserRegistro(userRegistro);
-
-        usuarioRolDAO.save(ur);
-    }
-
+//    @Transactional
+//    private void addRol(Persona p, RolEnum rol, Usuario userRegistro) {
+//        Usuario usuario = usuarioDAO.findByPersona(p);
+//        if (usuario == null) {
+//            logger.debug("No se puede agregar rol porque no tiene usuario");
+//            return;
+//        }
+//
+//        Rol rolBD = rolDAO.findByCode(rol);
+//        UsuarioRol ur = usuarioRolDAO.findByUsuarioAndRol(usuario, rolBD);
+//
+//        if (ur != null) {
+//            logger.debug("No se puede agregar rol porque ya lo tiene");
+//            return;
+//        }
+//
+//        ur = new UsuarioRol();
+//        ur.setRol(rolBD);
+//        ur.setUsuario(usuario);
+//        ur.setEstado(UserEstadoEnum.ACT);
+//        ur.setFechaInicio(new Date());
+//        ur.setFechaRegistro(new Date());
+//        ur.setUserRegistro(userRegistro);
+//
+//        usuarioRolDAO.save(ur);
+//    }
     @Override
     @Transactional
     public Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania) throws PhobosException {
@@ -842,7 +858,7 @@ public class OficinaServiceImp implements OficinaService {
         personaBD.setNumeroDocIdentidad(personaForm.getNumeroDocIdentidad());
         personaDAO.update(personaBD);
 
-        Colaborador colaboradors = colaboradorDAO.allActivosByPersonaAndOficina(oficinaColaborador, personaBD);
+        Colaborador colaboradors = colaboradorDAO.findActivoByPersonaOficina(oficinaColaborador, personaBD);
         if (colaboradors != null) {
             throw new PhobosException("El colaborador existe en la oficina");
 

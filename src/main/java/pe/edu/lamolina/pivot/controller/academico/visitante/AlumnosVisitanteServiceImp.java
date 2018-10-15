@@ -29,6 +29,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -101,7 +102,6 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     @Override
     @Transactional
     public void save(AlumnoVisitante alumnoVisitante, DataSessionPivot dataSessionPivot) {
-
         Usuario usuario = dataSessionPivot.getUsuario();
         logger.debug("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getGoogle());
         Persona personaForm = alumnoVisitante.getPersona();
@@ -243,7 +243,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         alumno.setCursosCarreraAprobados(0);
         alumno.setCiclosEstudiados(0);
         alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
-
+        alumno.setEstadoEnum(AlumnoEstadoEnum.ACT);
         alumnoDAO.save(alumno);
 
         MatriculaResumen mr = new MatriculaResumen();
@@ -570,7 +570,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         Persona persona = alumnoVisitanteForm.getPersona();
 
         AlumnoVisitante alumnoVisitanteDb = null;
-        
+
         if (persona == null) {
             persona = new Persona();
         } else {

@@ -112,11 +112,7 @@ public class CuotasAlumnoController {
         JsonNodeFactory nc = JsonNodeFactory.instance;
 
         Alumno alumno = cuotasAlumnoService.findAlumno(new Alumno(alumnoId));
-        /*    ObjectNode alumnoJson = JsonHelper.createJson(alumno, nc, false, new String[]{
-            "*",
-            "carrera.*"
-        });
-         */
+
         AlumnoResumenCuotas alumnoResumenCuotas = cuotasAlumnoService.findAlumnoResumenCuotaByAlumnoAndCiclo(alumno, ds.getCicloAcademico());
         ObjectNode alumnoResumenCuotasJson = null;
         if (alumnoResumenCuotas == null) {
@@ -278,8 +274,9 @@ public class CuotasAlumnoController {
         logger.debug("grabarCuotasAlumno");
         if (ObjectUtil.getParentTree(alumnoResumenCuotas, "id") == null) {
             cuotasAlumnoService.grabarCuotasAlumno(alumnoResumenCuotas, ds);
+            response.setMessage("Grabado correctamente.");
         } else {
-
+            response.setMessage("Actualizado correctamente.");
         }
         response.setData(JsonHelper.createJson(alumnoResumenCuotas, JsonNodeFactory.instance, false, new String[]{
             "*",
