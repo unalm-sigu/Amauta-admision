@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +16,12 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
 import pe.edu.lamolina.model.academico.RestriccionModalidad;
@@ -27,7 +30,6 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AmpliacionVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -42,6 +44,7 @@ import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionModalidadDAO;
@@ -62,13 +65,7 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
     CicloAcademicoDAO cicloAcademicoDAO;
 
     @Autowired
-    CursoDAO cursoDAO;
-
-    @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
-
-    @Autowired
-    AnexoBoletinDAO anexoBoletinDAO;
 
     @Autowired
     SeccionDAO seccionDAO;
@@ -92,16 +89,7 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
     GpoSeccionService gpoSeccionService;
 
     @Autowired
-    AmpliacionVacantesDAO ampliacionVacanteDAO;
-
-    @Autowired
-    OficinaService oficinaService;
-
-    @Autowired
-    ColaboradorDAO colaboradorDAO;
-
-    @Autowired
-    OficinaDAO oficinaDAO;
+    MatriculaSeccionDAO matriculaSeccionDAO;
 
     @Override
     @Transactional
@@ -378,170 +366,20 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
     }
 
     @Override
-    public List<AmpliacionVacantes> allAmpliacionVacante(Seccion seccion) {
-
-        return ampliacionVacanteDAO.allBySeccion(seccion);
+    public List<Alumno> allAlumnoBySeccion(Seccion seccion) {
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
+        Map<Long, Alumno> alumnos = TypesUtil.convertListToMap("matriculaResumen.alumno.id", "matriculaResumen.alumno", matriculasSeccion);
+        return alumnos.values().stream().collect(Collectors.toList());
     }
 
     @Override
-    @Transactional
-    public void saveAmpliacionVacante(AmpliacionVacantes ampliacionVacante, DataSessionPivot ds) {
-
-        Seccion seccion = seccionDAO.find(ampliacionVacante.getSeccion());
-        List<AmpliacionVacantes> ampliaciones = ampliacionVacanteDAO.allPendientesBySeccion(seccion);
-        Assert.isTrue(ampliaciones.isEmpty(), "Aún existe solicitudes de ampliación pendientes de atención");
-
-        Seccion seccionSuperior = seccion.getSeccionSuperior();
-        if (seccionSuperior != null) {
-            List<Seccion> secciones = seccionDAO.allByGposSeccion(seccion.getGrupoSeccion());
-            for (Seccion seccBD : secciones) {
-                if (seccion.getId() == seccBD.getId().longValue()) {
-                    continue;
-                }
-                List<AmpliacionVacantes> ampliacionesOtras = ampliacionVacanteDAO.allPendientesBySeccion(seccBD);
-                Assert.isTrue(ampliacionesOtras.isEmpty(), "Aún existe solicitudes de ampliación pendientes para la sección " + seccBD.getCodigo2());
-            }
+    public void trasladar(Fusion trasladoForm) {
+        Seccion seccion = seccionDAO.find(trasladoForm.getSeccion());
+        logger.debug("seccion {}", seccion.getId());
+        List<Alumno> alumnos = trasladoForm.getAlumnos();
+        for (Alumno alumno : alumnos) {
+            logger.debug("alumno {}", alumno.getId());
         }
-
-        Persona persona = ds.getPersona();
-        Oficina oficinaMain = ampliacionVacante.getOficina();
-        Oficina oficinaReal = oficinaService.findOficinaHija(persona, oficinaMain);
-        Assert.isNotNull(oficinaReal, "Usted no se encuentra activo en la oficina " + oficinaMain.getNombre());
-
-        Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(oficinaReal, persona);
-        Assert.isNotNull(colaborador, "Usted no se encuentra activo en la oficina " + oficinaReal.getNombre());
-
-        Assert.isTrue(seccion.getVacantesOcupadas() <= ampliacionVacante.getVacantesFin().intValue(), "No puede disminuir las vacantes menor a la cantidad de matriculados + reservados");
-        Aula aula = seccion.getAula();
-        if (aula != null && aula.getCapacidadAula() != null) {
-            Assert.isTrue(aula.getCapacidadAula().intValue() >= ampliacionVacante.getVacantesFin().intValue(), "No puede exceder la capacidad del aula");
-        }
-
-        if (seccionSuperior != null) {
-            aula = seccionSuperior.getAula();
-            if (aula != null && aula.getCapacidadAula() != null) {
-                int total = seccionSuperior.getVacantesOcupadas() + ampliacionVacante.getIncremento();
-                Assert.isTrue(aula.getCapacidadAula().intValue() >= total, "No puede exceder la capacidad del aula de la sección teórica");
-            }
-        }
-
-        ampliacionVacante.setColaborador(colaborador);
-        ampliacionVacante.setFechaRegistro(new Date());
-        ampliacionVacante.setUserRegistro(ds.getUsuario());
-        ampliacionVacante.setFechaSolicitud(new Date());
-        ampliacionVacante.setUserRegistro(ds.getUsuario());
-        ampliacionVacante.setEstadoEnum(AmpliacionVacanteEstadoEnum.PENDIENTE);
-        ampliacionVacanteDAO.save(ampliacionVacante);
     }
 
-//    @Override
-//    @Transactional
-//    public void updateAmpliacionVacante(AmpliacionVacantes ampliacionVacanteForm, DataSessionPivot ds) {
-//        AmpliacionVacantes ampliacionVacante = ampliacionVacanteDAO.find(ampliacionVacanteForm);
-//
-//        Persona persona = ds.getPersona();
-//        Oficina oficinaMain = ampliacionVacante.getOficina();
-//        Oficina oficinaReal = oficinaService.findOficinaHija(persona, oficinaMain);
-//        Assert.isNotNull(oficinaReal, "Usted no se encuentra activo en la oficina " + oficinaMain.getNombre());
-//
-//        Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(oficinaReal, persona);
-//        Assert.isNotNull(colaborador, "Usted no se encuentra activo en la oficina " + oficinaReal.getNombre());
-//
-//        ampliacionVacante.setColaborador(colaborador);
-//        ampliacionVacante.setMotivo(ampliacionVacanteForm.getMotivo());
-//        ampliacionVacante.setIncremento(ampliacionVacanteForm.getIncremento());
-//        ampliacionVacante.setVacantesFin(ampliacionVacanteForm.getVacantesFin());
-//
-//        ampliacionVacante.setUserModificacion(ds.getUsuario());
-//        ampliacionVacante.setFechaModificacion(new Date());
-//
-//        ampliacionVacanteDAO.update(ampliacionVacante);
-//    }
-//    
-    @Override
-    @Transactional
-    public void deleteAmpliacionVacante(AmpliacionVacantes ampliacionForm, DataSessionPivot ds) {
-        AmpliacionVacantes ampliacionBD = ampliacionVacanteDAO.find(ampliacionForm);
-        Assert.isTrue(ampliacionBD.getEstadoEnum() == AmpliacionVacanteEstadoEnum.PENDIENTE, "No puede eliminarse ni anularse esta solicitud");
-
-        Persona personaAnulador = ds.getPersona();
-        Persona personaSolicitud = ampliacionBD.getColaborador().getPersona();
-        if (personaAnulador.getId() != personaSolicitud.getId().longValue()) {
-            Oficina oficinaMain = ampliacionBD.getOficina();
-            boolean esMismaOficina = false;
-            List<Oficina> oficinasPersona = oficinaService.allOficinasMain(personaAnulador);
-            for (Oficina oficina : oficinasPersona) {
-                if (oficina.getId() == oficinaMain.getId().longValue()) {
-                    esMismaOficina = true;
-                    break;
-                }
-            }
-            Assert.isTrue(esMismaOficina, "Solo una persona de la misma oficina del solicitante puede anular esta solicitud");
-        }
-
-        ampliacionBD.setEstadoEnum(AmpliacionVacanteEstadoEnum.ANULADA);
-        ampliacionBD.setUserModificacion(ds.getUsuario());
-        ampliacionBD.setFechaModificacion(new Date());
-        ampliacionVacanteDAO.update(ampliacionBD);
-    }
-
-    @Override
-    public AmpliacionVacantes findAmpliacionVacante(AmpliacionVacantes ampliacionVacanteForm) {
-        return ampliacionVacanteDAO.find(ampliacionVacanteForm);
-    }
-
-    @Override
-    public List<Oficina> allOficinaByPersona(Persona persona) {
-        return oficinaService.allOficinasMain(persona);
-    }
-
-    @Override
-    @Transactional
-    public void aceptarAmpliacionVacante(AmpliacionVacantes ampliacionForm, DataSessionPivot ds) {
-
-        AmpliacionVacantes ampliacionBD = ampliacionVacanteDAO.find(ampliacionForm);
-
-        Seccion seccion = seccionDAO.find(ampliacionBD.getSeccion());
-
-        if (seccion.getMatriculados() > ampliacionBD.getVacantesFin()) {
-            throw new PhobosException("Todas las vacantes ya fueron acupadas");
-        }
-
-        Aula aula = seccion.getAula();
-
-        if (aula.getCapacidadAula() != null) {
-            if (ampliacionBD.getVacantesFin() > aula.getCapacidadAula()) {
-                throw new PhobosException("Ya ha completo la capacidad del aula");
-            }
-        }
-
-        ampliacionBD.setEstadoEnum(AmpliacionVacanteEstadoEnum.ACEPTADO);
-        ampliacionBD.setUserModificacion(ds.getUsuario());
-        ampliacionBD.setFechaModificacion(new Date());
-        ampliacionBD.setFechaRespuesta(new Date());
-        ampliacionVacanteDAO.update(ampliacionBD);
-
-        seccion.setVacantes(ampliacionBD.getVacantesFin());
-        seccionDAO.update(seccion);
-
-        Seccion secSuperior = seccion.getSeccionSuperior();
-        if (secSuperior != null) {
-            secSuperior.setVacantes(secSuperior.getVacantes() + ampliacionBD.getIncremento());
-            seccionDAO.update(secSuperior);
-        }
-
-    }
-
-    @Override
-    @Transactional
-    public void rechazarAmpliacionVacante(AmpliacionVacantes ampliacionVacanteForm, DataSessionPivot ds) {
-
-        AmpliacionVacantes ampliacionVacante = ampliacionVacanteDAO.find(ampliacionVacanteForm);
-        ampliacionVacante.setEstadoEnum(AmpliacionVacanteEstadoEnum.RECHAZADO);
-        ampliacionVacante.setUserModificacion(ds.getUsuario());
-        ampliacionVacante.setFechaModificacion(new Date());
-        ampliacionVacante.setFechaRespuesta(new Date());
-        ampliacionVacante.setComentarioRespuesta(ampliacionVacanteForm.getComentarioRespuesta());
-        ampliacionVacanteDAO.update(ampliacionVacante);
-    }
 }

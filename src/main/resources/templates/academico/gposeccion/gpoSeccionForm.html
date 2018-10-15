@@ -74,16 +74,16 @@
 
                                     <div class="col-md-9">
                                         <div class="row m-b-xs">
-                                            <div class="col-md-2 bold">Anexo</div>
-                                            <div class="col-md-10">
+                                            <div class="col-md-1 bold">Anexo</div>
+                                            <div class="col-md-11">
                                                 <span class="block bold" v-text="grupoSeccion.anexoBoletin.codigo + ' - ' + grupoSeccion.anexoBoletin.nombre"></span>
                                                 <small class="block" v-text="grupoSeccion.anexoBoletin.anexoSuperior.codigo + ' - ' + grupoSeccion.anexoBoletin.anexoSuperior.nombre"></small>
                                             </div>
                                         </div>
 
                                         <div class="row m-b-xs">
-                                            <div class="col-md-2 text-curso">Curso</div>
-                                            <div class="col-md-10">
+                                            <div class="col-md-1 text-curso">Curso</div>
+                                            <div class="col-md-11">
                                                 <span class="block text-curso" v-text="grupoSeccion.curso.codigo + ' - ' + grupoSeccion.curso.nombre"></span>
                                                 <span class="block bold" v-text="grupoSeccion.curso.tpc"></span>
                                             </div>
@@ -103,11 +103,9 @@
                                                   v-on:click="prevGpoSecc()">
                                                 <span class="fa-stack fa-lg">
                                                     <i v-if="btnNavega.left" class="fa fa-circle fa-stack-2x"></i>
-                                                    <i v-if="btnNavega.left" 
-                                                       class="fa fa-arrow-left fa-stack-1x fa-inverse"></i>
+                                                    <i v-if="btnNavega.left" class="fa fa-arrow-left fa-stack-1x fa-inverse"></i>
                                                     <i v-else="" class="fa fa-spinner fa-spin fa-2x fa-fw"></i>
                                                 </span>
-
 
                                             </span>
 
@@ -426,6 +424,9 @@
                                                 <li v-bind:class="getClassTab('AULAS')" v-on:click="verTab('AULAS')">
                                                     <a href="#3Conte" data-toggle="tab">Aulas</a>
                                                 </li>
+                                                <li>
+                                                    <a href="#4Conte" data-toggle="tab">Fusiones</a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </header>
@@ -435,10 +436,13 @@
                                             <div th:substituteby="academico/gposeccion/includes/docenteSeccionForm"/>
                                         </div>
                                         <div class="tab-pane" v-bind:class="getClassTab('AMPLIACIONES')" id="2Conte">
-                                            <div th:substituteby="academico/gposeccion/includes/vacanteSeccionForm"/>
+                                            <div th:substituteby="academico/gposeccion/includes/ampliaVacantesForm"/>
                                         </div>
                                         <div class="tab-pane" v-bind:class="getClassTab('AULAS')" id="3Conte">
                                             <div th:substituteby="academico/gposeccion/includes/aulaSeccionForm"/>
+                                        </div>
+                                        <div class="tab-pane" id="4Conte">
+                                            <div th:substituteby="academico/gposeccion/includes/fusionSeccionForm"/>
                                         </div>
                                     </div>
 

@@ -63,6 +63,7 @@
 
                                         <input type="text"
                                                name="persona.paterno"
+                                               required="true"
                                                v-on:change="nombrePersona"
                                                th:value="${alumno.persona.paterno}"
                                                class="form-control"/>
@@ -77,6 +78,7 @@
 
                                         <input type="text"
                                                name="persona.materno"
+                                               required="true"
                                                v-on:change="nombrePersona"
                                                th:value="${alumno.persona.materno}"
                                                class="form-control"/>
@@ -261,7 +263,7 @@
 
                                         <label>Correo Electrónico</label>
 
-                                        <input type="text"
+                                        <input type="email"
                                                name="persona.email"
                                                th:value="${alumno.persona.email}"
                                                class="form-control verificar-email"/>
@@ -292,7 +294,7 @@
                                 <div v-if="showUbicacionDomicilio"   class="col-sm-6">
                                     <div class="form-group">
 
-                                        <label>Ubicación Domicilio</label>
+                                        <label>Distrito Domicilio</label>
 
                                         <input type="text"
                                                id="ubicacionDomicilio"
@@ -406,6 +408,7 @@
                 /*<![CDATA[*/
                 var showLugarNacimiento = /*[[${alumno.persona.ubicacionNacer != null}]]*/'';
                 var codigoPaisDomicilio = /*[[${alumno.persona.paisDomicilio!=null?alumno.persona.paisDomicilio.codigo:''}]]*/ '';
+                var alumnoJson = /*[[${alumnoJson}]]*/ '';
                 /*]]>*/
             </script>
 

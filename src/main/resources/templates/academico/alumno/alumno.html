@@ -125,10 +125,10 @@
                                                 </td>
 
                                                 <td class="text-center v-middle">
-                                                    <span class="clear">
+                                                    <span class="clear" v-if="item.estadoEnum">
                                                         <a v-if="item.estado == 'ANU' "
                                                            href="#" data-toggle="tooltip" data-html="true" data-placement="left" v-bind:title='item.motivo'>
-                                                            <span class="label label-danger">{{item.estadoEnum.value}} </span>
+                                                            <span class="label label-danger" >{{item.estadoEnum.value}} </span>
                                                         </a>
                                                         <span v-else="" class="label label-success">{{item.estadoEnum.value}} </span>
                                                     </span>

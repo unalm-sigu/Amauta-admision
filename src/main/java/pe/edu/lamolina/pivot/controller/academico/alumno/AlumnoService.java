@@ -23,6 +23,8 @@ public interface AlumnoService {
 
     List<TipoDocIdentidad> allDocumento();
 
+    List<TipoDocIdentidad> allDocumentosPersonaNatural();
+
     List<SituacionAcademica> allSituaciones();
 
     List<ModalidadEstudio> allModalidadEstudioByCodigos(List<String> codigos);

@@ -161,13 +161,18 @@ public class AlumnoController {
         alumno.setPersona(new Persona());
 
         model.addAttribute("persona", new Persona());
-        model.addAttribute("documentos", service.allDocumento());
+        model.addAttribute("documentos", service.allDocumentosPersonaNatural());
         model.addAttribute("ciclos", service.allCicloAcademico());
         model.addAttribute("situaciones", service.allSituaciones());
         model.addAttribute("alumno", alumno);
         model.addAttribute("helper", new AlumnoHelper());
         model.addAttribute("carreras", new AlumnoHelper());
 
+        ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, false,
+                new String[]{"*",
+                    "persona.*"});
+        model.addAttribute("alumnoJson", alumnoJson.toString());
+        
         return "academico/alumno/especial/alumnoEspecial";
     }
 

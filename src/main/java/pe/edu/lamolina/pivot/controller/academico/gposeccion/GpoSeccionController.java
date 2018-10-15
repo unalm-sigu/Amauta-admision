@@ -70,7 +70,7 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
-import pe.edu.lamolina.pivot.controller.academico.gposeccion.clonarciclo.ClonGpoSeccionService;
+import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
@@ -86,7 +86,7 @@ public class GpoSeccionController {
     GpoSeccionService service;
 
     @Autowired
-    ClonGpoSeccionService clonGpoSeccionService;
+    OficinaService oficinaService;
 
     @Autowired
     SpringTemplateEngine springHtml;
@@ -122,7 +122,7 @@ public class GpoSeccionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         Long cantidad = service.contarGpoSecc(ciclo);
-        
+
         model.addAttribute("cantidad", cantidad);
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("resumen", service.resumenByCiclo(ciclo));
@@ -209,9 +209,9 @@ public class GpoSeccionController {
         ObjectNode gpoSeccionJson = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax);
 
         String ruta = getOrigen(origen);
-        
-        Persona persona = ds.getPersona();        
-        List<Oficina> oficinas=clonGpoSeccionService.allOficinaByPersona(persona);
+
+        Persona persona = ds.getPersona();
+        List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(persona);
 
         List<GrupoSeccion> gpos = obtenerGruposSeccion(ids);
         gpos.add(gpoSeccion);
@@ -395,8 +395,7 @@ public class GpoSeccionController {
                 "ampliacionesVacantes.colaborador.cargo.nombre",
                 "ampliacionesVacantes.colaborador.persona.nombreCompleto",
                 "ampliacionesVacantes.oficina.id",
-                "ampliacionesVacantes.oficina.nombre",
-            });
+                "ampliacionesVacantes.oficina.nombre",});
 
             BigDecimal porcentajeAvance = BigDecimal.ZERO;
             for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
@@ -2403,7 +2402,6 @@ public class GpoSeccionController {
         String[] str = output.split(",");
         List<GrupoSeccion> gpos = new ArrayList<>();
         for (String string : str) {
-            System.out.println(string + " ELGEIDO");
             gpos.add(new GrupoSeccion(Long.parseLong(string)));
         }
         return gpos;
