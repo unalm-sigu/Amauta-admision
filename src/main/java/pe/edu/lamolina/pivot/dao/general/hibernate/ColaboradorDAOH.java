@@ -69,7 +69,7 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
-    public Colaborador allActivosByPersonaAndOficina(Oficina oficina, Persona persona) {
+    public Colaborador findActivoByPersonaOficina(Oficina oficina, Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .join("persona per", "oficina ofi")

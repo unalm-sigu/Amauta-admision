@@ -85,9 +85,17 @@ public class ConfiguracionTurnoController {
                 new String[]{
                     "*", "modalidadEstudio.*"
                 });
+        ArrayNode jConfigArray = new ArrayNode(JsonNodeFactory.instance);
+        for (ConfiguracionTurnosAtencion config : configuraciones) {
+            ObjectNode configJson = JsonHelper.createJson(config, JsonNodeFactory.instance, true,
+                    new String[]{
+                        "*", "eventoCicloAcademico.*", "eventoCicloAcademico.eventoAcademico.*"
+                    });
+            jConfigArray.add(configJson);
+        }
 
         model.addAttribute("eventos", new EventoCicloAcademico().toJsonArray(evento));
-        model.addAttribute("configuraciones", new ConfiguracionTurnosAtencion().toJsonArray(configuraciones));
+        model.addAttribute("configuraciones", jConfigArray);
         model.addAttribute("ciclo", cicloJson);
         model.addAttribute("tipoMatricula", objNode.toString());
 

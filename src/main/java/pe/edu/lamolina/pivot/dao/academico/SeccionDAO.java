@@ -65,4 +65,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     Seccion find(Seccion seccion);
 
+    void setCodigo2Null(CicloAcademico ciclo);
+
 }

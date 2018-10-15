@@ -266,7 +266,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .searchSubqueryFields("doc.codigo", "se.codigo2", "gh.codigo", "au.codigo")
                 .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
-                //.orderBy("gs.id desc");
+        //.orderBy("gs.id desc");
 
         sql.beginRelativeFilters();
         this.setGrupoAnexo(filter, sql);
@@ -308,7 +308,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         }
         for (String key : queries.keySet()) {
             if (key.equals("order-codigo")) {
-                sql.orderBy("gs.codigo asc");
+                sql.orderBy("gs.codigo2");
                 return;
             }
         }
@@ -575,6 +575,19 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
         return all(sql);
 
+    }
+
+    @Override
+    public void setCodigo2Null(CicloAcademico ciclo) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" update ").append(GrupoSeccion.class.getSimpleName());
+        sql.append("    set codigo2 = null ");
+        sql.append("  where cicloAcademico.id = :CICLO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameter("CICLO", ciclo.getId());
+
+        query.executeUpdate();
     }
 
 }

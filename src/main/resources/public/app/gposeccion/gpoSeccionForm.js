@@ -112,8 +112,9 @@ var app = new Vue({
         seccionSeleccionada: null,
         verDocentes: false,
         seccionModal: null,
+        tabVisible: "DOCENTES",
         colorEstado: {CRE: "default", ACT: "success", ANU: "danger", INA: "danger", BLO: "warning", FUS: "warning"},
-        colorEstadoAmpliacion: {PENDIENTE: "default", ACEPTADO: "success", RECHAZADO: "danger"},
+        colorEstadoAmpliacion: {PENDIENTE: "default", ACEPTADO: "success", RECHAZADO: "danger", ANULADA: "warning"},
         grupoModal: {
             id: 'modalGrupo',
             header: true,
@@ -164,11 +165,11 @@ var app = new Vue({
         solicitarIncrementoModal: {
             id: 'modalSolicitarIncremento',
             header: true,
-            title: '',
+            title: 'Solicitud de ampliación de vacantes',
             okbtn: 'Solicitar',
             modalsize: 'modal-md'
         },
-        ampliacionVacantes: [],
+        ampliaciones: [],
         ampliacionVacante: {
             id: 'ampliacionVacanteId',
             incremento: null,
@@ -179,14 +180,14 @@ var app = new Vue({
         aceptarSolicitudIncrementoModal: {
             id: 'aceptarSolicitudIncrementoModalId',
             header: true,
-            title: 'Aceptar ampliación de vacante',
-            okbtn: 'Aceptar',
+            title: 'Aceptar ampliación de vacantes',
+            okbtn: 'Si, aceptar',
             modalsize: 'modal-md'
         },
         rechazarSolicitudIncrementoModal: {
             id: 'rechazarSolicitudIncrementoModalId',
             header: true,
-            title: 'Rechazar ampliación de vacante',
+            title: 'Rechazar ampliación de vacantes',
             okbtn: 'Rechazar',
             modalsize: 'modal-md'
         },
@@ -196,18 +197,17 @@ var app = new Vue({
         alumnos: []
     },
     watch: {
-        seccionSeleccionada: function (val) {
-            let $vue = this;
-            $vue.allSolicitarIncremento();
-            $vue.allAlumnoBySeccion();
-        },
+//        seccionSeleccionada: function (val) {
+//            let $vue = this;
+//            //$vue.allSolicitarIncremento();
+//        },
         "ampliacionVacante.incremento": function () {
             let $vue = this;
             if ($vue.ampliacionVacante.incremento == '') {
-                $vue.ampliacionVacante.total = parseInt($vue.ampliacionVacante.inicial);
+                $vue.ampliacionVacante.vacantesFin = parseInt($vue.ampliacionVacante.vacantesInicio);
                 return;
             }
-            $vue.ampliacionVacante.total = parseInt($vue.ampliacionVacante.incremento) + parseInt($vue.ampliacionVacante.inicial);
+            $vue.ampliacionVacante.vacantesFin = parseInt($vue.ampliacionVacante.incremento) + parseInt($vue.ampliacionVacante.vacantesInicio);
         },
     },
     created: function () {
@@ -230,14 +230,22 @@ var app = new Vue({
         $global.$on("afterSaveTipoRepRestriccion", function (response) {
             $vue.afterSaveTipoRepRestriccion(response, $vue);
         });
-
-        this.loadGpoSeccionForm();
-
     },
     methods: {
+        getClassTab(tabBuscar) {
+            let $vue = this;
+            if ($vue.tabVisible == tabBuscar) {
+                return "active";
+            }
+            return "";
+        },
+        verTab(tabBuscar) {
+            let $vue = this;
+            $vue.tabVisible = tabBuscar;
+        },
         reloadProfes() {
             let $vue = this;
-            $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+            $vue.loadGpoSeccionEfecto($vue.grupoSeccion.id, "");
         },
         loadDataPantalla() {
             let $vue = this;
@@ -248,6 +256,7 @@ var app = new Vue({
             }
             $vue.seccionSeleccionada = $vue.secciones[$vue.idxSeccion];
             $vue.docentesSeccion = $vue.seccionSeleccionada.docenteSeccion;
+            $vue.ampliaciones = $vue.seccionSeleccionada.ampliacionesVacantes;
             setTimeout(function () {
                 $vue.verDocentes = true;
             }, 300);
@@ -256,7 +265,8 @@ var app = new Vue({
             let $vue = this;
             return $vue.secciones[0].codigo2.substring(0, 3);
         },
-        loadGpoSeccion(idGpoSecc, dir) {
+        loadGpoSeccionEfecto(idGpoSecc, dir) {
+            console.log("loadGpoSeccion-loadGpoSeccion-loadGpoSeccion")
             let $vue = this;
             $.ajax({
                 method: 'POST',
@@ -276,7 +286,8 @@ var app = new Vue({
                 }
             });
         },
-        loadGpoSeccionActual() {
+        loadGpoSeccionFlash() {
+            console.log("loadGpoSeccionActual/loadGpoSeccionActual/loadGpoSeccionActual")
             let $vue = this;
             $.ajax({
                 method: 'POST',
@@ -351,7 +362,7 @@ var app = new Vue({
 
             let newUrl = url.replace(oldGpoSecc, newGpoSecc);
             history.pushState(null, null, newUrl);
-            $vue.loadGpoSeccion($vue.navega.current, "left");
+            $vue.loadGpoSeccionEfecto($vue.navega.current, "left");
 
         },
         nextGpoSecc() {
@@ -381,7 +392,7 @@ var app = new Vue({
 
             let newUrl = url.replace(oldGpoSecc, newGpoSecc);
             history.pushState(null, null, newUrl);
-            $vue.loadGpoSeccion($vue.navega.current, "right");
+            $vue.loadGpoSeccionEfecto($vue.navega.current, "right");
 
         },
         addSeccion: function () {
@@ -396,7 +407,8 @@ var app = new Vue({
                     if (response.success) {
                         notify(response.message, "info");
                         //$vue.loadSecciones();
-                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+//                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+                        $vue.loadGpoSeccionFlash();
                     } else {
                         notify(response.message, "error");
                     }
@@ -419,7 +431,8 @@ var app = new Vue({
                         notify(response.message, "info");
                         //$vue.loadSecciones();
                         //$vue.loadDocentesSec();
-                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+//                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+                        $vue.loadGpoSeccionFlash();
                     } else {
                         notify(response.message, "error");
                     }
@@ -449,7 +462,7 @@ var app = new Vue({
                     if (response.success) {
                         notify(response.message, "info");
 //                        $vue.loadDocentesSec();
-                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+                        $vue.loadGpoSeccionEfecto($vue.grupoSeccion.id, "");
 
                     } else {
                         notify(response.message, "error");
@@ -479,7 +492,7 @@ var app = new Vue({
                         porcentajeAvance: parseFloat(docSeccion.porcentajeCarga)
                     },
                     success: function (response) {
-                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+                        $vue.loadGpoSeccionEfecto($vue.grupoSeccion.id, "");
                         if (response.success) {
                             notify(response.message, "info");
 
@@ -661,7 +674,7 @@ var app = new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
-                                    $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+                                    $vue.loadGpoSeccionEfecto($vue.grupoSeccion.id, "");
                                     //$vue.loadSecciones();
                                     //$vue.loadDocentesSec();
                                     MODAL.hideWait();
@@ -683,20 +696,6 @@ var app = new Vue({
         },
         getEstadoAmpliacionClass: function (estadoCode) {
             return "label-" + this.colorEstadoAmpliacion[estadoCode];
-        },
-        loadGpoSeccionForm: function () {
-            let $vue = this;
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/gposeccion/' + $vue.grupoSeccion.id + '/loadGpoSeccionForm'),
-                success: function (response) {
-                    if (response.success) {
-
-                        $vue.minFechaPeriodo = response.data.minFechaPeriodo;
-                        $vue.maxFechaPeriodo = response.data.maxFechaPeriodo;
-                    }
-                }
-            });
         },
         loadSecciones: function () {
 //            let $vue = this;
@@ -953,7 +952,7 @@ var app = new Vue({
                         notify(response.message, "info");
                     } else {
                         notify(response.message, "error");
-                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+                        $vue.loadGpoSeccionFlash();
                         MODAL.hideWait();
                     }
                 },
@@ -989,7 +988,7 @@ var app = new Vue({
                         notify(response.message, "info");
                     } else {
                         notify(response.message, "error");
-                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
+                        $vue.loadGpoSeccionFlash();
                         MODAL.hideWait();
                     }
                 },
@@ -1087,13 +1086,13 @@ var app = new Vue({
 
             $vue.ampliacionVacante = {
                 id: null,
-                incremento: null,
                 motivo: '',
-                id: null,
                 colaborador: {id: null},
                 oficina: {id: null},
                 seccion: $vue.seccionSeleccionada,
-                inicial: $vue.seccionSeleccionada.vacantes
+                vacantesInicio: $vue.seccionSeleccionada.vacantes,
+                incremento: 0,
+                vacantesFin: 0
             }
 
             $vue.$refs.modalSolicitarIncremento.open();
@@ -1105,14 +1104,14 @@ var app = new Vue({
 
             let $vue = this;
 
-            if ($('#formSolicitarIncremento').parsley().validate() !== true) {
+            if ($('#formAmpliarVacante').parsley().validate() !== true) {
                 return;
             }
 
-            console.log($vue.ampliacionVacante.total);
+            console.log($vue.ampliacionVacante.vacantesFin);
             console.log($vue.seccionSeleccionada.matriculados);
 
-            if ($vue.ampliacionVacante.total < $vue.seccionSeleccionada.matriculados) {
+            if ($vue.ampliacionVacante.vacantesFin < $vue.seccionSeleccionada.matriculados) {
                 swal({text: 'Ya existen alumnos matriculados', icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                 return;
             }
@@ -1127,7 +1126,7 @@ var app = new Vue({
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/saveampliacionvacante'),
-                data: $('#formSolicitarIncremento').serialize(),
+                data: $('#formAmpliarVacante').serialize(),
                 success: function (response) {
                     if (response.success) {
 
@@ -1159,7 +1158,8 @@ var app = new Vue({
                 data: {id: $vue.seccionSeleccionada.id},
                 success: function (response) {
                     if (response.success) {
-                        $vue.ampliacionVacantes = response.data;
+                        $vue.ampliaciones = response.data;
+                        $vue.seccionSeleccionada.ampliacionesVacantes = $vue.ampliaciones;
                     } else {
                         notify(response.message, 'error');
                     }
@@ -1202,13 +1202,13 @@ var app = new Vue({
             let $vue = this;
 
             swal({
-                title: "Eliminar Registro",
-                text: "¿Desea eliminar  la solicitud de ampliación de vacante?",
+                title: "Anular solitud de ampliación",
+                text: "¿Desea anular la solicitud de ampliación de vacante?",
                 icon: "warning",
                 dangerMode: true,
                 buttons: {
                     cancel: {text: "Cancelar", closeModal: true, visible: true},
-                    confirm: {text: "Aceptar", closeModal: false}
+                    confirm: {text: "Si, anular", closeModal: false}
                 }
             }).then((value) => {
 
@@ -1241,16 +1241,16 @@ var app = new Vue({
         aceptarSolicitud: function (ampliacion) {
 
             let $vue = this;
-
-            $vue.ampliacionVacante = ampliacion;
+            console.log('aceptarSolicitud');
+            $vue.ampliacionVacante = Object.assign({}, ampliacion);
             $vue.$refs.aceptarSolicitudIncremento.open();
 
         },
         rechazarSolicitud: function (ampliacion) {
 
             let $vue = this;
-
-            $vue.ampliacionVacante = ampliacion;
+            console.log('rechazarSolicitud');
+            $vue.ampliacionVacante = Object.assign({}, ampliacion);
             $vue.$refs.rechazarSolicitudIncremento.open();
 
         },
@@ -1258,7 +1258,7 @@ var app = new Vue({
 
             let $vue = this;
 
-            if ($('#aceptarFormSolicitarIncremento').parsley().validate() !== true) {
+            if ($('#formAmpliarVacante').parsley().validate() !== true) {
                 return;
             }
 
@@ -1270,7 +1270,7 @@ var app = new Vue({
                     if (response.success) {
 
                         $vue.allSolicitarIncremento();
-                        $vue.loadGpoSeccionActual();
+                        $vue.loadGpoSeccionFlash();
                         $vue.$refs.aceptarSolicitudIncremento.close();
                         notify(response.message, 'info');
 
@@ -1288,14 +1288,14 @@ var app = new Vue({
 
             let $vue = this;
 
-            if ($('#rechazarFormSolicitarIncremento').parsley().validate() !== true) {
+            if ($('#formRechazaAmpliacion').parsley().validate() !== true) {
                 return;
             }
 
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/rechazarampliacionvacante'),
-                data: $('#rechazarFormSolicitarIncremento').serialize(),
+                data: $('#formRechazaAmpliacion').serialize(),
                 success: function (response) {
                     if (response.success) {
 
@@ -1313,6 +1313,7 @@ var app = new Vue({
             });
 
         },
+
         trasladarAlumnos() {
 
             let $vue = this;
@@ -1331,7 +1332,7 @@ var app = new Vue({
                 if (value != true) {
                     return;
                 }
-                
+
                 $.ajax({
                     method: 'POST',
                     url: APP.url('academico/gposeccion/trasladar'),
@@ -1339,9 +1340,9 @@ var app = new Vue({
                     data: {id: ampliacion.id},
                     success: function (response) {
                         if (response.success) {
-                            
+
                             $vue.allAlumnoBySeccion();
-                            
+
                             swal({text: response.message, icon: "success", button: false, timer: 1000});
                         } else {
                             swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
@@ -1378,8 +1379,7 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
 
-
-        }
     }
 });
