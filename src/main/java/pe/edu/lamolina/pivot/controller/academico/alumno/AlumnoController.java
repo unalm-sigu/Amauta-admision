@@ -34,6 +34,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoVisitante;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -172,8 +173,42 @@ public class AlumnoController {
                 new String[]{"*",
                     "persona.*"});
         model.addAttribute("alumnoJson", alumnoJson.toString());
-        
+
         return "academico/alumno/especial/alumnoEspecial";
+    }
+
+    @ResponseBody
+    @RequestMapping("especial/existealumno")
+    public JsonResponse existealumno(Alumno alumnoForm) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(Boolean.TRUE);
+        try {
+            Alumno alumno = service.validarAlumnoEspecial(alumnoForm);
+            ObjectNode personaJson = null;
+            if (alumno != null && alumno.getPersona() != null) {
+                personaJson = JsonHelper.createJson(alumno.getPersona(), JsonNodeFactory.instance,
+                        false, new String[]{
+                            "*",
+                            "tipoDocumento.*",
+                            "ubicacionDomicilio.*",
+                            "ubicacionNacer.*",
+                            "paisNacer.*",
+                            "nacionalidad.*",
+                            "paisDomicilio.*"
+                        });
+            }
+            /*  alumnoVisitanteForm.setPersona(persona);
+            ObjectNode jPersona = service.validarAlumno(alumnoVisitanteForm);
+            response.setData(jPersona);
+             */
+
+            response.setData(personaJson);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     @ResponseBody

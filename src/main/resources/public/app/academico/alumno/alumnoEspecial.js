@@ -3,7 +3,11 @@ new Vue({
     data: {
         showLugarNacimiento: showLugarNacimiento,
         showUbicacionDomicilio: codigoPaisDomicilio == 'PE',
-        alumno: JSON.parse(alumnoJson)
+        alumno: JSON.parse(alumnoJson),
+        persona: {
+            tipoDocumento: {},
+            paisNacer: {}
+        }
     },
     created() {
         let vue = this;
@@ -15,7 +19,14 @@ new Vue({
         $(".date").datepicker();
         $(".numerico").numeric({negative: false});
 
-        $('[name="persona.tipoDocumento.id"]').select2({minimumResultsForSearch: -1});
+        $('[name="persona.tipoDocumento.id"]').select2({minimumResultsForSearch: -1}).
+                on("change.select2", function (el) {
+                    /*  */
+                    vue.persona.tipoDocumento.id = el.val;
+                    vue.cambiarNumDoc();
+
+                    console.log("change persona.tipoDocumento.id");
+                });
         $('[name="cicloIngreso.id"]').select2({minimumResultsForSearch: -1});
 
         $(".buscar-distrito").select2(vue.buscarDistrito());
@@ -29,6 +40,87 @@ new Vue({
         });
     },
     methods: {
+        cambiarNumDoc: function () {
+            var vue = this;
+            //  $global.$emit('MODAL-WAIT-OPEN');
+            var isvalid = $('[name="persona.tipoDocumento.id"]').parsley().isValid() == true;
+            isvalid &= $('[name="persona.numeroDocIdentidad"]').parsley().isValid() == true;
+            if (!isvalid) {
+                //    $global.$emit('MODAL-WAIT-CLOSE');
+                return;
+            }
+            // return;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/alumno/especial/existealumno'),
+                data: {
+                    'persona.tipoDocumento.id': vue.persona.tipoDocumento.id,
+                    'persona.numeroDocIdentidad': vue.persona.numeroDocIdentidad,
+                    'id': $('[name="id"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        if (response.data != null && (response.data.id != null && response.data.id != "")) {
+                            // let personaView = Object.assign({}, vue.persona);
+                            vue.persona = response.data;
+                            // vue.$set(this, 'persona', response.data);
+                            if (vue.persona.paisNacer != null && vue.persona.paisNacer.id != "") {
+                                $('#paisNacimiento').select2('data', {
+                                    id: vue.persona.paisNacer.id,
+                                    codigo: vue.persona.paisNacer.codigo,
+                                    nombre: vue.persona.paisNacer.nombre
+                                }
+                                );
+                                var dataPaisNac = $("#paisNacimiento").select2("data");
+                                $('#paisNacimiento').attr("rel", dataPaisNac.nombre);
+                                $('#paisNacimiento').attr("codigo", dataPaisNac.codigo);
+                                $('#paisNacimiento').trigger('change');
+                            }
+                            console.log("nacionalidad");
+                            console.dir(vue.persona.nacionalidad);
+
+                            if (vue.persona.nacionalidad != null && vue.persona.nacionalidad.id != "") {
+                                $('#nacionalidad').select2('data', {
+                                    id: vue.persona.nacionalidad.id,
+                                    codigo: vue.persona.nacionalidad.codigo,
+                                    nombre: vue.persona.nacionalidad.nombre
+                                }
+                                );
+                                var dataPaisNacionalidad = $("#nacionalidad").select2("data");
+                                $('#nacionalidad').attr("rel", dataPaisNacionalidad.nombre);
+                                $('#nacionalidad').attr("codigo", dataPaisNacionalidad.codigo);
+                                //   $('#nacionalidad').trigger('change');
+                            }
+
+                            console.log("paisDomicilio");
+                            console.dir(vue.persona.paisDomicilio);
+
+                            if (vue.persona.paisDomicilio != null && vue.persona.paisDomicilio.id != "") {
+                                $('#paisDomicilio').select2('data', {
+                                    id: vue.persona.paisDomicilio.id,
+                                    codigo: vue.persona.paisDomicilio.codigo,
+                                    nombre: vue.persona.paisDomicilio.nombre
+                                }
+                                );
+                                var paisDomicilio = $("#paisDomicilio").select2("data");
+                                $('#nacionalidad').attr("rel", paisDomicilio.nombre);
+                                $('#nacionalidad').attr("codigo", paisDomicilio.codigo);
+                            }
+
+                        } else {
+                            vue.persona.id = "";
+                        }
+                    } else {
+                        vue.persona.numeroDocIdentidad = null;
+                        notify(response.message, 'error');
+                    }
+                    //  $global.$emit('MODAL-WAIT-CLOSE');
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    //   $global.$emit('MODAL-WAIT-CLOSE');
+                }
+            });
+        },
         buscarPais: function () {
             return {
                 minimumInputLength: 2,
@@ -92,13 +184,28 @@ new Vue({
             };
         },
         mostrarDirNacimiento: function () {
+            console.log("mostrarDirNacimiento");
             var vue = this;
+
             var dataPaisNac = $("#paisNacimiento").select2("data");
+            console.log("dataPaisNac");
+            console.dir(dataPaisNac);
             if (dataPaisNac.codigo === "PE") {
                 vue.showLugarNacimiento = true;
                 setTimeout(function () {
+                    if (vue.persona.ubicacionNacer != null && vue.persona.ubicacionNacer.id != "") {
+
+                        $('#distNacimiento').attr("rel", vue.persona.ubicacionNacer.distrito);
+                        $('#distNacimiento').attr("value", vue.persona.ubicacionNacer.id);
+
+                        $('#distNacimiento').select2('data', {
+                            id: vue.persona.paisNacer.id,
+                            nombre: vue.persona.ubicacionNacer.distrito
+                        }
+                        );
+                    }
                     $("#distNacimiento").select2(vue.buscarDistrito());
-                }, 500);
+                }, 0);
                 $("#distNacimiento").prop('required', true);
             } else {
                 vue.showLugarNacimiento = false;
