@@ -348,7 +348,7 @@ public class GpoSeccionController {
 
     private ObjectNode createGpoSeccionJson(GrupoSeccion gpoSeccion, String fechaMin, String fechaMax) {
         ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
-            "id", "estado", "estadoEnum",
+            "id", "estado", "estadoEnum", "codigo2",
             "curso.id",
             "curso.codigo",
             "curso.nombre",

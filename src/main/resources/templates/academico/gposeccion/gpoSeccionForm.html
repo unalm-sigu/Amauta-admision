@@ -68,7 +68,7 @@
                                 <div class="row">
                                     <div class="col-md-1 text-center">
                                         <div class="avatar-gposecc"
-                                             v-text='avatarGpo()'>234</div>
+                                             v-text='grupoSeccion.codigo2'>234</div>
                                         <a class="label label-primary m-t-xs" v-on:click="openClonar"> Clonar </a>
                                     </div>
 
@@ -410,6 +410,11 @@
                                 <section class="panel-body">
 
                                     <header class="page-header m-t-xs m-b-xs">
+
+                                        <a class="btn btn-info btn-sm pull-right m-t-xs" href="#"
+                                           v-on:click.prevent="solicitarIncremento()">
+                                            Solicitar Incremento
+                                        </a>
 
                                         <h4 class="text-primary">Configuración sección {{seccionSeleccionada.codigo2}}</h4>
 
