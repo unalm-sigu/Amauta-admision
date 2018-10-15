@@ -14,7 +14,7 @@ new Vue({
             paisDomicilio: {id: null},
             ubicacionDomicilio: {id: null},
             ubicacionNacer: {id: null}
-        },
+        }
     },
     mounted: function () {
 
@@ -23,7 +23,7 @@ new Vue({
 
         self.find(".numerico").numeric({negative: false});
         self.find(".date").datepicker();
-        self.find('[name="cicloEstudia.id"]').select2({minimumResultsForSearch: -1});
+        // self.find('[name="cicloEstudia.id"]').select2({minimumResultsForSearch: -1});
 
         self.find('[name="persona.tipoDocumento.id"]').
                 select2({minimumResultsForSearch: -1}).
@@ -42,7 +42,7 @@ new Vue({
         let vue = this;
         this.$nextTick(function () {
             let self = $(vue.$el);
-            self.find('[name="cicloEstudia.id"]').select2('val', vue.alumnoVisitante.cicloEstudia.id);
+           // self.find('[name="cicloEstudia.id"]').select2('val', vue.alumnoVisitante.cicloEstudia.id);
             self.find('[name="persona.tipoDocumento.id"]').select2('val', vue.persona.tipoDocumento.id);
         });
     },
@@ -69,8 +69,9 @@ new Vue({
                         self.btnEnable();
                     }
                 },
-                error: function () {
+                error: function (response) {
                     self.btnEnable();
+                    console.dir(response);
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
@@ -102,8 +103,13 @@ new Vue({
                 },
                 success: function (response) {
                     if (response.success) {
-                        if (response.data.id) {
+                        console.log("##############");
+                        console.dir(response);
+                        if (response.data.id != null && response.data.id != "") {
+                            // let personaView = Object.assign({}, vue.persona);
                             vue.persona = response.data;
+                        } else {
+                            vue.persona.id = "";
                         }
                     } else {
                         vue.persona.numeroDocIdentidad = null;
@@ -134,6 +140,6 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        },
-    },
+        }
+    }
 });

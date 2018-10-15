@@ -46,22 +46,6 @@ var app = new Vue({
             }
             let tarifasConceptos = $vue.alumnoResumenCuotas.tarifaCarrera.tarifasConcepto;
             this.alumnoResumenCuotas.porcentajeMontoInicial = tarifasConceptos[1].porcentajeInicial;
-            /*  $.ajax({
-             method: 'POST',
-             url: APP.url(`${$vue.URL}/changeTarifaCarrera`),
-             data: {
-             tarifaCarrera: $vue.alumnoResumenCuotas.tarifaCarrera.id
-             },
-             success: function (response) {
-             if (response.success) {
-             $vue.alumnoResumenCuotas.tarifaCarrera = response.data;
-             } else {
-             notify(response.message, "error");
-             }
-             }, error: function () {
-             notify(MESSAGES.errorComunicacion, "error");
-             }
-             });*/
             this.pagoAlCash();
             this.calcularCreditosExceso();
         }, pagoAlCash() {

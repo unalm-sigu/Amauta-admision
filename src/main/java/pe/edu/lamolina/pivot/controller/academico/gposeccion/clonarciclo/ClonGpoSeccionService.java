@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.gposeccion.clonarciclo;
 
 import java.util.List;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AmpliacionVacante;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -36,5 +37,9 @@ public interface ClonGpoSeccionService {
     void rechazarAmpliacionVacante(AmpliacionVacante ampliacionVacante, DataSessionPivot ds);
 
     void aceptarAmpliacionVacante(AmpliacionVacante ampliacionVacante, DataSessionPivot ds);
+
+    List<Alumno> allAlumnoBySeccion(Seccion seccion);
+
+    void trasladar(Fusion trasladoForm);
 
 }

@@ -15,6 +15,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AmpliacionVacante;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -289,6 +290,63 @@ public class ClonGpoSeccionController {
 
             service.rechazarAmpliacionVacante(ampliacionVacante, ds);
             response.setMessage(Messages.DELETED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allalumno")
+    public JsonResponse allAlumno(Seccion seccion, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            List<Alumno> alumnos = service.allAlumnoBySeccion(seccion);
+            
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jFactory);
+            for (Alumno alumno : alumnos) {
+                ObjectNode node = JsonHelper.createJson(alumno, jFactory, true,
+                        new String[]{
+                            "*",
+                            "persona.*",
+                            "carrera.*",
+                            "situacionAcademica.*"
+                        });
+                array.add(node);
+            }
+            
+            response.setData(array);
+            response.setMessage(Messages.UPDATED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("trasladar")
+    public JsonResponse trasladar(Fusion trasladoForm, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.trasladar(trasladoForm);
+            response.setMessage(Messages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
