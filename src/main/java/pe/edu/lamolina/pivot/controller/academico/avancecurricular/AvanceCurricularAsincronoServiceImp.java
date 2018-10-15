@@ -186,7 +186,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Map<Long, AlumnoCursoCurricula> cursosAlumno = new HashMap();
         List<AlumnoCursoCurricula> alumnoCursoCurriculas;
         List<AlumnoCursoSimultaneo> cursosSimultaneos = new ArrayList();
-       
+
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findCicloAcademicoActivoByModalidad(alumno.getModalidadEstudio());
         List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCiclo(alumno, cicloAcademico);
         int creditosAprobados = alumnoBD.getCreditosAprobados();
@@ -539,7 +539,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     private void validarCursosMatriculados(Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaByCurso, List<MatriculaCurso> matriculaCursos, DataSessionPivot ds) {
         for (MatriculaCurso matriculaCurso : matriculaCursos) {
             AlumnoCursoCurricula acc = mapAlumnoCursoCurriculaByCurso.get(matriculaCurso.getCurso().getId());
-            acc.setEstado(CursoCurriculaEstadoEnum.MAT.name());
+            if (acc != null) {
+                acc.setEstado(CursoCurriculaEstadoEnum.MAT.name());
+            }
         }
     }
 
