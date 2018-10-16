@@ -79,6 +79,14 @@ public class LoadProgramacionController {
         return "academico/loadprogramacion/loadProgramacion";
     }
 
+    @RequestMapping("colgados")
+    public String colgados(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("alumnos", visor.getAlumnos());
+        return "academico/loadprogramacion/colgados";
+    }
+
     @ResponseBody
     @RequestMapping("uploadFiles")
     public JsonResponse uploadFiles(@RequestParam("file") MultipartFile[] files, Model model, HttpSession session) {
