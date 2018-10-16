@@ -936,7 +936,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             cc.setTipoCursoCurricula(curso.getTipoCursoCurricula());
             cc.setUserRegistro(ds.getUsuario());
             cc.setCursosCurricula(new ArrayList());
-            cc.setRequisitosOr(Boolean.FALSE);
+            cc.setRequisitosOr(curso.getRequisitosOr());
 
             mapCursoCurricula.put(cc.getCurso().getId(), cc);
             cursoCurriculaDAO.save(cc);
@@ -964,7 +964,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             coc.setTipoCursoCurricula(opc.getTipoCursoCurricula());
             coc.setUserRegistro(ds.getUsuario());
             coc.setRequisitosCursoOpcionales(new ArrayList());
-            coc.setRequisitosOr(Boolean.FALSE);
+            coc.setRequisitosOr(opc.getRequisitosOr());
 
             mapCursoOpcional.put(coc.getCurso().getId(), coc);
             cursoOpcionalCurriculaDAO.save(coc);
