@@ -1,158 +1,101 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Alumno Tarifa</title>
+        <title>Cuotas Grupos</title>
+        <style>
+            .td-vacio {
+                padding-right: 4px !important;
+                padding-left: 4px !important;
+            }
+            .bg-row {
+                background-color: #f9fafc;
+            }
+            .row{
+                margin-bottom: 15px;
+            }
+
+        </style>
     </head>
-    ​
+
     <body>
         <div layout:fragment="main">
-            <div id="alumnotarifaVUE">
+            <div id="" >
+
                 <header class="header b-b padder-lg">
 
                     <div class="pull-right m-t-md">                 
                         <div class="btn-group">
-                            <a type="button" class="btn btn-success" href="#">Nuevo</a>
+                            <a type="button" class="btn btn-success nuevo-grupo-sec" 
+                               th:href="@{/academico/cuotagpohoras}">
+                                Agregar Cuota
+                            </a>
                         </div>
                     </div> 
-                    <h2 th:inline="text">Alumno Tarifa</h2>
+                    <h2 th:text="|Cuotas Grupos ${ciclo.descripcion}|">Cuotas Grupos</h2>
                 </header>
                 <section class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
-                            <raptor-table v-bind:url="alumnotarifaURL" ref="raptorAlumnoTarifa">
+
+
+                            <raptor-table v-bind:url="cuotagpohorasURL" ref="raptorCuotaGpoHoras">
 
                                 <template  scope="props" >
                                     <table class="table table-striped">
                                         <thead> 
                                             <tr> 
-                                                <th class="col-md-5" colspan="2"></th>                                                                                                
-                                                <th class="col-md-3 v-middle">Especialidad</th>
-                                                <th class="col-md-2 v-middle">Tarifa</th>
-                                                <th class="col-md-1 v-middle">Fecha Activación</th>
-                                                <th class="col-md-1 v-middle">Estado</th>
+                                                <th class="col-md-4">Anexo</th>
+                                                <th class="col-md-2">Grupo</th>
+                                                <th class="col-md-2">Cuota</th>
+                                                <th class="col-md-2">Asig Auto</th>
+                                                <th class="col-md-2">Total</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data">
-
-                                                <td class="v-middle">
-                                                    <div class="pull-left">
-                                                        <div v-if="item.alumno.persona.tipoFoto=='POSTUL' "
-                                                             class="img-responsive img-thumbnail img-circle div-foto-list">
-                                                            <img class="img-foto-list" v-bind:src="item.alumno.persona.rutaFoto" />
-                                                        </div>
-
-                                                        <img v-else-if="item.alumno.persona.tipoFoto=='COMUN' " 
-                                                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
-                                                             v-bind:src="item.alumno.persona.rutaFoto" />
-
-                                                        <img v-else="" 
-                                                             class="img-foto-tempo img-responsive img-thumbnail img-circle" 
-                                                             v-bind:src="item.alumno.persona.rutaFoto" />
-                                                    </div>
+                                                <td>
                                                 </td>
-                                                <td class="v-middle">
-                                                    <span class="block text-primary">{{item.alumno.persona.apellidosNombres}}</span>
-                                                    <span class="block">
-                                                        Matrícula: {{item.alumno.codigo}}
-                                                    </span>                                                    
+                                                <td>
                                                 </td>
-                                                <td class="v-middle">
-                                                    <span class="block text-primary">{{ item.alumno.carrera.nombre }}</span>
-                                                    <small v-text="item.alumno.carrera.tipoEnum.value"></small>
+                                                <td>
                                                 </td>
-                                                <td class="v-middle">
-                                                    <span class="block text-primary">{{ item.tarifaCarrera.ambitoEnum.value }}</span>
-                                                    <span class="block text-primary">{{ item.tarifaCarrera.cicloInicio.descripcion2 }}</span>
-                                                    <small v-text="item.tarifaCarrera.carrera.nombre"></small>
-                                                    <small v-text="item.tarifaCarrera.carrera.tipoEnum.value"></small>
+                                                <td>
                                                 </td>
-
-                                                <td class="v-middle text-center">
-                                                    <span>{{ item.fechaActivacion }}</span>
-                                                </td>
-
-                                                <td class="v-middle">
-                                                    <span v-if="item.estado == 'ACT' " class="label label-success">{{item.estadoEnum.value}}</span>
-                                                    <span v-else="" class="label label-danger">{{item.estadoEnum.value}}</span>
-                                                </td>
+                                                
                                                 <td class="v-middle">
                                                     <div class="actions">
                                                         <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="fa fa-ellipsis-v fa-lg"> </i></a>
 
                                                         <ul class="dropdown-menu pull-right" >
-                                                            <li role="presentation"><a class="btn-link" v-on:click="editar(item)">Cambiar Tarifa</a></li>                                                            
+                                                            <li role="presentation"><a class="btn-link" v-on:click="editar(item)">Editar</a></li>
+                                                            <li role="presentation">
+                                                                <a class="btn-link estado" href="#">Desactivar</a>
+                                                            </li>
+                                                            <li role="presentation" class="divider"></li>
+                                                            <li role="presentation"><a class="btn-link" >Editar</a></li>
+
                                                         </ul>
 
                                                     </div>
-                                                </td>                                           
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </template>
                             </raptor-table>
+
                         </section>
                     </section>
                 </section>
-
-                <modal-vik ref="modalTarifa"
-                           v-bind="tarifaModal"
-                           v-bind:okaction="guardar">
-                    <div slot="body"> 
-                        <div v-if="aluTarifa.id != undefined ">
-
-                            <div class="form-group">
-                                <label>Alumno</label>
-                                <span class="form-control" v-text="aluTarifa.alumno.persona.apellidosNombres"></span>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Código</label>
-                                <span class="form-control" v-text="aluTarifa.alumno.codigo"></span>
-                            </div>
-                            <div class="form-group">
-                                <label>Especialidad</label>
-                                <span class="form-control" v-text="">                                    
-                                    {{aluTarifa.alumno.carrera.tipoEnum.value}},
-                                    {{aluTarifa.alumno.carrera.nombre}}
-                                </span>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Tarifa Actual</label>
-                                <span class="form-control" v-text="">
-                                    {{aluTarifa.tarifaCarrera.nombre}}
-                                </span>
-                            </div>
-                            <div class="form-group">
-                                <label> Tarifa nueva </label>
-                                <multiselect 
-                                    v-model="aluTarifa.tarifaNueva"
-                                    label="nombre"
-                                    placeholder="Seleccione una tarifa"
-                                    track-by="id"
-                                    v-bind:options="otrasTarifas"
-                                    v-bind:show-labels="false"
-                                    v-bind:allow-empty="false">                                    
-                                </multiselect>                               
-                            </div>
-                            
-                        </div>
-                    </div>
-                </modal-vik>
-
+                
             </div>
-
             <div th:substituteby="_modules/vue-modal"/>
         </div>
-        ​
+
         <div layout:fragment="js">
-            <div th:substituteby="_modules/vue-raptor-table"/>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
-            <script th:src="@{/app/posgrado/alumnotarifa/alumnotarifa.js}" charset="utf-8"></script>
-
+            <script th:src="@{/app/academico/cuotagpohoras/cuotagpohoras.js}" charset="utf-8"></script>
         </div>
-
-        ​
     </body>
 </html>
