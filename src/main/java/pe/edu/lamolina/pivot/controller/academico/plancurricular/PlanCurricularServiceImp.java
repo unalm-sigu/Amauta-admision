@@ -250,6 +250,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoCurricula.setNumeroCurso(nroCurso);
         cursoCurricula.setUserRegistro(ds.getUsuario());
         cursoCurricula.setFechaRegistro(new Date());
+        cursoCurricula.setRequisitosOr(cursoCurricula.getRequisitosOr() == null ? false : cursoCurricula.getRequisitosOr());
         cursoCurriculaDAO.save(cursoCurricula);
         for (RequisitoCursoCurricula requisito : requisitos) {
             requisitoCursoCurriculaDAO.save(requisito);
@@ -518,6 +519,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         cursoOpcional.setUserRegistro(ds.getUsuario());
         cursoOpcional.setFechaRegistro(new Date());
+        cursoOpcional.setRequisitosOr(cursoOpcional.getRequisitosOr() == null ? false : cursoOpcional.getRequisitosOr());
         cursoOpcionalCurriculaDAO.save(cursoOpcional);
         for (RequisitoCursoOpcional requisito : requisitos) {
             requisitoCursoOpcionalDAO.save(requisito);
