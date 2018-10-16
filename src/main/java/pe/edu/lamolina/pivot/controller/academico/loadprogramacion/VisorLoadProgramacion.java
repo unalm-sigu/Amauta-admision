@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.loadprogramacion;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import pe.edu.lamolina.model.academico.Alumno;
 
 @Component
 public class VisorLoadProgramacion {
@@ -18,6 +20,7 @@ public class VisorLoadProgramacion {
     private boolean ejecutando;
     private Date ultimaEjecucion;
 
+    private Map<String, AlumnoBlocked> mapAlumnos;
     private List<String> acciones;
     private List<String> errores;
     private Map<String, ProcesoLoad> procesos;
@@ -30,6 +33,7 @@ public class VisorLoadProgramacion {
         this.errores = new ArrayList();
         this.procesos = new LinkedHashMap();
         this.grupos = new LinkedHashMap();
+        this.mapAlumnos = new LinkedHashMap();
         this.ciclo = null;
         this.stop = false;
         this.ejecutando = true;
@@ -137,6 +141,66 @@ public class VisorLoadProgramacion {
 
     public boolean isEjecutando() {
         return ejecutando;
+    }
+
+    public List<AlumnoBlocked> getAlumnos() {
+
+        List<AlumnoBlocked> lista = new ArrayList();
+        if (this.mapAlumnos != null) {
+            limpiarLista();
+            lista.addAll(this.mapAlumnos.values());
+
+        }
+        Collections.sort(lista, new AlumnoBlocked.CompareAlumno());
+        return lista;
+    }
+
+    public void limpiarLista() {
+        if (this.mapAlumnos == null) {
+            return;
+        }
+
+        Map<String, String> mapVerificarlos = new LinkedHashMap();
+
+        List<AlumnoBlocked> lista = new ArrayList(this.mapAlumnos.values());
+        for (AlumnoBlocked alub : lista) {
+            if (alub.getFechaDesbloqueo() == null) {
+                String code = alub.getAlumno().getCodigo();
+                mapVerificarlos.put(code, code);
+            }
+        }
+        for (AlumnoBlocked alub : lista) {
+            if (alub.getFechaDesbloqueo() == null) {
+                continue;
+            }
+            if (new Date().getTime() - alub.getFechaDesbloqueo().getTime() > 10000) {
+                String code = mapVerificarlos.get(alub.getAlumno().getCodigo());
+                if (code == null) {
+                    this.mapAlumnos.remove(alub.getAlumno().getCodigo() + "-" + alub.getSeccion());
+                }
+            }
+        }
+
+    }
+
+    public synchronized void addAlumno(Alumno alumno, String seccion, long inicio) {
+        Alumno aluTmo = new Alumno(alumno.getId(), alumno.getCodigo(), alumno.getPersona());
+        AlumnoBlocked blok = new AlumnoBlocked(aluTmo, seccion, inicio);
+        this.mapAlumnos.put(alumno.getCodigo() + "-" + seccion, blok);
+    }
+
+    public synchronized void removeAlumno(Alumno alumno, String seccion) {
+        AlumnoBlocked alu = this.mapAlumnos.get(alumno.getCodigo() + "-" + seccion);
+        alu.setEstado("DES-BLOQUEADO");
+        alu.setFechaDesbloqueo(new Date());
+
+        limpiarLista();
+    }
+
+    public synchronized void bloqueadoAlumno(Alumno alumno, String seccion) {
+        AlumnoBlocked alu = this.mapAlumnos.get(alumno.getCodigo() + "-" + seccion);
+        alu.setEstado("BLOQUEADO");
+        alu.setFechaBloqueo(new Date());
     }
 
 }
