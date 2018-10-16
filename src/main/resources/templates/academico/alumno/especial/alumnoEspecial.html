@@ -32,6 +32,7 @@
                                         <label>Tipo de documento de identidad</label>
 
                                         <select name="persona.tipoDocumento.id"
+                                                v-model="persona.tipoDocumento.id"
                                                 class="form-control" required="true">
                                             <option></option>
                                             <option th:each="tipo : ${documentos}"
@@ -50,6 +51,8 @@
 
                                         <input type="text"
                                                name="persona.numeroDocIdentidad"
+                                               v-model="persona.numeroDocIdentidad"
+                                               v-on:blur="cambiarNumDoc"
                                                th:value="${alumno.persona.numeroDocIdentidad}"
                                                class="form-control" required="true"/>
 
@@ -63,6 +66,7 @@
 
                                         <input type="text"
                                                name="persona.paterno"
+                                               v-model="persona.paterno"
                                                required="true"
                                                v-on:change="nombrePersona"
                                                th:value="${alumno.persona.paterno}"
@@ -78,6 +82,7 @@
 
                                         <input type="text"
                                                name="persona.materno"
+                                               v-model="persona.materno"
                                                required="true"
                                                v-on:change="nombrePersona"
                                                th:value="${alumno.persona.materno}"
@@ -92,6 +97,7 @@
 
                                         <input type="text"
                                                name="persona.nombres"
+                                               v-model="persona.nombres"
                                                required="true"
                                                v-on:change="nombrePersona"
                                                th:value="${alumno.persona.nombres}"
@@ -110,6 +116,7 @@
                                                 data-trigger="change" required="true" type="email"
                                                 data-trim-value="true"
                                                 name="persona.emailCompania" id="emailCompania"
+                                                v-model="persona.emailCompania"
                                                 th:value=" ${alumno.persona.emailCompania}"
                                                 />
                                     </div>
@@ -131,9 +138,11 @@
                                                         <input  type="radio"
                                                                 required="true"
                                                                 name="persona.sexo"
+                                                                v-model="persona.sexo"
                                                                 id="inlineCheckbox1"
                                                                 value="M"
-                                                                th:checked="${alumno.persona.sexo=='M'}" /> Masculino
+                                                                /> Masculino
+                                                        <!--   th:checked="${alumno.persona.sexo=='M'}" -->
                                                     </label>
 
                                                 </div>
@@ -143,9 +152,11 @@
                                                         <input  type="radio"
                                                                 required="true"
                                                                 name="persona.sexo"
+                                                                v-model="persona.sexo"
                                                                 id="inlineCheckbox2"
                                                                 value="F"
-                                                                th:checked="${alumno.persona.sexo=='F'}" /> Femenino
+                                                                /> Femenino
+                                                        <!--  th:checked="${alumno.persona.sexo=='F'}" -->
                                                     </label>
 
                                                 </div>
@@ -165,6 +176,7 @@
                                         <input id="paisNacimiento" type="text"
                                                class="form-control input-s-full buscar-pais"
                                                name="persona.paisNacer.id"
+                                               v-model="persona.paisNacer.id"
                                                data-trigger="change"
                                                th:attr="codigo=${helper.showCodigoPais(alumno.persona.paisNacer)}"
                                                th:rel="${alumno.persona.paisNacer != null}? ${alumno.persona.paisNacer.nombre}"
@@ -197,6 +209,7 @@
                                         <div class="input-group date">
 
                                             <input type="text"
+                                                   v-model="persona.fechaNacer"
                                                    data-parsley-errors-container="#errorfechaNacer"
                                                    th:value="${alumno.persona.fechaNacer}? ${#dates.format(alumno.persona.fechaNacer,'dd/MM/yyyy')}"
                                                    class="form-control"
@@ -239,6 +252,7 @@
 
                                         <input type="text"
                                                name="persona.telefono"
+                                               v-model="persona.telefono"
                                                th:value="${alumno.persona.telefono}"
                                                class="form-control sin-espacios numerico"/>
 
@@ -252,6 +266,7 @@
 
                                         <input type="text"
                                                name="persona.celular"
+                                               v-model="persona.celular"
                                                th:value="${alumno.persona.celular}"
                                                class="form-control sin-espacios numerico"/>
 
@@ -266,6 +281,7 @@
                                         <input type="email"
                                                name="persona.email"
                                                th:value="${alumno.persona.email}"
+                                               v-model="persona.email"
                                                class="form-control verificar-email"/>
 
                                     </div>
@@ -317,6 +333,7 @@
                                                class="form-control"
                                                name="persona.direccion"
                                                th:value="${alumno.persona.direccion}"
+                                               v-model="persona.direccion"
                                                data-trigger="change" required="true" />
 
                                     </div>
