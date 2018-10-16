@@ -35,6 +35,8 @@ public interface AlumnoService {
 
     void saveAlumnoEspecial(Alumno alumno, Usuario usuario);
 
+    Alumno validarAlumnoEspecial(Alumno alumnoVisitanteForm);
+
     void updateAlumnoFisico(Alumno alumno, Usuario usuarioRegistra);
 
     void updateAlumnoEspecial(Alumno alumno, Usuario usuarioRegistra);

@@ -176,7 +176,7 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
         Octavia sql = Octavia.query()
                 .from(Persona.class, "per")
                 .leftJoin("tipoDocumento td")
-                .leftJoin("ubicacionDomicilio ud")
+                .leftJoin("ubicacionDomicilio ud","paisNacer pn","nacionalidad nac","paisDomicilio paisDoc")
                 .filter("td.id", tipoDocumento)
                 .filter("per.numeroDocIdentidad", numeroDocIdentidad);
         return find(sql);
