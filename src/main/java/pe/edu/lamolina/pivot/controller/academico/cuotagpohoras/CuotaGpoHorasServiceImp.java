@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
@@ -30,13 +29,13 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
 
     @Autowired
     AnexoBoletinDAO anexoBoletinDAO;
-    
+
     @Autowired
     GrupoHorasDAO grupoHorasDAO;
-       
+
     @Override
     public List<CuotasGrupoHoras> allCuotasGpoHoras(DynatableFilter filter, CicloAcademico cicloAcademico) {
-        
+
         return cuotaGpoHorasDAO.allByDynatable(filter, cicloAcademico);
     }
 
@@ -68,9 +67,24 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
             cuota.setAsignadasSistema(0);
             cuota.setFechaRegistro(new Date());
             cuota.setTotalUtilizadas(0);
-            cuotaGpoHorasDAO.save(cuota);
+            if (cuota.getId() == null) {
+                if (cuota.getCuotas() > 0) {
+                    cuotaGpoHorasDAO.save(cuota);
+                }
+            } else if (cuota.getCuotas() > 0) {
+                cuotaGpoHorasDAO.update(cuota);
+            } else {
+                cuotaGpoHorasDAO.delete(cuota);
+            }
+
         }
-         
-    }    
+
+    }
+
+    @Override
+    public List<CuotasGrupoHoras> allCuotasByAnexo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico) {
+        List<CuotasGrupoHoras> cuotasGrupoHoras = cuotaGpoHorasDAO.allCuotasByAnexo(anexoBoletin, cicloAcademico);
+        return cuotasGrupoHoras;
+    }
 
 }

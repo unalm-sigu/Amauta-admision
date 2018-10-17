@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -166,4 +167,42 @@ public class CuotaGpoHorasController {
         }
         return response;
     }
+    
+    @ResponseBody
+    @RequestMapping("{idAnexo}/allCuotasByAnexo")
+    public JsonResponse allCuotasByAnexo(@PathVariable("idAnexo") Long idAnexo,  HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<CuotasGrupoHoras> cuotasGrupoHoras = service.allCuotasByAnexo(new AnexoBoletin(idAnexo), ds.getCicloAcademico());
+
+            ArrayNode arrayCuotasByAnexo = new ArrayNode(jsonFactory);
+            for (CuotasGrupoHoras cuotasGrupoHora : cuotasGrupoHoras) {
+                ObjectNode json = createCuotasByAnexoJson(cuotasGrupoHora);
+                arrayCuotasByAnexo.add(json);
+            }
+
+            response.setData(arrayCuotasByAnexo);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    private ObjectNode createCuotasByAnexoJson(CuotasGrupoHoras cuotasGrupoHora) {
+        ObjectNode json = JsonHelper.createJson(cuotasGrupoHora, JsonNodeFactory.instance, true, new String[]{
+            "anexoBoletin.id", "anexoBoletin.nombre", "anexoBoletin.codigo",
+            "grupoHoras.id", "grupoHoras.codigo",
+            "id", "cuotas"
+        });
+        return json;
+    }
+
 }

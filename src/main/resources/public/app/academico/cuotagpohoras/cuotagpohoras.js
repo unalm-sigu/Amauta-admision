@@ -7,7 +7,7 @@ new Vue({
         confirmarModal: {
             id: 'modalConfirmar',
             header: true,
-            title: 'Agregar Cuotas de Grupos',
+            title: 'Configurar Cuotas de Anexo',
             cancelbtn: 'Cancelar',
             okbtn: 'Guardar',
             modalsize: 'modal-md'
@@ -17,34 +17,72 @@ new Vue({
         anexoTempo: {},
         anexos: [],
         grupos: [],
-        cuotas: []
+        cuotas: [],
+        cuotasBD: [],
     },
     mounted() {
+        let $vue = this;
         $(".numerico").numeric({negative: false});
+        $vue.loadGrupos();
     },
     methods: {
-        verGruposAnexo(item) {
-            console.log(item.nombre);
+        verCuotasByAnexo(item) {
+            console.log(item.Id);
 
             let $vue = this;
-            $vue.confirmarModal.title = "Grupos";
-            $vue.grupoTempo = {id: '', codigo: {}, letra: {}};
+
             $.ajax({
                 method: "POST",
                 contentType: "application/json",
-                url: APP.url("academico/cuotagpohoras/allGrupos")
+                url: APP.url("academico/cuotagpohoras/" + item.id + "/allCuotasByAnexo")
             }).then(response => {
                 if (response.success) {
-                    $vue.grupos = response.data;
+                    $vue.cuotasBD = response.data;
                     $vue.cuotas = [];
                     for (var i = 0; i < $vue.grupos.length; i++) {
-                        $vue.cuotas.push({grupoHoras: $vue.grupos[i], anexoBoletin: item, cuotas: 0});
+                        let cuo = $vue.getCuotaGrupo($vue.grupos[i], $vue.cuotasBD);
+                        if (cuo == null) {
+                            $vue.cuotas.push({grupoHoras: $vue.grupos[i], anexoBoletin: item, cuotas: 0});
+                        } else {
+                            $vue.cuotas.push(cuo);
+                        }
+
                     }
                 } else {
                     notify(response.message, 'error');
                 }
             }, error => {
                 notify(MESSAGES.errorComunicacion, 'error');
+            });
+        },
+        getCuotaGrupo(gpo, cuotas) {
+            for (var i = 0; i < cuotas.length; i++) {
+                if (gpo.codigo == cuotas[i].grupoHoras.codigo) {
+                    return cuotas[i];
+                }
+            }
+            return null;
+        },
+        verGuardar() {
+            var form = $("#formGruposCuotas");
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea guarda esta cuota?',
+                buttons: {
+                    confirm: {label: 'Si, guardar', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (aceptar) {
+                    if (aceptar) {
+                        setTimeout(function () {
+                            $vue.guardar();
+                        }, 200);
+                    }
+                }
             });
         },
         guardar() {
@@ -70,13 +108,11 @@ new Vue({
 
 
         },
-        editar(item) {
-            
-        },
-
         verNuevoAnexo() {
             let $vue = this;
-            $vue.confirmarModal.title = "Nuevo Anexo";
+            $vue.cuotasBD = [];
+            $vue.cuotas = [];
+            $vue.confirmarModal.title = "Configurar Cuotas por Anexo";
             $vue.anexoTempo = {id: '', departamentoAcademico: {}, anexoSuperior: {}};
             $.ajax({
                 method: "POST",
@@ -92,8 +128,24 @@ new Vue({
             }, error => {
                 notify(MESSAGES.errorComunicacion, 'error');
             });
-        }
+        },
+        loadGrupos() {
+            let $vue = this;
 
+            $.ajax({
+                method: "POST",
+                contentType: "application/json",
+                url: APP.url("academico/cuotagpohoras/allGrupos")
+            }).then(response => {
+                if (response.success) {
+                    $vue.grupos = response.data;
+                } else {
+                    notify(response.message, 'error');
+                }
+            }, error => {
+                notify(MESSAGES.errorComunicacion, 'error');
+            });
+        }
     }
 
 });

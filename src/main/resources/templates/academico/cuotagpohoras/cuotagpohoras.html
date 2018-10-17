@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Cuotas Grupos</title>
+        <title>Configurar Cuotas por Anexo</title>
     </head>
 
     <body>
@@ -10,10 +10,10 @@
 
                     <div class="pull-right m-t-md">                 
                         <div class="btn-group">
-                            <a type="button" class="btn btn-success" v-on:click="verNuevoAnexo()">Agregar Cuotas</a>
+                            <a type="button" class="btn btn-success" v-on:click="verNuevoAnexo()">Configurar Cuotas</a>
                         </div>
                     </div> 
-                    <h2 th:text="|Cuotas Grupos ${ciclo.descripcion}|">Cuotas Grupos</h2>
+                    <h2 th:text="|Configurar Cuotas por Anexo ${ciclo.descripcion}|">Configurar Cuotas por Anexo</h2>
                 </header>
 
                 <section class="wrapper-lg">
@@ -32,7 +32,7 @@
                                                 <th class="col-md-2">Cuota</th>
                                                 <th class="col-md-1">Asignación Automática</th>
                                                 <th class="col-md-1">Total</th>
-                                                <th></th>
+                                                
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -52,16 +52,7 @@
                                                 <td class="v-middle"> 
                                                     {{item.totalUtilizadas}}
                                                 </td>   
-                                                <td class="v-middle">
-                                                    <div class="actions">
-                                                        <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="fa fa-ellipsis-v fa-lg"> </i></a>
-
-                                                        <ul class="dropdown-menu pull-right" >
-                                                            <li role="presentation"><a class="btn-link" v-on:click="editar(item)">Editar</a></li>
-                                                        </ul>
-
-                                                    </div>
-                                                </td>
+                                                
                                             </tr>
                                         </tbody>
                                     </table>
@@ -73,7 +64,7 @@
                 </section>
                 <modal-vik ref="modalConfirmar"
                            v-bind="confirmarModal"
-                           v-bind:okaction="guardar">
+                           v-bind:okaction="verGuardar">
                     <div slot="body">                                                
                         <div class="form-group">
                             <label>Anexos</label>                            
@@ -85,18 +76,19 @@
                                          v-bind:options="anexos"
                                          deselect-label=""
                                          select-label="Seleccione este anexo"
-                                         v-on:input="verGruposAnexo">
+                                         v-on:input="verCuotasByAnexo">
                             </multiselect>
                         </div>
 
-                        <div class="form-group">
-                            <label>Grupos</label>
+                        <!--<pre>{{cuotasBD}}</pre>-->
+                        <form method="post" id="formGruposCuotas"   data-parsley-validate="true">
+                            <h5>Grupos y Cuotas</h5>
                             <table class="table table-striped">
                                 <thead> 
                                     <tr> 
                                         <th class="col-md-6 v-middle">Grupo</th>                                                                                                
-                                        <th class="col-md-5 v-middle">Cuota</th>
-                                        <th class="col-md-1 v-middle"></th>
+                                        <th class="col-md-6 v-middle">Cuota</th>
+                                        
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -105,23 +97,13 @@
                                             {{cuo.grupoHoras.codigo}}
                                         </td>
                                         <td class="v-middle">
-                                            <input class="form-control" v-model="cuo.cuotas"/>
+                                            <input required="" class="form-control" v-model="cuo.cuotas"/>
                                         </td>
-                                        <td class="v-middle">
-                                            <div class="actions">
-                                                <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="fa fa-ellipsis-v fa-lg"> </i></a>
-
-                                                <ul class="dropdown-menu pull-right" >
-                                                    <li role="presentation"><a class="btn-link" v-on:click="editar(item)">Cambiar Grupo</a></li>                                                            
-                                                </ul>
-
-                                            </div>
-                                        </td>                                           
+                                                                                
                                     </tr>
                                 </tbody>
                             </table>
-                        </div>
-
+                        </form>
 
                     </div>
                 </modal-vik>
