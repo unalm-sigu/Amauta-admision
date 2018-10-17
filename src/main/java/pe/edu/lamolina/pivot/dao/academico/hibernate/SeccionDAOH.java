@@ -126,7 +126,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
 
     @Override
     public List<Seccion> allOperativesByGpoSeccion(GrupoSeccion grupoSeccion) {
-        List<SeccionEstadoEnum> estados = Arrays.asList(SeccionEstadoEnum.ACT, SeccionEstadoEnum.BLO);
+        List<SeccionEstadoEnum> estados = Arrays.asList(SeccionEstadoEnum.ACT, SeccionEstadoEnum.BLO, SeccionEstadoEnum.CRE);
         return this.allByGpoSeccionEstados(grupoSeccion, estados);
     }
 
