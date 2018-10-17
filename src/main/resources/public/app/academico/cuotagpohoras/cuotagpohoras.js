@@ -11,9 +11,7 @@ new Vue({
             cancelbtn: 'Cancelar',
             okbtn: 'Guardar',
             modalsize: 'modal-md'
-        },
-        cuotagpohorasEdit: {},
-        cuotagpohorasSelect: {},
+        },        
         anexoTempo: {},
         anexos: [],
         grupos: [],
