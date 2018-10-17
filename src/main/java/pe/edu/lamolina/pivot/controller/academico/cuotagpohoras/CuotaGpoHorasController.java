@@ -11,13 +11,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.edu.lamolina.model.academico.CuotaGpoHoras;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
+import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -41,21 +47,20 @@ public class CuotaGpoHorasController {
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
-        
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            
-            List<CuotaGpoHoras> cuotagpohoras = service.allCuotasGpoHoras(filter, ds.getCicloAcademico()); 
+
+            List<CuotasGrupoHoras> cuotagpohoras = service.allCuotasGpoHoras(filter, ds.getCicloAcademico());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (CuotaGpoHoras cuota : cuotagpohoras) {
+            for (CuotasGrupoHoras cuota : cuotagpohoras) {
                 ObjectNode node = JsonHelper.createJson(cuota, JsonNodeFactory.instance, true,
                         new String[]{
-                            "anaexoBoletin.id", "anaexoBoletin.nombre", "anaexoBoletin.codigo", "anaexoBoletin.estado",
-                            "grupoHoras.codigo", "grupoHoras.letra", "grupoHoras.tipoCiclo",                           
-                            "cicloAcademico.descripcion2", 
-                            "cuota", "asignadasSistema", "totalUtilizadas"
+                            "anexoBoletin.id", "anexoBoletin.nombre", "anexoBoletin.codigo", "anexoBoletin.estado",
+                            "grupoHoras.codigo", "grupoHoras.letra", "grupoHoras.tipoCiclo",
+                            "cicloAcademico.descripcion2",
+                            "cuotas", "asignadasSistema", "totalUtilizadas"
                         });
 
                 array.add(node);
@@ -72,6 +77,93 @@ public class CuotaGpoHorasController {
         return json;
     }
 
+    @ResponseBody
+    @RequestMapping("allAnexos")
+    public JsonResponse allAnexos(HttpSession session) {
 
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
 
+        try {
+            List<AnexoBoletin> anexosBoletin = service.allAnexos();
+
+            ArrayNode arrayAnexos = new ArrayNode(jsonFactory);
+            for (AnexoBoletin anexo : anexosBoletin) {
+                ObjectNode json = createAnexoJson(anexo);
+                arrayAnexos.add(json);
+            }
+
+            response.setData(arrayAnexos);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    private ObjectNode createAnexoJson(AnexoBoletin anexo) {
+        ObjectNode json = JsonHelper.createJson(anexo, JsonNodeFactory.instance, true, new String[]{
+            "id", "nombre", "codigo"
+        });
+        return json;
+    }
+    
+    @ResponseBody
+    @RequestMapping("allGrupos")
+    public JsonResponse allGrupos(HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<GrupoHoras> gruposHoras = service.allGrupos();
+
+            ArrayNode arrayGrupos = new ArrayNode(jsonFactory);
+            for (GrupoHoras grupo : gruposHoras) {
+                ObjectNode json = createGrupoJson(grupo);
+                arrayGrupos.add(json);
+            }
+
+            response.setData(arrayGrupos);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    private ObjectNode createGrupoJson(GrupoHoras grupo) {
+        ObjectNode json = JsonHelper.createJson(grupo, JsonNodeFactory.instance, true, new String[]{
+            "id", "codigo"
+        });
+        return json;
+    }
+    
+    @ResponseBody
+    @RequestMapping("save")
+    public JsonResponse save(@RequestBody List<CuotasGrupoHoras> cuotas, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+               service.save(cuotas, ds.getCicloAcademico(), ds);
+
+            response.setSuccess(true);
+            response.setMessage("Guardado satisfactoriamnente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 }

@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
@@ -123,6 +124,18 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .filter("tgh.tipo", TipoGrupoHorasEnum.ZETA)
                 .searchFields("gh.codigo");
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<GrupoHoras> allGrupo() {
+        Octavia sql = Octavia.query()
+                .from(GrupoHoras.class, "gh")
+                .join("tipoGrupoHoras")
+                .filter("gh.tipoCiclo", "REGULAR")
+                .filter("gh.tipoSeccion", TipoSeccionEnum.TEO)
+                .orderBy("gh.codigo");
+
+        return all(sql);
     }
 
 }
