@@ -1,0 +1,73 @@
+<html layout:decorator="_layout/layout2">
+    <head>
+        <title>Contactos</title>
+    <div th:substituteby="_layout/includes :: styles-upload"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+
+        <section class="panel">
+            <section class="panel-body">
+                Fecha :::: <span id="fecha"></span>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <td>Código</td>
+                            <td>Alumno</td>
+                            <td>Sección</td>
+                            <td>Lapso</td>
+                            <td>Estado</td>
+                            <td>Fecha Intento</td>
+                            <td>Fecha Bloqueo</td>
+                            <td>Fecha Desbloqueo</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="alu : ${alumnos}">
+                            <td th:text="${alu.alumno.codigo}"></td>
+                            <td th:text="${alu.inicio}"></td>
+                            <!--<td th:text="${alu.alumno.persona.apellidosNombres}"></td>-->
+                            <td th:text="${alu.seccion}"></td>
+                            <td th:text="${alu.lapso}"></td>
+                            <td th:text="${alu.estado}"></td>
+                            <td>
+                                <div th:if="${alu.fechaInicio != null}">
+                                    <div th:text="${#dates.format(alu.fechaInicio,'yyyy-MM-dd HH:mm:ss.S')}"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div th:if="${alu.fechaBloqueo != null}">
+                                    <div th:text="${#dates.format(alu.fechaBloqueo,'yyyy-MM-dd HH:mm:ss.S')}"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div th:if="${alu.fechaDesbloqueo != null}">
+                                    <div th:text="${#dates.format(alu.fechaDesbloqueo,'yyyy-MM-dd HH:mm:ss.S')}"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </section>
+        </section>
+
+
+    </div>
+
+    <div layout:fragment="js">
+        <script th:inline="javascript">
+            $(function () {
+                //console.log("3j43kj45n3k4j5n")
+                $("#fecha").html(new Date());
+                setTimeout(function(){
+                    location.reload();
+                },10000);
+            });
+        </script>
+    </div>
+
+</body>
+</html>

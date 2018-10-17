@@ -226,10 +226,11 @@ public class AlumnoController {
             if (alumno.getId() == null) {
                 service.saveAlumnoEspecial(alumno, usuario);
                 response.setMessage("Alumno creado satisfactoriamente");
-            } else {
+            }
+            /*else {
                 service.updateAlumnoEspecial(alumno, usuario);
                 response.setMessage("Alumno modificado satisfactoriamente");
-            }
+            }*/
 
             response.setSuccess(true);
             response.setData(node);

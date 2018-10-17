@@ -221,10 +221,11 @@ public class AlumnosVisitanteController {
             if (alumnoVisitante.getId() == null) {
                 service.save(alumnoVisitante, ds);
                 response.setMessage("Alumno Visitante guardado satisfactoriamente");
-            } else {
+            } 
+            /*else {
                 service.update(alumnoVisitante, ds);
                 response.setMessage("Alumno Visitante actualizado satisfactoriamente");
-            }
+            }*/
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

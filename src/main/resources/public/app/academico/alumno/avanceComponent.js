@@ -110,6 +110,8 @@ Vue.component("avance-component", {
                 return "text-secondary";
             } else if (nombre === 'HAB') {
                 return "text-primary";
+            } else if (nombre === 'MAT') {
+                return "text-primary bold";
             }
         },
         cargaAvance() {
