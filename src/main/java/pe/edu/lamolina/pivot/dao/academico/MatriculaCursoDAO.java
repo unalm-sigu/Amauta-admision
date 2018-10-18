@@ -36,4 +36,6 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
     List<MatriculaCurso> allByAlumnosCursosCiclo(List<Alumno> alumnos, List<Curso> cursos, CicloAcademico cicloAcademico);
 
+    List<MatriculaCurso> allPrematriculadoByCiclo(CicloAcademico cicloAcademico);
+
 }
