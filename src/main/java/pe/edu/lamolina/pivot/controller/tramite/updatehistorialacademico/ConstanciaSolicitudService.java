@@ -6,18 +6,22 @@ import javax.servlet.http.HttpServletResponse;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.bean.PlantillaIncrustacionGeneralBean;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
-import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
+import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.PlantillaIncrustacionDocumento;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia.PlantillaGenerica;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -68,5 +72,19 @@ public interface ConstanciaSolicitudService {
     public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse ds);
 
     public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico);
+
+    public List<PlantillaDocumentoAcademico> allPlantillas();
+
+    public void validVariables(PlantillaIncrustacionGeneralBean plantillaGeneralBean, DataSessionPivot ds);
+
+    public List<CicloAcademico> allCicloAcademicoByName(String nombre);
+
+    public List<PlantillaIncrustacionDocumento> allTramiteIncrustaciones(TramiteDocumentoAcademico documentoAcademico);
+
+    void deleteIncrustacion(PlantillaIncrustacionDocumento plantillaIncrustacionDocumento);
+
+    public List<VariablePlantilla> allParametros(PlantillaDocumentoAcademico pid);
+
+    public List<AlumnoCiclo> allAlumnoCiclo(Alumno alumno);
 
 }

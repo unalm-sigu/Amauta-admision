@@ -6,6 +6,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.TipoPlantillaDocumentoEnum;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
@@ -34,8 +35,19 @@ public class PlantillaDocumentoAcademicoDAOH extends AbstractEasyDAO<PlantillaDo
         DynatableSql sql = new DynatableSql(filter)
                 .from(PlantillaDocumentoAcademico.class, "pda")
                 .join("idioma")
-                .searchFields("nombre")
-                .orderBy("nombre");
+                .searchFields("pda.nombre")
+                .filter("pda.tipo", TipoPlantillaDocumentoEnum.PARR)
+                .orderBy("pda.nombre");
+        return all(sql);
+    }
+
+    @Override
+    public List<PlantillaDocumentoAcademico> allIncrustaciones() {
+        Octavia sql = new Octavia()
+                .from(PlantillaDocumentoAcademico.class, "pda")
+                .join("idioma")
+                .filter("pda.tipo", TipoPlantillaDocumentoEnum.PARR)
+                .orderBy("pda.nombre");
         return all(sql);
     }
 
@@ -43,7 +55,7 @@ public class PlantillaDocumentoAcademicoDAOH extends AbstractEasyDAO<PlantillaDo
     public PlantillaDocumentoAcademico find(Long id) {
         Octavia sql = new Octavia()
                 .from(PlantillaDocumentoAcademico.class, "pda")
-                .join("tipoDocumentoAcademico tda", "idioma")
+                .left("tipoDocumentoAcademico tda", "idioma")
                 .filter("pda.id", id);
         return find(sql);
     }

@@ -9,4 +9,5 @@ public interface VariablePlantillaDAO extends EasyDAO<VariablePlantilla> {
 
     public List<VariablePlantilla> allByPlantilla(PlantillaDocumentoAcademico plantillaDoc);
 
+    List<VariablePlantilla> allByPlantillaParametro(PlantillaDocumentoAcademico plantillaDocumentoAcademico);
 }
