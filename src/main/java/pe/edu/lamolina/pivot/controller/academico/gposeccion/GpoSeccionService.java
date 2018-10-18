@@ -53,7 +53,7 @@ public interface GpoSeccionService {
 
     Curso findCurso(Long id);
 
-    GrupoSeccion saveGpoSeccionHeader(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
+    List<GrupoSeccion> saveGpoSeccionHeader(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
 
     GrupoSeccion findGpoSeccion(Long id);
 

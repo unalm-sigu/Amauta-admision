@@ -748,16 +748,23 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
-            grupoSeccion = service.saveGpoSeccionHeader(grupoSeccion, ds.getCicloAcademico());
-            node.put("gruposeccion", grupoSeccion.getId());
+            String ids = "";
+            List<GrupoSeccion> gpoSecciones = service.saveGpoSeccionHeader(grupoSeccion, ds.getCicloAcademico());
+            for (GrupoSeccion gpoSecc : gpoSecciones) {
+                if (ids.equals("")) {
+                    node.put("primero", gpoSecc.getId());
+                }
+
+                ids += ids.equals("") ? "" : ",";
+                ids += gpoSecc.getId();
+            }
+            node.put("lista", ids);
             response.setData(node);
             response.setSuccess(true);
-            response.setMessage("Grupo de secciones creado satisfactoriamente");
+            response.setMessage("Grupos de secciones creados satisfactoriamente");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -772,7 +779,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            
+
             service.addSeccion(new GrupoSeccion(grupoSeccion));
 
             String message = "Sección agregada.";
