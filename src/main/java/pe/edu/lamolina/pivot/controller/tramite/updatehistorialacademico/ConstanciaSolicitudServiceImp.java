@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -32,15 +34,22 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ControlOrdenMerito;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Egresado;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.bean.PlantillaIncrustacionGeneralBean;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.EstadoAcreenciaTramiteEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
+import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
+import static pe.edu.lamolina.model.enums.VariableContenidoEnum.CICLO_ACADEMICO;
 import pe.edu.lamolina.model.finanzas.AcreenciaTramiteDocumento;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
@@ -54,11 +63,13 @@ import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.FlujoTramiteDocumento;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.PlantillaIncrustacionDocumento;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.TramiteDocumentoParametro;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.academico.situacionacademica.SituacionAcademicaService;
@@ -69,7 +80,10 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.ControlOrdenMeritoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.EgresadoDAO;
+import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.finanza.AcreenciaTramiteDocumentoDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
@@ -90,6 +104,8 @@ import pe.edu.lamolina.pivot.dao.tramite.VariablePlantillaDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.dao.tramite.PlantillaIncrustacionDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TramiteDocumentoParametroDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -177,6 +193,21 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Autowired
     VariablePlantillaDAO variablePlantillaDAO;
+
+    @Autowired
+    PlantillaIncrustacionDAO plantillaIncrustacionDAO;
+
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
+    @Autowired
+    ControlOrdenMeritoDAO controlOrdenMeritoDAO;
+
+    @Autowired
+    TramiteDocumentoParametroDAO tramiteDocumentoParamtroDAO;
+
+    @Autowired
+    EgresadoDAO egresadoDAO;
 
     @Autowired
     S3Service s3Service;
@@ -627,6 +658,18 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         flujo.setFechaRegistro(new Date());
         flujoTramiteDocumentoDAO.save(flujo);
 
+        if (tramiteDocumentoAcademico.getValorParametro() != null) {
+            PlantillaDocumentoAcademico plantillaDocumentoAcademico = plantillaDocumentoAcademicoDAO.findTipoDocumento(tipo, idioma);
+            List<VariablePlantilla> plantillas = allParametros(plantillaDocumentoAcademico);
+            TramiteDocumentoParametro documentoParametro = new TramiteDocumentoParametro();
+            documentoParametro.setPlantillaDocumento(plantillaDocumentoAcademico);
+            documentoParametro.setTipoDocumentoAcademico(tipo);
+            documentoParametro.setValor(tramiteDocumentoAcademico.getValorParametro());
+            documentoParametro.setFecharegistro(new Date());
+            documentoParametro.setUsuario(usuario);
+            documentoParametro.setVariableGenerica(plantillas.get(0).getVariableGenerica());
+            tramiteDocumentoParamtroDAO.save(documentoParametro);
+        }
         this.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico);
     }
 
@@ -646,7 +689,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     @Override
-    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException{
+    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException {
         PlantillaGenerica generica = findPlantillaHtml(tramiteDocumentoAcademico);
 
         try {
@@ -779,6 +822,15 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 break;
 
         }
+
+        List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
+        System.out.println("CANTIDAD: ---- >" + incrustacionDocumentos.size());
+        if (!incrustacionDocumentos.isEmpty()) {
+            for (PlantillaIncrustacionDocumento incrustacionDocumento : incrustacionDocumentos) {
+                String html = plantillaGene.getContenido().concat(incrustacionDocumento.getContenido());
+                plantillaGene.setContenido(html);
+            }
+        }
         return plantillaGene;
     }
 
@@ -842,6 +894,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     private PlantillaGenerica alumno(TramiteDocumentoAcademico documentoAcademico) {
         Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
+        ControlOrdenMerito orden = controlOrdenMeritoDAO.findByFac(alumno.getCarrera().getFacultad(), alumnoCiclo.getCicloAcademico());
 
         PlantillaGenerica plantillaGene = new PlantillaGenerica();
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
@@ -860,8 +914,27 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     case FACULTAD:
                         html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
                         break;
+                    case ESPECIALIDAD:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
+                        break;
+                    case CICLO_ACADEMICO:
+                        TramiteDocumentoParametro parametro = tramiteDocumentoParamtroDAO.findByTipoDocAndPlantilla(documentoAcademico, plantilla, CICLO_ACADEMICO);
+                        html = html.replace(var.getVariableGenerica().getCodigo(), parametro.getValor());
+                        break;
                     case CICLO_MATRICULA:
                         html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloActivo().getDescripcion2());
+                        break;
+                    case ORDEN_MERITO_NUMERICO:
+
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumnoCiclo.getOrdenMeritoCiclo().toString() + " de " + orden.getAlumnosComputados());
+                        break;
+                    case NIVEL_ACADEMICO:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumnoCiclo.getNivel().toString());
+                        break;
+                    case FECHA_CONSTANCIA:
+                        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+                        String fechaFin = df.format(new Date());
+                        html = html.replace(var.getVariableGenerica().getCodigo(), fechaFin);
                         break;
                 }
             }
@@ -870,7 +943,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         plantillaGene.setContenido(html);
         plantillaGene.setNombre(nombreDoc);
         return plantillaGene;
-    }
+    } // ok
 
     private PlantillaGenerica alumnoEspecial(TramiteDocumentoAcademico documentoAcademico) {
         Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
@@ -1262,10 +1335,12 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     private PlantillaGenerica especialPromedioAcumuladoCiclos(TramiteDocumentoAcademico documentoAcademico) {
-        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
+
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
         List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
         String html = plantilla.getContenido();
+        
         for (VariablePlantilla var : variable) {
             while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
                 switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
@@ -1275,12 +1350,16 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     case MATRICULA:
                         html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
                         break;
-                    default:
-                        throw new AssertionError();
+                    case CICLO_PROMOCION:
+                        Egresado egresado = egresadoDAO.findByAlumno(alumno);
+                        html = html.replace(var.getVariableGenerica().getCodigo(), egresado.getCicloAcademico().getDescripcion());
+                        break;
+                    
                 }
             }
         }
         String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
         plantillaGene.setContenido(html);
         plantillaGene.setNombre(nombreDoc);
         return plantillaGene;
@@ -1437,25 +1516,74 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     private PlantillaGenerica ordenMeritoAlumnosVarios(TramiteDocumentoAcademico documentoAcademico) {
-        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
+
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
         List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        List<AlumnoCiclo> alumnoCiclo = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
+
         String html = plantilla.getContenido();
+        int posStartTr = html.indexOf("<tr>");
+        int posEndTr = html.indexOf("</tr>");
+        String subStr = html.substring(posStartTr, posEndTr + 5);
+        String[] array = new String[alumnoCiclo.size()];
+
+        for (int j = 0; j < alumnoCiclo.size(); j++) {
+            array[j] = subStr;
+        }
+        int i = 0;
         for (VariablePlantilla var : variable) {
             while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
                 switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
                     case NOMBRE_PERSONA:
-                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getApellidosNombres());
                         break;
                     case MATRICULA:
-                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCodigo());
                         break;
-                    default:
-                        throw new AssertionError();
+                    case FACULTAD:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
+                        break;
+                    case SITUACION_ALUMNO:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getSituacionAcademica().getNombre());
+                        break;
+                    case CICLO_MATRICULA:
+                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloActivo().getDescripcion2());
+                    case FECHA_CONSTANCIA:
+                        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+                        String fecha = df.format(new Date());
+                        html = html.replace(var.getVariableGenerica().getCodigo(), fecha);
+                        break;
+                    case CICLO_ACADEMICO:
+                        for (AlumnoCiclo alum : alumnoCiclo) {
+                            array[i] = array[i].replace(var.getVariableGenerica().getCodigo(), alum.getCicloAcademico().getDescripcion());
+                            i++;
+                        }
+                        break;
+                    case ORDEN_MERITO:
+                        i = 0;
+                        for (AlumnoCiclo alum : alumnoCiclo) {
+                            array[i] = array[i].replace(var.getVariableGenerica().getCodigo(), alum.getOrdenMeritoFacultad().toString());
+                            i++;
+                        }
+                        break;
+                    case NIVEL_ACADEMICO:
+                        i = 0;
+                        for (AlumnoCiclo alum : alumnoCiclo) {
+                            array[i] = array[i].replace(var.getVariableGenerica().getCodigo(), alum.getNivel().toString());
+                            i++;
+                        }
+                        break;
                 }
             }
         }
+        String table = "";
+        for (String string : array) {
+            table = table.concat(string);
+        }
+        html = html.replace(subStr, table);
         String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
         plantillaGene.setContenido(html);
         plantillaGene.setNombre(nombreDoc);
         return plantillaGene;
@@ -1709,6 +1837,103 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         plantillaGene.setContenido(html);
         plantillaGene.setNombre(nombreDoc);
         return plantillaGene;
+    }
+
+    @Override
+    public List<PlantillaDocumentoAcademico> allPlantillas() {
+        return plantillaDocumentoAcademicoDAO.allIncrustaciones();
+    }
+
+    @Override
+    public void validVariables(PlantillaIncrustacionGeneralBean plantillaGeneralBean, DataSessionPivot ds) {
+        PlantillaIncrustacionDocumento pid = plantillaIncrustacionDAO.findTramiteAndPlantilla(plantillaGeneralBean.getTramiteDocumentoAcademico(), plantillaGeneralBean.getPlantillaDocumentoAcademico());
+        Assert.isNull(pid, "Ya se agregó la incrustación " + plantillaGeneralBean.getPlantillaDocumentoAcademico().getNombre() + " para este Tramite");
+
+        TramiteDocumentoAcademico academico = tramiteDocumentoAcademicoDAO.find(plantillaGeneralBean.getTramiteDocumentoAcademico());
+        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantillaGeneralBean.getPlantillaDocumentoAcademico());
+        String html = plantillaGeneralBean.getPlantillaDocumentoAcademico().getContenido();
+        EventoCicloAcademico eventoCicloAcademico = null;
+        DateFormat df = null;
+        for (VariablePlantilla variable : variables) {
+            switch (variable.getVariableGenerica().getCodigoVaribleEnum()) {
+                case CICLO_ACADEMICO:
+                    if (plantillaGeneralBean.getCicloEstudiado() != null) {
+                        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActiveByAlumnoCiclo(academico.getTramite().getAlumno(), plantillaGeneralBean.getCicloEstudiado());
+                        Assert.isNotNull(alumnoCiclo, "El alumno no se matriculó en el ciclo seleccionado");
+                        html = html.replace(variable.getVariableGenerica().getCodigo(), alumnoCiclo.getCicloAcademico().getDescripcion());
+                    }
+                    break;
+                case YEAR_INICIO:
+                    eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(plantillaGeneralBean.getCicloEstudiado(), EventoAcademicoEnum.CLASES_PRE);
+                    df = new SimpleDateFormat("MM/dd/yyyy");
+                    String fechaInicio = df.format(eventoCicloAcademico.getFechaInicio());
+                    html = html.replace(variable.getVariableGenerica().getCodigo(), fechaInicio);
+                    break;
+                case YEAR_FIN:
+                    eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(plantillaGeneralBean.getCicloEstudiado(), EventoAcademicoEnum.CLASES_PRE);
+                    df = new SimpleDateFormat("MM/dd/yyyy");
+                    String fechaFin = df.format(eventoCicloAcademico.getFechaFin());
+                    html = html.replace(variable.getVariableGenerica().getCodigo(), fechaFin);
+                    break;
+                case SEX_MATRI:
+                    Persona persona = academico.getTramite().getPersona();
+                    String text = persona.getSexo().equals(SexoEnum.F.name()) ? "matriculada" : "matriculado";
+                    html = html.replace(variable.getVariableGenerica().getCodigo(), text);
+                    break;
+            }
+        }
+
+        List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(plantillaGeneralBean.getTramiteDocumentoAcademico());
+
+        Integer orden = incrustacionDocumentos == null ? 1 : incrustacionDocumentos.size() + 1;
+
+        PlantillaIncrustacionDocumento incrustacionDocumento = new PlantillaIncrustacionDocumento();
+        incrustacionDocumento.setContenido(html);
+        incrustacionDocumento.setPlatillaIncrustacion(plantillaGeneralBean.getPlantillaDocumentoAcademico());
+        incrustacionDocumento.setFechaRegistro(new Date());
+        incrustacionDocumento.setOrden(orden);
+        incrustacionDocumento.setUsuarioRegistro(ds.getUsuario());
+        incrustacionDocumento.setTramiteDocumento(academico);
+        plantillaIncrustacionDAO.save(incrustacionDocumento);
+    }
+
+    @Override
+    public List<CicloAcademico> allCicloAcademicoByName(String nombre) {
+        return cicloAcademicoDAO.allCicloByName(nombre);
+    }
+
+    @Override
+    public List<PlantillaIncrustacionDocumento> allTramiteIncrustaciones(TramiteDocumentoAcademico documentoAcademico) {
+        return plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
+    }
+
+    @Override
+    @Transactional
+    public void deleteIncrustacion(PlantillaIncrustacionDocumento plantillaIncrustacionDocumento) {
+        PlantillaIncrustacionDocumento incrustacionDocumentoBD = plantillaIncrustacionDAO.find(plantillaIncrustacionDocumento.getId());
+        TramiteDocumentoAcademico documentoAcademico = incrustacionDocumentoBD.getTramiteDocumento();
+        List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
+
+        for (PlantillaIncrustacionDocumento incrustacionDocumento : incrustacionDocumentos) {
+            if (incrustacionDocumento.getOrden() > plantillaIncrustacionDocumento.getOrden()) {
+                Integer orden = incrustacionDocumento.getOrden() - 1;
+                incrustacionDocumento.setOrden(orden);
+                plantillaIncrustacionDAO.update(incrustacionDocumento);
+            }
+        }
+        plantillaIncrustacionDAO.delete(plantillaIncrustacionDocumento.getId());
+    }
+
+    @Override
+    public List<VariablePlantilla> allParametros(PlantillaDocumentoAcademico pid) {
+        pid = plantillaDocumentoAcademicoDAO.findTipoDocumento(pid.getTipoDocumentoAcademico(), pid.getIdioma());
+        return variablePlantillaDAO.allByPlantillaParametro(pid);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allAlumnoCiclo(Alumno alumno) {
+
+        return alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
     }
 
 }

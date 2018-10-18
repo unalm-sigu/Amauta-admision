@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlOrdenMerito;
+import pe.edu.lamolina.model.academico.Facultad;
 
 public interface ControlOrdenMeritoDAO extends EasyDAO<ControlOrdenMerito> {
 
@@ -13,5 +14,7 @@ public interface ControlOrdenMeritoDAO extends EasyDAO<ControlOrdenMerito> {
     List<ControlOrdenMerito> allByCicloAcademico(CicloAcademico cicloAcademico);
 
     void deleteByCicloAcademico(CicloAcademico cicloAcademico);
+
+    public ControlOrdenMerito findByFac(Facultad facultad, CicloAcademico cicloAcademico);
 
 }

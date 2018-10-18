@@ -1,0 +1,23 @@
+
+<modal-vik ref="ciclosModal"
+           v-bind="ciclosModal"
+            v-bind:okaction="elegir">
+
+    <div slot="body">
+        <form enctype="multipart/form-data" id="my-form">
+            <div class="form-group">
+                <label>Ciclo</label>
+                <multiselect                                                   
+                    v-model='ciclo'
+                    v-bind:internal-search='true'
+                    v-bind:limit='15'
+                    v-bind:options='ciclos'
+                    placeholder="Seleccione un ciclo"
+                    label="descripcion"
+                    track-by="id"
+                    >
+                </multiselect>
+            </div>
+        </form>
+    </div>
+</modal-vik>

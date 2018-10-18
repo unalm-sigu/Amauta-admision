@@ -1263,6 +1263,7 @@ public class NotaAcademicaController {
             logger.debug("evaluacion {}", evaluacionId);
 
             Evaluacion evaluacion = service.findEvaluacion(evaluacionId);
+            List<MatriculaSeccion> matriculasSeccion = service.eliminarNotas(new Evaluacion(evaluacionId), ds);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());

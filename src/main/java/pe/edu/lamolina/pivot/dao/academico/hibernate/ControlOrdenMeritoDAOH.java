@@ -9,6 +9,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlOrdenMerito;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.pivot.dao.academico.ControlOrdenMeritoDAO;
 
 @Repository
@@ -47,6 +48,17 @@ public class ControlOrdenMeritoDAOH extends AbstractEasyDAO<ControlOrdenMerito> 
         Query query = getCurrentSession().createQuery("delete from ControlOrdenMerito where cicloAcademico.id = :CICLO");
         query.setParameter("CICLO", cicloAcademico.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public ControlOrdenMerito findByFac(Facultad facultad, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query(ControlOrdenMerito.class, "com")
+                .join("cicloAcademico ca")
+                .left("carrera", "facultad fac")
+                .filter("ca.id", cicloAcademico)
+                .filter("fac.id", facultad);
+
+        return find(sql);
     }
 
 }
