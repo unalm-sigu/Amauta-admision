@@ -966,6 +966,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Seccion seccioDB = seccionDAO.find(seccionForm.getId());
         GrupoSeccion grupoSeccion = grupoSeccionDAO.findLock(seccioDB.getGrupoSeccion().getId());
 
+        logger.debug("grupoSeccion:::  {}", grupoSeccion.getId());
         //validar seccion seleccionada
         if (ObjectUtil.getParentTree(seccioDB, "aula.id") != null) {
             if (seccioDB.getAula().getCapacidadAula().compareTo(seccionForm.getVacantes()) < 0) {
@@ -1038,13 +1039,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (grupoSeccion.getCurso().isTipoCursoTEOPRA()) {
             List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
 
-            Seccion seccionTCUR = null;
+            Seccion seccionTCUR = new Seccion();
             Integer vacantes = BigDecimal.ZERO.intValue();
 
             for (Seccion seccionEach : secciones) {
                 if (seccionEach.isTipoSeccionTCUR()) {
                     seccionTCUR = seccionEach;
                 }
+                logger.debug("seccionEach.isTipoSeccionPCUR()::: {}", seccionEach.isTipoSeccionPCUR());
+                logger.debug("seccionEach.getVacantes()::: {}", seccionEach.isTipoSeccionPCUR());
                 if (seccionEach.isTipoSeccionPCUR()) {
                     vacantes = vacantes + seccionEach.getVacantes();
                 }
@@ -1056,13 +1059,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     throw new PhobosException("Las vacantes de la sección teoria superan, el aforo del aula");
                 }
             }
-            List<MatriculaSeccion> matriculasSeccionTCUR = matriculaSeccionDAO.allBySeccion(seccionTCUR);
+            List<MatriculaSeccion> matriculasSeccionTCUR = new ArrayList();
+            List<VacanteAlumno> vacantesAlumnoBySeccion = new ArrayList();
+
+            if (seccionTCUR.getId() != null) {
+                matriculasSeccionTCUR = matriculaSeccionDAO.allBySeccion(seccionTCUR);
+                vacantesAlumnoBySeccion = vacanteAlumnoDAO.allActivosBySeccion(seccionTCUR);
+            }
+
             if (matriculasSeccionTCUR.size() > seccionTCUR.getVacantes()) {
                 throw new PhobosException("Error. Las matriculas para la sección teoria superan la cantidad de vacantes asignadas.");
             }
             seccionDAO.updateSeccionVacantes(seccionTCUR);
 
-            List<VacanteAlumno> vacantesAlumnoBySeccion = vacanteAlumnoDAO.allActivosBySeccion(seccionTCUR);
             Collections.sort(vacantesAlumnoBySeccion, (VacanteAlumno va1, VacanteAlumno va2) -> va1.getNumero().compareTo(va2.getNumero()));
 
             if (vacantesAlumnoBySeccion.isEmpty()) {
@@ -2202,6 +2211,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
                 Seccion seccionPCUR = new Seccion();
                 seccionPCUR.setGrupoSeccion(clon);
+                seccionPCUR.setSeccionSuperior(seccionTCUR);
                 seccionPCUR.setCodigo(codigo + "1");
                 seccionPCUR.setCodigo2(seccionPCUR.getCodigo());
                 seccionPCUR.setEstadoEnum(SeccionEstadoEnum.CRE);

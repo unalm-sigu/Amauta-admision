@@ -7,6 +7,7 @@ new Vue({
         variablePlantilla: JSON.parse(variablePlantillaJson),
         variables: JSON.parse(variablesJson),
         id: JSON.parse(id),
+        tipoDocumentoNombre: tipoDocumento,
         dataModalPreview: {
             id: 'modalPreview',
             header: true,
