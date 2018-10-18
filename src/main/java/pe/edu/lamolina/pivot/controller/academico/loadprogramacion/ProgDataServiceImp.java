@@ -1,13 +1,22 @@
 package pe.edu.lamolina.pivot.controller.academico.loadprogramacion;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +55,19 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCursoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.inscripcion.Postulante;
 import pe.edu.lamolina.model.seguridad.Rol;
@@ -86,6 +100,7 @@ import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -143,6 +158,8 @@ public class ProgDataServiceImp implements ProgDataService {
     RestriccionFacultadDAO restriccionFacultadDAO;
     @Autowired
     RestriccionRepitenciaDAO restriccionRepitenciaDAO;
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
 
     @Autowired
     LoadDataMatriculadoService loadDataMatriculadoService;
@@ -167,7 +184,6 @@ public class ProgDataServiceImp implements ProgDataService {
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
         String email = null;
-//        List<Persona> personasVinculadas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
         Persona main = null;
         for (Persona persona : personasVinculadas) {
             if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
@@ -205,7 +221,6 @@ public class ProgDataServiceImp implements ProgDataService {
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
         Persona dni = new Persona();
-//        List<Persona> personasVinculadas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
         Persona main = null;
         for (Persona persona : personasVinculadas) {
             if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
@@ -240,7 +255,6 @@ public class ProgDataServiceImp implements ProgDataService {
             String emailCompania,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
-//        List<Persona> personasVinculadas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
         Persona main = null;
         for (Persona persona : personasVinculadas) {
             if (persona.getEstadoEnum() == PersonaEstadoEnum.ACT) {
@@ -614,7 +628,7 @@ public class ProgDataServiceImp implements ProgDataService {
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Persona revisarPersona(
             Persona persona,
             List<Persona> personasVinculadas,
@@ -744,31 +758,26 @@ public class ProgDataServiceImp implements ProgDataService {
             if (persona.getId() == main.getId().longValue()) {
                 continue;
             }
-            //logger.debug("cambiando el ID de {} a {}", persona.getId(), main.getId());
 
             List<Postulante> postulantes = postulanteDAO.allByPersona(persona);
-            //logger.debug("se hallo {} postulantes", postulantes.size());
             for (Postulante postulante : postulantes) {
                 postulante.setPersona(main);
                 postulanteDAO.update(postulante);
             }
 
             List<Alumno> alumnos = alumnoDAO.allByPersona(persona);
-            //logger.debug("se hallo {} alumnos", alumnos.size());
             for (Alumno alumno : alumnos) {
                 alumno.setPersona(main);
                 alumnoDAO.update(alumno);
             }
 
             List<Docente> docentes = docenteDAO.allByPersona(persona);
-            //logger.debug("se hallo {} docentes", docentes.size());
             for (Docente docente : docentes) {
                 docente.setPersona(main);
                 docenteDAO.update(docente);
             }
 
             List<PersonaCargo> persoPerfiles = personaCargoDAO.allByPersona(persona);
-            //logger.debug("se hallo {} perfiles", persoPerfiles.size());
             for (PersonaCargo pp : persoPerfiles) {
                 pp.setPersona(main);
                 personaCargoDAO.update(pp);
@@ -820,10 +829,8 @@ public class ProgDataServiceImp implements ProgDataService {
                 }
             }
             if (userMain != null) {
-                //userMain.setPersona(main);
                 usuario.setPersona(null);
                 usuarioDAO.update(usuario);
-                //usuarioDAO.update(userMain);
             } else {
                 userMain = usuario;
             }
@@ -991,7 +998,7 @@ public class ProgDataServiceImp implements ProgDataService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo) {
-        int loop = 0;
+
         List<GrupoSeccion> gpoSeccionesBD = grupoSeccionDAO.allByCiclo(ciclo);
         Map<String, GrupoSeccion> mapGpoSeccionBD = TypesUtil.convertListToMap("codigo", gpoSeccionesBD);
 
@@ -1002,6 +1009,11 @@ public class ProgDataServiceImp implements ProgDataService {
         List<Curso> cursosBD = cursoDAO.all();
         Map<String, Curso> mapCursoBD = TypesUtil.convertListToMap("codigo", cursosBD);
 
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSeccionesBD);
+        Map<String, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.codigo", secciones);
+        logger.debug("Size secciones {}", secciones.size());
+
+        int loop = 0;
         for (GrupoSeccion gpoSecc : gruposSecciones) {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");
@@ -1024,7 +1036,8 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setVersion("1");
                 gpoSeccBD.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
                 gpoSeccBD.setEstadoGrupo(EstadoGrupoSeccionEnum.ABI.name());
-                gpoSeccBD.setEstado(EstadoEnum.ACT.name());
+                gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.ACT);
+                gpoSeccBD.setCursoDirigido(gpoSecc.getCursoDirigido());
                 gpoSeccBD.setAnexoBoletin(anexo);
 
                 grupoSeccionDAO.save(gpoSeccBD);
@@ -1035,7 +1048,8 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setVersion(gpoSeccBD.getVersion() == null ? "1" : gpoSeccBD.getVersion());
                 gpoSeccBD.setEstadoPlanEnum(gpoSeccBD.getEstadoPlan() == null ? EstadoPlanCalificaEnum.PEND : gpoSeccBD.getEstadoPlanEnum());
                 gpoSeccBD.setEstadoGrupo(gpoSeccBD.getEstadoGrupo() == null ? EstadoGrupoSeccionEnum.ABI.name() : gpoSeccBD.getEstadoGrupo());
-                gpoSeccBD.setEstado(EstadoEnum.ACT.name());
+                gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.ACT);
+                gpoSeccBD.setCursoDirigido(gpoSecc.getCursoDirigido());
                 gpoSeccBD.setAnexoBoletin(anexo);
                 grupoSeccionDAO.update(gpoSeccBD);
 
@@ -1064,7 +1078,7 @@ public class ProgDataServiceImp implements ProgDataService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String, Seccion> loadDataSecciones(List<Seccion> secciones, CicloAcademico ciclo, Map<String, GrupoSeccion> mapGpoSecciones, DataSessionPivot ds) {
-        int loop = 0;
+
         Map<String, List<Seccion>> mapSeccionesPCUR = new LinkedHashMap();
         Map<String, Seccion> mapSeccionesTCUR = new LinkedHashMap();
         for (Seccion seccion : secciones) {
@@ -1126,6 +1140,7 @@ public class ProgDataServiceImp implements ProgDataService {
         List<Aula> aulasBD = aulaDAO.all();
         Map<String, Aula> mapAulaBD = TypesUtil.convertListToMap("codigo", aulasBD);
 
+        int loop = 0;
         for (Seccion seccion : secciones) {
             GrupoSeccion gpoSecc = mapGpoSecciones.get(seccion.getCodigoGrupoSeccion());
             if (gpoSecc == null) {
@@ -1257,6 +1272,9 @@ public class ProgDataServiceImp implements ProgDataService {
             }
 
             gpoSecc.getSecciones().add(seccionBD);
+            gpoSecc.setCodigo2(seccion.getCodigo2().substring(0, 3));
+            grupoSeccionDAO.update(gpoSecc);
+
             seccionBD.setDocenteSeccion(new ArrayList());
             seccionBD.setMatriculaSeccion(new ArrayList());
             secciones.set(loop, seccionBD);
@@ -1287,7 +1305,6 @@ public class ProgDataServiceImp implements ProgDataService {
             return null;
         }
 
-        //GrupoHoras gpoHoras = grupoHorasDAO.findByCode(codigo);
         GrupoHoras gpoHoras = mapGpoHoraBD.get(codigo);
         if (gpoHoras == null) {
             String msg = String.format("El grupo-horas %s de la seccion %s no existe en la base de datos",
@@ -1303,7 +1320,6 @@ public class ProgDataServiceImp implements ProgDataService {
             return null;
         }
 
-        //Aula aula = aulaDAO.findByCode(codigo);
         Aula aula = mapAulaBD.get(codigo);
         if (aula == null && ciclo.getCodigo().compareTo("201710") >= 0) {
             String msg = String.format("El aula %s de la seccion %s no existe en la base de datos",
@@ -1421,6 +1437,7 @@ public class ProgDataServiceImp implements ProgDataService {
             Alumno alumno = alumnoDAO.findFlatByCodigo(matriSecc.getCodigoAlumno());
             //alumnoDAO.update(alumno);
             System.out.println("\talumno 222 " + alumno.getCodigo() + " desbloqueado en XYZ-loadDataMatriculados");
+            visor.removeAlumno(alumno, matriSecc.getCodigoSeccion());
 
         } catch (Exception e) {
             visor.agregarLog("aluSecc", "saveAluSecc", "Alumno-Seccion " + matriSecc.getCodigoAlumno() + "-" + matriSecc.getCodigoSeccion()
@@ -1429,26 +1446,6 @@ public class ProgDataServiceImp implements ProgDataService {
             e.printStackTrace();
         }
 
-    }
-
-    private boolean existeCurso(List<MatriculaCurso> alumnoCursos, Curso curso) {
-        for (MatriculaCurso alumnoCurso : alumnoCursos) {
-            Curso cur = alumnoCurso.getCurso();
-            if (cur.getId().longValue() == curso.getId()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean existeSeccion(List<MatriculaSeccion> alumnoSecciones, Seccion seccion) {
-        for (MatriculaSeccion alumnoSeccion : alumnoSecciones) {
-            Seccion secc = alumnoSeccion.getSeccion();
-            if (secc.getId().longValue() == seccion.getId()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Async
@@ -1537,7 +1534,8 @@ public class ProgDataServiceImp implements ProgDataService {
             logger.debug("\tanalizando anulacion de la sección {}", secc.getCodigo());
             visor.agregarLog("seccBD", "revisarSecc", "revisando seccion " + secc.getCodigo(), false, "info");
             if (seccion == null) {
-                secc.setEstado(EstadoEnum.INA.name());
+                secc.setEstadoEnum(SeccionEstadoEnum.INA);
+                secc.setCodigo2(secc.getCodigo());
                 seccionDAO.update(secc);
                 visor.agregarLog("seccBD", "revisarSecc", "Seccion " + secc.getCodigo() + " queda Inactiva", true, "info");
             } else {
@@ -1550,37 +1548,41 @@ public class ProgDataServiceImp implements ProgDataService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void revisarGrupoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo) {
-        Map<Long, GrupoSeccion> mapGrupoSecciones = new LinkedHashMap();
-        for (GrupoSeccion gpoSecc : gruposSecciones) {
-            mapGrupoSecciones.put(gpoSecc.getId(), gpoSecc);
-            Seccion seccSuperior = null;
-            List<Seccion> secciones = gpoSecc.getSecciones();
-            for (Seccion secc : secciones) {
-                if (secc.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
-                    continue;
-                }
-                seccSuperior = secc;
-                break;
-            }
-            for (Seccion secc : secciones) {
-                if (secc == seccSuperior) {
-                    continue;
-                }
-                secc.setSeccionSuperior(seccSuperior);
-                seccionDAO.update(secc);
-            }
-        }
+        Map<Long, GrupoSeccion> mapGrupoSecciones = TypesUtil.convertListToMap("id", gruposSecciones);
         List<GrupoSeccion> grupoSeccionesDB = grupoSeccionDAO.allByCiclo(ciclo);
+        List<Seccion> seccionesDB = seccionDAO.allByGposSeccion(grupoSeccionesDB);
+        Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", seccionesDB);
+        visor.inicializar("gpoSeccBD", grupoSeccionesDB.size());
+
         for (GrupoSeccion gpoSecc : grupoSeccionesDB) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             GrupoSeccion grupoSeccion = mapGrupoSecciones.get(gpoSecc.getId());
+            logger.debug("\tanalizando anulacion de la sección {}", gpoSecc.getCodigo());
+            visor.agregarLog("gpoSeccBD", "revisarGpoSecc", "revisando gpoSeccion " + gpoSecc.getCodigo(), false, "info");
+
             if (grupoSeccion == null) {
-                gpoSecc.setEstado(EstadoEnum.INA.name());
+                String code2 = null;
+                List<Seccion> seccionesGpoSecc = mapSecciones.get(gpoSecc.getId());
+                if (seccionesGpoSecc != null) {
+                    code2 = seccionesGpoSecc.get(0).getCodigo2().substring(0, 3);
+                }
+
+                gpoSecc.setCodigo2(code2);
+                gpoSecc.setEstadoEnum(SeccionEstadoEnum.INA);
                 gpoSecc.setEstadoPlanEnum(EstadoPlanCalificaEnum.CER);
                 gpoSecc.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
                 gpoSecc.setVersion("0");
                 grupoSeccionDAO.update(gpoSecc);
+                visor.agregarLog("gpoSeccBD", "revisarGpoSecc", "GpoSeccion " + gpoSecc.getCodigo() + " queda Inactiva", true, "info");
+
+            } else {
+                visor.agregarLog("gpoSeccBD", "revisarGpoSecc", "GpoSeccion " + gpoSecc.getCodigo() + " se queda ACT", true, "info");
             }
         }
+        logger.debug("\tRevision de gpoSecciones finalizada");
 
     }
 
@@ -1615,8 +1617,453 @@ public class ProgDataServiceImp implements ProgDataService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void codigo2NullGpoSeccion(CicloAcademico ciclo) {
+        grupoSeccionDAO.setCodigo2Null(ciclo);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void codigo2NullSeccion(CicloAcademico ciclo) {
+        seccionDAO.setCodigo2Null(ciclo);
+    }
+
+    @Override
     public void detenerRevisionBloqueado() {
         revisar = false;
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void crearCursos(String rutaFileCursos, Map<String, Curso> mapCursos, Map<String, DepartamentoAcademico> mapDepartamentosAcademicos) {
+        try {
+            FileInputStream fis = new FileInputStream(rutaFileCursos);
+            Workbook myWorkBook = new HSSFWorkbook(fis);
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+
+            Iterator<Row> rowIterator = mySheet.iterator();
+            int loop = 0;
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                loop = row.getRowNum();
+
+                if (loop < 1) {
+                    continue;
+                }
+
+                String curCodigo = getCellStringValue(1, row);
+                if (StringUtils.isEmpty(curCodigo)) {
+                    break;
+                }
+            }
+            visor.inicializar("cur", loop);
+
+            loop = 0;
+            rowIterator = mySheet.iterator();
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                loop = row.getRowNum();
+
+                if (loop < 1) {
+                    continue;
+                }
+
+                if (visor.isStop()) {
+                    throw new PhobosException("Carga detenida intespestivamente");
+                }
+
+                String curCodigo = getCellStringValue(1, row);
+                String curNuevo = getCellStringValue(2, row);
+                String nombre = getCellStringValue(3, row);
+                String depCodigo = getCellStringValue(4, row);
+                String curCredit = getCellStringValue(5, row);
+                String curCrevar = getCellStringValue(6, row);
+                String curTeoria = getCellStringValue(7, row);
+                String curPracti = getCellStringValue(8, row);
+                String tCurso = getCellStringValue(9, row);
+                String tipo = getCellStringValue(10, row);
+
+                Integer curCreditTeo = getCellIntegerValue(12, row);
+                Integer curCreditPra = getCellIntegerValue(13, row);
+
+                if (mapCursos.get(curNuevo) != null) {
+                    visor.agregarLog("cur", "saveCursos", "Curso " + curNuevo + " ya existe", true, "info");
+                    Curso cursoDb = mapCursos.get(curNuevo);
+                    cursoDb.setCreditosTeoria(curCreditTeo);
+                    cursoDb.setCreditosPractica(curCreditPra);
+                    cursoDAO.update(cursoDb);
+                    continue;
+                }
+
+                Curso curso = new Curso();
+                curso.setEstadoEnum(EstadoEnum.ACT);
+                curso.setCodigo(curNuevo);
+                curso.setNombre(nombre);
+                curso.setCreditos(Integer.parseInt(curCredit));
+                curso.setDepartamentoAcademico(mapDepartamentosAcademicos.get(depCodigo));
+                curso.setCodigoAnterior1(curCodigo);
+                if (!StringUtils.isEmpty(curCrevar)) {
+                    curso.setCreditosVariables(Integer.parseInt(curCrevar));
+                }
+                curso.setHorasTeoria(Integer.parseInt(curTeoria));
+                curso.setHorasPractica(Integer.parseInt(curPracti));
+
+                if (tCurso.compareTo("TT") == 0) {
+                    curso.setTipoCurso(TipoCursoEnum.TEO.name());
+                } else if (tCurso.compareTo("TP") == 0) {
+                    curso.setTipoCurso(TipoCursoEnum.TEOPRA.name());
+                } else if (tCurso.compareTo("PP") == 0) {
+                    curso.setTipoCurso(TipoCursoEnum.PRA.name());
+                }
+
+                cursoDAO.save(curso);
+                mapCursos.put(curso.getCodigo(), curso);
+                visor.agregarLog("cur", "saveCursos", "Curso " + curNuevo + " nuevo guardado", true, "info");
+            }
+
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            throw new PhobosException("Archivo no puede ser ubicado en el servidor");
+        } catch (IOException ex) {
+            throw new PhobosException("El archivo no puede ser leido");
+        }
+
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<HorarioSeccion> crearHorarioSecciones(String rutaFile,
+            Map<String, Seccion> mapSecciones,
+            Map<Integer, Dia> mapDias,
+            Map<Integer, Hora> mapHoras,
+            Map<String, Aula> mapAulas,
+            CicloAcademico cicloAcademico) {
+
+        List<HorarioSeccion> horarios = new ArrayList();
+        try {
+
+            FileInputStream fis = new FileInputStream(rutaFile);
+            Workbook myWorkBook = new HSSFWorkbook(fis);
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+
+            Map<String, List<HorarioSeccion>> mapSeccHorarios = new LinkedHashMap();
+            Map<String, List<HorarioAula>> mapAulaHorarios = new LinkedHashMap();
+
+            Iterator<Row> rowIterator = mySheet.iterator();
+            int loop = 0;
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                loop = row.getRowNum();
+
+                if (loop < 1) {
+                    continue;
+                }
+
+                String clave = getCellStringValue(2, row);
+                String diaNum = getCellStringValue(4, row);
+                String horaNum = getCellStringValue(5, row);
+                String aulaCod = getCellStringValue(6, row);
+
+                if (StringUtils.isEmpty(clave)) {
+                    break;
+                }
+
+                if (visor.isStop()) {
+                    throw new PhobosException("Carga detenida intespestivamente");
+                }
+
+                Seccion seccion = mapSecciones.get(clave);
+                Dia dia = mapDias.get(Integer.parseInt(diaNum));
+                Hora hora = mapHoras.get(Integer.parseInt(horaNum));
+                Aula aula = mapAulas.get(aulaCod);
+                if (aula == null && !StringUtils.isEmpty(aulaCod) && cicloAcademico.getCodigo().compareTo("201710") >= 0) {
+                    throw new PhobosException("Aula " + aulaCod + " no se halló en la base de datos");
+                }
+
+                List<HorarioSeccion> horarioSecc = mapSeccHorarios.get(clave);
+                if (horarioSecc == null) {
+                    horarioSecc = new ArrayList();
+                    mapSeccHorarios.put(clave, horarioSecc);
+                }
+
+                HorarioSeccion horario = new HorarioSeccion(seccion, dia, hora, aula);
+                horarioSecc.add(horario);
+
+                if (aula != null) {
+                    List<HorarioAula> horariosAula = mapAulaHorarios.get(clave);
+                    if (horariosAula == null) {
+                        horariosAula = new ArrayList();
+                        mapAulaHorarios.put(clave, horariosAula);
+                    }
+
+                    HorarioAula horarioAula = new HorarioAula(seccion, dia, hora, aula);
+                    horariosAula.add(horarioAula);
+                }
+
+            }
+
+            visor.inicializar("horSecc", mapSeccHorarios.size());
+            visor.inicializar("horAula", mapAulaHorarios.size());
+
+            logger.debug("{} horarioSeccion leídos", mapSeccHorarios.size());
+            logger.debug("{} horarioAula leídos", mapAulaHorarios.size());
+            List<HorarioSeccion> horarioSeccCicloBD = horarioSeccionDAO.allByCiclo(cicloAcademico);
+            List<HorarioAula> horarioAulaCicloBD = horarioAulaDAO.allByCiclo(cicloAcademico);
+
+            Map<Long, List<HorarioSeccion>> mapHorariosSecciones = TypesUtil.convertListToMapList("seccion.id", horarioSeccCicloBD);
+            Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("seccion.id", horarioAulaCicloBD);
+
+            for (Map.Entry<String, List<HorarioSeccion>> entry : mapSeccHorarios.entrySet()) {
+                String clave = entry.getKey();
+                logger.debug("clave {} de horarioSeccion", clave);
+                Seccion seccion = mapSecciones.get(clave);
+                if (seccion == null) {
+                    visor.agregarLog("horSecc", "saveHorSecc", "Horario-seccion no se puede grabar para seccion " + clave + " no existente", false, "error");
+                    logger.debug("\tNo existe PTM!!!!");
+                }
+                List<HorarioSeccion> horarioSecc = entry.getValue();
+                List<HorarioSeccion> horarioSeccBD = mapHorariosSecciones.get(seccion.getId());
+                horarioSeccBD = (horarioSeccBD == null) ? new ArrayList() : horarioSeccBD;
+                ListsInspector inspector = TypesUtil.analizeLists(horarioSeccBD, horarioSecc, "key");
+
+                List<HorarioSeccion> nuevos = inspector.getNewList();
+                List<HorarioSeccion> muertos = inspector.getDeadList();
+
+                int contador = 0;
+                for (HorarioSeccion nuevo : nuevos) {
+                    logger.debug("\t ( {} / {} ) Agregando horario-seccion {} {} {}", contador++, nuevos.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
+                    horarioSeccionDAO.save(nuevo);
+                    horarios.add(nuevo);
+                }
+
+                horarioSeccionDAO.deleteAllInList(muertos);
+
+                List<HorarioSeccion> existentesBD = inspector.getOldListDB();
+                List<HorarioSeccion> existentesForm = inspector.getOldListForm();
+                Map<String, HorarioSeccion> mapHorarioSeccBD = existentesBD.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+                Map<String, HorarioSeccion> mapHorarioSeccForm = existentesForm.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+
+                for (Map.Entry<String, HorarioSeccion> entry2 : mapHorarioSeccBD.entrySet()) {
+                    HorarioSeccion hsBD = entry2.getValue();
+                    HorarioSeccion hsForm = mapHorarioSeccForm.get(entry2.getKey());
+                    hsBD.setAula(hsForm.getAula());
+                    logger.debug("\tActualizando horario-seccion {} {} {}", hsBD.getDia().getNumeroDia(), hsBD.getHora().getNumero(), hsBD.getSeccion().getCodigo());
+                    horarioSeccionDAO.update(hsBD);
+                    horarios.add(hsBD);
+                }
+                visor.agregarLog("horSecc", "saveHorSecc", "horarios-seccion actualizados para " + seccion.getCodigo(), true, "info");
+            }
+
+            for (Map.Entry<String, List<HorarioAula>> entry : mapAulaHorarios.entrySet()) {
+                String clave = entry.getKey();
+                logger.debug("clave {} de horarioSeccion", clave);
+                Seccion seccion = mapSecciones.get(clave);
+                if (seccion == null) {
+                    visor.agregarLog("horSecc", "saveHorSecc", "Horario-aula no se puede grabar para seccion " + clave + " no existente", false, "error");
+                    logger.debug("\tNo existe PTM!!!!");
+                }
+                List<HorarioAula> horarioSecc = entry.getValue();
+                List<HorarioAula> horarioAulaBD = mapHorariosAulas.get(seccion.getId());
+                horarioAulaBD = (horarioAulaBD == null) ? new ArrayList() : horarioAulaBD;
+                ListsInspector inspector = TypesUtil.analizeLists(horarioAulaBD, horarioSecc, "key");
+
+                List<HorarioAula> nuevos = inspector.getNewList();
+                List<HorarioAula> muertos = inspector.getDeadList();
+
+                int contador = 0;
+                for (HorarioAula nuevo : nuevos) {
+                    logger.debug("\t ( {} / {} ) Agregando horario-aula {} {} {}", contador++, nuevos.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
+                    horarioAulaDAO.save(nuevo);
+                }
+
+                horarioAulaDAO.deleteAllInList(muertos);
+
+                List<HorarioAula> existentesBD = inspector.getOldListDB();
+                List<HorarioAula> existentesForm = inspector.getOldListForm();
+                Map<String, HorarioAula> mapHorarioAulaBD = existentesBD.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+                Map<String, HorarioAula> mapHorarioAulaForm = existentesForm.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+
+                for (Map.Entry<String, HorarioAula> entry2 : mapHorarioAulaBD.entrySet()) {
+                    HorarioAula hsBD = entry2.getValue();
+                    HorarioAula hsForm = mapHorarioAulaForm.get(entry2.getKey());
+                    hsBD.setSeccion(hsForm.getSeccion());
+                    logger.debug("\tActualizando horario-aula {} {} {}", hsBD.getDia().getNumeroDia(), hsBD.getHora().getNumero(), hsBD.getAula().getCodigo());
+                    horarioAulaDAO.update(hsBD);
+                }
+                visor.agregarLog("horAula", "saveHorAula", "horarios-aula actualizados para " + seccion.getCodigo(), true, "info");
+            }
+
+            return horarios;
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            throw new PhobosException("Archivo no puede ser ubicado en el servidor");
+        } catch (IOException ex) {
+            throw new PhobosException("El archivo no puede ser leido");
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<DiaHoraGrupo> crearHorarioGrupos(
+            String rutaFile,
+            Map<Integer, Dia> mapDias,
+            Map<Integer, Hora> mapHoras,
+            Map<String, GrupoHoras> mapGrupos,
+            CicloAcademico ciclo) {
+
+        List<DiaHoraGrupo> horarios = new ArrayList<>();
+
+        try {
+
+            FileInputStream fis = new FileInputStream(rutaFile);
+            Workbook myWorkBook = new HSSFWorkbook(fis);
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+
+            Map<String, List<DiaHoraGrupo>> mapGpoHorarios = new LinkedHashMap();
+
+            Iterator<Row> rowIterator = mySheet.iterator();
+            int loop = 0;
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                loop = row.getRowNum();
+
+                if (loop < 1) {
+                    continue;
+                }
+
+                String cicloCod = getCellStringValue(1, row);
+                String gpo = getCellStringValue(2, row);
+                String hdia = getCellStringValue(3, row);
+                String diaNum = getCellStringValue(4, row);
+                String horaNum = getCellStringValue(5, row);
+
+                if (StringUtils.isEmpty(cicloCod)) {
+                    break;
+                }
+
+                if (visor.isStop()) {
+                    throw new PhobosException("Carga detenida intespestivamente");
+                }
+
+                Dia dia = mapDias.get(Integer.parseInt(diaNum));
+                Hora hora = mapHoras.get(Integer.parseInt(horaNum));
+                GrupoHoras grupo = mapGrupos.get(gpo);
+                DiaHoraGrupo hdiaGpo = new DiaHoraGrupo(ciclo, grupo, dia, hora);
+
+                List<DiaHoraGrupo> diasHorasGpo = mapGpoHorarios.get(gpo);
+                if (diasHorasGpo == null) {
+                    diasHorasGpo = new ArrayList();
+                    mapGpoHorarios.put(gpo, diasHorasGpo);
+                }
+                diasHorasGpo.add(hdiaGpo);
+
+            }
+
+            visor.inicializar("horGpo", mapGpoHorarios.size());
+
+            List<DiaHoraGrupo> hdiaGpoTodosBD = diaHoraGrupoDAO.allByCiclo(ciclo);
+            Map<Long, List<DiaHoraGrupo>> mapHorarioGpos = TypesUtil.convertListToMapList("grupoHorario.id", hdiaGpoTodosBD);
+            for (Map.Entry<String, List<DiaHoraGrupo>> entry : mapGpoHorarios.entrySet()) {
+                String gpo = entry.getKey();
+                GrupoHoras grupo = mapGrupos.get(gpo);
+                List<DiaHoraGrupo> hdiaGpo = entry.getValue();
+                List<DiaHoraGrupo> hdiaGpoBD = mapHorarioGpos.get(grupo.getId());
+                hdiaGpoBD = (hdiaGpoBD == null) ? new ArrayList() : hdiaGpoBD;
+                ListsInspector inspector = TypesUtil.analizeLists(hdiaGpoBD, hdiaGpo, "key");
+
+                List<DiaHoraGrupo> nuevos = inspector.getNewList();
+                List<DiaHoraGrupo> muertos = inspector.getDeadList();
+
+                logger.debug("\tNuevos grupos por agregar {}", nuevos.size());
+                int cont = 0;
+                for (DiaHoraGrupo nuevo : nuevos) {
+                    logger.debug("\t({}, {}) {} {} {}", cont++, nuevos.size(), nuevo.getGrupoHorario().getCodigo(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero());
+                    diaHoraGrupoDAO.save(nuevo);
+                    horarios.add(nuevo);
+                }
+
+                diaHoraGrupoDAO.deleteAllInList(muertos);
+                visor.agregarLog("horGpo", "saveHorGpo", "Guardando horario de " + gpo, true, "info");
+
+            }
+
+            return horarios;
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            throw new PhobosException("Archivo no puede ser ubicado en el servidor");
+        } catch (IOException ex) {
+            throw new PhobosException("El archivo no puede ser leido");
+        }
+    }
+
+    private String getCellStringValue(int pos, Row row) {
+        Cell cell = row.getCell(pos);
+        if (cell == null) {
+            return null;
+        }
+        cell.setCellType(Cell.CELL_TYPE_STRING);
+        String dato = cell.getStringCellValue();
+        if (dato == null) {
+            return null;
+        }
+
+        dato = StringUtils.replaceChars(dato, '\t', ' ');
+        dato = StringUtils.replaceChars(dato, '\r', ' ');
+        dato = StringUtils.replaceChars(dato, '\n', ' ');
+        dato = StringUtils.replaceChars(dato, ',', ' ');
+        dato = StringUtils.replaceChars(dato, '|', ' ');
+        dato = StringUtils.replaceChars(dato, '´', '\'');
+        dato = dato.replaceAll("\\s{2,}", " ").trim();
+
+        if (dato.equals(".")) {
+            return "";
+        }
+        if (dato.equals("-")) {
+            return "";
+        }
+        if (dato.equals(",")) {
+            return "";
+        }
+
+        return dato;
+    }
+
+    private Integer getCellIntegerValue(int pos, Row row) {
+        Cell cell = row.getCell(pos);
+        if (cell == null) {
+            return null;
+        }
+        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+            return new BigDecimal(cell.getNumericCellValue()).intValue();
+        }
+
+        cell.setCellType(Cell.CELL_TYPE_STRING);
+        String dato = cell.getStringCellValue();
+        if (dato == null) {
+            return null;
+        }
+
+        dato = StringUtils.replaceChars(dato, '\t', ' ');
+        dato = StringUtils.replaceChars(dato, '\r', ' ');
+        dato = StringUtils.replaceChars(dato, '\n', ' ');
+        dato = StringUtils.replaceChars(dato, ',', ' ');
+        dato = StringUtils.replaceChars(dato, '|', ' ');
+        dato = StringUtils.replaceChars(dato, '´', '\'');
+        dato = dato.replaceAll("\\s{2,}", " ").trim();
+
+        if (dato.equals(".")) {
+            return 0;
+        }
+        if (dato.equals("-")) {
+            throw new PhobosException("Valor de integer desconocido");
+        }
+        if (dato.equals(",")) {
+            return 0;
+        }
+        if (StringUtils.isEmpty(dato)) {
+            return null;
+        }
+
+        return Integer.valueOf(dato);
+    }
 }

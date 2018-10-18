@@ -25,7 +25,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,12 +62,14 @@ import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
@@ -82,6 +83,9 @@ public class GpoSeccionController {
 
     @Autowired
     GpoSeccionService service;
+
+    @Autowired
+    OficinaService oficinaService;
 
     @Autowired
     SpringTemplateEngine springHtml;
@@ -117,7 +121,7 @@ public class GpoSeccionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         Long cantidad = service.contarGpoSecc(ciclo);
-        
+
         model.addAttribute("cantidad", cantidad);
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("resumen", service.resumenByCiclo(ciclo));
@@ -135,7 +139,7 @@ public class GpoSeccionController {
 
             for (GrupoSeccion gpoSeccion : gpoSecciones) {
                 ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
-                    "id", "estado", "estadoEnum",
+                    "id", "estado", "estadoEnum", "codigo2", "cursoDirigido",
                     "curso.codigo",
                     "curso.nombre",
                     "curso.tpc",
@@ -205,12 +209,16 @@ public class GpoSeccionController {
 
         String ruta = getOrigen(origen);
 
+        Persona persona = ds.getPersona();
+        List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(persona);
+
         List<GrupoSeccion> gpos = obtenerGruposSeccion(ids);
         gpos.add(gpoSeccion);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
         model.addAttribute("navigationJson", createNavegationJson(ruta, gpos, gpoSeccId, ds.getCicloAcademico()).toString());
         model.addAttribute("origen", ruta);
+        model.addAttribute("oficinas", oficinas);
 
         return "academico/gposeccion/gpoSeccionForm";
     }
@@ -339,7 +347,7 @@ public class GpoSeccionController {
 
     private ObjectNode createGpoSeccionJson(GrupoSeccion gpoSeccion, String fechaMin, String fechaMax) {
         ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
-            "id", "estado", "estadoEnum",
+            "id", "estado", "estadoEnum", "codigo2", "cursoDirigido",
             "curso.id",
             "curso.codigo",
             "curso.nombre",
@@ -379,8 +387,14 @@ public class GpoSeccionController {
                 "docenteSeccion.principal",
                 "docenteSeccion.porcentajeCarga",
                 "docenteSeccion.docente.codigo",
-                "docenteSeccion.docente.persona.apellidosNombres"
-            });
+                "docenteSeccion.docente.persona.apellidosNombres",
+                "ampliacionesVacantes.*",
+                "ampliacionesVacantes.seccion.id",
+                "ampliacionesVacantes.colaborador.id",
+                "ampliacionesVacantes.colaborador.cargo.nombre",
+                "ampliacionesVacantes.colaborador.persona.nombreCompleto",
+                "ampliacionesVacantes.oficina.id",
+                "ampliacionesVacantes.oficina.nombre",});
 
             BigDecimal porcentajeAvance = BigDecimal.ZERO;
             for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
@@ -424,12 +438,15 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
+            List<AnexoBoletin> anexosSup = service.allAnexosSuperiores();
             List<AnexoBoletin> anexos = service.allAnexoBoletionHijos();
+
             ArrayNode anexosJson = new ArrayNode(JsonNodeFactory.instance);
             for (AnexoBoletin anexo : anexos) {
                 ObjectNode anxJson = JsonHelper.createJson(anexo, JsonNodeFactory.instance, true, new String[]{
                     "id", "codigo", "nombre",
                     "departamentoAcademico.nombre",
+                    "carrera.codigo",
                     "carrera.nombre",
                     "anexoSuperior.id",
                     "anexoSuperior.codigo",
@@ -437,9 +454,20 @@ public class GpoSeccionController {
                 });
                 anexosJson.add(anxJson);
             }
+            ArrayNode anexosSupJson = new ArrayNode(JsonNodeFactory.instance);
+            for (AnexoBoletin anexoSup : anexosSup) {
+                if (anexoSup.getId() > 5) {
+                    continue;
+                }
+                ObjectNode anxJson = JsonHelper.createJson(anexoSup, JsonNodeFactory.instance, true, new String[]{
+                    "id", "codigo", "nombre"
+                });
+                anexosSupJson.add(anxJson);
+            }
 
             ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
             data.set("anexos", anexosJson);
+            data.set("anexosSup", anexosSupJson);
 
             response.setData(data);
             response.setSuccess(true);
@@ -637,8 +665,8 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
-    @RequestMapping("buscarCursos")
-    public JsonResponse buscarCursos(
+    @RequestMapping("allCursos")
+    public JsonResponse allCursos(
             @RequestParam("nombre") String nombre,
             HttpSession session) {
 
@@ -651,14 +679,19 @@ public class GpoSeccionController {
             List<Curso> cursos = service.allCursosForProgramacion(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             for (Curso cur : cursos) {
-                ObjectNode json = new ObjectNode(jsonFactory);
-                json.put("id", cur.getId());
-                json.put("cursoNombre", cur.getNombre());
-                json.put("cursoCodigo", cur.getCodigo());
-                json.put("cursoTpc", cur.getTpc());
-                json.put("cursoCreditos", cur.getCreditos());
-                json.put("departamentoNombre", ObjectUtil.getParentTree(cur, "departamentoAcademico.nombre") != null ? cur.getDepartamentoAcademico().getNombre() : "");
-                json.put("facultadNombre", ObjectUtil.getParentTree(cur, "departamentoAcademico.facultad.nombre") != null ? cur.getDepartamentoAcademico().getFacultad().getNombre() : "");
+                ObjectNode json = JsonHelper.createJson(cur, jsonFactory, true, new String[]{
+                    "id", "codigo", "nombre", "tpc", "creditos",
+                    "modalidadEstudio.id",
+                    "modalidadEstudio.codigo",
+                    "modalidadEstudio.nombre",
+                    "carrera.id",
+                    "carrera.nombre",
+                    "carrera.codigo",
+                    "departamentoAcademico.id",
+                    "departamentoAcademico.codigo",
+                    "departamentoAcademico.nombre",
+                    "departamentoAcademico.facultad.nombre"
+                });
                 jsonList.add(json);
             }
 
@@ -708,23 +741,19 @@ public class GpoSeccionController {
 
     @ResponseBody
     @RequestMapping("saveGpoHeader")
-    public JsonResponse saveGpoHeader(
-            @ModelAttribute("grupoSeccion") GrupoSeccion grupoSeccion,
-            RedirectAttributes redirectAttr,
-            HttpSession session) {
+    public JsonResponse saveGpoHeader(@RequestBody GrupoSeccion grupoSeccion, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
-            String message = "Creado exitosamente.";
             grupoSeccion = service.saveGpoSeccionHeader(grupoSeccion, ds.getCicloAcademico());
             node.put("gruposeccion", grupoSeccion.getId());
             response.setData(node);
             response.setSuccess(true);
-            response.setMessage(message);
+            response.setMessage("Grupo de secciones creado satisfactoriamente");
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -743,7 +772,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             service.addSeccion(new GrupoSeccion(grupoSeccion));
 
             String message = "Sección agregada.";
@@ -2387,7 +2416,6 @@ public class GpoSeccionController {
         String[] str = output.split(",");
         List<GrupoSeccion> gpos = new ArrayList<>();
         for (String string : str) {
-            System.out.println(string + " ELGEIDO");
             gpos.add(new GrupoSeccion(Long.parseLong(string)));
         }
         return gpos;

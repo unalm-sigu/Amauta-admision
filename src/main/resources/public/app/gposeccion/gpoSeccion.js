@@ -23,9 +23,13 @@ new Vue({
         restriccionModal: {
             id: 'modalRestriccion',
             header: true,
-            seccionSelect: {},
             title: 'Restricciones Modalidad / Facultad / Especialidad',
-            //okbtn: 'Aceptar',
+            modalsize: 'modal-md'
+        },
+        nuevoGpoSeccModal: {
+            id: 'modalNuevoGpoSecc',
+            header: true,
+            title: 'Nuevo grupo de secciones',
             modalsize: 'modal-md'
         },
         dataCloneCiclo: {
@@ -43,23 +47,18 @@ new Vue({
             postGrados: 0,
             actividades: 0
         },
-        orderbycodigo: false
+        orderbycodigo: false,
+        cursos: [],
+        isLoadingCursos: false,
+        anexosPadres: [],
+        anexosHijos: [],
+        anexoPadreCurso: {},
+        newGrupoSeccion: {curso: {}, anexoBoletin: {}}
     },
     watch: {
         orderbycodigo() {
-            
             let $vue = this;
-            
-            if ($vue.orderbycodigo) {
-                $vue.$refs.load.querie.push({name: 'order-codigo', value: 'asc'});
-            } else {
-                var myfilter = $vue.$refs.load.querie.find(item => item.name === 'order-codigo');
-                var inx = $vue.$refs.load.querie.indexOf(myfilter);
-                $vue.$refs.load.querie.splice(inx, 1);
-            }
-
-            $vue.$refs.load.loadRemoteData();
-
+            $vue.loadRegistros(null);
         }
     },
     mounted: function () {
@@ -73,6 +72,14 @@ new Vue({
             $vue.seleccionado = tipo;
             $vue.$refs.load.querie.push({name: 'anexo-superior', value: tipo});
         }
+
+        let orderBy = $vue.$refs.load.getParameterByName('queries[order-codigo]');
+        orderBy = (orderBy == null) ? '' : orderBy;
+        if (orderBy != '') {
+            $vue.orderbycodigo = true;
+            $vue.$refs.load.querie.push({name: 'order-codigo', value: orderBy});
+        }
+
         $vue.loadDataInicial();
 
         let anx = $vue.$refs.load.getParameterByName('queries[anexo]');
@@ -85,6 +92,100 @@ new Vue({
 
     },
     methods: {
+        nuevoGpoSecc() {
+            let $vue = this;
+            $vue.newGrupoSeccion = {curso: {}, anexoBoletin: {}};
+            $vue.$refs.modalNuevoGpoSecc.open();
+        },
+        saveGpoSecc() {
+            var form = $("#formNuevoGpoSecc");
+            if (!form.parsley().validate()) {
+                return;
+            }
+        },
+        verAnexoSuperior(item) {
+            let $vue = this;
+            let anxSup = {};
+            $vue.anexosHijos = [];
+
+            for (var i = 0; i < $vue.anexosPadres.length; i++) {
+                if (item.modalidadEstudio.codigo == 'PRE' && $vue.anexosPadres[i].id == 2) {
+                    anxSup = $vue.anexosPadres[i];
+                }
+                if (item.modalidadEstudio.codigo == 'EPG' && $vue.anexosPadres[i].id == 4) {
+                    anxSup = $vue.anexosPadres[i];
+                }
+            }
+
+            for (var i = 0; i < $vue.anexos.length; i++) {
+                let anx = $vue.anexos[i];
+                if (anxSup.id == anx.anexoSuperior.id) {
+
+                    $vue.anexosHijos.push(anx);
+                    if (item.modalidadEstudio.codigo == 'PRE' && item.departamentoAcademico.codigo == anx.codigo) {
+                        $vue.newGrupoSeccion.anexoBoletin = anx;
+                    }
+                    if (item.modalidadEstudio.codigo == 'EPG' && item.carrera.codigo == anx.codigo) {
+                        $vue.newGrupoSeccion.anexoBoletin = anx;
+                    }
+                }
+            }
+            $vue.anexoPadreCurso = anxSup;
+        },
+        verAnexosHijos(item) {
+            let $vue = this;
+            let modal = $vue.newGrupoSeccion.curso.modalidadEstudio;
+            let dpto = $vue.newGrupoSeccion.curso.departamentoAcademico;
+            let carr = $vue.newGrupoSeccion.curso.carrera;
+            console.log(modal.codigo + " ::: " + dpto.codigo + " ::: " + carr.codigo)
+
+            $vue.anexosHijos = [];
+            $vue.newGrupoSeccion.anexoBoletin = {};
+
+            //*
+            for (var i = 0; i < $vue.anexos.length; i++) {
+                let anx = $vue.anexos[i];
+                if (item.id == anx.anexoSuperior.id) {
+                    console.log("cod-anx ::: " + anx.codigo)
+                    $vue.anexosHijos.push(anx);
+                    if (modal.codigo == 'PRE' && dpto.codigo == anx.codigo) {
+                        $vue.newGrupoSeccion.anexoBoletin = anx;
+                    }
+                    if (modal.codigo == 'EPG' && carr.codigo == anx.codigo) {
+                        $vue.newGrupoSeccion.anexoBoletin = anx;
+                    }
+                }
+            }
+            //*/
+        },
+        labelCurso(item) {
+            if (item.id == undefined) {
+                return "";
+            }
+            return item.codigo + " - " + item.nombre;
+        },
+        searchCursos(nombre) {
+            let $vue = this;
+            $vue.isLoadingCursos = true;
+            $.ajax({
+                url: APP.url('academico/gposeccion//allCursos'),
+                dataType: 'json',
+                type: 'POST',
+                async: true,
+                data: {nombre: nombre},
+                success(response) {
+                    $vue.isLoadingCursos = false;
+                    if (response.success) {
+                        $vue.cursos = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
         verRestriccion(seccion, gpoSecc, tipo) {
             let $vue = this;
             seccion.grupoSeccion = gpoSecc;
@@ -132,7 +233,7 @@ new Vue({
         clearAll() {
             let $vue = this;
             $vue.anexoSelect = {};
-            $vue.gpoSeccionesAnexo(null);
+            $vue.loadRegistros(null);
         },
         verificarAnexoSelect() {
             let $vue = this;
@@ -172,6 +273,7 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.anexos = response.data.anexos;
+                        $vue.anexosPadres = response.data.anexosSup;
                         $vue.loadAnexosVisibles();
 
                         let anx = $vue.$refs.load.getParameterByName('queries[anexo]');
@@ -225,7 +327,7 @@ new Vue({
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
         },
-        verAnexos(tipo) {
+        verAnexo(tipo) {
             let $vue = this;
             $vue.$refs.load.querie = [];
 
@@ -248,11 +350,21 @@ new Vue({
 
             $vue.loadAnexosVisibles();
             $vue.verificarAnexoSelect();
-            $vue.settingUrlAnexoSelect();
+            $vue.settingUrlAnexoInferior();
+            $vue.settingUrlOrderCodigo();
             $vue.$refs.load.loadRemoteData();
 
         },
-        settingUrlAnexoSelect() {
+        settingUrlOrderCodigo() {
+            let $vue = this;
+
+            if (!$vue.orderbycodigo) {
+                $vue.$refs.load.changeUrl('queries[order-codigo]', null);
+                return;
+            }
+            $vue.$refs.load.querie.push({name: 'order-codigo', value: "asc"});
+        },
+        settingUrlAnexoInferior() {
             let $vue = this;
 
             if ($vue.anexoSelect == null) {
@@ -265,13 +377,14 @@ new Vue({
             }
             $vue.$refs.load.querie.push({name: 'anexo', value: $vue.anexoSelect.id});
         },
-        gpoSeccionesAnexo(item) {
+        loadRegistros(item) {
             let $vue = this;
             $vue.$refs.load.querie = [];
             if ($vue.seleccionado !== '') {
                 $vue.$refs.load.querie.push({name: 'anexo-superior', value: $vue.seleccionado});
             }
-            $vue.settingUrlAnexoSelect();
+            $vue.settingUrlAnexoInferior();
+            $vue.settingUrlOrderCodigo();
             $vue.$refs.load.loadRemoteData();
 
         },

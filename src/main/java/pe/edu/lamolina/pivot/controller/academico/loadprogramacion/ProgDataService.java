@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
@@ -13,9 +14,13 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -68,7 +73,7 @@ public interface ProgDataService {
 
     Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo);
 
-    Map<String, Seccion> loadDataSecciones(List<Seccion> secciones, CicloAcademico ciclo, Map<String, GrupoSeccion> mapGpoSecciones , DataSessionPivot ds);
+    Map<String, Seccion> loadDataSecciones(List<Seccion> secciones, CicloAcademico ciclo, Map<String, GrupoSeccion> mapGpoSecciones, DataSessionPivot ds);
 
     Map<String, DocenteSeccion> loadDataDocentesSecciones(
             List<DocenteSeccion> docentesSecciones,
@@ -104,5 +109,15 @@ public interface ProgDataService {
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas,
             DataSessionPivot ds);
+
+    void codigo2NullGpoSeccion(CicloAcademico ciclo);
+
+    void codigo2NullSeccion(CicloAcademico ciclo);
+
+    void crearCursos(String rutaFileCursos, Map<String, Curso> mapCursos, Map<String, DepartamentoAcademico> mapDepartamentosAcademicos);
+
+    List<HorarioSeccion> crearHorarioSecciones(String rutaFileHorarioSecciones, Map<String, Seccion> mapSecciones, Map<Integer, Dia> mapDias, Map<Integer, Hora> mapHoras, Map<String, Aula> mapAulas, CicloAcademico ciclo);
+
+    List<DiaHoraGrupo> crearHorarioGrupos(String rutaFileHorarioGrupos, Map<Integer, Dia> mapDias, Map<Integer, Hora> mapHoras, Map<String, GrupoHoras> mapGrupos, CicloAcademico ciclo);
 
 }

@@ -68,24 +68,30 @@
                                 <div class="row">
                                     <div class="col-md-1 text-center">
                                         <div class="avatar-gposecc"
-                                             v-text='avatarGpo()'>234</div>
+                                             v-text='grupoSeccion.codigo2'>999</div>
                                         <a class="label label-primary m-t-xs" v-on:click="openClonar"> Clonar </a>
                                     </div>
 
                                     <div class="col-md-9">
                                         <div class="row m-b-xs">
-                                            <div class="col-md-2 bold">Anexo</div>
-                                            <div class="col-md-10">
+                                            <div class="col-md-1 bold">Anexo</div>
+                                            <div class="col-md-11">
                                                 <span class="block bold" v-text="grupoSeccion.anexoBoletin.codigo + ' - ' + grupoSeccion.anexoBoletin.nombre"></span>
                                                 <small class="block" v-text="grupoSeccion.anexoBoletin.anexoSuperior.codigo + ' - ' + grupoSeccion.anexoBoletin.anexoSuperior.nombre"></small>
                                             </div>
                                         </div>
 
                                         <div class="row m-b-xs">
-                                            <div class="col-md-2 text-curso">Curso</div>
-                                            <div class="col-md-10">
+                                            <div class="col-md-1 text-curso">Curso</div>
+                                            <div class="col-md-11">
                                                 <span class="block text-curso" v-text="grupoSeccion.curso.codigo + ' - ' + grupoSeccion.curso.nombre"></span>
-                                                <span class="block bold" v-text="grupoSeccion.curso.tpc"></span>
+                                                <span class="block bold">
+                                                    <i class="fa fa-bookmark text-primary"></i>
+                                                    <span v-text="grupoSeccion.curso.tpc"></span> &nbsp;
+                                                    <span v-if="grupoSeccion.estado == 'ACT' " class="label label-success" v-text="grupoSeccion.estadoEnum.value"></span>
+                                                    <span v-else="" class="label label-danger" v-text="grupoSeccion.estadoEnum.value"></span> &nbsp;
+                                                    <span v-if="grupoSeccion.cursoDirigido" class="label label-primary">Curso Dirigido</span>
+                                                </span>
                                             </div>
                                         </div>
                                         <!--div class="row">
@@ -103,11 +109,9 @@
                                                   v-on:click="prevGpoSecc()">
                                                 <span class="fa-stack fa-lg">
                                                     <i v-if="btnNavega.left" class="fa fa-circle fa-stack-2x"></i>
-                                                    <i v-if="btnNavega.left" 
-                                                       class="fa fa-arrow-left fa-stack-1x fa-inverse"></i>
+                                                    <i v-if="btnNavega.left" class="fa fa-arrow-left fa-stack-1x fa-inverse"></i>
                                                     <i v-else="" class="fa fa-spinner fa-spin fa-2x fa-fw"></i>
                                                 </span>
-
 
                                             </span>
 
@@ -332,22 +336,21 @@
                                                 </input>   
                                             </td>
                                             <td class="text-center v-middle">
-                                                <div v-if="seccion.isTipoSeccionTCUR" >
+                                                <div v-if="seccion.isTipoSeccionTCUR || seccion.estado == 'INA' " >
                                                     {{ seccion.vacantes }}
                                                 </div>
-
-                                                <div v-if="!seccion.isTipoSeccionTCUR" 
+                                                <div v-else="" 
                                                      v-show="!seccion.editVacantes &amp;&amp; !directEditSecciones">
                                                     <a v-on:click="seccion.editVacantes=true" class="pointer"> {{ seccion.vacantes }} </a>
                                                 </div>
 
-                                                <input v-if="!seccion.isTipoSeccionTCUR" 
+                                                <template v-if="seccion.isTipoSeccionTCUR || seccion.estado == 'INA' " ></template>
+                                                <input v-else="" 
                                                        v-show="seccion.editVacantes || directEditSecciones" 
                                                        size="5"
                                                        class="form-control"
                                                        v-model="seccion.vacantes"
-                                                       v-on:blur="changeVacantes(seccion,$event)"
-                                                       v-on:keyup.enter="changeVacantes(seccion,$event)">
+                                                       v-on:change="changeVacantes(seccion,$event)">
                                                 </input>
                                             </td>
                                             <td class="text-center v-middle">
@@ -379,14 +382,12 @@
                                                             </a>
                                                             <a href="#"
                                                                v-if="seccion.isEstadoActivo || seccion.isEstadoCreado"
-                                                               v-on:click="anularSeccion(seccion)"
-                                                               >
+                                                               v-on:click="anularSeccion(seccion)">
                                                                 Anular
                                                             </a>
                                                             <a href="#"
                                                                v-if="seccion.isEstadoActivo"
-                                                               v-on:click="bloquearSeccion(seccion)"
-                                                               >
+                                                               v-on:click="bloquearSeccion(seccion)">
                                                                 Bloquear
                                                             </a>
                                                         </li>
@@ -399,7 +400,7 @@
                                 </table>
 
                                 <a class="btn btn-info btn-sm pull-right m-t-xs"
-                                   v-if="grupoSeccion.curso.tipoCursoEnum.name == 'TEOPRA' "
+                                   v-if="grupoSeccion.curso.tipoCursoEnum.name == 'TEOPRA' &amp;&amp; grupoSeccion.estado == 'ACT' "
                                    v-on:click="addSeccion">
                                     <i class="fa fa-plus add-seccion" aria-hidden="true"></i> <strong> Agregar Sección</strong>
                                 </a>
@@ -413,37 +414,43 @@
 
                                     <header class="page-header m-t-xs m-b-xs">
 
-                                        <a class="btn btn-info btn-sm pull-right m-t-xs" href="#"
+<!--                                        <a class="btn btn-info btn-sm pull-right m-t-xs" href="#"
                                            v-on:click.prevent="solicitarIncremento()">
-                                             Solicitar Incremento
-                                        </a>
+                                            Solicitar Incremento
+                                        </a>-->
 
                                         <h4 class="text-primary">Configuración sección {{seccionSeleccionada.codigo2}}</h4>
 
                                         <div class="tabbable-line" style="margin-top: 8px;">	
                                             <ul class="nav nav-tabs">
-                                                <li class="active">
-                                                    <a  href="#1Conte" data-toggle="tab">Docentes</a>
+                                                <li v-bind:class="getClassTab('DOCENTES')" v-on:click="verTab('DOCENTES')">
+                                                    <a href="#1Conte" data-toggle="tab">Docentes</a>
                                                 </li>
-                                                <li>
-                                                    <a href="#2Conte" data-toggle="tab">Vacantes</a>
+                                                <li v-bind:class="getClassTab('AMPLIACIONES')" v-on:click="verTab('AMPLIACIONES')">
+                                                    <a href="#2Conte" data-toggle="tab">Ampliación Vacantes</a>
                                                 </li>
-                                                <li>
+                                                <li v-bind:class="getClassTab('AULAS')" v-on:click="verTab('AULAS')">
                                                     <a href="#3Conte" data-toggle="tab">Aulas</a>
+                                                </li>
+                                                <li>
+                                                    <a href="#4Conte" data-toggle="tab">Fusiones</a>
                                                 </li>
                                             </ul>
                                         </div>
                                     </header>
 
                                     <div class="tab-content">
-                                        <div class="tab-pane active" id="1Conte">
+                                        <div class="tab-pane" v-bind:class="getClassTab('DOCENTES')" id="1Conte">
                                             <div th:substituteby="academico/gposeccion/includes/docenteSeccionForm"/>
                                         </div>
-                                        <div class="tab-pane" id="2Conte">
-                                            <div th:substituteby="academico/gposeccion/includes/vacanteSeccionForm"/>
+                                        <div class="tab-pane" v-bind:class="getClassTab('AMPLIACIONES')" id="2Conte">
+                                            <div th:substituteby="academico/gposeccion/includes/ampliaVacantesForm"/>
                                         </div>
-                                        <div class="tab-pane" id="3Conte">
-                                            <div th:substituteby="academico/gposeccion/includes/vacanteSeccionForm"/>
+                                        <div class="tab-pane" v-bind:class="getClassTab('AULAS')" id="3Conte">
+                                            <div th:substituteby="academico/gposeccion/includes/aulaSeccionForm"/>
+                                        </div>
+                                        <div class="tab-pane" id="4Conte">
+                                            <div th:substituteby="academico/gposeccion/includes/fusionSeccionForm"/>
                                         </div>
                                     </div>
 
@@ -508,6 +515,111 @@
                 </div>
             </modal-vik>
 
+            <modal-vik ref="modalSolicitarIncremento"
+                       v-bind="solicitarIncrementoModal"
+                       v-bind:okaction="solicitarIncrementoAceptar">
+
+                <div slot="body">
+
+                    <form class="panel-body" id="formAmpliarVacante"  data-parsley-validate="true">
+
+                        <input type="hidden" name="seccion.id"  v-bind:value="ampliacionVacante.seccion.id" />
+
+                        <!--<input type="hidden" name="id"  v-bind:value="ampliacionVacante.id" />-->
+
+                        <div class="form-group" >
+                            <label  class="control-label">Solicitante</label>
+                            <p class="capitalize text-primary h5 form-control-static m-t-xs" th:text="${session.SESSION_USUARIO.persona.nombreCompleto}"></p>
+                        </div>
+
+                        <div class="form-group" >
+                            <label  class="control-label">Oficina</label>
+                            <vueselect name="oficina.id"  required="true" v-bind:valor="ampliacionVacante.oficina" >
+                                <option></option>
+                                <option th:each="item : ${oficinas}"
+                                        th:value="${item.id}"
+                                        th:text="${item.nombre}"></option>
+                            </vueselect>
+
+                        </div>
+
+                        <div class="form-group" >
+                            <label  class="control-label">Motivo</label>
+                            <textarea class="form-control" maxlength="200" v-model="ampliacionVacante.motivo" required="true" name="motivo" ></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label  class="control-label">Incremento </label>
+                            <input class="form-control" required="true" v-model="ampliacionVacante.incremento" name="incremento"/>
+                        </div>
+
+                        <div class="col-xs-12">
+
+                            <div class="col-xs-3 text-center">
+                                <label>Vacante Actual </label>
+                                <input type="hidden" name="vacantesInicio"  v-bind:value="ampliacionVacante.vacantesInicio" />
+                                <p class="capitalize text-primary h5" v-text="ampliacionVacante.vacantesInicio"></p>
+                            </div>
+
+                            <div class="col-xs-3 text-center">
+                                <label>Incremento </label>
+                                <p class="capitalize text-primary h5" v-text="ampliacionVacante.incremento"></p>
+                            </div>
+
+                            <div class="col-xs-3 text-center">
+                                <label>Vacante Final </label>
+                                <input type="hidden" name="vacantesFin"  v-bind:value="ampliacionVacante.vacantesFin" />
+                                <p class="capitalize text-primary h5"  v-text="ampliacionVacante.vacantesFin"></p>
+                            </div>
+
+                            <div class="col-xs-3 text-center">
+                                <label>Aula Aforo </label>
+                                <p class="capitalize text-primary h5"  v-text="seccionSeleccionada.aula.capacidadAula"></p>
+                            </div>
+
+                        </div>
+
+                    </form>
+
+
+                </div>
+            </modal-vik>
+
+
+            <modal-vik ref="aceptarSolicitudIncremento"
+                       v-bind="aceptarSolicitudIncrementoModal"
+                       v-bind:okaction="aceptarSolicitarIncrementoSave">
+
+                <div slot="body">
+
+                    <form class="panel-body" id="aceptarFormSolicitarIncremento"  data-parsley-validate="true">
+                        <input type="hidden" name="id"  v-bind:value="ampliacionVacante.id" />
+                        <p class="h4 m-t-xs m-b-xs">¿Está seguro que aceptar esta ampliación de vacantes?</p>
+                    </form>
+
+                </div>
+            </modal-vik>
+
+            <modal-vik ref="rechazarSolicitudIncremento"
+                       v-bind="rechazarSolicitudIncrementoModal"
+                       v-bind:okaction="rechazarSolicitarIncrementoSave">
+
+                <div slot="body">
+
+                    <form class="panel-body" id="formRechazaAmpliacion"  data-parsley-validate="true">
+
+                        <input type="hidden" name="id"  v-bind:value="ampliacionVacante.id" />
+
+                        <div class="form-group" >
+                            <label  class="control-label">Indique el motivo del rechazo</label>
+                            <textarea class="form-control" maxlength="200" v-model="ampliacionVacante.comentarioRespuesta" required="true" name="comentarioRespuesta" ></textarea>
+                        </div>
+
+                    </form>
+
+                </div>
+            </modal-vik>
+
         </div>
 
         <div th:substituteby="templates/modal"/>
@@ -532,7 +644,7 @@
             var gpoSeccionJson = /*[[${grupoSeccionJson}]]*/ {};
             var navigationJson = /*[[${navigationJson}]]*/ {};
         </script>
-
+        <div th:substituteby="_layout/includes :: sweetalert"/>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script th:src="@{/app/gposeccion/dynatableComponents.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/aulaComponent.js}" charset="utf-8"></script>
@@ -542,6 +654,7 @@
         <script th:src="@{/app/gposeccion/repitenciaComponent.js}" charset="utf-8"></script>
         <script th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/gpoSolicitarIncremento.js}" charset="utf-8"></script>
+        <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
     </div>
 </body>

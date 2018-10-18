@@ -36,6 +36,7 @@ import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.Commutator;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -101,6 +102,7 @@ import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.dao.academico.AmpliacionVacantesDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -193,6 +195,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     ConfiguraEncuestaDAO configuraEncuestaDAO;
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
+    @Autowired
+    AmpliacionVacantesDAO ampliacionVacanteDAO;
 
     @Override
     public Oficina findOficinaOera() {
@@ -217,27 +221,21 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<RestriccionFacultad> restriccionesFac = restriccionFacultadDAO.allActivasBySecciones(secciones);
         List<RestriccionCarrera> restriccionesCarr = restriccionCarreraDAO.allActivasBySecciones(secciones);
         List<RestriccionRepitencia> restriccionesRep = restriccionRepitenciaDAO.allActivasBySecciones(secciones);
+        List<AmpliacionVacantes> ampliaciones = ampliacionVacanteDAO.allBySecciones(secciones);
 
         Map<Long, List<RestriccionModalidad>> mapRestriccionMod = TypesUtil.convertListToMapList("seccion.id", restriccionesMod);
         Map<Long, List<RestriccionFacultad>> mapRestriccionFac = TypesUtil.convertListToMapList("seccion.id", restriccionesFac);
         Map<Long, List<RestriccionCarrera>> mapRestriccionCarr = TypesUtil.convertListToMapList("seccion.id", restriccionesCarr);
         Map<Long, List<RestriccionRepitencia>> mapRestriccionRep = TypesUtil.convertListToMapList("seccion.id", restriccionesRep);
+        Map<Long, List<AmpliacionVacantes>> mapAmpliaciones = TypesUtil.convertListToMapList("seccion.id", ampliaciones);
 
         for (Seccion seccion : secciones) {
-            List<DocenteSeccion> doceentesSecc = mapDocSeccion.get(seccion.getId());
-            seccion.setDocenteSeccion(doceentesSecc == null ? new ArrayList() : doceentesSecc);
-
-            List<RestriccionModalidad> restriccionesModSecc = mapRestriccionMod.get(seccion.getId());
-            seccion.setRestriccionesModalidad(restriccionesModSecc == null ? new ArrayList() : restriccionesModSecc);
-
-            List<RestriccionFacultad> restriccionesFacSecc = mapRestriccionFac.get(seccion.getId());
-            seccion.setRestriccionesFacultad(restriccionesFacSecc == null ? new ArrayList() : restriccionesFacSecc);
-
-            List<RestriccionCarrera> restriccionesCarrSecc = mapRestriccionCarr.get(seccion.getId());
-            seccion.setRestriccionesCarrera(restriccionesCarrSecc == null ? new ArrayList() : restriccionesCarrSecc);
-
-            List<RestriccionRepitencia> restriccionesRepSecc = mapRestriccionRep.get(seccion.getId());
-            seccion.setRestriccionesRepitencia(restriccionesRepSecc == null ? new ArrayList() : restriccionesRepSecc);
+            seccion.setDocenteSeccion(getList(mapDocSeccion.get(seccion.getId())));
+            seccion.setRestriccionesModalidad(getList(mapRestriccionMod.get(seccion.getId())));
+            seccion.setRestriccionesFacultad(getList(mapRestriccionFac.get(seccion.getId())));
+            seccion.setRestriccionesCarrera(getList(mapRestriccionCarr.get(seccion.getId())));
+            seccion.setRestriccionesRepitencia(getList(mapRestriccionRep.get(seccion.getId())));
+            seccion.setAmpliacionesVacantes(getList(mapAmpliaciones.get(seccion.getId())));
         }
 
         return gpoSecc;
@@ -968,6 +966,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Seccion seccioDB = seccionDAO.find(seccionForm.getId());
         GrupoSeccion grupoSeccion = grupoSeccionDAO.findLock(seccioDB.getGrupoSeccion().getId());
 
+        logger.debug("grupoSeccion:::  {}", grupoSeccion.getId());
         //validar seccion seleccionada
         if (ObjectUtil.getParentTree(seccioDB, "aula.id") != null) {
             if (seccioDB.getAula().getCapacidadAula().compareTo(seccionForm.getVacantes()) < 0) {
@@ -1040,13 +1039,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (grupoSeccion.getCurso().isTipoCursoTEOPRA()) {
             List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
 
-            Seccion seccionTCUR = null;
+            Seccion seccionTCUR = new Seccion();
             Integer vacantes = BigDecimal.ZERO.intValue();
 
             for (Seccion seccionEach : secciones) {
                 if (seccionEach.isTipoSeccionTCUR()) {
                     seccionTCUR = seccionEach;
                 }
+                logger.debug("seccionEach.isTipoSeccionPCUR()::: {}", seccionEach.isTipoSeccionPCUR());
+                logger.debug("seccionEach.getVacantes()::: {}", seccionEach.isTipoSeccionPCUR());
                 if (seccionEach.isTipoSeccionPCUR()) {
                     vacantes = vacantes + seccionEach.getVacantes();
                 }
@@ -1058,13 +1059,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     throw new PhobosException("Las vacantes de la sección teoria superan, el aforo del aula");
                 }
             }
-            List<MatriculaSeccion> matriculasSeccionTCUR = matriculaSeccionDAO.allBySeccion(seccionTCUR);
+            List<MatriculaSeccion> matriculasSeccionTCUR = new ArrayList();
+            List<VacanteAlumno> vacantesAlumnoBySeccion = new ArrayList();
+
+            if (seccionTCUR.getId() != null) {
+                matriculasSeccionTCUR = matriculaSeccionDAO.allBySeccion(seccionTCUR);
+                vacantesAlumnoBySeccion = vacanteAlumnoDAO.allActivosBySeccion(seccionTCUR);
+            }
+
             if (matriculasSeccionTCUR.size() > seccionTCUR.getVacantes()) {
                 throw new PhobosException("Error. Las matriculas para la sección teoria superan la cantidad de vacantes asignadas.");
             }
             seccionDAO.updateSeccionVacantes(seccionTCUR);
 
-            List<VacanteAlumno> vacantesAlumnoBySeccion = vacanteAlumnoDAO.allActivosBySeccion(seccionTCUR);
             Collections.sort(vacantesAlumnoBySeccion, (VacanteAlumno va1, VacanteAlumno va2) -> va1.getNumero().compareTo(va2.getNumero()));
 
             if (vacantesAlumnoBySeccion.isEmpty()) {
@@ -2125,6 +2132,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionTEO.setEstadoEnum(SeccionEstadoEnum.CRE);
                 seccionTEO.setTipoSeccionEnum(TipoSeccionEnum.TEO);
                 seccionTEO.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
+                seccionTEO.setPrematriculados(0);
+                seccionTEO.setReservados(0);
                 /*
             seccionTEO.setHorasPractica(curso.getHorasPractica());
             seccionTEO.setHorasTeoria(curso.getHorasTeoria());
@@ -2157,6 +2166,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionPRA.setHorasTeoria(curso.getHorasTeoria());
                  */
                 seccionPRA.setHorasSemanales(horasPractica);
+                seccionPRA.setPrematriculados(0);
+                seccionPRA.setReservados(0);
 
                 seccionPRA.setDocenteSeccion(new ArrayList<>());
                 DocenteSeccion docenteSeccion = new DocenteSeccion();
@@ -2182,6 +2193,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 //   seccionTCUR.setHorasPractica(curso.getHorasPractica());
                 //   seccionTCUR.setHorasTeoria(curso.getHorasTeoria());
                 seccionTCUR.setHorasSemanales(horasTeoria);
+                seccionTCUR.setPrematriculados(0);
+                seccionTCUR.setReservados(0);
 
                 seccionTCUR.setDocenteSeccion(new ArrayList<>());
                 DocenteSeccion docenteSeccion = new DocenteSeccion();
@@ -2198,6 +2211,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
                 Seccion seccionPCUR = new Seccion();
                 seccionPCUR.setGrupoSeccion(clon);
+                seccionPCUR.setSeccionSuperior(seccionTCUR);
                 seccionPCUR.setCodigo(codigo + "1");
                 seccionPCUR.setCodigo2(seccionPCUR.getCodigo());
                 seccionPCUR.setEstadoEnum(SeccionEstadoEnum.CRE);
@@ -2206,6 +2220,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 //  seccionPCUR.setHorasPractica(curso.getHorasPractica());
                 //   seccionPCUR.setHorasTeoria(curso.getHorasTeoria());
                 seccionPCUR.setHorasSemanales(horasPractica);
+                seccionPCUR.setPrematriculados(0);
+                seccionPCUR.setReservados(0);
 
                 seccionPCUR.setDocenteSeccion(new ArrayList<>());
                 DocenteSeccion docenteSeccion2 = new DocenteSeccion();
@@ -2246,6 +2262,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         cicloUpd.setId(cicloActivo.getId());
         cicloUpd.setActualizarBoletin(Boolean.TRUE);
         cicloAcademicoDAO.updateActualizarBoletin(cicloUpd);
+    }
+
+    private List getList(List lista) {
+        if (lista == null) {
+            return new ArrayList();
+        }
+        return lista;
     }
 
 }

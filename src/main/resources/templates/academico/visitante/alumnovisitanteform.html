@@ -16,7 +16,7 @@
                     </div>
 
                     <h2 v-text="persona.nombreCompleto!=null?persona.nombreCompleto:'Registro de Alumno Visitante'" >Registro de Alumno Visitante</h2>
-                    
+
                 </header>
 
                 <section class="wrapper-lg">
@@ -60,7 +60,7 @@
                                             <input type="text"
                                                    v-on:blur="cambiarNumDoc"
                                                    v-model="persona.numeroDocIdentidad"
-                                                   v-bind:value="persona.numeroDocIdentidad"
+
                                                    name="persona.numeroDocIdentidad"
                                                    class="form-control" required="true"/>
 
@@ -74,7 +74,7 @@
 
                                             <input type="text"
                                                    name="persona.paterno"
-                                                   v-bind:value="persona.paterno"
+                                                   v-model="persona.paterno"
                                                    v-on:change="nombrePersona"
                                                    class="form-control"/>
 
@@ -88,7 +88,7 @@
 
                                             <input type="text"
                                                    name="persona.materno"
-                                                   v-bind:value="persona.materno"
+                                                   v-model="persona.materno"
                                                    v-on:change="nombrePersona"
                                                    class="form-control"/>
 
@@ -102,7 +102,7 @@
                                             <input type="text"
                                                    name="persona.nombres"
                                                    required="true"
-                                                   v-bind:value="persona.nombres"
+                                                   v-model="persona.nombres"
                                                    v-on:change="nombrePersona"
                                                    class="form-control"/>
 
@@ -349,55 +349,55 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
 
-                                            <label>Ciclo Académico</label>
-
+                                            <label>Ciclo Académico </label>
+                                         
                                             <select name="cicloEstudia.id"
                                                     v-model="alumnoVisitante.cicloEstudia.id"
-                                                    class="form-control" required="true">
+                                                    class="form-control" 
+                                                    required="true">
                                                 <option></option>
 
                                                 <option th:each="ciclo : ${ciclos}"
                                                         th:value="${ciclo.id}"
-                                                        v-model="alumnoVisitante.cicloEstudia.id"
                                                         th:text="${ciclo.descripcion}"></option>
 
                                             </select>
 
-                                        </div>
-                                    </div>
+</div>
+</div>
 
 
 
 
-                                </div>
+</div>
 
-                                <hr/>
+<hr/>
 
-                                <div class="col-md-12 text-center">
-                                    <button type="button" class="btn btn-success" v-text="actualizar==true?'Actualizar':'Guardar'"  v-on:click.prevent="submitForm">Guardar</button>
-                                </div>
+<div class="col-md-12 text-center">
+    <button type="button" class="btn btn-success" v-text="actualizar==true?'Actualizar':'Guardar'"  v-on:click.prevent="submitForm">Guardar</button>
+</div>
 
-                            </form>
+</form>
 
-                        </section>
-                    </section>
-                </section>
+</section>
+</section>
+</section>
 
-            </div>
+</div>
 
-            <th:block th:replace="academico/visitante/alumnovisitanteformtemp"/>
+<th:block th:replace="academico/visitante/alumnovisitanteformtemp"/>
 
-            <div th:substituteby="_modules/vue-modal"/>
+<div th:substituteby="_modules/vue-modal"/>
 
-        </div>
+</div>
 
-        <div layout:fragment="js">
-            <div th:substituteby="_layout/includes :: vuemodal"/>
-            <script th:src="@{/app/academico/visitante/alumnoVisitantePais.js}" charset="utf-8"></script>
-            <script th:src="@{/app/academico/visitante/alumnoVisitanteUbicacion.js}" charset="utf-8"></script>
-            <script th:src="@{/app/academico/visitante/alumnoVisitanteUniversidad.js}" charset="utf-8"></script>
-            <script th:src="@{/app/academico/visitante/alumnoVisitanteForm.js}" charset="utf-8"></script>
-        </div>
+<div layout:fragment="js">
+    <div th:substituteby="_layout/includes :: vuemodal"/>
+    <script th:src="@{/app/academico/visitante/alumnoVisitantePais.js}" charset="utf-8"></script>
+    <script th:src="@{/app/academico/visitante/alumnoVisitanteUbicacion.js}" charset="utf-8"></script>
+    <script th:src="@{/app/academico/visitante/alumnoVisitanteUniversidad.js}" charset="utf-8"></script>
+    <script th:src="@{/app/academico/visitante/alumnoVisitanteForm.js}" charset="utf-8"></script>
+</div>
 
-    </body>
+</body>
 </html>

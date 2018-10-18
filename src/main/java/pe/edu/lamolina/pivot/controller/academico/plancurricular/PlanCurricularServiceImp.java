@@ -250,6 +250,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoCurricula.setNumeroCurso(nroCurso);
         cursoCurricula.setUserRegistro(ds.getUsuario());
         cursoCurricula.setFechaRegistro(new Date());
+        cursoCurricula.setRequisitosOr(cursoCurricula.getRequisitosOr() == null ? false : cursoCurricula.getRequisitosOr());
         cursoCurriculaDAO.save(cursoCurricula);
         for (RequisitoCursoCurricula requisito : requisitos) {
             requisitoCursoCurriculaDAO.save(requisito);
@@ -518,6 +519,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         cursoOpcional.setUserRegistro(ds.getUsuario());
         cursoOpcional.setFechaRegistro(new Date());
+        cursoOpcional.setRequisitosOr(cursoOpcional.getRequisitosOr() == null ? false : cursoOpcional.getRequisitosOr());
         cursoOpcionalCurriculaDAO.save(cursoOpcional);
         for (RequisitoCursoOpcional requisito : requisitos) {
             requisitoCursoOpcionalDAO.save(requisito);
@@ -930,11 +932,13 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             cc.setCreditosRequisito(curso.getCreditosRequisito());
             cc.setFechaRegistro(new Date());
             cc.setNumeroCiclo(curso.getNumeroCiclo());
+            cc.setNumeroCurso(curso.getNumeroCurso());
             cc.setCurso(curso.getCurso());
             cc.setPlanCurricular(planNew);
             cc.setTipoCursoCurricula(curso.getTipoCursoCurricula());
             cc.setUserRegistro(ds.getUsuario());
             cc.setCursosCurricula(new ArrayList());
+            cc.setRequisitosOr(curso.getRequisitosOr());
 
             mapCursoCurricula.put(cc.getCurso().getId(), cc);
             cursoCurriculaDAO.save(cc);
@@ -962,6 +966,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             coc.setTipoCursoCurricula(opc.getTipoCursoCurricula());
             coc.setUserRegistro(ds.getUsuario());
             coc.setRequisitosCursoOpcionales(new ArrayList());
+            coc.setRequisitosOr(opc.getRequisitosOr());
 
             mapCursoOpcional.put(coc.getCurso().getId(), coc);
             cursoOpcionalCurriculaDAO.save(coc);

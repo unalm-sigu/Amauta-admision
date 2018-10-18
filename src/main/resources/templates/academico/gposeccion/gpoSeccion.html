@@ -9,7 +9,6 @@
             .bg-row {
                 background-color: #f9fafc;
             }
-
         </style>
     </head>
 
@@ -24,7 +23,7 @@
                             Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a v-if="cantidadGrupoSeccion > 0" type="button" href="#"  class="nuevo-grupo-sec">Nuevo Grupo</a></li>
+                            <li><a type="button" v-on:click="nuevoGpoSecc()">Nuevo Grupo</a></li>
                             <li><a v-if="cantidadGrupoSeccion == 0" type="button" href="#"  v-on:click.prevent="clonarCiclo" >Clonar Ciclo</a></li>
                             <li><a v-if="cantidadGrupoSeccion > 0" type="button" href="#"  v-on:click.prevent="ordenarCiclo" >Ordenar Código</a></li>
                         </ul>
@@ -40,25 +39,25 @@
                                 <div class="row">
 
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['ingresantes']">
-                                        <a v-on:click="verAnexos('ingresantes')" class="text-danger pointer" rel="ingresantes">
+                                        <a v-on:click="verAnexo('ingresantes')" class="text-danger pointer" rel="ingresantes">
                                             <span class="h1 block bold" v-text="resumen.ingresantes">23</span>
                                             <small class="block m-b-xs">Ingresantes</small>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['departamentos']">
-                                        <a v-on:click="verAnexos('departamentos')" class="text-black pointer" rel="departamentos">
+                                        <a v-on:click="verAnexo('departamentos')" class="text-black pointer" rel="departamentos">
                                             <span class="h1 block bold" v-text="resumen.departamentos">23</span>
                                             <small class="block m-b-xs">Departamentos</small>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['postgrados']">
-                                        <a v-on:click="verAnexos('postgrados')" class="text-success pointer" rel="postgrados">
+                                        <a v-on:click="verAnexo('postgrados')" class="text-success pointer" rel="postgrados">
                                             <span class="h1 block bold" v-text="resumen.postGrados">23</span>
                                             <small class="block m-b-xs">Posgrado</small>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['actividades']">
-                                        <a v-on:click="verAnexos('actividades')" class="text-warning pointer" rel="actividades">
+                                        <a v-on:click="verAnexo('actividades')" class="text-warning pointer" rel="actividades">
                                             <span class="h1 block bold" v-text="resumen.actividades">23</span>
                                             <small class="block m-b-xs">Actividades Deportivas</small>
                                         </a>
@@ -82,7 +81,7 @@
                                                      deselect-label="Retire anexo"
                                                      select-label="Seleccione este anexo"
                                                      track-by='id'
-                                                     v-on:input="gpoSeccionesAnexo">
+                                                     v-on:input="loadRegistros">
                                             <template slot="option" slot-scope="props">
                                                 <div class="block text-primary bold" v-text="props.option.nombre"></div>
                                                 <small class="block">{{props.option.anexoSuperior.nombre}}</small>
@@ -142,8 +141,9 @@
                                                         {{item.curso.tpc}}</span>
                                                     <span class="block" v-text="item.anexoBoletin.nombre"></span>
                                                     <span class="clear">
-                                                        <span v-if="item.estadoEnum.name == 'ACT' " class="label label-success" v-text="item.estadoEnum.value"></span>
-                                                        <span v-else="" class="label label-danger" v-text="item.estadoEnum.value"></span>
+                                                        <span v-if="item.estado == 'ACT' " class="label label-success" v-text="item.estadoEnum.value"></span>
+                                                        <span v-else="" class="label label-danger" v-text="item.estadoEnum.value"></span> &nbsp;
+                                                        <span v-if="item.cursoDirigido" class="label label-primary">Curso Dirigido</span>
                                                     </span>
                                                 </td>
 
@@ -194,9 +194,6 @@
                                                 <small v-on:click="verRestriccion(secc,item,'FAC')" v-if="secc.restriccionesFacultad.length > 0 " class="block btn-link text-primary pointer">Facultad</small>
                                                 <small v-on:click="verRestriccion(secc,item,'MOD')" v-if="secc.restriccionesModalidad.length > 0 " class="block btn-link text-primary pointer">Modalidad</small>
                                                 <small v-on:click="verRestriccion(secc,item,'REP')" v-if="secc.restriccionesRepitencia.length > 0 " class="block btn-link text-primary pointer">Repitencia</small>
-
-                                                <!--                                                <span class="estado-red pointer"
-                                                                                                      v-if="tieneRestricciones(secc)">R</span>-->
                                             </td>
 
                                             <td class=" v-middle text-center"
@@ -208,8 +205,6 @@
                                             </td>
 
                                         </template>
-
-
                                         </tr>
 
                                         <template v-for="secc in item.secciones"
@@ -375,37 +370,96 @@
                 <modal-vik ref="modalCloneCiclo"
                            v-bind="dataCloneCiclo" 
                            v-bind:okaction="saveCloneCiclo">
-
                     <div slot="body">
 
                         <form data-parsley-validate="true" class="panel-body">
-
                             <p class="col-xs-12 text-primary h5 m-t-xs" th:text="|Los datos se copiaran al ciclo ${ciclo.descripcion}|"></p>
 
                             <div class="col-xs-12">
                                 <div class="form-group">
-
                                     <label>Seleccione el ciclo acádemico de origen</label>
-
                                     <vuelect 
                                         v-bind:nombre="'ciclo.id'"  
-                                        v-bind:ciclo="ciclo"
-                                        />
-
+                                        v-bind:ciclo="ciclo"/>
                                 </div>
                             </div>
-
                         </form>
-
                     </div>
-
                 </modal-vik>
 
-                <!--<script id="gpoSeccionTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/gposeccion/gpoSeccionTemplate"/></script>-->
+                <modal-vik ref="modalNuevoGpoSecc"
+                           v-bind="nuevoGpoSeccModal" 
+                           v-bind:okaction="saveGpoSecc">
+                    <div slot="body">
+
+                        <form data-parsley-validate="true" id="formNuevoGpoSecc">
+                            <div>
+                                <div class="form-group">
+                                    <label class="bold">Curso</label>
+                                    <multiselect v-model='newGrupoSeccion.curso'
+                                                 label='nombre'
+                                                 placeholder="Seleccione un curso"
+                                                 deselect-label=""
+                                                 select-label=""
+                                                 track-by='id'
+                                                 v-bind:options='cursos'
+                                                 v-bind:custom-label="labelCurso"
+                                                 v-bind:loading="isLoadingCursos"
+                                                 v-on:search-change="searchCursos"
+                                                 v-on:input="verAnexoSuperior">
+                                        <template slot="option" slot-scope="props">
+                                            <div class="block h5 m-t-xs m-b-xs bold" v-text="props.option.nombre"></div>
+                                            <small class="block">
+                                                {{props.option.codigo}} <i class="fa fa-bookmark text-primary"></i> {{props.option.tpc}}
+                                            </small>
+                                            <small class="block">
+                                                {{props.option.departamentoAcademico.nombre}}
+                                            </small>
+                                        </template>
+                                    </multiselect>
+                                    <input type="text" class="hide" required="" v-model="newGrupoSeccion.curso.id"/>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="bold">Categoría Anexo Boletín</label>
+                                    <multiselect v-model='anexoPadreCurso'
+                                                 v-bind:options='anexosPadres'
+                                                 label='nombre'
+                                                 placeholder="Seleccione un anexo padre"
+                                                 deselect-label=""
+                                                 select-label=""
+                                                 track-by='id'
+                                                 v-on:input="verAnexosHijos">
+                                    </multiselect>
+                                    <input type="text" class="hide" required="" v-model="anexoPadreCurso.id"/>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="bold">Anexo Boletín</label>
+                                    <multiselect v-model='newGrupoSeccion.anexoBoletin'
+                                                 v-bind:options='anexosHijos'
+                                                 label='nombre'
+                                                 placeholder="Seleccione un anexo"
+                                                 deselect-label=""
+                                                 select-label=""
+                                                 track-by='id'>
+                                    </multiselect>
+                                    <input type="text" class="hide" required="" v-model="newGrupoSeccion.anexoBoletin.id"/>
+                                </div>
+                                <!--<pre>{{newGrupoSeccion.anexoBoletin}}</pre>-->
+
+                                <div class="form-group">
+                                    <label class="bold">Cantidad</label>
+                                    <input type="text" class="form-control" v-model="newGrupoSeccion.cantidad" required=""/>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </modal-vik>
+
             </div>
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="academico/gposeccion/components/seccionDetalleComponent"/>
-            <!--<div th:substituteby="templates/modal"/>-->
         </div>
 
         <div layout:fragment="js">
@@ -421,7 +475,6 @@
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/gposeccion/gpoSeccion.js}" charset="utf-8"></script>
         </div>
-
 
     </body>
 </html>

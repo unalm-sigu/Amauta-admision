@@ -34,6 +34,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoVisitante;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -161,14 +162,53 @@ public class AlumnoController {
         alumno.setPersona(new Persona());
 
         model.addAttribute("persona", new Persona());
-        model.addAttribute("documentos", service.allDocumento());
+        model.addAttribute("documentos", service.allDocumentosPersonaNatural());
         model.addAttribute("ciclos", service.allCicloAcademico());
         model.addAttribute("situaciones", service.allSituaciones());
         model.addAttribute("alumno", alumno);
         model.addAttribute("helper", new AlumnoHelper());
         model.addAttribute("carreras", new AlumnoHelper());
 
+        ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, false,
+                new String[]{"*",
+                    "persona.*"});
+        model.addAttribute("alumnoJson", alumnoJson.toString());
+
         return "academico/alumno/especial/alumnoEspecial";
+    }
+
+    @ResponseBody
+    @RequestMapping("especial/existealumno")
+    public JsonResponse existealumno(Alumno alumnoForm) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(Boolean.TRUE);
+        try {
+            Alumno alumno = service.validarAlumnoEspecial(alumnoForm);
+            ObjectNode personaJson = null;
+            if (alumno != null && alumno.getPersona() != null) {
+                personaJson = JsonHelper.createJson(alumno.getPersona(), JsonNodeFactory.instance,
+                        false, new String[]{
+                            "*",
+                            "tipoDocumento.*",
+                            "ubicacionDomicilio.*",
+                            "ubicacionNacer.*",
+                            "paisNacer.*",
+                            "nacionalidad.*",
+                            "paisDomicilio.*"
+                        });
+            }
+            /*  alumnoVisitanteForm.setPersona(persona);
+            ObjectNode jPersona = service.validarAlumno(alumnoVisitanteForm);
+            response.setData(jPersona);
+             */
+
+            response.setData(personaJson);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     @ResponseBody
@@ -186,10 +226,11 @@ public class AlumnoController {
             if (alumno.getId() == null) {
                 service.saveAlumnoEspecial(alumno, usuario);
                 response.setMessage("Alumno creado satisfactoriamente");
-            } else {
+            }
+            /*else {
                 service.updateAlumnoEspecial(alumno, usuario);
                 response.setMessage("Alumno modificado satisfactoriamente");
-            }
+            }*/
 
             response.setSuccess(true);
             response.setData(node);

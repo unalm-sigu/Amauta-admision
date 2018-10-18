@@ -199,7 +199,9 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
         }
 
         System.out.println(rr + " vamos a bloquear alumno " + alumno.getCodigo() + "(" + alumno.getId() + ") para loadDataMatriculados");
+        visor.addAlumno(alumno, matriSecc.getCodigoSeccion(), rr);
         alumnoDAO.findLock(alumno.getId());
+        visor.bloqueadoAlumno(alumno, matriSecc.getCodigoSeccion());
         System.out.println("\t" + rr + " alumno " + alumno.getCodigo() + "(" + alumno.getId() + ") bloqueado para loadDataMatriculados");
 
         MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
@@ -233,7 +235,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
         }
 
         MatriculaSeccion matriSeccBD = findMatriculaSeccion(resumen.getMatriculaSeccion(), seccion);
-        
+
         if (matriSeccBD == null) {
             System.out.println("\t" + rr + " creando mat-seccion del alumno " + alumno.getCodigo());
             matriSeccBD = new MatriculaSeccion();
@@ -251,7 +253,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
 
         Curso curso = seccion.getGrupoSeccion().getCurso();
         MatriculaCurso matriCursoBD = findMatriculaCurso(resumen.getMatriculaCurso(), curso, rr);
-        
+
         if (matriCursoBD == null) {
             //System.out.print("\t" + rr + " creando mat-curso del alumno " + alumno.getCodigo() + " :::: ");
             matriCursoBD = new MatriculaCurso();

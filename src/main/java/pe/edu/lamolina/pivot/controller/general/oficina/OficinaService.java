@@ -28,7 +28,6 @@ public interface OficinaService {
     void save(Oficina oficina, DataSessionPivot ds);
 
 //    void delete(Oficina oficina);
-
     List<Colaborador> allColaborador(List<Oficina> oficinas);
 
     List<Oficina> allUnidadSuperior(String nombre, Compania compania);
@@ -102,5 +101,9 @@ public interface OficinaService {
     List<PerfilCompania> allFuncionByOficina(Oficina oficina);
 
     List<PerfilCompania> allFuncionByColaborador(Colaborador colaborador);
+
+    List<Oficina> allOficinasMainByPersona(Persona persona);
+
+    Oficina findOficinaHija(Persona persona, Oficina oficinaMain);
 
 }

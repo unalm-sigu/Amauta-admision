@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
@@ -125,7 +126,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
 
     @Override
     public List<Seccion> allOperativesByGpoSeccion(GrupoSeccion grupoSeccion) {
-        List<SeccionEstadoEnum> estados = Arrays.asList(SeccionEstadoEnum.ACT, SeccionEstadoEnum.BLO);
+        List<SeccionEstadoEnum> estados = Arrays.asList(SeccionEstadoEnum.ACT, SeccionEstadoEnum.BLO, SeccionEstadoEnum.CRE);
         return this.allByGpoSeccionEstados(grupoSeccion, estados);
     }
 
@@ -328,6 +329,37 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .filter("ca.id", ciclo)
                 .orderBy("sec.codigo", "sec.codigo2");
         return all(sql);
+    }
+
+    @Override
+    public Seccion find(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico")
+                .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
+                .leftJoin("grupoHoras gh", "aula au", "au.oficinaSupervisora", "au.aulaSuperior")
+                .leftJoin("seccionSuperior")
+                .filter("sec.id", seccion.getId());
+
+        return find(sql);
+    }
+
+    @Override
+    public void setCodigo2Null(CicloAcademico ciclo) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" update ").append(Seccion.class.getSimpleName()).append(" as se ");
+        sql.append("    set codigo2 = null ");
+        sql.append("  where exists ( ");
+        sql.append("      select 1 ");
+        sql.append("        from ").append(GrupoSeccion.class.getSimpleName()).append(" as gs ");
+        sql.append("       where gs.id = se.grupoSeccion.id ");
+        sql.append("         and gs.cicloAcademico.id = :CICLO ");
+        sql.append("  ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameter("CICLO", ciclo.getId());
+
+        query.executeUpdate();
     }
 
 }

@@ -70,4 +70,6 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     List<GrupoSeccion> allOrdenadoByCiclo(CicloAcademico ciclo);
 
+    void setCodigo2Null(CicloAcademico ciclo);
+
 }

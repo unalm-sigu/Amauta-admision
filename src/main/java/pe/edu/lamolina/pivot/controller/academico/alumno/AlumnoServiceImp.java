@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.groovy.util.StringUtil;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
@@ -142,6 +145,11 @@ public class AlumnoServiceImp implements AlumnoService {
     }
 
     @Override
+    public List<TipoDocIdentidad> allDocumentosPersonaNatural() {
+        return tipoDocIdentidadDAO.allForPersonaNatural();
+    }
+
+    @Override
     public List<SituacionAcademica> allSituaciones() {
         return situacionAcademicaDAO.all();
     }
@@ -175,8 +183,8 @@ public class AlumnoServiceImp implements AlumnoService {
         Persona personaDB = personaDAO.findByDocumento(personaForm.getTipoDocumento(), personaForm.getNumeroDocIdentidad());
         CicloAcademico ciclo = cicloAcademicoDAO.find(alumno.getCicloIngreso().getId());
 
-        String codigoMatricula = this.generateCodigo(ciclo);
-        String emailCompania = this.generateEmailCompania(codigoMatricula);
+        String codigoMatricula = StringUtils.isBlank(alumno.getCodigo()) ? this.generateCodigo(ciclo) : alumno.getCodigo();
+        String emailCompania = StringUtils.isBlank(alumno.getPersona().getEmailCompania()) ? this.generateEmailCompania(codigoMatricula) : alumno.getPersona().getEmailCompania();
 
         if (personaDB == null) {
 
@@ -267,6 +275,7 @@ public class AlumnoServiceImp implements AlumnoService {
         alumno.setCursosCarreraInscritos(0);
         alumno.setCursosCarreraAprobados(0);
         alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
+        alumno.setCiclosEstudiados(BigDecimal.ZERO.intValue());
         alumnoDAO.save(alumno);
     }
 
@@ -329,6 +338,7 @@ public class AlumnoServiceImp implements AlumnoService {
         cicloAcademicoDAO.update(ciclo);
     }
 
+    
     private void enviarNotificacionUsuarioCreacion(Persona persona) {
         ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEUSERALUMNOVISITANTE.name());
         mailerService.enviarNotificacionUsuarioCreacion(persona, contenidoCarta);
@@ -388,7 +398,7 @@ public class AlumnoServiceImp implements AlumnoService {
     }
 
     private void validarEmailsinPersona(String email) {
-        if (email != null) {
+        if (StringUtils.isNotBlank(email)) {
             List<Persona> personas = personaDAO.allByEmail(email);
             if (!personas.isEmpty()) {
                 Persona pEmail = personas.get(0);
@@ -536,7 +546,18 @@ public class AlumnoServiceImp implements AlumnoService {
         ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.ESP);
         alumno.setCarrera(carrera);
         alumno.setModalidadEstudio(modalidadEstudio);
+        if (StringUtils.isBlank(alumno.getEstado())) {
+            alumno.setEstadoEnum(AlumnoEstadoEnum.ACT);
+        }
         this.saveAlumnoFisico(alumno, usuarioRegistra);
+    }
+
+    @Override
+    public Alumno validarAlumnoEspecial(Alumno alumnoVisitanteForm) {
+        Persona persona = alumnoVisitanteForm.getPersona();
+        persona = personaDAO.findByDocumento(persona.getTipoDocumento(), persona.getNumeroDocIdentidad());
+        alumnoVisitanteForm.setPersona(persona);
+        return alumnoVisitanteForm;
     }
 
     @Override

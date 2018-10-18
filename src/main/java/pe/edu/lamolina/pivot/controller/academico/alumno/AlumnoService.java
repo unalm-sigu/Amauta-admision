@@ -23,6 +23,8 @@ public interface AlumnoService {
 
     List<TipoDocIdentidad> allDocumento();
 
+    List<TipoDocIdentidad> allDocumentosPersonaNatural();
+
     List<SituacionAcademica> allSituaciones();
 
     List<ModalidadEstudio> allModalidadEstudioByCodigos(List<String> codigos);
@@ -32,6 +34,8 @@ public interface AlumnoService {
     void saveAlumnoFisico(Alumno alumno, Usuario usuario);
 
     void saveAlumnoEspecial(Alumno alumno, Usuario usuario);
+
+    Alumno validarAlumnoEspecial(Alumno alumnoVisitanteForm);
 
     void updateAlumnoFisico(Alumno alumno, Usuario usuarioRegistra);
 
