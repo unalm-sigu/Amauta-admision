@@ -3,7 +3,7 @@ package pe.edu.lamolina.pivot.dao.tramite.hibernate;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.enums.VariableContenidoEnum;
+import pe.edu.lamolina.model.enums.VariableGenericaEnum;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoParametro;
@@ -18,7 +18,7 @@ public class TramiteDocumentoParametroDAOH extends AbstractEasyDAO<TramiteDocume
     }
 
     @Override
-    public TramiteDocumentoParametro findByTipoDocAndPlantilla(TramiteDocumentoAcademico documentoAcademico, PlantillaDocumentoAcademico plantilla, VariableContenidoEnum variableContenidoEnum) {
+    public TramiteDocumentoParametro findByTipoDocAndPlantilla(TramiteDocumentoAcademico documentoAcademico, PlantillaDocumentoAcademico plantilla, VariableGenericaEnum variableContenidoEnum) {
         Octavia sql = new Octavia()
                 .from(TramiteDocumentoParametro.class,"tdp")
                 .join("variableGenerica vg","plantillaDocumento pd","tipoDocumentoAcademico tda")

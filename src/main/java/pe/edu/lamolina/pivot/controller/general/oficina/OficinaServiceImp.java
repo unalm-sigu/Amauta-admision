@@ -811,7 +811,7 @@ public class OficinaServiceImp implements OficinaService {
             user.setFechaRegistro(new Date());
             usuarioDAO.save(user);
             listPerfiles.add(colaborador.getCargo());
-            addUserRoll(listPerfiles, oficinaMean, user, colaborador, usuario);
+            addUserRoll(listPerfiles, oficinaColaborador, user, colaborador, usuario);
         }
 
     }
@@ -921,13 +921,13 @@ public class OficinaServiceImp implements OficinaService {
             if (colaborador.getPersona().getEmailCompania() != null) {
                 user = addUser(personaForm, usuario);
                 perfiles.add(colaborador.getCargo());
-                addUserRoll(perfiles, oficinaMean, user, colaborador, usuario);
+                addUserRoll(perfiles, oficinaColaborador, user, colaborador, usuario);
             }
         } else {
             UsuarioRol ur = usuarioRolDAO.findUsuarioAndOficina(user, oficinaColaborador);
             if (ur == null) {
                 perfiles.add(colaborador.getCargo());
-                addUserRoll(perfiles, oficinaMean, user, colaborador, usuario);
+                addUserRoll(perfiles, oficinaColaborador, user, colaborador, usuario);
             }
         }
         return true;
@@ -977,7 +977,7 @@ public class OficinaServiceImp implements OficinaService {
     @Override
     @Transactional
     public void updateColaborador(Colaborador colaboradorForm, Oficina oficinaMea, DataSessionPivot ds) {
-        oficinaMea = oficinaDAO.find(oficinaMea.getId());
+        oficinaMea = oficinaDAO.find(colaboradorForm.getOficina().getId());
         Colaborador colaboradorBD = colaboradorDAO.find(colaboradorForm.getId());
         Oficina oficinaAnterior = colaboradorBD.getOficina();
         Oficina oficinaNueva = oficinaDAO.find(colaboradorForm.getOficina().getId());
