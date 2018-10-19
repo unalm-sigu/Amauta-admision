@@ -38,13 +38,13 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("academico/anexo")
 public class AnexoBoletinController {
-    
+
     @Autowired
     AnexoBoletinService service;
-    
+
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
-        
+
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -55,7 +55,7 @@ public class AnexoBoletinController {
                 }
             }
         });
-        
+
         dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -67,19 +67,19 @@ public class AnexoBoletinController {
             }
         });
     }
-    
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<AnexoBoletin> anexosSup = service.allAnexosSuperiores();
         List<DepartamentoAcademico> departamentos = service.allDepartamentosAcademicos();
         List<Carrera> carreras = service.allCarrerasPosgrado();
-        
+
         ObjectNode cicloJson = createCicloJson(findCicloAnexo(ds, session));
         ArrayNode anexosSuperJson = createAnexosSuperioresJson(anexosSup);
         ArrayNode departamentosJson = createDepartamentosJson(departamentos);
         ArrayNode carrerasJson = createCarrerasJson(carreras);
-        
+
         model.addAttribute("resumen", service.resumen());
         model.addAttribute("cicloJson", cicloJson.toString());
         model.addAttribute("anexosSuperJson", anexosSuperJson.toString());
@@ -87,7 +87,7 @@ public class AnexoBoletinController {
         model.addAttribute("carrerasJson", carrerasJson.toString());
         return "academico/anexoboletin/anexo";
     }
-    
+
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
@@ -95,10 +95,10 @@ public class AnexoBoletinController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = findCicloAnexo(ds, session);
-            
+
             List<AnexoBoletin> anexos = service.allByDynatable(filter, ciclo);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            
+
             Integer maximo = 0;
             for (AnexoBoletin anexo : anexos) {
                 if (anexo.getEstadoEnum() != EstadoEnum.ACT) {
@@ -108,42 +108,33 @@ public class AnexoBoletinController {
                     maximo = anexo.getOrden();
                 }
             }
-            
+
             for (AnexoBoletin anexo : anexos) {
-                ObjectNode node = JsonHelper.createJson(anexo, JsonNodeFactory.instance, true, new String[]{
-                    "id", "codigo", "nombre", "orden", "estado", "estadoEnum", "motivoAnulacion", "cantidadGpoSecc",
-                    "departamentoAcademico.id",
-                    "departamentoAcademico.nombre",
-                    "carrera.id",
-                    "carrera.tipoEnum",
-                    "carrera.nombre",
-                    "anexoSuperior.id",
-                    "anexoSuperior.nombre"
-                });
+                ObjectNode node = createAnexoJson(anexo);
                 node.put("ordenMaximo", maximo);
                 array.add(node);
             }
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
         return json;
     }
-    
+
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         AnexoBoletin anexo = new AnexoBoletin();
-        
+
         model.addAttribute("anexo", anexo);
         model.addAttribute("anexos", service.allAnexosSuperiores());
         return "academico/anexoboletin/anexoForm";
     }
-    
+
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody AnexoBoletin anexo, HttpSession session) {
@@ -153,7 +144,7 @@ public class AnexoBoletinController {
             service.save(anexo, ds.getUsuario());
             response.setMessage("Se guardo el anexo satisfactoriamente");
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -161,24 +152,24 @@ public class AnexoBoletinController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("cambiarEstado/{accion}")
     public JsonResponse cambiarEstadoCarrera(
             @RequestBody AnexoBoletin anexoBoletin,
             @PathVariable("accion") String accion) {
-        
+
         JsonResponse response = new JsonResponse();
         try {
             service.cambiarEstado(anexoBoletin, accion);
-            
+
             if (accion.equals("eliminar")) {
                 response.setMessage("Registro eliminado satisfactoriamente.");
             } else {
                 response.setMessage("Se cambio de estado satisfactoriamente.");
             }
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -188,21 +179,21 @@ public class AnexoBoletinController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("{idAnexo}/cambiarOrden/{direccion}")
     public JsonResponse cambiarOrden(
             @PathVariable("idAnexo") Long idAnexo,
             @PathVariable("direccion") String direccion) {
-        
+
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
-        
+
         try {
             service.cambiarOrden(new AnexoBoletin(idAnexo), direccion);
             response.setMessage("Se cambio de orden satisfactoriamente.");
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -210,27 +201,27 @@ public class AnexoBoletinController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("allCiclos")
     public JsonResponse allCiclos(@RequestParam("nombre") String nombre, HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             List<CicloAcademico> ciclos = service.allCiclosByNombre(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
-            
+
             for (CicloAcademico ciclo : ciclos) {
                 ObjectNode json = createCicloJson(ciclo);
                 jsonList.add(json);
             }
-            
+
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -238,20 +229,20 @@ public class AnexoBoletinController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("changeCiclo")
     public JsonResponse changeCiclo(@RequestBody CicloAcademico ciclo, HttpSession session) {
-        
+
         JsonResponse response = new JsonResponse();
         try {
-            
+
             CicloAcademico cicloBD = service.findCiclo(ciclo);
             session.setAttribute(Constantine.CICLO_ANEXO_BOLETIN, cicloBD);
-            
+
             response.setMessage("Se cambio de ciclo satisfactoriamente");
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -259,7 +250,7 @@ public class AnexoBoletinController {
         }
         return response;
     }
-    
+
     private CicloAcademico findCicloAnexo(DataSessionPivot ds, HttpSession session) {
         CicloAcademico ciclo = (CicloAcademico) session.getAttribute(Constantine.CICLO_ANEXO_BOLETIN);
         if (ciclo == null) {
@@ -268,14 +259,28 @@ public class AnexoBoletinController {
         }
         return ciclo;
     }
-    
+
     private ObjectNode createCicloJson(CicloAcademico ciclo) {
         ObjectNode json = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{
             "id", "codigo", "descripcion", "descripcion2"
         });
         return json;
     }
-    
+
+    private ObjectNode createAnexoJson(AnexoBoletin anexo) {
+        ObjectNode node = JsonHelper.createJson(anexo, JsonNodeFactory.instance, true, new String[]{
+            "id", "codigo", "nombre", "orden", "estado", "estadoEnum", "motivoAnulacion", "cantidadGpoSecc",
+            "departamentoAcademico.id",
+            "departamentoAcademico.nombre",
+            "carrera.id",
+            "carrera.tipoEnum",
+            "carrera.nombre",
+            "anexoSuperior.id",
+            "anexoSuperior.nombre"
+        });
+        return node;
+    }
+
     private ArrayNode createAnexosSuperioresJson(List<AnexoBoletin> anexosSup) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (AnexoBoletin anexo : anexosSup) {
@@ -286,7 +291,7 @@ public class AnexoBoletinController {
         }
         return array;
     }
-    
+
     private ArrayNode createDepartamentosJson(List<DepartamentoAcademico> departamentos) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (DepartamentoAcademico dep : departamentos) {
@@ -300,7 +305,7 @@ public class AnexoBoletinController {
         }
         return array;
     }
-    
+
     private ArrayNode createCarrerasJson(List<Carrera> carreras) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (Carrera carr : carreras) {
@@ -315,5 +320,5 @@ public class AnexoBoletinController {
         }
         return array;
     }
-    
+
 }

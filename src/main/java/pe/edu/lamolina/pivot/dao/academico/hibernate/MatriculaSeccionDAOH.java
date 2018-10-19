@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
@@ -162,8 +163,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("seccion s", "s.grupoSeccion gs", "gs.curso")
                 .left("s.aula")
                 .filter("ca.id", cicloAcademico)
-                .filter("ms.estado", EstadoMatriculaEnum.PMAT)
-                .filter("mr.estado", EstadoMatriculaEnum.NMAT);
+                .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.PMAT.name(), EstadoMatriculaEnum.NMAT.name()));
         return (Long) sql.find(getCurrentSession());
     }
 
