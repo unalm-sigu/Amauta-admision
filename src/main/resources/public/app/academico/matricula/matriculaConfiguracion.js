@@ -109,6 +109,8 @@ new Vue({
         },
         tabs() {
             let $vue = this;
+            console.log("lstTabs");
+            console.dir($vue.lstTabs);
             $vue.lstTabs.splice(0, $vue.lstTabs.length);
             $vue.Arryconfig.forEach(function (elem) {
                 $vue.lstTabs.push(elem);

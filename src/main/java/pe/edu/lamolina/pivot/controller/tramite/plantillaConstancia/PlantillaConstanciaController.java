@@ -103,7 +103,7 @@ public class PlantillaConstanciaController {
         model.addAttribute("variables", arrayVariable.toString());
         model.addAttribute("variablePlantilla", arrayNode.toString());
         model.addAttribute("contenido", documentoAcademico.getContenido());
-        model.addAttribute("tipoDocumentoNombre", documentoAcademico.getTipoDocumentoAcademico().getNombre());
+        model.addAttribute("tipoDocumentoNombre", documentoAcademico.getTipoDocumentoAcademico() != null ? documentoAcademico.getTipoDocumentoAcademico().getNombre() : "");
         model.addAttribute("idioma", documentoAcademico.getIdioma().getNombre());
 
         return "tramite/editarContenido/contenido";

@@ -1,5 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default)
-console.log(JSON.parse(solicitudJson));
+console.log(JSON.parse(tiposDocumentoAcademicoJson));
 new Vue({
     el: '#main',
     data: {
@@ -7,12 +7,21 @@ new Vue({
         solicitud: JSON.parse(solicitudJson),
         tiposDocumentoAcademico: JSON.parse(tiposDocumentoAcademicoJson),
         idiomas: [],
+        ciclos: [],
+        ciclo: {},
         persona: {},
         tramite: {},
+        haveParams: false,
         dataCargarFoto: {
             id: 'modalCargarFoto',
             header: true,
             title: 'Cargar Fotografía',
+            okbtn: 'Aceptar'
+        },
+        ciclosModal: {
+            id: 'ciclosModal',
+            header: true,
+            title: 'Ciclos Alumno',
             okbtn: 'Aceptar'
         },
         showCostoDocumento: false,
@@ -62,24 +71,43 @@ new Vue({
         },
         idiomaDocumento(value) {
             let $vue = this;
+            $vue.solicitud.idioma = {};
             $vue.idiomas = value.idiomas;
 
         },
-        costoDocumento(value) {
+        costoDocumentoEvent(value) {
             let $vue = this;
+            $vue.temp = {};
+            $vue.temp.plantillaDocumentoAcademico = {};
 
-            console.log($vue.solicitud.tipoDocumentoAcademico);
+            $vue.temp.alumno = $vue.tramite.alumno;
+            $vue.temp.plantillaDocumentoAcademico.tipoDocumentoAcademico = $vue.solicitud.tipoDocumentoAcademico;
+            $vue.temp.plantillaDocumentoAcademico.idioma = value;
+
+            axios.post('/tramite/solicitudconstancia/allParametros', $vue.temp)
+                    .then(response => {
+                        if (response.data.data.haveParams) {
+                            if (response.data.data.lista.length > 0) {
+                                $vue.ciclos = response.data.data.lista;
+                                $vue.haveParams = response.data.data.haveParams;
+                                $vue.$refs.ciclosModal.open();
+                            } else {
+                                notify("El alumno no cumple para esta constancia")
+                            }
+                        }
+                    });
 //            if ($vue.solicitud.tipoDocumentoAcademico.tipo == 'CONS') {
             $vue.solicitud.tipoDocumentoAcademico.precioDocumento.forEach(function (item) {
                 if (item.idioma.id == value.id) {
                     $vue.showCostoDocumento = true;
                     $vue.costoDocumento = item.precio;
+
                 }
-            })
+            });
 //            }
         },
-        customLabel( { persona}) {
-            return `${persona.apellidosNombres}`
+        customLabel( { persona, codigo}) {
+            return `${codigo} - ${persona.apellidosNombres}`;
         },
         createCargarFoto: function () {
             var $vue = this;
@@ -127,10 +155,28 @@ new Vue({
             $vue.persona = $vue.tramite.alumno.persona;
             $vue.$refs.cargarFoto.open();
         },
+        elegir() {
+            let $vue = this;
+            if ($vue.ciclo.id != null) {
+                $vue.haveParams = false;
+                $vue.$refs.ciclosModal.close();
+            } else {
+                notify("Debe seleccionar el parametro", "error");
+                $vue.$refs.ciclosModal.open();
+            }
+        },
+        clearOption(item) {
+            let $vue = this;
+            $vue.solicitud = {};
+            $vue.ciclo = {};
+            $vue.costoDocumento = "";
+            $vue.showCostoDocumento = false;
+        },
         submitForm() {
             let $vue = this;
             $vue.solicitud.tramite = $vue.tramite;
-            console.log($vue.solicitud)
+            $vue.solicitud.valorParametro = $vue.ciclo.descripcion;
+            console.log($vue.solicitud);
             var valid = $('#formSolicitudConstancia').parsley().validate();
             if (valid != true) {
                 return;

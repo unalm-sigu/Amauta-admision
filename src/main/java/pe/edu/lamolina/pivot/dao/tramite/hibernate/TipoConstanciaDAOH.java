@@ -8,6 +8,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.pivot.dao.tramite.TipoConstanciaDAO;
 
 @Repository
@@ -65,10 +66,12 @@ public class TipoConstanciaDAOH extends AbstractEasyDAO<TipoDocumentoAcademico> 
 
     @Override
     public List<TipoDocumentoAcademico> allWhyPrecios() {
+
         Octavia subQuery = Octavia.query()
                 .select("td.id")
                 .from(PrecioDocumento.class, "pc")
                 .join("tipoDocumento td", "idioma idi");
+
         Octavia sql = Octavia.query()
                 .from(TipoDocumentoAcademico.class, "tipo")
                 .in("tipo.id", subQuery);

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.akquinet.commons.image.io.Image;
 import de.akquinet.commons.image.io.ImageMetadata;
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -30,12 +31,16 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.bean.PlantillaIncrustacionGeneralBean;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
-import static pe.edu.lamolina.model.enums.VariableContenidoEnum.ESTIMADO;
-import static pe.edu.lamolina.model.enums.VariableContenidoEnum.NOMBRE_PERSONA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.ESTIMADO;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.NOMBRE_PERSONA;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Idioma;
@@ -43,9 +48,12 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.misc.FotoHelper;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
+import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.PlantillaIncrustacionDocumento;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia.PlantillaGenerica;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -382,7 +390,7 @@ public class ConstanciaSolicitudController {
     @RequestMapping("downloadWord/{id}")
     public void downloadWord(@PathVariable Long id, HttpSession session, HttpServletResponse respons, RedirectAttributes redirectAttr) {
 
-            service.downloadWord(new TramiteDocumentoAcademico(id), respons);
+        service.downloadWord(new TramiteDocumentoAcademico(id), respons);
     }
 
     @RequestMapping("solicitud/{idSolicitud}")
@@ -448,11 +456,20 @@ public class ConstanciaSolicitudController {
     public String view(@PathVariable(value = "idSolicitud") Long idSolicitud, Model model, HttpSession session, RedirectAttributes redirectAttr) {
 
         try {
-
+            ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
             TramiteDocumentoAcademico documentoAcademico = service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
             PlantillaGenerica plantilla = service.findPlantillaHtml(documentoAcademico);
+
+            List<PlantillaDocumentoAcademico> plantillas = service.allPlantillas();
+            for (PlantillaDocumentoAcademico item : plantillas) {
+                node.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "idioma.*",}));
+            }
+
             model.addAttribute("id", idSolicitud);
             model.addAttribute("contenido", plantilla.getContenido());
+            model.addAttribute("incrustaciones", node);
         } catch (PhobosException ex) {
             ExceptionHandler.handleException(ex, redirectAttr);
             return "redirect:/tramite/tramiteConstancia/solicitudConstancia";
@@ -462,5 +479,145 @@ public class ConstanciaSolicitudController {
         }
 
         return "tramite/tramiteConstancia/viewContenido";
+    }
+
+    @ResponseBody
+    @RequestMapping("validVariables")
+    public JsonResponse validVariables(@RequestBody PlantillaIncrustacionGeneralBean plantillaGeneralBean, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.validVariables(plantillaGeneralBean, ds);
+            PlantillaGenerica plantilla = service.findPlantillaHtml(plantillaGeneralBean.getTramiteDocumentoAcademico());
+            response.setData(JsonHelper.createJson(plantilla, JsonNodeFactory.instance, new String[]{"*"}));
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Se agregó la incrusctación satisfactoriamente");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCicloAcademico")
+    public JsonResponse allCicloAcademico(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<CicloAcademico> ciclos = service.allCicloAcademicoByName(nombre);
+            for (CicloAcademico ciclo : ciclos) {
+                ObjectNode cicloJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "*", "modalidadEstudio.*"
+                        });
+                jsonList.add(cicloJson);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allTramiteIncrustaciones")
+    public JsonResponse allTramiteIncrustaciones(@RequestParam("idTramiteAcademico") Long idTramiteAcademico, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<PlantillaIncrustacionDocumento> tramiteIncrustacion = service.allTramiteIncrustaciones(new TramiteDocumentoAcademico(idTramiteAcademico));
+            for (PlantillaIncrustacionDocumento item : tramiteIncrustacion) {
+                jsonList.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "platillaIncrustacion.*",}));
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("deleteIncrustacion")
+    public JsonResponse deleteIncrustacion(@RequestBody PlantillaIncrustacionDocumento pid, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        ArrayNode nodePlantillaIn = new ArrayNode(JsonNodeFactory.instance);
+        try {
+            service.deleteIncrustacion(pid);
+
+            response.setMessage("Se eliminó la incrusctación satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allParametros")
+    public JsonResponse allParametros(@RequestBody PlantillaIncrustacionGeneralBean bean, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        ObjectNode nodeVariable = new ObjectNode(JsonNodeFactory.instance);
+        response.setSuccess(false);
+        try {
+            List<VariablePlantilla> plantillas = service.allParametros(bean.getPlantillaDocumentoAcademico());
+            nodeVariable.put("haveParams", plantillas.isEmpty() ? false : true);
+            nodeVariable.set("lista", new ArrayNode(JsonNodeFactory.instance));
+            for (VariablePlantilla plantilla : plantillas) {
+                nodeVariable.set("lista", valores(plantilla, bean.getAlumno()));
+            }
+            response.setData(nodeVariable);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    private ArrayNode valores(VariablePlantilla plantilla, Alumno alumno) {
+        ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
+        switch (plantilla.getVariableGenerica().getCodigoVaribleEnum()) {
+            case CICLO_ACADEMICO:
+                List<AlumnoCiclo> alumnoCiclos = service.allAlumnoCiclo(alumno);
+                for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+                    node.add(JsonHelper.createJson(alumnoCiclo.getCicloAcademico(), JsonNodeFactory.instance, new String[]{
+                        "*"
+                    }));
+                }
+                break;
+        }
+        return node;
     }
 }

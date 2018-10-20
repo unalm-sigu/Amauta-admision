@@ -22,8 +22,9 @@
         <div layout:fragment="main">
             <div id="main" v-cloak="">
                 <header class="header b-b padder-lg">
-                    <a th:href="@{/tramite/plantillaconstancia}" class="btn btn-default btn-sm pull-right">Regresar</a>
-                    <h2 th:text=" ${tipoDocumentoNombre}">Titulo</h2>
+                    <a v-if="tipoDocumentoNombre != ''" th:href="@{/tramite/plantillaconstancia}" class="btn btn-default btn-sm pull-right">Regresar</a>
+                    <a v-else="" th:href="@{/tramite/plantillainscrustacion}" class="btn btn-default btn-sm pull-right">Regresar</a>
+                    <h2 v-text=" tipoDocumentoNombre">Titulo</h2>
                     <p  class="block text-primary h4 m-t-n-xs" th:text="|Idioma ${idioma}|">Idioma</p>
                 </header>
 
@@ -57,19 +58,27 @@
                                     <button class="btn btn-danger btn-sm close-btn" v-on:click="deleteVariable(item)">
                                         <i class="fa fa-times"></i>
                                     </button>
-
                                     <div class="div-variable panel-body">
-                                        <span v-text="item.variableGenerica.codigo" class="text-danger bold block"></span>
-                                        <span v-text="item.variableGenerica.descripcion" class="text-primary bold block"></span>
-                                        <input type="text" class="form-control" v-model="item.ejemplo" v-on:keyup.enter="updateVariable(item)"/>
+                                        <div class="form-group col-lg-12">
+                                            <span v-text="item.variableGenerica.codigo" class="text-danger bold block"></span>
+                                            <span v-text="item.variableGenerica.descripcion" class="text-primary bold block"></span>
+                                            <input type="text" class="form-control " v-model="item.ejemplo" v-on:keyup.enter="updateVariable(item)"/>
+                                        </div>
+                                        <div class="col-lg-10 ">
+                                            <div class="form-group">
+                                                <label>¿Es parametro? </label>
+                                                <label class="switch">
+                                                    <input type="checkbox" name="esParametro" value="true" v-model="item.esParametro"  v-on:change="updateVariable(item)"/>
+                                                    <span></span>
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-
                                 <div class="col-sm-3 panel">
                                     <button class="btn btn-success btn-sm close-btn" v-on:click="addVariable()">
                                         <i class="fa fa-plus"></i>
                                     </button>
-
                                     <div class="div-variable panel-body">
                                         <div class="form-group">
                                             <multiselect v-model="contVariable.variableGenerica" 
@@ -86,6 +95,15 @@
                                         <div class="form-group">
                                             <input type="text" class="form-control" placeholder="Ingrese ejemplo" v-model="contVariable.ejemplo"/>
                                         </div>
+                                        <div class="col-lg-10">
+                                            <div class="form-group">
+                                                <label>¿Es parametro? </label>
+                                                <label class="switch">
+                                                    <input type="checkbox" name="esParametro" value="true" v-model="contVariable.esParametro"/>
+                                                    <span></span>
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -100,11 +118,12 @@
             <div th:substituteby="_modules/vue-modal"> </div>
         </div>
 
-    <div layout:fragment="js" th:remove='tag'>
-        <script th:inline="javascript">
-            var variablePlantillaJson = /*[[${variablePlantilla}]]*/ {};
-            var variablesJson = /*[[${variables}]]*/ {};
-            var id = /*[[${id}]]*/ {};
+        <div layout:fragment="js" th:remove='tag'>
+            <script th:inline="javascript">
+                var variablePlantillaJson = /*[[${variablePlantilla}]]*/ {};
+                var variablesJson = /*[[${variables}]]*/ {};
+                var id = /*[[${id}]]*/ {};
+                var tipoDocumento = /*[[${tipoDocumentoNombre}]]*/ {};
             </script>
             <div th:substituteby="_layout/includes :: javascript-upload" th:remove='tag'></div>
             <div th:substituteby="_layout/includes :: javascript-ckeditor" th:remove="tag"></div>

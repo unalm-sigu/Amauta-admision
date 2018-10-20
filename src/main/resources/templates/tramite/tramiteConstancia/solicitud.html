@@ -53,7 +53,13 @@
                                             v-bind:show-labels="false"
                                             v-bind:allow-empty="false"
                                             track-by="id"
+                                            v-on:input="clearOption"
                                             >
+                                            <template slot="option" slot-scope="props">
+                                                <div class="option__desc"><span class="option__title bold">{{ props.option.persona.apellidosNombres }}</span></div>
+                                                <div class="option__small"><span class="option__title">{{ props.option.codigo }}</span></div>
+                                                <div class="option__small"><span class="option__title">Carrera: {{ props.option.carrera.nombre }}</span></div>
+                                            </template>
                                         </multiselect>
                                     </div>
                                 </div>
@@ -91,7 +97,7 @@
                                             v-bind:show-labels="false"
                                             v-bind:allow-empty="false"
                                             track-by="id"
-                                            v-on:select="costoDocumento"
+                                            v-on:select="costoDocumentoEvent"
                                             >
                                         </multiselect>
                                     </div>
@@ -180,6 +186,7 @@
                     </section>
                 </section>
                 <th:block th:replace="tramite/tramiteConstancia/solicitudConstanciaModals"/>
+                <th:block th:replace="tramite/tramiteConstancia/ciclosModal"/>
             </div>
 
             <div th:substituteby="_modules/vue-modal"/>

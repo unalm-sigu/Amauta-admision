@@ -4,24 +4,18 @@ new Vue({
     el: '#lejaniadepartamentoVUE',
     data: {
         departamentosURL: APP.url('general/lejaniadepartamento/list'),
-        confirmarModal: {
-            id: 'modalConfirmar',
-            header: true,
-            title: 'Configurar Lejanía Facultad Módulo',
-            cancelbtn: 'Cancelar',
-            okbtn: 'Guardar',
-            modalsize: 'modal-md'
-        },
         departamentoTempo: {},
         departamentos: [],
         factordist: [],
         factorBD: [],
         factordistancia: [],
+        verForm : false
 
     },
     mounted() {
         let $vue = this;
         $(".numerico").numeric({negative: false});
+        $vue.loadDepartamentos();
         $vue.loadModulos();
     },
     methods: {
@@ -56,30 +50,9 @@ new Vue({
                 url: APP.url("general/lejaniadepartamento/save"),
                 data: JSON.stringify($vue.factordist)
             }).then(response => {
-                if (response.success) {
-                    $vue.$refs.modalConfirmar.close();
-                    $vue.$refs.raptorDepartamentos.loadRemoteData();
+                if (response.success) {                    
                     notify(response.message, "info")
-                } else {
-                    notify(response.message, 'error');
-                }
-            }, error => {
-                notify(MESSAGES.errorComunicacion, 'error');
-            });
-        },
-        verNuevoLejania() {
-            let $vue = this;
-
-            $vue.confirmarModal.title = "Configurar Lejanía Facultad Módulo";
-            $vue.departamentoTempo = {id: '', facultad: {}};
-            $.ajax({
-                method: "POST",
-                contentType: "application/json",
-                url: APP.url("general/lejaniadepartamento/allDepartamentos")
-            }).then(response => {
-                if (response.success) {
-                    $vue.departamentos = response.data;
-                    $vue.$refs.modalConfirmar.open();
+                    $vue.verFactorDistanciaByDepartamentos($vue.departamentoTempo);
                 } else {
                     notify(response.message, 'error');
                 }
@@ -99,11 +72,12 @@ new Vue({
             }).then(response => {
                 if (response.success) {
                     $vue.factorBD = response.data;
+                    $vue.verForm=false;
                     $vue.factordist = [];
                     for (var i = 0; i < $vue.modulos.length; i++) {
                         let fac = $vue.getFactorModulo($vue.modulos[i], $vue.factorBD);
                         if (fac == null) {
-                            $vue.factordist.push({pabellon: $vue.modulos[i], departamentoAcademico: item, distncia: ""});
+                            $vue.factordist.push({pabellon: $vue.modulos[i], departamentoAcademico: item, distancia: ""});
                         } else {
                             $vue.factordist.push(fac);
                         }
@@ -123,6 +97,24 @@ new Vue({
                 }
             }
             return null;
+        },
+        loadDepartamentos() {
+            let $vue = this;
+            $vue.departamentoTempo = {id: '', facultad: {}};
+            $.ajax({
+                method: "POST",
+                contentType: "application/json",
+                url: APP.url("general/lejaniadepartamento/allDepartamentos")
+            }).then(response => {
+                if (response.success) {
+                    $vue.departamentos = response.data;
+                    $vue.$refs.modalConfirmar.open();
+                } else {
+                    notify(response.message, 'error');
+                }
+            }, error => {
+                notify(MESSAGES.errorComunicacion, 'error');
+            });
         },
         loadModulos() {
             let $vue = this;

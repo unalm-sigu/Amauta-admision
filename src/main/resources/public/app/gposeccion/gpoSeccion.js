@@ -92,16 +92,52 @@ new Vue({
 
     },
     methods: {
+        verTexto(a, b) {
+            let vue = this;
+            
+//            console.log(a.target.value)
+//            console.log(b)
+            var nom = APP.revisarNombre2(a.target.value);
+            console.log(nom)
+
+            vue.newGrupoSeccion.cantidad = nom;
+            //console.log(b)
+        },
         nuevoGpoSecc() {
             let $vue = this;
             $vue.newGrupoSeccion = {curso: {}, anexoBoletin: {}};
             $vue.$refs.modalNuevoGpoSecc.open();
         },
         saveGpoSecc() {
+            let $vue = this;
             var form = $("#formNuevoGpoSecc");
             if (!form.parsley().validate()) {
                 return;
             }
+
+            $.ajax({
+                url: APP.url('academico/gposeccion/saveGpoHeader'),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify($vue.newGrupoSeccion),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.modalNuevoGpoSecc.close();
+                        let rpta = response.data;
+                        let lista = Base64.encode(rpta.lista);
+                        location.href = APP.url("academico/gposeccion/" + rpta.primero + "/editar") + $vue.getOrigenURL() + "&ids=" + lista;
+                        notify(response.message, 'info');
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         },
         verAnexoSuperior(item) {
             let $vue = this;

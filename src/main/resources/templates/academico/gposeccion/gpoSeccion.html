@@ -402,6 +402,7 @@
                                                  deselect-label=""
                                                  select-label=""
                                                  track-by='id'
+                                                 v-bind:allow-empty="false"
                                                  v-bind:options='cursos'
                                                  v-bind:custom-label="labelCurso"
                                                  v-bind:loading="isLoadingCursos"
@@ -424,6 +425,7 @@
                                     <label class="bold">Categoría Anexo Boletín</label>
                                     <multiselect v-model='anexoPadreCurso'
                                                  v-bind:options='anexosPadres'
+                                                 v-bind:allow-empty="false"
                                                  label='nombre'
                                                  placeholder="Seleccione un anexo padre"
                                                  deselect-label=""
@@ -438,6 +440,7 @@
                                     <label class="bold">Anexo Boletín</label>
                                     <multiselect v-model='newGrupoSeccion.anexoBoletin'
                                                  v-bind:options='anexosHijos'
+                                                 v-bind:allow-empty="false"
                                                  label='nombre'
                                                  placeholder="Seleccione un anexo"
                                                  deselect-label=""
@@ -446,11 +449,20 @@
                                     </multiselect>
                                     <input type="text" class="hide" required="" v-model="newGrupoSeccion.anexoBoletin.id"/>
                                 </div>
-                                <!--<pre>{{newGrupoSeccion.anexoBoletin}}</pre>-->
+
+                                <div class="row">
+                                    <label class="col-md-3 text-left bold">Curso Dirigido</label>
+                                    <div class="form-group col-md-9">
+                                        <label class="switch">
+                                            <input type="checkbox" value="true" v-model="newGrupoSeccion.cursoDirigido"/>
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
 
                                 <div class="form-group">
                                     <label class="bold">Cantidad</label>
-                                    <input type="text" class="form-control" v-model="newGrupoSeccion.cantidad" required=""/>
+                                    <input type="text" v-on:change="verTexto($event,newGrupoSeccion.cantidad)" class="form-control" v-model="newGrupoSeccion.cantidad" required=""/>
                                 </div>
                             </div>
                         </form>

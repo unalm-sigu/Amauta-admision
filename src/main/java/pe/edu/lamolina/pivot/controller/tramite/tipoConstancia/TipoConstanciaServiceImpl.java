@@ -96,6 +96,7 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
                 configuracionFirmaDocumentoDAO.update(configuracionFirmaDocumento);
             }
         }
+
     }
 
     @Override
@@ -106,6 +107,9 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
         }
         if (tramiteDocumentoAcademico.getPlazoDiasPago() == null) {
             tramiteDocumentoAcademico.setPlazoDiasPago(0);
+        }
+        if (tramiteDocumentoAcademico.getRequiereFoto() == null) {
+            tramiteDocumentoAcademico.setRequiereFoto(1);
         }
         tramiteDocumentoAcademico.setConfigurado(0l);
         tipoConstanciaDAO.save(tramiteDocumentoAcademico);

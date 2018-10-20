@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -98,9 +99,12 @@ public class MatricularServiceImp implements MatricularService {
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         Usuario usuario = ds.getUsuario();
 
-        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allNoMatriculadoByCiclo(cicloAcademico);
+        //  List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allNoMatriculadoByCiclo(cicloAcademico);
+        //  List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allPrematriculadoByMatriculaResumen(matriculaResumens);
+        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allPrematriculadoByCiclo(cicloAcademico);
+        Map mapMatriculaResumen = TypesUtil.convertListToMap("matriculaResumen.id", "matriculaResumen", matriculaCursos);
+        List<MatriculaResumen> matriculaResumens = (List<MatriculaResumen>) mapMatriculaResumen.values().stream().collect(Collectors.toList());
 
-        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allPrematriculadoByMatriculaResumen(matriculaResumens);
         Map<Long, List<MatriculaCurso>> matriculaCursosMap = TypesUtil.convertListToMapList("matriculaResumen.id", matriculaCursos);
 
         List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allPrematriculadoByMatriculaResumen(matriculaResumens);

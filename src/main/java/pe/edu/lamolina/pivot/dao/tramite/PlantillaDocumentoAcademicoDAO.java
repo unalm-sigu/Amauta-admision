@@ -19,4 +19,6 @@ public interface PlantillaDocumentoAcademicoDAO extends EasyDAO<PlantillaDocumen
 
     List<PlantillaDocumentoAcademico> allDynatableIncrustacion(DynatableFilter filter);
 
+    public List<PlantillaDocumentoAcademico> allIncrustaciones();
+
 }
