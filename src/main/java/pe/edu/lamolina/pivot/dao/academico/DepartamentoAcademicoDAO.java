@@ -30,4 +30,5 @@ public interface DepartamentoAcademicoDAO extends EasyDAO<DepartamentoAcademico>
 
     List<DepartamentoAcademico> allActivos();
 
+
 }

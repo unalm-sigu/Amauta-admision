@@ -1,0 +1,131 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Lejanía Facultad Módulos</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="lejaniadepartamentoVUE">
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success" v-on:click="verNuevoLejania()">Configurar Lejanía</a>
+                        </div>
+                    </div> 
+                    <h2>Lejanía Facultad Módulos</h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <raptor-table v-bind:url="departamentosURL" ref="raptorDepartamentos">
+
+                                <template  scope="props" >
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-3">Departamento</th>
+                                                <th class="col-md-6">Módulo</th>
+                                                <th class="col-md-3">Distancia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle"> 
+                                                    {{item.departamentoAcademico.nombre}}
+                                                </td>
+                                                <td class="v-middle"> 
+                                                    {{item.pabellon.nombre}}
+                                                </td>
+                                                <td class="v-middle"> 
+                                                    {{item.distancia}}
+                                                </td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+
+                        </section>
+                    </section>
+                </section>
+                <modal-vik ref="modalConfirmar"
+                           v-bind="confirmarModal"
+                           v-bind:okaction="verGuardar">
+                    <div slot="body">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-lg-10">
+                                    <label>Departamento</label>                            
+                                    <multiselect v-model='departamentoTempo'                                             
+                                                 label="nombre"
+                                                 placeholder="Seleccione un departamento"
+                                                 track-by="id"
+                                                 v-bind:allow-empty="false"
+                                                 v-bind:options="departamentos"
+                                                 deselect-label=""
+                                                 select-label="Seleccione este departamento"
+                                                 v-on:input="verFactorDistanciaByDepartamentos">
+                                    </multiselect>
+                                </div>
+
+
+                                <div class="col-lg-2">
+                                    <label>Activar</label>
+                                    <label class="switch">
+                                        <input type="checkbox"
+                                               name=""
+
+                                               value="true"/>
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <form method="post" id="formDepartamentosModulos"   data-parsley-validate="true">
+                                        <h5>Módulo - Distancia</h5>
+                                        <table class="table table-striped">
+                                            <thead> 
+                                                <tr> 
+                                                    <th class="col-md-6 v-middle">Módulos</th>                                                                                                
+                                                    <th class="col-md-6 v-middle">Factor de Distancia</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="fac in factordist">                                           
+                                                    <td class="v-middle">
+                                                        {{fac.pabellon.nombre}}
+                                                    </td>
+                                                    <td class="v-middle">
+                                                        <input  type="text"
+                                                               min="1" max="9" class="form-control" v-model="fac.distancia"/>
+                                                    </td>
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </modal-vik>
+            </div>
+
+            <div th:substituteby="_modules/vue-modal"/>
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
+            <script th:src="@{/app/general/lejaniaDepartamento/lejaniaDepartamento.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
