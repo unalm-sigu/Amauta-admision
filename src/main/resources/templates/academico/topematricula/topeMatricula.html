@@ -1,0 +1,89 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Tope de Créditos Matrículados</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="topematriculaVUE">
+                <header class="header b-b padder-lg">
+                    <h2 th:text="|Tope de Créditos Matrículados ${ciclo.descripcion}|">Tope de Créditos Matrículados</h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <form method="post" id="formMatriculados"   data-parsley-validate="true">
+                                <div slot="header">
+                                    
+                                    <div class="col-md-6">
+                                        
+                                        <div class="form-group text-left" data-toggle="tooltip" data-placement="top">
+                                            <label>Editar</label>
+                                            <label class="switch">
+                                                <input type="checkbox" v-model="verForm" value="false" />
+                                                <span></span> 
+                                                <i></i>
+                                            </label>
+                                        </div>
+                                    </div>                            
+
+                                    <div class="col-md-4">
+                                        
+                                        <div class="btn-group" v-if="verForm">
+                                            <a type="button" class="btn btn-success" v-on:click="">Guardar</a>
+                                        </div>  
+                                        
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12">
+
+
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-6 v-middle">Tipo de Alumno</th>                                                                                                
+                                                <th class="col-md-6 v-middle">Tope de Crédito</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="mat in matriculaBD">                                           
+                                                <td class="v-middle">
+                                                   
+                                                   {{mat.tipoAlumno}}
+                                                </td>
+                                                <td class="v-middle">
+                                                    
+                                                    
+                                                    <input v-if="verForm" type="text"
+                                                            class="form-control" v-model="mat.creditos"/>
+                                                    <span v-else="" v-text="mat.creditos"></span>
+                                                    
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                            </form>
+
+                        </section>
+                    </section>
+                </section>
+            </div>
+
+
+        </div>
+
+        <div layout:fragment="js">
+
+            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/topeMatricula/topeMatricula.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
