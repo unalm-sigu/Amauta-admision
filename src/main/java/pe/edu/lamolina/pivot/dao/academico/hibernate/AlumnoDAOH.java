@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.dao.academico.hibernate;
+    package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;

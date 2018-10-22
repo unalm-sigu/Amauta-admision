@@ -175,7 +175,7 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 
             String tpc = ggss.getCurso().getTpc();
             
-            if (tpc != null && !tpcs.contains(tpc)) {
+            if (cicloDestino.getNumeroCiclo().equals("0") && tpc != null && !tpcs.contains(tpc)) {
                 tpcs.add(tpc);
 
                 PrecioCursoEstructura pce = new PrecioCursoEstructura();

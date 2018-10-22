@@ -1,0 +1,66 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Precios por estructura de cursos</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main" id="preciocursoestructuraVUE" v-cloak="">
+        <header class="header b-b padder-lg">
+            <h2 th:inline="text"> Precio por estructura de Cursos [[${cicloAcademico.descripcion}]]  </h2>
+        </header>
+
+        <section class="wrapper-lg">
+            <section class="panel">
+                <section class="panel-body">
+                    <div class="col-md-offset-2 col-md-8">
+                    <div class="row m-b-sm">
+                        <div class="col-md-6">
+                           <label class="switch"> Editar
+                                <input  type="checkbox" 
+                                        v-model="editar"
+                                        v-on:change="list"/>
+                                <span></span>
+                            </label> 
+                        </div>
+                        <div class="col-md-6 text-right" v-if="editar">
+                            <a href="#" class="btn btn-success btn-sm" v-on:click.prevent="guardar" v-if="!guardando"> Guardar </a>
+                            <a href="#" v-else="" class="btn btn-success btn-sm disabled"> <i class="fa fa-spinner"/> Guardando </a>
+                        </div>
+                    </div>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="col-md-4"> TPC </th>
+                                <th class="col-md-4 text-center"> Grupos </th>
+                                <th class="col-md-4 text-right"> Precio </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="estructura in estructuras">
+                                <td class="v-middle">
+                                    <span class="block m-t-sm m-b-sm"> {{ estructura.tpc }} </span>
+                                </td>
+                                <td class="v-middle text-center">
+                                    <span class="badge"> {{ estructura.cantidadGrupos }} </span>
+                                </td>
+                                <td class="v-middle text-right">
+                                    <input v-if="editar" class="form-control text-right" v-bind:disabled="guardando" v-model="estructura.precio"/>
+                                    <span v-else=""> {{ estructura.precio | currency }} </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </section>
+            </section>
+        </section>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/preciocursoestructura/preciocursoestructura.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>

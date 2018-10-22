@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
@@ -358,6 +359,24 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("CICLO", ciclo.getId());
+
+        query.executeUpdate();
+    }
+
+    @Override
+    public void updatePrecioByTpc(CicloAcademico cicloAcademico, String tpc, BigDecimal precio) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append(" update ").append(Seccion.class.getName()).append(" as s set precio = :PRECIO ");
+        sql.append(" where s.grupoSeccion in ( select gs.id from GrupoSeccion gs where concat( gs.curso.horasTeoria, '-', gs.curso.horasPractica, '-', gs.curso.creditos ) = :TPC and gs.cicloAcademico = :CICLO ) ");
+        sql.append(" and s.tipoSeccion != :TCUR ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+
+        query.setParameter("TPC", tpc);
+        query.setParameter("PRECIO", precio);
+        query.setParameter("CICLO", cicloAcademico);
+        query.setParameter("TCUR", TipoSeccionEnum.TCUR.name());
 
         query.executeUpdate();
     }
