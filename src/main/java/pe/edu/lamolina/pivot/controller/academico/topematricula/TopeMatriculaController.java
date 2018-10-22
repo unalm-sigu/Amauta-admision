@@ -49,11 +49,11 @@ public class TopeMatriculaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            List<TopeMatricula> topeMatricula = service.allTopeMatricula(filter, ds.getCicloAcademico());
+            List<TopeMatricula> topesMatricula = service.allTopeMatricula(filter, ds.getCicloAcademico());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (TopeMatricula topMatricula : topeMatricula) {
+            for (TopeMatricula topMatricula : topesMatricula) {
                 ObjectNode node = JsonHelper.createJson(topMatricula, JsonNodeFactory.instance, true,
                         new String[]{
                             "cicloAcademico.descripcion2",
