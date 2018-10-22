@@ -4,9 +4,12 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.TopeMatricula;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface TopeMatriculaService {
 
     List<TopeMatricula> allTopeMatricula(DynatableFilter filter, CicloAcademico cicloAcademico);
+
+    void save(List<TopeMatricula> topeMatricula, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
 }

@@ -32,14 +32,14 @@
                                     <div class="col-md-4">
                                         
                                         <div class="btn-group" v-if="verForm">
-                                            <a type="button" class="btn btn-success" v-on:click="">Guardar</a>
+                                            <a type="button" class="btn btn-success" v-on:click="verGuardar()">Guardar</a>
                                         </div>  
                                         
                                     </div>
                                 </div>
 
                                 <div class="col-lg-12">
-
+                                    
 
                                     <table class="table table-striped">
                                         <thead> 
@@ -50,10 +50,12 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr v-for="mat in matriculaBD">                                           
+                                        
+                                            <tr v-for="mat in matricula"> 
+                                        
                                                 <td class="v-middle">
                                                    
-                                                   {{mat.tipoAlumno}}
+                                                   {{mat.tipoAlumnoEnum.value}}
                                                 </td>
                                                 <td class="v-middle">
                                                     
