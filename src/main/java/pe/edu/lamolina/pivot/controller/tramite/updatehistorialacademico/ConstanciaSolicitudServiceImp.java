@@ -49,7 +49,7 @@ import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
-import static pe.edu.lamolina.model.enums.VariableContenidoEnum.CICLO_ACADEMICO;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.CICLO_ACADEMICO;
 import pe.edu.lamolina.model.finanzas.AcreenciaTramiteDocumento;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
