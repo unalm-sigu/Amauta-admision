@@ -5,43 +5,30 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
-import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
 import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.enums.AmpliacionVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
-import pe.edu.lamolina.model.general.Aula;
-import pe.edu.lamolina.model.general.Colaborador;
-import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionService;
-import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
-import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
-import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
@@ -50,10 +37,7 @@ import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionModalidadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionRepitenciaDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
-import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
-import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.pivot.dao.academico.AmpliacionVacantesDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -363,23 +347,6 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 
         }
 
-    }
-
-    @Override
-    public List<Alumno> allAlumnoBySeccion(Seccion seccion) {
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
-        Map<Long, Alumno> alumnos = TypesUtil.convertListToMap("matriculaResumen.alumno.id", "matriculaResumen.alumno", matriculasSeccion);
-        return alumnos.values().stream().collect(Collectors.toList());
-    }
-
-    @Override
-    public void trasladar(Fusion trasladoForm) {
-        Seccion seccion = seccionDAO.find(trasladoForm.getSeccion());
-        logger.debug("seccion {}", seccion.getId());
-        List<Alumno> alumnos = trasladoForm.getAlumnos();
-        for (Alumno alumno : alumnos) {
-            logger.debug("alumno {}", alumno.getId());
-        }
     }
 
 }
