@@ -202,24 +202,23 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     @Transactional
-    public PlanCurricular savePlanCurricular(PlanCurricular planCurricular) {
-        planCurricular.setEstadoEnum(EstadoEnum.CRE);
+    public PlanCurricular savePlanCurricular(PlanCurricular planForm) {
+        ObjectUtil.eliminarAttrSinId(planForm);
+        planForm.setEstadoEnum(EstadoEnum.CRE);
+        planCurricularDAO.save(planForm);
 
-        if (ObjectUtil.getParentTree(planCurricular, "orientacionCarrera.id") == null) {
-            planCurricular.setOrientacionCarrera(null);
-        }
-
-        planCurricularDAO.save(planCurricular);
-        return planCurricular;
+        return planForm;
     }
 
     @Override
     @Transactional
-    public void updatePlanCurricular(PlanCurricular planCurricular) {
-        if (ObjectUtil.getParentTree(planCurricular, "orientacionCarrera.id") == null) {
-            planCurricular.setOrientacionCarrera(null);
-        }
-        planCurricularDAO.updatePlanCurricular(planCurricular);
+    public void updatePlanCurricular(PlanCurricular planForm) {
+        ObjectUtil.eliminarAttrSinId(planForm);
+        PlanCurricular planBD = planCurricularDAO.find(planForm.getId());
+        planBD.setOrientacionCarrera(planForm.getOrientacionCarrera());
+        planBD.setCicloInicioVigencia(planForm.getCicloInicioVigencia());
+        planBD.setFechaAprobado(planForm.getFechaAprobado());
+        planCurricularDAO.updatePlanCurricular(planBD);
     }
 
     @Override

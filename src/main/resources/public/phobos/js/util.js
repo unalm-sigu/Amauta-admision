@@ -624,6 +624,13 @@ AXIOS.interceptors.response.use(function (response) {
     return Promise.reject(error);
 });
 
+Vue.filter('currency', function (value) {
+    if(Number.isNaN(parseFloat(value))){
+        return '';
+    }
+    return parseFloat(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+});
+
 /**
  *
  *  Base64 encode / decode

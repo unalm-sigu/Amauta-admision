@@ -364,6 +364,7 @@ public class ProfesorController {
                 node.put("ubicacionDomicilioNombre", personaBD.getUbicacionDomicilio() != null ? personaBD.getUbicacionDomicilio().getDistrito() : null);
                 node.put("direccion", personaBD.getDireccion());
                 node.put("foto", personaBD.getFoto());
+                node.put("conDiscapacidad", personaBD.getConDiscapacidad());
 
                 response.setSuccess(true);
             }

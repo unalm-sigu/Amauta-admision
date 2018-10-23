@@ -24,7 +24,7 @@
     <div class="form-group">
 
         <label>Número de documento de identidad</label>
-        
+
         <input type="text"
                v-model="docente.persona.numeroDocIdentidad"
                v-bind:value="docente.persona.numeroDocIdentidad"
@@ -82,7 +82,7 @@
 <div class="col-sm-6">
     <div class="form-group">
         <label >Correo  Institucional</label>
-        
+
         <input  class="inline form-control"
                 data-trigger="change" required="true" type="email"
                 data-trim-value="true"
@@ -200,6 +200,25 @@
         <paissearh 
             v-bind:pais="docente.persona.nacionalidad"
             v-bind:nombre="'persona.nacionalidad.id'"/>
+
+    </div>
+</div>
+
+<div class="col-sm-6">
+    <div class="form-group">
+
+        <label>Con Discapacidad</label>
+
+        <div>
+            <label class="switch"> 
+                <input type="checkbox"
+                       name="encuestaTeoriaPractica"
+
+                       value="true"/>
+                <span></span>
+            </label>
+        </div>
+        
 
     </div>
 </div>

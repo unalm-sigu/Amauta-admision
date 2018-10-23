@@ -1,0 +1,123 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Configurar Cuotas por Anexo</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="cuotagpohorasVUE">
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success" v-on:click="verNuevoAnexo()">Configurar Cuotas</a>
+                        </div>
+                    </div> 
+                    <h2 th:text="|Configurar Cuotas por Anexo ${ciclo.descripcion}|">Configurar Cuotas por Anexo</h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+
+                            <raptor-table v-bind:url="cuotagpohorasURL" ref="raptorCuotaGpoHoras">
+
+                                <template  scope="props" >
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-6">Anexo</th>
+                                                <th class="col-md-2">Grupo</th>
+                                                <th class="col-md-2">Cuota</th>
+                                                <th class="col-md-1">Asignación Automática</th>
+                                                <th class="col-md-1">Total</th>
+                                                
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle">
+                                                    {{item.anexoBoletin.nombre}}
+                                                </td>
+                                                <td class="v-middle"> 
+                                                    {{item.grupoHoras.codigo}}
+                                                </td>
+                                                <td class="v-middle"> 
+                                                    {{item.cuotas}}
+                                                </td>
+                                                <td class="v-middle"> 
+                                                    {{item.asignadasSistema}}
+                                                </td>
+                                                <td class="v-middle"> 
+                                                    {{item.totalUtilizadas}}
+                                                </td>   
+                                                
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+                <modal-vik ref="modalConfirmar"
+                           v-bind="confirmarModal"
+                           v-bind:okaction="verGuardar">
+                    <div slot="body">                                                
+                        <div class="form-group">
+                            <label>Anexos</label>                            
+                            <multiselect v-model='anexoTempo'                                             
+                                         label="nombre"
+                                         placeholder="Seleccione un Anexo"
+                                         track-by="id"
+                                         v-bind:allow-empty="false"
+                                         v-bind:options="anexos"
+                                         deselect-label=""
+                                         select-label="Seleccione este anexo"
+                                         v-on:input="verCuotasByAnexo">
+                            </multiselect>
+                        </div>
+
+                        
+                        <form method="post" id="formGruposCuotas"   data-parsley-validate="true">
+                            <h5>Grupos y Cuotas</h5>
+                            <table class="table table-striped">
+                                <thead> 
+                                    <tr> 
+                                        <th class="col-md-6 v-middle">Grupo</th>                                                                                                
+                                        <th class="col-md-6 v-middle">Cuota</th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="cuo in cuotas">                                           
+                                        <td class="v-middle">
+                                            {{cuo.grupoHoras.codigo}}
+                                        </td>
+                                        <td class="v-middle">
+                                            <input required="" class="form-control" v-model="cuo.cuotas"/>
+                                        </td>
+                                                                                
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </form>
+
+                    </div>
+                </modal-vik>
+
+            </div>
+
+            <div th:substituteby="_modules/vue-modal"/>
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/cuotagpohoras/cuotagpohoras.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

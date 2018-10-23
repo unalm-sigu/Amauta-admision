@@ -1,0 +1,97 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Lejanía Facultad Módulos</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="lejaniadepartamentoVUE">
+                <header class="header b-b padder-lg">
+                    <h2>Lejanía Facultad Módulos</h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            
+                            <form method="post" id="formDepartamentosModulos"   data-parsley-validate="true">
+                                <div slot="header">
+
+                                    <div class="col-md-6">
+                                        <multiselect v-model='departamentoTempo'
+                                                     v-bind:options='departamentos'
+                                                     v-bind:allow-empty="false"
+                                                     label='nombre'
+                                                     placeholder="Seleccione un departamento"
+                                                     deselect-label=""
+                                                     select-label="Seleccione este departamento"
+                                                     track-by='id'
+                                                     v-on:input="verFactorDistanciaByDepartamentos">
+                                        </multiselect>
+                                    </div>
+
+                                    <div class="col-md-4">
+
+                                        <div class="form-group" title="Activar cuadro de texto" data-toggle="tooltip" data-placement="top">
+                                            <label class="switch">
+                                                <input type="checkbox" v-model="verForm" value="true" />
+                                                <span></span> 
+                                                <i></i>
+                                            </label>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <div class="btn-group" v-if="verForm">
+                                            <a type="button" class="btn btn-success" v-on:click="verGuardar()">Guardar</a>
+                                        </div>                                    
+                                    </div>
+                                </div>
+
+                                
+                                <div class="col-lg-12">
+                                   
+
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-6 v-middle">Módulos</th>                                                                                                
+                                                <th class="col-md-6 v-middle">Factor de Distancia</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="fac in factordist">                                           
+                                                <td class="v-middle">
+                                                    {{fac.pabellon.nombre}}
+                                                </td>
+                                                <td class="v-middle">
+                                                    <input v-if="verForm" type="text"
+                                                            min="1" max="9" class="form-control" v-model="fac.distancia"/>
+                                                    <span v-else="" v-text="fac.distancia"></span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    
+                                </div>
+                                
+                            </form>
+                            
+                        </section>
+                    </section>
+                </section>
+            </div>
+
+
+        </div>
+
+        <div layout:fragment="js">
+
+            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
+            <script th:src="@{/app/general/lejaniaDepartamento/lejaniaDepartamento.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

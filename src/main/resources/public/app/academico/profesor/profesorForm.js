@@ -297,6 +297,7 @@ new Vue({
                         form.find('[name="persona.emailCompania"]').val(data.emailCompania);
                         form.find('[name="persona.sexo"]').val([data.sexo]);
                         form.find('[name="persona.paisNacer.id"]').select2('data', {id: data.paisNacerId, nombre: data.paisNacerNombre});
+                        form.find('[name="persona.conDiscapacidad"]').val([data.conDiscapacidad]);
 
                         var paisPeru = $('[name="persona.paisNacer.id"]').val();
                         if (paisPeru === '178') {
@@ -354,6 +355,7 @@ new Vue({
                         form.find('[name="persona.paisDomicilio.id"]').select2('val', '');
                         form.find('[name="persona.ubicacionDomicilio.id""]').select2('val', '');
                         form.find('[name="persona.direccion"]').val('');
+                        form.find('[name="persona.conDiscapacidad"]').val('');
                         vue.avatarInit();
                     }
                 },
