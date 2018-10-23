@@ -17,13 +17,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.TipoPlantillaDocumentoEnum;
+import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.PlantillaIncrustacionDocumento;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -71,13 +77,21 @@ public class PlantillaIncrustacionController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
         ArrayNode tipoPlantilla = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode idiomaJson = new ArrayNode(JsonNodeFactory.instance);
+        List<Idioma> listIdioma = service.allIdioma();
         for (TipoPlantillaDocumentoEnum value : TipoPlantillaDocumentoEnum.values()) {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("name", value.name());
             node.put("value", value.getValue());
             tipoPlantilla.add(node);
         }
+        for (Idioma idioma : listIdioma) {
+            idiomaJson.add(JsonHelper.createJson(idioma, JsonNodeFactory.instance, new String[]{
+                "*"
+            }));
+        }
         model.addAttribute("tipos", tipoPlantilla);
+        model.addAttribute("idiomas", idiomaJson);
         return "tramite/plantillaIncrustacion/plantillaIncrustacion";
     }
 
@@ -103,5 +117,51 @@ public class PlantillaIncrustacionController {
             json.setTotal(0);
         }
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("save")
+    public JsonResponse update(@RequestBody PlantillaDocumentoAcademico plantillaDocumentoAcademico, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        response.setSuccess(false);
+        try {
+
+            if (plantillaDocumentoAcademico.getId() == null) {
+                service.save(plantillaDocumentoAcademico, ds.getUsuario());
+                response.setMessage("Se agregó satisfactoriamente");
+            } else {
+                service.update(plantillaDocumentoAcademico, ds.getUsuario());
+                response.setMessage("Se actualizó satisfactoriamente");
+            }
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("delete/{id}")
+    public JsonResponse delete(@PathVariable(value = "id") Long id, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        response.setSuccess(false);
+        try {
+
+            service.delete(id);
+            response.setMessage("Se eliminó satisfactoriamente");
+
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 }

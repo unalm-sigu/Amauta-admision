@@ -27,4 +27,12 @@ public class PaisDAOH extends AbstractEasyDAO<Pais> implements PaisDAO {
         return sql.all(getCurrentSession());
     }
 
+    @Override
+    public Pais findByCodigo(String codigo) {
+        Octavia sql = Octavia.query()
+                .from(Pais.class, "pa")
+                .filter("codigo", codigo);
+        return find(sql);
+    }
+
 }

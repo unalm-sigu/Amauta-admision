@@ -794,6 +794,10 @@ var app = new Vue({
                     return;
                 }
 
+                console.log("seccion.id:: " + seccion.id);
+                console.log("seccion.vacantes:: " + seccion.vacantes);
+                console.dir(seccion)
+
                 $.ajax({
                     url: APP.url('academico/gposeccion/cambiarVacantesSeccion'),
                     type: 'POST',
@@ -805,9 +809,9 @@ var app = new Vue({
                     success: function (response) {
                         if (response.success) {
                             notify(response.message, "info");
-                            $vue.loadSecciones();
+                            $vue.loadGpoSeccionFlash();
                         } else {
-                            $vue.loadSecciones();
+                            
                             notify(response.message, "error");
                         }
                     },
@@ -1269,13 +1273,14 @@ var app = new Vue({
                 data: $('#aceptarFormSolicitarIncremento').serialize(),
                 success: function (response) {
                     if (response.success) {
-
+                        console.log("aumento")
                         $vue.allSolicitarIncremento();
                         $vue.loadGpoSeccionFlash();
                         $vue.$refs.aceptarSolicitudIncremento.close();
                         notify(response.message, 'info');
 
                     } else {
+                        console.log(" no aumento")
                         notify(response.message, 'error');
                     }
                 },

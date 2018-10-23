@@ -184,7 +184,6 @@ public class ProgDataServiceImp implements ProgDataService {
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
         String email = null;
-//        List<Persona> personasVinculadas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
         Persona main = null;
         for (Persona persona : personasVinculadas) {
             if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
@@ -222,7 +221,6 @@ public class ProgDataServiceImp implements ProgDataService {
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
         Persona dni = new Persona();
-//        List<Persona> personasVinculadas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
         Persona main = null;
         for (Persona persona : personasVinculadas) {
             if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
@@ -257,7 +255,6 @@ public class ProgDataServiceImp implements ProgDataService {
             String emailCompania,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
-//        List<Persona> personasVinculadas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
         Persona main = null;
         for (Persona persona : personasVinculadas) {
             if (persona.getEstadoEnum() == PersonaEstadoEnum.ACT) {
@@ -761,31 +758,26 @@ public class ProgDataServiceImp implements ProgDataService {
             if (persona.getId() == main.getId().longValue()) {
                 continue;
             }
-            //logger.debug("cambiando el ID de {} a {}", persona.getId(), main.getId());
 
             List<Postulante> postulantes = postulanteDAO.allByPersona(persona);
-            //logger.debug("se hallo {} postulantes", postulantes.size());
             for (Postulante postulante : postulantes) {
                 postulante.setPersona(main);
                 postulanteDAO.update(postulante);
             }
 
             List<Alumno> alumnos = alumnoDAO.allByPersona(persona);
-            //logger.debug("se hallo {} alumnos", alumnos.size());
             for (Alumno alumno : alumnos) {
                 alumno.setPersona(main);
                 alumnoDAO.update(alumno);
             }
 
             List<Docente> docentes = docenteDAO.allByPersona(persona);
-            //logger.debug("se hallo {} docentes", docentes.size());
             for (Docente docente : docentes) {
                 docente.setPersona(main);
                 docenteDAO.update(docente);
             }
 
             List<PersonaCargo> persoPerfiles = personaCargoDAO.allByPersona(persona);
-            //logger.debug("se hallo {} perfiles", persoPerfiles.size());
             for (PersonaCargo pp : persoPerfiles) {
                 pp.setPersona(main);
                 personaCargoDAO.update(pp);
@@ -837,10 +829,8 @@ public class ProgDataServiceImp implements ProgDataService {
                 }
             }
             if (userMain != null) {
-                //userMain.setPersona(main);
                 usuario.setPersona(null);
                 usuarioDAO.update(usuario);
-                //usuarioDAO.update(userMain);
             } else {
                 userMain = usuario;
             }
@@ -1315,7 +1305,6 @@ public class ProgDataServiceImp implements ProgDataService {
             return null;
         }
 
-        //GrupoHoras gpoHoras = grupoHorasDAO.findByCode(codigo);
         GrupoHoras gpoHoras = mapGpoHoraBD.get(codigo);
         if (gpoHoras == null) {
             String msg = String.format("El grupo-horas %s de la seccion %s no existe en la base de datos",
@@ -1331,7 +1320,6 @@ public class ProgDataServiceImp implements ProgDataService {
             return null;
         }
 
-        //Aula aula = aulaDAO.findByCode(codigo);
         Aula aula = mapAulaBD.get(codigo);
         if (aula == null && ciclo.getCodigo().compareTo("201710") >= 0) {
             String msg = String.format("El aula %s de la seccion %s no existe en la base de datos",
@@ -1459,26 +1447,6 @@ public class ProgDataServiceImp implements ProgDataService {
         }
 
     }
-
-//    private boolean existeCurso(List<MatriculaCurso> alumnoCursos, Curso curso) {
-//        for (MatriculaCurso alumnoCurso : alumnoCursos) {
-//            Curso cur = alumnoCurso.getCurso();
-//            if (cur.getId().longValue() == curso.getId()) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    private boolean existeSeccion(List<MatriculaSeccion> alumnoSecciones, Seccion seccion) {
-//        for (MatriculaSeccion alumnoSeccion : alumnoSecciones) {
-//            Seccion secc = alumnoSeccion.getSeccion();
-//            if (secc.getId().longValue() == seccion.getId()) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     @Async
     @Override
@@ -2098,20 +2066,4 @@ public class ProgDataServiceImp implements ProgDataService {
 
         return Integer.valueOf(dato);
     }
-
-    private Date getCellDateValue(int pos, Row row) {
-        Cell cell = row.getCell(pos);
-        if (cell == null) {
-            return null;
-        }
-        if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-            if (cell.getStringCellValue().equals("")) {
-                return null;
-            }
-            System.out.println("CONTE::: <<" + cell.getStringCellValue() + ">>");
-        }
-        Date dato = cell.getDateCellValue();
-        return dato;
-    }
-
 }

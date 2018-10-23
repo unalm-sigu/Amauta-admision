@@ -4,12 +4,12 @@
     </head>
     <body>
         <div layout:fragment="main">
-            <div id="plantillaVUE"  >
+            <div id="plantillaVUE" v-cloak=""  >
 
                 <header class="header b-b padder-lg">
 
                     <div class="btn-group pull-right">
-                        <a type="button" class="btn btn-success btn-sm dropdown-toggle" v-on:click="nuevo">
+                        <a type="button" class="btn btn-success btn-sm dropdown-toggle" v-on:click="nuevo(null)">
                             &nbsp; Nuevo &nbsp;
                         </a>
                     </div>
@@ -17,31 +17,33 @@
                     <h2>Plantilla Incrustación</h2>
 
                 </header>
-                <section class="panel-body">
-                    <section class="panel-body">
+                <section class="panel-body col-md-6 col-md-offset-2">
+                    <section class="panel-body ">
                         <raptor-table v-bind:url="plantillaURL" ref="load">
                             <template  scope="props" >
-                                <table  class="table table-striped table-hover">
+                                <table  class="table table-striped table-hover " >
                                     <thead>
                                         <tr>
-                                            <th class="col-md-4 text-left" colspan="2">Nombre</th>
-                                            <th class="col-md-3 text-left">Idioma</th>
+                                            <th class="col-md-6 text-left">Nombre</th>
+                                            <th class="col-md-6 text-left">Idioma</th>
                                             <th ></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="item in props.data">
                                             <td class="v-middle">
-
+                                                <span v-text="item.nombre"></span>
                                             </td>
                                             <td class="v-middle text-left">
-
+                                                <span v-text="item.idioma.nombre"></span>
                                             </td>
                                             <td class="v-middle">
                                                 <div class="actions">
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-option-vertical"></i></a>
                                                     <ul class="dropdown-menu pull-right">
-                                                        <li><a  v-on:click="update(item)">Cancelar</a></li>
+                                                        <li><a  v-on:click="nuevo(item)">Actualizar</a></li>
+                                                        <li><a v-bind:href="'/tramite/plantillaconstancia/'+item.id" >Contenido</a></li>
+                                                        <li><a  v-on:click="delete(item)">Eliminar</a></li>
                                                     </ul>
                                                 </div>
                                             </td>
@@ -52,14 +54,18 @@
                         </raptor-table>
                     </section>
                 </section>
+                <div th:substituteby="tramite/plantillaIncrustacion/incrustacionModal"></div>
             </div>
         </div>
         <div layout:fragment="js">
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var tiposJson = /*[[${tipos.toString()}]]*/ 'json';
+                var idiomasJson = /*[[${idiomas.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/tramite/plantillaIncrustacion/plantillaIncrustacion.js}" charset="utf-8"></script>
         </div>

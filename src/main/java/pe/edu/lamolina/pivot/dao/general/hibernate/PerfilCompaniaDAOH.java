@@ -55,7 +55,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     public List<PerfilCompania> allTipoFuncion() {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .filter("tipo", TipoPerfilCompaniaEnum.PERFIL.name());
+                .filter("tipo", TipoPerfilCompaniaEnum.FUNCION.name());
 
         return all(sql);
     }
@@ -79,7 +79,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
                 .from(PerfilCompania.class, "pc")
                 .join("compania cia")
                 .leftJoin("oficinaContiene oc")
-                .filter("tipo", TipoPerfilCompaniaEnum.PERFIL.name())
+                .filter("tipo", TipoPerfilCompaniaEnum.FUNCION.name())
                 .filter("cia.id", compania)
                 .beginBlock()
                 .__().filter("pc.nombre", "like", nombre)
@@ -127,7 +127,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     public PerfilCompania findFuncionByNombre(String nombre) {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .filter("pc.tipo", TipoPerfilCompaniaEnum.PERFIL.name())
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.FUNCION.name())
                 .filter("pc.nombre", nombre);
         return find(sql);
     }
@@ -136,7 +136,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     public PerfilCompania findUltimoCodigoFuncion() {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .filter("pc.tipo", TipoPerfilCompaniaEnum.PERFIL.name())
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.FUNCION.name())
                 .filter("pc.esAutomatico", 1)
                 .orderBy("id desc")
                 .limit(1);
@@ -166,7 +166,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
                 .__().filter("pc.oficinaContiene", oficina)
                 .__().isNull("pc.oficinaContiene")
                 .endBlock()
-                .filter("pc.tipo", TipoPerfilCompaniaEnum.PERFIL);
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.FUNCION);
         
         return all(sql);
     }

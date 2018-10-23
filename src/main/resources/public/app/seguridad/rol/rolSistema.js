@@ -67,7 +67,7 @@ new Vue({
                 url: APP.url('seguridad/rol/allfuncionrol'),
                 type: 'POST',
                 async: false,
-                data: {'rol.id': rol.id, 'perfilCompania.tipo': 'PERFIL'},
+                data: {'rol.id': rol.id, 'perfilCompania.tipo': 'FUNCION'},
                 success: function (response) {
                     if (response.success) {
                         vue.funciones = response.data;

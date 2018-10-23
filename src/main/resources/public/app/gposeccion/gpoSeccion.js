@@ -23,9 +23,13 @@ new Vue({
         restriccionModal: {
             id: 'modalRestriccion',
             header: true,
-            seccionSelect: {},
             title: 'Restricciones Modalidad / Facultad / Especialidad',
-            //okbtn: 'Aceptar',
+            modalsize: 'modal-md'
+        },
+        nuevoGpoSeccModal: {
+            id: 'modalNuevoGpoSecc',
+            header: true,
+            title: 'Nuevo grupo de secciones',
             modalsize: 'modal-md'
         },
         dataCloneCiclo: {
@@ -43,24 +47,18 @@ new Vue({
             postGrados: 0,
             actividades: 0
         },
-        orderbycodigo: false
+        orderbycodigo: false,
+        cursos: [],
+        isLoadingCursos: false,
+        anexosPadres: [],
+        anexosHijos: [],
+        anexoPadreCurso: {},
+        newGrupoSeccion: {curso: {}, anexoBoletin: {}}
     },
     watch: {
         orderbycodigo() {
-
             let $vue = this;
             $vue.loadRegistros(null);
-
-//            if ($vue.orderbycodigo) {
-//                $vue.$refs.load.querie.push({name: 'order-codigo', value: 'asc'});
-//            } else {
-//                var myfilter = $vue.$refs.load.querie.find(item => item.name === 'order-codigo');
-//                var inx = $vue.$refs.load.querie.indexOf(myfilter);
-//                $vue.$refs.load.querie.splice(inx, 1);
-//            }
-//
-//            $vue.$refs.load.loadRemoteData();
-
         }
     },
     mounted: function () {
@@ -94,6 +92,136 @@ new Vue({
 
     },
     methods: {
+        verTexto(a, b) {
+            let vue = this;
+            
+//            console.log(a.target.value)
+//            console.log(b)
+            var nom = APP.revisarNombre2(a.target.value);
+            console.log(nom)
+
+            vue.newGrupoSeccion.cantidad = nom;
+            //console.log(b)
+        },
+        nuevoGpoSecc() {
+            let $vue = this;
+            $vue.newGrupoSeccion = {curso: {}, anexoBoletin: {}};
+            $vue.$refs.modalNuevoGpoSecc.open();
+        },
+        saveGpoSecc() {
+            let $vue = this;
+            var form = $("#formNuevoGpoSecc");
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            $.ajax({
+                url: APP.url('academico/gposeccion/saveGpoHeader'),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify($vue.newGrupoSeccion),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.modalNuevoGpoSecc.close();
+                        let rpta = response.data;
+                        let lista = Base64.encode(rpta.lista);
+                        location.href = APP.url("academico/gposeccion/" + rpta.primero + "/editar") + $vue.getOrigenURL() + "&ids=" + lista;
+                        notify(response.message, 'info');
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        verAnexoSuperior(item) {
+            let $vue = this;
+            let anxSup = {};
+            $vue.anexosHijos = [];
+
+            for (var i = 0; i < $vue.anexosPadres.length; i++) {
+                if (item.modalidadEstudio.codigo == 'PRE' && $vue.anexosPadres[i].id == 2) {
+                    anxSup = $vue.anexosPadres[i];
+                }
+                if (item.modalidadEstudio.codigo == 'EPG' && $vue.anexosPadres[i].id == 4) {
+                    anxSup = $vue.anexosPadres[i];
+                }
+            }
+
+            for (var i = 0; i < $vue.anexos.length; i++) {
+                let anx = $vue.anexos[i];
+                if (anxSup.id == anx.anexoSuperior.id) {
+
+                    $vue.anexosHijos.push(anx);
+                    if (item.modalidadEstudio.codigo == 'PRE' && item.departamentoAcademico.codigo == anx.codigo) {
+                        $vue.newGrupoSeccion.anexoBoletin = anx;
+                    }
+                    if (item.modalidadEstudio.codigo == 'EPG' && item.carrera.codigo == anx.codigo) {
+                        $vue.newGrupoSeccion.anexoBoletin = anx;
+                    }
+                }
+            }
+            $vue.anexoPadreCurso = anxSup;
+        },
+        verAnexosHijos(item) {
+            let $vue = this;
+            let modal = $vue.newGrupoSeccion.curso.modalidadEstudio;
+            let dpto = $vue.newGrupoSeccion.curso.departamentoAcademico;
+            let carr = $vue.newGrupoSeccion.curso.carrera;
+            console.log(modal.codigo + " ::: " + dpto.codigo + " ::: " + carr.codigo)
+
+            $vue.anexosHijos = [];
+            $vue.newGrupoSeccion.anexoBoletin = {};
+
+            //*
+            for (var i = 0; i < $vue.anexos.length; i++) {
+                let anx = $vue.anexos[i];
+                if (item.id == anx.anexoSuperior.id) {
+                    console.log("cod-anx ::: " + anx.codigo)
+                    $vue.anexosHijos.push(anx);
+                    if (modal.codigo == 'PRE' && dpto.codigo == anx.codigo) {
+                        $vue.newGrupoSeccion.anexoBoletin = anx;
+                    }
+                    if (modal.codigo == 'EPG' && carr.codigo == anx.codigo) {
+                        $vue.newGrupoSeccion.anexoBoletin = anx;
+                    }
+                }
+            }
+            //*/
+        },
+        labelCurso(item) {
+            if (item.id == undefined) {
+                return "";
+            }
+            return item.codigo + " - " + item.nombre;
+        },
+        searchCursos(nombre) {
+            let $vue = this;
+            $vue.isLoadingCursos = true;
+            $.ajax({
+                url: APP.url('academico/gposeccion//allCursos'),
+                dataType: 'json',
+                type: 'POST',
+                async: true,
+                data: {nombre: nombre},
+                success(response) {
+                    $vue.isLoadingCursos = false;
+                    if (response.success) {
+                        $vue.cursos = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
         verRestriccion(seccion, gpoSecc, tipo) {
             let $vue = this;
             seccion.grupoSeccion = gpoSecc;
@@ -181,6 +309,7 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.anexos = response.data.anexos;
+                        $vue.anexosPadres = response.data.anexosSup;
                         $vue.loadAnexosVisibles();
 
                         let anx = $vue.$refs.load.getParameterByName('queries[anexo]');

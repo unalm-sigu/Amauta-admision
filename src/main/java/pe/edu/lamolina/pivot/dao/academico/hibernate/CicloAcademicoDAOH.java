@@ -329,6 +329,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .__().filter("ca.descripcion2", "like", nombre)
                 .__().filter("ca.descripcion3", "like", nombre)
                 .endBlock()
+                .filter("me.codigo", ModalidadEstudioEnum.PRE)
                 .limit(15);
 
         return all(sql);

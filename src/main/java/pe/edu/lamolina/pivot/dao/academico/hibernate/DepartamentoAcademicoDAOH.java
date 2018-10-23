@@ -207,7 +207,7 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
     public List<DepartamentoAcademico> allActivos() {
         Octavia sql = Octavia.query()
                 .from(DepartamentoAcademico.class, "da")
-                .leftJoin("facultad fa")
+                .join("facultad fa")
                 .filter("da.estado", EstadoEnum.ACT)
                 .orderBy("da.nombre");
         

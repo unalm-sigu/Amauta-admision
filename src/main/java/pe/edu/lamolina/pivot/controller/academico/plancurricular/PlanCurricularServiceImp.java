@@ -35,15 +35,15 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.CRE;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
-import static pe.edu.lamolina.model.enums.PostulanteApoyoEstadoEnum.ELE;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELE;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELF;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.OBL;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.PROD;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.TECIND;
-import static pe.edu.lamolina.model.enums.TipoGrupoHorariosEnum.OBL;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -202,24 +202,23 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     @Transactional
-    public PlanCurricular savePlanCurricular(PlanCurricular planCurricular) {
-        planCurricular.setEstadoEnum(EstadoEnum.CRE);
+    public PlanCurricular savePlanCurricular(PlanCurricular planForm) {
+        ObjectUtil.eliminarAttrSinId(planForm);
+        planForm.setEstadoEnum(EstadoEnum.CRE);
+        planCurricularDAO.save(planForm);
 
-        if (ObjectUtil.getParentTree(planCurricular, "orientacionCarrera.id") == null) {
-            planCurricular.setOrientacionCarrera(null);
-        }
-
-        planCurricularDAO.save(planCurricular);
-        return planCurricular;
+        return planForm;
     }
 
     @Override
     @Transactional
-    public void updatePlanCurricular(PlanCurricular planCurricular) {
-        if (ObjectUtil.getParentTree(planCurricular, "orientacionCarrera.id") == null) {
-            planCurricular.setOrientacionCarrera(null);
-        }
-        planCurricularDAO.updatePlanCurricular(planCurricular);
+    public void updatePlanCurricular(PlanCurricular planForm) {
+        ObjectUtil.eliminarAttrSinId(planForm);
+        PlanCurricular planBD = planCurricularDAO.find(planForm.getId());
+        planBD.setOrientacionCarrera(planForm.getOrientacionCarrera());
+        planBD.setCicloInicioVigencia(planForm.getCicloInicioVigencia());
+        planBD.setFechaAprobado(planForm.getFechaAprobado());
+        planCurricularDAO.updatePlanCurricular(planBD);
     }
 
     @Override
@@ -250,6 +249,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoCurricula.setNumeroCurso(nroCurso);
         cursoCurricula.setUserRegistro(ds.getUsuario());
         cursoCurricula.setFechaRegistro(new Date());
+        cursoCurricula.setRequisitosOr(cursoCurricula.getRequisitosOr() == null ? false : cursoCurricula.getRequisitosOr());
         cursoCurriculaDAO.save(cursoCurricula);
         for (RequisitoCursoCurricula requisito : requisitos) {
             requisitoCursoCurriculaDAO.save(requisito);
@@ -438,6 +438,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoCurricula.setCreditosRequisito(cursoOpcionalBD.getCreditosRequisito());
         cursoCurricula.setCurso(cursoOpcionalBD.getCurso());
         cursoCurricula.setPlanCurricular(cursoOpcionalBD.getPlanCurricular());
+        cursoCurricula.setRequisitosOr(cursoOpcionalBD.getRequisitosOr());
         cursoCurricula.setTipoCursoCurricula(cursoCurriculaForm.getTipoCursoCurricula());
         cursoCurricula.setNumeroCiclo(cursoCurriculaForm.getNumeroCiclo());
         cursoCurricula.setNumeroCurso(nroCurso);
@@ -518,6 +519,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         cursoOpcional.setUserRegistro(ds.getUsuario());
         cursoOpcional.setFechaRegistro(new Date());
+        cursoOpcional.setRequisitosOr(cursoOpcional.getRequisitosOr() == null ? false : cursoOpcional.getRequisitosOr());
         cursoOpcionalCurriculaDAO.save(cursoOpcional);
         for (RequisitoCursoOpcional requisito : requisitos) {
             requisitoCursoOpcionalDAO.save(requisito);
@@ -930,11 +932,13 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             cc.setCreditosRequisito(curso.getCreditosRequisito());
             cc.setFechaRegistro(new Date());
             cc.setNumeroCiclo(curso.getNumeroCiclo());
+            cc.setNumeroCurso(curso.getNumeroCurso());
             cc.setCurso(curso.getCurso());
             cc.setPlanCurricular(planNew);
             cc.setTipoCursoCurricula(curso.getTipoCursoCurricula());
             cc.setUserRegistro(ds.getUsuario());
             cc.setCursosCurricula(new ArrayList());
+            cc.setRequisitosOr(curso.getRequisitosOr());
 
             mapCursoCurricula.put(cc.getCurso().getId(), cc);
             cursoCurriculaDAO.save(cc);
@@ -962,6 +966,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             coc.setTipoCursoCurricula(opc.getTipoCursoCurricula());
             coc.setUserRegistro(ds.getUsuario());
             coc.setRequisitosCursoOpcionales(new ArrayList());
+            coc.setRequisitosOr(opc.getRequisitosOr());
 
             mapCursoOpcional.put(coc.getCurso().getId(), coc);
             cursoOpcionalCurriculaDAO.save(coc);

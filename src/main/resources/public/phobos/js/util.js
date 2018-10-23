@@ -418,6 +418,15 @@ APP = {
 
         $this.val(nom);
     },
+    revisarNombre2: function (string) {
+        var nom = string.toLowerCase().replace(/[^a-zçñáéíóúü\s'\-]/g, '');
+        nom = nom.replace(/[\n\f\b\r|,\t]/g, ' ').replace(/\s\s+/g, ' ').trim();
+        nom = APP.capitalize(nom, " ");
+        nom = APP.capitalize(nom, "'");
+        nom = APP.capitalize(nom, "-");
+
+        return nom;
+    },
     capitalize: function (string, separator) {
         var arr = string.split(separator);
         $.each(arr, function (i, value) {
@@ -613,6 +622,13 @@ AXIOS.interceptors.response.use(function (response) {
 }, function (error) {
     notify(MESSAGES.errorComunicacion, 'error');
     return Promise.reject(error);
+});
+
+Vue.filter('currency', function (value) {
+    if(Number.isNaN(parseFloat(value))){
+        return '';
+    }
+    return parseFloat(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 });
 
 /**

@@ -138,8 +138,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
                 .join("curso cu", "cu.departamentoAcademico")
                 .filter("ca.id", cicloAcademico)
-                .filter("mc.estado", EstadoMatriculaEnum.PMAT)
-                .filter("mr.estado", EstadoMatriculaEnum.NMAT);
+                .in("mc.estado", Arrays.asList(EstadoMatriculaEnum.PMAT.name(), EstadoMatriculaEnum.NMAT.name()));
         return (Long) sql.find(getCurrentSession());
     }
 
@@ -149,6 +148,16 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .from(MatriculaCurso.class, "mc")
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
                 .in("mr.id", matriculaResumens)
+                .filter("mc.estado", EstadoMatriculaEnum.PMAT);
+        return all(sql);
+    }
+
+    @Override
+    public List<MatriculaCurso> allPrematriculadoByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
+                .filter("ca.id", cicloAcademico)
                 .filter("mc.estado", EstadoMatriculaEnum.PMAT);
         return all(sql);
     }

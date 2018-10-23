@@ -239,6 +239,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     public void updateVariable(VariablePlantilla variablePlantillaForm, Usuario usuario) {
         VariablePlantilla plantilla = variablePlantillaDAO.find(variablePlantillaForm.getId());
         plantilla.setEjemplo(variablePlantillaForm.getEjemplo());
+        plantilla.setEsParametro(variablePlantillaForm.getEsParametro());
         variablePlantillaDAO.update(plantilla);
     }
 
@@ -247,6 +248,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     public void saveVariable(VariablePlantilla variablePlantilla, Usuario usuario) {
         variablePlantilla.setUserRegistro(usuario);
         variablePlantilla.setFechaRegistro(new Date());
+        variablePlantilla.setEsParametro(variablePlantilla.getEsParametro());
         variablePlantillaDAO.save(variablePlantilla);
     }
 

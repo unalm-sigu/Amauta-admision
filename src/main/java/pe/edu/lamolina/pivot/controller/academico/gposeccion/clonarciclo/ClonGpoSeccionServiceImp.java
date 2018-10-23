@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,14 +16,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
 import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
@@ -29,9 +37,11 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionModalidadDAO;
@@ -75,6 +85,12 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
 
+    @Autowired
+    PrecioCursoEstructuraDAO precioCursoEstructuraDAO;
+
+    @Autowired
+    CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
+
     @Override
     @Transactional
     public void clonarCiclo(CicloAcademico cicloOrigenForm, CicloAcademico cicloDestinoForm, DataSessionPivot ds) {
@@ -85,6 +101,14 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
         if (cicloOrigen.getId().longValue() == cicloDestino.getId()) {
             throw new PhobosException("El ciclo académico es el mismo al que desea copiar");
         }
+
+        List<PrecioCursoEstructura> precioCursoEstructura = precioCursoEstructuraDAO.allByCiclo(cicloDestino);
+
+        List<CursoCicloAcademico> cursoCicloAcademico = cursoCicloAcademicoDAO.allByCiclo(cicloDestino);
+
+        Set<String> tpcs = precioCursoEstructura.stream().map(PrecioCursoEstructura::getTpc).collect(Collectors.toSet());
+
+        Set<Curso> cursos = cursoCicloAcademico.stream().map(CursoCicloAcademico::getCurso).collect(Collectors.toSet());
 
         List<GrupoSeccion> gsOrigenes = grupoSeccionDAO.allWithDocenteSeccionActivosByCiclo(cicloOrigen);
         logger.debug("GrupoSeccion size  {}", gsOrigenes.size());
@@ -136,6 +160,35 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
         for (GrupoSeccion ggss : gsOrigenes) {
 
             String codigo = StringUtils.leftPad(CodeGenerator.getNextCode(codigos, 0), 3, '0');
+
+            if (!cursos.contains(ggss.getCurso())) {
+                cursos.add(ggss.getCurso());
+
+                CursoCicloAcademico cca = new CursoCicloAcademico();
+                cca.setCicloAcademico(cicloDestino);
+                cca.setCosto(BigDecimal.ZERO);
+                cca.setEstado(EstadoEnum.ACT.name());
+                cca.setCurso(ggss.getCurso());
+
+                cursoCicloAcademicoDAO.save(cca);
+            }
+
+            String tpc = ggss.getCurso().getTpc();
+            
+            if (cicloDestino.getNumeroCiclo().equals("0") && tpc != null && !tpcs.contains(tpc)) {
+                tpcs.add(tpc);
+
+                PrecioCursoEstructura pce = new PrecioCursoEstructura();
+
+                pce.setCicloAcademico(cicloDestino);
+                pce.setFechaPrecio(new Date());
+                pce.setPrecio(BigDecimal.ZERO);
+                pce.setTpc(tpc);
+                pce.setUserPrecio(ds.getUsuario());
+                pce.setEstado(EstadoEnum.ACT.name());
+
+                precioCursoEstructuraDAO.save(pce);
+            }
 
             GrupoSeccion gs = new GrupoSeccion();
             gs.setCicloAcademico(cicloDestino);

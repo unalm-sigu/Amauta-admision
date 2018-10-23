@@ -67,7 +67,7 @@ public class CuotasAlumnoController {
                             "persona.apellidosNombres",
                             "persona.rutaFoto",
                             "persona.tipoFoto",
-                            "persona.tipoDocumento.simbolo",
+                            "persona.tipoDocumento.simbolo",    
                             "persona.numeroDocIdentidad",
                             "persona.telefono",
                             "persona.celular",

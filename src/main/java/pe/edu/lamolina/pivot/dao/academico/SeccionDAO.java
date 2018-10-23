@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
+import java.math.BigDecimal;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
@@ -9,7 +10,6 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
-import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 
 public interface SeccionDAO extends EasyDAO<Seccion> {
 
@@ -66,5 +66,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
     Seccion find(Seccion seccion);
 
     void setCodigo2Null(CicloAcademico ciclo);
+
+    void updatePrecioByTpc(CicloAcademico cicloAcademico, String tpc, BigDecimal precio);
 
 }
