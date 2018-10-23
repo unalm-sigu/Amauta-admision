@@ -1170,7 +1170,7 @@ public class OficinaServiceImp implements OficinaService {
             throw new PhobosException("La función ingresada ya existe");
         }
         perfilCompania.setCodigo(this.getCodigoFuncionCompania());
-        perfilCompania.setTipo(TipoPerfilCompaniaEnum.PERFIL.name());
+        perfilCompania.setTipo(TipoPerfilCompaniaEnum.FUNCION.name());
         perfilCompania.setCompania(dsp.getCompania());
         perfilCompania.setEsAutomatico(1l);
         perfilCompaniaDAO.save(perfilCompania);
