@@ -16,4 +16,6 @@ public interface ClonGpoSeccionService {
 
     void limpiarCodigo2(CicloAcademico ciclo, DataSessionPivot ds);
 
+    void limpiarCiclo(CicloAcademico ciclo);
+
 }

@@ -8,8 +8,10 @@ import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 
 public interface CursoCicloAcademicoDAO extends EasyDAO<CursoCicloAcademico> {
 
-    public List<CursoCicloAcademico> allByCiclo(CicloAcademico cicloDestino);
+    List<CursoCicloAcademico> allByCiclo(CicloAcademico cicloDestino);
 
     void updatePrecioByTpc(CicloAcademico cicloAcademico, String tpc, BigDecimal precio);
+
+    void deleteAllByCiclo(CicloAcademico ciclo);
 
 }

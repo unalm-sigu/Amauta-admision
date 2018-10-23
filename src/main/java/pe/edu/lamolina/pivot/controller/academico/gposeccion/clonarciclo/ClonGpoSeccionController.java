@@ -134,4 +134,28 @@ public class ClonGpoSeccionController {
         return response;
 
     }
+
+    @ResponseBody
+    @RequestMapping("limpiarciclo")
+    public JsonResponse limpiarCiclo(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            service.limpiarCiclo(ciclo);
+
+            response.setMessage(Messages.UPDATED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+
+    }
 }

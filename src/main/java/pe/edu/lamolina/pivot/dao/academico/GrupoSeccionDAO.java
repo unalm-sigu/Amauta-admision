@@ -72,4 +72,6 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     void setCodigo2Null(CicloAcademico ciclo);
 
+    void deleteAllByCiclo(CicloAcademico ciclo);
+
 }
