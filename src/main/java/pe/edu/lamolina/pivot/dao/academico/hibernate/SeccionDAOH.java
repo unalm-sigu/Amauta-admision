@@ -381,4 +381,5 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         query.executeUpdate();
     }
 
+
 }

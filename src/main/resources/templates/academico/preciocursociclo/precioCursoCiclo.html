@@ -1,0 +1,101 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Precios Cursos Nivelación</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="preciocursocicloVUE">
+                <header class="header b-b padder-lg">
+                    <h2 th:text="|Precios Cursos Nivelación ${ciclo.descripcion}|">Precios Cursos Nivelación</h2> 
+                </header>
+
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <raptor-table v-bind:url="preciocursocicloURL" ref="raptorPrecioCursoCiclo">
+
+                                <div slot="header">
+
+                                    <div class="col-md-2">
+
+                                        <div class="form-group" title="Activar cuadro de texto" data-toggle="tooltip" data-placement="top">
+                                            <label>Editar</label>
+                                            <label class="switch">
+                                                <input type="checkbox" v-model="verTabla" value="true" />
+                                                <span></span> 
+                                                <i></i>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+
+                                        <div class="btn-group" v-if="verTabla" >
+                                            <a type="button" class="btn btn-success" v-on:click="verGuardar()" v-if="!salvar">Guardar</a>
+                                        </div> 
+
+                                    </div>
+                                </div>
+
+                                <template scope="props">
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-4 v-middle">Curso</th>
+                                                <th class="col-md-2 v-middle">Grupos</th>
+                                                <th class="col-md-2 v-middle">Precios</th>
+                                                <th class="col-md-2 v-middle">Precio Adicional</th>
+                                                <th class="col-md-2 v-middle">Mínimo Requerido Alumnos por Curso</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data"> 
+                                                <td class="v-middle">
+                                                    <span class="block text-primary bold h5 m-b-xs m-t-xs"
+                                                          v-text="item.curso.nombre"></span>                                                    
+                                                    <span class="block">
+                                                        {{item.curso.codigo}}&nbsp;
+                                                        <i class="fa fa-bookmark text-primary"></i>
+                                                        {{item.curso.tpc}}</span>
+                                                </td>
+                                                <td class="v-middle"> 
+                                                    {{item.cantidadGpoSecc}}
+                                                </td>
+                                                <td class="v-middle"> 
+                                                      <input v-if="verTabla" type="text"
+                                                             class="form-control" v-model="item.precio"/>
+                                                    <span  v-else="" v-text="item.precio"></span>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <input v-if="verTabla" type="text"
+                                                            class="form-control" v-model="item.precioAdicional"/>
+                                                    <span v-else="" v-text="item.precioAdicional"></span>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <input v-if="verTabla" type="text"
+                                                             class="form-control" v-model="item.minimoAlumnos"/>
+                                                    <span v-else="" v-text="item.minimoAlumnos"></span>
+                                                </td> 
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+            </div>
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/precioCursoCiclo/precioCursoCiclo.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

@@ -18,11 +18,13 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoCursoCachimboEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
@@ -372,6 +374,18 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     }
 
     @Override
+    public List<GrupoSeccion> allActivoByCursoCiclo(Curso curso, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("curso cur", "cicloAcademico ca")
+                .filter("gs.estado", EstadoEnum.ACT)
+                .filter("cur.id", curso)
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
     public List<GrupoSeccion> allActivoByCicloGrupoNoCerrado(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
@@ -589,5 +603,6 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
         query.executeUpdate();
     }
+  
 
 }
