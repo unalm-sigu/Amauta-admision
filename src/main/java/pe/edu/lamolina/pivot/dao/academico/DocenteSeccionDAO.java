@@ -68,4 +68,6 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     List<DocenteSeccion> allSeccionByClone(List<Seccion> secciones);
 
+    void deleteAllByCiclo(CicloAcademico ciclo);
+
 }

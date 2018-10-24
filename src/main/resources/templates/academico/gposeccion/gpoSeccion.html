@@ -26,6 +26,7 @@
                             <li><a type="button" v-on:click="nuevoGpoSecc()">Nuevo Grupo</a></li>
                             <li><a v-if="cantidadGrupoSeccion == 0" type="button" href="#"  v-on:click.prevent="clonarCiclo" >Clonar Ciclo</a></li>
                             <li><a v-if="cantidadGrupoSeccion > 0" type="button" href="#"  v-on:click.prevent="ordenarCiclo" >Ordenar Código</a></li>
+                            <li><a v-if="cantidadGrupoSeccion > 0" type="button" href="#"  v-on:click.prevent="limpiarCiclo()" >Limpiar Ciclo</a></li>
                         </ul>
                     </div>
 
