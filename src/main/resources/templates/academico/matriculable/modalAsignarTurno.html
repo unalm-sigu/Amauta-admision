@@ -4,7 +4,7 @@
     <a  class="btn btn-success m-b-md block procesar-tipo-matricula" 
         th:each="confTurnosAten : ${configuracionesTurnoAtencion}"
         th:alt="${confTurnosAten.id}"
-        th:text="${confTurnosAten.tipoEnum.value}">
+        th:text="|${confTurnosAten.tipoEnum.value} (${confTurnosAten.eventoCicloAcademico.eventoAcademico.nombre})|">
         Aceptar rechazo
     </a>
 

@@ -24,7 +24,6 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
-import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoCursoCachimboEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
@@ -603,6 +602,19 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
         query.executeUpdate();
     }
-  
+
+    @Override
+    public void deleteAllByCiclo(CicloAcademico ciclo) {
+
+        StringBuilder sql = new StringBuilder();
+
+        sql.append(" DELETE ")
+                .append(GrupoSeccion.class.getName()).append(" gs ")
+                .append(" WHERE gs.cicloAcademico.id=:CICLO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
+        query.executeUpdate();
+    }
 
 }

@@ -110,8 +110,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .filter("ci.id", cicloAcademico);
         return (Alumno) sql.find(getCurrentSession());
     }
-    
-        @Override
+
+    @Override
     public Alumno findByPersona(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
@@ -498,6 +498,16 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         Octavia octavia = Octavia.update(Alumno.class);
         octavia.set(alumno, "cicloActivoRegular");
         this.update(octavia);
+    }
+
+    @Override
+    public List<Alumno> allByIds(Long[] idAlumnos) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa")
+                .leftJoin("per.tipoDocumento td", "cicloActivo ci", "modalidadEstudio me", "situacionAcademica situ")
+                .in("alu.id", idAlumnos);
+        return sql.all(getCurrentSession());
     }
 
 }

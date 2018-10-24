@@ -13,6 +13,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -381,5 +382,41 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         query.executeUpdate();
     }
 
+    @Override
+    public void deleteAllByCiclo(CicloAcademico ciclo) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(" DELETE ").append(Seccion.class.getName()).append(" sec ")
+                .append(" WHERE EXISTS ")
+                .append(" ( ")
+                .append(" SELECT 1 FROM ").append(GrupoSeccion.class.getName()).append(" gs ")
+                .append("   JOIN gs.cicloAcademico ci ")
+                .append("  WHERE ci.id=:CICLO ")
+                .append("    AND sec.grupoSeccion.id=gs.id ")
+                .append(" ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void deleteAllNotSuperiorByCiclo(CicloAcademico ciclo) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(" DELETE ").append(Seccion.class.getName()).append(" sec ")
+                .append(" WHERE sec.seccionSuperior.id is not null ")
+                .append("   AND EXISTS ")
+                .append(" ( ")
+                .append(" SELECT 1 FROM ").append(GrupoSeccion.class.getName()).append(" gs ")
+                .append(" JOIN gs.cicloAcademico ci ")
+                .append(" WHERE ci.id=:CICLO ")
+                .append(" AND sec.grupoSeccion.id=gs.id ")
+                .append(" ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
+        query.executeUpdate();
+    }
 
 }

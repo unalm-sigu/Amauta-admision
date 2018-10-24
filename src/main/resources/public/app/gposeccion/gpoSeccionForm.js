@@ -192,15 +192,16 @@ var app = new Vue({
             modalsize: 'modal-md'
         },
         fusion: {
-            seccion: {id: null}
+            seccion: {id: null},
+            alumnosid: []
         },
         alumnos: []
     },
     watch: {
-//        seccionSeleccionada: function (val) {
-//            let $vue = this;
-//            //$vue.allSolicitarIncremento();
-//        },
+        seccionSeleccionada: function (val) {
+            let $vue = this;
+            $vue.allAlumnoBySeccion();
+        },
         "ampliacionVacante.incremento": function () {
             let $vue = this;
             if ($vue.ampliacionVacante.incremento == '') {
@@ -1318,10 +1319,19 @@ var app = new Vue({
             });
 
         },
-
         trasladarAlumnos() {
 
             let $vue = this;
+
+            if ($("select[name='seccion.id']").parsley().isValid() != true) {
+                swal({text: "Seleccione una sección", icon: "error", button: false, timer: 1000});
+                return;
+            }
+
+            if ($vue.fusion.alumnosid.length < 1) {
+                swal({text: "Seleccione algun alumno", icon: "error", button: false, timer: 1000});
+                return;
+            }
 
             swal({
                 title: "Trasladar Alumnos",
@@ -1341,8 +1351,7 @@ var app = new Vue({
                 $.ajax({
                     method: 'POST',
                     url: APP.url('academico/gposeccion/trasladar'),
-                    async: false,
-                    data: {id: ampliacion.id},
+                    data: JSON.stringify($vue.fusion),
                     success: function (response) {
                         if (response.success) {
 

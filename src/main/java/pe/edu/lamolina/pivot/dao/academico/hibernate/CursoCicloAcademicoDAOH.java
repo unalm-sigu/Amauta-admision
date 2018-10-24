@@ -49,6 +49,19 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
     }
 
     @Override
+    public void deleteAllByCiclo(CicloAcademico ciclo) {
+        
+        StringBuilder sql = new StringBuilder();
+        sql.append(" DELETE FROM ")
+                .append(CursoCicloAcademico.class.getName()).append(" cca ")
+                .append(" WHERE cca.cicloAcademico.id=:CICLO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
+        query.executeUpdate();
+        
+    }
+    
     public List<CursoCicloAcademico> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(CursoCicloAcademico.class, "pcc")
