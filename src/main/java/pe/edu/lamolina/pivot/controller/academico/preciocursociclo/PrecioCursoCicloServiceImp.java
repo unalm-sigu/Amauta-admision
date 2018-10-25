@@ -88,7 +88,12 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
 
                 if (seccion.getPrecioPersonalizado()) {
                     continue;
+                }else {
+                    seccion.setPrecioPersonalizado(Boolean.TRUE);
+                    seccion.setUserPrecio(ds.getUsuario());
+                    seccion.setFechaPrecio(new Date());
                 }
+                
                 seccion.setPrecio(cursoCicloForm.getPrecio().add(cursoCicloForm.getPrecioAdicional()));
                 seccionDAO.update(seccion);
             }
