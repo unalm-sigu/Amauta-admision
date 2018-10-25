@@ -37,34 +37,34 @@ import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 
 @Component
 public class RecordDeActasExcelView extends AbstractPOIExcelView {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     public final static String TIPO = "tipo";
     public final static String PRE_GRADO = "PRE";
     public final static String POST_GRADO = "POST";
-
+    
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
-
+    
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
-
+    
     @Override
     protected Workbook createWorkbook() {
         return new SXSSFWorkbook();
     }
-
+    
     @Override
     protected void buildExcelDocument(Map<String, Object> model, Workbook workbook, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+        
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
         String tipo = (String) model.get(TIPO);
-
+        
         List<GrupoSeccion> allGruposSeccion = grupoSeccionDAO.allByFilter(null, cicloAcademico, null, EstadoEnum.ACT);
         allGruposSeccion = filtrarByType(allGruposSeccion, tipo);
         logger.debug("Cantidad de grupos {}", allGruposSeccion.size());
-
+        
         Map cantidadAlumnosByGrupo = grupoSeccionDAO.allCountAlumnos(allGruposSeccion);
         logger.debug("cantidadAlumnosByGrupo {}", cantidadAlumnosByGrupo.size());
         Map cantidadAlumnosByGrupoNF = grupoSeccionDAO.allCountAlumnosWithNf(allGruposSeccion);
@@ -80,9 +80,9 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
          */
         CellStyle cellHeader = ExcelStyles.getStyleHeader(workbook);
         CellStyle cellBody = ExcelStyles.getStyleBody(workbook);
-
+        
         List<String> rows = new ArrayList();
-
+        
         String head = "Curso|Grupo|Departamento|Docente Principal|Email Doc. Principal|Versión Acta|Estado Sistema Calificación|Estado Acta|Fecha Cierre Acta|Alumnos Total|Alumnos NF";
         rows.add(head);
         StringBuilder sb;
@@ -90,16 +90,16 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
             sb = new StringBuilder();
             Curso curso = grupoSeccion.getCurso();
             DepartamentoAcademico departamento = curso.getDepartamentoAcademico();
-
+            
             List<DocenteSeccion> docentesSeccion = null;
             List<Docente> docentesPrincipal = new ArrayList<>();
-
+            
             String docentes = "";
             String emails = "";
             String secciones = "";
-
+            
             for (Seccion sec : grupoSeccion.getSecciones()) {
-
+                
                 if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
                     secciones += sec.getCodigo();
                     if (ObjectUtil.getParentTree(sec, "grupoHoras.id") != null) {
@@ -114,9 +114,9 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
                             }
                         }
                     }
-
+                    
                 }
-
+                
             }
             if (!docentesPrincipal.isEmpty()) {
                 docentes = "";
@@ -146,27 +146,27 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
                 emails = "-";
             }
             sb.append(curso.getNombre()).append("|").append(secciones.substring(0, secciones.length())).append("|").append(departamento.getNombre()).append("|").append(docentes).append("|").append(emails).append("|").append(grupoSeccion.getVersion()).append("|").append(estadoPlan).append("|").append(estadoGrupo);
-            sb.append("|").append(grupoSeccion.getFechaCierreActa() == null ? "" : TypesUtil.getStringDate(grupoSeccion.getFechaCierreActa(), "dd/MM/yyyy"));
-
+            sb.append("|").append(grupoSeccion.getFechaCierreActa() == null ? "-" : TypesUtil.getStringDate(grupoSeccion.getFechaCierreActa(), "dd/MM/yyyy"));
+            
             Object cantidadAlumnos = cantidadAlumnosByGrupo.get(grupoSeccion.getId());
             sb.append("|").append(cantidadAlumnos != null ? TypesUtil.getInt(cantidadAlumnos) : "");
-
+            
             Object cantidadAlumnosNF = cantidadAlumnosByGrupoNF.get(grupoSeccion.getId());
             sb.append("|").append(cantidadAlumnosNF != null ? TypesUtil.getInt(cantidadAlumnosNF) : "");
-
+            
             rows.add(sb.toString());
         }
-
+        
         int totalColumns = 9;
-
+        
         this.createSheet(workbook, rows, totalColumns, "RecordActas", cellHeader, cellBody);
         String fechaRep = " - " + new DateTime().toString("dd/MM/yyyy H:mm");
-
+        
         String nombreReporte = "RecordActas ";
-
+        
         response.setHeader("Content-Disposition", "attachment; filename=\"" + nombreReporte + fechaRep + ".xlsx\"");
     }
-
+    
     public List<GrupoSeccion> filtrarByType(List<GrupoSeccion> allGruposSeccion, String tipo) {
         List<GrupoSeccion> result = new ArrayList<>();
         for (GrupoSeccion grupoSeccion : allGruposSeccion) {
@@ -182,38 +182,42 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
         }
         return result;
     }
-
+    
     private void createSheet(Workbook workBook, List<String> rows, int columnas, String sheetName, CellStyle cellHeader, CellStyle cellBody) {
         Sheet sheet = workBook.createSheet(sheetName);
         boolean autosize = false;
-
+        
         for (int i = 0; i < rows.size(); i++) {
             String fila = (String) rows.get(i);
-
+            
             String[] argHeader = fila.split("\\|");
-
+            
             StringTokenizer st = new StringTokenizer(fila, "|");
             Row row = sheet.createRow(i);
             int j = 0;
-
+            
             boolean isHeader = false;
             boolean isHeaderTotal = false;
             boolean isHeaderSede = false;
-
+            
             if (i == 0) {
                 isHeader = true;
             }
-
+            
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
-
+                
                 if (isHeader) {
                     this.createCell(row, j, token, cellHeader);
                     if (isHeaderTotal) {
                         isHeader = false;
                     }
                 } else {
-                    this.createCell(row, j, token, cellBody);
+                    if (TypesUtil.getInt(token) != null) {
+                        this.createCellNumber(row, j, token, cellBody);
+                    } else {
+                        this.createCell(row, j, token, cellBody);
+                    }
                 }
                 j++;
             }
@@ -224,15 +228,15 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
                 autosize = true;
             }
         }
-
+        
         if (!autosize) {
             for (int i = 0; i < columnas; i++) {
                 sheet.autoSizeColumn((short) i);
             }
         }
-
+        
     }
-
+    
     private void createCell(Row row, int cellNumber, String value, CellStyle style) {
         Cell cell = row.createCell(cellNumber);
         cell.setCellValue(value + "");
@@ -240,7 +244,16 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
             cell.setCellStyle(style);
         }
     }
-
+    
+    private void createCellNumber(Row row, int cellNumber, String value, CellStyle style) {
+        Cell cell = row.createCell(cellNumber);
+        cell.setCellValue(Integer.parseInt(value));
+        cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+        if (style != null) {
+            cell.setCellStyle(style);
+        }
+    }
+    
     private void createCellNumber(Row row, int cellNumber, String value) {
         Cell cell = row.createCell(cellNumber);
         CellStyle cellStyle = cell.getCellStyle();
@@ -248,7 +261,7 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
         cell.setCellStyle(cellStyle);
         cell.setCellValue(new BigDecimal(value).doubleValue());
     }
-
+    
     private String getValor(String val) {
         if (StringUtils.isEmpty(val)) {
             return " ";
@@ -258,25 +271,25 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
         val = StringUtils.remove(val, '\r');
         val = StringUtils.remove(val, '\n');
         val = StringUtils.remove(val, '|');
-
+        
         if (StringUtils.isEmpty(val)) {
             return " ";
         }
         return val;
     }
-
+    
     public boolean isTipoPreGrado() {
         if (TIPO.equals(PRE_GRADO)) {
             return true;
         }
         return false;
     }
-
+    
     public boolean isTipoPostGrado() {
         if (TIPO.equals(POST_GRADO)) {
             return true;
         }
         return false;
     }
-
+    
 }
