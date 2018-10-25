@@ -8,6 +8,8 @@ public class Fusion {
 
     private Long[] alumnosid;
 
+    private Seccion seccionSeleccionada;
+
     public Fusion() {
     }
 
@@ -19,12 +21,20 @@ public class Fusion {
         this.seccion = seccion;
     }
 
-    public Long[] getAlumnos() {
+    public Long[] getAlumnosid() {
         return alumnosid;
     }
 
-    public void setAlumnos(Long[] alumnos) {
-        this.alumnosid = alumnos;
+    public void setAlumnosid(Long[] alumnosid) {
+        this.alumnosid = alumnosid;
+    }
+
+    public Seccion getSeccionSeleccionada() {
+        return seccionSeleccionada;
+    }
+
+    public void setSeccionSeleccionada(Seccion seccionSeleccionada) {
+        this.seccionSeleccionada = seccionSeleccionada;
     }
 
 }

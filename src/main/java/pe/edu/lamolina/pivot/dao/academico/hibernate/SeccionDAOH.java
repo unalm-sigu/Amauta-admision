@@ -13,7 +13,6 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
-import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -402,7 +401,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
 
     @Override
     public void deleteAllNotSuperiorByCiclo(CicloAcademico ciclo) {
-        
+
         StringBuilder sql = new StringBuilder();
         sql.append(" DELETE ").append(Seccion.class.getName()).append(" sec ")
                 .append(" WHERE sec.seccionSuperior.id is not null ")
@@ -417,6 +416,23 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", ciclo.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public List<Seccion> allByCursoExceptSeccion(Curso curso, Seccion seccion) {
+
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico")
+                .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
+                .leftJoin("grupoHoras gh", "aula au", "au.oficinaSupervisora", "au.aulaSuperior")
+                .leftJoin("seccionSuperior")
+                .filter("sec.id", "<>", seccion)
+                .filter("sec.tipoSeccion", "<>", TipoSeccionEnum.TCUR.name())
+                .filter("cur.id", curso);
+
+        return all(sql);
+
     }
 
 }

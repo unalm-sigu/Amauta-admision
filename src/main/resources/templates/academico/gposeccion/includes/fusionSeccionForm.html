@@ -1,56 +1,103 @@
-<div class="col-sm-3" >
-    <div class="form-group" >
-        <label  class="control-label">Seccion envio</label>
-        <select name="seccion.id"  
-                class="form-control"
-                required="true" 
-                data-parsley-errors-container="#errorseccion"
-                parsley-error-message="Seleccione una seccion"
-                v-model="fusion.seccion.id"  >
-            <option></option>
-            <option v-for="item in secciones" v-text="item.codigo2" v-bind:value="item.id" ></option>
-        </select>
-        <span id="errorseccion"></span>
-    </div>                                          
-</div> 
-<div class="col-sm-12" >
-    <p class="h5 text-primary">Alumnos de la seccion origen</p>
+<div v-if="seccionSeleccionada.tipoSeccion=='TCUR' " 
+     class="alert alert-warning">Esta sección no permite fusiones</div>
+
+<div v-if="seccionSeleccionada.tipoSeccion != 'TCUR' " >
+    <div class="col-sm-12" >
+        <div class="col-sm-3" >
+            <div class="form-group" >
+
+                <label  class="control-label">Seccion envio</label>
+
+                <multiselect 
+                    v-model="fusion.seccion" 
+                    v-bind:options='seccionDisponible'
+                    label='codigo2'
+                    track-by='id'
+                    v-bind:allow-empty="false" >
+                </multiselect>
+
+            </div>                                          
+        </div>
+
+        <div class="col-sm-2 text-center" >
+            <div class="form-group" >
+                <label class="control-label">Aula</label>
+                <div class="">
+                    <p class="form-control-static">{{fusion.seccion.aula.codigo}}</p>
+                </div>
+            </div> 
+        </div>
+
+        <div class="col-sm-2 text-center" >
+            <div class="form-group" >
+                <label class="control-label">Grupo</label>
+                <div class="">
+                    <p class="form-control-static">{{fusion.seccion.grupoSeccion.codigo}}</p>
+                </div>
+            </div> 
+        </div>
+
+        <div class="col-sm-2 text-center" >
+            <div class="form-group" >
+                <label class="control-label">Vacantes</label>
+                <div class="">
+                    <p class="form-control-static">{{fusion.seccion.disponiblesCachimbos}}</p>
+                </div>
+            </div> 
+        </div>
+
+        <div class="col-sm-2 text-center" >
+            <div class="form-group" >
+                <label class="control-label">Trasladado</label>
+                <div class="">
+                    <p class="form-control-static">{{fusion.alumnosid.length}}</p>
+                </div>
+            </div> 
+        </div>
+
+        <div class="col-sm-1" >
+            <a class="btn btn-info btn-sm pull-right m-t-lg" v-on:click="trasladarAlumnos">Trasladar</a>                              
+        </div>
+
+    </div>
+
+    <div class="col-sm-12" >
+        <p class="h5 text-primary">Alumnos de la seccion origen</p>
+    </div>
+
+    <table class="table">
+        <thead> 
+            <tr > 
+                <th class="col-xs-8">Nombre</th>
+                <th class="col-xs-1 text-center">Horario</th>
+                <th class="col-xs-1 text-center">Especialidad</th>
+                <th class="col-xs-2 text-center">Situación Traslado</th>
+                <th class=""></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr v-for="(alumno, inx ) in alumnos">
+
+                <td class="v-middle">
+                    <p class="h5">{{alumno.persona.nombreCompleto}}</p>
+                    <span class="text-sm text-primary block">{{alumno.codigo}}</span>
+                    <span class="text-sm text-primary block">{{alumno.carrera.nombre}}</span>
+                </td>
+
+                <td class="v-middle text-center"><i class="fa fa-calendar" aria-hidden="true"></i></td>
+                <td class="v-middle text-center">{{alumno.carrera.nombre}}</td>
+                <td class="v-middle text-center">{{alumno.carrera.nombre}}</td>
+
+                <td class="v-middle">
+                    <label class="switch">
+                        <input type="checkbox"  v-model="fusion.alumnosid" v-bind:name="'alumnos['+inx+'].id'" v-bind:value="alumno.id" />
+                        <span></span>
+                    </label>
+                </td>
+
+            </tr>
+
+        </tbody>
+    </table>
 </div>
-
-<table class="table">
-    <thead> 
-        <tr > 
-            <th class="col-xs-8">Nombre</th>
-            <th class="col-xs-1 text-center">Horario</th>
-            <th class="col-xs-1 text-center">Especialidad</th>
-            <th class="col-xs-2 text-center">Situación Traslado</th>
-            <th class=""></th>
-        </tr>
-    </thead>
-    <tbody>
-
-        <tr v-for="(alumno, inx ) in alumnos">
-
-            <td class="v-middle">
-                <p class="h5">{{alumno.persona.nombreCompleto}}</p>
-                <span class="text-sm text-primary block">{{alumno.codigo}}</span>
-                <span class="text-sm text-primary block">{{alumno.carrera.nombre}}</span>
-            </td>
-
-            <td class="v-middle text-center"><i class="fa fa-calendar" aria-hidden="true"></i></td>
-            <td class="v-middle text-center">{{alumno.carrera.nombre}}</td>
-            <td class="v-middle text-center">{{alumno.carrera.nombre}}</td>
-
-            <td class="v-middle">
-                <label class="switch">
-                    <input type="checkbox"  v-model="fusion.alumnosid" v-bind:name="'alumnos['+inx+'].id'" v-bind:value="alumno.id" />
-                    <span></span>
-                </label>
-            </td>
-
-        </tr>
-
-    </tbody>
-</table>
-
-<a class="btn btn-info btn-sm pull-right m-t-xs" v-on:click="trasladarAlumnos">Trasladar</a>

@@ -192,15 +192,25 @@ var app = new Vue({
             modalsize: 'modal-md'
         },
         fusion: {
-            seccion: {id: null},
-            alumnosid: []
+            seccion: {id: null, aula: {id: null}, grupoSeccion: {id: null}},
+            alumnosid: [],
+            seccionSeleccionada: {id: null}
         },
-        alumnos: []
+        alumnos: [],
+        seccionDisponible: [],
+        isShowTabFusion: false,
+        cantidadTrasladados: 0
     },
     watch: {
         seccionSeleccionada: function (val) {
             let $vue = this;
             $vue.allAlumnoBySeccion();
+            $vue.allSeccionDisponible();
+            $vue.fusion = {
+                seccion: {id: null, aula: {id: null}, grupoSeccion: {id: null}},
+                alumnosid: [],
+                seccionSeleccionada: {id: null}
+            }
         },
         "ampliacionVacante.incremento": function () {
             let $vue = this;
@@ -811,7 +821,7 @@ var app = new Vue({
                             notify(response.message, "info");
                             $vue.loadGpoSeccionFlash();
                         } else {
-                            
+
                             notify(response.message, "error");
                         }
                     },
@@ -1323,7 +1333,7 @@ var app = new Vue({
 
             let $vue = this;
 
-            if ($("select[name='seccion.id']").parsley().isValid() != true) {
+            if ($vue.fusion.seccion.id == null) {
                 swal({text: "Seleccione una sección", icon: "error", button: false, timer: 1000});
                 return;
             }
@@ -1348,9 +1358,12 @@ var app = new Vue({
                     return;
                 }
 
+                $vue.fusion.seccionSeleccionada.id = $vue.seccionSeleccionada.id;
+
                 $.ajax({
                     method: 'POST',
                     url: APP.url('academico/gposeccion/trasladar'),
+                    contentType: "application/json",
                     data: JSON.stringify($vue.fusion),
                     success: function (response) {
                         if (response.success) {
@@ -1394,6 +1407,23 @@ var app = new Vue({
                 }
             });
         },
-
+        allSeccionDisponible() {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/allsecciondisponible'),
+                data: {id: $vue.seccionSeleccionada.id},
+                success: function (response) {
+                    if (response.success) {
+                        $vue.seccionDisponible = response.data;
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        }
     }
 });
