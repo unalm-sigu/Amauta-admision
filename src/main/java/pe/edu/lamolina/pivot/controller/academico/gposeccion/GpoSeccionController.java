@@ -147,6 +147,8 @@ public class GpoSeccionController {
                     "anexoBoletin.nombre",
                     "anexoBoletin.anexoSuperior.nombre",
                     "secciones.codigo2",
+                    "secciones.precio",
+                    "secciones.precioFormato",
                     "secciones.tipoSeccionEnum",
                     "secciones.vacantes",
                     "secciones.matriculados",

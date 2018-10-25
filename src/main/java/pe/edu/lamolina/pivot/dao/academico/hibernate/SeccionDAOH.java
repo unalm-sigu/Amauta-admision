@@ -402,7 +402,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
 
     @Override
     public void deleteAllNotSuperiorByCiclo(CicloAcademico ciclo) {
-        
+
         StringBuilder sql = new StringBuilder();
         sql.append(" DELETE ").append(Seccion.class.getName()).append(" sec ")
                 .append(" WHERE sec.seccionSuperior.id is not null ")

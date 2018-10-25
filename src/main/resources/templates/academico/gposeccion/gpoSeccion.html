@@ -154,6 +154,7 @@
                                                 v-bind:rowspan="getRowspanSecc(secc)">
                                                 <span class="block text-primary" v-text="secc.codigo2"></span>
                                                 <small class="block" v-text="tipoSeccion(secc)"></small>
+                                                <span v-if="secc.precio != '' " class="label label-warning" v-text="'S/.'+ secc.precioFormato"></span>
                                             </td>
                                             <td class="v-middle text-center" 
                                                 v-bind:rowspan="getRowspanSecc(secc)">
@@ -235,6 +236,7 @@
                                                     v-bind:rowspan="getRowspanSecc(secc)">
                                                     <span class="block text-primary" v-text="secc.codigo2"></span>
                                                     <small class="block" v-text="tipoSeccion(secc)"></small>
+                                                    <span v-if="secc.precio != '' " class="label label-warning" v-text="'S/.'+ secc.precioFormato"></span>
                                                 </td>
                                                 <td class="v-middle text-center" 
                                                     v-bind:rowspan="getRowspanSecc(secc)">
