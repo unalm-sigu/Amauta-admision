@@ -367,9 +367,15 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     public void updatePrecioByTpc(CicloAcademico cicloAcademico, String tpc, BigDecimal precio) {
         StringBuilder sql = new StringBuilder();
 
-        sql.append(" update ").append(Seccion.class.getName()).append(" as s set precio = :PRECIO ");
-        sql.append(" where s.grupoSeccion in ( select gs.id from GrupoSeccion gs where concat( gs.curso.horasTeoria, '-', gs.curso.horasPractica, '-', gs.curso.creditos ) = :TPC and gs.cicloAcademico = :CICLO ) ");
-        sql.append(" and s.tipoSeccion != :TCUR ");
+        sql.append(" update ").append(Seccion.class.getName()).append(" as s ");
+        sql.append("    set precio = :PRECIO ");
+        sql.append("  where s.grupoSeccion in (  ");
+        sql.append("         select gs.id ");
+        sql.append("           from ").append(GrupoSeccion.class.getSimpleName()).append(" as gs ");
+        sql.append("           join gs.curso cu ");
+        sql.append("          where concat( cu.horasTeoria, '-' , cu.horasPractica, '-' , cu.creditos ) = :TPC ");
+        sql.append("            and gs.cicloAcademico = :CICLO ) ");
+        sql.append("    and s.tipoSeccion != :TCUR ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
 

@@ -112,7 +112,7 @@ public class RolController {
                 node.put("id", rol.getId());
                 node.put("nombre", rol.getNombre());
                 node.put("codigo", rol.getCodigo());
-                node.set("funciones", service.allPerfilCompania(rol, funcionesRolMap, TipoPerfilCompaniaEnum.PERFIL));
+                node.set("funciones", service.allPerfilCompania(rol, funcionesRolMap, TipoPerfilCompaniaEnum.FUNCION));
                 node.set("cargos", service.allPerfilCompania(rol, funcionesRolMap, TipoPerfilCompaniaEnum.CARGO));
 
                 if (rol.getRolSuperior() != null) {

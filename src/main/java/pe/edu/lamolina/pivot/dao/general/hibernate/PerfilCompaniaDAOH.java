@@ -22,7 +22,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     public List<PerfilCompania> allByNombre(String nombre) {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .filter("tipo", TipoPerfilCompaniaEnum.CARGO.name())
+                .filter("tipo", TipoPerfilCompaniaEnum.CARGO)
                 .like("pc.nombreDocumento", nombre)
                 .orderBy("pc.nombreDocumento")
                 .limit(15);
@@ -36,7 +36,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
                 .from(PerfilCompania.class, "pc")
                 .join("oficinaContiene ofi")
                 .filter("ofi.id", oficina)
-                .filter("tipo", TipoPerfilCompaniaEnum.CARGO.name());
+                .filter("tipo", TipoPerfilCompaniaEnum.CARGO);
 
         return all(sql);
     }
@@ -46,7 +46,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
                 .isNull("oficinaContiene")
-                .filter("tipo", TipoPerfilCompaniaEnum.CARGO.name());
+                .filter("tipo", TipoPerfilCompaniaEnum.CARGO);
 
         return all(sql);
     }
@@ -55,7 +55,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     public List<PerfilCompania> allTipoFuncion() {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .filter("tipo", TipoPerfilCompaniaEnum.PERFIL.name());
+                .filter("tipo", TipoPerfilCompaniaEnum.FUNCION);
 
         return all(sql);
     }
@@ -64,7 +64,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     public PerfilCompania findUltimoCodigo() {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .filter("tipo", TipoPerfilCompaniaEnum.CARGO.name())
+                .filter("tipo", TipoPerfilCompaniaEnum.CARGO)
                 .filter("esAutomatico", 1)
                 .orderBy("id desc")
                 .limit(1);
@@ -79,7 +79,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
                 .from(PerfilCompania.class, "pc")
                 .join("compania cia")
                 .leftJoin("oficinaContiene oc")
-                .filter("tipo", TipoPerfilCompaniaEnum.PERFIL.name())
+                .filter("tipo", TipoPerfilCompaniaEnum.FUNCION)
                 .filter("cia.id", compania)
                 .beginBlock()
                 .__().filter("pc.nombre", "like", nombre)
@@ -96,7 +96,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
                 .from(PerfilCompania.class, "pc")
                 .join("compania cia")
                 .leftJoin("oficinaContiene oc")
-                .filter("pc.tipo", TipoPerfilCompaniaEnum.CARGO.name())
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.CARGO)
                 .filter("cia.id", compania)
                 .beginBlock()
                 .__().filter("pc.nombre", "like", nombre)
@@ -127,7 +127,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     public PerfilCompania findFuncionByNombre(String nombre) {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .filter("pc.tipo", TipoPerfilCompaniaEnum.PERFIL.name())
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.FUNCION)
                 .filter("pc.nombre", nombre);
         return find(sql);
     }
@@ -136,7 +136,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     public PerfilCompania findUltimoCodigoFuncion() {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .filter("pc.tipo", TipoPerfilCompaniaEnum.PERFIL.name())
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.FUNCION)
                 .filter("pc.esAutomatico", 1)
                 .orderBy("id desc")
                 .limit(1);
@@ -166,8 +166,8 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
                 .__().filter("pc.oficinaContiene", oficina)
                 .__().isNull("pc.oficinaContiene")
                 .endBlock()
-                .filter("pc.tipo", TipoPerfilCompaniaEnum.PERFIL);
-        
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.FUNCION);
+
         return all(sql);
     }
 
