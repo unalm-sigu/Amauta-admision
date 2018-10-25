@@ -46,11 +46,12 @@
                                     <table class="table table-striped">
                                         <thead> 
                                             <tr> 
-                                                <th class="col-md-4 v-middle">Curso</th>
-                                                <th class="col-md-2 v-middle">Grupos</th>
-                                                <th class="col-md-2 v-middle">Precios</th>
-                                                <th class="col-md-2 v-middle">Precio Adicional</th>
-                                                <th class="col-md-2 v-middle">Mínimo Requerido Alumnos por Curso</th>
+                                                <th class="col-md-4 v-middle text-center">Curso</th>
+                                                <th class="col-md-2 v-middle text-center">Grupos</th>
+                                                <th class="v-middle text-center">Personalizado</th>
+                                                <th class="col-md-2 v-middle text-center">Precio</th>
+                                                <th class="col-md-2 v-middle text-center">Precio Adicional</th>
+                                                <th class="col-md-2 v-middle text-center">Mínimo Requerido Alumnos por Curso</th>
 
                                             </tr>
                                         </thead>
@@ -64,22 +65,28 @@
                                                         <i class="fa fa-bookmark text-primary"></i>
                                                         {{item.curso.tpc}}</span>
                                                 </td>
-                                                <td class="v-middle"> 
+                                                <td class="v-middle text-center"> 
                                                     {{item.cantidadGpoSecc}}
                                                 </td>
-                                                <td class="v-middle"> 
-                                                      <input v-if="verTabla" type="text"
-                                                             class="form-control" v-model="item.precio"/>
-                                                    <span  v-else="" v-text="item.precio"></span>
+                                                <td class="v-middle text-center">
+                                                    <!--<i class="fa fa-check-circle-o text-success fa-2x"></i>-->
+                                                    <!--<i class="fa fa-times-circle-o text-danger fa-2x"></i>-->
+                                                    <i v-if="item.precioPersonalizado!=0 " class="fa fa-check text-success"></i>
+                                                    <i v-if="item.precioPersonalizado=='' "></i>
                                                 </td>
-                                                <td class="v-middle">
+                                                <td class="v-middle text-center"> 
                                                     <input v-if="verTabla" type="text"
-                                                            class="form-control" v-model="item.precioAdicional"/>
-                                                    <span v-else="" v-text="item.precioAdicional"></span>
+                                                           class="form-control" v-model="item.precio"/>
+                                                    <span  v-else="" v-text="'S/.'+ item.precioFormato"></span>
                                                 </td>
-                                                <td class="v-middle">
+                                                <td class="v-middle text-center">
                                                     <input v-if="verTabla" type="text"
-                                                             class="form-control" v-model="item.minimoAlumnos"/>
+                                                           class="form-control" v-model="item.precioAdicional"/>
+                                                    <span v-else="" v-text="'S/.'+ item.precioAdicionalFormato"></span>
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <input v-if="verTabla" type="text"
+                                                           class="form-control" v-model="item.minimoAlumnos"/>
                                                     <span v-else="" v-text="item.minimoAlumnos"></span>
                                                 </td> 
                                             </tr>

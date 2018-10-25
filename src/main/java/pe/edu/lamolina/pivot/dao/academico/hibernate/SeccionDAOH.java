@@ -13,7 +13,6 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
-import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -368,9 +367,15 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     public void updatePrecioByTpc(CicloAcademico cicloAcademico, String tpc, BigDecimal precio) {
         StringBuilder sql = new StringBuilder();
 
-        sql.append(" update ").append(Seccion.class.getName()).append(" as s set precio = :PRECIO ");
-        sql.append(" where s.grupoSeccion in ( select gs.id from GrupoSeccion gs where concat( gs.curso.horasTeoria, '-', gs.curso.horasPractica, '-', gs.curso.creditos ) = :TPC and gs.cicloAcademico = :CICLO ) ");
-        sql.append(" and s.tipoSeccion != :TCUR ");
+        sql.append(" update ").append(Seccion.class.getName()).append(" as s ");
+        sql.append("    set precio = :PRECIO ");
+        sql.append("  where s.grupoSeccion in (  ");
+        sql.append("         select gs.id ");
+        sql.append("           from ").append(GrupoSeccion.class.getSimpleName()).append(" as gs ");
+        sql.append("           join gs.curso cu ");
+        sql.append("          where concat( cu.horasTeoria, '-' , cu.horasPractica, '-' , cu.creditos ) = :TPC ");
+        sql.append("            and gs.cicloAcademico = :CICLO ) ");
+        sql.append("    and s.tipoSeccion != :TCUR ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
 
@@ -417,6 +422,23 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", ciclo.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public List<Seccion> allByCursoExceptSeccion(Curso curso, Seccion seccion) {
+
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico")
+                .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
+                .leftJoin("grupoHoras gh", "aula au", "au.oficinaSupervisora", "au.aulaSuperior")
+                .leftJoin("seccionSuperior")
+                .filter("sec.id", "<>", seccion)
+                .filter("sec.tipoSeccion", "<>", TipoSeccionEnum.TCUR.name())
+                .filter("cur.id", curso);
+
+        return all(sql);
+
     }
 
 }

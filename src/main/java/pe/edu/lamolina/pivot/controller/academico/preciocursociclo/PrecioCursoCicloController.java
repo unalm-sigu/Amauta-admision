@@ -60,7 +60,7 @@ public class PrecioCursoCicloController {
                         new String[]{
                             "curso.id", "curso.estado", "curso.codigo", "curso.nombre", "curso.tpc", "curso.departamentoAcademico.nombre",
                             "cicloAcademico.descripcion",
-                            "id", "cantidadGpoSecc", "estado", "precio", "precioAdicional", "minimoAlumnos"
+                            "id", "cantidadGpoSecc", "estado", "precio", "precioPersonalizado", "precioFormato", "precioAdicional", "precioAdicionalFormato", "minimoAlumnos"
                         });
 
                 array.add(node);
@@ -83,7 +83,7 @@ public class PrecioCursoCicloController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.save(precioCursoCiclos, ds.getCicloAcademico());
+            service.save(precioCursoCiclos, ds.getCicloAcademico(), ds);
             response.setMessage("Guardado satisfactoriamente");
             response.setSuccess(true);
 

@@ -480,7 +480,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : cursosAlumno.entrySet()) {
             
             AlumnoCursoCurricula evaluado = entry.getValue();
-            evaluado.setEsSimultaneo(Boolean.FALSE);
+            //evaluado.setEsSimultaneo(Boolean.FALSE);
             if (evaluado.getEstadoEnum() != HAB) {
                 continue;
             }
@@ -491,7 +491,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             if (requisitos == null || validarSimultaneos(requisitosSimultaneo, requisitos, cursosAlumno, evaluado, ds)) {
                 if (requisitosSimultaneo.size() > 0) {
                     evaluado.setEstado(SIM.name());
-                    evaluado.setEsSimultaneo(Boolean.TRUE);
+                    //evaluado.setEsSimultaneo(Boolean.TRUE);
                     cursosSimultaneo.addAll(requisitosSimultaneo);
                 } else {
                     evaluado.setEstado(HAB.name());
