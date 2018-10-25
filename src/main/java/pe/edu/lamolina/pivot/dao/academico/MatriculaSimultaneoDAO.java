@@ -9,4 +9,6 @@ public interface MatriculaSimultaneoDAO extends EasyDAO<MatriculaSimultaneo> {
 
     public List<MatriculaSimultaneo> allByMatriculaCurso(List<MatriculaCurso> matriculaCursos);
 
+    List<MatriculaSimultaneo> allByMatriculaCurso(MatriculaCurso matriculaCurso);
+
 }

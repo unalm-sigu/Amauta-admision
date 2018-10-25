@@ -25,7 +25,7 @@ Vue.component("funcionsearh", {
                     dataType: 'json',
                     type: 'post',
                     data: function (term, page) {
-                        return {nombre: term, page: page,tipo:'PERFIL'};
+                        return {nombre: term, page: page,tipo:'FUNCION'};
                     },
                     results: function (response, page) {
                         return {results: response.data};

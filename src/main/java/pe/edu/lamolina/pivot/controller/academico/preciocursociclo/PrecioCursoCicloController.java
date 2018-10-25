@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.topematricula;
+package pe.edu.lamolina.pivot.controller.academico.preciocursociclo;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -21,90 +21,71 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.TopeMatricula;
-import pe.edu.lamolina.model.enums.TipoAlumnoEnum;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("academico/topematricula")
-public class TopeMatriculaController {
-
-    @Autowired
-    TopeMatriculaService service;
+@RequestMapping("academico/preciocursociclo")
+public class PrecioCursoCicloController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    PrecioCursoCicloService service;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
         model.addAttribute("ciclo", ds.getCicloAcademico());
-        return "academico/topematricula/topematricula";
+
+        return "academico/preciocursociclo/preciocursociclo";
     }
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
+    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            List<TopeMatricula> topesMatricula = service.allTopeMatricula(filter, ds.getCicloAcademico());
-
+            List<CursoCicloAcademico> cursosCiclo = service.allCursoCiclo(filter, ds.getCicloAcademico());
+            System.out.println(cursosCiclo);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (TopeMatricula topMatricula : topesMatricula) {
-                ObjectNode node = JsonHelper.createJson(topMatricula, JsonNodeFactory.instance, true,
+            for (CursoCicloAcademico cursoCiclo : cursosCiclo) {
+                ObjectNode node = JsonHelper.createJson(cursoCiclo, JsonNodeFactory.instance, true,
                         new String[]{
-                            "cicloAcademico.descripcion2",
-                            "id", "tipoAlumno", "tipoAlumnoEnum", "creditos"
+                            "curso.id", "curso.estado", "curso.codigo", "curso.nombre", "curso.tpc", "curso.departamentoAcademico.nombre",
+                            "cicloAcademico.descripcion",
+                            "id", "cantidadGpoSecc", "estado", "precio", "precioAdicional", "minimoAlumnos"
                         });
 
                 array.add(node);
             }
+
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
+            e.printStackTrace();
             json.setTotal(0);
         }
         return json;
     }
 
     @ResponseBody
-    @RequestMapping("allTipoAlumnos")
-    public JsonResponse allTipoAlumnos(HttpSession session) {
-
-        JsonResponse response = new JsonResponse();
-
-        try {
-            ArrayNode arrayTipoAlumnos = JsonHelper.enumToJson(TipoAlumnoEnum.values());
-
-            response.setData(arrayTipoAlumnos);
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(@RequestBody List<TopeMatricula> topesMatricula, HttpSession session) {
-
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+    public JsonResponse save(@RequestBody List<CursoCicloAcademico> precioCursoCiclos, HttpSession session) {
         JsonResponse response = new JsonResponse();
-
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.save(topesMatricula, ds.getCicloAcademico(), ds);
-
+            service.save(precioCursoCiclos, ds.getCicloAcademico());
+            response.setMessage("Guardado satisfactoriamente");
             response.setSuccess(true);
-            response.setMessage("Guardado satisfactoriamnente");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -113,4 +94,5 @@ public class TopeMatriculaController {
         }
         return response;
     }
+
 }

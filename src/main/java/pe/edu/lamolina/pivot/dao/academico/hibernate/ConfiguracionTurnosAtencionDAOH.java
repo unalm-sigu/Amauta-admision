@@ -10,19 +10,20 @@ import pe.edu.lamolina.pivot.dao.academico.ConfiguracionTurnosAtencionDAO;
 
 @Repository
 public class ConfiguracionTurnosAtencionDAOH extends AbstractEasyDAO<ConfiguracionTurnosAtencion> implements ConfiguracionTurnosAtencionDAO {
-
+    
     public ConfiguracionTurnosAtencionDAOH() {
         super();
         setClazz(ConfiguracionTurnosAtencion.class);
     }
-
+    
     @Override
     public List<ConfiguracionTurnosAtencion> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(ConfiguracionTurnosAtencion.class, "cta")
                 .join("cta.eventoCicloAcademico eca", "eca.cicloAcademico ca")
+                .join("eca.eventoAcademico ea")
                 .filter("ca.id", ciclo);
         return all(sql);
     }
-
+    
 }

@@ -387,4 +387,58 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         query.executeUpdate();
     }
 
+    @Override
+    public void deleteAllByCiclo(CicloAcademico ciclo) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(" DELETE ").append(Seccion.class.getName()).append(" sec ")
+                .append(" WHERE EXISTS ")
+                .append(" ( ")
+                .append(" SELECT 1 FROM ").append(GrupoSeccion.class.getName()).append(" gs ")
+                .append("   JOIN gs.cicloAcademico ci ")
+                .append("  WHERE ci.id=:CICLO ")
+                .append("    AND sec.grupoSeccion.id=gs.id ")
+                .append(" ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void deleteAllNotSuperiorByCiclo(CicloAcademico ciclo) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(" DELETE ").append(Seccion.class.getName()).append(" sec ")
+                .append(" WHERE sec.seccionSuperior.id is not null ")
+                .append("   AND EXISTS ")
+                .append(" ( ")
+                .append(" SELECT 1 FROM ").append(GrupoSeccion.class.getName()).append(" gs ")
+                .append(" JOIN gs.cicloAcademico ci ")
+                .append(" WHERE ci.id=:CICLO ")
+                .append(" AND sec.grupoSeccion.id=gs.id ")
+                .append(" ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public List<Seccion> allByCursoExceptSeccion(Curso curso, Seccion seccion) {
+
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico")
+                .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
+                .leftJoin("grupoHoras gh", "aula au", "au.oficinaSupervisora", "au.aulaSuperior")
+                .leftJoin("seccionSuperior")
+                .filter("sec.id", "<>", seccion)
+                .filter("sec.tipoSeccion", "<>", TipoSeccionEnum.TCUR.name())
+                .filter("cur.id", curso);
+
+        return all(sql);
+
+    }
+
 }

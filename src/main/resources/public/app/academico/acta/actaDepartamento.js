@@ -76,10 +76,10 @@ $(function () {
             if (ActaDepartamento.divElegido != null) {
                 var valueAnt = ActaDepartamento.divElegido.context.attributes[1].value;
                 var estadoAnt = ActaDepartamento.divElegido.context.rel;
-                
+
                 ActaDepartamento.listActasSelec.forEach(function (elem, index) {
                     if (elem == value) {
-                        dynatable.queries.remove('filter'+index)
+                        dynatable.queries.remove('filter' + index)
                         ActaDepartamento.lstDivElegido[index].removeClass(classColor);
                         ActaDepartamento.lstDivElegido.splice(index, 1);
                         ActaDepartamento.listActasSelec.splice(index, 1);
@@ -112,7 +112,7 @@ $(function () {
 
             } else {
                 ActaDepartamento.lstDivElegido.forEach(function (elem, index) {
-                    var valor = elem.context.rel;                    
+                    var valor = elem.context.rel;
                     dynatable.queries.add("filter" + index, valor);
                 })
             }
@@ -176,7 +176,7 @@ $(function () {
                 }
             });
         }, reporteActa: function (item, e) {
-            location.href = APP.url('academico/docente/cargaacademica/reporteDeActas?seccion=' + item.attr("rel"));
+            location.href = APP.url('docente/notasacademica/reporteDeActas?seccion=' + item.attr("rel"));
         }
     };
 

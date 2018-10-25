@@ -260,7 +260,8 @@ public class MatricularServiceImp implements MatricularService {
             logger.debug("requieren simultaneo {}", pendientesMatriculaSeccion.size());
             for (Long idSeccionSimultaneo : pendientesMatriculaSeccion) {
 
-                MatriculaSeccion ms = misMatriculaSeccionMap.get(idSeccionSimultaneo);
+                //      MatriculaSeccion ms = misMatriculaSeccionMap.get(idSeccionSimultaneo);
+                MatriculaSeccion ms = misMatriculaSeccions.stream().filter(x -> x.getId().compareTo(idSeccionSimultaneo) == 0).findFirst().orElse(null);
 
                 Seccion seccion = ms.getSeccion();
 
@@ -316,22 +317,24 @@ public class MatricularServiceImp implements MatricularService {
 
                 MatriculaCurso matriculaCurso = misMatriculaCursoMap.get(curso.getId());
 
-                List<MatriculaSimultaneo> misMatriculaSimultaneo = matriculaSimultaneosMap.get(curso.getId());
+                List<MatriculaSimultaneo> misMatriculaSimultaneo = matriculaSimultaneosMap.get(matriculaCurso.getId());
                 boolean cumpleSimultaneo = true;
 
                 for (MatriculaSimultaneo matriculaSimultaneo : misMatriculaSimultaneo) {
-                    MatriculaCurso matriculaCursoSimultaneo = misMatriculaCursoMap.get(matriculaSimultaneo.getMatriculaCursoSimultaneo().getId());
+                    //    MatriculaCurso matriculaCursoSimultaneo = misMatriculaCursoMap.get(matriculaSimultaneo.getMatriculaCursoSimultaneo().getId());
+                    MatriculaCurso matriculaCursoSimultaneo = misMatriculaCursoMap.get(matriculaSimultaneo.getMatriculaCursoSimultaneo().getCurso().getId());
                     if (matriculaCursoSimultaneo.getEstadoEnum() == EstadoMatriculaEnum.NMAT) {
                         cumpleSimultaneo = false;
                     }
                 }
 
+                notify.setCurrentCurso(notify.getCurrentCurso() + 1);
                 if (cumpleSimultaneo) {
-
+                    // notify.setCurrentCurso(notify.getCurrentCurso() + 1);
                     if (matriculaCurso.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
                         matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
                         matriculaCursoDAO.update(matriculaCurso);
-                        notify.setCurrentCurso(notify.getCurrentCurso() + 1);
+
                     }
 
                     mr.setCreditosMatriculados(curso.getCreditos() + mr.getCreditosMatriculados());
@@ -346,11 +349,26 @@ public class MatricularServiceImp implements MatricularService {
 
                 } else {
 
-                    ms.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+                    ms.setEstadoEnum(EstadoMatriculaEnum.NREQ);
                     matriculaSeccionDAO.update(ms);
 
+                    List<MatriculaSimultaneo> matriculasSimultaneo = matriculaSimultaneoDAO.allByMatriculaCurso(matriculaCurso);
+                    for (MatriculaSimultaneo matriculaSimultaneo : matriculasSimultaneo) {
+                        matriculaSimultaneoDAO.delete(matriculaSimultaneo);
+                    }
+                    ms.setEstadoEnum(EstadoMatriculaEnum.NVAC);
+                    matriculaSeccionDAO.update(ms);
+
+                    notify.setCurrentSeccion(notify.getCurrentSeccion() + 1);
+                    StringBuilder sd = new StringBuilder();
+                    sd.append("alumno ");
+                    sd.append(alumno.getCodigo());
+                    sd.append(" no cumple requisito ");
+                    sd.append(seccion.getCodigo());
+                    notify.setMessage(sd.toString());
+                    notify.setState(false);
+                    this.notify(notify, usuario);
                 }
-                notify.setCurrentSeccion(notify.getCurrentSeccion() + 1);
             }
             notify.setState(true);
             this.notify(notify, usuario);
@@ -363,6 +381,7 @@ public class MatricularServiceImp implements MatricularService {
             cicloAcademico.setFechaTurnosDisponibles(null);
             cicloAcademicoDAO.updateFechasTurnosAignadosDisponibles(cicloAcademico);
         }
+
     }
 
     @Override

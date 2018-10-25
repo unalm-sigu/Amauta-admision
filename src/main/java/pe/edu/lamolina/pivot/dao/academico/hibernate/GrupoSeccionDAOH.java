@@ -18,6 +18,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
@@ -372,6 +373,18 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     }
 
     @Override
+    public List<GrupoSeccion> allActivoByCursoCiclo(Curso curso, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("curso cur", "cicloAcademico ca")
+                .filter("gs.estado", EstadoEnum.ACT)
+                .filter("cur.id", curso)
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
     public List<GrupoSeccion> allActivoByCicloGrupoNoCerrado(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
@@ -587,6 +600,20 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("CICLO", ciclo.getId());
 
+        query.executeUpdate();
+    }
+
+    @Override
+    public void deleteAllByCiclo(CicloAcademico ciclo) {
+
+        StringBuilder sql = new StringBuilder();
+
+        sql.append(" DELETE ")
+                .append(GrupoSeccion.class.getName()).append(" gs ")
+                .append(" WHERE gs.cicloAcademico.id=:CICLO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
         query.executeUpdate();
     }
 

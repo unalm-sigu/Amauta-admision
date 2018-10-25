@@ -47,11 +47,11 @@ new Vue({
 
                 $vue.verForm = false;
                 $vue.matricula = [];
-                console.log($vue.tipoalumnos.length)
+                //console.log($vue.tipoalumnos.length)
                 for (var i = 0; i < $vue.tipoalumnos.length; i++) {
                     let mat = $vue.getAlumnos($vue.tipoalumnos[i], $vue.matriculaBD);
                     if (mat == null) {
-                        console.dir($vue.tipoalumnos[i].length);
+                        //console.dir($vue.tipoalumnos[i].length);
                         $vue.matricula.push({tipoAlumno: $vue.tipoalumnos[i].name,tipoAlumnoEnum: $vue.tipoalumnos[i], creditos: ""});
                     } else {
                         $vue.matricula.push(mat);

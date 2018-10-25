@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -418,7 +419,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
 
     @Override
     public List<DocenteSeccion> allSeccionByClone(List<Seccion> secciones) {
-                
+
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
@@ -429,7 +430,26 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .in("sec.id", secciones)
                 .orderBy("cur.nombre", "sec.codigo2");
         return all(sql);
-        
+
+    }
+
+    @Override
+    public void deleteAllByCiclo(CicloAcademico ciclo) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(" DELETE ").append(DocenteSeccion.class.getName()).append(" dos ")
+                .append(" WHERE EXISTS ")
+                .append(" ( ")
+                .append(" SELECT 1 FROM ").append(Seccion.class.getName()).append(" sec ")
+                .append(" JOIN sec.grupoSeccion gs ")
+                .append(" JOIN gs.cicloAcademico ci ")
+                .append(" WHERE ci.id=:CICLO ")
+                .append("   AND dos.seccion.id=sec.id ")
+                .append(" ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
+        query.executeUpdate();
     }
 
 }

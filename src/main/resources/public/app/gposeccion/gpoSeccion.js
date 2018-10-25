@@ -558,6 +558,57 @@ new Vue({
 
             });
 
+        },
+        limpiarCiclo() {
+
+            let $vue = this;
+
+            swal({
+                title: "Limpiar Ciclo",
+                text: "¿Desea eliminar todos los registros?",
+                icon: "warning",
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Aceptar", closeModal: false}
+                }
+            }).then((value) => {
+
+                if (value != true) {
+                    return;
+                }
+
+                $.ajax({
+                    method: 'POST',
+                    async: false,
+                    url: APP.url('academico/gposeccion/limpiarciclo'),
+                    success: function (response) {
+                        if (response.success) {
+
+                            notify(response.message, 'info');
+
+                            $vue.$refs.load.loadRemoteData();
+                            $vue.updateCantidadGrupoSeccion();
+
+                            swal({text: response.message, icon: "success", button: false, timer: 1000});
+
+                        } else {
+
+                            swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        }
+                    },
+                    error: function () {
+
+                        swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                    }
+                });
+
+            }).catch(err => {
+
+                swal(MESSAGES.errorComunicacion, "error");
+
+            });
+
         }
     }
 });

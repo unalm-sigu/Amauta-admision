@@ -10,6 +10,6 @@ public interface TopeMatriculaService {
 
     List<TopeMatricula> allTopeMatricula(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    void save(List<TopeMatricula> topeMatricula, CicloAcademico cicloAcademico, DataSessionPivot ds);
+    void save(List<TopeMatricula> topesMatricula, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
 }

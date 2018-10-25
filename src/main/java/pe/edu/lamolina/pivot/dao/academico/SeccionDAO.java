@@ -69,4 +69,10 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     void updatePrecioByTpc(CicloAcademico cicloAcademico, String tpc, BigDecimal precio);
 
+    void deleteAllByCiclo(CicloAcademico ciclo);
+
+    void deleteAllNotSuperiorByCiclo(CicloAcademico ciclo);
+
+    List<Seccion> allByCursoExceptSeccion(Curso curso, Seccion seccion);
+
 }
