@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,8 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
@@ -58,7 +62,7 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
     public void save(List<CursoCicloAcademico> cursosCicloForm, CicloAcademico ciclo, DataSessionPivot ds) {
         for (CursoCicloAcademico cursoCicloForm : cursosCicloForm) {
             CursoCicloAcademico cursoCicloBD = cursoCicloAcademicoDAO.find(cursoCicloForm.getId());
-
+                      
             if (cursoCicloBD.getPrecio().compareTo(cursoCicloForm.getPrecio()) == 0) {
                 cursoCicloBD.setPrecioPersonalizado(Boolean.FALSE);
                 cursoCicloBD.setUserPrecio(null);
@@ -88,12 +92,12 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
 
                 if (seccion.getPrecioPersonalizado()) {
                     continue;
-                }else {
+                } else {
                     seccion.setPrecioPersonalizado(Boolean.TRUE);
                     seccion.setUserPrecio(ds.getUsuario());
                     seccion.setFechaPrecio(new Date());
                 }
-                
+
                 seccion.setPrecio(cursoCicloForm.getPrecio().add(cursoCicloForm.getPrecioAdicional()));
                 seccionDAO.update(seccion);
             }
