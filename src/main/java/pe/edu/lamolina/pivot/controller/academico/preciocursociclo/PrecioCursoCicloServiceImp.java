@@ -89,7 +89,7 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
                 if (seccion.isTipoSeccionTCUR()) {
                     continue;
                 }
-
+                logger.debug("Contenido de seccion = {}", seccion.getPrecioPersonalizado());
                 if (seccion.getPrecioPersonalizado()) {
                     continue;
                 } else {

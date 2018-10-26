@@ -7,7 +7,9 @@ new Vue({
         matriculaBD: [],
         tipoalumnos: [],
         matricula: [],
-        verForm: false
+        verForm: false,
+        guardando: false
+        
 
     },
     mounted() {
@@ -92,6 +94,7 @@ new Vue({
             });
         },
         guardar() {
+            this.guardando = true;
             let $vue = this;
 
             $.ajax({
@@ -102,6 +105,8 @@ new Vue({
                 data: JSON.stringify($vue.matricula)
             }).then(response => {
                 if (response.success) {
+                    this.guardando = false;
+                    this.verForm = false;
                     notify(response.message, "info")
                 } else {
                     notify(response.message, 'error');

@@ -3,7 +3,7 @@ new Vue({
     data: {
         preciocursocicloURL: APP.url('academico/preciocursociclo/list'),
         verTabla: false,
-        salvar: false
+        guardando: false
     },
     mounted() {
         let $vue = this;
@@ -11,7 +11,7 @@ new Vue({
     },
     methods: {
         verGuardar() {
-            this.salvar = true;
+           
 
             let $vue = this;
             bootbox.confirm({
@@ -30,6 +30,7 @@ new Vue({
             });
         },
         guardar() {
+            this.guardando = true;
             let $vue = this;
             //console.dir($vue.$refs.raptorPrecioCursoCiclo);
             //console.dir($vue.$refs.raptorPrecioCursoCiclo.data);
@@ -40,6 +41,8 @@ new Vue({
                 data: JSON.stringify($vue.$refs.raptorPrecioCursoCiclo.data)
             }).then(response => {
                 if (response.success) {
+                     this.verTabla = false,
+                     this.guardando = false;
                     $vue.$refs.raptorPrecioCursoCiclo.loadRemoteData();
                     notify(response.message, "info");
                 } else {
