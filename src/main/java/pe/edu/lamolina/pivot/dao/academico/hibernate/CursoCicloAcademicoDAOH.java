@@ -38,6 +38,7 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
         sql.append(" update ").append(CursoCicloAcademico.class.getName()).append(" as cca set precio = :PRECIO ");
         sql.append(" where cca.curso in ( select cu.id from Curso cu where concat( cu.horasTeoria, '-', cu.horasPractica, '-', cu.creditos ) = :TPC ) ");
         sql.append(" and cca.cicloAcademico = :CICLO ");
+        sql.append(" and (cca.precioPersonalizado <> 1 or cca.precioPersonalizado is null) ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
 
@@ -50,7 +51,7 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
 
     @Override
     public void deleteAllByCiclo(CicloAcademico ciclo) {
-        
+
         StringBuilder sql = new StringBuilder();
         sql.append(" DELETE FROM ")
                 .append(CursoCicloAcademico.class.getName()).append(" cca ")
@@ -59,9 +60,9 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", ciclo.getId());
         query.executeUpdate();
-        
+
     }
-    
+
     public List<CursoCicloAcademico> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(CursoCicloAcademico.class, "pcc")
@@ -82,6 +83,15 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
                 .filter("ca.id", ciclo)
                 .in("cu.id", cursos)
                 .groupBy("cu.id");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoCicloAcademico> allByLista(List<CursoCicloAcademico> cursosCiclos) {
+        Octavia sql = Octavia.query(CursoCicloAcademico.class, "cca")
+                .join("curso c", "cicloAcademico ca")
+                .in("cca.id", cursosCiclos);
 
         return all(sql);
     }

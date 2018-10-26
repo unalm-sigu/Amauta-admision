@@ -9,8 +9,6 @@ new Vue({
         matricula: [],
         verForm: false,
         guardando: false
-        
-
     },
     mounted() {
         let $vue = this;
@@ -54,7 +52,7 @@ new Vue({
                     let mat = $vue.getAlumnos($vue.tipoalumnos[i], $vue.matriculaBD);
                     if (mat == null) {
                         //console.dir($vue.tipoalumnos[i].length);
-                        $vue.matricula.push({tipoAlumno: $vue.tipoalumnos[i].name,tipoAlumnoEnum: $vue.tipoalumnos[i], creditos: ""});
+                        $vue.matricula.push({tipoAlumno: $vue.tipoalumnos[i].name, tipoAlumnoEnum: $vue.tipoalumnos[i], creditos: ""});
                     } else {
                         $vue.matricula.push(mat);
                     }
@@ -78,6 +76,7 @@ new Vue({
             }
 
             let $vue = this;
+            this.guardando = true;
             bootbox.confirm({
                 message: '¿Está seguro que desea guarda esta matrícula?',
                 buttons: {
@@ -86,9 +85,9 @@ new Vue({
                 },
                 callback: function (aceptar) {
                     if (aceptar) {
-                        setTimeout(function () {
-                            $vue.guardar();
-                        }, 200);
+                        $vue.guardar();
+                    } else {
+                        $vue.guardando = false;
                     }
                 }
             });
@@ -105,13 +104,14 @@ new Vue({
                 data: JSON.stringify($vue.matricula)
             }).then(response => {
                 if (response.success) {
-                    this.guardando = false;
-                    this.verForm = false;
-                    notify(response.message, "info")
+                    $vue.guardando = false;
+                    $vue.verForm = false;
+                    notify(response.message, "info");
                 } else {
                     notify(response.message, 'error');
                 }
             }, error => {
+                $vue.guardando = false;
                 notify(MESSAGES.errorComunicacion, 'error');
             });
         }

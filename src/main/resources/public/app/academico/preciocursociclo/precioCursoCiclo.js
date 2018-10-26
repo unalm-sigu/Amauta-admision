@@ -11,9 +11,11 @@ new Vue({
     },
     methods: {
         verGuardar() {
-           
+
 
             let $vue = this;
+            this.guardando = true;
+
             bootbox.confirm({
                 message: '¿Está seguro que desea guarda este curso de nivelación?',
                 buttons: {
@@ -22,9 +24,9 @@ new Vue({
                 },
                 callback: function (aceptar) {
                     if (aceptar) {
-                        setTimeout(function () {
-                            $vue.guardar();
-                        }, 200);
+                        $vue.guardar();
+                    }else{
+                        $vue.guardando = false; 
                     }
                 }
             });
@@ -41,14 +43,17 @@ new Vue({
                 data: JSON.stringify($vue.$refs.raptorPrecioCursoCiclo.data)
             }).then(response => {
                 if (response.success) {
-                     this.verTabla = false,
-                     this.guardando = false;
+//                    console.log("entro aquí")
+                    $vue.verTabla = false;
+                    $vue.guardando = false;
                     $vue.$refs.raptorPrecioCursoCiclo.loadRemoteData();
                     notify(response.message, "info");
                 } else {
                     notify(response.message, 'error');
                 }
             }, error => {
+                $vue.verTabla = true;
+                $vue.guardando = false;
                 notify(MESSAGES.errorComunicacion, 'error');
             });
         }

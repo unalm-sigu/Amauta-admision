@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 import java.util.List;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
@@ -63,6 +64,17 @@ public class PrecioCursoEstructuraDAOH extends AbstractEasyDAO<PrecioCursoEstruc
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", ciclo.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public List<PrecioCursoEstructura> allByEstructurasCiclo(List<String> tpcs, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(PrecioCursoEstructura.class, "pce")
+                .join("cicloAcademico ca")
+                .in("tpc", tpcs)
+                .filter("ca.id", ciclo);
+
+        return all(sql);
     }
 
 }
