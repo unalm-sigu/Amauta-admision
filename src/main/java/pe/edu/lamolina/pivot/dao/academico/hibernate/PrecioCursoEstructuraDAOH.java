@@ -77,4 +77,14 @@ public class PrecioCursoEstructuraDAOH extends AbstractEasyDAO<PrecioCursoEstruc
         return all(sql);
     }
 
+    @Override
+    public PrecioCursoEstructura findByTpcCiclo(String tpc, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(PrecioCursoEstructura.class, "pce")
+                .join("cicloAcademico ca")
+                .filter("ca.id", ciclo)
+                .filter("tpc", tpc);
+        return find(sql);
+    }
+
 }

@@ -432,8 +432,11 @@
                                                 <li v-bind:class="getClassTab('AULAS')" v-on:click="verTab('AULAS')">
                                                     <a href="#3Conte" data-toggle="tab">Aulas</a>
                                                 </li>
-                                                <li>
+                                                <li v-bind:class="getClassTab('FUSIONES')" v-on:click="verTab('FUSIONES')">
                                                     <a href="#4Conte" data-toggle="tab">Fusiones</a>
+                                                </li>
+                                                <li v-bind:class="getClassTab('PRECIOS')" v-on:click="verTab('PRECIOS')">
+                                                    <a href="#5Conte" data-toggle="tab">Precios</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -449,8 +452,11 @@
                                         <div class="tab-pane" v-bind:class="getClassTab('AULAS')" id="3Conte">
                                             <div th:substituteby="academico/gposeccion/includes/aulaSeccionForm"/>
                                         </div>
-                                        <div class="tab-pane" id="4Conte">
+                                        <div class="tab-pane" v-bind:class="getClassTab('FUSIONES')" id="4Conte">
                                             <div th:substituteby="academico/gposeccion/includes/fusionSeccionForm"/>
+                                        </div>
+                                        <div class="tab-pane" v-bind:class="getClassTab('PRECIOS')" id="5Conte">
+                                            <div th:substituteby="academico/gposeccion/includes/precioSeccionForm"/>
                                         </div>
                                     </div>
 
