@@ -146,7 +146,7 @@ public class OAuthController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Rol asignar = ds.getMapRoles().get(rol);
-
+            logger.debug("rolland");
             serviceProvider.asignarRolActivo(asignar, ds, session);
         } catch (Exception e) {
             e.printStackTrace();;
