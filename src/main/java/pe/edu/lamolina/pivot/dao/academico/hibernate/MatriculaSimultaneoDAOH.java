@@ -29,4 +29,14 @@ public class MatriculaSimultaneoDAOH extends AbstractEasyDAO<MatriculaSimultaneo
         return all(sql);
     }
 
+    @Override
+    public List<MatriculaSimultaneo> allByMatriculaCurso(MatriculaCurso matriculaCurso) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaSimultaneo.class, "ms")
+                .join("matriculaCurso mc", "matriculaCursoSimultaneo mcs")
+                .join("mc.curso cur1", "mcs.curso cur2")
+                .filter("mc.id", matriculaCurso);
+        return all(sql);
+    }
+
 }

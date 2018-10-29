@@ -1,9 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.gposeccion.clonarciclo;
 
-import java.util.List;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -19,8 +16,6 @@ public interface ClonGpoSeccionService {
 
     void limpiarCodigo2(CicloAcademico ciclo, DataSessionPivot ds);
 
-    List<Alumno> allAlumnoBySeccion(Seccion seccion);
-
-    void trasladar(Fusion trasladoForm);
+    void limpiarCiclo(CicloAcademico ciclo);
 
 }

@@ -7,6 +7,11 @@ import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 
 public interface PrecioCursoEstructuraDAO extends EasyDAO<PrecioCursoEstructura> {
 
-    public List<PrecioCursoEstructura> allByCiclo(CicloAcademico cicloDestino);
+    List<PrecioCursoEstructura> allByCiclo(CicloAcademico cicloDestino);
 
+    void deleteAllByCiclo(CicloAcademico ciclo);
+
+    List<PrecioCursoEstructura> allByEstructurasCiclo(List<String> tpcs, CicloAcademico ciclo);
+    
+    PrecioCursoEstructura findByTpcCiclo(String tpc, CicloAcademico ciclo);
 }

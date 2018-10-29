@@ -24,11 +24,14 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
+import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.matricula.MatriculaSimultaneo;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
@@ -72,6 +75,9 @@ public class MatricularServiceImp implements MatricularService {
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
+    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
 
     @Override
     public TurnoAtencion findTurnoAtencion(Long turnoAtencion) {
@@ -160,6 +166,9 @@ public class MatricularServiceImp implements MatricularService {
             for (MatriculaSeccion ms : misMatriculaSeccionMap.values()) {
 
                 Seccion seccion = ms.getSeccion();
+                GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
+                Curso curso = grupoSeccion.getCurso();
+
                 int disponibles = seccion.getVacantes() - (seccion.getReservados() + seccion.getMatriculados());
                 logger.debug("matriculando a seccion   {} {} vacantes {} reservados {} matriculados {} disponibles {} ",
                         seccion.getId(),
@@ -183,6 +192,7 @@ public class MatricularServiceImp implements MatricularService {
                     sd.append(seccion.getCodigo());
                     notify.setMessage(sd.toString());
                     notify.setState(false);
+                    this.actualizarAlumnoCursoCurricula(alumno, curso, CursoCurriculaEstadoEnum.HAB);
                     this.notify(notify, usuario);
                     continue;
                 }
@@ -198,6 +208,7 @@ public class MatricularServiceImp implements MatricularService {
                     sd.append(seccion.getCodigo());
                     notify.setMessage(sd.toString());
                     notify.setState(false);
+                    this.actualizarAlumnoCursoCurricula(alumno, curso, CursoCurriculaEstadoEnum.HAB);
                     this.notify(notify, usuario);
                     continue;
                 }
@@ -214,12 +225,10 @@ public class MatricularServiceImp implements MatricularService {
                     sd.append(seccion.getCodigo());
                     notify.setMessage(sd.toString());
                     notify.setState(false);
+                    this.actualizarAlumnoCursoCurricula(alumno, curso, CursoCurriculaEstadoEnum.HAB);
                     this.notify(notify, usuario);
                     continue;
                 }
-
-                GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
-                Curso curso = grupoSeccion.getCurso();
 
                 logger.debug("matriculando a grupo seccion   {} {} matriculando a curso  {} {} ",
                         grupoSeccion.getId(), grupoSeccion.getCodigo(),
@@ -233,6 +242,7 @@ public class MatricularServiceImp implements MatricularService {
 
                     if (mc.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
                         mc.setEstadoEnum(EstadoMatriculaEnum.MAT);
+                        this.actualizarAlumnoCursoCurricula(alumno, curso, CursoCurriculaEstadoEnum.MAT);
                         matriculaCursoDAO.update(mc);
                         notify.setCurrentCurso(notify.getCurrentCurso() + 1);
                     }
@@ -260,9 +270,12 @@ public class MatricularServiceImp implements MatricularService {
             logger.debug("requieren simultaneo {}", pendientesMatriculaSeccion.size());
             for (Long idSeccionSimultaneo : pendientesMatriculaSeccion) {
 
-                MatriculaSeccion ms = misMatriculaSeccionMap.get(idSeccionSimultaneo);
+                //      MatriculaSeccion ms = misMatriculaSeccionMap.get(idSeccionSimultaneo);
+                MatriculaSeccion ms = misMatriculaSeccions.stream().filter(x -> x.getId().compareTo(idSeccionSimultaneo) == 0).findFirst().orElse(null);
 
                 Seccion seccion = ms.getSeccion();
+                GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
+                Curso curso = grupoSeccion.getCurso();
 
                 int disponibles = seccion.getVacantes() - (seccion.getReservados() + seccion.getMatriculados());
                 logger.debug("matriculando a seccion simultaneo   {} {} vacantes {} reservados {} matriculados {} disponibles {} ",
@@ -285,6 +298,7 @@ public class MatricularServiceImp implements MatricularService {
                     sd.append(seccion.getCodigo());
                     notify.setMessage(sd.toString());
                     notify.setState(false);
+                    this.actualizarAlumnoCursoCurricula(alumno, curso, CursoCurriculaEstadoEnum.HAB);
                     this.notify(notify, usuario);
                     continue;
                 }
@@ -302,12 +316,10 @@ public class MatricularServiceImp implements MatricularService {
                     sd.append(seccion.getCodigo());
                     notify.setMessage(sd.toString());
                     notify.setState(false);
+                    this.actualizarAlumnoCursoCurricula(alumno, curso, CursoCurriculaEstadoEnum.HAB);
                     this.notify(notify, usuario);
                     continue;
                 }
-
-                GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
-                Curso curso = grupoSeccion.getCurso();
 
                 logger.debug("matriculando a grupo seccion   {} {} matriculando a curso  {} {} ",
                         grupoSeccion.getId(), grupoSeccion.getCodigo(),
@@ -316,22 +328,25 @@ public class MatricularServiceImp implements MatricularService {
 
                 MatriculaCurso matriculaCurso = misMatriculaCursoMap.get(curso.getId());
 
-                List<MatriculaSimultaneo> misMatriculaSimultaneo = matriculaSimultaneosMap.get(curso.getId());
+                List<MatriculaSimultaneo> misMatriculaSimultaneo = matriculaSimultaneosMap.get(matriculaCurso.getId());
                 boolean cumpleSimultaneo = true;
 
                 for (MatriculaSimultaneo matriculaSimultaneo : misMatriculaSimultaneo) {
-                    MatriculaCurso matriculaCursoSimultaneo = misMatriculaCursoMap.get(matriculaSimultaneo.getMatriculaCursoSimultaneo().getId());
+                    //    MatriculaCurso matriculaCursoSimultaneo = misMatriculaCursoMap.get(matriculaSimultaneo.getMatriculaCursoSimultaneo().getId());
+                    MatriculaCurso matriculaCursoSimultaneo = misMatriculaCursoMap.get(matriculaSimultaneo.getMatriculaCursoSimultaneo().getCurso().getId());
                     if (matriculaCursoSimultaneo.getEstadoEnum() == EstadoMatriculaEnum.NMAT) {
                         cumpleSimultaneo = false;
                     }
                 }
 
+                notify.setCurrentCurso(notify.getCurrentCurso() + 1);
                 if (cumpleSimultaneo) {
-
+                    // notify.setCurrentCurso(notify.getCurrentCurso() + 1);
                     if (matriculaCurso.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
                         matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
+                        this.actualizarAlumnoCursoCurricula(alumno, curso, CursoCurriculaEstadoEnum.MAT);
                         matriculaCursoDAO.update(matriculaCurso);
-                        notify.setCurrentCurso(notify.getCurrentCurso() + 1);
+
                     }
 
                     mr.setCreditosMatriculados(curso.getCreditos() + mr.getCreditosMatriculados());
@@ -346,11 +361,28 @@ public class MatricularServiceImp implements MatricularService {
 
                 } else {
 
-                    ms.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+                    ms.setEstadoEnum(EstadoMatriculaEnum.NREQ);
                     matriculaSeccionDAO.update(ms);
 
+                    List<MatriculaSimultaneo> matriculasSimultaneo = matriculaSimultaneoDAO.allByMatriculaCurso(matriculaCurso);
+                    for (MatriculaSimultaneo matriculaSimultaneo : matriculasSimultaneo) {
+                        matriculaSimultaneoDAO.delete(matriculaSimultaneo);
+                    }
+                    ms.setEstadoEnum(EstadoMatriculaEnum.NVAC);
+                    matriculaSeccionDAO.update(ms);
+
+                    this.actualizarAlumnoCursoCurricula(alumno, curso, CursoCurriculaEstadoEnum.HAB);
+
+                    notify.setCurrentSeccion(notify.getCurrentSeccion() + 1);
+                    StringBuilder sd = new StringBuilder();
+                    sd.append("alumno ");
+                    sd.append(alumno.getCodigo());
+                    sd.append(" no cumple requisito ");
+                    sd.append(seccion.getCodigo());
+                    notify.setMessage(sd.toString());
+                    notify.setState(false);
+                    this.notify(notify, usuario);
                 }
-                notify.setCurrentSeccion(notify.getCurrentSeccion() + 1);
             }
             notify.setState(true);
             this.notify(notify, usuario);
@@ -363,6 +395,18 @@ public class MatricularServiceImp implements MatricularService {
             cicloAcademico.setFechaTurnosDisponibles(null);
             cicloAcademicoDAO.updateFechasTurnosAignadosDisponibles(cicloAcademico);
         }
+
+    }
+
+    public void actualizarAlumnoCursoCurricula(Alumno alumno, Curso curso, CursoCurriculaEstadoEnum cursoCurriculaEstadoEnum) {
+        AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findByAlumnoCurso(alumno, curso);
+        AlumnoCursoCurricula alumnoCursoCurriculaUpd = new AlumnoCursoCurricula();
+        alumnoCursoCurriculaUpd.setId(alumnoCursoCurricula.getId());
+        alumnoCursoCurriculaUpd.setEstadoEnum(cursoCurriculaEstadoEnum);
+        if (alumnoCursoCurricula.getEsSimultaneo() && cursoCurriculaEstadoEnum.equals(CursoCurriculaEstadoEnum.HAB)) {
+            alumnoCursoCurriculaUpd.setEstadoEnum(CursoCurriculaEstadoEnum.SIM);
+        }
+        alumnoCursoCurriculaDAO.updateEstado(alumnoCursoCurriculaUpd);
     }
 
     @Override

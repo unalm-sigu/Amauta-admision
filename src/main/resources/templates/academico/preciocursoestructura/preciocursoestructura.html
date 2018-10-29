@@ -12,11 +12,14 @@
 
         <section class="wrapper-lg">
             <section class="panel">
-                <section class="panel-body">
-                    <div class="col-md-offset-2 col-md-8">
+                <section class="panel-body" th:unless="${cicloAcademico.tipo == 'NIV' }">
+                    No se configura precios en este ciclo
+                </section>
+                <section class="panel-body" th:if="${cicloAcademico.tipo == 'NIV' }">
+                <div class="col-md-offset-2 col-md-8">
                     <div class="row m-b-sm">
                         <div class="col-md-6">
-                           <label class="switch"> Editar
+                            <label class="switch"> Editar
                                 <input  type="checkbox" 
                                         v-model="editar"
                                         v-on:change="list"/>
@@ -46,21 +49,21 @@
                                 </td>
                                 <td class="v-middle text-right">
                                     <input v-if="editar" class="form-control text-right" v-bind:disabled="guardando" v-model="estructura.precio"/>
-                                    <span v-else=""> {{ estructura.precio | currency }} </span>
+                                    <span v-else="">S/.{{estructura.precio | currency }} </span>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                    </div>
-                </section>
+                </div>
             </section>
         </section>
+    </section>
 
-    </div>
+</div>
 
-    <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/preciocursoestructura/preciocursoestructura.js}" charset="utf-8"></script>
-    </div>
+<div layout:fragment="js">
+    <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+    <script th:src="@{/app/academico/preciocursoestructura/preciocursoestructura.js}" charset="utf-8"></script>
+</div>
 </body>
 </html>

@@ -2,13 +2,11 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.Arrays;
 import java.util.List;
-import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -27,12 +25,12 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
     }
 
     @Override
-    public List<MatriculaSeccion> allBySeccion(Seccion seccion) {
+    public List<MatriculaSeccion> allMatriculadosBySeccion(Seccion seccion) {
         Octavia sql = Octavia.query()
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
-                .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
-                .leftJoin("alu.carrera carr", "carr.facultad fac")
+                .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
+                .leftJoin("per.tipoDocumento tdoc")
                 .filter("ms.estado", EstadoMatriculaEnum.MAT)
                 .filter("sec.id", seccion)
                 .orderBy("per.paterno", "per.materno", "per.nombres");
@@ -51,31 +49,31 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
         return find(sql);
     }
 
+//    @Override
+//    public MatriculaSeccion findByAlumnoSeccion(Alumno alumno, Seccion seccion) {
+//        Octavia sql = Octavia.query()
+//                .from(MatriculaSeccion.class, "ms")
+//                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
+//                .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
+//                .filter("sec.id", seccion)
+//                .filter("alu.id", alumno);
+//
+//        return find(sql);
+//    }
+//
+//    @Override
+//    public List<MatriculaSeccion> allByMatriculaSeccion(MatriculaResumen resumen) {
+//        Octavia sql = Octavia.query()
+//                .from(MatriculaSeccion.class, "ms")
+//                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ca")
+//                .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
+//                .filter("mr.id", resumen);
+//
+//        return all(sql);
+//    }
+//
     @Override
-    public MatriculaSeccion findByAlumnoSeccion(Alumno alumno, Seccion seccion) {
-        Octavia sql = Octavia.query()
-                .from(MatriculaSeccion.class, "ms")
-                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
-                .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
-                .filter("sec.id", seccion)
-                .filter("alu.id", alumno);
-
-        return find(sql);
-    }
-
-    @Override
-    public List<MatriculaSeccion> allByMatriculaSeccion(MatriculaResumen resumen) {
-        Octavia sql = Octavia.query()
-                .from(MatriculaSeccion.class, "ms")
-                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ca")
-                .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
-                .filter("mr.id", resumen);
-
-        return all(sql);
-    }
-
-    @Override
-    public List<MatriculaSeccion> allByGpoSeccion(GrupoSeccion grupoSeccion, CicloAcademico ciclo) {
+    public List<MatriculaSeccion> allMatriculadosByGpoSeccion(GrupoSeccion grupoSeccion, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ca")
@@ -127,7 +125,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
     }
 
     @Override
-    public List<MatriculaSeccion> allMatriculadosByAlumnosCiclo(List<AlumnoHorario> alumnos, CicloAcademico ciclo) {
+    public List<MatriculaSeccion> allMatriculadosByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo) {
         Octavia sqlUtil = Octavia.query()
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
@@ -178,18 +176,57 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
         return all(sql);
     }
 
+//    @Override
+//    public List<MatriculaSeccion> allByModalidadEstudioCiclo(ModalidadEstudio modalidad, CicloAcademico cicloAcademico) {
+//        Octavia sql = Octavia.query()
+//                .from(MatriculaSeccion.class, "ms")
+//                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "cur.modalidadEstudio me", "gs.cicloAcademico ci")
+//                .join("matriculaResumen mr", "mr.alumno alu", "alu.modalidadEstudio mo", "alu.persona per", "mr.cicloAcademico ca")
+//                .filter("ms.estado", EstadoMatriculaEnum.MAT)
+//                .filter("ca.id", cicloAcademico)
+//                .filter("ci.id", cicloAcademico)
+//                .filter("mo.id", modalidad)
+//                .filter("me.id", modalidad)
+//                .orderBy("per.paterno", "per.materno", "per.nombres");
+//        return all(sql);
+//    }
+//
+//    @Override
+//    public MatriculaSeccion findByCicloSeccionAlumno(CicloAcademico cicloAcademico, Seccion seccion, Alumno alumno) {
+//
+//        Octavia sql = Octavia.query()
+//                .from(MatriculaSeccion.class, "ms")
+//                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "cur.modalidadEstudio me", "gs.cicloAcademico ci")
+//                .join("matriculaResumen mr", "mr.alumno alu", "alu.modalidadEstudio mo", "alu.persona per", "mr.cicloAcademico ca")
+//                .filter("ms.estado", EstadoMatriculaEnum.MAT)
+//                .filter("ca.id", cicloAcademico)
+//                .filter("ci.id", cicloAcademico)
+//                .filter("sec.id", seccion)
+//                .filter("alu.id", alumno);
+//        return find(sql);
+//    }
+//
+//    @Override
+//    public MatriculaSeccion findByMatriculaResumenSeccion(MatriculaResumen matriculaResumen, Seccion seccion) {
+//
+//        Octavia sql = Octavia.query()
+//                .from(MatriculaSeccion.class, "ms")
+//                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "cur.modalidadEstudio me", "gs.cicloAcademico ci")
+//                .join("matriculaResumen mr", "mr.alumno alu", "alu.modalidadEstudio mo", "alu.persona per", "mr.cicloAcademico ca")
+//                .filter("mr.id", matriculaResumen)
+//                .filter("sec.id", seccion);
+//        return find(sql);
+//    }
+//
     @Override
-    public List<MatriculaSeccion> allByModalidadEstudioCiclo(ModalidadEstudio modalidad, CicloAcademico cicloAcademico) {
+    public List<MatriculaSeccion> allMatriculadosByAlumnosSecciones(List<Alumno> alumnos, List<Seccion> secciones) {
         Octavia sql = Octavia.query()
                 .from(MatriculaSeccion.class, "ms")
-                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "cur.modalidadEstudio me", "gs.cicloAcademico ci")
-                .join("matriculaResumen mr", "mr.alumno alu", "alu.modalidadEstudio mo", "alu.persona per", "mr.cicloAcademico ca")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
                 .filter("ms.estado", EstadoMatriculaEnum.MAT)
-                .filter("ca.id", cicloAcademico)
-                .filter("ci.id", cicloAcademico)
-                .filter("mo.id", modalidad)
-                .filter("me.id", modalidad)
-                .orderBy("per.paterno", "per.materno", "per.nombres");
+                .in("sec.id", secciones)
+                .in("alu.id", alumnos);
         return all(sql);
     }
 

@@ -26,6 +26,7 @@
                             <li><a type="button" v-on:click="nuevoGpoSecc()">Nuevo Grupo</a></li>
                             <li><a v-if="cantidadGrupoSeccion == 0" type="button" href="#"  v-on:click.prevent="clonarCiclo" >Clonar Ciclo</a></li>
                             <li><a v-if="cantidadGrupoSeccion > 0" type="button" href="#"  v-on:click.prevent="ordenarCiclo" >Ordenar Código</a></li>
+                            <li><a v-if="cantidadGrupoSeccion > 0" type="button" href="#"  v-on:click.prevent="limpiarCiclo()" >Limpiar Ciclo</a></li>
                         </ul>
                     </div>
 
@@ -153,6 +154,7 @@
                                                 v-bind:rowspan="getRowspanSecc(secc)">
                                                 <span class="block text-primary" v-text="secc.codigo2"></span>
                                                 <small class="block" v-text="tipoSeccion(secc)"></small>
+                                                <span v-if="secc.precio != '' " class="label label-warning" v-text="'S/.'+ secc.precioFormato"></span>
                                             </td>
                                             <td class="v-middle text-center" 
                                                 v-bind:rowspan="getRowspanSecc(secc)">
@@ -234,6 +236,7 @@
                                                     v-bind:rowspan="getRowspanSecc(secc)">
                                                     <span class="block text-primary" v-text="secc.codigo2"></span>
                                                     <small class="block" v-text="tipoSeccion(secc)"></small>
+                                                    <span v-if="secc.precio != '' " class="label label-warning" v-text="'S/.'+ secc.precioFormato"></span>
                                                 </td>
                                                 <td class="v-middle text-center" 
                                                     v-bind:rowspan="getRowspanSecc(secc)">

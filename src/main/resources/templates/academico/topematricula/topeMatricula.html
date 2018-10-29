@@ -22,7 +22,8 @@
                                         <div class="form-group text-left" data-toggle="tooltip" data-placement="top">
                                             <label>Editar</label>
                                             <label class="switch">
-                                                <input type="checkbox" v-model="verForm" value="false" />
+                                                <input type="checkbox" 
+                                                       v-model="verForm"/>
                                                 <span></span> 
                                                 <i></i>
                                             </label>
@@ -32,7 +33,7 @@
                                     <div class="col-md-4">
                                         
                                         <div class="btn-group" v-if="verForm">
-                                            <a type="button" class="btn btn-success" v-on:click="verGuardar()">Guardar</a>
+                                            <a type="button" class="btn btn-success" v-on:click="verGuardar()" v-if="!guardando">Guardar</a>
                                         </div>  
                                         
                                     </div>

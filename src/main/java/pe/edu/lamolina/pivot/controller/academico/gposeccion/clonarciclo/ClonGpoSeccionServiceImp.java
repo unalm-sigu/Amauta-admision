@@ -16,13 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
-import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
@@ -166,7 +164,7 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 
                 CursoCicloAcademico cca = new CursoCicloAcademico();
                 cca.setCicloAcademico(cicloDestino);
-                cca.setCosto(BigDecimal.ZERO);
+                cca.setPrecio(BigDecimal.ZERO);
                 cca.setEstado(EstadoEnum.ACT.name());
                 cca.setCurso(ggss.getCurso());
 
@@ -174,7 +172,7 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
             }
 
             String tpc = ggss.getCurso().getTpc();
-            
+
             if (cicloDestino.getNumeroCiclo().equals("0") && tpc != null && !tpcs.contains(tpc)) {
                 tpcs.add(tpc);
 
@@ -403,20 +401,18 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
     }
 
     @Override
-    public List<Alumno> allAlumnoBySeccion(Seccion seccion) {
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
-        Map<Long, Alumno> alumnos = TypesUtil.convertListToMap("matriculaResumen.alumno.id", "matriculaResumen.alumno", matriculasSeccion);
-        return alumnos.values().stream().collect(Collectors.toList());
-    }
-
-    @Override
-    public void trasladar(Fusion trasladoForm) {
-        Seccion seccion = seccionDAO.find(trasladoForm.getSeccion());
-        logger.debug("seccion {}", seccion.getId());
-        List<Alumno> alumnos = trasladoForm.getAlumnos();
-        for (Alumno alumno : alumnos) {
-            logger.debug("alumno {}", alumno.getId());
-        }
+    @Transactional
+    public void limpiarCiclo(CicloAcademico ciclo) {
+        restriccionRepitenciaDAO.deleteAllByCiclo(ciclo);
+        restriccionModalidadDAO.deleteAllByCiclo(ciclo);
+        restriccionFacultadDAO.deleteAllByCiclo(ciclo);
+        restriccionCarreraDAO.deleteAllByCiclo(ciclo);
+        docenteSeccionDAO.deleteAllByCiclo(ciclo);
+        seccionDAO.deleteAllNotSuperiorByCiclo(ciclo);
+        seccionDAO.deleteAllByCiclo(ciclo);
+        grupoSeccionDAO.deleteAllByCiclo(ciclo);
+        precioCursoEstructuraDAO.deleteAllByCiclo(ciclo);
+        cursoCicloAcademicoDAO.deleteAllByCiclo(ciclo);
     }
 
 }

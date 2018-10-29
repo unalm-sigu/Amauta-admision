@@ -38,7 +38,7 @@ public class FuncionRolDAOH extends AbstractEasyDAO<FuncionRol> implements Funci
         Octavia sql = Octavia.query()
                 .from(FuncionRol.class, "fr")
                 .join("rol r", "perfilCompania p")
-                .filter("p.tipo", TipoPerfilCompaniaEnum.FUNCION.name())
+                .filter("p.tipo", TipoPerfilCompaniaEnum.FUNCION)
                 .filter("r.id", rol);
         return all(sql);
     }

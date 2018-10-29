@@ -10,6 +10,7 @@
                     </div>
                 </div>
             </div>
+            
             <div class="row">
                 <div class="form-group">
                     <label class="col-md-2 bold">Dpto. Académico</label>
@@ -19,35 +20,44 @@
                     </div>
                 </div>
             </div>
+            
             <div class="row">
                 <div class="form-group">
                     <label class="col-md-2 bold">Sección</label>
-
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <span> {{seccion.codigo2}}</span>
                     </div>
-
-                    <label class="col-md-2 bold">Vacantes</label>
-
-                    <div class="col-md-4">
-                        <span> {{seccion.vacantes}} </span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label class="col-md-2 bold">Aula</label>
-
-                    <div class="col-md-4">
-                        <span>{{seccion.aula.codigo}}</span>
-                        <span v-if="seccion.aula.nombre != '' "> - {{seccion.aula.nombre}}</span>
+                    
+                    <label class="col-md-2 bold">Grupo</label>
+                    <div class="col-md-2">
+                        <span>{{seccion.grupoHoras.codigo}}</span>
                     </div>
 
                     <label class="col-md-2 bold">Horas</label>
-
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <span>{{seccion.horasSemanales}}</span>
                     </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 bold">Aula</label>
+                    <div class="col-md-2">
+                        <span>{{seccion.aula.codigo}}</span>
+                        <span v-if="seccion.aula.nombre != '' "> - {{seccion.aula.nombre}}</span>
+                    </div>
+                    
+                    <label class="col-md-2 bold">Capacidad/Aforo</label>
+                    <div class="col-md-2">
+                        <span>{{seccion.aula.capacidadAula}}/{{seccion.aula.aforo}}</span>
+                    </div>
+                    
+                    <label class="col-md-2 bold">Vacantes</label>
+                    <div class="col-md-2">
+                        <span> {{seccion.vacantes}} </span>
+                    </div>
+                    
                 </div>
             </div>
         </div>

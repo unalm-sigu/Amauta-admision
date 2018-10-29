@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
@@ -68,10 +69,29 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
     public void deleteAllByAlumno(Alumno alumno) {
         StringBuilder sql = new StringBuilder();
         sql.append("delete AlumnoCursoCurricula acs where acs.alumno.id =:ALUMNO ");
-        
+
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("ALUMNO", alumno.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public AlumnoCursoCurricula findByAlumnoCurso(Alumno alumno, Curso curso) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoCurricula.class, "acc")
+                .join("alumno al", "curso cu")
+                .leftJoin("cicloAprobado ci", "cursoCurricula cc", "cursoOpcional co")
+                .filter("al.id", alumno)
+                .filter("cu.id", curso)
+                .orderBy("cu.nombre");
+        return (AlumnoCursoCurricula) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public void updateEstado(AlumnoCursoCurricula alumnoCursoCurricula) {
+        Octavia octavia = Octavia.update(AlumnoCursoCurricula.class);
+        octavia.set(alumnoCursoCurricula, "estado");
+        this.update(octavia);
     }
 
 }

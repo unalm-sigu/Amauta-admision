@@ -1,0 +1,110 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Precios Cursos Nivelación</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="preciocursocicloVUE">
+                <header class="header b-b padder-lg">
+                    <h2 th:text="|Precios Cursos Nivelación ${ciclo.descripcion}|">Precios Cursos Nivelación</h2> 
+                </header>
+
+
+                <section class="wrapper-lg" >
+                    <section class="panel">
+                        <section class="panel-body" th:unless="${ciclo.tipo == 'NIV' }">
+                            No se configura precios en este ciclo
+                        </section>
+                        <section class="panel-body" th:if="${ciclo.tipo == 'NIV' }">
+
+                            <raptor-table v-bind:url="preciocursocicloURL" ref="raptorPrecioCursoCiclo">
+
+                                <div slot="header">
+
+                                    <div class="col-md-2">
+
+                                        <div class="form-group" data-toggle="tooltip" data-placement="top">
+                                            <label>Editar</label>
+                                            <label class="switch">
+                                                <input type="checkbox" 
+                                                       v-model="verTabla"/>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+
+                                        <div class="btn-group" v-if="verTabla" >
+                                            <a href="#" class="btn btn-success btn-sm" v-on:click.prevent="verGuardar()" v-if="!guardando">Guardar</a>                            
+                                        </div>                                                              
+                                    </div>
+                                </div>
+
+                                <template scope="props">
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-4 v-middle text-center">Curso</th>
+                                                <th class="col-md-2 v-middle text-center">Grupos</th>
+                                                <th class="v-middle text-center">Personalizado</th>
+                                                <th class="col-md-2 v-middle text-center">Precio</th>
+                                                <th class="col-md-2 v-middle text-center">Precio Adicional</th>
+                                                <th class="col-md-2 v-middle text-center">Mínimo Requerido Alumnos por Curso</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data"> 
+                                                <td class="v-middle">
+                                                    <span class="block text-primary bold h5 m-b-xs m-t-xs"
+                                                          v-text="item.curso.nombre"></span>                                                    
+                                                    <span class="block">
+                                                        {{item.curso.codigo}}&nbsp;
+                                                        <i class="fa fa-bookmark text-primary"></i>
+                                                        {{item.curso.tpc}}</span>
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    {{item.cantidadGpoSecc}}
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <!--<i class="fa fa-check-circle-o text-success fa-2x"></i>-->
+                                                    <!--<i class="fa fa-times-circle-o text-danger fa-2x"></i>-->
+                                                    <i v-if="item.precioPersonalizado!=0 " class="fa fa-check text-success"></i>
+                                                    <i v-if="item.precioPersonalizado=='' "></i>
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    <input v-if="verTabla" type="text"
+                                                           class="form-control" v-model="item.precio"/>
+                                                    <span  v-else="" v-text="'S/.'+ item.precioFormato"></span>
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <input v-if="verTabla" type="text"
+                                                           class="form-control" v-model="item.precioAdicional"/>
+                                                    <span v-else="" v-text="'S/.'+ item.precioAdicionalFormato"></span>
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <input v-if="verTabla" type="text"
+                                                           class="form-control" v-model="item.minimoAlumnos"/>
+                                                    <span v-else="" v-text="item.minimoAlumnos"></span>
+                                                </td> 
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+            </div>
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/precioCursoCiclo/precioCursoCiclo.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
