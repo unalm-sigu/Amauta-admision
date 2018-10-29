@@ -1344,8 +1344,8 @@ var app = new Vue({
 //                            $vue.allAlumnoBySeccion();
                             $vue.loadGpoSeccionFlash();
                             notify(response.message, "info");
+                            swal({text: response.message, icon: "success", button: false, timer: 1000});
 
-                            //swal({text: response.message, icon: "success", button: false, timer: 1000});
                         } else {
                             swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                         }
