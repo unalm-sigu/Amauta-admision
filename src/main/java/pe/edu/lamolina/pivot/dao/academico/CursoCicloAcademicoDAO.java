@@ -22,4 +22,8 @@ public interface CursoCicloAcademicoDAO extends EasyDAO<CursoCicloAcademico> {
 
     List<CursoCicloAcademico> allByLista(List<CursoCicloAcademico> cursosCiclos);
 
+    List<CursoCicloAcademico> allByCursosCiclo(List<Curso> cursos, CicloAcademico ciclo);
+    
+    CursoCicloAcademico findByCursoCiclo(Curso curso, CicloAcademico ciclo);
+
 }

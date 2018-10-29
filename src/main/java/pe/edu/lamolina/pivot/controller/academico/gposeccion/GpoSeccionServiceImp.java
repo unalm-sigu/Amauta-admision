@@ -41,6 +41,7 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
@@ -48,6 +49,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
 import pe.edu.lamolina.model.academico.RestriccionModalidad;
@@ -67,6 +69,7 @@ import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -103,6 +106,8 @@ import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.AmpliacionVacantesDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -197,8 +202,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     CicloAcademicoDAO cicloAcademicoDAO;
     @Autowired
     AmpliacionVacantesDAO ampliacionVacanteDAO;
+    @Autowired
+    CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
+
+    @Autowired
+    PrecioCursoEstructuraDAO precioCursoEstructuraDAO;
 
     @Override
+
     public Oficina findOficinaOera() {
         return oficinaDAO.findByCode("OERA");
     }
@@ -213,6 +224,18 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         GrupoSeccion gpoSecc = grupoSeccionDAO.find(id);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSecc);
         gpoSecc.setSecciones(secciones);
+
+        CicloAcademico ciclo = gpoSecc.getCicloAcademico();
+        Curso curso = gpoSecc.getCurso();
+        String tpc = gpoSecc.getCurso().getTpc();
+        if (ciclo.getTipoEnum() == TipoCicloEnum.NIV) {
+            CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.findByCursoCiclo(curso, ciclo);
+
+            PrecioCursoEstructura precioCurso = precioCursoEstructuraDAO.findByTpcCiclo(tpc, ciclo);
+
+            curso.setPrecio(cursoCiclo.getPrecio());
+            curso.setPrecioTpc(precioCurso.getPrecio());
+        }
 
         List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allBySecciones(secciones);
         Map<Long, List<DocenteSeccion>> mapDocSeccion = TypesUtil.convertListToMapList("seccion.id", docenteSeccion);
@@ -485,7 +508,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion.setSeccion(seccionTCUR);
             docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
             seccionTCUR.getDocenteSeccion().add(docenteSeccion);
-            
 
             grupoSeccion.getSecciones().add(seccionTCUR);
 

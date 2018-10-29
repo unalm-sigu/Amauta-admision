@@ -196,10 +196,17 @@ var app = new Vue({
             alumnosid: [],
             seccionSeleccionada: {id: null}
         },
+        precioSeccion: {
+            seccion: {id: null, aula: {id: null}, grupoSeccion: {id: null}},
+            alumnosid: [],
+            seccionSeleccionada: {id: null}
+        },
         alumnos: [],
         seccionDisponible: [],
         isShowTabFusion: false,
-        cantidadTrasladados: 0
+        cantidadTrasladados: 0,
+        editarPrecio: false,
+        guardando: false
     },
     watch: {
         seccionSeleccionada: function (val) {
