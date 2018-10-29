@@ -106,6 +106,12 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
     private MatriculaSeccion findMatriculaSeccion(List<MatriculaSeccion> alumnoSecciones, Seccion seccion) {
         for (MatriculaSeccion alumnoSeccion : alumnoSecciones) {
             Seccion secc = alumnoSeccion.getSeccion();
+            if (secc.getId().longValue() == seccion.getId() && alumnoSeccion.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
+                return alumnoSeccion;
+            }
+        }
+        for (MatriculaSeccion alumnoSeccion : alumnoSecciones) {
+            Seccion secc = alumnoSeccion.getSeccion();
             if (secc.getId().longValue() == seccion.getId()) {
                 return alumnoSeccion;
             }

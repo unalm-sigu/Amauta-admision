@@ -1,103 +1,153 @@
-<div v-if="seccionSeleccionada.tipoSeccion=='TCUR' " 
-     class="alert alert-warning">Esta sección no permite fusiones</div>
-
-<div v-if="seccionSeleccionada.tipoSeccion != 'TCUR' " >
-    <div class="col-sm-12" >
-        <div class="col-sm-3" >
-            <div class="form-group" >
-
-                <label  class="control-label">Seccion envio</label>
-
-                <multiselect 
-                    v-model="fusion.seccion" 
-                    v-bind:options='seccionDisponible'
-                    label='codigo2'
-                    track-by='id'
-                    v-bind:allow-empty="false" >
-                </multiselect>
-
-            </div>                                          
-        </div>
-
-        <div class="col-sm-2 text-center" >
-            <div class="form-group" >
-                <label class="control-label">Aula</label>
-                <div class="">
-                    <p class="form-control-static">{{fusion.seccion.aula.codigo}}</p>
-                </div>
-            </div> 
-        </div>
-
-        <div class="col-sm-2 text-center" >
-            <div class="form-group" >
-                <label class="control-label">Grupo</label>
-                <div class="">
-                    <p class="form-control-static">{{fusion.seccion.grupoSeccion.codigo}}</p>
-                </div>
-            </div> 
-        </div>
-
-        <div class="col-sm-2 text-center" >
-            <div class="form-group" >
-                <label class="control-label">Vacantes</label>
-                <div class="">
-                    <p class="form-control-static">{{fusion.seccion.disponiblesCachimbos}}</p>
-                </div>
-            </div> 
-        </div>
-
-        <div class="col-sm-2 text-center" >
-            <div class="form-group" >
-                <label class="control-label">Trasladado</label>
-                <div class="">
-                    <p class="form-control-static">{{fusion.alumnosid.length}}</p>
-                </div>
-            </div> 
-        </div>
-
-        <div class="col-sm-1" >
-            <a class="btn btn-info btn-sm pull-right m-t-lg" v-on:click="trasladarAlumnos">Trasladar</a>                              
-        </div>
-
-    </div>
-
-    <div class="col-sm-12" >
-        <p class="h5 text-primary">Alumnos de la seccion origen</p>
-    </div>
-
-    <table class="table">
-        <thead> 
-            <tr > 
-                <th class="col-xs-8">Nombre</th>
-                <th class="col-xs-1 text-center">Horario</th>
-                <th class="col-xs-1 text-center">Especialidad</th>
-                <th class="col-xs-2 text-center">Situación Traslado</th>
-                <th class=""></th>
-            </tr>
-        </thead>
-        <tbody>
-
-            <tr v-for="(alumno, inx ) in alumnos">
-
-                <td class="v-middle">
-                    <p class="h5">{{alumno.persona.nombreCompleto}}</p>
-                    <span class="text-sm text-primary block">{{alumno.codigo}}</span>
-                    <span class="text-sm text-primary block">{{alumno.carrera.nombre}}</span>
-                </td>
-
-                <td class="v-middle text-center"><i class="fa fa-calendar" aria-hidden="true"></i></td>
-                <td class="v-middle text-center">{{alumno.carrera.nombre}}</td>
-                <td class="v-middle text-center">{{alumno.carrera.nombre}}</td>
-
-                <td class="v-middle">
-                    <label class="switch">
-                        <input type="checkbox"  v-model="fusion.alumnosid" v-bind:name="'alumnos['+inx+'].id'" v-bind:value="alumno.id" />
-                        <span></span>
-                    </label>
-                </td>
-
-            </tr>
-
-        </tbody>
-    </table>
+<div class="block">
+    <label class="bold text-primary" style="vertical-align: top;">Activar fusión de secciones &nbsp;&nbsp;</label>
+    <label class="switch">
+        <input type="checkbox" v-model="activarFusion" />
+        <span></span>
+    </label>
 </div>
+
+<div v-if="activarFusion">
+
+    <div v-if="seccionSeleccionada.tipoSeccion == 'TCUR' " 
+         class="alert alert-warning">Esta sección no permite fusiones
+    </div>
+
+    <div v-else="" >
+        <div class="col-sm-12" >
+            <div class="col-sm-2" >
+                <div class="form-group" >
+
+                    <label class="control-label">Sección destino</label>
+
+                    <multiselect 
+                        v-model="fusion.seccionDestino" 
+                        v-bind:options='seccionesDisponibles'
+                        select-label=''
+                        deselect-label=''
+                        label='codigo2'
+                        track-by='id'
+                        v-bind:allow-empty="false" 
+                        v-on:input="verCruceAlumnos">
+                        <template slot="option" slot-scope="props">
+                            {{props.option.codigo2}} - {{props.option.grupoHoras.codigo}}
+                        </template>
+                    </multiselect>
+
+                </div>                                          
+            </div>
+
+            <div class="col-sm-1 text-center" v-if="fusion.seccionDestino.id != null ">
+                <div class="form-group" >
+                    <label class="control-label">Aula</label>
+                    <div class="">
+                        <p class="form-control-static">{{fusion.seccionDestino.aula.codigo}}</p>
+                    </div>
+                </div> 
+            </div>
+
+            <div class="col-sm-1 text-center" v-if="fusion.seccionDestino.id != null ">
+                <div class="form-group" >
+                    <label class="control-label">Grupo</label>
+                    <div class="">
+                        <p class="form-control-static">{{fusion.seccionDestino.grupoHoras.codigo}}</p>
+                    </div>
+                </div> 
+            </div>
+
+            <div class="col-sm-1 text-center" v-if="fusion.seccionDestino.id != null ">
+                <div class="form-group" >
+                    <label class="control-label">Vacantes</label>
+                    <div class="">
+                        <p class="form-control-static">{{fusion.seccionDestino.vacantes}}</p>
+                    </div>
+                </div> 
+            </div>
+
+            <div class="col-sm-1 text-center" v-if="fusion.seccionDestino.id != null ">
+                <div class="form-group" >
+                    <label class="control-label">Disponibles</label>
+                    <div class="">
+                        <p class="form-control-static">{{fusion.seccionDestino.vacantesDisponibles}}</p>
+                    </div>
+                </div> 
+            </div>
+
+            <div class="col-sm-1 text-center" v-if="fusion.seccionDestino.id != null ">
+                <div class="form-group" >
+                    <label class="control-label">Traslados</label>
+                    <div class="">
+                        <p class="form-control-static">{{fusion.alumnosid.length}}</p>
+                    </div>
+                </div> 
+            </div>
+
+            <div class="col-sm-5 text-center" v-if="fusion.seccionDestino.id == null ">
+                &nbsp;&nbsp;&nbsp;
+            </div>
+
+            <div class="col-sm-3 text-center">
+                &nbsp;&nbsp;&nbsp;
+            </div>
+
+            <div class="col-sm-1" >
+                <label>Todos</label>
+                <label class="switch">
+                    <input type="checkbox" value="true" v-model="fusion.todos" v-on:change="todosAlumnos" />
+                    <span></span>
+                </label>
+            </div>
+
+            <div class="col-sm-1" >
+                <label>&nbsp;&nbsp;</label>
+                <a class="btn btn-info btn-sm pull-right" v-on:click="trasladarAlumnos">Trasladar</a>
+            </div>
+
+        </div>
+
+        <div class="col-sm-12" >
+            <p class="h5 text-primary">Alumnos de la seccion origen</p>
+            <!--<pre>{{fusion.alumnosid}}</pre>-->
+        </div>
+
+        <table class="table">
+            <thead> 
+                <tr > 
+                    <th class="col-xs-8">Nombre</th>
+                    <th class="col-xs-1 text-center">Horario</th>
+                    <th class="col-xs-1 text-center">Especialidad</th>
+                    <th class="col-xs-2 text-center">Situación Traslado</th>
+                    <th class=""></th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr v-for="(alumno, inx ) in alumnos">
+
+                    <td class="v-middle">
+                        <p class="h5">{{alumno.persona.apellidosNombres}}</p>
+                        <span class="text-sm text-primary block">{{alumno.codigo}}</span>
+                    </td>
+
+                    <td class="v-middle text-center"><i class="fa fa-calendar" aria-hidden="true"></i></td>
+                    <td class="v-middle text-center">{{alumno.carrera.nombre}}</td>
+                    <td class="v-middle text-center">
+                        <span class="label label-default" v-if="fusion.seccionDestino.id==null">Indeterminado</span>
+                        <span class="label label-warning" v-else-if="fusion.revisando">Verificando</span>
+                        <span class="label label-danger" v-else-if="alumno.hayCruceHorario">Cruce horario</span>
+                        <span class="label label-success" v-else="">No hay cruce</span>
+                    </td>
+
+                    <td class="v-middle">
+                        <label class="switch">
+                            <input type="checkbox" v-model="fusion.alumnosid" v-bind:name="'alumnos['+inx+'].id'" v-bind:value="alumno.id" />
+                            <span></span>
+                        </label>
+                    </td>
+
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+

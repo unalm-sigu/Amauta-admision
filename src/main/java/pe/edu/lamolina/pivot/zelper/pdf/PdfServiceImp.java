@@ -118,7 +118,7 @@ public class PdfServiceImp implements PdfService {
             }
         }
 
-        List<MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allBySeccion(seccion);
+        List<MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
         List<ResumenAlumnoEvaluacion> resumenesAlumnos = resumenAlumnoEvaluacionDAO.allByGrupoSeccion(grupoSeccion);
         Map<String, ResumenAlumnoEvaluacion> mapNotas = mapearNotas(resumenesAlumnos);
 

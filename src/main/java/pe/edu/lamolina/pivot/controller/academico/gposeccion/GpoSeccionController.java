@@ -208,111 +208,21 @@ public class GpoSeccionController {
         }
 
         GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId);
-
         ObjectNode gpoSeccionJson = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax);
-
         String ruta = getOrigen(origen);
-
         Persona persona = ds.getPersona();
         List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(persona);
-
         List<GrupoSeccion> gpos = obtenerGruposSeccion(ids);
         gpos.add(gpoSeccion);
+
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("cicloJson", createCicloJson(ds.getCicloAcademico()).toString());
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
         model.addAttribute("navigationJson", createNavegationJson(ruta, gpos, gpoSeccId, ds.getCicloAcademico()).toString());
         model.addAttribute("origen", ruta);
         model.addAttribute("oficinas", oficinas);
 
         return "academico/gposeccion/gpoSeccionForm";
-    }
-
-    private ObjectNode createNavegationJson(String ruta, List<GrupoSeccion> ids, Long idGpoSeccEdit, CicloAcademico ciclo) {
-        ObjectNode nodeJson = new ObjectNode(JsonNodeFactory.instance);
-        Integer position = -1;
-        Long next = null;
-        Long prev = null;
-
-        DynatableFilter filter = createFilter(ruta);
-        List<GrupoSeccion> gpoSecciones;
-        if (ids.size() > 1) {
-            gpoSecciones = service.allCleanByDynatableGruposSeccion(filter, ciclo, ids);
-        } else {
-            gpoSecciones = service.allCleanByDynatable(filter, ciclo);
-        }
-
-        ArrayNode arrayGpoSeccJson = new ArrayNode(JsonNodeFactory.instance);
-
-        Integer loop = 0;
-        for (GrupoSeccion gpoSecc : gpoSecciones) {
-            Long idGpoSecc = gpoSecc.getId();
-            ObjectNode nodeGpoSecc = new ObjectNode(JsonNodeFactory.instance);
-            arrayGpoSeccJson.add(nodeGpoSecc.put("id", idGpoSecc));
-
-            if (position + 1 == loop && position >= 0) {
-                next = idGpoSecc;
-            }
-
-            if (idGpoSecc.longValue() == idGpoSeccEdit) {
-                position = loop;
-            }
-            if (position < 0) {
-                prev = idGpoSecc;
-            }
-            loop++;
-        }
-
-        nodeJson.set("arrayGpoSecciones", arrayGpoSeccJson);
-        nodeJson.put("position", position);
-        nodeJson.put("current", idGpoSeccEdit);
-        nodeJson.put("next", next);
-        nodeJson.put("prev", prev);
-
-        return nodeJson;
-    }
-
-    private String getOrigen(String origen) {
-        if (StringUtils.isEmpty(origen)) {
-            return "/academico/gposeccion";
-        }
-        byte[] decoded = Base64.getMimeDecoder().decode(origen);
-        String output = new String(decoded);
-        return output;
-    }
-
-    private DynatableFilter createFilter(String ruta) {
-        DynatableFilter filter = new DynatableFilter();
-        filter.setPage(1);
-        filter.setOffset(0);
-        filter.setPerPage(1000000);
-
-        int inicio = ruta.indexOf("?");
-        if (inicio < 0) {
-            return filter;
-        }
-
-        String analizar = ruta.substring(inicio + 1);
-        String[] tramos = analizar.split("&");
-        Map<String, Object> queries = new HashMap();
-
-        for (String tramo : tramos) {
-            if (tramo.startsWith("queries")) {
-                String[] partes = tramo.split("=");
-                String key = getQuerieFilter(partes[0]);
-                String value = partes[1];
-                queries.put(key, value);
-            }
-        }
-
-        filter.setQueries(queries);
-
-        return filter;
-    }
-
-    private String getQuerieFilter(String param) {
-        String resto = param.substring(0, param.length() - 1);
-        resto = resto.substring(8);
-        return resto;
     }
 
     @ResponseBody
@@ -347,94 +257,6 @@ public class GpoSeccionController {
         } finally {
             return response;
         }
-    }
-
-    private ObjectNode createGpoSeccionJson(GrupoSeccion gpoSeccion, String fechaMin, String fechaMax) {
-        ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
-            "id", "estado", "estadoEnum", "codigo2", "cursoDirigido",
-            "curso.id",
-            "curso.codigo",
-            "curso.nombre",
-            "curso.tpc",
-            "curso.precioFormato",
-            "curso.precioTpcFormato",
-            "curso.tipoCursoEnum",
-            "curso.departamentoAcademico.codigo",
-            "curso.departamentoAcademico.nombre",
-            "anexoBoletin.codigo",
-            "anexoBoletin.nombre",
-            "anexoBoletin.anexoSuperior.codigo",
-            "anexoBoletin.anexoSuperior.nombre"
-        });
-
-        ArrayNode arraySecciones = new ArrayNode(JsonNodeFactory.instance);
-        List<Seccion> secciones = gpoSeccion.getSecciones();
-        for (Seccion seccion : secciones) {
-            ObjectNode nodeSecc = JsonHelper.createJson(seccion, JsonNodeFactory.instance, true, new String[]{
-                "*",
-                "grupoHoras.id",
-                "grupoHoras.codigo",
-                "aula.id",
-                "aula.codigo",
-                "aula.capacidadAula",
-                "restriccionesCarrera.id",
-                "restriccionesCarrera.carrera.codigo",
-                "restriccionesCarrera.carrera.nombre",
-                "restriccionesFacultad.id",
-                "restriccionesFacultad.facultad.codigo",
-                "restriccionesFacultad.facultad.nombre",
-                "restriccionesModalidad.id",
-                "restriccionesModalidad.modalidadEstudio.codigo",
-                "restriccionesModalidad.modalidadEstudio.nombre",
-                "restriccionesRepitencia.id",
-                "restriccionesRepitencia.tipoRepitencia.codigo",
-                "restriccionesRepitencia.tipoRepitencia.id",
-                "docenteSeccion.estadoEnum",
-                "docenteSeccion.principal",
-                "docenteSeccion.porcentajeCarga",
-                "docenteSeccion.docente.codigo",
-                "docenteSeccion.docente.persona.apellidosNombres",
-                "ampliacionesVacantes.*",
-                "ampliacionesVacantes.seccion.id",
-                "ampliacionesVacantes.colaborador.id",
-                "ampliacionesVacantes.colaborador.cargo.nombre",
-                "ampliacionesVacantes.colaborador.persona.nombreCompleto",
-                "ampliacionesVacantes.oficina.id",
-                "ampliacionesVacantes.oficina.nombre",});
-
-            BigDecimal porcentajeAvance = BigDecimal.ZERO;
-            for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
-                if (docSeccion.getPorcentajeCarga() != null) {
-                    porcentajeAvance = porcentajeAvance.add(docSeccion.getPorcentajeCarga());
-                }
-            }
-            nodeSecc.put("porcentajeAvance", porcentajeAvance);
-            nodeSecc.put("tipoSeccionEvaluacionValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
-            nodeSecc.put("editVacantes", Boolean.FALSE);
-            nodeSecc.put("editRestriccionCapa", Boolean.FALSE);
-
-            List<DocenteSeccion> docentesSeccion = seccion.getDocenteSeccion();
-            ArrayNode arrayProfeSecc = new ArrayNode(JsonNodeFactory.instance);
-
-            for (DocenteSeccion docSeccion : docentesSeccion) {
-                ObjectNode nodeProfe = JsonHelper.createJson(docSeccion, JsonNodeFactory.instance, true, new String[]{
-                    "*",
-                    "docente.codigo",
-                    "docente.persona.id",
-                    "docente.persona.apellidosNombres"
-                });
-                nodeProfe.put("docenteNN", docSeccion.getDocente().getCodigo().equals(Constantine.DOCENTE_INDETERMINADO));
-                nodeProfe.put("fechaInicioMin", fechaMin);
-                nodeProfe.put("fechaFinMax", fechaMax);
-                arrayProfeSecc.add(nodeProfe);
-
-            }
-
-            nodeSecc.set("docenteSeccion", arrayProfeSecc);
-            arraySecciones.add(nodeSecc);
-        }
-        nodeGpoSecc.set("secciones", arraySecciones);
-        return nodeGpoSecc;
     }
 
     @ResponseBody
@@ -1406,27 +1228,6 @@ public class GpoSeccionController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
-    }
-
-    private boolean oficinaContenida(List<Oficina> oficinas, Oficina ofi) {
-        for (Oficina oficina : oficinas) {
-            if (ofi.getId() == oficina.getId().longValue()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean aulaContenida(List<Aula> aulas, Aula ambiente) {
-        if (ambiente == null) {
-            return false;
-        }
-        for (Aula aula : aulas) {
-            if (ambiente.getId() == aula.getId().longValue()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @ResponseBody
@@ -2418,6 +2219,212 @@ public class GpoSeccionController {
         } finally {
             return response;
         }
+    }
+
+    private ObjectNode createGpoSeccionJson(GrupoSeccion gpoSeccion, String fechaMin, String fechaMax) {
+        ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
+            "id", "estado", "estadoEnum", "codigo2", "cursoDirigido",
+            "curso.id",
+            "curso.codigo",
+            "curso.nombre",
+            "curso.tpc",
+            "curso.precioFormato",
+            "curso.precioTpcFormato",
+            "curso.tipoCursoEnum",
+            "curso.departamentoAcademico.codigo",
+            "curso.departamentoAcademico.nombre",
+            "anexoBoletin.codigo",
+            "anexoBoletin.nombre",
+            "anexoBoletin.anexoSuperior.codigo",
+            "anexoBoletin.anexoSuperior.nombre"
+        });
+
+        ArrayNode arraySecciones = new ArrayNode(JsonNodeFactory.instance);
+        List<Seccion> secciones = gpoSeccion.getSecciones();
+        for (Seccion seccion : secciones) {
+            ObjectNode nodeSecc = JsonHelper.createJson(seccion, JsonNodeFactory.instance, true, new String[]{
+                "*",
+                "grupoHoras.id",
+                "grupoHoras.codigo",
+                "aula.id",
+                "aula.codigo",
+                "aula.capacidadAula",
+                "restriccionesCarrera.id",
+                "restriccionesCarrera.carrera.codigo",
+                "restriccionesCarrera.carrera.nombre",
+                "restriccionesFacultad.id",
+                "restriccionesFacultad.facultad.codigo",
+                "restriccionesFacultad.facultad.nombre",
+                "restriccionesModalidad.id",
+                "restriccionesModalidad.modalidadEstudio.codigo",
+                "restriccionesModalidad.modalidadEstudio.nombre",
+                "restriccionesRepitencia.id",
+                "restriccionesRepitencia.tipoRepitencia.codigo",
+                "restriccionesRepitencia.tipoRepitencia.id",
+                "docenteSeccion.estadoEnum",
+                "docenteSeccion.principal",
+                "docenteSeccion.porcentajeCarga",
+                "docenteSeccion.docente.codigo",
+                "docenteSeccion.docente.persona.apellidosNombres",
+                "ampliacionesVacantes.*",
+                "ampliacionesVacantes.seccion.id",
+                "ampliacionesVacantes.colaborador.id",
+                "ampliacionesVacantes.colaborador.cargo.nombre",
+                "ampliacionesVacantes.colaborador.persona.nombreCompleto",
+                "ampliacionesVacantes.oficina.id",
+                "ampliacionesVacantes.oficina.nombre",});
+
+            BigDecimal porcentajeAvance = BigDecimal.ZERO;
+            for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
+                if (docSeccion.getPorcentajeCarga() != null) {
+                    porcentajeAvance = porcentajeAvance.add(docSeccion.getPorcentajeCarga());
+                }
+            }
+            nodeSecc.put("porcentajeAvance", porcentajeAvance);
+            nodeSecc.put("tipoSeccionEvaluacionValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
+            nodeSecc.put("editVacantes", Boolean.FALSE);
+            nodeSecc.put("editRestriccionCapa", Boolean.FALSE);
+
+            List<DocenteSeccion> docentesSeccion = seccion.getDocenteSeccion();
+            ArrayNode arrayProfeSecc = new ArrayNode(JsonNodeFactory.instance);
+
+            for (DocenteSeccion docSeccion : docentesSeccion) {
+                ObjectNode nodeProfe = JsonHelper.createJson(docSeccion, JsonNodeFactory.instance, true, new String[]{
+                    "*",
+                    "docente.codigo",
+                    "docente.persona.id",
+                    "docente.persona.apellidosNombres"
+                });
+                nodeProfe.put("docenteNN", docSeccion.getDocente().getCodigo().equals(Constantine.DOCENTE_INDETERMINADO));
+                nodeProfe.put("fechaInicioMin", fechaMin);
+                nodeProfe.put("fechaFinMax", fechaMax);
+                arrayProfeSecc.add(nodeProfe);
+
+            }
+
+            nodeSecc.set("docenteSeccion", arrayProfeSecc);
+            arraySecciones.add(nodeSecc);
+        }
+        nodeGpoSecc.set("secciones", arraySecciones);
+        return nodeGpoSecc;
+    }
+
+    private ObjectNode createCicloJson(CicloAcademico ciclo) {
+        ObjectNode nodeJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{
+            "id", "codigo", "descripcion", "descripcion2", "tipo",
+            "modalidadEstudio.codigo",
+            "modalidadEstudio.nombre"
+        });
+        return nodeJson;
+    }
+
+    private ObjectNode createNavegationJson(String ruta, List<GrupoSeccion> ids, Long idGpoSeccEdit, CicloAcademico ciclo) {
+        ObjectNode nodeJson = new ObjectNode(JsonNodeFactory.instance);
+        Integer position = -1;
+        Long next = null;
+        Long prev = null;
+
+        DynatableFilter filter = createFilter(ruta);
+        List<GrupoSeccion> gpoSecciones;
+        if (ids.size() > 1) {
+            gpoSecciones = service.allCleanByDynatableGruposSeccion(filter, ciclo, ids);
+        } else {
+            gpoSecciones = service.allCleanByDynatable(filter, ciclo);
+        }
+
+        ArrayNode arrayGpoSeccJson = new ArrayNode(JsonNodeFactory.instance);
+
+        Integer loop = 0;
+        for (GrupoSeccion gpoSecc : gpoSecciones) {
+            Long idGpoSecc = gpoSecc.getId();
+            ObjectNode nodeGpoSecc = new ObjectNode(JsonNodeFactory.instance);
+            arrayGpoSeccJson.add(nodeGpoSecc.put("id", idGpoSecc));
+
+            if (position + 1 == loop && position >= 0) {
+                next = idGpoSecc;
+            }
+
+            if (idGpoSecc.longValue() == idGpoSeccEdit) {
+                position = loop;
+            }
+            if (position < 0) {
+                prev = idGpoSecc;
+            }
+            loop++;
+        }
+
+        nodeJson.set("arrayGpoSecciones", arrayGpoSeccJson);
+        nodeJson.put("position", position);
+        nodeJson.put("current", idGpoSeccEdit);
+        nodeJson.put("next", next);
+        nodeJson.put("prev", prev);
+
+        return nodeJson;
+    }
+
+    private String getOrigen(String origen) {
+        if (StringUtils.isEmpty(origen)) {
+            return "/academico/gposeccion";
+        }
+        byte[] decoded = Base64.getMimeDecoder().decode(origen);
+        String output = new String(decoded);
+        return output;
+    }
+
+    private DynatableFilter createFilter(String ruta) {
+        DynatableFilter filter = new DynatableFilter();
+        filter.setPage(1);
+        filter.setOffset(0);
+        filter.setPerPage(1000000);
+
+        int inicio = ruta.indexOf("?");
+        if (inicio < 0) {
+            return filter;
+        }
+
+        String analizar = ruta.substring(inicio + 1);
+        String[] tramos = analizar.split("&");
+        Map<String, Object> queries = new HashMap();
+
+        for (String tramo : tramos) {
+            if (tramo.startsWith("queries")) {
+                String[] partes = tramo.split("=");
+                String key = getQuerieFilter(partes[0]);
+                String value = partes[1];
+                queries.put(key, value);
+            }
+        }
+
+        filter.setQueries(queries);
+
+        return filter;
+    }
+
+    private String getQuerieFilter(String param) {
+        String resto = param.substring(0, param.length() - 1);
+        resto = resto.substring(8);
+        return resto;
+    }
+
+    private boolean oficinaContenida(List<Oficina> oficinas, Oficina ofi) {
+        for (Oficina oficina : oficinas) {
+            if (ofi.getId() == oficina.getId().longValue()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean aulaContenida(List<Aula> aulas, Aula ambiente) {
+        if (ambiente == null) {
+            return false;
+        }
+        for (Aula aula : aulas) {
+            if (ambiente.getId() == aula.getId().longValue()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<GrupoSeccion> obtenerGruposSeccion(String ids) {
