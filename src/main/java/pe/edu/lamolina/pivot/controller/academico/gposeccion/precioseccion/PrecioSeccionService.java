@@ -5,6 +5,6 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PrecioSeccionService {
 
-    //void savePrecioSeccion(Seccion precioSeccion, DataSessionPivot ds);
+    void savePrecioSeccion(Seccion precioSeccion, DataSessionPivot ds);
 
 }

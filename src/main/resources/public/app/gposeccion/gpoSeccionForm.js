@@ -209,8 +209,8 @@ var app = new Vue({
         seccionesDisponibles: [],
         //isShowTabFusion: false,
         //cantidadTrasladados: 0,
-        editarPrecio: false,
-        guardando: false
+        editaPrecio: false,
+        guardaPrecio: false
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -1407,60 +1407,6 @@ var app = new Vue({
                 }
             });
         },
-<<<<<<< HEAD
-        verGuardarPrecio(seccionSeleccionada) {
-            console.log(seccionSeleccionada);
-            console.log("Estoy dentro de verGuardarPrecio");
-
-            let $vue = this;
-            this.guardando = true;
-
-            bootbox.confirm({
-                message: '¿Está seguro que desea guarda el precio sección?',
-                buttons: {
-                    confirm: {label: 'Si, guardar', className: 'btn-success'},
-                    cancel: {label: 'No', className: 'btn-link'}
-                },
-                callback: function (aceptar) {
-                    if (aceptar) {
-                        $vue.guardarPrecio(seccionSeleccionada);
-                    }else{
-                        $vue.guardando = false; 
-                    }
-                }
-            });
-        },
-        guardarPrecio(seccionSeleccionada) {
-            console.log("Estoy dentro de guardarPrecio");
-            console.log(seccionSeleccionada);
-            this.guardando = true;
-            let $vue = this;
-            let precioSeccionSend = {};
-            precioSeccionSend.id = seccionSeleccionada.id;
-            precioSeccionSend.precio = seccionSeleccionada.precio;
-            
-            $.ajax({
-                url: APP.url("academico/gposeccion/saveprecioseccion"),
-                contentType: "application/json",
-                dataType: "json",
-                type: 'POST',
-                async: true,
-                data: JSON.stringify(precioSeccionSend)
-            }).then(response => {
-                if (response.success) {
-                    console.log("entro aquí")
-                    $vue.verTabla = false;
-                    $vue.guardando = false;
-                    notify(response.message, "info");
-                } else {
-                    notify(response.message, 'error');
-                }
-            }, error => {
-                $vue.verTabla = true;
-                $vue.guardando = false;
-                notify(MESSAGES.errorComunicacion, 'error');
-            });
-=======
         verCruceAlumnos(destino) {
             let $vue = this;
             $vue.fusion.todos = false;
@@ -1521,7 +1467,59 @@ var app = new Vue({
                 $vue.allAlumnoBySeccion();
                 $vue.allSeccionDisponible();
             }
->>>>>>> 81d6090131ea3556b87631e62507c491f8987780
+        },
+        verGuardarPrecio(seccionSeleccionada) {
+
+            let $vue = this;
+            this.guardaPrecio = true;
+
+            bootbox.confirm({
+                message: '¿Está seguro que desea guarda el precio sección?',
+                buttons: {
+                    confirm: {label: 'Si, guardar', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (aceptar) {
+                    if (aceptar) {
+                        $vue.guardarPrecio(seccionSeleccionada);
+                    } else {
+                        $vue.guardaPrecio = false;
+                    }
+                }
+            });
+        },
+        guardarPrecio(seccionSeleccionada) {
+            this.guardaPrecio = true;
+            let $vue = this;
+            let precioSeccionSend = {};
+            precioSeccionSend.id = seccionSeleccionada.id;
+            precioSeccionSend.precio = seccionSeleccionada.precio;
+
+            $.ajax({
+                url: APP.url("academico/gposeccion/saveprecioseccion"),
+                contentType: "application/json",
+                dataType: "json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify(precioSeccionSend),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.editaPrecio = false;
+                        $vue.guardaPrecio = false;
+                        $vue.loadGpoSeccionFlash();
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    $vue.editaPrecio = true;
+                    $vue.guardaPrecio = false;
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     }
 });
+
+    

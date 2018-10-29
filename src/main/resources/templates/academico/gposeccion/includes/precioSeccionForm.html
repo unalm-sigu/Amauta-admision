@@ -13,13 +13,12 @@
             <div class="col-md-6">
                 <label class="switch"> Editar
                     <input  type="checkbox"
-                            v-model="editarPrecio"/>
+                            v-model="editaPrecio"/>
                     <span></span>
                 </label> 
             </div>
-            <div class="col-md-6 text-right" v-if="editarPrecio">
-                <a href="#" class="btn btn-success btn-sm" v-if="!guardando" v-on:click.prevent="verGuardarPrecio(seccionSeleccionada)"> Guardar </a>
-                 <pre>{{seccionSeleccionada}}</pre>
+            <div class="col-md-6 text-right" v-if="editaPrecio">
+                <a href="#" class="btn btn-success btn-sm" v-if="!guardaPrecio" v-on:click.prevent="verGuardarPrecio(seccionSeleccionada)"> Guardar </a>
             </div>
         </div>
 
@@ -46,7 +45,7 @@
                         <span class="block m-t-sm m-b-sm"> Precio sección: </span>
                     </td>
                     <td class="v-middle text-right">
-                        <input v-if="editarPrecio" class="form-control text-right" v-bind:disabled="guardando" v-model="seccionSeleccionada.precio"/>
+                        <input v-if="editaPrecio" class="form-control text-right" v-bind:disabled="guardaPrecio" v-model="seccionSeleccionada.precio"/>
                         <span v-else="">S/. {{seccionSeleccionada.precioFormato}} </span>
                     </td>
                 </tr>

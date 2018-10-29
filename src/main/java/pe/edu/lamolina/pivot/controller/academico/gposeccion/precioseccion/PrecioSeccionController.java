@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.gposeccion.precioseccion;
 
+import java.util.Date;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +32,8 @@ public class PrecioSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            logger.debug("Contenido id= {}", precioSeccion.getId());
-            logger.debug("Contenido precio= {}", precioSeccion.getPrecio());
-            //service.savePrecioSeccion(precio, ds);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);           
+            service.savePrecioSeccion(precioSeccion, ds);
             response.setMessage(" Guardado satisfactoriamnente");
             response.setSuccess(true);
 
