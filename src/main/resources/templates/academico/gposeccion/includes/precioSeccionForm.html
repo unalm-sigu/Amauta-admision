@@ -18,7 +18,8 @@
                 </label> 
             </div>
             <div class="col-md-6 text-right" v-if="editarPrecio">
-                <a href="#" class="btn btn-success btn-sm" v-if="!guardando"> Guardar </a>
+                <a href="#" class="btn btn-success btn-sm" v-if="!guardando" v-on:click.prevent="verGuardarPrecio(seccionSeleccionada)"> Guardar </a>
+                 <pre>{{seccionSeleccionada}}</pre>
             </div>
         </div>
 

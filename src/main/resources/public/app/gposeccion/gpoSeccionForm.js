@@ -1431,6 +1431,59 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        verGuardarPrecio(seccionSeleccionada) {
+            console.log(seccionSeleccionada);
+            console.log("Estoy dentro de verGuardarPrecio");
+
+            let $vue = this;
+            this.guardando = true;
+
+            bootbox.confirm({
+                message: '¿Está seguro que desea guarda el precio sección?',
+                buttons: {
+                    confirm: {label: 'Si, guardar', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (aceptar) {
+                    if (aceptar) {
+                        $vue.guardarPrecio(seccionSeleccionada);
+                    }else{
+                        $vue.guardando = false; 
+                    }
+                }
+            });
+        },
+        guardarPrecio(seccionSeleccionada) {
+            console.log("Estoy dentro de guardarPrecio");
+            console.log(seccionSeleccionada);
+            this.guardando = true;
+            let $vue = this;
+            let precioSeccionSend = {};
+            precioSeccionSend.id = seccionSeleccionada.id;
+            precioSeccionSend.precio = seccionSeleccionada.precio;
+            
+            $.ajax({
+                url: APP.url("academico/gposeccion/saveprecioseccion"),
+                contentType: "application/json",
+                dataType: "json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify(precioSeccionSend)
+            }).then(response => {
+                if (response.success) {
+                    console.log("entro aquí")
+                    $vue.verTabla = false;
+                    $vue.guardando = false;
+                    notify(response.message, "info");
+                } else {
+                    notify(response.message, 'error');
+                }
+            }, error => {
+                $vue.verTabla = true;
+                $vue.guardando = false;
+                notify(MESSAGES.errorComunicacion, 'error');
+            });
         }
     }
 });

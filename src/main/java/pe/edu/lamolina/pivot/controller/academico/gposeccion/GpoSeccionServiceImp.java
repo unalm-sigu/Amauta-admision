@@ -233,8 +233,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
             PrecioCursoEstructura precioCurso = precioCursoEstructuraDAO.findByTpcCiclo(tpc, ciclo);
 
-            curso.setPrecio(cursoCiclo.getPrecio());
-            curso.setPrecioTpc(precioCurso.getPrecio());
+//            curso.setPrecio(cursoCiclo.getPrecio());
+//            curso.setPrecioTpc(precioCurso.getPrecio());
         }
 
         List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allBySecciones(secciones);
