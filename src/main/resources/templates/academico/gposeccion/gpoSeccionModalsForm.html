@@ -1,0 +1,159 @@
+
+
+<modal-vik ref="modalAula"
+           v-bind="aulaModal"
+           v-bind:okaction="saveAula"
+           v-bind:cancelaction="closeAula">
+    <div slot="body">
+        <aula-component ref="aulaComponent"></aula-component>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalAulaHorario"
+           v-bind="aulaHorarioModal"
+           v-bind:showaccept="false">
+    <div slot="body">
+        <aula-horario-component></aula-horario-component>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalGrupo"
+           v-bind="grupoModal"
+           v-bind:okaction="saveGrupo">
+    <div slot="body">
+        <grupohorario-component></grupohorario-component>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalRestriccion"
+           v-bind="restriccionModal"
+           v-bind:okaction="saveRestriccion">
+    <div slot="body">
+        <restriccion-component></restriccion-component>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalTipoRepitencia"
+           v-bind="tipoRepitenciaModal"
+           v-bind:okaction="saveTipoRepRestriccion">
+    <div slot="body">
+        <repitencia-component></repitencia-component>
+    </div>
+</modal-vik>
+
+
+<modal-vik ref="modalClonacion"
+           v-bind="clonacionModal"
+           v-bind:okaction="clonar">
+    <div slot="body">
+        <div class="form-group">
+            <label> Cantidad de veces a clonarse </label>
+            <input class="form-control" v-model="vecesClon"/>
+        </div>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalSolicitarIncremento"
+           v-bind="solicitarIncrementoModal"
+           v-bind:okaction="solicitarIncrementoAceptar">
+
+    <div slot="body">
+
+        <form class="panel-body" id="formAmpliarVacante"  data-parsley-validate="true">
+
+            <input type="hidden" name="seccion.id"  v-bind:value="ampliacionVacante.seccion.id" />
+
+            <!--<input type="hidden" name="id"  v-bind:value="ampliacionVacante.id" />-->
+
+            <div class="form-group" >
+                <label  class="control-label">Solicitante</label>
+                <p class="capitalize text-primary h5 form-control-static m-t-xs" th:text="${session.SESSION_USUARIO.persona.nombreCompleto}"></p>
+            </div>
+
+            <div class="form-group" >
+                <label  class="control-label">Oficina</label>
+                <vueselect name="oficina.id"  required="true" v-bind:valor="ampliacionVacante.oficina" >
+                    <option></option>
+                    <option th:each="item : ${oficinas}"
+                            th:value="${item.id}"
+                            th:text="${item.nombre}"></option>
+                </vueselect>
+
+            </div>
+
+            <div class="form-group" >
+                <label  class="control-label">Motivo</label>
+                <textarea class="form-control" maxlength="200" v-model="ampliacionVacante.motivo" required="true" name="motivo" ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label  class="control-label">Incremento </label>
+                <input class="form-control" required="true" v-model="ampliacionVacante.incremento" name="incremento"/>
+            </div>
+
+            <div class="col-xs-12">
+
+                <div class="col-xs-3 text-center">
+                    <label>Vacante Actual </label>
+                    <input type="hidden" name="vacantesInicio"  v-bind:value="ampliacionVacante.vacantesInicio" />
+                    <p class="capitalize text-primary h5" v-text="ampliacionVacante.vacantesInicio"></p>
+                </div>
+
+                <div class="col-xs-3 text-center">
+                    <label>Incremento </label>
+                    <p class="capitalize text-primary h5" v-text="ampliacionVacante.incremento"></p>
+                </div>
+
+                <div class="col-xs-3 text-center">
+                    <label>Vacante Final </label>
+                    <input type="hidden" name="vacantesFin"  v-bind:value="ampliacionVacante.vacantesFin" />
+                    <p class="capitalize text-primary h5"  v-text="ampliacionVacante.vacantesFin"></p>
+                </div>
+
+                <div class="col-xs-3 text-center">
+                    <label>Aula Aforo </label>
+                    <p class="capitalize text-primary h5"  v-text="seccionSeleccionada.aula.capacidadAula"></p>
+                </div>
+
+            </div>
+
+        </form>
+
+
+    </div>
+</modal-vik>
+
+
+<modal-vik ref="aceptarSolicitudIncremento"
+           v-bind="aceptarSolicitudIncrementoModal"
+           v-bind:okaction="aceptarSolicitarIncrementoSave">
+
+    <div slot="body">
+
+        <form class="panel-body" id="aceptarFormSolicitarIncremento"  data-parsley-validate="true">
+            <input type="hidden" name="id"  v-bind:value="ampliacionVacante.id" />
+            <p class="h4 m-t-xs m-b-xs">¿Está seguro que aceptar esta ampliación de vacantes?</p>
+        </form>
+
+    </div>
+</modal-vik>
+
+<modal-vik ref="rechazarSolicitudIncremento"
+           v-bind="rechazarSolicitudIncrementoModal"
+           v-bind:okaction="rechazarSolicitarIncrementoSave">
+
+    <div slot="body">
+
+        <form class="panel-body" id="formRechazaAmpliacion"  data-parsley-validate="true">
+
+            <input type="hidden" name="id"  v-bind:value="ampliacionVacante.id" />
+
+            <div class="form-group" >
+                <label  class="control-label">Indique el motivo del rechazo</label>
+                <textarea class="form-control" maxlength="200" v-model="ampliacionVacante.comentarioRespuesta" required="true" name="comentarioRespuesta" ></textarea>
+            </div>
+
+        </form>
+
+    </div>
+</modal-vik>

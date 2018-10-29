@@ -949,7 +949,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
             List<Seccion> seccionesBD = seccionDAO.allByGposSeccion(gpoSeccBD);
             for (Seccion seccion : seccionesBD) {
-                List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allBySeccion(seccion);
+                List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
                 if (alumnosSeccion.size() > 0) {
                     visor.agregarLog("gpoSecc", "revisionGpoSecc", "El curso del gpo-Seccion " + gpoSeccBD.getCodigo()
                             + " está relacionado al curso " + curso.getCodigo() + " pero en la base de datos es " + cursoBD.getCodigo(),

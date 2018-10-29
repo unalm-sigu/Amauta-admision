@@ -4,21 +4,21 @@ import pe.edu.lamolina.model.academico.Seccion;
 
 public class Fusion {
 
-    private Seccion seccion;
+    private Seccion seccionDestino;
 
     private Long[] alumnosid;
 
-    private Seccion seccionSeleccionada;
+    private Seccion seccionOrigen;
 
     public Fusion() {
     }
 
-    public Seccion getSeccion() {
-        return seccion;
+    public Seccion getSeccionDestino() {
+        return seccionDestino;
     }
 
-    public void setSeccion(Seccion seccion) {
-        this.seccion = seccion;
+    public void setSeccionDestino(Seccion seccionDestino) {
+        this.seccionDestino = seccionDestino;
     }
 
     public Long[] getAlumnosid() {
@@ -29,12 +29,12 @@ public class Fusion {
         this.alumnosid = alumnosid;
     }
 
-    public Seccion getSeccionSeleccionada() {
-        return seccionSeleccionada;
+    public Seccion getSeccionOrigen() {
+        return seccionOrigen;
     }
 
-    public void setSeccionSeleccionada(Seccion seccionSeleccionada) {
-        this.seccionSeleccionada = seccionSeleccionada;
+    public void setSeccionOrigen(Seccion seccionOrigen) {
+        this.seccionOrigen = seccionOrigen;
     }
 
 }

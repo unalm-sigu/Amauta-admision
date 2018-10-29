@@ -179,7 +179,7 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
         if (temaLeccion != null) {
             inasistenciasAlumnos = inasistenciaAlumnoDAO.allByTemaLeccionActives(temaLeccion);
         }
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
 
         for (MatriculaSeccion matriculaSeccionEach : matriculasSeccion) {
             Seccion seccionClone = seccion.clone();

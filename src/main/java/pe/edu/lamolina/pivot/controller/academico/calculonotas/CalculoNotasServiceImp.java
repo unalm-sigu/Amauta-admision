@@ -644,7 +644,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
     @Transactional(readOnly = false)
     public void calcularNotas(EvaluacionExpandida evaluacionExpandida, CicloAcademico cicloAcademico, Usuario usuario) {
         evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion(), cicloAcademico);
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion(), cicloAcademico);
 
         for (MatriculaSeccion ms : matriculasSeccion) {
             Seccion seccion = ms.getSeccion();

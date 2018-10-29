@@ -233,8 +233,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
             PrecioCursoEstructura precioCurso = precioCursoEstructuraDAO.findByTpcCiclo(tpc, ciclo);
 
-//            curso.setPrecio(cursoCiclo.getPrecio());
-//            curso.setPrecioTpc(precioCurso.getPrecio());
+            curso.setPrecio(cursoCiclo.getPrecio());
+            curso.setPrecioTpc(precioCurso.getPrecio());
         }
 
         List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allBySecciones(secciones);
@@ -325,7 +325,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             grupoSeccionDAO.updateEstadoFechaModUsuarioMod(grupoSeccion);
         } else if (estadoEnum.equals(EstadoEnum.INA)) {
             for (Seccion seccion : grupoSeccion.getSecciones()) {
-                List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
+                List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
                 if (!matriculasSeccion.isEmpty()) {
                     throw new PhobosException(String.format("No se puede desactivar, La sección %s, ya que cuenta con matriculas", seccion.getCodigo2()));
                 }
@@ -827,7 +827,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccion = seccionDAO.find(seccion.getId());
         GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
 
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
         if (matriculasSeccion.isEmpty()) {
             List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccion);
             for (DocenteSeccion docenteSeccion : docentesSec) {
@@ -1039,7 +1039,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 throw new PhobosException(String.format("Las vacantes de la sección %s superan, el aforo su aula", seccionForm.getCodigo2()));
             }
         }
-        List<MatriculaSeccion> matriculasSeccionSelect = matriculaSeccionDAO.allBySeccion(seccioDB);
+        List<MatriculaSeccion> matriculasSeccionSelect = matriculaSeccionDAO.allMatriculadosBySeccion(seccioDB);
         if (matriculasSeccionSelect.size() > seccionForm.getVacantes()) {
             throw new PhobosException(String.format("Error. Las matriculas para la sección %s superan la cantidad de vacantes asignadas.", seccionForm.getCodigo2()));
         }
@@ -1129,7 +1129,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             List<VacanteAlumno> vacantesAlumnoBySeccion = new ArrayList();
 
             if (seccionTCUR.getId() != null) {
-                matriculasSeccionTCUR = matriculaSeccionDAO.allBySeccion(seccionTCUR);
+                matriculasSeccionTCUR = matriculaSeccionDAO.allMatriculadosBySeccion(seccionTCUR);
                 vacantesAlumnoBySeccion = vacanteAlumnoDAO.allActivosBySeccion(seccionTCUR);
             }
 

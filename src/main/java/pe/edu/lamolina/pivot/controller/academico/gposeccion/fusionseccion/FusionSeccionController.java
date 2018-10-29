@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
@@ -33,7 +34,7 @@ public class FusionSeccionController {
     FusionSeccionService service;
 
     @ResponseBody
-    @RequestMapping("allalumno")
+    @RequestMapping("allAlumno")
     public JsonResponse allAlumno(Seccion seccion, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
@@ -47,10 +48,10 @@ public class FusionSeccionController {
             for (Alumno alumno : alumnos) {
                 ObjectNode node = JsonHelper.createJson(alumno, jFactory, true,
                         new String[]{
-                            "*",
-                            "persona.*",
-                            "carrera.*",
-                            "situacionAcademica.*"
+                            "id", "codigo", "hayCruceHorario",
+                            "persona.apellidosNombres",
+                            "carrera.codigo",
+                            "carrera.nombre"
                         });
                 array.add(node);
             }
@@ -94,34 +95,73 @@ public class FusionSeccionController {
     }
 
     @ResponseBody
-    @RequestMapping("allsecciondisponible")
+    @RequestMapping("allSeccionDisponible")
     public JsonResponse allSeccionDisponible(Seccion seccion, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
         try {
-
-            List<Seccion> secciones = service.allSeccionDisponible(seccion);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            List<Seccion> secciones = service.allSeccionDisponible(seccion, ciclo);
 
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(jFactory);
 
             for (Seccion seccionDb : secciones) {
-                if (seccionDb.getDisponiblesCachimbos() < 1) {
+                if (seccionDb.getVacantesDisponibles() < 1) {
                     continue;
                 }
                 ObjectNode node = JsonHelper.createJson(seccionDb, jFactory, true,
                         new String[]{
                             "id",
-                            "disponiblesCachimbos",
                             "codigo",
                             "codigo2",
-                            "grupoSeccion.id",
-                            "grupoSeccion.codigo",
-                            "aula.id",
+                            "vacantes",
+                            "vacantesDisponibles",
+                            "grupoHoras.codigo",
                             "aula.codigo",
-                            "aula.nombre",
-                            "aula.aforo"
+                            "aula.aforo",
+                            "aula.capacidadAula"
+                        });
+                array.add(node);
+            }
+
+            response.setData(array);
+            response.setMessage(Messages.UPDATED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allAlumnoCruce")
+    public JsonResponse allAlumnoCruce(
+            @RequestParam("origen") Long origenId,
+            @RequestParam("destino") Long destinoId, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            List<Alumno> alumnos = service.allAlumnoCruce(new Seccion(origenId), new Seccion(destinoId), ciclo);
+
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jFactory);
+            for (Alumno alumno : alumnos) {
+                ObjectNode node = JsonHelper.createJson(alumno, jFactory, true,
+                        new String[]{
+                            "id", "codigo", "hayCruceHorario",
+                            "persona.apellidosNombres",
+                            "carrera.codigo",
+                            "carrera.nombre"
                         });
                 array.add(node);
             }

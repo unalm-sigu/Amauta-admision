@@ -3,23 +3,19 @@ package pe.edu.lamolina.pivot.dao.academico;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 
 public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
-    List<MatriculaSeccion> allBySeccion(Seccion seccion);
+    List<MatriculaSeccion> allMatriculadosBySeccion(Seccion seccion);
 
-    MatriculaSeccion findByAlumnoSeccion(Alumno alumno, Seccion seccion);
-
-    List<MatriculaSeccion> allByMatriculaSeccion(MatriculaResumen aluResumen);
-
-    List<MatriculaSeccion> allByGpoSeccion(GrupoSeccion grupoSeccion, CicloAcademico ciclo);
+//    MatriculaSeccion findByAlumnoSeccion(Alumno alumno, Seccion seccion);
+//    List<MatriculaSeccion> allByMatriculaSeccion(MatriculaResumen aluResumen);
+    List<MatriculaSeccion> allMatriculadosByGpoSeccion(GrupoSeccion grupoSeccion, CicloAcademico ciclo);
 
     List<MatriculaSeccion> allMatriculadosByCiclo(CicloAcademico ciclo);
 
@@ -27,7 +23,7 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<MatriculaSeccion> allMatriculadosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 
-    List<MatriculaSeccion> allMatriculadosByAlumnosCiclo(List<AlumnoHorario> alumnos, CicloAcademico ciclo);
+    List<MatriculaSeccion> allMatriculadosByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
 
     Long countAllSeccionPrematriculado(CicloAcademico cicloAcademico);
 
@@ -35,10 +31,9 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<MatriculaSeccion> allByAlumnoCicloEstados(Alumno alumno, CicloAcademico academico, List<String> asList);
 
-    List<MatriculaSeccion> allByModalidadEstudioCiclo(ModalidadEstudio modalidad, CicloAcademico cicloAcademico);
-
-    MatriculaSeccion findByCicloSeccionAlumno(CicloAcademico cicloAcademico, Seccion seccion, Alumno alumno);
-
-    MatriculaSeccion findByMatriculaResumenSeccion(MatriculaResumen matriculaResumen, Seccion seccion);
+//    List<MatriculaSeccion> allByModalidadEstudioCiclo(ModalidadEstudio modalidad, CicloAcademico cicloAcademico);
+//    MatriculaSeccion findByCicloSeccionAlumno(CicloAcademico cicloAcademico, Seccion seccion, Alumno alumno);
+//    MatriculaSeccion findByMatriculaResumenSeccion(MatriculaResumen matriculaResumen, Seccion seccion);
+    List<MatriculaSeccion> allMatriculadosByAlumnosSecciones(List<Alumno> alumnos, List<Seccion> secciones);
 
 }
