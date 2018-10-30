@@ -2010,7 +2010,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<EventoCicloAcademico> allEventoCicloAcademicoForPeriodo(CicloAcademico cicloAcademico) {
-        List<EventoAcademicoEnum> eventos = Arrays.asList(EventoAcademicoEnum.CLASES_PRE1, EventoAcademicoEnum.CLASES_PRE2);
+        List<EventoAcademicoEnum> eventos = Arrays.asList(EventoAcademicoEnum.CLASES_PRE, EventoAcademicoEnum.CLASES_PRE);
         List<EventoCicloAcademico> eventosCiclosAcademicos = eventoCicloAcademicoDAO.allActivosByCicloEventos(cicloAcademico, eventos);
         return eventosCiclosAcademicos;
     }

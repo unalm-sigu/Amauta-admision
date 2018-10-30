@@ -30,4 +30,6 @@ public interface DiaHoraGrupoDAO extends EasyDAO<DiaHoraGrupo> {
     void deleteAllInList(List<DiaHoraGrupo> diaHoraGrupos);
 
     List<DiaHoraGrupo> allByCiclo(CicloAcademico ciclo);
+
+    public List<DiaHoraGrupo> allByCicloAndTipoCiclo(CicloAcademico cicloDestino);
 }
