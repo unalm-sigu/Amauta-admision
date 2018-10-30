@@ -68,7 +68,7 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
     public void save(List<CursoCicloAcademico> cursosCicloForm, CicloAcademico ciclo, DataSessionPivot ds) {
         List<CursoCicloAcademico> cursosCicloBD = cursoCicloAcademicoDAO.allByLista(cursosCicloForm);
         Map<Long, CursoCicloAcademico> mapCursoCiclo = TypesUtil.convertListToMap("id", cursosCicloBD);
-       
+
         Map<Long, Curso> mapCurso = TypesUtil.convertListToMap("curso.id", "curso", cursosCicloBD);
 
         List<String> tpcs = new ArrayList();
@@ -110,17 +110,16 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
                 if (seccion.isTipoSeccionTCUR()) {
                     continue;
                 }
-               
-//                if (seccion.getPrecioPersonalizado()) {
-//                    continue;
-//                } else {
-//                    seccion.setPrecioPersonalizado(Boolean.TRUE);
-//                    seccion.setUserPrecio(ds.getUsuario());
-//                    seccion.setFechaPrecio(new Date());
-//                }
 
+                if (seccion.getPrecioPersonalizado()) {
+                    continue;
+                }
+
+                seccion.setPrecioPersonalizado(Boolean.FALSE);
+                seccion.setUserPrecio(null);
+                seccion.setFechaPrecio(null);
                 seccion.setPrecio(cursoCicloForm.getPrecio().add(cursoCicloForm.getPrecioAdicional()));
-                seccionDAO.update(seccion);
+                seccionDAO.updatePrecioBySeccion(seccion);
             }
 
         }
