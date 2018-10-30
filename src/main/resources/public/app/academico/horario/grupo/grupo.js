@@ -436,6 +436,10 @@ new Vue({
 
         },
         styleBorder(item) {
+            let $vue = this;
+            if (item.id == $vue.grupoActivo.id) {
+                return "background-color:gray;";
+            }
             return "border-color:" + item.color + ";";
         },
         classHoras(item) {

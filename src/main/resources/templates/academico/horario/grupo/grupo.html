@@ -102,10 +102,11 @@
                                         </td>
                                         <td v-for="dia in dias" style="width: 12.5%">
                                             <span class="form-control pointer text-center"
-                                                  v-bind:style="styleHdia(dia,hora)">
-                                                <p class="text-item-horario"
+                                                  v-bind:style="styleHdia(dia,hora)"
+                                                  v-text="conteHdia(dia,hora)">
+                                                <!--span class="text-item-horario"
                                                    v-bind:style="styleConteHdia(dia,hora)"
-                                                   v-text="conteHdia(dia,hora)">77</p>
+                                                   v-text="conteHdia(dia,hora)">77</span-->
                                             </span>
                                         </td>
                                     </tr>
