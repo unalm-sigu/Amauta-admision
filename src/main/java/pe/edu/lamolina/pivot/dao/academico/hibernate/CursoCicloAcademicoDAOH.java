@@ -68,7 +68,7 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
                 .from(CursoCicloAcademico.class, "pcc")
                 .join("curso cu", "cicloAcademico ci")
                 .filter("ci.id", ciclo)
-                .searchFields("cu.nombre")
+                .searchFields("cu.nombre", "cu.codigo")
                 .orderBy("pcc.id desc");
         return all(sql);
     }
@@ -115,7 +115,5 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
                 .filter("c.id", curso);
         return find(sql);
     }
-
-  
 
 }

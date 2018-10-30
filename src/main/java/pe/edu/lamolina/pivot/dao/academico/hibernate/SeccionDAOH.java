@@ -452,11 +452,14 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         query.setParameter("SECCION", seccion.getId());
         query.executeUpdate();
     }
-    
+
     @Override
-    public void updatePrecioBySeccion(Seccion precioSeccion) {
+    public void updatePrecioBySeccion(Seccion seccion) {
         Octavia octavia = Octavia.update(Seccion.class);
-        octavia.set(precioSeccion, "precio");
+        octavia.set(seccion, "precio");
+        octavia.set(seccion, "userPrecio");
+        octavia.set(seccion, "fechaPrecio");
+        octavia.set(seccion, "precioPersonalizado");
         this.update(octavia);
     }
 
