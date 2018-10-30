@@ -10,7 +10,6 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
-import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface SeccionDAO extends EasyDAO<Seccion> {
 
