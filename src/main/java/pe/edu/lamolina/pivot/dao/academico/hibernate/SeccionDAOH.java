@@ -20,6 +20,7 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Repository
 public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO {
@@ -450,6 +451,16 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         query.setParameter("MATRICULADOS", matriculados);
         query.setParameter("SECCION", seccion.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public void updatePrecioBySeccion(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "precio");
+        octavia.set(seccion, "userPrecio");
+        octavia.set(seccion, "fechaPrecio");
+        octavia.set(seccion, "precioPersonalizado");
+        this.update(octavia);
     }
 
 }

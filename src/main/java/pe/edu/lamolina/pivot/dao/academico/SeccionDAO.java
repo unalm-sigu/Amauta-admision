@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface SeccionDAO extends EasyDAO<Seccion> {
 
@@ -76,5 +77,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
     List<Seccion> allByCursoCicloExceptSeccion(Curso curso, CicloAcademico ciclo, Seccion seccion);
 
     void updateMatriculados(Seccion origen, Integer matriculados);
+    
+    void updatePrecioBySeccion(Seccion seccion);
 
 }
