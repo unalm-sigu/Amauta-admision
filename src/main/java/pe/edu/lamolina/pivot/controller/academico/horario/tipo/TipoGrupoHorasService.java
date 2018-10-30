@@ -8,13 +8,13 @@ public interface TipoGrupoHorasService {
 
     List<TipoGrupoHoras> allTipoGrupoHoras(DynatableFilter filter);
 
-    void estado(TipoGrupoHoras tipoGrupo);
+    void changeEstado(TipoGrupoHoras tipoGrupo);
 
-    void delete(TipoGrupoHoras tipoGrupo);
+    void deleteTipoGpo(TipoGrupoHoras tipoGrupo);
 
-    void update(TipoGrupoHoras tipoGrupo);
+    void updateTipoGpo(TipoGrupoHoras tipoGrupo);
 
-    void save(TipoGrupoHoras tipoGrupo);
+    void saveTipogpo(TipoGrupoHoras tipoGrupo);
 
     TipoGrupoHoras find(TipoGrupoHoras tipoGrupo);
 

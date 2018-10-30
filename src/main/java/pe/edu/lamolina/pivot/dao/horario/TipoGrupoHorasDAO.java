@@ -9,7 +9,7 @@ import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 
 public interface TipoGrupoHorasDAO extends EasyDAO<TipoGrupoHoras> {
 
-    List<TipoGrupoHoras> allTipoGrupoHoras(DynatableFilter filter);
+    List<TipoGrupoHoras> allByDynatable(DynatableFilter filter);
 
     TipoGrupoHoras findByCode(String codigo);
 

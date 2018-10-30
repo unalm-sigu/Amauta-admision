@@ -165,8 +165,10 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
                 CursoCicloAcademico cca = new CursoCicloAcademico();
                 cca.setCicloAcademico(cicloDestino);
                 cca.setPrecio(BigDecimal.ZERO);
+                cca.setPrecioAdicional(BigDecimal.ZERO);
                 cca.setEstado(EstadoEnum.ACT.name());
                 cca.setCurso(ggss.getCurso());
+                cca.setMinimoAlumnos(BigDecimal.ZERO);
 
                 cursoCicloAcademicoDAO.save(cca);
             }

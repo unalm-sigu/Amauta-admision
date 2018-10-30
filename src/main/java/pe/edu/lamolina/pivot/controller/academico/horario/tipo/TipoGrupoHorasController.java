@@ -17,14 +17,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
@@ -68,6 +69,7 @@ public class TipoGrupoHorasController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
+        model.addAttribute("tiposCicloJson", JsonHelper.enumToJson(TipoCicloEnum.values()).toString());
         return "academico/horario/tipo/tipoGrupo";
     }
 
@@ -83,15 +85,7 @@ public class TipoGrupoHorasController {
             List<TipoGrupoHoras> grupos = service.allTipoGrupoHoras(filter);
 
             for (TipoGrupoHoras grupo : grupos) {
-
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                node.put("id", grupo.getId());
-                node.put("codigo", grupo.getCodigo());
-                node.put("estado", grupo.getEstado());
-                node.put("estadoGrupos", grupo.getEstadoGrupos());
-                node.put("tipoCiclo", TipoCicloEnum.valueOf(grupo.getTipoCiclo()).getValue());
-                node.put("tipo", grupo.getTipo());
-                node.put("descripcion", grupo.getDescripcion());
+                ObjectNode node = JsonHelper.createJson(grupo, JsonNodeFactory.instance, true, new String[]{"*"});
                 array.add(node);
             }
 
@@ -108,17 +102,16 @@ public class TipoGrupoHorasController {
 
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(TipoGrupoHoras tipoGrupo, HttpSession session) {
+    public JsonResponse save(@RequestBody TipoGrupoHoras tipoGrupo, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-//            TipoGrupoHoras tipoGrupoCode = service.findTipoGrupoHorasByCode(tipoGrupo.getCodigo());
             ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
             if (tipoGrupo.getId() != null) {
-                service.update(tipoGrupo);
+                service.updateTipoGpo(tipoGrupo);
                 response.setMessage("Tipo Grupos actualizado satisfactoriamente");
                 response.setSuccess(Boolean.TRUE);
             } else {
-                service.save(tipoGrupo);
+                service.saveTipogpo(tipoGrupo);
                 response.setMessage("Tipo Grupos creado satisfactoriamente");
                 response.setSuccess(Boolean.TRUE);
             }
@@ -134,54 +127,17 @@ public class TipoGrupoHorasController {
     }
 
     @ResponseBody
-    @RequestMapping("update")
-    public JsonResponse update(TipoGrupoHoras tipoGrupo, Model model, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            TipoGrupoHoras tipoGrupoDb = service.find(tipoGrupo);
-            Context ctx = new Context();
-            ctx.setVariable("tipoGrupo", tipoGrupoDb);
-            ctx.setVariable("tipoCiclos", TipoCicloEnum.values());
-            String htmlContent = springHtml.process("academico/horario/tipo/tipoGrupoForm", ctx);
-            response.setData(htmlContent);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("nuevo")
-    public JsonResponse nuevo(Model model, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            Context ctx = new Context();
-            ctx.setVariable("tipoGrupo", new TipoGrupoHoras());
-            ctx.setVariable("tipoCiclos", TipoCicloEnum.values());
-            String htmlContent = springHtml.process("academico/horario/tipo/tipoGrupoForm", ctx);
-            response.setData(htmlContent);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
     @RequestMapping("delete")
     public JsonResponse delete(TipoGrupoHoras tipoGrupo) {
         JsonResponse response = new JsonResponse();
         try {
-            service.delete(tipoGrupo);
-            response.setMessage("Tipo Grupos eliminada satisfactoriamente");
+            service.deleteTipoGpo(tipoGrupo);
+            response.setMessage("Tipo Grupos eliminado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, "Este Tipo-Grupo esta relacionado a otros objetos del sistema");
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -193,7 +149,7 @@ public class TipoGrupoHorasController {
     public JsonResponse estado(TipoGrupoHoras tipoGrupo) {
         JsonResponse response = new JsonResponse();
         try {
-            service.estado(tipoGrupo);
+            service.changeEstado(tipoGrupo);
             response.setMessage("Tipo de Grupos actualizado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {

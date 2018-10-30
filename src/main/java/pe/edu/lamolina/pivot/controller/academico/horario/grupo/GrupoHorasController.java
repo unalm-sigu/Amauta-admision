@@ -29,6 +29,7 @@ import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -87,8 +88,17 @@ public class GrupoHorasController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
+        List<Dia> dias = service.allDia();
+        List<Hora> horas = service.allHora();
         TipoGrupoHoras tipoGrupoHoras = service.findTipoGrupoHoras(idTipoGrupo);
+        TipoGrupoHoras tipoGpoReg = service.findTipoGpoRegular();
+        List<DiaHoraGrupo> diasHorasGposReg = service.allDiaHoraGrupoByTipo(tipoGpoReg, ciclo);
+
         model.addAttribute("tipoGrupoHoras", tipoGrupoHoras);
+        model.addAttribute("tipoGpoJson", createTipoGpoJson(tipoGrupoHoras).toString());
+        model.addAttribute("diasJson", createDiasJson(dias).toString());
+        model.addAttribute("horasJson", createHorasJson(horas).toString());
+        model.addAttribute("horarioRegularJson", createDiaHoraGpoJson(diasHorasGposReg).toString());
         model.addAttribute("ciclo", ciclo.getDescripcion());
         return "academico/horario/grupo/grupo";
     }
@@ -262,57 +272,17 @@ public class GrupoHorasController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
-            GrupoHoras grupoDb = service.findGrupoHoras(grupoHoras);
-            TipoGrupoHoras tipoGrupoDb = grupoDb.getTipoGrupoHoras();
-            List<DiaHoraGrupo> diaHoraGrupos = new ArrayList();
-            if (TipoGrupoHorasEnum.ESPECIAL.name().equalsIgnoreCase(tipoGrupoDb.getTipo())) {
-                diaHoraGrupos = service.allDiaHoraGrupoByGrupo(grupoDb, cicloAcademico);
-            } else {
-                diaHoraGrupos = service.allDiaHoraGrupoByTipo(grupoDb.getTipoGrupoHoras(), cicloAcademico);
-            }
-            Map<String, DiaHoraGrupo> mapDiaHoraGrupo = new LinkedHashMap<>();
+            GrupoHoras grupoBD = service.findGrupoHoras(grupoHoras);
+            List<DiaHoraGrupo> diasHorasGpo = diasHorasGpo = service.allDiaHoraGrupoByGrupo(grupoBD, cicloAcademico);
 
-            for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
-                Long dia = diaHoraGrupo.getDia().getId();
-                Long hora = diaHoraGrupo.getHora().getId();
-                mapDiaHoraGrupo.put("" + dia + "_" + hora, diaHoraGrupo);
-            }
+            TipoGrupoHoras tipoGpoReg = service.findTipoGpoRegular();
+            List<DiaHoraGrupo> diasHorasGposReg = service.allDiaHoraGrupoByTipo(tipoGpoReg, cicloAcademico);
 
-            List<Dia> dias = service.allDia();
-            List<Hora> horas = service.allHora();
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.set("horarioGpo", createDiaHoraGpoJson(diasHorasGpo));
+            node.set("horarioRegular", createDiaHoraGpoJson(diasHorasGposReg));
 
-            for (Hora hora : horas) {
-                hora.setDiaHoraGrupo(null);
-                List<DiaHoraGrupo> myDiaHoraGrupos = new ArrayList();
-                for (Dia dia : dias) {
-                    DiaHoraGrupo myDiaHoraGrupo = mapDiaHoraGrupo.get("" + dia.getId() + "_" + hora.getId());
-                    if (myDiaHoraGrupo == null) {
-                        myDiaHoraGrupo = new DiaHoraGrupo();
-                        myDiaHoraGrupo.setDia(dia);
-                        myDiaHoraGrupo.setHora(hora);
-                        GrupoHoras gh = new GrupoHoras();
-                        gh.setColor("#ffffff");
-                        myDiaHoraGrupo.setGrupoHorario(gh);
-                        myDiaHoraGrupos.add(myDiaHoraGrupo);
-                    } else {
-                        GrupoHoras ghoras = myDiaHoraGrupo.getGrupoHorario();
-                        if (ghoras.getId() != grupoDb.getId().longValue()) {
-                            ghoras.setColor(null);
-                            myDiaHoraGrupo.setGrupoHorario(ghoras);
-                        }
-                        myDiaHoraGrupos.add(myDiaHoraGrupo);
-                    }
-                }
-                hora.setDiaHoraGrupo(myDiaHoraGrupos);
-            }
-
-            Context ctx = new Context();
-            ctx.setVariable("dias", dias);
-            ctx.setVariable("horas", horas);
-            ctx.setVariable("diaHoraGrupos", diaHoraGrupos);
-
-            String htmlContent = springHtml.process("academico/horario/grupo/horarioTemplate", ctx);
-            response.setData(htmlContent);
+            response.setData(node);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -373,6 +343,40 @@ public class GrupoHorasController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    private ObjectNode createTipoGpoJson(TipoGrupoHoras tipoGpo) {
+        ObjectNode node = JsonHelper.createJson(tipoGpo, JsonNodeFactory.instance, true, new String[]{"*"});
+        return node;
+    }
+
+    private ArrayNode createDiasJson(List<Dia> dias) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (Dia dia : dias) {
+            ObjectNode node = JsonHelper.createJson(dia, JsonNodeFactory.instance, true, new String[]{"*"});
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ArrayNode createHorasJson(List<Hora> horas) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (Hora hora : horas) {
+            ObjectNode node = JsonHelper.createJson(hora, JsonNodeFactory.instance, true, new String[]{"*"});
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ArrayNode createDiaHoraGpoJson(List<DiaHoraGrupo> diasHorasGpos) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (DiaHoraGrupo hdiaGpo : diasHorasGpos) {
+            ObjectNode node = JsonHelper.createJson(hdiaGpo, JsonNodeFactory.instance, true, new String[]{
+                "*", "grupoHorario.codigo", "hora.id", "hora.codigo", "dia.id"
+            });
+            array.add(node);
+        }
+        return array;
     }
 
 }

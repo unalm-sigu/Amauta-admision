@@ -43,4 +43,6 @@ public interface GrupoHorasService {
 
     void gencolor();
 
+    TipoGrupoHoras findTipoGpoRegular();
+
 }

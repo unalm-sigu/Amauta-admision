@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoHorasEnum;
-import pe.edu.lamolina.model.enums.EstadoTipoGrupoHorasEnum;
-import pe.edu.lamolina.model.enums.OficinaEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
@@ -27,43 +27,47 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
 
     @Override
     public List<TipoGrupoHoras> allTipoGrupoHoras(DynatableFilter filter) {
-        return tipoGrupoHorasDAO.allTipoGrupoHoras(filter);
-    }
-
-    @Override
-    public void estado(TipoGrupoHoras tipoGrupo) {
-        TipoGrupoHoras tipoGrupoDb = tipoGrupoHorasDAO.find(tipoGrupo.getId());
-        if (OficinaEstadoEnum.INA.name().equalsIgnoreCase(tipoGrupoDb.getEstado())) {
-            tipoGrupoDb.setEstado(EstadoTipoGrupoHorasEnum.ACT.name());
-        } else {
-            tipoGrupoDb.setEstado(EstadoTipoGrupoHorasEnum.INA.name());
-        }
-        tipoGrupoHorasDAO.update(tipoGrupoDb);
+        return tipoGrupoHorasDAO.allByDynatable(filter);
     }
 
     @Override
     @Transactional
-    public void delete(TipoGrupoHoras tipoGrupo) {
+    public void changeEstado(TipoGrupoHoras tipoGrupo) {
+        TipoGrupoHoras tipoGrupoBD = tipoGrupoHorasDAO.find(tipoGrupo.getId());
+        if (EstadoEnum.INA == tipoGrupoBD.getEstadoEnum()) {
+            tipoGrupoBD.setEstadoEnum(EstadoEnum.ACT);
+        } else if (EstadoEnum.CRE == tipoGrupoBD.getEstadoEnum()) {
+            tipoGrupoBD.setEstadoEnum(EstadoEnum.ACT);
+        } else {
+            tipoGrupoBD.setEstadoEnum(EstadoEnum.INA);
+        }
+        tipoGrupoHorasDAO.update(tipoGrupoBD);
+
+    }
+
+    @Override
+    @Transactional
+    public void deleteTipoGpo(TipoGrupoHoras tipoGrupo) {
         tipoGrupoHorasDAO.delete(tipoGrupo);
     }
 
     @Override
     @Transactional
-    public void update(TipoGrupoHoras tipoGrupo) {
-        TipoGrupoHoras tipoGrupoDb = tipoGrupoHorasDAO.find(tipoGrupo.getId());
-        tipoGrupoDb.setTipoCiclo(tipoGrupo.getTipoCiclo());
-        tipoGrupoHorasDAO.update(tipoGrupoDb);
+    public void updateTipoGpo(TipoGrupoHoras tipoGrupo) {
+        TipoGrupoHoras tipoGrupoBD = tipoGrupoHorasDAO.find(tipoGrupo.getId());
+        tipoGrupoBD.setTipoCiclo(tipoGrupo.getTipoCiclo());
+        tipoGrupoBD.setDescripcion(tipoGrupo.getDescripcion());
+        tipoGrupoHorasDAO.update(tipoGrupoBD);
     }
 
     @Override
     @Transactional
-    public void save(TipoGrupoHoras tipoGrupo) {
-
+    public void saveTipogpo(TipoGrupoHoras tipoGrupo) {
         List<TipoGrupoHoras> tipoGrupoHoras = tipoGrupoHorasDAO.all();
 
         tipoGrupo.setTipo(TipoGrupoHorasEnum.REGULAR.name());
-        tipoGrupo.setEstado(EstadoTipoGrupoHorasEnum.CRE.name());
-        tipoGrupo.setEstadoGrupos(EstadoGrupoHorasEnum.INCOMP.name());
+        tipoGrupo.setEstadoEnum(EstadoEnum.CRE);
+        tipoGrupo.setEstadoGruposEnum(EstadoGrupoHorasEnum.INCOMP);
 
         if (tipoGrupoHoras.isEmpty()) {
             tipoGrupo.setCodigo("HOR-001");
@@ -71,7 +75,7 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
             return;
         }
 
-        Map<Long, Long> mapCodigos = new LinkedHashMap<>();
+        Map<Long, Long> mapCodigos = new LinkedHashMap();
 
         for (TipoGrupoHoras tipoGrupoHora : tipoGrupoHoras) {
             String c = tipoGrupoHora.getCodigo().substring(4);
@@ -85,9 +89,8 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
             codigoDisp = mapCodigos.get(codigo);
         }
 
-        tipoGrupo.setCodigo("HOR-" + codigo);
+        tipoGrupo.setCodigo("HOR-" + NumberFormat.codigo(codigo, 3));
         tipoGrupoHorasDAO.save(tipoGrupo);
-
     }
 
     @Override

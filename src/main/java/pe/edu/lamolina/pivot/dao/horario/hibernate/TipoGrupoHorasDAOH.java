@@ -23,7 +23,7 @@ public class TipoGrupoHorasDAOH extends AbstractEasyDAO<TipoGrupoHoras> implemen
     }
 
     @Override
-    public List<TipoGrupoHoras> allTipoGrupoHoras(DynatableFilter filter) {
+    public List<TipoGrupoHoras> allByDynatable(DynatableFilter filter) {
 
         DynatableSql sql = new DynatableSql(filter)
                 .from(TipoGrupoHoras.class, "tgh")

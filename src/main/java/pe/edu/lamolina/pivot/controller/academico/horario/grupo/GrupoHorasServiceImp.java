@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
@@ -174,6 +176,17 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
             grupo.setColor(colorCode);
             grupoHorasDAO.update(grupo);
         }
+    }
+
+    @Override
+    public TipoGrupoHoras findTipoGpoRegular() {
+        List<TipoGrupoHoras> tipos = tipoGrupoHorasDAO.all();
+        for (TipoGrupoHoras tipo : tipos) {
+            if (tipo.getTipoCicloEnum() == TipoCicloEnum.REG && tipo.getEstadoEnum() == EstadoEnum.ACT && tipo.getTipoEnum() == TipoGrupoHorasEnum.REGULAR) {
+                return tipo;
+            }
+        }
+        return null;
     }
 
 }
