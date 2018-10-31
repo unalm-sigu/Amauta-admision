@@ -10,9 +10,19 @@
 
             <header class="header b-b padder-lg">
 
+                <div class="btn-group pull-right">
+                    <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a v-on:click.prevent="clonarCiclo">Clonar</a></li>
+                        <li><a id="nuevo" href="#" >Nuevo</a></li>
+                    </ul>
+                </div>
+
                 <div class="pull-right m-t-md">                 
                     <a class="btn btn-link" th:href="@{/academico/horario}" >Regresar</a>
-                    <a class="btn btn-primary" id="nuevo" href="#" >Nuevo</a>
+                    <!--<a class="btn btn-primary" id="nuevo" href="#" >Nuevo</a>-->
                 </div> 
 
                 <h2 class="block" th:text="${'Horarios de grupo '+ ciclo}" >Grupos</h2> 
@@ -100,8 +110,8 @@
                                             </span>
 
                                         </td>
-                                        <td v-for="dia in dias" style="width: 12.5%">
-                                            <span class="form-control pointer text-center"
+                                        <td v-for="dia in dias" style="width: 12.5%" v-on:click="conterObjHdia(dia,hora) == null ? asignarHora(dia,hora) : desasignarHora(dia,hora)">
+                                            <span v-value="hora.id + '-' + dia.id" class="form-control pointer text-center"
                                                   v-bind:style="styleHdia(dia,hora)"
                                                   v-text="conteHdia(dia,hora)">
                                                 <!--span class="text-item-horario"
@@ -117,10 +127,28 @@
                     </section>
                 </section>
             </section>
+            <modal-vik ref="modalCloneCiclo"
+                       v-bind="dataCloneCiclo" 
+                       v-bind:okaction="saveCloneCiclo"  > 
+                <div slot="body">
 
+                    <form data-parsley-validate="true" class="panel-body">
+
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label>Seleccione el ciclo acádemico de origen</label>
+                                <vuelect 
+                                    v-bind:nombre="'ciclo.id'"  
+                                    v-bind:ciclo="ciclo"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </modal-vik>
 
 
         </div>
+        <div th:substituteby="_modules/vue-modal"/>
     </div>
 
     <div layout:fragment="js">
@@ -133,6 +161,8 @@
             /*]]>*/
         </script>
         <div th:substituteby="_modules/vue-raptor-table"></div>
+        <div th:substituteby="academico/gposeccion/vuelect2"></div>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <div th:substituteby="_layout/includes :: bootstrap-colorpicker"/>
         <script th:src="@{/app/academico/horario/grupo/grupo.js}" charset="utf-8"></script>
     </div>
