@@ -15,12 +15,12 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Repository
 public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO {
@@ -93,7 +93,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
                 .leftJoin("aula", "grupoHoras", "seccionSuperior")
-                .filter("estado", EstadoEnum.ACT)
+                .filter("estado", SeccionEstadoEnum.ACT)
                 .in("gs.id", gruposSeccion);
 
         return all(sql);
@@ -105,7 +105,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
                 .leftJoin("aula", "grupoHoras", "seccionSuperior")
-                .filter("estado", EstadoEnum.ACT)
+                .filter("estado", SeccionEstadoEnum.ACT)
                 .filter("matriculados", ">", 0)
                 .in("gs.id", gruposSeccion)
                 .orderBy("sec.codigo2");
@@ -119,7 +119,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
                 .leftJoin("aula", "grupoHoras")
-                .filter("estado", EstadoEnum.ACT)
+                .filter("estado", SeccionEstadoEnum.ACT)
                 .filter("gs.id", gruposSeccion);
 
         return all(sql);
@@ -212,7 +212,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .leftJoin("seccionSuperior")
                 .leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
                 .filter("ca.id", ciclo)
-                .filter("sec.estado", EstadoEnum.ACT)
+                .filter("sec.estado", SeccionEstadoEnum.ACT)
                 .in("cur.id", cursos)
                 .orderBy("sec.codigo2");
 
@@ -289,7 +289,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .join("grupoSeccion gs", "gs.curso")
                 .leftJoin("grupoHoras")
                 .like("sc.codigo2", codigo)
-                .filter("sc.estado", EstadoEnum.ACT)
+                .filter("sc.estado", SeccionEstadoEnum.ACT)
                 .limit(15);
         return all(sql);
     }
@@ -425,20 +425,42 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
-    public List<Seccion> allByCursoExceptSeccion(Curso curso, Seccion seccion) {
+    public List<Seccion> allByCursoCicloExceptSeccion(Curso curso, CicloAcademico ciclo, Seccion seccion) {
 
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
-                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico")
-                .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
-                .leftJoin("grupoHoras gh", "aula au", "au.oficinaSupervisora", "au.aulaSuperior")
-                .leftJoin("seccionSuperior")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .leftJoin("grupoHoras gh", "aula au", "seccionSuperior")
+                .filter("ca.id", ciclo)
+                .filter("sec.estado", SeccionEstadoEnum.ACT)
                 .filter("sec.id", "<>", seccion)
-                .filter("sec.tipoSeccion", "<>", TipoSeccionEnum.TCUR.name())
-                .filter("cur.id", curso);
+                .filter("sec.tipoSeccion", "<>", TipoSeccionEnum.TCUR)
+                .filter("cur.id", curso)
+                .orderBy("sec.codigo2");
 
         return all(sql);
 
+    }
+
+    @Override
+    public void updateMatriculados(Seccion seccion, Integer matriculados) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("update Seccion set matriculados = :MATRICULADOS where id = :SECCION ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameter("MATRICULADOS", matriculados);
+        query.setParameter("SECCION", seccion.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void updatePrecioBySeccion(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "precio");
+        octavia.set(seccion, "userPrecio");
+        octavia.set(seccion, "fechaPrecio");
+        octavia.set(seccion, "precioPersonalizado");
+        this.update(octavia);
     }
 
 }

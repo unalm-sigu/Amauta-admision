@@ -10,8 +10,10 @@ public interface FusionSeccionService {
 
     List<Alumno> allAlumnoBySeccion(Seccion seccion);
 
-    void trasladar(Fusion fusion, CicloAcademico cicloActivo, DataSessionPivot ds);
+    void trasladar(Fusion fusion, CicloAcademico ciclo, DataSessionPivot ds);
 
-    List<Seccion> allSeccionDisponible(Seccion seccion);
+    List<Seccion> allSeccionDisponible(Seccion seccion, CicloAcademico ciclo);
+
+    List<Alumno> allAlumnoCruce(Seccion seccionOrigen, Seccion seccionDestino, CicloAcademico ciclo);
 
 }

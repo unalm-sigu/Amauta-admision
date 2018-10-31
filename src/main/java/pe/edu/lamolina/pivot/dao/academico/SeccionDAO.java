@@ -73,6 +73,10 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     void deleteAllNotSuperiorByCiclo(CicloAcademico ciclo);
 
-    List<Seccion> allByCursoExceptSeccion(Curso curso, Seccion seccion);
+    List<Seccion> allByCursoCicloExceptSeccion(Curso curso, CicloAcademico ciclo, Seccion seccion);
+
+    void updateMatriculados(Seccion origen, Integer matriculados);
+    
+    void updatePrecioBySeccion(Seccion seccion);
 
 }

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -20,6 +21,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
@@ -30,13 +32,20 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_EPG;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
@@ -45,6 +54,7 @@ import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionModalidadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionRepitenciaDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -89,6 +99,12 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
     @Autowired
     CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
 
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
+    @Autowired
+    DiaHoraGrupoDAO diaHoraGrupoDAO;
+
     @Override
     @Transactional
     public void clonarCiclo(CicloAcademico cicloOrigenForm, CicloAcademico cicloDestinoForm, DataSessionPivot ds) {
@@ -96,9 +112,12 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
         CicloAcademico cicloOrigen = cicloAcademicoDAO.find(cicloOrigenForm.getId());
         CicloAcademico cicloDestino = cicloAcademicoDAO.find(cicloDestinoForm.getId());
         logger.debug("copiar del ciclo {} al ciclo {}", cicloOrigen.getId(), cicloDestino.getId());
+
         if (cicloOrigen.getId().longValue() == cicloDestino.getId()) {
             throw new PhobosException("El ciclo académico es el mismo al que desea copiar");
         }
+
+        validarClonacion(cicloDestino);
 
         List<PrecioCursoEstructura> precioCursoEstructura = precioCursoEstructuraDAO.allByCiclo(cicloDestino);
 
@@ -165,8 +184,10 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
                 CursoCicloAcademico cca = new CursoCicloAcademico();
                 cca.setCicloAcademico(cicloDestino);
                 cca.setPrecio(BigDecimal.ZERO);
+                cca.setPrecioAdicional(BigDecimal.ZERO);
                 cca.setEstado(EstadoEnum.ACT.name());
                 cca.setCurso(ggss.getCurso());
+                cca.setMinimoAlumnos(BigDecimal.ZERO);
 
                 cursoCicloAcademicoDAO.save(cca);
             }
@@ -327,6 +348,24 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 
         }
 
+    }
+
+    private void validarClonacion(CicloAcademico cicloDestino) {
+        EventoAcademicoEnum even = cicloDestino.getTipo().equals(TipoCicloEnum.NIV.name()) ? CLASES_VER : CLASES_PRE;
+
+        EventoCicloAcademico cicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloDestino, even);
+
+        Assert.isNotNull(cicloAcademico, "No se asignó un evento para el ciclo " + cicloDestino.getDescripcion());
+
+        if (even.equals(CLASES_PRE)) {
+            cicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloDestino, CLASES_EPG);
+
+        }
+        Assert.isNotNull(cicloAcademico, "No se asignó un evento para el ciclo " + cicloDestino.getDescripcion());
+
+        List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByCicloAndTipoCiclo(cicloDestino);
+
+        Assert.isNotNull(diaHoraGrupos, "No existe horarios para el ciclo " + cicloDestino.getDescripcion());
     }
 
     @Override

@@ -15,8 +15,15 @@ public interface CursoCicloAcademicoDAO extends EasyDAO<CursoCicloAcademico> {
     void updatePrecioByTpc(CicloAcademico cicloAcademico, String tpc, BigDecimal precio);
 
     void deleteAllByCiclo(CicloAcademico ciclo);
+
     List<CursoCicloAcademico> allByDynatable(DynatableFilter filter, CicloAcademico ciclo);
 
     List<CursoCicloAcademico> countGpoSeccByCursosCiclo(List<Curso> cursos, CicloAcademico ciclo);
+
+    List<CursoCicloAcademico> allByLista(List<CursoCicloAcademico> cursosCiclos);
+
+    List<CursoCicloAcademico> allByCursosCiclo(List<Curso> cursos, CicloAcademico ciclo);
+    
+    CursoCicloAcademico findByCursoCiclo(Curso curso, CicloAcademico ciclo);
 
 }

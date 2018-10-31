@@ -1332,7 +1332,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     @Override
     public List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion) {
-        return matriculaSeccionDAO.allBySeccion(seccion);
+        return matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
     }
 
     @Override
@@ -1452,7 +1452,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             marticulasSeccion.add(matSecc);
 
         }
-        //   List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allByGpoSeccion(grupoSeccion, ciclo);
+        //   List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(grupoSeccion, ciclo);
         this.calcularNotasLista(marticulasSeccion, ds);
         auditorService.auditSaveNotas(evaluacion, planCalificacion, sistemaNotas, seccion, curso, ciclo,
                 this.allEvaluacionesByTipoSeccion(seccion),
@@ -1941,7 +1941,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             List<Evaluacion> evaluacionesBySeccion = this.allEvaluacionByFilter(null, null, seccion.getId());
 
             for (Evaluacion evaluacion : evaluacionesBySeccion) {
-                List<MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allBySeccion(seccion);
+                List<MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
                 if (matriculasSeccionByFilter.isEmpty()) {
                     continue;
                 }
@@ -1968,7 +1968,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         /*
         Map<Long, MatriculaCurso> matriculaCursoMap = this.getMapMatriculasCursoByCicloCurso(grupoSeccion.getCicloAcademico(), grupoSeccion.getCurso());
         for (Seccion seccion : grupoSeccion.getSecciones()) {
-            List<MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allBySeccion(seccion);
+            List<MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
             for (MatriculaSeccion matriculaSeccion : matriculasSeccionByFilter) {
                 MatriculaCurso matriculaCurso = (MatriculaCurso) matriculaCursoMap.get(matriculaSeccion.getMatriculaResumen().getAlumno().getId());
                 if (matriculaCurso == null) {
@@ -1984,7 +1984,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
         grupoSeccionDAO.update(grupoSeccion);
 
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allByGpoSeccion(grupoSeccion, grupoSeccion.getCicloAcademico());
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(grupoSeccion, grupoSeccion.getCicloAcademico());
         List<MatriculaResumen> matriculasResumen = matriculasSeccion.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
         List<String> idsMatsResumen = matriculasResumen.stream().map(x -> x.getId().toString()).collect(Collectors.toList());
         logger.debug(String.join(",", idsMatsResumen));
@@ -2119,7 +2119,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     public List<MatriculaSeccion> allMatriculaSeccionByFilter(EvaluacionExpandida evaluacionExpandida, CicloAcademico ciclo) {
         evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
-        return matriculaSeccionDAO.allByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion(), ciclo);
+        return matriculaSeccionDAO.allMatriculadosByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion(), ciclo);
     }
 
     @Override

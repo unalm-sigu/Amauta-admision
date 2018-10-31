@@ -43,4 +43,8 @@ public interface GrupoHorasService {
 
     void gencolor();
 
+    TipoGrupoHoras findTipoGpoRegular();
+
+    public void clonar(CicloAcademico cicloOrigen, CicloAcademico cicloDestino);
+
 }

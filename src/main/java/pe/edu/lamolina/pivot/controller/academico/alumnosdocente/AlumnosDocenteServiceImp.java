@@ -29,7 +29,7 @@ public class AlumnosDocenteServiceImp implements AlumnosDocenteService {
 
     @Override
     public List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion) {
-        return matriculaSeccionDAO.allBySeccion(seccion);
+        return matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
     }
 
 }

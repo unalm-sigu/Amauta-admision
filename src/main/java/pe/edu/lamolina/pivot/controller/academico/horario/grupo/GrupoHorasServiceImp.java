@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
@@ -173,6 +176,34 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
             String colorCode = String.format("#%06x", nextInt);
             grupo.setColor(colorCode);
             grupoHorasDAO.update(grupo);
+        }
+    }
+
+    @Override
+    public TipoGrupoHoras findTipoGpoRegular() {
+        List<TipoGrupoHoras> tipos = tipoGrupoHorasDAO.all();
+        for (TipoGrupoHoras tipo : tipos) {
+            if (tipo.getTipoCicloEnum() == TipoCicloEnum.REG && tipo.getEstadoEnum() == EstadoEnum.ACT && tipo.getTipoEnum() == TipoGrupoHorasEnum.REGULAR) {
+                return tipo;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public void clonar(CicloAcademico cicloOrigen, CicloAcademico cicloDestino) {
+        List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByCiclo(cicloOrigen);
+        Assert.isTrue(cicloOrigen.getId() != cicloDestino.getId(), "No puede clonar del mismo ciclo");
+        Assert.isTrue(cicloOrigen.getTipo() == cicloDestino.getTipo(), "No puede clonar de un tipo de ciclo distinto");
+      
+        for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
+            DiaHoraGrupo horaGrupo = new DiaHoraGrupo();
+            horaGrupo.setDia(diaHoraGrupo.getDia());
+            horaGrupo.setGrupoHorario(diaHoraGrupo.getGrupoHorario());
+            horaGrupo.setHora(diaHoraGrupo.getHora());
+            horaGrupo.setCicloAcademico(cicloDestino);
+            diaHoraGrupoDAO.save(horaGrupo);
         }
     }
 

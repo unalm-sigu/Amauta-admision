@@ -17,6 +17,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CarreraCachimbos;
@@ -276,7 +277,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
     }
 
     @Override
-    public void generarHorario(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds, List<AlumnoHorario> alumnos) {
+    public void generarHorario(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds, List<AlumnoHorario> alumnosHoarios) {
         logger.debug("ciclo {}", ciclo.getId());
         logger.debug("modalidad {}", modalidad.getId());
 
@@ -335,6 +336,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         List<SeccionHorarioCachimbos> seccionHorarioCachimbos = seccionHorarioCachimbosDAO.allBySeccions(ciclo, secciones);
         Map<Long, List<SeccionHorarioCachimbos>> seccionHorarioCachimbosMap = TypesUtil.convertListToMapList("seccion.id", seccionHorarioCachimbos);
 
+        List<Alumno> alumnos = alumnosHoarios.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<MatriculaSeccion> matriculadosSecciones = matriculaSeccionDAO.allMatriculadosByAlumnosCiclo(alumnos, ciclo);
         for (MatriculaSeccion matSeccion : matriculadosSecciones) {
             Seccion sec = matSeccion.getSeccion();
@@ -365,7 +367,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
             seccion.setHorarioSeccion(horariosSecc);
         }
 
-        Map<Long, List<AlumnoHorario>> mapAlumnos = TypesUtil.convertListToMapList("alumno.carrera.id", alumnos);
+        Map<Long, List<AlumnoHorario>> mapAlumnos = TypesUtil.convertListToMapList("alumno.carrera.id", alumnosHoarios);
 
         List<HorarioCachimbos> horariosBD = horarioCachimbosDAO.allByCiclo(ciclo);
         List<SeccionHorarioCachimbos> seccionesHorariosBD = seccionHorarioCachimbosDAO.allByHorarios(horariosBD);

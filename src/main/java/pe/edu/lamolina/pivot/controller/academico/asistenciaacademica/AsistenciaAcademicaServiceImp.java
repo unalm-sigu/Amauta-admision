@@ -131,8 +131,8 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
         DateTime fechaFin = null;
 
         if (curso.getModalidadEstudio().isPregrado()) {
-            EventoCicloAcademico eventCicloClasesPre1 = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE1);
-            EventoCicloAcademico eventCicloClasesPre2 = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE2);
+            EventoCicloAcademico eventCicloClasesPre1 = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
+            EventoCicloAcademico eventCicloClasesPre2 = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
             fechaInicio = new DateTime(eventCicloClasesPre1.getFechaInicio());
             fechaFin = new DateTime(eventCicloClasesPre2.getFechaFin());
         } else if (curso.getModalidadEstudio().isPostgrado()) {
@@ -179,7 +179,7 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
         if (temaLeccion != null) {
             inasistenciasAlumnos = inasistenciaAlumnoDAO.allByTemaLeccionActives(temaLeccion);
         }
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
 
         for (MatriculaSeccion matriculaSeccionEach : matriculasSeccion) {
             Seccion seccionClone = seccion.clone();

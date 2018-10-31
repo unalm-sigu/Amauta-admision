@@ -1,0 +1,68 @@
+<div v-if="seccionSeleccionada.tipoSeccion=='TCUR' " 
+     class="alert alert-warning">En esta sección no se asigna precios
+</div>
+
+<div v-else="" >
+
+    <div class="col-md-offset-3 col-md-6">
+        <div class="row m-b-sm">
+            <div class="col-md-6">
+                <label class="switch"> Editar
+                    <input  type="checkbox"
+                            v-model="editaPrecio"/>
+                    <span></span>
+                </label> 
+            </div>
+            <div class="col-md-6 text-right" v-if="editaPrecio">
+                <a href="#" class="btn btn-success btn-sm" v-if="!guardaPrecio" v-on:click.prevent="verGuardarPrecio(seccionSeleccionada)"> Guardar </a>
+            </div>
+        </div>
+        <table class="table table-striped">
+            <thead> 
+                <tr> 
+                    <th class="v-middle text-center col-md-9">Curso</th>
+                    <th class="v-middle text-center">Personalizado</th>
+                    <th class="v-middle text-right col-md-3">Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="v-middle text-center col-md-9">
+                        <span class="block m-t-sm m-b-sm"> Precio {{grupoSeccion.curso.tpc}}: </span>
+                    </td>
+                    <td class="v-middle text-right ">
+
+                    </td>
+                    <td class="v-middle text-right col-md-3">
+                        <div v-if="grupoSeccion.curso.precio != '' " class="block">S/. {{grupoSeccion.curso.precioTpcFormato}}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-middle text-center">
+                        <span class="block m-t-sm m-b-sm"> Precio curso: </span>
+                    </td>
+                    <td class="v-middle text-right">
+
+                    </td>
+                    <td class="v-middle text-right">
+                        <div v-if="grupoSeccion.curso.precio != '' " class="block">S/. {{grupoSeccion.curso.precioFormato}}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-middle text-center">
+                        <span class="block m-t-sm m-b-sm"> Precio sección: </span>
+                    </td>
+                    <td class="v-middle text-right">
+                        <i v-if="seccionSeleccionada.precioPersonalizado!=0 " class="fa fa-check text-success"></i>
+                        <i v-if="seccionSeleccionada.precioPersonalizado=='' "></i>
+                    </td>
+                    <td class="v-middle text-right">
+                        <input v-if="editaPrecio" class="form-control text-right" v-bind:disabled="guardaPrecio" v-model="seccionSeleccionada.precio"/>
+                        <span v-else="">S/. {{seccionSeleccionada.precioFormato}} </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>

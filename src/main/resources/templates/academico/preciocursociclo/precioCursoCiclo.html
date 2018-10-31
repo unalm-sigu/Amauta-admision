@@ -24,21 +24,20 @@
 
                                     <div class="col-md-2">
 
-                                        <div class="form-group" title="Activar cuadro de texto" data-toggle="tooltip" data-placement="top">
+                                        <div class="form-group" data-toggle="tooltip" data-placement="top">
                                             <label>Editar</label>
                                             <label class="switch">
-                                                <input type="checkbox" v-model="verTabla" value="true" />
-                                                <span></span> 
-                                                <i></i>
+                                                <input type="checkbox" 
+                                                       v-model="verTabla"/>
+                                                <span></span>
                                             </label>
                                         </div>
                                     </div>
                                     <div class="col-md-2">
 
                                         <div class="btn-group" v-if="verTabla" >
-                                            <a type="button" class="btn btn-success" v-on:click="verGuardar()" v-if="!salvar">Guardar</a>
-                                        </div> 
-
+                                            <a href="#" class="btn btn-success btn-sm" v-on:click.prevent="verGuardar()" v-if="!guardaPrecio">Guardar</a>                            
+                                        </div>                                                              
                                     </div>
                                 </div>
 

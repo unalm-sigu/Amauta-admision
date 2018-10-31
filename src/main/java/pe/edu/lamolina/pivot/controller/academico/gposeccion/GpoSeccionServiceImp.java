@@ -41,6 +41,7 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
@@ -48,6 +49,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
 import pe.edu.lamolina.model.academico.RestriccionModalidad;
@@ -67,6 +69,7 @@ import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -103,6 +106,8 @@ import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.AmpliacionVacantesDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -197,8 +202,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     CicloAcademicoDAO cicloAcademicoDAO;
     @Autowired
     AmpliacionVacantesDAO ampliacionVacanteDAO;
+    @Autowired
+    CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
+
+    @Autowired
+    PrecioCursoEstructuraDAO precioCursoEstructuraDAO;
 
     @Override
+
     public Oficina findOficinaOera() {
         return oficinaDAO.findByCode("OERA");
     }
@@ -213,6 +224,18 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         GrupoSeccion gpoSecc = grupoSeccionDAO.find(id);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSecc);
         gpoSecc.setSecciones(secciones);
+
+        CicloAcademico ciclo = gpoSecc.getCicloAcademico();
+        Curso curso = gpoSecc.getCurso();
+        String tpc = gpoSecc.getCurso().getTpc();
+        if (ciclo.getTipoEnum() == TipoCicloEnum.NIV) {
+            CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.findByCursoCiclo(curso, ciclo);
+
+            PrecioCursoEstructura precioCurso = precioCursoEstructuraDAO.findByTpcCiclo(tpc, ciclo);
+
+            curso.setPrecio(cursoCiclo.getPrecio());
+            curso.setPrecioTpc(precioCurso.getPrecio());
+        }
 
         List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allBySecciones(secciones);
         Map<Long, List<DocenteSeccion>> mapDocSeccion = TypesUtil.convertListToMapList("seccion.id", docenteSeccion);
@@ -302,7 +325,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             grupoSeccionDAO.updateEstadoFechaModUsuarioMod(grupoSeccion);
         } else if (estadoEnum.equals(EstadoEnum.INA)) {
             for (Seccion seccion : grupoSeccion.getSecciones()) {
-                List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
+                List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
                 if (!matriculasSeccion.isEmpty()) {
                     throw new PhobosException(String.format("No se puede desactivar, La sección %s, ya que cuenta con matriculas", seccion.getCodigo2()));
                 }
@@ -485,7 +508,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion.setSeccion(seccionTCUR);
             docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
             seccionTCUR.getDocenteSeccion().add(docenteSeccion);
-            
 
             grupoSeccion.getSecciones().add(seccionTCUR);
 
@@ -805,7 +827,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccion = seccionDAO.find(seccion.getId());
         GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
 
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
         if (matriculasSeccion.isEmpty()) {
             List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccion);
             for (DocenteSeccion docenteSeccion : docentesSec) {
@@ -1017,7 +1039,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 throw new PhobosException(String.format("Las vacantes de la sección %s superan, el aforo su aula", seccionForm.getCodigo2()));
             }
         }
-        List<MatriculaSeccion> matriculasSeccionSelect = matriculaSeccionDAO.allBySeccion(seccioDB);
+        List<MatriculaSeccion> matriculasSeccionSelect = matriculaSeccionDAO.allMatriculadosBySeccion(seccioDB);
         if (matriculasSeccionSelect.size() > seccionForm.getVacantes()) {
             throw new PhobosException(String.format("Error. Las matriculas para la sección %s superan la cantidad de vacantes asignadas.", seccionForm.getCodigo2()));
         }
@@ -1107,7 +1129,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             List<VacanteAlumno> vacantesAlumnoBySeccion = new ArrayList();
 
             if (seccionTCUR.getId() != null) {
-                matriculasSeccionTCUR = matriculaSeccionDAO.allBySeccion(seccionTCUR);
+                matriculasSeccionTCUR = matriculaSeccionDAO.allMatriculadosBySeccion(seccionTCUR);
                 vacantesAlumnoBySeccion = vacanteAlumnoDAO.allActivosBySeccion(seccionTCUR);
             }
 
@@ -1988,7 +2010,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<EventoCicloAcademico> allEventoCicloAcademicoForPeriodo(CicloAcademico cicloAcademico) {
-        List<EventoAcademicoEnum> eventos = Arrays.asList(EventoAcademicoEnum.CLASES_PRE1, EventoAcademicoEnum.CLASES_PRE2);
+        List<EventoAcademicoEnum> eventos = Arrays.asList(EventoAcademicoEnum.CLASES_PRE, EventoAcademicoEnum.CLASES_PRE);
         List<EventoCicloAcademico> eventosCiclosAcademicos = eventoCicloAcademicoDAO.allActivosByCicloEventos(cicloAcademico, eventos);
         return eventosCiclosAcademicos;
     }

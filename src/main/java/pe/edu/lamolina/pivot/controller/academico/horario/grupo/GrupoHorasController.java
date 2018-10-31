@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
+import javax.websocket.server.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,6 +31,7 @@ import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -87,8 +90,17 @@ public class GrupoHorasController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
+        List<Dia> dias = service.allDia();
+        List<Hora> horas = service.allHora();
         TipoGrupoHoras tipoGrupoHoras = service.findTipoGrupoHoras(idTipoGrupo);
+        TipoGrupoHoras tipoGpoReg = service.findTipoGpoRegular();
+        List<DiaHoraGrupo> diasHorasGposReg = service.allDiaHoraGrupoByTipo(tipoGpoReg, ciclo);
+
         model.addAttribute("tipoGrupoHoras", tipoGrupoHoras);
+        model.addAttribute("tipoGpoJson", createTipoGpoJson(tipoGrupoHoras).toString());
+        model.addAttribute("diasJson", createDiasJson(dias).toString());
+        model.addAttribute("horasJson", createHorasJson(horas).toString());
+        model.addAttribute("horarioRegularJson", createDiaHoraGpoJson(diasHorasGposReg).toString());
         model.addAttribute("ciclo", ciclo.getDescripcion());
         return "academico/horario/grupo/grupo";
     }
@@ -108,33 +120,17 @@ public class GrupoHorasController {
             Map<Long, List<DiaHoraGrupo>> mapGrupohoras = TypesUtil.convertListToMapList("grupoHorario.id", horas);
             for (GrupoHoras grupo : grupos) {
 
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                node.put("id", grupo.getId());
-                node.put("codigo", grupo.getCodigo());
-                node.put("letra", grupo.getLetra());
-                node.put("tipoCiclo", grupo.getTipoCiclo());
-                node.put("tipoGrupoHoras", grupo.getTipoGrupoHoras() != null ? grupo.getTipoGrupoHoras().getCodigo() : "");
-                node.put("tipoSeccion", grupo.getTipoSeccion());
-                node.put("color", grupo.getColor());
+                ObjectNode node = JsonHelper.createJson(grupo, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "tipoGrupoHoras.*",});
+
                 List<DiaHoraGrupo> mapGrupohora = mapGrupohoras.get(grupo.getId());
                 node.put("estado", "default");
                 node.put("horas", 0);
                 if (mapGrupohora != null) {
                     node.put("horas", mapGrupohora.size());
                 }
-                if (TipoGrupoHorariosEnum.FLX.name().equalsIgnoreCase(grupo.getConHorario())) {
-                    node.put("estado", "primary");
-                } else {
-                    if (mapGrupohora == null) {
-                        node.put("estado", "danger");
-                    } else {
-                        if (mapGrupohora.size() > 0) {
-                            node.put("estado", "primary");
-                        } else {
-                            node.put("estado", "danger");
-                        }
-                    }
-                }
+
                 array.add(node);
             }
 
@@ -262,57 +258,17 @@ public class GrupoHorasController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
-            GrupoHoras grupoDb = service.findGrupoHoras(grupoHoras);
-            TipoGrupoHoras tipoGrupoDb = grupoDb.getTipoGrupoHoras();
-            List<DiaHoraGrupo> diaHoraGrupos = new ArrayList();
-            if (TipoGrupoHorasEnum.ESPECIAL.name().equalsIgnoreCase(tipoGrupoDb.getTipo())) {
-                diaHoraGrupos = service.allDiaHoraGrupoByGrupo(grupoDb, cicloAcademico);
-            } else {
-                diaHoraGrupos = service.allDiaHoraGrupoByTipo(grupoDb.getTipoGrupoHoras(), cicloAcademico);
-            }
-            Map<String, DiaHoraGrupo> mapDiaHoraGrupo = new LinkedHashMap<>();
+            GrupoHoras grupoBD = service.findGrupoHoras(grupoHoras);
+            List<DiaHoraGrupo> diasHorasGpo = service.allDiaHoraGrupoByGrupo(grupoBD, cicloAcademico);
 
-            for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
-                Long dia = diaHoraGrupo.getDia().getId();
-                Long hora = diaHoraGrupo.getHora().getId();
-                mapDiaHoraGrupo.put("" + dia + "_" + hora, diaHoraGrupo);
-            }
+            TipoGrupoHoras tipoGpoReg = service.findTipoGpoRegular();
+            List<DiaHoraGrupo> diasHorasGposReg = service.allDiaHoraGrupoByTipo(tipoGpoReg, cicloAcademico);
 
-            List<Dia> dias = service.allDia();
-            List<Hora> horas = service.allHora();
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.set("horarioGpo", createDiaHoraGpoJson(diasHorasGpo));
+            node.set("horarioRegular", createDiaHoraGpoJson(diasHorasGposReg));
 
-            for (Hora hora : horas) {
-                hora.setDiaHoraGrupo(null);
-                List<DiaHoraGrupo> myDiaHoraGrupos = new ArrayList();
-                for (Dia dia : dias) {
-                    DiaHoraGrupo myDiaHoraGrupo = mapDiaHoraGrupo.get("" + dia.getId() + "_" + hora.getId());
-                    if (myDiaHoraGrupo == null) {
-                        myDiaHoraGrupo = new DiaHoraGrupo();
-                        myDiaHoraGrupo.setDia(dia);
-                        myDiaHoraGrupo.setHora(hora);
-                        GrupoHoras gh = new GrupoHoras();
-                        gh.setColor("#ffffff");
-                        myDiaHoraGrupo.setGrupoHorario(gh);
-                        myDiaHoraGrupos.add(myDiaHoraGrupo);
-                    } else {
-                        GrupoHoras ghoras = myDiaHoraGrupo.getGrupoHorario();
-                        if (ghoras.getId() != grupoDb.getId().longValue()) {
-                            ghoras.setColor(null);
-                            myDiaHoraGrupo.setGrupoHorario(ghoras);
-                        }
-                        myDiaHoraGrupos.add(myDiaHoraGrupo);
-                    }
-                }
-                hora.setDiaHoraGrupo(myDiaHoraGrupos);
-            }
-
-            Context ctx = new Context();
-            ctx.setVariable("dias", dias);
-            ctx.setVariable("horas", horas);
-            ctx.setVariable("diaHoraGrupos", diaHoraGrupos);
-
-            String htmlContent = springHtml.process("academico/horario/grupo/horarioTemplate", ctx);
-            response.setData(htmlContent);
+            response.setData(node);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -324,7 +280,7 @@ public class GrupoHorasController {
 
     @ResponseBody
     @RequestMapping("asignarHora")
-    public JsonResponse asignarHora(DiaHoraGrupo diaHoraGrupo, Model model, HttpSession session) {
+    public JsonResponse asignarHora(@RequestBody DiaHoraGrupo diaHoraGrupo, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
 
@@ -333,6 +289,7 @@ public class GrupoHorasController {
             diaHoraGrupo.setCicloAcademico(cicloAcademico);
             service.saveDiaHoraGrupo(diaHoraGrupo);
             response.setSuccess(Boolean.TRUE);
+            response.setMessage("Se asignó el horario satisfactoriamente");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -343,7 +300,7 @@ public class GrupoHorasController {
 
     @ResponseBody
     @RequestMapping("desasignarHora")
-    public JsonResponse desasignarHora(DiaHoraGrupo diaHoraGrupo, Model model, HttpSession session) {
+    public JsonResponse desasignarHora(@RequestBody DiaHoraGrupo diaHoraGrupo, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
 
@@ -352,6 +309,25 @@ public class GrupoHorasController {
             diaHoraGrupo.setCicloAcademico(cicloAcademico);
             service.desasignarHora(diaHoraGrupo);
             response.setSuccess(Boolean.TRUE);
+            response.setMessage("Se retiró el horario satisfactoriamente");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("clonarGrupos")
+    public JsonResponse clonar(@RequestBody CicloAcademico cicloOrigen, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.clonar(cicloOrigen, ds.getCicloAcademico());
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Se retiró el horario satisfactoriamente");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -373,6 +349,40 @@ public class GrupoHorasController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    private ObjectNode createTipoGpoJson(TipoGrupoHoras tipoGpo) {
+        ObjectNode node = JsonHelper.createJson(tipoGpo, JsonNodeFactory.instance, true, new String[]{"*"});
+        return node;
+    }
+
+    private ArrayNode createDiasJson(List<Dia> dias) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (Dia dia : dias) {
+            ObjectNode node = JsonHelper.createJson(dia, JsonNodeFactory.instance, true, new String[]{"*"});
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ArrayNode createHorasJson(List<Hora> horas) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (Hora hora : horas) {
+            ObjectNode node = JsonHelper.createJson(hora, JsonNodeFactory.instance, true, new String[]{"*"});
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ArrayNode createDiaHoraGpoJson(List<DiaHoraGrupo> diasHorasGpos) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (DiaHoraGrupo hdiaGpo : diasHorasGpos) {
+            ObjectNode node = JsonHelper.createJson(hdiaGpo, JsonNodeFactory.instance, true, new String[]{
+                "*", "grupoHorario.codigo", "hora.id", "hora.codigo", "dia.id"
+            });
+            array.add(node);
+        }
+        return array;
     }
 
 }

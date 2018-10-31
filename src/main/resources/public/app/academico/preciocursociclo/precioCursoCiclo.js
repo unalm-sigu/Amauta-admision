@@ -3,7 +3,7 @@ new Vue({
     data: {
         preciocursocicloURL: APP.url('academico/preciocursociclo/list'),
         verTabla: false,
-        salvar: false
+        guardaPrecio: false
     },
     mounted() {
         let $vue = this;
@@ -11,9 +11,11 @@ new Vue({
     },
     methods: {
         verGuardar() {
-            this.salvar = true;
+
 
             let $vue = this;
+            this.guardaPrecio = true;
+
             bootbox.confirm({
                 message: '¿Está seguro que desea guarda este curso de nivelación?',
                 buttons: {
@@ -22,14 +24,15 @@ new Vue({
                 },
                 callback: function (aceptar) {
                     if (aceptar) {
-                        setTimeout(function () {
-                            $vue.guardar();
-                        }, 200);
+                        $vue.guardar();
+                    }else{
+                        $vue.guardaPrecio = false; 
                     }
                 }
             });
         },
         guardar() {
+            this.guardaPrecio = true;
             let $vue = this;
             //console.dir($vue.$refs.raptorPrecioCursoCiclo);
             //console.dir($vue.$refs.raptorPrecioCursoCiclo.data);
@@ -40,12 +43,17 @@ new Vue({
                 data: JSON.stringify($vue.$refs.raptorPrecioCursoCiclo.data)
             }).then(response => {
                 if (response.success) {
+//                    console.log("entro aquí")
+                    $vue.verTabla = false;
+                    $vue.guardaPrecio = false;
                     $vue.$refs.raptorPrecioCursoCiclo.loadRemoteData();
                     notify(response.message, "info");
                 } else {
                     notify(response.message, 'error');
                 }
             }, error => {
+                $vue.verTabla = true;
+                $vue.guardaPrecio = false;
                 notify(MESSAGES.errorComunicacion, 'error');
             });
         }

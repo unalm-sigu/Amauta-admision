@@ -11,4 +11,7 @@ public interface PrecioCursoEstructuraDAO extends EasyDAO<PrecioCursoEstructura>
 
     void deleteAllByCiclo(CicloAcademico ciclo);
 
+    List<PrecioCursoEstructura> allByEstructurasCiclo(List<String> tpcs, CicloAcademico ciclo);
+    
+    PrecioCursoEstructura findByTpcCiclo(String tpc, CicloAcademico ciclo);
 }

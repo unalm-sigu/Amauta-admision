@@ -9,13 +9,13 @@ new Vue({
         addEventoCicloAcademicoaModal: {
             id: 'modalAddEventoCicloAcademico',
             header: true,
-            title: 'Ciclo académico',
+            title: 'Crear evento académico',
             okbtn: 'Guardar'
         },
         addAnularCicloModal: {
             id: 'modalAddAnularCiclo',
             header: true,
-            title: 'Anular Ciclo académico',
+            title: 'Editar evento académico',
             okbtn: 'Aceptar'
         }
     },

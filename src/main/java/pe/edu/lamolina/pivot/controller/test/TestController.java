@@ -174,7 +174,7 @@ public class TestController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
-        List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allByGpoSeccion(new GrupoSeccion(grupoSeccionId), ciclo);
+        List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(new GrupoSeccion(grupoSeccionId), ciclo);
         for (MatriculaSeccion ms : alumnosSeccion) {
             Seccion seccion = ms.getSeccion();
             GrupoSeccion gpoSecc = seccion.getGrupoSeccion();

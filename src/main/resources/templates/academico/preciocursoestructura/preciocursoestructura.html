@@ -49,7 +49,7 @@
                                 </td>
                                 <td class="v-middle text-right">
                                     <input v-if="editar" class="form-control text-right" v-bind:disabled="guardando" v-model="estructura.precio"/>
-                                    <span v-else=""> {{ estructura.precio | currency }} </span>
+                                    <span v-else="">S/.{{estructura.precio | currency }} </span>
                                 </td>
                             </tr>
                         </tbody>

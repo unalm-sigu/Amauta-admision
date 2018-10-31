@@ -1,9 +1,12 @@
 package pe.edu.lamolina.pivot.controller.academico.preciocursociclo;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,15 +16,19 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
 public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
@@ -31,6 +38,9 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
 
     @Autowired
     SeccionDAO seccionDAO;
+
+    @Autowired
+    PrecioCursoEstructuraDAO precioCursoEstructuraDAO;
 
     @Override
     public List<CursoCicloAcademico> allCursoCiclo(DynatableFilter filter, CicloAcademico ciclo) {
@@ -56,10 +66,25 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
     @Override
     @Transactional
     public void save(List<CursoCicloAcademico> cursosCicloForm, CicloAcademico ciclo, DataSessionPivot ds) {
-        for (CursoCicloAcademico cursoCicloForm : cursosCicloForm) {
-            CursoCicloAcademico cursoCicloBD = cursoCicloAcademicoDAO.find(cursoCicloForm.getId());
+        List<CursoCicloAcademico> cursosCicloBD = cursoCicloAcademicoDAO.allByLista(cursosCicloForm);
+        Map<Long, CursoCicloAcademico> mapCursoCiclo = TypesUtil.convertListToMap("id", cursosCicloBD);
 
-            if (cursoCicloBD.getPrecio().compareTo(cursoCicloForm.getPrecio()) == 0) {
+        Map<Long, Curso> mapCurso = TypesUtil.convertListToMap("curso.id", "curso", cursosCicloBD);
+
+        List<String> tpcs = new ArrayList();
+        List<Curso> cursosBD = new ArrayList(mapCurso.values());
+        for (Curso curso : cursosBD) {
+            tpcs.add(curso.getTpc());
+        }
+
+        List<PrecioCursoEstructura> preciosTpcCursos = precioCursoEstructuraDAO.allByEstructurasCiclo(tpcs, ciclo);
+        Map<String, PrecioCursoEstructura> mapPrecioTPC = TypesUtil.convertListToMap("tpc", preciosTpcCursos);
+
+        for (CursoCicloAcademico cursoCicloForm : cursosCicloForm) {
+            CursoCicloAcademico cursoCicloBD = mapCursoCiclo.get(cursoCicloForm.getId());
+            PrecioCursoEstructura precioTPC = mapPrecioTPC.get(cursoCicloBD.getCurso().getTpc());
+
+            if (precioTPC.getPrecio().compareTo(cursoCicloForm.getPrecio()) == 0) {
                 cursoCicloBD.setPrecioPersonalizado(Boolean.FALSE);
                 cursoCicloBD.setUserPrecio(null);
                 cursoCicloBD.setFechaPrecio(null);
@@ -89,8 +114,12 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
                 if (seccion.getPrecioPersonalizado()) {
                     continue;
                 }
+
+                seccion.setPrecioPersonalizado(Boolean.FALSE);
+                seccion.setUserPrecio(null);
+                seccion.setFechaPrecio(null);
                 seccion.setPrecio(cursoCicloForm.getPrecio().add(cursoCicloForm.getPrecioAdicional()));
-                seccionDAO.update(seccion);
+                seccionDAO.updatePrecioBySeccion(seccion);
             }
 
         }
