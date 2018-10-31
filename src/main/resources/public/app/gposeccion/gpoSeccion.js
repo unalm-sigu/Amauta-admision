@@ -41,6 +41,9 @@ new Vue({
         tipoRestriccion: '',
         ciclo: {},
         cantidadGrupoSeccion: cantidad,
+        clonar: 0,
+        cerrarClonacion: false,
+//        cicloSeccion: {},
         resumen: {
             ingresantes: 0,
             departamentos: 0,
@@ -54,6 +57,27 @@ new Vue({
         anexosHijos: [],
         anexoPadreCurso: {},
         newGrupoSeccion: {curso: {}, anexoBoletin: {}}
+    },
+    computed: {
+        condicionUno(){
+            let $vue = this;
+            this.cantidadGrupoSeccion;
+            return this.cantidadGrupoSeccion == 0 || this.cantidadGrupoSeccion != 0;
+        },
+        condicionDos() {
+            let $vue = this;
+            this.cantidadGrupoSeccion;
+            this.clonar;
+            return this.cantidadGrupoSeccion == 0 && this.clonar == 0;
+        },
+        condicionTres(){
+            let $vue = this;
+            this.cantidadGrupoSeccion;
+            this.clonar;
+            return this.cantidadGrupoSeccion != 0 && this.clonar == 0;
+        }
+      
+        
     },
     watch: {
         orderbycodigo() {
@@ -94,7 +118,7 @@ new Vue({
     methods: {
         verTexto(a, b) {
             let vue = this;
-            
+
 //            console.log(a.target.value)
 //            console.log(b)
             var nom = APP.revisarNombre2(a.target.value);
@@ -447,7 +471,8 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
 
-                        $vue.updateCantidadGrupoSeccion();
+                        //$vue.updateCantidadGrupoSeccion();
+                        $vue.cantidadGrupoSeccion = 1;
                         $vue.updateResumen();
 
                         $vue.$refs.load.loadRemoteData();
@@ -467,27 +492,32 @@ new Vue({
                 }
             });
         },
-        updateCantidadGrupoSeccion() {
-
-            let $vue = this;
-
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/gposeccion/cantidadgrupo'),
-                async: false,
-                success: function (response) {
-                    if (response.success) {
-                        $vue.cantidadGrupoSeccion = response.data;
-                    } else {
-                        notify(response.message, 'error');
-                    }
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-
-        },
+//        updateCantidadGrupoSeccion() {
+//
+//            let $vue = this;
+//
+//            $.ajax({
+//                method: 'POST',
+//                url: APP.url('academico/gposeccion/cantidadgrupo'),
+//                async: false,
+//                success: function (response) {
+//                    if (response.success) {
+//                        //$vue.cantidadGrupoSeccion = response.data;
+//                        $vue.cicloSeccion = response.data;
+//                        //console.log(response.data);
+//                        $vue.$refs.load.loadRemoteData();
+////                        $vue.cerrarCiclonacion = 1;
+//                        
+//                    } else {
+//                        notify(response.message, 'error');
+//                    }
+//                },
+//                error: function () {
+//                    notify(MESSAGES.errorComunicacion, "error");
+//                }
+//            });
+//
+//        },
         updateResumen() {
 
             let $vue = this;
@@ -588,7 +618,58 @@ new Vue({
                             notify(response.message, 'info');
 
                             $vue.$refs.load.loadRemoteData();
-                            $vue.updateCantidadGrupoSeccion();
+                            //$vue.updateCantidadGrupoSeccion();
+                            $vue.cantidadGrupoSeccion = 0;
+                            swal({text: response.message, icon: "success", button: false, timer: 1000});
+
+                        } else {
+
+                            swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        }
+                    },
+                    error: function () {
+
+                        swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                    }
+                });
+
+            }).catch(err => {
+
+                swal(MESSAGES.errorComunicacion, "error");
+
+            });
+
+        },
+        cerrarCiclo() {
+
+            let $vue = this;
+
+            swal({
+                title: "Cerrar Ciclo",
+                text: "¿Desea cerrar el ciclo de clonación?",
+                icon: "warning",
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Aceptar", closeModal: false}
+                }
+            }).then((value) => {
+
+                if (value != true) {
+                    return;
+                }
+
+                $.ajax({
+                    method: 'POST',
+                    async: false,
+                    url: APP.url('academico/gposeccion/cerrarciclo'),
+                    success: function (response) {
+                        if (response.success) {
+
+                            notify(response.message, 'info');
+
+                            $vue.$refs.load.loadRemoteData();
+                            $vue.cerrarClonacion = true;
 
                             swal({text: response.message, icon: "success", button: false, timer: 1000});
 
