@@ -1,4 +1,4 @@
-    package pe.edu.lamolina.pivot.dao.academico.hibernate;
+package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
@@ -442,6 +442,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("modalidadEstudio me", "situacionAcademica sa", "cicloActivo ca")
+                .join("persona per", "carrera car", "car.facultad fa")
+                .leftJoin("per.tipoDocumento td", "cicloActivo cia", "cicloIngreso ci")
                 .filter("me.id", modalidad)
                 .in("sa.id", situaciones);
         return all(sql);
@@ -489,6 +491,15 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         octavia.set(alumno, "situacionAcademica");
         octavia.set(alumno, "creditosAprobados");
         octavia.set(alumno, "cicloActivo");
+        octavia.set(alumno, "creditosCursados");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateSituacionCapaCredCur(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "situacionAcademica");
+        octavia.set(alumno, "creditosAprobados");
         octavia.set(alumno, "creditosCursados");
         this.update(octavia);
     }
