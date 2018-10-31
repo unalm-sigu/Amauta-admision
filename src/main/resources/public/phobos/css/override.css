@@ -1021,6 +1021,7 @@ div.notas {
 
 /*style item horario*/
 .text-item-horario{
+    color: black;
     mix-blend-mode: difference;
 }
 /*end style item horario*/

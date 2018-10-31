@@ -21,8 +21,8 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.DeudaAlumno;
-import pe.edu.lamolina.model.academico.TipoDeudaAlumno;
+import pe.edu.lamolina.model.academico.DeudaMaterialAlumno;
+import pe.edu.lamolina.model.academico.TipoDeudaMaterial;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.FotoHelper;
@@ -40,7 +40,7 @@ public class RestriccionMatriculaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        List<TipoDeudaAlumno> tiposDeuda = service.allTipoDeudaAlumno();
+        List<TipoDeudaMaterial> tiposDeuda = service.allTipoDeudaAlumno();
         model.addAttribute("tiposDeuda", tiposDeuda);
         return "oficinas/matricula/restriccionmatricula/restriccionMatricula";
     }
@@ -54,9 +54,9 @@ public class RestriccionMatriculaController {
             FotoHelper helper = new FotoHelper();
             JsonNodeFactory factory = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(factory);
-            List<DeudaAlumno> deudas = service.allDeudaAlumno(filter);
+            List<DeudaMaterialAlumno> deudas = service.allDeudaAlumno(filter);
 
-            for (DeudaAlumno deuda : deudas) {
+            for (DeudaMaterialAlumno deuda : deudas) {
                 ObjectNode node = new ObjectNode(factory);
                 Alumno alumno = deuda.getAlumno();
                 Persona persona = alumno.getPersona();
@@ -72,10 +72,10 @@ public class RestriccionMatriculaController {
                 node.put("rutaFoto", helper.getRutaFoto(persona.getFoto(), persona.getSexo()));
                 node.put("descripcion", deuda.getDescripcion());
                 node.put("estado", deuda.getEstadoEnum().getValue());
-                node.put("tipo", deuda.getTipoDeuda().getNombre());
-                node.put("respNombre", deuda.getTipoDeuda().getResponsable().getPersona().getNombreCompleto());
-                node.put("respTelefono", deuda.getTipoDeuda().getResponsable().getTelefono());
-                node.put("respOficina", deuda.getTipoDeuda().getResponsable().getOficina().getNombre());
+                node.put("tipo", deuda.getTipoDeudaMaterial().getNombre());
+                node.put("respNombre", deuda.getTipoDeudaMaterial().getResponsable().getPersona().getNombreCompleto());
+                node.put("respTelefono", deuda.getTipoDeudaMaterial().getResponsable().getTelefono());
+                node.put("respOficina", deuda.getTipoDeudaMaterial().getResponsable().getOficina().getNombre());
                 if (alumno.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
                     node.put("modalidadEstudio", alumno.getCarrera().getTipoEnum().getValue());
                 } else {
@@ -102,7 +102,7 @@ public class RestriccionMatriculaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            DeudaAlumno deuda = new DeudaAlumno(id);
+            DeudaMaterialAlumno deuda = new DeudaMaterialAlumno(id);
             service.levantarDeuda(deuda, ds);
             response.setSuccess(true);
             response.setMessage("Restricción levantada");
@@ -116,7 +116,7 @@ public class RestriccionMatriculaController {
 
     @ResponseBody
     @RequestMapping("anular")
-    public JsonResponse deuda(DeudaAlumno deuda, HttpSession session) {
+    public JsonResponse deuda(DeudaMaterialAlumno deuda, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
@@ -134,7 +134,7 @@ public class RestriccionMatriculaController {
 
     @ResponseBody
     @RequestMapping("guardar")
-    public JsonResponse guardar(DeudaAlumno deuda) {
+    public JsonResponse guardar(DeudaMaterialAlumno deuda) {
         JsonResponse response = new JsonResponse();
         try {
             service.guardarDeuda(deuda);
@@ -151,7 +151,7 @@ public class RestriccionMatriculaController {
     @RequestMapping("upload")
     public String upload(Model model, HttpSession session) {
 
-        List<TipoDeudaAlumno> tiposDeuda = service.allTipoDeudaAlumno();
+        List<TipoDeudaMaterial> tiposDeuda = service.allTipoDeudaAlumno();
 
         model.addAttribute("tiposDeuda", tiposDeuda);
 
@@ -168,7 +168,7 @@ public class RestriccionMatriculaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            List<String> observados = service.cargarDeudas(file, new TipoDeudaAlumno(idTipoDeudaAlumno), ds);
+            List<String> observados = service.cargarDeudas(file, new TipoDeudaMaterial(idTipoDeudaAlumno), ds);
             if (observados.isEmpty()) {
                 json.setData(null);
             } else {

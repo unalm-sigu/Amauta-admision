@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.promedio;
 
 import java.math.BigDecimal;
+import java.util.List;
 import org.joda.time.DateTime;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -11,7 +12,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface PromedioService {
 
-    void procesarMatriculaResumen(MatriculaResumen matriculaResumen, Usuario usuario);
+    void procesarMatriculaResumen(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, Usuario usuario);
 
     void promedio(MatriculaCurso matriculaCurso, Usuario usuario, boolean calcularSituacionAcadFinal);
 

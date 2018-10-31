@@ -29,8 +29,8 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.DeudaAlumno;
-import pe.edu.lamolina.model.academico.TipoDeudaAlumno;
+import pe.edu.lamolina.model.academico.DeudaMaterialAlumno;
+import pe.edu.lamolina.model.academico.TipoDeudaMaterial;
 import pe.edu.lamolina.model.enums.DeudaAlumnoEstadoEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -61,7 +61,7 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
     }
 
     @Override
-    public List<DeudaAlumno> allDeudaAlumno(DynatableFilter filter) {
+    public List<DeudaMaterialAlumno> allDeudaAlumno(DynatableFilter filter) {
         if (filter.getQueries() == null) {
             return returnEmpty(filter);
         }
@@ -71,19 +71,19 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
             return returnEmpty(filter);
         }
 
-        TipoDeudaAlumno tipo = new TipoDeudaAlumno(tipoDeuda);
+        TipoDeudaMaterial tipo = new TipoDeudaMaterial(tipoDeuda);
         return deudaAlumnoDAO.allByDynatableTipoDeuda(filter, tipo);
     }
 
     @Override
-    public List<TipoDeudaAlumno> allTipoDeudaAlumno() {
+    public List<TipoDeudaMaterial> allTipoDeudaAlumno() {
         return tipoDeudaAlumnoDAO.all();
     }
 
     @Override
     @Transactional
-    public void anularDeuda(DeudaAlumno deudaForm, DataSessionPivot ds) {
-        DeudaAlumno deudaBD = deudaAlumnoDAO.find(deudaForm.getId());
+    public void anularDeuda(DeudaMaterialAlumno deudaForm, DataSessionPivot ds) {
+        DeudaMaterialAlumno deudaBD = deudaAlumnoDAO.find(deudaForm.getId());
         if (deudaBD == null) {
             throw new PhobosException("Deuda no encontrada");
         }
@@ -98,20 +98,20 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
 
     @Override
     @Transactional
-    public List<String> cargarDeudas(MultipartFile file, TipoDeudaAlumno tipo, DataSessionPivot ds) {
-        TipoDeudaAlumno tipoBD = tipoDeudaAlumnoDAO.find(tipo.getId());
+    public List<String> cargarDeudas(MultipartFile file, TipoDeudaMaterial tipo, DataSessionPivot ds) {
+        TipoDeudaMaterial tipoBD = tipoDeudaAlumnoDAO.find(tipo.getId());
 
         if (tipoBD == null) {
             throw new PhobosException("El tipo de deuda seleccionado no es válido");
         }
 
         List<String> observados = new ArrayList<>();
-        List<DeudaAlumno> deudas = new ArrayList<>();
+        List<DeudaMaterialAlumno> deudas = new ArrayList<>();
         String ruta = guardarArchivo(file);
 
         procesarArchivo(ruta, tipoBD, observados, deudas, ds);
 
-        for (DeudaAlumno deuda : deudas) {
+        for (DeudaMaterialAlumno deuda : deudas) {
             deudaAlumnoDAO.save(deuda);
         }
         return observados;
@@ -130,11 +130,11 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
         }
     }
 
-    private boolean deudaRepetida(DeudaAlumno deuda) {
-        return deudaAlumnoDAO.findByTipoAlumno(deuda.getTipoDeuda(), deuda.getAlumno()) != null;
+    private boolean deudaRepetida(DeudaMaterialAlumno deuda) {
+        return deudaAlumnoDAO.findByTipoAlumno(deuda.getTipoDeudaMaterial(), deuda.getAlumno()) != null;
     }
 
-    private void procesarArchivo(String ruta, TipoDeudaAlumno tipo, List<String> observados, List<DeudaAlumno> deudas, DataSessionPivot ds) {
+    private void procesarArchivo(String ruta, TipoDeudaMaterial tipo, List<String> observados, List<DeudaMaterialAlumno> deudas, DataSessionPivot ds) {
         Map<Long, String> mapObservados = new HashMap<>();
         Set<Long> registrados = new HashSet<>();
         Date fechaRegistro = new Date();
@@ -173,8 +173,8 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
                     throw new PhobosException("No existe un alumno con el número de matrícula " + nroMatricula + error);
                 }
 
-                DeudaAlumno deuda = new DeudaAlumno();
-                deuda.setTipoDeuda(tipo);
+                DeudaMaterialAlumno deuda = new DeudaMaterialAlumno();
+                deuda.setTipoDeudaMaterial(tipo);
                 deuda.setAlumno(alumnoBD);
                 deuda.setDescripcion(descripcion);
 
@@ -223,8 +223,8 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
 
     @Override
     @Transactional
-    public void levantarDeuda(DeudaAlumno deuda, DataSessionPivot ds) {
-        DeudaAlumno deudaBD = deudaAlumnoDAO.find(deuda.getId());
+    public void levantarDeuda(DeudaMaterialAlumno deuda, DataSessionPivot ds) {
+        DeudaMaterialAlumno deudaBD = deudaAlumnoDAO.find(deuda.getId());
 
         if (deudaBD == null) {
             throw new PhobosException("Deuda no encontrada");
@@ -238,8 +238,8 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
 
     @Override
     @Transactional
-    public void guardarDeuda(DeudaAlumno deudaForm) {
-        DeudaAlumno deudaBD = deudaAlumnoDAO.find(deudaForm.getId());
+    public void guardarDeuda(DeudaMaterialAlumno deudaForm) {
+        DeudaMaterialAlumno deudaBD = deudaAlumnoDAO.find(deudaForm.getId());
         if (deudaBD == null) {
             throw new PhobosException("Deuda no encontrada");
         }

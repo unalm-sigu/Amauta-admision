@@ -45,4 +45,6 @@ public interface GrupoHorasService {
 
     TipoGrupoHoras findTipoGpoRegular();
 
+    public void clonar(CicloAcademico cicloOrigen, CicloAcademico cicloDestino);
+
 }
