@@ -364,8 +364,14 @@ new Vue({
         horas: [],
         horarioRegular: [],
         horarioGpo: [],
+        ciclo: {},
         paginationGpo: {'total-items': 0, 'items-per-page': 12, 'max-size': 3, 'boundary-link-numbers': true},
-        grupoActivo: {}
+        grupoActivo: {},
+        dataCloneCiclo: {
+            id: 'modalCloneCiclo',
+            title: 'Copiar Ciclo',
+            header: true,
+        }
     },
     created() {
         this.tipoGpo = JSON.parse(tipoGpoJson);
@@ -447,6 +453,115 @@ new Vue({
                 return "label-danger";
             }
             return "label-success";
+        },
+        asignarHora(dia, hora) {
+            let $vue = this;
+            if ($vue.grupoActivo == null) {
+                return;
+            }
+            if (!$vue.validarDia(dia, hora)) {
+                notify("No puede haber horario por intervalos", "error");
+                return;
+            }
+
+            $vue.data = {};
+            $vue.data.dia = dia;
+            $vue.data.hora = hora;
+            $vue.data.grupoHorario = $vue.grupoActivo;
+
+            axios.post('/academico/horario/grupo/asignarHora', $vue.data)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.verHorario($vue.grupoActivo);
+                            $vue.$refs.raptorGrupo.loadRemoteData();
+                            notify(response.data.message, "success");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        vue.generando = false;
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+        },
+        desasignarHora(dia, hora) {
+            let $vue = this;
+
+            if ($vue.grupoActivo == null) {
+                return;
+            }
+            $vue.data = {};
+            $vue.data.id = $vue.conterObjHdia(dia, hora).id;
+            axios.post('/academico/horario/grupo/desasignarHora', $vue.data)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.verHorario($vue.grupoActivo);
+                            $vue.$refs.raptorGrupo.loadRemoteData();
+                            notify(response.data.message, "success");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+        },
+        conterObjHdia(dia, hora) {
+            let $vue = this;
+            for (var i = 0; i < $vue.horarioGpo.length; i++) {
+                if ($vue.horarioGpo[i].hora.id == hora.id && $vue.horarioGpo[i].dia.id == dia.id) {
+                    return $vue.horarioGpo[i];
+                }
+            }
+            return null;
+        },
+        validarDia(dia, hora) {
+            let $vue = this;
+            var res = false;
+            var obj = [];
+            for (var i = 0; i < $vue.horarioGpo.length; i++) {
+                if ($vue.horarioGpo[i].dia.id == dia.id) {
+                    obj.push($vue.horarioGpo[i]);
+                }
+            }
+
+            if (obj.length == 0) {
+                res = true;
+            } else {
+                var temp = parseInt(hora.codigo);
+                obj.forEach(function (item) {
+                    var horNext = parseInt(item.hora.codigo) + 100;
+                    var horAnt = parseInt(item.hora.codigo) - 100;
+                    if (temp == horAnt || temp == horNext) {
+                        res = true;
+                    }
+                });
+            }
+            return res;
+        },
+        clonarCiclo() {
+            let $vue = this;
+            $vue.ciclo = {id: null};
+            $vue.$refs.modalCloneCiclo.open();
+        },
+        saveCloneCiclo() {
+            let $vue = this;
+            console.log($vue.ciclo);
+
+            axios.post('/academico/horario/grupo/clonarGrupos', $vue.ciclo)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.$refs.modalCloneCiclo.close();
+                            $vue.$refs.raptorGrupo.loadRemoteData();
+                            notify(response.data.message, "success");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+
         }
     }
 });

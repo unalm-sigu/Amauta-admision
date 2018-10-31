@@ -64,7 +64,6 @@ new Vue({
     mounted: function () {
         let $vue = this;
 
-
         let tipo = $vue.$refs.load.getParameterByName('queries[anexo-superior]');
         tipo = (tipo == null) ? '' : tipo;
         if (tipo != '') {

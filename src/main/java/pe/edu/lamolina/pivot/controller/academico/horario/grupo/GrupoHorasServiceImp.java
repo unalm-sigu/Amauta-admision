@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -187,6 +188,23 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
             }
         }
         return null;
+    }
+
+    @Override
+    @Transactional
+    public void clonar(CicloAcademico cicloOrigen, CicloAcademico cicloDestino) {
+        List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByCiclo(cicloOrigen);
+        Assert.isTrue(cicloOrigen.getId() != cicloDestino.getId(), "No puede clonar del mismo ciclo");
+        Assert.isTrue(cicloOrigen.getTipo() == cicloDestino.getTipo(), "No puede clonar de un tipo de ciclo distinto");
+      
+        for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
+            DiaHoraGrupo horaGrupo = new DiaHoraGrupo();
+            horaGrupo.setDia(diaHoraGrupo.getDia());
+            horaGrupo.setGrupoHorario(diaHoraGrupo.getGrupoHorario());
+            horaGrupo.setHora(diaHoraGrupo.getHora());
+            horaGrupo.setCicloAcademico(cicloDestino);
+            diaHoraGrupoDAO.save(horaGrupo);
+        }
     }
 
 }
