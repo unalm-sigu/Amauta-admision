@@ -190,4 +190,5 @@ public interface GpoSeccionService {
 
     void actualizarBoletin();
 
+    void searchDiasHorasByGpo(GrupoHoras grupoHorario, CicloAcademico cicloAcademico, Seccion seccion, List<Dia> dias);
 }

@@ -39,9 +39,13 @@ import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionService;
+import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionServiceImp;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -54,7 +58,9 @@ import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionModalidadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionRepitenciaDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -105,10 +111,16 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
     @Autowired
     DiaHoraGrupoDAO diaHoraGrupoDAO;
 
+    @Autowired
+    HorarioSeccionDAO horarioSeccionDAO;
+
+    @Autowired
+    DiaDAO diaDAO;
+
     @Override
     @Transactional
     public void clonarCiclo(CicloAcademico cicloOrigenForm, CicloAcademico cicloDestinoForm, DataSessionPivot ds) {
-
+        List<Dia> dias = diaDAO.all();
         CicloAcademico cicloOrigen = cicloAcademicoDAO.find(cicloOrigenForm.getId());
         CicloAcademico cicloDestino = cicloAcademicoDAO.find(cicloDestinoForm.getId());
         logger.debug("copiar del ciclo {} al ciclo {}", cicloOrigen.getId(), cicloDestino.getId());
@@ -117,8 +129,7 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
             throw new PhobosException("El ciclo académico es el mismo al que desea copiar");
         }
 
-        validarClonacion(cicloDestino);
-
+//        validarClonacion(cicloDestino);
         List<PrecioCursoEstructura> precioCursoEstructura = precioCursoEstructuraDAO.allByCiclo(cicloDestino);
 
         List<CursoCicloAcademico> cursoCicloAcademico = cursoCicloAcademicoDAO.allByCiclo(cicloDestino);
@@ -147,6 +158,11 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 
         List<RestriccionRepitencia> restriccionRepitenciaOrigen = restriccionRepitenciaDAO.allActivasBySecciones(secciones);
         logger.debug("RestriccionRepitencia size  {}", restriccionRepitenciaOrigen.size());
+
+        List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByCiclo(cicloOrigen);
+        Map<String, DiaHoraGrupo> mapHDiaGpo = TypesUtil.convertListToMap("horaDia", diaHoraGrupos);
+        Map<Long, List<DiaHoraGrupo>> mapGrupoHorario = TypesUtil.convertListToMapList("grupoHorario.id", diaHoraGrupos);
+        List<DiaHoraGrupo> diaHoraGrupo = new ArrayList();
 
         Map<Long, List<RestriccionCarrera>> restriccionCarreraMap = TypesUtil.convertListToMapList("seccion.id", restriccionCarreraOrigen);
         Map<Long, List<RestriccionFacultad>> restriccionFacultadMap = TypesUtil.convertListToMapList("seccion.id", restriccionFacultadOrigen);
@@ -265,8 +281,22 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
                     seccClone.setCodigo2(codigo + loopPCUR);
                     loopPCUR++;
                 }
+                try {
+                    gpoSeccionService.searchDiasHorasByGpo(seccOrigen.getGrupoHoras(), cicloOrigen, seccClone, dias);
+
+                } catch (Exception e) {
+                }
 
                 seccionDAO.save(seccClone);
+
+                for (DiaHoraGrupo diaHoraGrup : seccOrigen.getGrupoHoras().getDiaHoraGrupo()) {
+
+                    HorarioSeccion horarioSecc = new HorarioSeccion();
+                    horarioSecc.setDia(diaHoraGrup.getDia());
+                    horarioSecc.setHora(diaHoraGrup.getHora());
+                    horarioSecc.setSeccion(seccClone);
+                    horarioSeccionDAO.save(horarioSecc);
+                }
 
                 List<DocenteSeccion> docenteSeccion = seccOrigen.getDocenteSeccion();
                 if (docenteSeccion == null) {

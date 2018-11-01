@@ -2047,10 +2047,18 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             throw new PhobosException("Grupo Horario ingresado no existe");
         }
 
+        List<Dia> dias = diaDAO.all();
+        searchDiasHorasByGpo(grupoHorario, cicloAcademico, seccion, dias);
+
+        return grupoHorario;
+    }
+
+    @Override
+    public void searchDiasHorasByGpo(GrupoHoras grupoHorario, CicloAcademico cicloAcademico, Seccion seccion, List<Dia> dias) {
         List<DiaHoraGrupo> diasGrupoHoras = diaHoraGrupoDAO.allByGrupoCiclo(grupoHorario, cicloAcademico);
         if (diasGrupoHoras.isEmpty()) {
             grupoHorario.setDiaHoraGrupo(diasGrupoHoras);
-            return grupoHorario;
+            return;
         }
 
         Collections.sort(diasGrupoHoras, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
@@ -2060,7 +2068,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             throw new PhobosException("Esta sección no puede asignarse un grupo con horas semanales");
         }
 
-        List<Dia> dias = diaDAO.all();
         List<Dia> utilDays = new ArrayList();
 
         for (Dia dia : dias) {
@@ -2076,11 +2083,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
 
-//        if (!grupoHorario.isPermiteCeroHoras()) {
-//            if (seccion.getHorasSemanales().compareTo(diasGrupoHoras.size()) != 0) {
-//                throw new PhobosException("Grupo Horario no es compatible con las horas semanales de la sección");
-//            }
-//        }
         Map<Long, Object> mapDias = new LinkedHashMap();
         for (Dia dia : utilDays) {
             List<DiaHoraGrupo> horasDia = dia.getDiaHoraGrupo();
@@ -2106,8 +2108,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (hdiasGpo.isEmpty()) {
             throw new PhobosException("Grupo Horario no es compatible con las horas semanales de la sección");
         }
-
-        return grupoHorario;
     }
 
     @Override
