@@ -56,7 +56,7 @@ public class ClonGpoSeccionController {
 
     @ResponseBody
     @RequestMapping("cerrarciclo")
-    public JsonResponse cantidadGrupo(HttpSession session) {
+    public JsonResponse cerrarCiclo(HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -66,16 +66,14 @@ public class ClonGpoSeccionController {
 
             //Long cantidad = service.contarGpoSecc(ciclo);
             CicloAcademico cicloBD = service.findCiclo(ciclo);
-            logger.debug("Contenido de cicloDB= {}", cicloBD.getDescripcion());
             service.cerrarCiclo(cicloBD);
-            logger.debug("Contenido de cicloDB= {}", cicloBD.getDescripcion());
             
-            ObjectNode cicloJson = JsonHelper.createJson(cicloBD, JsonNodeFactory.instance, true, new String[]{"*"});
+            //ObjectNode cicloJson = JsonHelper.createJson(cicloBD, JsonNodeFactory.instance, true, new String[]{"*"});
             //ObjectNode info = new ObjectNode(JsonNodeFactory.instance);
             //info.set("ciclo", cicloJson);
             //cicloJson.put("ciclo", cantidad);
 
-            response.setData(cicloJson);
+            //response.setData(cicloJson);
             response.setMessage("Ciclo de clonación cerrado satisfactoriamente");
             response.setSuccess(true);
 
@@ -130,7 +128,7 @@ public class ClonGpoSeccionController {
             service.limpiarCodigo2(ciclo, ds);
             service.reordenar(ciclo, ds);
 
-            response.setMessage(Messages.UPDATED);
+            response.setMessage("Orden de código satisfactoria");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -156,6 +154,32 @@ public class ClonGpoSeccionController {
 
             response.setMessage("Limpieza de clonación satisfactoria");
             response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+
+    }
+    
+    @ResponseBody
+    @RequestMapping("cerrarorden")
+    public JsonResponse cerrarOrden(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            CicloAcademico cicloBD = service.findCiclo(ciclo);            
+            service.cerrarOrden(cicloBD);
+            
+            response.setMessage("La opción ordenar código fue cerrada satisfactoriamente");
+            response.setSuccess(true);
+            
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

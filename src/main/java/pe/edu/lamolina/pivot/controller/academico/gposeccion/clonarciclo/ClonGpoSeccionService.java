@@ -22,4 +22,6 @@ public interface ClonGpoSeccionService {
 
     void cerrarCiclo(CicloAcademico cicloBD);
 
+    void cerrarOrden(CicloAcademico cicloBD);
+
 }

@@ -114,7 +114,6 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 
         logger.debug("copiar del ciclo {} al ciclo {}", cicloOrigen.getId(), cicloDestino.getId());
 
-        //logger.debug("", );
         if (cicloOrigen.getId().longValue() == cicloDestino.getId()) {
             throw new PhobosException("El ciclo académico es el mismo al que desea copiar");
         }
@@ -379,7 +378,6 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 //
 //        return grupoSeccionDAO.contarByCiclo(ciclo);
 //    }
-
     @Override
     public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo) {
         return gpoSeccionService.resumenByCiclo(ciclo);
@@ -391,6 +389,7 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 
         List<Seccion> secciones = seccionDAO.allByCiclo(ciclo);
         logger.debug("Seccion size  {}", secciones.size());
+
         for (Seccion seccione : secciones) {
             seccione.setCodigo2(null);
             seccionDAO.update(seccione);
@@ -400,6 +399,11 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
     @Override
     @Transactional
     public void reordenar(CicloAcademico ciclo, DataSessionPivot ds) {
+
+        CicloAcademico cicloDB = cicloAcademicoDAO.find(ciclo);
+        cicloDB.setFechaOrdenHorarios(new Date());
+        
+        Assert.isNull(cicloDB.getFechaCierreOrden(), "Ya no se permite ordenar código");
 
         List<GrupoSeccion> gsOrigenes = grupoSeccionDAO.allOrdenadoByCiclo(ciclo);
         logger.debug("GrupoSeccion size  {}", gsOrigenes.size());
@@ -455,9 +459,11 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
         Assert.isNull(cicloDB.getFechaCierreClonacion(), "El ciclo ya no permite limpiar la clonación");
 
         Assert.isNotNull(cicloDB.getFechaClonacion(), "El ciclo aun no ha sido clonado");
-
 //        cicloDB.setFechaClonacion(null);
 //        cicloDB.setFechaCierreClonacion(null);
+//
+//        cicloDB.setFechaOrdenHorarios(null);
+//        cicloDB.setFechaCierreOrden(null);
 
         restriccionRepitenciaDAO.deleteAllByCiclo(ciclo);
         restriccionModalidadDAO.deleteAllByCiclo(ciclo);
@@ -473,15 +479,23 @@ public class ClonGpoSeccionServiceImp implements ClonGpoSeccionService {
 
     @Override
     public CicloAcademico findCiclo(CicloAcademico ciclo) {
-       return cicloAcademicoDAO.find(ciclo);
+        return cicloAcademicoDAO.find(ciclo);
     }
 
     @Override
     @Transactional
     public void cerrarCiclo(CicloAcademico cicloForm) {
-       CicloAcademico cicloDB = cicloAcademicoDAO.find(cicloForm);
-       Assert.isNull(cicloDB.getFechaCierreClonacion(), "El ciclo de clonación ya está cerrado");
-       cicloDB.setFechaCierreClonacion(new Date());
+        CicloAcademico cicloDB = cicloAcademicoDAO.find(cicloForm);
+        Assert.isNull(cicloDB.getFechaCierreClonacion(), "El ciclo de clonación ya está cerrado");
+        cicloDB.setFechaCierreClonacion(new Date());
+    }
+
+    @Override
+    @Transactional
+    public void cerrarOrden(CicloAcademico cicloOrdenForm) {
+        CicloAcademico cicloOrdenDB = cicloAcademicoDAO.find(cicloOrdenForm);
+        Assert.isNull(cicloOrdenDB.getFechaCierreOrden(), "La opción ordenar código ya está cerrado");
+        cicloOrdenDB.setFechaCierreOrden(new Date());
     }
 
 }
