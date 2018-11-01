@@ -1,0 +1,150 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Ticket</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <header class="header b-b padder-lg">
+
+                <h1>Ticket</h1>
+
+
+
+            </header>
+
+            <section class="wrapper-lg">
+                <section class="panel">
+
+
+
+
+                    <section id="main" class="panel-body"  v-cloak="">
+
+
+                        <section class="comment-body panel panel-default no-borders">
+
+                            <div class="panel-body">
+
+
+                                <div v-if="ticket.colaborador.id=='' " class="text-right m-b-lg">
+
+                                    <button type="button"  v-on:click.prevent="asignarTicket()"  class="btn btn-primary" >
+                                        Asignar Ticket
+                                    </button>
+
+                                </div>
+
+                                <div class="media-body">
+
+
+                                    <div class="pull-right media-xs text-center text-primary text-muted">
+                                        <strong class="h5 m-r-sm">{{ticket.mensajeTicketAyuda.fechaRegistro}}</strong>
+                                    </div>
+
+                                    <p class="h5"  >{{ticket.mensajeTicketAyuda.titulo}}</p>
+
+                                    <small class="block">
+
+                                        <a href="#" class="">{{ticket.persona.nombreCompleto}}</a> 
+
+                                        <span v-if="ticket.estado=='ACTIVO' "  class="label label-danger" v-text="ticket.estadoEnum.value">Activo</span>
+                                        <span v-if="ticket.estado=='RESPONDIDO' " class="label label-primary" v-text="ticket.estadoEnum.value">Respondido</span>
+                                        <span v-if="ticket.estado=='RESULETO' " class="label label-success" v-text="ticket.estadoEnum.value">Resuelto</span>
+
+                                    </small>
+
+                                    <p class="block m-t-sm">{{ticket.mensajeTicketAyuda.mensaje}}</p>
+
+
+                                    <ul v-if="ticket.mensajeTicketAyuda.archivos" class="list-group">
+                                        <li class="list-group-item" v-for="archi in ticket.mensajeTicketAyuda.archivos">
+                                            <a target="_blank" v-bind:href="ticket.basepath+archi.ruta">{{archi.nombre}}</a>
+                                        </li>
+                                    </ul>
+
+
+                                </div>
+
+                                <blockquote v-for="men in ticket.mensajesTicketAyuda" >
+                                    <div class="pull-right text-primary text-muted">
+                                        <strong class="h5">{{men.fechaRegistro}}</strong>
+                                    </div>
+                                    <p class="text-sm m-t-lg">{{men.mensaje}}</p>
+                                </blockquote>
+
+                                <div class="line line-dashed b-b line-lg pull-in"></div>
+
+                                <div class="form-group">
+
+                                    <textarea class="form-control" 
+                                              required="true"
+                                              v-model='mensaje'
+                                              name="mensaje"></textarea>
+
+                                </div>
+
+                                <div class="text-center">
+
+                                    <button type="button" 
+                                            v-on:click.prevent="comentar()" 
+                                            v-bind:disabled="estadoButtonComentar"
+                                            class="btn btn-success" >
+                                        <i v-if="estadoButtonComentar" class="fa fa-spinner fa-spin"></i>
+                                        Comentar
+                                    </button>
+
+                                    <button type="button"
+                                            v-if="ticket.mensajeTicketAyuda.estado=='ACTIVO' "
+                                            v-on:click.prevent="responder()" 
+                                            v-bind:disabled="estadoButton"
+                                            class="btn btn-primary" >
+                                        <i v-if="estadoButton" class="fa fa-spinner fa-spin"></i>
+                                        Responder
+                                    </button>
+
+                                    <a th:href="@{/atencion/ticket}" class="btn btn-default">Regresar</a>
+
+                                </div>
+
+                            </div>
+                        </section>
+
+
+                        <th:block th:replace="atencion/atencionTemplate"/>
+
+                    </section>
+
+
+                </section>
+
+            </section>
+
+        </div>
+
+        <div layout:fragment="js">
+
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var idticket = /*[[${idticket}]]*/ '';
+                /*]]>*/
+            </script>
+
+            <div th:substituteby="_layout/includes :: sweetalert"/>
+
+            <div th:substituteby="_modules/vue-modal2"></div>
+
+
+            <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
+
+            <script th:src="@{/app/atencion/respuesta.js}" charset="utf-8"></script>
+
+        </div>
+
+    </body>
+</html>
+
+
+
+

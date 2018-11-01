@@ -209,4 +209,13 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
         return resultado;
     }
 
+    @Override
+    public List<Oficina> allByNivel(TipoOficinaEnum tipoOficinaEnum) {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "o")
+                .join("tipoOficina to")
+                .filter("to.nivel", tipoOficinaEnum.name());
+        return all(sql);
+    }
+
 }

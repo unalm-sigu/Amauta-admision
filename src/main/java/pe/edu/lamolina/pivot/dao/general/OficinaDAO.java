@@ -38,4 +38,6 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
 
     Map findOficinaOrigenDestinoByEstadoTramiteAcad(AccionTramiteAcademico accionTramiteAcademico, Alumno alumno);
 
+    public List<Oficina> allByNivel(TipoOficinaEnum tipoOficinaEnum);
+
 }
