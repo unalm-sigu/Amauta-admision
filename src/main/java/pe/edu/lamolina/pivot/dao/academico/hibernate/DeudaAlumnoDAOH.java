@@ -7,23 +7,23 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.DeudaAlumno;
-import pe.edu.lamolina.model.academico.TipoDeudaAlumno;
+import pe.edu.lamolina.model.academico.DeudaMaterialAlumno;
+import pe.edu.lamolina.model.academico.TipoDeudaMaterial;
 import pe.edu.lamolina.model.enums.DeudaAlumnoEstadoEnum;
 import pe.edu.lamolina.pivot.dao.academico.DeudaAlumnoDAO;
 
 @Repository
-public class DeudaAlumnoDAOH extends AbstractEasyDAO<DeudaAlumno> implements DeudaAlumnoDAO {
+public class DeudaAlumnoDAOH extends AbstractEasyDAO<DeudaMaterialAlumno> implements DeudaAlumnoDAO {
 
     public DeudaAlumnoDAOH() {
         super();
-        setClazz(DeudaAlumno.class);
+        setClazz(DeudaMaterialAlumno.class);
     }
 
     @Override
-    public List<DeudaAlumno> allByDynatableTipoDeuda(DynatableFilter filter, TipoDeudaAlumno tipo) {
+    public List<DeudaMaterialAlumno> allByDynatableTipoDeuda(DynatableFilter filter, TipoDeudaMaterial tipo) {
         DynatableSql sql = new DynatableSql(filter)
-                .from(DeudaAlumno.class, "da")
+                .from(DeudaMaterialAlumno.class, "da")
                 .filter("tipoDeuda", tipo)
                 .leftJoin("alumno alu", "alu.persona per", "tipoDeuda tipo", "tipo.responsable resp", "resp.persona resper")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
@@ -37,14 +37,14 @@ public class DeudaAlumnoDAOH extends AbstractEasyDAO<DeudaAlumno> implements Deu
     }
 
     @Override
-    public DeudaAlumno findByTipoAlumno(TipoDeudaAlumno tipo, Alumno alumno) {
+    public DeudaMaterialAlumno findByTipoAlumno(TipoDeudaMaterial tipo, Alumno alumno) {
         Octavia sql = Octavia.query()
-                .from(DeudaAlumno.class, "da")
+                .from(DeudaMaterialAlumno.class, "da")
                 .filter("estado", DeudaAlumnoEstadoEnum.REST)
                 .filter("alumno", alumno)
                 .filter("tipoDeuda", tipo);
 
-        return (DeudaAlumno) sql.find(getCurrentSession());
+        return (DeudaMaterialAlumno) sql.find(getCurrentSession());
     }
 
 }

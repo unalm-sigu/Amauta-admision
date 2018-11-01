@@ -34,6 +34,8 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     List<AlumnoCicloCurso> allOperativesByAlumnoAnterioresCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
+    List<AlumnoCicloCurso> allOperativesByAlumnoCicloLessOrEqual(Alumno alumno, CicloAcademico cicloAcademico);
+
     Long countByCursoAlumnoAnterioresCiclo(Curso curso, Alumno alumno, CicloAcademico cicloAcademico);
 
     AlumnoCicloCurso findByAlumnoCicloCursoEstados(Alumno alumno, CicloAcademico cicloAcademico, Curso curso, List<EstadoMatriculaEnum> estados);

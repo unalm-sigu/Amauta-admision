@@ -107,6 +107,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
                 .filter("acc.curso", curso)
                 .filter("ac.alumno", alumno)
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
                 .filter("registroActivo", 1);
 
         return (Long) sql.find(getCurrentSession());
@@ -170,6 +171,23 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("ac.carrera", "ac.situacionInicio")
                 .left("ac.situacionFinal", "ac.orientacionCarrera")
                 .filter("ca.codigo", "<", cicloAcademico.getCodigo())
+                .filter("al.id", alumno)
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
+                .orderBy("ca.codigo desc", "cu.nombre");
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allOperativesByAlumnoCicloLessOrEqual(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera")
+                .filter("ca.codigo", "<=", cicloAcademico.getCodigo())
                 .filter("al.id", alumno)
                 .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name())

@@ -74,4 +74,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByIds(Long[] idAlumnos);
 
+    void updateSituacionCapaCredCur(Alumno alumno);
+
 }
