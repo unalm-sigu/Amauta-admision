@@ -8,7 +8,7 @@ public interface ClonGpoSeccionService {
 
     void clonarCiclo(CicloAcademico cicloOrigen, CicloAcademico cicloDestino, DataSessionPivot ds);
 
-    Long contarGpoSecc(CicloAcademico ciclo);
+    //Long contarGpoSecc(CicloAcademico ciclo);
 
     GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
 
@@ -17,5 +17,9 @@ public interface ClonGpoSeccionService {
     void limpiarCodigo2(CicloAcademico ciclo, DataSessionPivot ds);
 
     void limpiarCiclo(CicloAcademico ciclo);
+
+    CicloAcademico findCiclo(CicloAcademico ciclo);
+
+    void cerrarCiclo(CicloAcademico cicloBD);
 
 }

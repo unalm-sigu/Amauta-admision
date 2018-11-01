@@ -4,13 +4,13 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.DeudaAlumno;
-import pe.edu.lamolina.model.academico.TipoDeudaAlumno;
+import pe.edu.lamolina.model.academico.DeudaMaterialAlumno;
+import pe.edu.lamolina.model.academico.TipoDeudaMaterial;
 
-public interface DeudaAlumnoDAO extends EasyDAO<DeudaAlumno> {
+public interface DeudaAlumnoDAO extends EasyDAO<DeudaMaterialAlumno> {
 
-    List<DeudaAlumno> allByDynatableTipoDeuda(DynatableFilter filter, TipoDeudaAlumno tipo);
+    List<DeudaMaterialAlumno> allByDynatableTipoDeuda(DynatableFilter filter, TipoDeudaMaterial tipo);
 
-    DeudaAlumno findByTipoAlumno(TipoDeudaAlumno tipo, Alumno alumno);
+    DeudaMaterialAlumno findByTipoAlumno(TipoDeudaMaterial tipo, Alumno alumno);
 
 }
