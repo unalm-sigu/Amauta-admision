@@ -119,12 +119,14 @@ public class GpoSeccionController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
+        CicloAcademico ciclo = service.findCiclo(ds.getCicloAcademico());
         Long cantidad = service.contarGpoSecc(ciclo);
 
         model.addAttribute("cantidad", cantidad);
         model.addAttribute("ciclo", ciclo);
-        model.addAttribute("resumen", service.resumenByCiclo(ciclo));
+        model.addAttribute("cicloJson", createCicloJson(ciclo).toString());
+        model.addAttribute("resumenJson", createResumenJson(service.resumenByCiclo(ciclo)));
+//        model.addAttribute("resumen", service.resumenByCiclo(ciclo));
         return "academico/gposeccion/gpoSeccion";
     }
 
@@ -2444,6 +2446,11 @@ public class GpoSeccionController {
             gpos.add(new GrupoSeccion(Long.parseLong(string)));
         }
         return gpos;
+    }
+    
+    private ObjectNode createResumenJson(GpoSeccionResumen resumen) {
+        ObjectNode nodeJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
+        return nodeJson;
     }
 
 }

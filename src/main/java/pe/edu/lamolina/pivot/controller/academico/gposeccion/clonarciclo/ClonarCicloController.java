@@ -16,17 +16,16 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/gposeccion")
-public class ClonGpoSeccionController {
+public class ClonarCicloController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ClonGpoSeccionService service;
+    ClonarCicloService service;
 
     @ResponseBody
     @RequestMapping("clonarciclo")
@@ -41,7 +40,7 @@ public class ClonGpoSeccionController {
 
             service.clonarCiclo(ciclo, cicloActivo, ds);
 
-            response.setMessage("Ciclo de clonación satisfactoria");
+            response.setMessage("Se clonó satisfactoriamente la programación de horarios a este ciclo");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -55,55 +54,17 @@ public class ClonGpoSeccionController {
     }
 
     @ResponseBody
-    @RequestMapping("cerrarciclo")
-    public JsonResponse cerrarCiclo(HttpSession session) {
+    @RequestMapping("cerrarClonacion")
+    public JsonResponse cerrarClonacion(HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
+            service.cerrarClonacion(ciclo);
 
-            //Long cantidad = service.contarGpoSecc(ciclo);
-            CicloAcademico cicloBD = service.findCiclo(ciclo);
-            service.cerrarCiclo(cicloBD);
-            
-            //ObjectNode cicloJson = JsonHelper.createJson(cicloBD, JsonNodeFactory.instance, true, new String[]{"*"});
-            //ObjectNode info = new ObjectNode(JsonNodeFactory.instance);
-            //info.set("ciclo", cicloJson);
-            //cicloJson.put("ciclo", cantidad);
-
-            //response.setData(cicloJson);
-            response.setMessage("Ciclo de clonación cerrado satisfactoriamente");
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-
-        return response;
-
-    }
-
-    @ResponseBody
-    @RequestMapping("findresumen")
-    public JsonResponse findResumen(HttpSession session) {
-
-        JsonResponse response = new JsonResponse();
-
-        try {
-
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            CicloAcademico ciclo = ds.getCicloAcademico();
-
-            GpoSeccionResumen resumen = service.resumenByCiclo(ciclo);
-
-            ObjectNode noderesumen = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
-
-            response.setData(noderesumen);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage("Se dio por finalizada satisfactoriamente la clonación a este ciclo");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -128,7 +89,7 @@ public class ClonGpoSeccionController {
             service.limpiarCodigo2(ciclo, ds);
             service.reordenar(ciclo, ds);
 
-            response.setMessage("Orden de código satisfactoria");
+            response.setMessage("Ordenamiento satisfactorio de códigos");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -149,10 +110,9 @@ public class ClonGpoSeccionController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            CicloAcademico ciclo = ds.getCicloAcademico();
-            service.limpiarCiclo(ciclo);
+            service.limpiarCiclo(ds.getCicloAcademico());
 
-            response.setMessage("Limpieza de clonación satisfactoria");
+            response.setMessage("Se eliminó satisfactoriamente la programación de horarios");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -164,7 +124,7 @@ public class ClonGpoSeccionController {
         return response;
 
     }
-    
+
     @ResponseBody
     @RequestMapping("cerrarorden")
     public JsonResponse cerrarOrden(HttpSession session) {
@@ -174,12 +134,10 @@ public class ClonGpoSeccionController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
-            CicloAcademico cicloBD = service.findCiclo(ciclo);            
-            service.cerrarOrden(cicloBD);
-            
-            response.setMessage("La opción ordenar código fue cerrada satisfactoriamente");
+            service.cerrarOrden(ciclo);
+
+            response.setMessage("Se dio por finalizado satisfactoriamente el ordenamiento de códigos");
             response.setSuccess(true);
-            
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -189,5 +147,46 @@ public class ClonGpoSeccionController {
 
         return response;
 
+    }
+
+    @ResponseBody
+    @RequestMapping("findDataCiclo")
+    public JsonResponse findDataCiclo(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = service.findCiclo(ds.getCicloAcademico());
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.set("ciclo", createCicloJson(ciclo));
+            node.set("resumen", createResumenJson(service.resumenByCiclo(ciclo)));
+
+            response.setData(node);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+
+    }
+
+    private ObjectNode createCicloJson(CicloAcademico ciclo) {
+        ObjectNode nodeJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{
+            "*",
+            "modalidadEstudio.codigo",
+            "modalidadEstudio.nombre"
+        });
+        return nodeJson;
+    }
+
+    private ObjectNode createResumenJson(GpoSeccionResumen resumen) {
+        ObjectNode nodeJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
+        return nodeJson;
     }
 }

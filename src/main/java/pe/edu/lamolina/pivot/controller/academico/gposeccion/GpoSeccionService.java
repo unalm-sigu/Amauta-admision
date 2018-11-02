@@ -33,6 +33,8 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface GpoSeccionService {
 
+    CicloAcademico findCiclo(CicloAcademico cicloAcademico);
+
     Oficina findOficinaOera();
 
     List<Oficina> allOficinas(Compania compania);
@@ -190,5 +192,6 @@ public interface GpoSeccionService {
 
     void actualizarBoletin();
 
-    void searchDiasHorasByGpo(GrupoHoras grupoHorario, CicloAcademico cicloAcademico, Seccion seccion, List<Dia> dias);
+    List<DiaHoraGrupo> searchDiasHorasByHorasSemanales(List<DiaHoraGrupo> diasHoras, Integer horasSemanales, List<Dia> dias);
+
 }

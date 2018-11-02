@@ -4,7 +4,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-public interface ClonGpoSeccionService {
+public interface ClonarCicloService {
 
     void clonarCiclo(CicloAcademico cicloOrigen, CicloAcademico cicloDestino, DataSessionPivot ds);
 
@@ -20,7 +20,7 @@ public interface ClonGpoSeccionService {
 
     CicloAcademico findCiclo(CicloAcademico ciclo);
 
-    void cerrarCiclo(CicloAcademico cicloBD);
+    void cerrarClonacion(CicloAcademico cicloBD);
 
     void cerrarOrden(CicloAcademico cicloBD);
 
