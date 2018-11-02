@@ -303,17 +303,20 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
                 if (gpoNew != null) {
                     boolean hayCruce = false;
-                    Map<String, HorarioSeccion> mapHorarioTCUR = null;
-                    if (1 == 3) { // si es PCUR
+                    Map<String, HorarioSeccion> mapHorarioTCUR = TypesUtil.convertListToMap("horaDia", horarioTCUR);
+                    if (seccClone.getIsTipoSeccionPCUR()) { // si es PCUR
                         for (DiaHoraGrupo diaHoraSecc : diasHorasSecc) {
-                            String idDiaHora = diaHoraSecc.getHoraDia();
-                            // contra el map
-                            hayCruce = true;
+                            String horaDia = diaHoraSecc.getHoraDia();
+                            HorarioSeccion hs = mapHorarioTCUR.get(horaDia);
+                            if (hs != null) {
+                                hayCruce = true;
+                            }
                         }
                     }
-                    if (!hayCruce) {
+                    if (hayCruce) {
                         gpoNew = null;
                         seccClone.setGrupoHoras(null);
+                        System.out.println("Cruzado");
                     }
                 }
                 seccionDAO.save(seccClone);
@@ -327,7 +330,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                         horarioSecc.setSeccion(seccClone);
                         horarioSeccionDAO.save(horarioSecc);
 
-                        if (1 == 2) { // is es TCUR
+                        if (seccClone.getIsTipoSeccionTCUR()) { // is es TCUR
                             horarioTCUR.add(horarioSecc);
                         }
                     }

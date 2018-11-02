@@ -236,7 +236,5 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
             horaGrupo.setCicloAcademico(cicloDestino);
             diaHoraGrupoDAO.save(horaGrupo);
         }
-
     }
-
 }

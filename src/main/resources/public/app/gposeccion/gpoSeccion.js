@@ -192,7 +192,6 @@ new Vue({
             for (var i = 0; i < $vue.anexos.length; i++) {
                 let anx = $vue.anexos[i];
                 if (item.id == anx.anexoSuperior.id) {
-                    console.log("cod-anx ::: " + anx.codigo)
                     $vue.anexosHijos.push(anx);
                     if (modal.codigo == 'PRE' && dpto.codigo == anx.codigo) {
                         $vue.newGrupoSeccion.anexoBoletin = anx;
@@ -446,7 +445,7 @@ new Vue({
             if ($vue.ciclo.id == null) {
                 return;
             }
-
+            var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false});
             $vue.showLoader();
 
             $.ajax({
@@ -460,17 +459,17 @@ new Vue({
                         $vue.$refs.load.loadRemoteData();
                         $vue.$refs.modalCloneCiclo.close();
                     }
-
                     bootbox.alert({
                         message: response.message,
                         buttons: {ok: {label: "Aceptar"}}
                     });
-
+                    mibox.modal('hide');
                     $vue.hideLoader();
                 },
                 error: function () {
                     $vue.hideLoader();
                     notify(MESSAGES.errorComunicacion, "error");
+                    mibox.modal('hide');
                 }
             });
         },
@@ -532,7 +531,6 @@ new Vue({
                     }
                 }
             });
-
         },
         limpiarCiclo() {
             let $vue = this;
@@ -645,7 +643,7 @@ new Vue({
         cerrarOrden() {
 
             let $vue = this;
-            
+
             bootbox.confirm({
 //                title: "Finalizar ordenamiento de códigos",
                 message: '<h4 class="m-t-xs">¿Seguro que desea dar por finalizado el ordenamiento de códigos?</h4>',

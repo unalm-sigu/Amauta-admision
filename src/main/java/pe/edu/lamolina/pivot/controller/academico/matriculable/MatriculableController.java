@@ -32,6 +32,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -43,7 +44,6 @@ import static pe.edu.lamolina.model.enums.RolEnum.FAC;
 import static pe.edu.lamolina.model.enums.RolEnum.MOD;
 import static pe.edu.lamolina.model.enums.RolEnum.TODO;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
-import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -87,8 +87,8 @@ public class MatriculableController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
-        model.addAttribute("resumen", resumen);
-        model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("resumen", JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
+        model.addAttribute("ciclo", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{"*"}));
         return "academico/matriculable/matriculable";
     }
 
@@ -194,6 +194,28 @@ public class MatriculableController {
     }
 
     @ResponseBody
+    @RequestMapping("ciclo")
+    public JsonResponse ciclo(Model model, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico c = service.findCicloAcademico(ds.getCicloAcademico());
+            response.setData(JsonHelper.createJson(c, JsonNodeFactory.instance, new String[]{
+                "*"
+            }));
+            response.setMessage("Matriculables generados satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("generarPrioridad")
     public JsonResponse generarPrioridad(Model model, HttpSession session) {
 
@@ -202,6 +224,26 @@ public class MatriculableController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.generarPrioridad(ds.getCicloAcademico());
+            response.setMessage("Prioridad generadas correctamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("eliminarPrioridad")
+    public JsonResponse eliminarPrioridad(Model model, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.eliminarPrioridad(ds.getCicloAcademico());
             response.setMessage("Prioridad generadas correctamente");
             response.setSuccess(true);
 
@@ -242,16 +284,27 @@ public class MatriculableController {
         return response;
     }
 
-    @RequestMapping("modalAsignarTurno")
-    public String modalAsignarTurno(Model model, HttpSession session) {
-
+    @RequestMapping("configuracionesTurno")
+    public JsonResponse modalAsignarTurno(HttpSession session) {
+        JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        //  service.generarPrioridad(ds.getCicloAcademico(), ds);
-        List<ConfiguracionTurnosAtencion> configuracionesTurnoAtencion = service.allConfiguracionTurnoByCiclo(ds.getCicloAcademico());
+        ArrayNode an = new ArrayNode(JsonNodeFactory.instance);
+        try {
+            List<ConfiguracionTurnosAtencion> configuracionesTurnoAtencion = service.allConfiguracionTurnoByCiclo(ds.getCicloAcademico());
+            for (ConfiguracionTurnosAtencion configuracionTurnosAtencion : configuracionesTurnoAtencion) {
+                an.add(JsonHelper.createJson(configuracionTurnosAtencion, JsonNodeFactory.instance, new String[]{
+                    "*"
+                }));
+            }
+            response.setData(an);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
 
-        model.addAttribute("configuracionesTurnoAtencion", configuracionesTurnoAtencion);
-
-        return "academico/matriculable/modalAsignarTurno";
+        return response;
     }
 
     @RequestMapping("modalSubirEgresados")
