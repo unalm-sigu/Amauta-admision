@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
-import pe.albatross.zelpers.miscelanea.Commutator;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -45,7 +43,6 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
-import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionService;
@@ -188,7 +185,9 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
         Map<Long, List<Seccion>> seccionesMap = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
         for (GrupoSeccion gsOrigene : gsOrigenes) {
-            gsOrigene.setSecciones(seccionesMap.get(gsOrigene.getId()));
+            List<Seccion> seccionesGpo = seccionesMap.get(gsOrigene.getId());
+            Collections.sort(seccionesGpo, new Seccion.CompareCodigo2());
+            gsOrigene.setSecciones(seccionesGpo);
 
         }
 
@@ -250,6 +249,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             grupoSeccionDAO.save(gs);
 
             List<Seccion> seccionesOrigen = ggss.getSecciones();
+            List<HorarioSeccion> horarioTCUR = new ArrayList();
 
             int loopPCUR = 1;
             Seccion seccionSup = null;
@@ -300,16 +300,38 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     gpoNew = null;
                     seccClone.setGrupoHoras(null);
                 }
+
+                if (gpoNew != null) {
+                    boolean hayCruce = false;
+                    Map<String, HorarioSeccion> mapHorarioTCUR = null;
+                    if (1 == 3) { // si es PCUR
+                        for (DiaHoraGrupo diaHoraSecc : diasHorasSecc) {
+                            String idDiaHora = diaHoraSecc.getHoraDia();
+                            // contra el map
+                            hayCruce = true;
+                        }
+                    }
+                    if (!hayCruce) {
+                        gpoNew = null;
+                        seccClone.setGrupoHoras(null);
+                    }
+                }
                 seccionDAO.save(seccClone);
 
                 if (gpoNew != null) {
+
                     for (DiaHoraGrupo diaHoraSecc : diasHorasSecc) {
                         HorarioSeccion horarioSecc = new HorarioSeccion();
                         horarioSecc.setDia(diaHoraSecc.getDia());
                         horarioSecc.setHora(diaHoraSecc.getHora());
                         horarioSecc.setSeccion(seccClone);
                         horarioSeccionDAO.save(horarioSecc);
+
+                        if (1 == 2) { // is es TCUR
+                            horarioTCUR.add(horarioSecc);
+                        }
                     }
+
                 }
 
                 List<DocenteSeccion> docenteSeccion = seccOrigen.getDocenteSeccion();
