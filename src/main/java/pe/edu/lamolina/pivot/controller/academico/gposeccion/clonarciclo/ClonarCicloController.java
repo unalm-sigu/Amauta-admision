@@ -76,6 +76,30 @@ public class ClonarCicloController {
         return response;
 
     }
+    
+    @ResponseBody
+    @RequestMapping("verBoletin")
+    public JsonResponse verBoletin(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            service.verBoletin(ciclo);
+
+            response.setMessage("Ver boletin se ejecutó satisfactoria");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+
+    }
 
     @ResponseBody
     @RequestMapping("reordenar")

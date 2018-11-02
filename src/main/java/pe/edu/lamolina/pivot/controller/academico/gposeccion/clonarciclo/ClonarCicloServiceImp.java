@@ -560,4 +560,21 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         cicloOrdenDB.setFechaCierreOrden(new Date());
     }
 
+    @Override
+    @Transactional
+    public void verBoletin(CicloAcademico cicloProgForm) {
+        CicloAcademico cicloProgDB = cicloAcademicoDAO.find(cicloProgForm);
+        CicloAcademico cicloBoletin = cicloAcademicoDAO.findVerBoletin();
+
+        if (cicloBoletin != null) {
+            if (cicloBoletin.getId() != cicloProgDB.getId().longValue()) {
+                cicloBoletin.setVerBoletin(Boolean.FALSE);
+            }
+        }
+        cicloProgDB.setVerBoletin(Boolean.TRUE);
+        cicloProgDB.setActualizarBoletin(Boolean.TRUE);
+        cicloAcademicoDAO.update(cicloProgDB);
+    }
+    
+
 }
