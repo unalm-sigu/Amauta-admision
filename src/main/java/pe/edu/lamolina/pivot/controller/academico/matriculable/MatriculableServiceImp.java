@@ -461,6 +461,7 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
+    @Transactional
     public void eliminarPrioridad(CicloAcademico cicloAcademico) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         cicloBD.setFechaPrioridades(null);

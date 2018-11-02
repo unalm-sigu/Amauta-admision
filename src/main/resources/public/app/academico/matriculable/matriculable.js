@@ -341,6 +341,7 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "success");
+                        $vue.findCiclo();
                         MODAL.hideWait();
                         $vue.$refs.load.loadRemoteData();
                     }
@@ -359,6 +360,7 @@ new Vue({
                 url: APP.url('academico/matriculable/eliminarPrioridad'),
                 success: function (response) {
                     MODAL.hideWait();
+                    $vue.findCiclo();
                     $vue.$refs.load.loadRemoteData();
                 },
                 error: function () {
@@ -369,6 +371,7 @@ new Vue({
         },
         findCiclo() {
             let $vue = this;
+
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/matriculable/ciclo'),
@@ -383,6 +386,7 @@ new Vue({
         },
         findConfiguraciones() {
             let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/matriculable/configuracionesTurno'),
@@ -397,6 +401,7 @@ new Vue({
             });
         },
         procesarTipoMatricula(item) {
+            let $vue = this;
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/matriculable/procesarTipoMatricula'),
@@ -404,7 +409,8 @@ new Vue({
                     confTurnoAtencion: item.id
                 },
                 success: function (response) {
-                    MODAL.hide();
+                    $vue.$refs.modalTurno.clase();
+                    MODAL.hideWait();
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");

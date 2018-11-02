@@ -284,6 +284,7 @@ public class MatriculableController {
         return response;
     }
 
+    @ResponseBody
     @RequestMapping("configuracionesTurno")
     public JsonResponse modalAsignarTurno(HttpSession session) {
         JsonResponse response = new JsonResponse();
@@ -293,7 +294,9 @@ public class MatriculableController {
             List<ConfiguracionTurnosAtencion> configuracionesTurnoAtencion = service.allConfiguracionTurnoByCiclo(ds.getCicloAcademico());
             for (ConfiguracionTurnosAtencion configuracionTurnosAtencion : configuracionesTurnoAtencion) {
                 an.add(JsonHelper.createJson(configuracionTurnosAtencion, JsonNodeFactory.instance, new String[]{
-                    "*"
+                    "*",
+                    "eventoCicloAcademico.*",
+                    "eventoCicloAcademico.eventoAcademico.*"
                 }));
             }
             response.setData(an);

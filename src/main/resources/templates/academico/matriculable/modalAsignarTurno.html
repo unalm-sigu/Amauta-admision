@@ -6,8 +6,7 @@
             <a  class="btn btn-success m-b-md block " 
                 v-for="config in configTurno"
                 v-on:click="procesarTipoMatricula(config)"
-                  v-text="config.tipoEnum.value + config.eventoCicloAcademico.eventoAcademico.nombre">
-                Aceptar rechazo
+                v-text="config.eventoCicloAcademico.eventoAcademico.nombre">
             </a>
         </form>
     </div>
