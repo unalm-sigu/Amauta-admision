@@ -575,6 +575,40 @@ new Vue({
             });
 
         },
+        verBoletin() {
+
+            let $vue = this;
+
+            bootbox.confirm({
+//                title: "Finalizar clonación",
+                message: '<h4 class="text m-t-xs">¿Seguro que desea que se visualice este ciclo en el boletín?</h4>',
+                buttons: {
+                    cancel: {label: "Cancelar", className: "btn-link"},
+                    confirm: {label: "Si, Visualizar el Boletín", className: "btn-primary"}
+                },
+                callback(result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            async: false,
+                            url: APP.url('academico/gposeccion/verBoletin'),
+                            success: function (response) {
+                                if (response.success) {
+                                    $vue.updateDataCiclo();
+                                    notify(response.message, 'info');
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, 'error');
+                            }
+                        });
+                    }
+                }
+            });
+
+        },
         finalizarClonacion() {
 
             let $vue = this;

@@ -24,4 +24,6 @@ public interface ClonarCicloService {
 
     void cerrarOrden(CicloAcademico cicloBD);
 
+    void verBoletin(CicloAcademico ciclo);
+
 }
