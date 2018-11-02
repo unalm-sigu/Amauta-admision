@@ -31,4 +31,8 @@ public interface MatriculableService {
 
     void loadEgresados(MultipartFile file);
 
+    public CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico);
+
+    public void eliminarPrioridad(CicloAcademico cicloAcademico);
+
 }

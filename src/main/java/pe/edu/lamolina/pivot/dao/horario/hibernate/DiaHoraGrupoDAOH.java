@@ -131,6 +131,7 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
         Octavia sql = Octavia.query()
                 .from(DiaHoraGrupo.class, "dhg")
                 .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ciclo", "dia dia", "hora hora")
+                .filter("tgh.tipoCiclo", ciclo.getTipo())
                 .filter("ciclo.id", ciclo);
 
         return all(sql);
