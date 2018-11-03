@@ -464,6 +464,7 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional
     public void eliminarPrioridad(CicloAcademico cicloForm) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloForm.getId());
+        
         cicloBD.setFechaPrioridades(null);
         cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
         matriculaResumenDAO.setNullPrioridadByCiclo(cicloBD);

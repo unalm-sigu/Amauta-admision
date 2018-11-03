@@ -252,4 +252,9 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         return sql.all(getCurrentSession());
     }
 
+    @Override
+    public void setNullPrioridadByCiclo(CicloAcademico cicloBD) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }
