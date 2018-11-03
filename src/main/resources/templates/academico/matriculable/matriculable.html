@@ -16,9 +16,9 @@
                             <li><a id="generarMatriculables" >Generar</a></li>
                             <li v-if="ciclo.fechaPrioridades == null"><a  href="/academico/matriculable/nuevo">Agregar Matriculable</a></li>
                             <li><a  id="agregarMatriculable">Modal Matriculable</a></li>
-                            <li v-if="ciclo.fechaPrioridades == null" ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
-                            <li v-if="ciclo.fechaPrioridades != null" ><a id="generarPrioridad">Limpiar Prioridades</a></li>
-                            <li v-if="ciclo.fechaPrioridades != null" ><a v-on:click="findConfiguraciones">Asignar Turnos</a></li>
+                            <li v-if="ciclo.fechaPrioridades == '' " ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
+                            <li v-if="ciclo.fechaPrioridades != '' " ><a v-on:click="eliminarPrioridad">Limpiar Prioridades</a></li>
+                            <li v-if="ciclo.fechaPrioridades != '' " ><a v-on:click="findConfiguraciones">Asignar Turnos</a></li>
                             <li><a id="subirEgresado">Subir Egresados</a></li>
                         </ul>
                     </div>
@@ -27,6 +27,7 @@
                 <section class="wrapper-lg">
                     <section class="panel m-b-md">
                         <section class="panel-body">
+                            <!--<pre>{{ciclo}}</pre>-->
                             <div class="col-md-12">
                                 <div class="row">
                                     <div class="col-md-3 text-center">
@@ -168,7 +169,7 @@
         <div layout:fragment="js">
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var cicloacademicoJson = /*[[${ciclo.toString()}]]*/ 'json';
+                var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 var resumenJson = /*[[${resumen.toString()}]]*/ 'json';
                 /*]]>*/
             </script>

@@ -38,4 +38,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     List<MatriculaResumen> findNotasIncompletas(List<Alumno> alumnos, CicloAcademico cicloAcademico);
 
+    void setNullPrioridadByCiclo(CicloAcademico cicloBD);
+
 }

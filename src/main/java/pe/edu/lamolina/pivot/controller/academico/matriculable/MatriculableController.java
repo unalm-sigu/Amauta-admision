@@ -85,10 +85,11 @@ public class MatriculableController {
     public String index(Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = service.findCicloAcademico(ds.getCicloAcademico());
 
         AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
         model.addAttribute("resumen", JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
-        model.addAttribute("ciclo", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{"*"}));
+        model.addAttribute("ciclo", JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{"*"}));
         return "academico/matriculable/matriculable";
     }
 

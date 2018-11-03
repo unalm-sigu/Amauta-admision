@@ -461,16 +461,13 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
-    public void eliminarPrioridad(CicloAcademico cicloAcademico) {
-        CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
+    @Transactional
+    public void eliminarPrioridad(CicloAcademico cicloForm) {
+        CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloForm.getId());
         cicloBD.setFechaPrioridades(null);
         cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
-
-        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloBD);
-        for (MatriculaResumen matriculable : matriculables) {
-            matriculable.setPrioridad(BigDecimal.ZERO);
-            matriculaResumenDAO.update(matriculable);
-        }
+        matriculaResumenDAO.setNullPrioridadByCiclo(cicloBD);
+        
     }
 
 }
