@@ -311,6 +311,13 @@ new Vue({
             header: true,
             title: 'Asignar Turno',
             okbtn: "Guardar",
+            showaccept: false
+        },
+        modalMatriculable: {
+            id: 'modalMatriculable',
+            header: true,
+            title: 'Agregar Matriculable',
+            okbtn: "Guardar",
             showaccept: true
         },
 
@@ -332,6 +339,10 @@ new Vue({
                 return tipoEnum.value - eventoCicloAcademico.eventoAcademico.nombre;
         }
         },
+        modal() {
+            let $vue = this;
+            $vue.$refs.modalMatriculable.open();
+        },
         generarPrioridad() {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
@@ -352,7 +363,7 @@ new Vue({
                 }
             });
         },
-        eliminarPrioridad: function (e, $this) {
+        eliminarPrioridad() {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
@@ -386,13 +397,16 @@ new Vue({
         },
         findConfiguraciones() {
             let $vue = this;
-            MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/matriculable/configuracionesTurno'),
                 success: function (response) {
-                    $vue.configTurno = response.data;
-                    $vue.$refs.modalTurno.open();
+                    if (response.data.length == 0) {
+                        notify("No hay configuración de turnos", "error");
+                    } else {
+                        $vue.configTurno = response.data;
+                        $vue.$refs.modalTurno.open();
+                    }
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -409,11 +423,30 @@ new Vue({
                     confTurnoAtencion: item.id
                 },
                 success: function (response) {
-                    $vue.$refs.modalTurno.clase();
+                    $vue.$refs.modalTurno.close();
+                    $vue.findCiclo();
+                    $vue.$refs.load.loadRemoteData();
                     MODAL.hideWait();
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        finalizarPrioridad(item) {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/finalizarPrioridad'),
+                success: function (response) {
+                    MODAL.hideWait();
+                    $vue.findCiclo();
+                    $vue.$refs.load.loadRemoteData();
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
                 }
             });
         }

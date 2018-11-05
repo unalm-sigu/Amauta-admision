@@ -8,6 +8,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -290,7 +291,7 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         cicloBD.setFechaTurnosAsignados(today.toDate());
-        cicloAcademicoDAO.updateFechaPrioridades(ciclo);
+//        cicloAcademicoDAO.updateFechaPrioridades(ciclo);
 
         ConfiguracionTurnosAtencion configuracionTurnosAtencion = configuracionTurnosAtencionDAO.find(configuracionTurnoAtencion);
         List<TurnoAtencion> turnosAtencion = turnoAtencionDAO.allByConfiguracion(configuracionTurnosAtencion);
@@ -467,11 +468,22 @@ public class MatriculableServiceImp implements MatriculableService {
         cicloBD.setFechaPrioridades(null);
         cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
 
+        List<Long> ids = new ArrayList<>();
         List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloBD);
         for (MatriculaResumen matriculable : matriculables) {
-            matriculable.setPrioridad(BigDecimal.ZERO);
-            matriculaResumenDAO.update(matriculable);
+            ids.add(matriculable.getId());
         }
+        matriculaResumenDAO.updateList(ids);
+
+    }
+
+    @Override
+    @Transactional
+    public void finalizarPrioridad(CicloAcademico cicloAcademico) {
+        CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
+        cicloBD.setFechaCierrePrioridades(new Date());
+        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
+
     }
 
 }

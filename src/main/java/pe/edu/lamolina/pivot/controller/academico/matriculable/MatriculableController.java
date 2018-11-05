@@ -85,10 +85,10 @@ public class MatriculableController {
     public String index(Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        CicloAcademico c = service.findCicloAcademico(ds.getCicloAcademico());
         AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
         model.addAttribute("resumen", JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
-        model.addAttribute("ciclo", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{"*"}));
+        model.addAttribute("ciclo", JsonHelper.createJson(c, JsonNodeFactory.instance, new String[]{"*"}));
         return "academico/matriculable/matriculable";
     }
 
@@ -161,19 +161,6 @@ public class MatriculableController {
         return json;
     }
 
-    @RequestMapping("nuevo")
-    public String nuevo(Model model, HttpSession session) {
-
-        List<String> codigos = new ArrayList();
-        codigos.add(ESP.name());
-        codigos.add(VIS.name());
-
-        List<ModalidadEstudio> modalidades = service.allModalidadEstudioByCodigos(codigos);
-        model.addAttribute("modalidades", modalidades);
-
-        return "academico/matriculable/matriculableModal";
-    }
-
     @ResponseBody
     @RequestMapping("generar")
     public JsonResponse generar(Model model, HttpSession session) {
@@ -244,7 +231,27 @@ public class MatriculableController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.eliminarPrioridad(ds.getCicloAcademico());
-            response.setMessage("Prioridad generadas correctamente");
+            response.setMessage("Prioridad eliminada correctamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("finalizarPrioridad")
+    public JsonResponse finalizarPrioridad(Model model, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.finalizarPrioridad(ds.getCicloAcademico());
+            response.setMessage("Prioridad finalizada correctamente");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

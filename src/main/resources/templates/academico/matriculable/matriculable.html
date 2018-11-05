@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Acta de Notas</title>
+        <title>Matriculables</title>
     </head>
 
     <body>
@@ -14,10 +14,11 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li><a id="generarMatriculables" >Generar</a></li>
-                            <li v-if="ciclo.fechaPrioridades == null"><a  href="/academico/matriculable/nuevo">Agregar Matriculable</a></li>
-                            <li><a  id="agregarMatriculable">Modal Matriculable</a></li>
-                            <li v-if="ciclo.fechaPrioridades == null" ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
-                            <li v-if="ciclo.fechaPrioridades != null" ><a v-on:click="eliminarPrioridad">Limpiar Prioridades</a></li>
+                            <li ><a  v-on:click="modal">Agregar Matriculable</a></li>
+                            <!--<li><a  id="agregarMatriculable">Modal Matriculable</a></li>-->
+                            <li v-if="ciclo.fechaPrioridades == null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
+                            <li v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="eliminarPrioridad">Limpiar Prioridades</a></li>
+                            <li v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="finalizarPrioridad">Finalizar Prioridades</a></li>
                             <li v-if="ciclo.fechaPrioridades != null" ><a v-on:click="findConfiguraciones">Asignar Turnos</a></li>
                             <li><a id="subirEgresado">Subir Egresados</a></li>
                         </ul>
@@ -159,6 +160,8 @@
                         <div id="matriculableModal"></div>
                         <div id="cursosModal"></div>-->
                 <div th:substituteby="academico/matriculable/modalAsignarTurno">
+                </div>
+                <div th:substituteby="academico/matriculable/matriculableModal">
                 </div>
             </div>
             <div th:substituteby="_modules/vue-modal">
