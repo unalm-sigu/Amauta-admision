@@ -35,4 +35,6 @@ public interface MatriculableService {
 
     public void eliminarPrioridad(CicloAcademico cicloAcademico);
 
+    public void finalizarPrioridad(CicloAcademico cicloAcademico);
+
 }

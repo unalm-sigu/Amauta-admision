@@ -1,18 +1,17 @@
-<modal-vik ref="modalGenerarHorario"
-           v-bind="modalGenerarHorario"
-           v-bind:okaction="saveHorario">
+<modal-vik ref="modalMatriculable"
+           v-bind="modalMatriculable">
     <div slot="body">
         <div class="modal-body">
             <form id="formMatriculable" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
                 <div class="row m-b-md">
-                    <div class="form-group">
+<!--                    <div class="form-group">
                         <div class="col-md-12 text-center">
                             <input type="text" class="form-control"/>
                         </div>
-                    </div>
+                    </div>-->
                     <hr/>
                     <div class="form-group">
-                        <label for="ciclos" class="col-md-12 control-label">Modalidad de Estudio</label>
+<!--                        <label for="ciclos" class="col-md-12 control-label">Modalidad de Estudio</label>
                         <div class="col-md-12">
                             <multiselect v-model="disponibilidad.colaborador" 
                                          v-bind:options='asistentas'
@@ -33,11 +32,10 @@
                                         th:text="${item.nombre}"
                                         th:value="${item.id}" ></option>
                             </select>
-                        </div>
+                        </div>-->
                     </div>
                 </div>
             </form>
         </div>
-
     </div>
 </modal-vik>

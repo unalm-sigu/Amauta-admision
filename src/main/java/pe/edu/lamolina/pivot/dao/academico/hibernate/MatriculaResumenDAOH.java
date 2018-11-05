@@ -253,8 +253,15 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
-    public void setNullPrioridadByCiclo(CicloAcademico cicloBD) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void updateList(List<Long> matriculables) {
+      StringBuilder strb = new StringBuilder("update MatriculaResumen mr set mr.prioridad=:prioridad , mr.puntajePrioridad = :puntaje");
+        strb.append(" where mr.id in ( :ids )");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prioridad", null);
+        query.setParameter("puntaje", null);
+        query.setParameterList("ids", matriculables);
+        query.executeUpdate();
     }
 
 }

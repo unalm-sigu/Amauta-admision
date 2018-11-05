@@ -3,6 +3,9 @@ package pe.edu.lamolina.pivot.controller.test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Evaluacion;
 import pe.edu.lamolina.model.academico.EvaluacionExpandida;
@@ -26,6 +32,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
@@ -44,9 +51,11 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
@@ -102,6 +111,9 @@ public class TestController {
     AlumnoCicloDAO alumnoCicloDAO;
 
     @Autowired
+    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+
+    @Autowired
     AlumnoDAO alumnoDAO;
 
     @Autowired
@@ -112,6 +124,9 @@ public class TestController {
 
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+
+    @Autowired
+    CarreraDAO carreraDAO;
 
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
@@ -258,6 +273,7 @@ public class TestController {
     @ResponseBody
     @RequestMapping("promediarAll")
     public String promediarAll(HttpSession session) {
+        logger.info("promediarAll");
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
@@ -269,25 +285,34 @@ public class TestController {
         List<SituacionAcademica> situacionesPosgrado = situacionAcademicaDAO.allByCodes(
                 Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_EM));
 
+        List<String> situacionesPre = situacionesPregrado.stream().map(x -> x.getId().toString()).collect(Collectors.toList());
+        List<String> situacionesPos = situacionesPosgrado.stream().map(x -> x.getId().toString()).collect(Collectors.toList());
+        logger.debug("Situaciones pregrado {}", String.join(",", situacionesPre));
+        logger.debug("Situaciones posgrado {}", String.join(",", situacionesPos));
+
         List<Alumno> pregrados = alumnoDAO.allBySituaciones(pre, situacionesPregrado);
         List<Alumno> posgrados = alumnoDAO.allBySituaciones(epg, situacionesPosgrado);
         List<Alumno> unionList = new ArrayList();
         unionList.addAll(pregrados);
         unionList.addAll(posgrados);
+
+
         /*
         List<CicloAcademico> allCiclosActivesPre = cicloAcademicoDAO.allActivesByModalidad(pre, new String[]{"ca.year asc", "ca.numeroCiclo asc"});
         List<CicloAcademico> allCiclosActivesEpg = cicloAcademicoDAO.allActivesByModalidad(epg, new String[]{"ca.year asc", "ca.numeroCiclo asc"});
          */
+        // visorCalculoNotas.setCantidadTotal(pregrados.size());
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
         visorCalculoNotas.iniciar();
-        visorCalculoNotas.setCantidadTotal(unionList.size());
-
+        visorCalculoNotas.setCantidadTotal(pregrados.size());
         for (Alumno alumno : pregrados) {
-            promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+            promedioService.promediarAllCicloAsync(alumno, cicloActivo, ds.getUsuario());
         }
+        /*
         for (Alumno alumno : posgrados) {
             promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
         }
-
+         */
         return "yeah";
     }
 
@@ -296,10 +321,11 @@ public class TestController {
     public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
         //  List<CicloAcademico> allCiclosActivos = cicloAcademicoDAO.allActivesByModalidad(alumno.getModalidadEstudio(), new String[]{"ca.year asc", "ca.numeroCiclo asc"});
         visorCalculoNotas.iniciar();
-        promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+        Alumno alumno = alumnoDAO.findAllInfo(alumnoId);
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio());
+        promedioService.promediarAllCicloAsync(alumno, cicloActivo, ds.getUsuario());
 
         return "yeah";
     }
