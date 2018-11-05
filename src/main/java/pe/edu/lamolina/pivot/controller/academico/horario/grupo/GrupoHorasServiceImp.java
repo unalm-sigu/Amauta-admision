@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.controller.academico.horario.grupo;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
@@ -18,11 +23,18 @@ import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
 
 @Service
@@ -45,6 +57,21 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
 
     @Autowired
     TipoGrupoHorasDAO tipoGrupoHorasDAO;
+
+    @Autowired
+    GrupoSeccionDAO grupoSeccionDAO;
+
+    @Autowired
+    HorarioSeccionDAO horarioSeccionDAO;
+
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
+    SeccionDAO seccionDAO;
 
     @Override
     public GrupoHoras findGrupoHoras(GrupoHoras grupoHoras) {
@@ -192,11 +219,15 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
 
     @Override
     @Transactional
-    public void clonar(CicloAcademico cicloOrigen, CicloAcademico cicloDestino) {
+    public void clonar(CicloAcademico cicloOrigenForm, CicloAcademico cicloDestinoForm) {
+        CicloAcademico cicloDestino = cicloAcademicoDAO.findCicloAcademico(cicloDestinoForm);
+        CicloAcademico cicloOrigen = cicloAcademicoDAO.findCicloAcademico(cicloOrigenForm);
+
         List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByCiclo(cicloOrigen);
-        Assert.isTrue(cicloOrigen.getId() != cicloDestino.getId(), "No puede clonar del mismo ciclo");
-        Assert.isTrue(cicloOrigen.getTipo() == cicloDestino.getTipo(), "No puede clonar de un tipo de ciclo distinto");
-      
+        Assert.isTrue(cicloDestino.getId() != cicloOrigen.getId(), "No puede clonar del mismo ciclo");
+
+        Assert.isTrue(cicloDestino.getTipo().equals(cicloOrigen.getTipo()), "No puede clonar de un tipo de ciclo distinto");
+
         for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
             DiaHoraGrupo horaGrupo = new DiaHoraGrupo();
             horaGrupo.setDia(diaHoraGrupo.getDia());
@@ -206,5 +237,4 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
             diaHoraGrupoDAO.save(horaGrupo);
         }
     }
-
 }

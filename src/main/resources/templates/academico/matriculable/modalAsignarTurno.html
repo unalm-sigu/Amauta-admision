@@ -1,12 +1,14 @@
-<form id="frmAsignarTurno">
+<modal-vik ref="modalTurno"
+           v-bind="modalTurno">
+    <div slot="body">
+        <form id="form" data-parsley-validate="true">
 
-
-    <a  class="btn btn-success m-b-md block procesar-tipo-matricula" 
-        th:each="confTurnosAten : ${configuracionesTurnoAtencion}"
-        th:alt="${confTurnosAten.id}"
-        th:text="|${confTurnosAten.tipoEnum.value} (${confTurnosAten.eventoCicloAcademico.eventoAcademico.nombre})|">
-        Aceptar rechazo
-    </a>
-
-
-</form>
+            <a  class="btn btn-success m-b-md block " 
+                v-for="config in configTurno"
+                v-on:click="procesarTipoMatricula(config)"
+                  v-text="config.tipoEnum.value + config.eventoCicloAcademico.eventoAcademico.nombre">
+                Aceptar rechazo
+            </a>
+        </form>
+    </div>
+</modal-vik>

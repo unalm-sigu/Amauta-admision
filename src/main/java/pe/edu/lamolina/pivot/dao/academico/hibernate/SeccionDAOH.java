@@ -463,4 +463,28 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         this.update(octavia);
     }
 
+    @Override
+    public void setNullCodigo2ByCiclo(CicloAcademico ciclo) {
+        StringBuilder sql = new StringBuilder()
+                .append(" UPDATE ").append(Seccion.class.getName()).append(" sec ")
+                .append("    SET sec.codigo2 = NULL ")
+                .append("  WHERE EXISTS  ( ")
+                .append("      SELECT 1 FROM ").append(GrupoSeccion.class.getName()).append(" gs ")
+                .append("        JOIN gs.cicloAcademico ci ")
+                .append("       WHERE ci.id = :CICLO ")
+                .append("         AND sec.grupoSeccion.id = gs.id ")
+                .append("  ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void updateCodigo2(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "codigo2");
+        this.update(octavia);
+    }
+
 }

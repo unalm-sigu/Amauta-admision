@@ -209,7 +209,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     PrecioCursoEstructuraDAO precioCursoEstructuraDAO;
 
     @Override
+    public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
+        return cicloAcademicoDAO.find(cicloAcademico);
+    }
 
+    @Override
     public Oficina findOficinaOera() {
         return oficinaDAO.findByCode("OERA");
     }
@@ -2047,67 +2051,64 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             throw new PhobosException("Grupo Horario ingresado no existe");
         }
 
-        List<DiaHoraGrupo> diasGrupoHoras = diaHoraGrupoDAO.allByGrupoCiclo(grupoHorario, cicloAcademico);
-        if (diasGrupoHoras.isEmpty()) {
-            grupoHorario.setDiaHoraGrupo(diasGrupoHoras);
-            return grupoHorario;
-        }
-
-        Collections.sort(diasGrupoHoras, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
-        grupoHorario.setDiaHoraGrupo(diasGrupoHoras);
-
+        List<Dia> dias = diaDAO.all();
+        List<DiaHoraGrupo> diasHorasGpo = diaHoraGrupoDAO.allByGrupoCiclo(grupoHorario, cicloAcademico);
         if (seccion.getHorasSemanales() == 0) {
             throw new PhobosException("Esta sección no puede asignarse un grupo con horas semanales");
         }
+        List<DiaHoraGrupo> diasGrupoSecc = searchDiasHorasByHorasSemanales(diasHorasGpo, seccion.getHorasSemanales(), dias);
+        grupoHorario.setDiaHoraGrupo(diasGrupoSecc);
 
-        List<Dia> dias = diaDAO.all();
-        List<Dia> utilDays = new ArrayList();
+        return grupoHorario;
+    }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<DiaHoraGrupo> searchDiasHorasByHorasSemanales(List<DiaHoraGrupo> diasHorasGrupo, Integer horasSemanales, List<Dia> dias) {
+        if (horasSemanales == 0) {
+            throw new PhobosException("Esta sección no puede asignarse un grupo con horas semanales");
+        }
+
+        if (diasHorasGrupo.isEmpty()) {
+            return new ArrayList();
+        }
+
+        Collections.sort(diasHorasGrupo, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
+
+        List<DiaHoraGrupo> diasHorasTempo;
+        Map<Long, Object> mapDias = new LinkedHashMap();
         for (Dia dia : dias) {
-            dia.setDiaHoraGrupo(new ArrayList());
+            diasHorasTempo = new ArrayList();
 
-            for (DiaHoraGrupo horasPorDia : grupoHorario.getDiaHoraGrupo()) {
-                if (horasPorDia.getDia().getId().equals(dia.getId())) {
-                    dia.getDiaHoraGrupo().add(horasPorDia);
+            for (DiaHoraGrupo diaHora : diasHorasGrupo) {
+                if (diaHora.getDia().getId() == dia.getId().longValue()) {
+                    diasHorasTempo.add(diaHora);
                 }
             }
-            if (!dia.getDiaHoraGrupo().isEmpty()) {
-                utilDays.add(dia);
+            if (!diasHorasTempo.isEmpty()) {
+                mapDias.put(dia.getId(), diasHorasTempo);
             }
         }
 
-//        if (!grupoHorario.isPermiteCeroHoras()) {
-//            if (seccion.getHorasSemanales().compareTo(diasGrupoHoras.size()) != 0) {
-//                throw new PhobosException("Grupo Horario no es compatible con las horas semanales de la sección");
-//            }
-//        }
-        Map<Long, Object> mapDias = new LinkedHashMap();
-        for (Dia dia : utilDays) {
-            List<DiaHoraGrupo> horasDia = dia.getDiaHoraGrupo();
-            mapDias.put(dia.getId(), horasDia);
-        }
-
-        List<DiaHoraGrupo> hdiasGpo = new ArrayList();
+        List<DiaHoraGrupo> diasHorasSeccion = new ArrayList();
         List<Map<Long, Object>> busquedas = Commutator.create(mapDias);
         for (Map<Long, Object> busqueda : busquedas) {
             int total = 0;
-            hdiasGpo.clear();
+            diasHorasSeccion.clear();
             for (Map.Entry<Long, Object> entry : busqueda.entrySet()) {
                 List<DiaHoraGrupo> horasDia = (List<DiaHoraGrupo>) entry.getValue();
-                hdiasGpo.addAll(horasDia);
+                diasHorasSeccion.addAll(horasDia);
                 total += horasDia.size();
             }
-            if (total == seccion.getHorasSemanales()) {
-                grupoHorario.setDiaHoraGrupo(hdiasGpo);
+            if (total == horasSemanales) {
                 break;
             }
         }
 
-        if (hdiasGpo.isEmpty()) {
+        if (diasHorasSeccion.isEmpty()) {
             throw new PhobosException("Grupo Horario no es compatible con las horas semanales de la sección");
         }
-
-        return grupoHorario;
+        return diasHorasSeccion;
     }
 
     @Override

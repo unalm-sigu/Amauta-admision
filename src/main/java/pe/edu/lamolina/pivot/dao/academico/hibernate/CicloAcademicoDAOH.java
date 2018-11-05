@@ -20,7 +20,6 @@ import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.PEND;
 import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CRE;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
-import pe.edu.lamolina.model.inscripcion.CicloPostula;
 
 @Repository
 public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implements CicloAcademicoDAO {
@@ -471,6 +470,14 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .notIn("ca.id", notInt)
                 .limit(limit);
         return all(sql);
+    }
+
+    @Override
+    public CicloAcademico findVerBoletin() {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .filter("ca.verBoletin", true);
+        return find(sql);
     }
 
 }

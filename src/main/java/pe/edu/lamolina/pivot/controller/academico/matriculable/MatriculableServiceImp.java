@@ -455,4 +455,20 @@ public class MatriculableServiceImp implements MatriculableService {
         return new BigDecimal(dato).setScale(slace, RoundingMode.DOWN);
     }
 
+    @Override
+    public CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico) {
+        return cicloAcademicoDAO.find(cicloAcademico);
+    }
+
+    @Override
+    @Transactional
+    public void eliminarPrioridad(CicloAcademico cicloForm) {
+        CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloForm.getId());
+        
+        cicloBD.setFechaPrioridades(null);
+        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
+        matriculaResumenDAO.setNullPrioridadByCiclo(cicloBD);
+        
+    }
+
 }
