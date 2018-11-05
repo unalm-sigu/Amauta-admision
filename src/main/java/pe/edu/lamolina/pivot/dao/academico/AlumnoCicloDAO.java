@@ -5,9 +5,12 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlOrdenMerito;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
 public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
@@ -31,6 +34,15 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
     List<AlumnoCiclo> allActivesByAlumnoAsc(Alumno alumno);
 
     List<AlumnoCiclo> allByAlumnoAsc(Alumno alumno);
+
+    List<AlumnoCiclo> allByModalidadEstAndSituacionesAcadAndEstadoMatAsc(
+            ModalidadEstudio modalidadEstudio,
+            Carrera carrera,
+            List<SituacionAcademica> situaciones,
+            EstadoMatriculaEnum estadoMatriculaEnum);
+
+    List<AlumnoCiclo> allDataByAlumno(Alumno alumno,
+            EstadoMatriculaEnum estadoMatriculaEnum);
 
     AlumnoCiclo findActiveByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
