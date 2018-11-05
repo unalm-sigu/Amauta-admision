@@ -40,4 +40,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     public void updateList(List<Long> matriculables);
 
+    public void deleteMatriculable(CicloAcademico cicloAcademico);
+
 }
