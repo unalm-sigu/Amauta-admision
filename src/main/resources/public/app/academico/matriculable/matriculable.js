@@ -297,13 +297,13 @@
 //
 //});
 
-console.log(JSON.parse(cicloacademicoJson));
+console.log(JSON.parse(cicloJson));
 console.log(JSON.parse(resumenJson));
 new Vue({
     el: '#matriculableVUE',
     data: {
         matriculaURL: APP.url('academico/matriculable/list'),
-        ciclo: JSON.parse(cicloacademicoJson),
+        ciclo: JSON.parse(cicloJson),
         resumen: JSON.parse(resumenJson),
         configTurno: [],
         modalTurno: {

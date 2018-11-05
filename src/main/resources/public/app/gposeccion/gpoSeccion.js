@@ -578,8 +578,7 @@ new Vue({
             let $vue = this;
 
             bootbox.confirm({
-//                title: "Finalizar clonación",
-                message: '<h4 class="text m-t-xs">¿Seguro que desea que se visualice este ciclo en el boletín?</h4>',
+                message: '<h4>¿Seguro que desea que se visualice este ciclo en el boletín?</h4>',
                 buttons: {
                     cancel: {label: "Cancelar", className: "btn-link"},
                     confirm: {label: "Si, Visualizar el Boletín", className: "btn-primary"}

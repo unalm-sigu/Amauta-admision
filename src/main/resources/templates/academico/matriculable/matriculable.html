@@ -28,6 +28,7 @@
                 <section class="wrapper-lg">
                     <section class="panel m-b-md">
                         <section class="panel-body">
+                            <!--<pre>{{ciclo}}</pre>-->
                             <div class="col-md-12">
                                 <div class="row">
                                     <div class="col-md-3 text-center">
@@ -170,7 +171,7 @@
         <div layout:fragment="js">
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var cicloacademicoJson = /*[[${ciclo.toString()}]]*/ 'json';
+                var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 var resumenJson = /*[[${resumen.toString()}]]*/ 'json';
                 /*]]>*/
             </script>

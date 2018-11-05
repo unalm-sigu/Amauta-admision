@@ -5,10 +5,13 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
 public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findActivo(ModalidadEstudio modalidad);
+
+    CicloAcademico findActivo(ModalidadEstudioEnum modalidadEnum);
 
     CicloAcademico findByCodigo(String codigo);
 
