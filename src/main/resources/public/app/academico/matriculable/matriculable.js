@@ -351,10 +351,10 @@ new Vue({
                 url: APP.url('academico/matriculable/generarPrioridad'),
                 success: function (response) {
                     if (response.success) {
-                        notify(response.message, "success");
                         $vue.findCiclo();
                         MODAL.hideWait();
                         $vue.$refs.load.loadRemoteData();
+                        notify(response.message, "success");
                     }
                 },
                 error: function () {
@@ -370,9 +370,11 @@ new Vue({
                 method: 'POST',
                 url: APP.url('academico/matriculable/eliminarPrioridad'),
                 success: function (response) {
-                    MODAL.hideWait();
-                    $vue.findCiclo();
-                    $vue.$refs.load.loadRemoteData();
+                    if (response.success) {
+                        MODAL.hideWait();
+                        $vue.findCiclo();
+                        $vue.$refs.load.loadRemoteData();
+                    }
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -423,10 +425,12 @@ new Vue({
                     confTurnoAtencion: item.id
                 },
                 success: function (response) {
-                    $vue.$refs.modalTurno.close();
-                    $vue.findCiclo();
-                    $vue.$refs.load.loadRemoteData();
-                    MODAL.hideWait();
+                    if (response.success) {
+                        $vue.$refs.modalTurno.close();
+                        $vue.findCiclo();
+                        $vue.$refs.load.loadRemoteData();
+                        MODAL.hideWait();
+                    }
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -440,9 +444,75 @@ new Vue({
                 method: 'POST',
                 url: APP.url('academico/matriculable/finalizarPrioridad'),
                 success: function (response) {
+                    if (response.success) {
+                        MODAL.hideWait();
+                        $vue.findCiclo();
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.message, "success");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
                     MODAL.hideWait();
-                    $vue.findCiclo();
-                    $vue.$refs.load.loadRemoteData();
+                }
+            });
+        },
+        generarMatriculables() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/generar'),
+                success: function (response) {
+                    if (response.success) {
+                        MODAL.hideWait();
+                        $vue.resumen = response.data;
+                        $vue.findCiclo();
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.message, "success");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
+        limpiarMatriculables() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/limpiarMatriculable'),
+                success: function (response) {
+                    if (response.success) {
+                        MODAL.hideWait();
+                        $vue.resumen = response.data;
+                        $vue.findCiclo();
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.message, "success");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
+        finalizarMatriculable() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/finalizarMatriculable'),
+                success: function (response) {
+                    if (response.success) {
+                        MODAL.hideWait();
+                        $vue.resumen = response.data;
+                        $vue.findCiclo();
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.message, "success");
+                    }
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");

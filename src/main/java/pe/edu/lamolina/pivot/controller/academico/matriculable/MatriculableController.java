@@ -167,6 +167,8 @@ public class MatriculableController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.generar(ds.getCicloAcademico(), ds);
+            AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
+            response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
             response.setMessage("Matriculables generados satisfactoriamente");
             response.setSuccess(true);
 
@@ -242,7 +244,7 @@ public class MatriculableController {
 
     @ResponseBody
     @RequestMapping("finalizarPrioridad")
-    public JsonResponse finalizarPrioridad(Model model, HttpSession session) {
+    public JsonResponse finalizarPrioridad(HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -250,6 +252,47 @@ public class MatriculableController {
 
             service.finalizarPrioridad(ds.getCicloAcademico());
             response.setMessage("Prioridad finalizada correctamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("finalizarMatriculable")
+    public JsonResponse finalizarMatriculable(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.finalizarMatriculable(ds.getCicloAcademico());
+            response.setMessage("Matriculable finalizada correctamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("limpiarMatriculable")
+    public JsonResponse limpiarMatriculable(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.limpiarMatriculable(ds.getCicloAcademico());
+            AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
+            response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
+            response.setMessage("Matriculable eliminada correctamente");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

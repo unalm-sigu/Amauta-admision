@@ -486,4 +486,20 @@ public class MatriculableServiceImp implements MatriculableService {
 
     }
 
+    @Override
+    @Transactional
+    public void finalizarMatriculable(CicloAcademico cicloAcademico) {
+        CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
+        cicloBD.setFechaCierreMatriculable(new Date());
+        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
+    }
+
+    @Override
+    @Transactional
+    public void limpiarMatriculable(CicloAcademico cicloAcademico) {
+        CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
+        cicloBD.setFechaMatriculables(null);
+        matriculaResumenDAO.deleteMatriculable(cicloAcademico);
+    }
+
 }
