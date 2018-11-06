@@ -11,6 +11,6 @@ public interface MailerService {
 
     public void enviarNotificacionSolicitudConstanciaCreacion(TramiteDocumentoAcademico tramiteDocumentoAcademico, ContenidoCarta contenidoCarta);
 
-    public void enviarNotificacionTicketUsuario(Persona persona, ContenidoCarta contenidoCarta);
+    public void enviarNotificacionTicketHelpDesk(Persona persona, ContenidoCarta contenidoCarta);
 
 }

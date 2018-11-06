@@ -21,22 +21,25 @@
 
                         <div class="col-md-12">
                             <div class="row">
+                                
 
-                                <div class="col-md-3 text-center" >
-                                    <a v-on:click="verEstado('ACTIVO')" class="text-danger pointer" >
+                                <div class="col-md-3 text-center"  v-bind:class="{ 'bg-light' : seleccionado=='ACTIVO' }" >
+                                    <a v-on:click="verEstado('ACTIVO')"   >
                                         <span class="h1 block bold" th:text="${resumen.activo}">23</span>
                                         <small class="block m-b-xs">Activos</small>
                                     </a>
                                 </div>
+                                
 
-                                <div class="col-md-3 text-center"  >
-                                    <a v-on:click="verEstado('RESPONDIDO')" class="text-black pointer" >
+                                <div class="col-md-3 text-center"  v-bind:class="{ 'bg-light' : seleccionado=='RESPONDIDO' }"  >
+                                    <a v-on:click="verEstado('RESPONDIDO')" class="text-black pointer"  >
                                         <span class="h1 block bold" th:text="${resumen.respondido}">23</span>
                                         <small class="block m-b-xs">Respondidos</small>
                                     </a>
                                 </div>
+                                
 
-                                <div class="col-md-3 text-center" >
+                                <div class="col-md-3 text-center"  v-bind:class="{ 'bg-light' : seleccionado=='RESUELTO' }"  >
                                     <a v-on:click="verEstado('RESUELTO')" class="text-success pointer" >
                                         <span class="h1 block bold" th:text="${resumen.resuelto}">23</span>
                                         <small class="block m-b-xs">Resueltos</small>
@@ -99,9 +102,6 @@
                                                 <div class="pull-right">
                                                     <div class="actions">
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
-                                                        <ul class="dropdown-menu pull-right">
-                                                            <li><a  href="#" v-on:click.prevent="asignar(item)">Asignar</a></li>
-                                                        </ul>
                                                     </div>
                                                 </div>
 

@@ -77,8 +77,9 @@ new Vue({
 
                         vue.ticket.mensajesTicketAyuda.push(response.data);
                         vue.mensaje = '';
-
+                        vue.ticket.mensajeTicketAyuda.estado='RESPONDIDO';
                         notify(response.message, "info");
+                        
                     } else {
                         notify(response.message, "error");
                     }
@@ -239,9 +240,9 @@ new Vue({
                     if (response.success) {
 
                         vue.ticket.mensajesTicketAyuda.push(response.data);
-                        vue.estadoButtonComentar = '';
-
+                        vue.mensaje = '';
                         notify(response.message, "info");
+                        
                     } else {
                         notify(response.message, "error");
                     }

@@ -66,7 +66,7 @@ public class MailerServiceImp implements MailerService {
     }
 
     @Override
-    public void enviarNotificacionTicketUsuario(Persona persona, ContenidoCarta contenidoCarta) {
+    public void enviarNotificacionTicketHelpDesk(Persona persona, ContenidoCarta contenidoCarta) {
 
         String contenido = contenidoCarta.getContenido();
         contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), persona.getNombreCompleto());
@@ -76,11 +76,11 @@ public class MailerServiceImp implements MailerService {
 
         MailMessage mail = new MailMessage();
         mail.setContext(ctx);
-        mail.setTemplate("mail/mailSolicitudConstancia");
-        mail.setSubject("Solicitud de constancia");
+        mail.setTemplate("mail/mailHelpDesk");
+        mail.setSubject(contenidoCarta.getNombre());
         //mail.setDestinatarios(new String[]{ colaborador.getPersona().getEmail()});
         mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
-        mailerConnector.sendMail(mail);
+        mailerConnector.sendMailHelpDesk(mail);
         
     }
 }

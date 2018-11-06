@@ -112,13 +112,22 @@ public class TicketAyudaServiceImp implements TicketAyudaService {
         mensaje.setEstado(EstadoTicketAyudaEnum.ACTIVO.name());
         mensajeTicketAyudaDAO.save(mensaje);
 
-        this.sendNotificacionTicketCreate(ticket);
+        this.sendNotificacionTicketRespuesta(ticket);
         return mensaje;
     }
 
+    private void sendNotificacionTicketRespuesta(TicketAyuda ticket) {
+        
+        ContenidoCarta contenido = contenidoCartaDAO.findByCodigoEnum(ContenidoCartaEnum.HELPDESK_RESPUESTA);
+        mailerService.enviarNotificacionTicketHelpDesk(ticket.getPersona(), contenido);
+        
+    }
+
     private void sendNotificacionTicketCreate(TicketAyuda ticket) {
-        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigoEnum(ContenidoCartaEnum.NOTIFYSOLICITUD);
-        mailerService.enviarNotificacionTicketUsuario(ticket.getPersona(), contenidoCarta);
+        
+        ContenidoCarta contenido = contenidoCartaDAO.findByCodigoEnum(ContenidoCartaEnum.HELPDESK_NUEVO);
+        mailerService.enviarNotificacionTicketHelpDesk(ticket.getPersona(), contenido);
+        
     }
 
     @Override
@@ -166,7 +175,7 @@ public class TicketAyudaServiceImp implements TicketAyudaService {
         mensaje.setEstado(EstadoTicketAyudaEnum.ACTIVO.name());
         mensajeTicketAyudaDAO.save(mensaje);
 
-        this.sendNotificacionTicketCreate(ticket);
+        //this.sendNotificacionTicketCreate(ticket);
         return mensaje;
     }
 
