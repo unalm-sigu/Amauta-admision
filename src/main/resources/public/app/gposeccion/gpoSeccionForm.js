@@ -170,6 +170,21 @@ var app = new Vue({
             okbtn: 'Solicitar',
             modalsize: 'modal-md'
         },
+        enviarSolicitudModal: {
+            id: 'modalEnviarSolicitud',
+            header: true,
+            title: 'Cambio Aula / Grupo',
+//            okbtn: 'Solicitar',
+            modalsize: 'modal-lg'
+        },
+        cambioaulagrupos: [],
+        cambioaulagrupo: {
+            id: "",
+            oficina: {id: ""},
+            aulaInicio: {id: ""},
+            grupoInicio: {id: ""},
+            motivo: ""
+        },
         ampliaciones: [],
         ampliacionVacante: {
             id: 'ampliacionVacanteId',
@@ -210,7 +225,9 @@ var app = new Vue({
         //isShowTabFusion: false,
         //cantidadTrasladados: 0,
         editaPrecio: false,
-        guardaPrecio: false
+        guardaPrecio: false,
+        aulas: [],
+        grupos: []
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -278,6 +295,7 @@ var app = new Vue({
             $vue.seccionSeleccionada = $vue.secciones[$vue.idxSeccion];
             $vue.docentesSeccion = $vue.seccionSeleccionada.docenteSeccion;
             $vue.ampliaciones = $vue.seccionSeleccionada.ampliacionesVacantes;
+            $vue.cambioaulagrupos = $vue.seccionSeleccionada.cambioAulaGrupos;
             $vue.refreshDataFusion();
             setTimeout(function () {
                 $vue.verDocentes = true;
@@ -1518,8 +1536,108 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }
+        },
+        enviarSolicitud() {
+
+            let $vue = this;
+
+            var tipo = $vue.seccionSeleccionada.tipoSeccion;
+            if (tipo == 'TCUR') {
+                return;
+            }
+//
+//            $vue.ampliacionVacante = {
+//                id: null,
+//                motivo: '',
+//                colaborador: {id: null},
+//                oficina: {id: null},
+//                seccion: $vue.seccionSeleccionada,
+//                vacantesInicio: $vue.seccionSeleccionada.vacantes,
+//                incremento: 0,
+//                vacantesFin: 0
+//            }
+            $vue.cambioaulagrupo.oficina = $vue.seccionSeleccionada.oficina;
+            $vue.cambioaulagrupo.aulaFin = $vue.seccionSeleccionada.aula;
+            $vue.cambioaulagrupo.grupoHorasFin = $vue.seccionSeleccionada.grupoHoras;
+            $vue.$refs.modalEnviarSolicitud.open();
+
+        },
+        enviarSolicitudAceptar() {
+
+            let $vue = this;
+
+            if ($('#formAulaGrupo').parsley().validate() !== true) {
+                return;
+            }
+            console.log($vue.cambioaulagrupo);
+
+//            if ($vue.ampliacionVacante.vacantesFin < $vue.seccionSeleccionada.matriculados) {
+//                swal({text: 'Ya existen alumnos matriculados', icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+//                return;
+//            }
+//
+//            if ($vue.seccionSeleccionada.aula.capacidadAula > 0) {
+//                if ($vue.ampliacionVacante.total > $vue.seccionSeleccionada.aula.capacidadAula) {
+//                    swal({text: 'Ha sobrepasado la capacidad del aula', icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+//                    return;
+//                }
+//            }
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/savecambioaulagrupo'),
+                data: $('#formAulaGrupo').serialize(),
+                success: function (response) {
+                    if (response.success) {
+
+                        $vue.allSolicitarIncremento();
+                        $vue.$refs.modalSolicitarIncremento.close();
+                        notify(response.message, 'info');
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        asyncFindCambioAulas(nombre) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url("academico/gposeccion/asyncFindCambioAulas"),
+                dataType: 'json',
+                type: 'post',
+                data: {
+                    nombre: nombre
+                },
+            }).then(response => {
+                $vue.aulas = response.data;
+                if ($vue.aulas == null) {
+                    $vue.aulas = [];
+                }
+            })
+        },
+        asyncFindCambioGrupos(nombre) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url("academico/gposeccion/asyncFindCambioGrupos"),
+                dataType: 'json',
+                type: 'post',
+                data: {
+                    nombre: nombre
+                },
+            }).then(response => {
+                $vue.grupos = response.data;
+                if ($vue.grupos == null) {
+                    $vue.grupos = [];
+                }
+            })
+        },
+        
     }
 });
 
-    
+

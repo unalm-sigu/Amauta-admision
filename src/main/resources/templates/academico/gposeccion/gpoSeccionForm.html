@@ -407,7 +407,6 @@
 
                             </section>
                         </section>
-
                         <transition name="slide-fade">
                             <section class="panel" v-if="verDocentes">
                                 <section class="panel-body">
@@ -424,8 +423,8 @@
                                                 <li v-bind:class="getClassTab('AMPLIACIONES')" v-on:click="verTab('AMPLIACIONES')">
                                                     <a href="#2Conte" data-toggle="tab">Ampliación Vacantes</a>
                                                 </li>
-                                                <li v-bind:class="getClassTab('AULAS')" v-on:click="verTab('AULAS')">
-                                                    <a href="#3Conte" data-toggle="tab">Aulas</a>
+                                                <li v-bind:class="getClassTab('AULAGRUPO')" v-on:click="verTab('AULAGRUPO')">
+                                                    <a href="#3Conte" data-toggle="tab">Cambio Aula / Grupo</a>
                                                 </li>
                                                 <li v-bind:class="getClassTab('FUSIONES')" v-on:click="verTab('FUSIONES')">
                                                     <a href="#4Conte" data-toggle="tab">Fusiones</a>
@@ -445,7 +444,7 @@
                                         <div class="tab-pane" v-bind:class="getClassTab('AMPLIACIONES')" id="2Conte">
                                             <div th:substituteby="academico/gposeccion/includes/ampliaVacantesForm"/>
                                         </div>
-                                        <div class="tab-pane" v-bind:class="getClassTab('AULAS')" id="3Conte">
+                                        <div class="tab-pane" v-bind:class="getClassTab('AULAGRUPO')" id="3Conte">
                                             <div th:substituteby="academico/gposeccion/includes/aulaSeccionForm"/>
                                         </div>
                                         <div class="tab-pane" v-bind:class="getClassTab('FUSIONES')" id="4Conte">
@@ -460,7 +459,6 @@
                                 </section>
                             </section>
                         </transition>
-
                     </form>
                 </section>
             </div>

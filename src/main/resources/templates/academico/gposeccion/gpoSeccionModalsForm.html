@@ -157,3 +157,137 @@
 
     </div>
 </modal-vik>
+
+<modal-vik ref="modalEnviarSolicitud"
+           v-bind="enviarSolicitudModal"
+           v-bind:okaction="enviarSolicitudAceptar">
+
+    <div slot="body">
+
+        <form class="panel-body" id="formAulaGrupo"  data-parsley-validate="true">
+
+            
+
+            <div class="row">
+                <div class="col-md-6" >
+                    <div class="form-group">
+                        <label> Solicitante</label>
+                        <p class="capitalize text-primary h5 form-control-static m-t-xs" th:text="${session.SESSION_USUARIO.persona.nombreCompleto}"></p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Oficina </label>
+                        <vueselect name="oficina.id"  required="true" v-bind:valor="cambioaulagrupo.oficina" >
+                            <option></option>
+                            <option th:each="item : ${oficinas}"
+                                    th:value="${item.id}"
+                                    th:text="${item.nombre}"></option>
+                        </vueselect>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Aula</label>
+                        <multiselect  v-model="cambioaulagrupo.aulaFin"  
+                                      v-on:search-change="asyncFindCambioAulas"
+                                      v-bind:options="aulas"
+                                      track-by="id"
+                                      v-bind:internal-search="false"
+                                      v-bind:limit="15"
+                                      label="codigo">
+                            <template slot="option" slot-scope="props">
+                                <span class="block">Aula: {{props.option.codigo}}</span>
+                                <span class="block" v-if="props.option.nombre != '' ">{{props.option.nombre}}</span>
+                            </template>
+                        </multiselect>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label> Grupo </label>
+                        <multiselect  v-model="cambioaulagrupo.grupoFin"  
+                                      v-on:search-change="asyncFindCambioGrupos"
+                                      v-bind:options="grupos"
+                                      track-by="id"
+                                      v-bind:internal-search="false"
+                                      v-bind:limit="15"
+                                      label="codigo"
+                                      >
+                        </multiselect>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Motivo</label>
+                        <textarea class="form-control" 
+                                  style="resize: none;"
+                                  maxlength="200"  
+                                  required="true" name="motivo" ></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <a  v-if="seccionSeleccionada.tipoSeccion != 'TCUR' " 
+                        class="btn btn-info btn-sm pull-right m-t-xs m-b"
+                        v-on:click.prevent="enviarSolicitudAceptar()">
+                        Eniviar Solicitud
+                    </a> 
+                </div>
+            </div>
+
+            <div class="tab-pane">
+                <section class="block">
+                    <label class="control-label">Horario Aula :</label>
+                    <div class="table-responsive" >
+                        <table class="table table-bordered">
+
+                            <thead  style="width: 100%; display: block;">
+                                <tr>
+                                    <!--<th style="width: 100px !important;" class="text-center">Hora</th>
+                                    <th style="width: 15%" class="text-center"></th>-->
+                                </tr>
+                            </thead>
+                            <tbody style="width: 100%; height: 200px; display: block; overflow-y:auto;">
+                                <tr>
+                                    <!--
+                                    <td class="v-middle">
+                                        <span></span>
+                                    </td>
+                                    <td 
+                                        style="width: 15%"> 
+                                        <template >
+                                            <span >
+                                            </span>
+                                        </template>
+                                        <span class="form-control btn-danger">
+                                        </span>
+                                    </td>-->
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+
+                    <div class="col-md-4">
+                        <label class="control-label">Aula Anterior : </label>
+                        <p class="capitalize text-primary h5"  v-text="cambioaulagrupo.aulaInicial"></p>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="control-label">Grupo Anterior :</label>
+                        <p class="capitalize text-primary h5"  v-text="cambioaulagrupo.grupoInicial"></p>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</modal-vik>
+
