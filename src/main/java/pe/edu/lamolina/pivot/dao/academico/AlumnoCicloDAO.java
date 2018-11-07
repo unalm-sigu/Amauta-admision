@@ -87,4 +87,7 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
     List<AlumnoCiclo> allByControlMeritoFacultadNivel(DynatableFilter filter, ControlOrdenMerito controlBD, Integer nivel);
 
     List<AlumnoCiclo> allActivosRegularesByCicloResumen(CicloAcademico ciclo);
+
+    public AlumnoCiclo findActivosRegularesByCicloResumen(CicloAcademico cicloAcademico, Alumno alumno);
+
 }

@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -10,12 +11,12 @@ import pe.edu.lamolina.pivot.dao.academico.ConfiguracionTurnosAtencionDAO;
 
 @Repository
 public class ConfiguracionTurnosAtencionDAOH extends AbstractEasyDAO<ConfiguracionTurnosAtencion> implements ConfiguracionTurnosAtencionDAO {
-    
+
     public ConfiguracionTurnosAtencionDAOH() {
         super();
         setClazz(ConfiguracionTurnosAtencion.class);
     }
-    
+
     @Override
     public List<ConfiguracionTurnosAtencion> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
@@ -25,5 +26,5 @@ public class ConfiguracionTurnosAtencionDAOH extends AbstractEasyDAO<Configuraci
                 .filter("ca.id", ciclo);
         return all(sql);
     }
-    
+
 }

@@ -296,7 +296,7 @@
 //    });
 //
 //});
-
+Vue.component("multiselect", window.VueMultiselect.default)
 console.log(JSON.parse(cicloJson));
 console.log(JSON.parse(resumenJson));
 new Vue({
@@ -306,6 +306,8 @@ new Vue({
         ciclo: JSON.parse(cicloJson),
         resumen: JSON.parse(resumenJson),
         configTurno: [],
+        alumno: {},
+        alumnos: [],
         modalTurno: {
             id: 'modalTurno',
             header: true,
@@ -341,6 +343,7 @@ new Vue({
         },
         modal() {
             let $vue = this;
+            $vue.alumno = {};
             $vue.$refs.modalMatriculable.open();
         },
         generarPrioridad() {
@@ -352,8 +355,8 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.findCiclo();
-                        MODAL.hideWait();
                         $vue.$refs.load.loadRemoteData();
+                        MODAL.hideWait();
                         notify(response.message, "success");
                     }
                 },
@@ -371,9 +374,9 @@ new Vue({
                 url: APP.url('academico/matriculable/eliminarPrioridad'),
                 success: function (response) {
                     if (response.success) {
-                        MODAL.hideWait();
                         $vue.findCiclo();
                         $vue.$refs.load.loadRemoteData();
+                        MODAL.hideWait();
                     }
                 },
                 error: function () {
@@ -445,9 +448,9 @@ new Vue({
                 url: APP.url('academico/matriculable/finalizarPrioridad'),
                 success: function (response) {
                     if (response.success) {
-                        MODAL.hideWait();
                         $vue.findCiclo();
                         $vue.$refs.load.loadRemoteData();
+                        MODAL.hideWait();
                         notify(response.message, "success");
                     }
                 },
@@ -465,10 +468,10 @@ new Vue({
                 url: APP.url('academico/matriculable/generar'),
                 success: function (response) {
                     if (response.success) {
-                        MODAL.hideWait();
                         $vue.resumen = response.data;
                         $vue.findCiclo();
                         $vue.$refs.load.loadRemoteData();
+                        MODAL.hideWait();
                         notify(response.message, "success");
                     }
                 },
@@ -486,10 +489,10 @@ new Vue({
                 url: APP.url('academico/matriculable/limpiarMatriculable'),
                 success: function (response) {
                     if (response.success) {
-                        MODAL.hideWait();
                         $vue.resumen = response.data;
                         $vue.findCiclo();
                         $vue.$refs.load.loadRemoteData();
+                        MODAL.hideWait();
                         notify(response.message, "success");
                     }
                 },
@@ -507,10 +510,10 @@ new Vue({
                 url: APP.url('academico/matriculable/finalizarMatriculable'),
                 success: function (response) {
                     if (response.success) {
-                        MODAL.hideWait();
                         $vue.resumen = response.data;
                         $vue.findCiclo();
                         $vue.$refs.load.loadRemoteData();
+                        MODAL.hideWait();
                         notify(response.message, "success");
                     }
                 },
@@ -519,6 +522,59 @@ new Vue({
                     MODAL.hideWait();
                 }
             });
+        },
+        saveMatriculable() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/saveMatriculable'),
+                contentType: "application/json",
+                data: JSON.stringify($vue.alumno),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.findCiclo();
+                        $vue.$refs.load.loadRemoteData();
+                        $vue.$refs.modalMatriculable.close();
+                        MODAL.hideWait();
+                        notify(response.message, "success");
+                    }else{
+                        MODAL.hideWait();
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
+        loadAlumno(nombre) {
+            let $vue = this;
+            this.isLoading = true
+
+            if (nombre != '' || nombre != null || nombre != undefined) {
+
+                $.ajax({
+                    url: APP.url("academico/matriculable/allAlumnoByNombre"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: {nombre: nombre}
+                }).then(response => {
+                    if (response.success) {
+                        $vue.alumnos = response.data;
+                    }
+
+                    this.isLoading = false;
+                })
+
+            }
+        },
+        customLabel( {persona, codigo}){
+            if (persona != null) {
+                return  codigo + " - " + persona.nombreCompleto;
+            }
+            return "";
         }
     }
 });

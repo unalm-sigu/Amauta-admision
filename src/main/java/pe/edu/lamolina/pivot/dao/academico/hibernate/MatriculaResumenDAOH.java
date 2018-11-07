@@ -16,12 +16,15 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
 public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> implements MatriculaResumenDAO {
@@ -201,7 +204,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("prm_turno", turnoAtencion.getId());
         query.setParameter("prm_prioridad_ini", BigDecimal.valueOf(turnoAtencion.getPrioridadInicio()));
-        query.setParameter("prm_prioridad_fin", BigDecimal.valueOf(turnoAtencion.getPrioridadFin()));
+        query.setParameter("prm_prioridad_fin", turnoAtencion.getPrioridadFin());
         query.setParameter("prm_ciclo", cicloAcademico.getId());
         query.executeUpdate();
     }
@@ -272,6 +275,136 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("ciclo", cicloAcademico.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public void savePosGrado(List<String> situacionesPosgrado, CicloAcademico academico) {
+        StringBuilder strb = new StringBuilder("");
+        strb.append("insert into ");
+        strb.append("MatriculaResumen ");
+        strb.append("(");
+        strb.append("alumno,");
+        strb.append("cicloAcademico,");
+        strb.append("situacionInicio,");
+        strb.append("creditosRetirados,");
+        strb.append("creditosMatriculados,");
+        strb.append("cursosMatriculados,");
+        strb.append("cursosRetirados,");
+        strb.append("porcentajeAvance,");
+        strb.append("notaAcumulada,");
+        strb.append("notaAvance,");
+        strb.append("notaFinal,");
+        strb.append("estado");
+        strb.append(")");
+        strb.append("select ");
+        strb.append("alum,");
+        strb.append("cic, ");
+        strb.append("sit, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("'0', ");
+        strb.append("'0', ");
+        strb.append("'0', ");
+        strb.append("'NMAT' ");
+        strb.append("from Alumno alum ");
+        strb.append("inner join alum.modalidadEstudio me ");
+        strb.append("inner join alum.situacionAcademica sit, ");
+        strb.append("CicloAcademico cic ");
+        strb.append("where sit.codigo in ( :codigos ) and me.codigo = 'EPG'");
+        strb.append("and cic.id = :ciclo ");
+        strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("ciclo", academico.getId());
+        query.setParameterList("codigos", situacionesPosgrado);
+        query.executeUpdate();
+    }
+
+    @Override
+    public void savePreGrado(List<String> situacionesPregrado, CicloAcademico academico) {
+        StringBuilder strb = new StringBuilder("");
+        strb.append("insert into ");
+        strb.append("MatriculaResumen ");
+        strb.append("(");
+        strb.append("alumno,");
+        strb.append("cicloAcademico,");
+        strb.append("situacionInicio,");
+        strb.append("creditosRetirados,");
+        strb.append("creditosMatriculados,");
+        strb.append("cursosMatriculados,");
+        strb.append("cursosRetirados,");
+        strb.append("porcentajeAvance,");
+        strb.append("notaAcumulada,");
+        strb.append("notaAvance,");
+        strb.append("notaFinal,");
+        strb.append("estado");
+        strb.append(")");
+        strb.append("select ");
+        strb.append("alum,");
+        strb.append("cic, ");
+        strb.append("sit, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("'0', ");
+        strb.append("'0', ");
+        strb.append("'0', ");
+        strb.append("'NMAT' ");
+        strb.append("from Alumno alum ");
+        strb.append("inner join alum.modalidadEstudio me ");
+        strb.append("inner join alum.situacionAcademica sit, ");
+        strb.append("CicloAcademico cic ");
+        strb.append("where sit.codigo in ( :codigos ) and me.codigo = 'PRE'");
+        strb.append("and cic.id = :ciclo ");
+        strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("ciclo", academico.getId());
+        query.setParameterList("codigos", situacionesPregrado);
+        query.executeUpdate();
+    }
+
+    @Override
+    public MatriculaResumen findByAntPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo) {
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("mr.cicloAcademico aca", "alumno alum")
+                .join("alum.situacionAcademica sit", "alum.modalidadEstudio mod");
+        if (esUltimoCiclo) {
+            sql.filter("alum.creditosAprobados", ">", Constantine.CAPA_ULTIMO_CICLO);
+        } else {
+            sql.filter("alum.creditosAprobados", "<", Constantine.CAPA_ULTIMO_CICLO);
+        }
+        sql.filter("aca.id", cicloAcademico)
+                .filter("mr.puntajePrioridad", "<=", matri.getPuntajePrioridad())
+                .orderBy("mr.puntajePrioridad desc")
+                .limit(1);
+
+        return find(sql);
+    }
+
+    @Override
+    public MatriculaResumen findByDesPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo) {
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("mr.cicloAcademico aca", "alumno alum")
+                .join("alum.situacionAcademica sit", "alum.modalidadEstudio mod");
+        if (esUltimoCiclo) {
+            sql.filter("alum.creditosAprobados", ">", Constantine.CAPA_ULTIMO_CICLO);
+        } else {
+            sql.filter("alum.creditosAprobados", "<", Constantine.CAPA_ULTIMO_CICLO);
+        }
+        sql.filter("aca.id", cicloAcademico)
+                .filter("mr.puntajePrioridad", ">=", matri.getPuntajePrioridad())
+                .orderBy("mr.puntajePrioridad asc")
+                .limit(1);
+
+        return find(sql);
     }
 
 }

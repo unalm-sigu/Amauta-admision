@@ -1,9 +1,11 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
@@ -49,6 +51,18 @@ public class TurnoAtencionDAOH extends AbstractEasyDAO<TurnoAtencion> implements
                 .filter("cta.id", config.getId())
                 .orderBy("ta.fechaHoraInicio asc")
                 .limit(1);
+        return find(sql);
+    }
+
+    @Override
+    public TurnoAtencion findByPrioridad(BigDecimal prioridad, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(TurnoAtencion.class, "ta")
+                .join("configuracionTurnosAtencion cta")
+                .join("cta.eventoCicloAcademico eca", "eca.cicloAcademico ca")
+                .filter("ca.id", ciclo)
+                .filter("ta.prioridadInicio", "<=", prioridad)
+                .filter("ta.prioridadFin", ">=", prioridad);
         return find(sql);
     }
 

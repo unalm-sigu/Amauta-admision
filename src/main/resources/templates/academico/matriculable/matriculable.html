@@ -14,14 +14,14 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li v-if="ciclo.fechaMatriculables == null"><a  v-on:click="generarMatriculables" >Generar</a></li>
-                            <li v-if="ciclo.fechaMatriculables != null"><a  v-on:click="limpiarMatriculables" >Limpiar matriculable</a></li>
+                            <li v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="limpiarMatriculables" >Limpiar matriculable</a></li>
                             <li v-if="ciclo.fechaCierreMatriculable == null"><a  v-on:click="finalizarMatriculable" >Finalizar matriculable</a></li>
                             <li ><a  v-on:click="modal">Agregar Matriculable</a></li>
                             <!--<li><a  id="agregarMatriculable">Modal Matriculable</a></li>-->
-                            <li v-if="ciclo.fechaPrioridades == null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
+                            <li v-if="ciclo.fechaPrioridades == null &amp;&amp; ciclo.fechaCierrePrioridades==null &amp;&amp; ciclo.fechaCierreMatriculable != null" ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
                             <li v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="eliminarPrioridad">Limpiar Prioridades</a></li>
                             <li v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="finalizarPrioridad">Finalizar Prioridades</a></li>
-                            <li v-if="ciclo.fechaPrioridades != null" ><a v-on:click="findConfiguraciones">Asignar Turnos</a></li>
+                            <li v-if="ciclo.fechaCierrePrioridades != null" ><a v-on:click="findConfiguraciones">Asignar Turnos</a></li>
                             <li><a id="subirEgresado">Subir Egresados</a></li>
                         </ul>
                     </div>
@@ -64,7 +64,7 @@
 
                     <section class="panel">
                         <section class="panel-body">
-                            <raptor-table v-bind:url="matriculaURL" ref="load">
+                            <raptor-table v-bind:url="matriculaURL"  ref="load">
                                 <div slot="header"></div>
                                 <template scope="props" >
                                     <table class="table table-striped table-hover">

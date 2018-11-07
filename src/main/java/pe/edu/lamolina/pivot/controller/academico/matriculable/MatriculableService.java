@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -40,5 +41,9 @@ public interface MatriculableService {
     public void finalizarMatriculable(CicloAcademico cicloAcademico);
 
     public void limpiarMatriculable(CicloAcademico cicloAcademico);
+
+    public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
+
+    public void saveMatriculable(Alumno alumno, DataSessionPivot ds);
 
 }

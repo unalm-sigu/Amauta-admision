@@ -1,23 +1,22 @@
 <modal-vik ref="modalMatriculable"
-           v-bind="modalMatriculable">
+           v-bind="modalMatriculable"
+           v-bind:okaction="saveMatriculable">
     <div slot="body">
         <div class="modal-body">
             <form id="formMatriculable" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
                 <div class="row m-b-md">
-<!--                    <div class="form-group">
-                        <div class="col-md-12 text-center">
-                            <input type="text" class="form-control"/>
-                        </div>
-                    </div>-->
-                    <hr/>
                     <div class="form-group">
-<!--                        <label for="ciclos" class="col-md-12 control-label">Modalidad de Estudio</label>
                         <div class="col-md-12">
-                            <multiselect v-model="disponibilidad.colaborador" 
-                                         v-bind:options='asistentas'
-                                         v-bind:custom-label='nombre'
+                            <label>Alumno</label>
+                            <multiselect v-model="alumno" 
+                                         v-bind:options='alumnos'
+                                         v-on:search-change="loadAlumno"
+                                         v-bind:custom-label='customLabel'
                                          track-by='id'
-                                         placeholder="Seleccione tipo de trámite"
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Ingresa un caracter como mínimo"
                                          required="true" >
                                 <template slot="option" slot-scope="props">
                                     <div class="option__desc">
@@ -26,14 +25,9 @@
                                     </div>
                                 </template>
                             </multiselect>
-                            <select name="" required="true" class="form-control select2">
-                                <option></option>
-                                <option th:each="item : ${modalidades}"  
-                                        th:text="${item.nombre}"
-                                        th:value="${item.id}" ></option>
-                            </select>
-                        </div>-->
+                        </div>
                     </div>
+                    <hr/>
                 </div>
             </form>
         </div>
