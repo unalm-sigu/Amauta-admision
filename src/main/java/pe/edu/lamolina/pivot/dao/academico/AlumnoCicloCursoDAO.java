@@ -5,8 +5,11 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.tramite.AutorizacionRegistro;
 
@@ -30,9 +33,19 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     List<AlumnoCicloCurso> allDesaprobadoActivoByAlumno(Alumno alumno);
 
+    Long countByCursoAlumnoAnterioresCicloReg(Curso curso, Alumno alumno, CicloAcademico cicloAcademico);
+
     Long countByCursoAlumno(Curso curso, Alumno alumno);
 
     List<AlumnoCicloCurso> allOperativesByAlumnoAnterioresCiclo(Alumno alumno, CicloAcademico cicloAcademico);
+
+    List<AlumnoCicloCurso> allOperatives(ModalidadEstudio modalidadEstudio,
+            Carrera carrera,
+            List<SituacionAcademica> situaciones,
+            EstadoMatriculaEnum estadoMatriculaEnum);
+
+    List<AlumnoCicloCurso> allFullDataByAlumno(Alumno alumno,
+            EstadoMatriculaEnum estadoMatriculaEnum);
 
     List<AlumnoCicloCurso> allOperativesByAlumnoCicloLessOrEqual(Alumno alumno, CicloAcademico cicloAcademico);
 

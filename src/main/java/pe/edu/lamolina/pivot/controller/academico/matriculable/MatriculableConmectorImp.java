@@ -69,6 +69,7 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         BigDecimal puntajePrioridad = factor1.multiply(factor2);
         puntajePrioridad = puntajePrioridad.multiply(alumnoCiclo.getPromedioCiclo());
         
+        matriculaResumen.setCreditosAprobadosAcumulados(capa);
         matriculaResumen.setPuntajePrioridad(puntajePrioridad);
     }
 

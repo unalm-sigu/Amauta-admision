@@ -10,10 +10,14 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.tramite.AutorizacionRegistro;
 
 @Repository
@@ -181,6 +185,64 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     }
 
     @Override
+    public List<AlumnoCicloCurso> allOperatives(ModalidadEstudio modalidadEstudio,
+            Carrera carrera,
+            List<SituacionAcademica> situaciones,
+            EstadoMatriculaEnum estadoMatriculaEnum) {
+
+        Octavia sql0 = Octavia.query()
+                .from(Alumno.class, "alu0")
+                .join("modalidadEstudio me0", "situacionAcademica sa0", "cicloActivo ca0")
+                .join("persona per0", "carrera car0", "car0.facultad fa0")
+                .leftJoin("per0.tipoDocumento td0", "cicloActivo cia0", "cicloIngreso ci0")
+                .filter("me0.id", modalidadEstudio)
+                .filter("car0.id", carrera)
+                .in("sa0.id", situaciones);
+
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera")
+                //   .filter("ca.codigo", "<", cicloAcademico.getCodigo())
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
+                .exists(sql0)
+                .linkedBy("al.id", "alu0.id")
+                .orderBy("ca.codigo desc", "cu.nombre");
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allFullDataByAlumno(Alumno alumno,
+            EstadoMatriculaEnum estadoMatriculaEnum) {
+
+        Octavia sql0 = Octavia.query()
+                .from(Alumno.class, "alu0")
+                .join("modalidadEstudio me0", "situacionAcademica sa0", "cicloActivo ca0")
+                .join("persona per0", "carrera car0", "car0.facultad fa0")
+                .leftJoin("per0.tipoDocumento td0", "cicloActivo cia0", "cicloIngreso ci0")
+                .filter("alu0.id", alumno);
+
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera")
+                //   .filter("ca.codigo", "<", cicloAcademico.getCodigo())
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
+                .exists(sql0)
+                .linkedBy("al.id", "alu0.id")
+                .orderBy("ca.codigo desc", "cu.nombre");
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
     public List<AlumnoCicloCurso> allOperativesByAlumnoCicloLessOrEqual(Alumno alumno, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
@@ -237,6 +299,24 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .filter("ca.codigo", "<", cicloAcademico.getCodigo())
                 .filter("al.id", alumno)
                 .filter("cu.id", curso)
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name());
+
+        return (Long) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public Long countByCursoAlumnoAnterioresCicloReg(Curso curso, Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .selectCount()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera")
+                .filter("ca.codigo", "<", cicloAcademico.getCodigo())
+                .filter("al.id", alumno)
+                .filter("cu.id", curso)
+                .filter("ca.tipo", TipoCicloEnum.REG)
                 .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name());
 
