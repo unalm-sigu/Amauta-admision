@@ -604,4 +604,40 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         return alumnosCiclos;
     }
 
+    @Override
+    public AlumnoCiclo findActivosRegularesByCicloResumen(CicloAcademico ciclo, Alumno alumno) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select {ac.*},{a.*},{sa.*} ");
+        sql.append("   from aca_alumno_ciclo as ac ");
+        sql.append("   join aca_ciclo_academico as ca on ca.id = ac.id_ciclo_academico ");
+        sql.append("   join aca_alumno a on a.id = ac.id_alumno  ");
+        sql.append("   join aca_situacion_academica sa on sa.id = a.id_situacion_academica ");
+        sql.append("   join ( ");
+        sql.append("            select aacc.id_alumno as id_alumno, max(ccaa.codigo) as codigo ");
+        sql.append("              from aca_alumno_ciclo as aacc ");
+        sql.append("              join aca_ciclo_academico as ccaa on ccaa.id = aacc.id_ciclo_academico ");
+        sql.append("             where aacc.estado = :MAT ");
+        sql.append("               and ccaa.tipo = :REG and aacc.id_alumno = :alumno");
+        sql.append("             group by aacc.id_alumno ");
+        sql.append("     ) wac on wac.id_alumno = a.id and wac.codigo = ca.codigo ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addEntity("ac", AlumnoCiclo.class)
+                .addEntity("a", Alumno.class)
+                .addEntity("sa", SituacionAcademica.class);
+
+        query.setParameter("MAT", "MAT");
+        query.setParameter("REG", "REG");
+        query.setParameter("alumno", alumno.getId());
+
+        Object[] row = (Object[]) query.uniqueResult();
+        AlumnoCiclo ac = (AlumnoCiclo) row[0];
+        Alumno alu = (Alumno) row[1];
+        SituacionAcademica sit = (SituacionAcademica) row[2];
+
+        ac.setAlumno(alu);
+        alu.setSituacionAcademica(sit);
+
+        return ac;
+    }
 }

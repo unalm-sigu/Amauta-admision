@@ -105,6 +105,7 @@ var app = new Vue({
         ciclo: {},
         grupoSeccion: {},
         navega: {},
+        oficinas: [],
         btnNavega: {left: true, right: true},
         idxSeccion: 0,
         secciones: null,
@@ -170,6 +171,19 @@ var app = new Vue({
             okbtn: 'Solicitar',
             modalsize: 'modal-md'
         },
+        enviarCambioAulaGrupoModal: {
+            id: 'modalEnviarCambioAulaGrupo',
+            header: true,
+            title: 'Cambio Aula / Grupo',
+            okbtn: 'Solicitar',
+            modalsize: 'modal-lg'
+        },
+        cambioaulagrupos: [],
+        changeAulaGpo: {
+            oficina: {},
+            aulaInicio: {},
+            grupoInicio: {}
+        },
         ampliaciones: [],
         ampliacionVacante: {
             id: 'ampliacionVacanteId',
@@ -210,7 +224,9 @@ var app = new Vue({
         //isShowTabFusion: false,
         //cantidadTrasladados: 0,
         editaPrecio: false,
-        guardaPrecio: false
+        guardaPrecio: false,
+        aulas: [],
+        grupos: []
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -234,6 +250,7 @@ var app = new Vue({
         this.grupoSeccion = JSON.parse(gpoSeccionJson);
         this.navega = JSON.parse(navigationJson);
         this.ciclo = JSON.parse(cicloJson);
+        this.oficinas = JSON.parse(oficinasJson);
         this.loadDataPantalla();
 
     },
@@ -278,6 +295,7 @@ var app = new Vue({
             $vue.seccionSeleccionada = $vue.secciones[$vue.idxSeccion];
             $vue.docentesSeccion = $vue.seccionSeleccionada.docenteSeccion;
             $vue.ampliaciones = $vue.seccionSeleccionada.ampliacionesVacantes;
+            $vue.cambioaulagrupos = $vue.seccionSeleccionada.cambioAulaGrupos;
             $vue.refreshDataFusion();
             setTimeout(function () {
                 $vue.verDocentes = true;
@@ -927,6 +945,7 @@ var app = new Vue({
             docSeccionSend.id = docSeccion.id;
             docSeccionSend.fechaInicio = docSeccion.fechaInicio;
             MODAL.showWait("Espere un momento por favor");
+
             $.ajax({
                 url: APP.url('academico/gposeccion/updateFechaInicio'),
                 dataType: "json",
@@ -1518,8 +1537,85 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }
+        },
+        enviarCambioAulaGrupo() {
+
+            let $vue = this;
+
+            $vue.changeAulaGpo = {
+                oficina: {}
+            };
+
+            $vue.changeAulaGpo.seccion = $vue.seccionSeleccionada;
+            $vue.$refs.modalEnviarCambioAulaGrupo.open();
+
+        },
+        enviarCambioAulaGrupoAceptar() {
+
+            let $vue = this;
+
+            if ($('#formAulaGrupo').parsley().validate() !== true) {
+                return;
+            }
+//            console.log($vue.changeAulaGpo);
+            $.ajax({
+                url: APP.url('academico/gposeccion/savecambioaulagrupo'),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify($vue.changeAulaGpo),
+                success: function (response) {
+                    if (response.success) {
+
+//                        $vue.allSolicitarIncremento();
+                        $vue.$refs.modalEnviarCambioAulaGrupo.close();
+                        notify(response.message, 'info');
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        asyncFindCambioAulas(nombre) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url("academico/gposeccion/asyncFindCambioAulas"),
+                dataType: 'json',
+                type: 'post',
+                data: {
+                    nombre: nombre
+                },
+            }).then(response => {
+                $vue.aulas = response.data;
+                if ($vue.aulas == null) {
+                    $vue.aulas = [];
+                }
+            })
+        },
+        asyncFindCambioGrupos(nombre) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url("academico/gposeccion/asyncFindCambioGrupos"),
+                dataType: 'json',
+                type: 'post',
+                data: {
+                    nombre: nombre
+                },
+            }).then(response => {
+                $vue.grupos = response.data;
+                if ($vue.grupos == null) {
+                    $vue.grupos = [];
+                }
+            })
+        },
+
     }
 });
 
-    
+

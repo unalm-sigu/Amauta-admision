@@ -1002,6 +1002,22 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
+    public List<Aula> searchCambioAulaByName(String nombre, CicloAcademico ciclo) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        List<Aula> aulas = aulaDAO.searchByNombreFilter(nombre, 15);
+
+        return aulas;
+    }
+
+    @Override
+    public List<GrupoHoras> searchCambioGrupoByName(String nombre, CicloAcademico ciclo) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        List<GrupoHoras> gruposHoras = grupoHorasDAO.searchByNombreFilter(nombre, 15);
+
+        return gruposHoras;
+    }
+
+    @Override
     @Transactional
     public void cambiarDocentePrincipal(DocenteSeccion docenteSeccion) {
         docenteSeccion = docenteSeccionDAO.find(docenteSeccion.getId());
@@ -2337,5 +2353,4 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         return lista;
     }
-
 }

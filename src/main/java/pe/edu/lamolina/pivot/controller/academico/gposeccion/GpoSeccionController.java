@@ -43,6 +43,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.CambioAulaGrupo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -223,6 +224,7 @@ public class GpoSeccionController {
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
         model.addAttribute("navigationJson", createNavegationJson(ruta, gpos, gpoSeccId, ds.getCicloAcademico()).toString());
         model.addAttribute("origen", ruta);
+        model.addAttribute("oficinasJson", createOficinasJson(oficinas).toString());
         model.addAttribute("oficinas", oficinas);
 
         return "academico/gposeccion/gpoSeccionForm";
@@ -374,6 +376,24 @@ public class GpoSeccionController {
             result.set("minFechaPeriodo", null);
             result.set("maxFechaPeriodo", null);
         }*/
+        jsonResponse.setSuccess(true);
+        jsonResponse.setData(result);
+        return jsonResponse;
+    }
+
+    @ResponseBody
+    @RequestMapping("{seccion}/loadCambiarAulaGrupo")
+    public JsonResponse loadCambiarAulaGrupo(@PathVariable("seccion") Long seccionId, HttpSession session) {
+        JsonResponse jsonResponse = new JsonResponse();
+        JsonNodeFactory nc = JsonNodeFactory.instance;
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        ObjectNode result = new ObjectNode(nc);
+
+        Seccion seccion = service.findSeccion(seccionId);
+
+        JsonHelper.createJson(new CambioAulaGrupo(), nc, false, new String[]{"*"});
+
         jsonResponse.setSuccess(true);
         jsonResponse.setData(result);
         return jsonResponse;
@@ -887,6 +907,71 @@ public class GpoSeccionController {
             for (Aula aula : aulas) {
                 ObjectNode json = JsonHelper.createJson(aula, jsonFactory, true, new String[]{"*", "aulaSuperior.nombre"});
                 json.put("esEspecifica", Boolean.TRUE);
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("asyncFindCambioAulas")
+    public JsonResponse asyncFindCambioAulas(
+            @RequestParam("nombre") String nombre,
+            HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            List<Aula> aulas = service.searchCambioAulaByName(nombre, ciclo);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Aula aula : aulas) {
+                ObjectNode json = JsonHelper.createJson(aula, jsonFactory, true, new String[]{"*", "aulaSuperior.nombre"});
+                json.put("esEspecifica", Boolean.TRUE);
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("asyncFindCambioGrupos")
+    public JsonResponse asyncFindCambioGrupos(
+            @RequestParam("nombre") String nombre,
+            HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            List<GrupoHoras> gruposHoras = service.searchCambioGrupoByName(nombre, ciclo);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (GrupoHoras gruposHora : gruposHoras) {
+                ObjectNode json = JsonHelper.createJson(gruposHora, jsonFactory, true, new String[]{"*"});
                 jsonList.add(json);
             }
 
@@ -2279,7 +2364,22 @@ public class GpoSeccionController {
                 "ampliacionesVacantes.colaborador.cargo.nombre",
                 "ampliacionesVacantes.colaborador.persona.nombreCompleto",
                 "ampliacionesVacantes.oficina.id",
-                "ampliacionesVacantes.oficina.nombre",});
+                "ampliacionesVacantes.oficina.nombre",
+                "cambioAulaGrupos.*",
+                "cambioAulaGrupos.seccion.id",
+                "cambioAulaGrupos.colaborador.id",
+                "cambioAulaGrupos.colaborador.cargo.nombre",
+                "cambioAulaGrupos.colaborador.persona.nombreCompleto",
+                "cambioAulaGrupos.oficina.id",
+                "cambioAulaGrupos.oficina.nombre",
+                "cambioAulaGrupos.aulaInicio.id",
+                "cambioAulaGrupos.aulaInicio.codigo",
+                "cambioAulaGrupos.aulaFin.id",
+                "cambioAulaGrupos.aulaFin.codigo",
+                "cambioAulaGrupos.grupoHorasInicio.id",
+                "cambioAulaGrupos.grupoHorasInicio.codigo",
+                "cambioAulaGrupos.grupoHorasFin.id",
+                "cambioAulaGrupos.grupoHorasFin.codigo"});
 
             BigDecimal porcentajeAvance = BigDecimal.ZERO;
             for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
@@ -2447,10 +2547,21 @@ public class GpoSeccionController {
         }
         return gpos;
     }
-    
+
     private ObjectNode createResumenJson(GpoSeccionResumen resumen) {
         ObjectNode nodeJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
         return nodeJson;
+    }
+
+    private ArrayNode createOficinasJson(List<Oficina> oficinas) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (Oficina oficina : oficinas) {
+            ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
+                "*"
+            });
+            array.add(node);
+        }
+        return array;
     }
 
 }

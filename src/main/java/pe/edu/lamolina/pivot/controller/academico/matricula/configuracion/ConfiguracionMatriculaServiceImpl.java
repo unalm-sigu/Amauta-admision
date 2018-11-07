@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.matricula.configuracion;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
 import org.joda.time.DateTime;
@@ -40,7 +41,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
                 config.setTipo(d.name());
             }
         };
-
+        config.setIsGenerado(Boolean.FALSE);
         configuracionMatriculaDAO.save(config);
 
         DateTime inicio = new DateTime(config.getFechaInicio());
@@ -74,7 +75,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
 
                 turno.setPrioridadInicio(prioridad);
                 prioridad += config.getAlumnos() - 1;
-                turno.setPrioridadFin(prioridad);
+                turno.setPrioridadFin(new BigDecimal(prioridad));
 
                 turnoAtencionDAO.save(turno);
                 nroTurno++;
@@ -105,7 +106,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
     public ConfiguracionTurnosAtencion updateTurnos(Long id, String value) {
         TurnoAtencion objTurno = turnoAtencionDAO.findById(id);
         objTurno.setAlumnos(Integer.parseInt(value));
-        objTurno.setPrioridadFin(objTurno.getPrioridadInicio() + Integer.parseInt(value) - 1);
+        objTurno.setPrioridadFin(new BigDecimal(objTurno.getPrioridadInicio() + Integer.parseInt(value) - 1));
         turnoAtencionDAO.update(objTurno);
 
         List<TurnoAtencion> lstTurno = turnoAtencionDAO.allByIdTurno(objTurno.getConfiguracionTurnosAtencion(), objTurno.getId());
@@ -113,7 +114,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
         for (TurnoAtencion turnoAtencion : lstTurno) {
             Integer fin = (inicial + turnoAtencion.getAlumnos());
             turnoAtencion.setPrioridadInicio(inicial);
-            turnoAtencion.setPrioridadFin(fin - 1);
+            turnoAtencion.setPrioridadFin(new BigDecimal(fin - 1));
             turnoAtencionDAO.update(turnoAtencion);
             inicial = fin;
 

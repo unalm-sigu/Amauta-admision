@@ -46,8 +46,9 @@
                                         <small v-text="turno.prioridadFin" class="pull-right circular"></small>
                                     </span>
                                     <span class="block text-center" >
-                                        <a href="#" v-bind:id="turno.id" v-text="turno.alumnos" >
+                                        <a href="#" v-bind:id="turno.id" v-text="turno.alumnos" v-if="!turno.isGenerado">
                                         </a>
+                                        <h3 v-else="" v-text="turno.alumnos" class="text-primary"></h3>
                                         <i class="fa fa-industry circular editer-icon pull-right" v-on:click="matricular(turno)"  ></i>
                                     </span>
                                 </div>
