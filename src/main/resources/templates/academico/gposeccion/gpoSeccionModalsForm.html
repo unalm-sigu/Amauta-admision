@@ -158,13 +158,16 @@
     </div>
 </modal-vik>
 
-<modal-vik ref="modalEnviarSolicitud"
-           v-bind="enviarSolicitudModal"
-           v-bind:okaction="enviarSolicitudAceptar">
+<modal-vik ref="modalEnviarCambioAulaGrupo"
+           v-bind="enviarCambioAulaGrupoModal"
+           v-bind:okaction="enviarCambioAulaGrupoAceptar">
 
     <div slot="body">
 
         <form class="panel-body" id="formAulaGrupo"  data-parsley-validate="true">
+
+            
+
             <div class="row">
                 <div class="col-md-6" >
                     <div class="form-group">

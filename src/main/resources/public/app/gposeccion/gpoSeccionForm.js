@@ -171,11 +171,11 @@ var app = new Vue({
             okbtn: 'Solicitar',
             modalsize: 'modal-md'
         },
-        enviarSolicitudModal: {
-            id: 'modalEnviarSolicitud',
+        enviarCambioAulaGrupoModal: {
+            id: 'modalEnviarCambioAulaGrupo',
             header: true,
             title: 'Cambio Aula / Grupo',
-//            okbtn: 'Solicitar',
+            okbtn: 'Solicitar',
             modalsize: 'modal-lg'
         },
         cambioaulagrupos: [],
@@ -1538,7 +1538,7 @@ var app = new Vue({
                 }
             });
         },
-        enviarSolicitud() {
+        enviarCambioAulaGrupo() {
 
             let $vue = this;
 
@@ -1547,30 +1547,17 @@ var app = new Vue({
             };
 
             $vue.changeAulaGpo.seccion = $vue.seccionSeleccionada;
-            $vue.$refs.modalEnviarSolicitud.open();
+            $vue.$refs.modalEnviarCambioAulaGrupo.open();
 
         },
-        enviarSolicitudAceptar() {
+        enviarCambioAulaGrupoAceptar() {
 
             let $vue = this;
 
             if ($('#formAulaGrupo').parsley().validate() !== true) {
                 return;
             }
-            console.log($vue.changeAulaGpo);
-
-//            if ($vue.ampliacionVacante.vacantesFin < $vue.seccionSeleccionada.matriculados) {
-//                swal({text: 'Ya existen alumnos matriculados', icon: "error", dangerMode: true, button: {text: "Aceptar"}});
-//                return;
-//            }
-//
-//            if ($vue.seccionSeleccionada.aula.capacidadAula > 0) {
-//                if ($vue.ampliacionVacante.total > $vue.seccionSeleccionada.aula.capacidadAula) {
-//                    swal({text: 'Ha sobrepasado la capacidad del aula', icon: "error", dangerMode: true, button: {text: "Aceptar"}});
-//                    return;
-//                }
-//            }
-
+//            console.log($vue.changeAulaGpo);
             $.ajax({
                 url: APP.url('academico/gposeccion/savecambioaulagrupo'),
                 dataType: "json",
@@ -1581,8 +1568,8 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
 
-                        $vue.allSolicitarIncremento();
-                        $vue.$refs.modalSolicitarIncremento.close();
+//                        $vue.allSolicitarIncremento();
+                        $vue.$refs.modalEnviarCambioAulaGrupo.close();
                         notify(response.message, 'info');
 
                     } else {
