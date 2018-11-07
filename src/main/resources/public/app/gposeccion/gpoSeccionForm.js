@@ -105,6 +105,7 @@ var app = new Vue({
         ciclo: {},
         grupoSeccion: {},
         navega: {},
+        oficinas: [],
         btnNavega: {left: true, right: true},
         idxSeccion: 0,
         secciones: null,
@@ -170,20 +171,18 @@ var app = new Vue({
             okbtn: 'Solicitar',
             modalsize: 'modal-md'
         },
-        enviarSolicitudModal: {
-            id: 'modalEnviarSolicitud',
+        enviarCambioAulaGrupoModal: {
+            id: 'modalEnviarCambioAulaGrupo',
             header: true,
             title: 'Cambio Aula / Grupo',
-//            okbtn: 'Solicitar',
+            okbtn: 'Solicitar',
             modalsize: 'modal-lg'
         },
         cambioaulagrupos: [],
-        cambioaulagrupo: {
-            id: "",
-            oficina: {id: ""},
-            aulaInicio: {id: ""},
-            grupoInicio: {id: ""},
-            motivo: ""
+        changeAulaGpo: {
+            oficina: {},
+            aulaInicio: {},
+            grupoInicio: {}
         },
         ampliaciones: [],
         ampliacionVacante: {
@@ -251,6 +250,7 @@ var app = new Vue({
         this.grupoSeccion = JSON.parse(gpoSeccionJson);
         this.navega = JSON.parse(navigationJson);
         this.ciclo = JSON.parse(cicloJson);
+        this.oficinas = JSON.parse(oficinasJson);
         this.loadDataPantalla();
 
     },
@@ -945,6 +945,7 @@ var app = new Vue({
             docSeccionSend.id = docSeccion.id;
             docSeccionSend.fechaInicio = docSeccion.fechaInicio;
             MODAL.showWait("Espere un momento por favor");
+
             $.ajax({
                 url: APP.url('academico/gposeccion/updateFechaInicio'),
                 dataType: "json",
@@ -1537,61 +1538,38 @@ var app = new Vue({
                 }
             });
         },
-        enviarSolicitud() {
+        enviarCambioAulaGrupo() {
 
             let $vue = this;
 
-            var tipo = $vue.seccionSeleccionada.tipoSeccion;
-            if (tipo == 'TCUR') {
-                return;
-            }
-//
-//            $vue.ampliacionVacante = {
-//                id: null,
-//                motivo: '',
-//                colaborador: {id: null},
-//                oficina: {id: null},
-//                seccion: $vue.seccionSeleccionada,
-//                vacantesInicio: $vue.seccionSeleccionada.vacantes,
-//                incremento: 0,
-//                vacantesFin: 0
-//            }
-            $vue.cambioaulagrupo.oficina = $vue.seccionSeleccionada.oficina;
-            $vue.cambioaulagrupo.aulaFin = $vue.seccionSeleccionada.aula;
-            $vue.cambioaulagrupo.grupoHorasFin = $vue.seccionSeleccionada.grupoHoras;
-            $vue.$refs.modalEnviarSolicitud.open();
+            $vue.changeAulaGpo = {
+                oficina: {}
+            };
+
+            $vue.changeAulaGpo.seccion = $vue.seccionSeleccionada;
+            $vue.$refs.modalEnviarCambioAulaGrupo.open();
 
         },
-        enviarSolicitudAceptar() {
+        enviarCambioAulaGrupoAceptar() {
 
             let $vue = this;
 
             if ($('#formAulaGrupo').parsley().validate() !== true) {
                 return;
             }
-            console.log($vue.cambioaulagrupo);
-
-//            if ($vue.ampliacionVacante.vacantesFin < $vue.seccionSeleccionada.matriculados) {
-//                swal({text: 'Ya existen alumnos matriculados', icon: "error", dangerMode: true, button: {text: "Aceptar"}});
-//                return;
-//            }
-//
-//            if ($vue.seccionSeleccionada.aula.capacidadAula > 0) {
-//                if ($vue.ampliacionVacante.total > $vue.seccionSeleccionada.aula.capacidadAula) {
-//                    swal({text: 'Ha sobrepasado la capacidad del aula', icon: "error", dangerMode: true, button: {text: "Aceptar"}});
-//                    return;
-//                }
-//            }
-
+//            console.log($vue.changeAulaGpo);
             $.ajax({
-                method: 'POST',
                 url: APP.url('academico/gposeccion/savecambioaulagrupo'),
-                data: $('#formAulaGrupo').serialize(),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify($vue.changeAulaGpo),
                 success: function (response) {
                     if (response.success) {
 
-                        $vue.allSolicitarIncremento();
-                        $vue.$refs.modalSolicitarIncremento.close();
+//                        $vue.allSolicitarIncremento();
+                        $vue.$refs.modalEnviarCambioAulaGrupo.close();
                         notify(response.message, 'info');
 
                     } else {
@@ -1636,7 +1614,7 @@ var app = new Vue({
                 }
             })
         },
-        
+
     }
 });
 

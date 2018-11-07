@@ -158,9 +158,9 @@
     </div>
 </modal-vik>
 
-<modal-vik ref="modalEnviarSolicitud"
-           v-bind="enviarSolicitudModal"
-           v-bind:okaction="enviarSolicitudAceptar">
+<modal-vik ref="modalEnviarCambioAulaGrupo"
+           v-bind="enviarCambioAulaGrupoModal"
+           v-bind:okaction="enviarCambioAulaGrupoAceptar">
 
     <div slot="body">
 
@@ -178,12 +178,16 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label> Oficina </label>
-                        <vueselect name="oficina.id"  required="true" v-bind:valor="cambioaulagrupo.oficina" >
-                            <option></option>
-                            <option th:each="item : ${oficinas}"
-                                    th:value="${item.id}"
-                                    th:text="${item.nombre}"></option>
-                        </vueselect>
+                        <multiselect  v-model="changeAulaGpo.oficina"
+                                      v-bind:options="oficinas"
+                                      track-by="id"
+                                      deselect-label=""
+                                      select-label=""
+                                      v-bind:limit="15"
+                                      v-bind:allow-empty="false"
+                                      label="nombre">
+                        </multiselect>
+                        <input type="text" v-model="changeAulaGpo.oficina.id" required="" class="hide"/>
                     </div>
                 </div>
             </div>
@@ -191,7 +195,7 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>Aula</label>
-                        <multiselect  v-model="cambioaulagrupo.aulaFin"  
+                        <multiselect  v-model="changeAulaGpo.aulaFin"  
                                       v-on:search-change="asyncFindCambioAulas"
                                       v-bind:options="aulas"
                                       track-by="id"
@@ -208,7 +212,7 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label> Grupo </label>
-                        <multiselect  v-model="cambioaulagrupo.grupoFin"  
+                        <multiselect  v-model="changeAulaGpo.grupoFin"  
                                       v-on:search-change="asyncFindCambioGrupos"
                                       v-bind:options="grupos"
                                       track-by="id"
@@ -222,22 +226,14 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label> Motivo</label>
-                        <textarea class="form-control" 
+                        <textarea class="form-control" v-model="changeAulaGpo.motivo"
                                   style="resize: none;"
                                   maxlength="200"  
                                   required="true" name="motivo" ></textarea>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <a  v-if="seccionSeleccionada.tipoSeccion != 'TCUR' " 
-                        class="btn btn-info btn-sm pull-right m-t-xs m-b"
-                        v-on:click.prevent="enviarSolicitudAceptar()">
-                        Eniviar Solicitud Cambio de Aula
-                    </a> 
-                </div>
-            </div>
+            
 
             <div class="tab-pane">
                 <section class="block">
@@ -275,15 +271,14 @@
 
             <div class="row">
                 <div class="form-group">
-
                     <div class="col-md-4">
                         <label class="control-label">Aula Anterior : </label>
-                        <p class="capitalize text-primary h5"  v-text="cambioaulagrupo.aulaInicial"></p>
+                        <p class="capitalize text-primary h5"  v-text="seccionSeleccionada.aula.codigo"></p>
                     </div>
 
                     <div class="col-md-4">
                         <label class="control-label">Grupo Anterior :</label>
-                        <p class="capitalize text-primary h5"  v-text="cambioaulagrupo.grupoInicial"></p>
+                        <p class="capitalize text-primary h5"  v-text="seccionSeleccionada.grupoHoras.codigo"></p>
                     </div>
                 </div>
             </div>
