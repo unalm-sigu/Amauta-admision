@@ -224,6 +224,7 @@ public class GpoSeccionController {
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
         model.addAttribute("navigationJson", createNavegationJson(ruta, gpos, gpoSeccId, ds.getCicloAcademico()).toString());
         model.addAttribute("origen", ruta);
+        model.addAttribute("oficinasJson", createOficinasJson(oficinas).toString());
         model.addAttribute("oficinas", oficinas);
 
         return "academico/gposeccion/gpoSeccionForm";
@@ -2550,6 +2551,17 @@ public class GpoSeccionController {
     private ObjectNode createResumenJson(GpoSeccionResumen resumen) {
         ObjectNode nodeJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
         return nodeJson;
+    }
+
+    private ArrayNode createOficinasJson(List<Oficina> oficinas) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (Oficina oficina : oficinas) {
+            ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
+                "*"
+            });
+            array.add(node);
+        }
+        return array;
     }
 
 }

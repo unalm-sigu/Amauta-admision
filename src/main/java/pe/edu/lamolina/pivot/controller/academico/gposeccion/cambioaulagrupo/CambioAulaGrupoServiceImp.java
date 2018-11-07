@@ -59,12 +59,15 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
 
         cambioAulaGrupo.setColaborador(colaborador);
         
-        cambioAulaGrupo.setFechaModificacion(new Date());
-        cambioAulaGrupo.setUserModificacion(ds.getUsuario());
+        Seccion seccionForm = cambioAulaGrupo.getSeccion();
+        Seccion seccionBD = seccionDAO.find(seccionForm);
+        
+        cambioAulaGrupo.setAulaInicio(seccionBD.getAula());
+        
         cambioAulaGrupo.setFechaRegistro(new Date());
         cambioAulaGrupo.setFechaSolicitud(new Date());
         cambioAulaGrupo.setUserRegistro(ds.getUsuario());
-        cambioAulaGrupo.setEstadoEnum(CambioAulaGrupoEstadoEnum.ACEPTADO);
+        cambioAulaGrupo.setEstadoEnum(CambioAulaGrupoEstadoEnum.PENDIENTE);
 
         cambioAulaGrupoDAO.save(cambioAulaGrupo);
     }

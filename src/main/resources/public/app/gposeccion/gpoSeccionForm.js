@@ -105,6 +105,7 @@ var app = new Vue({
         ciclo: {},
         grupoSeccion: {},
         navega: {},
+        oficinas: [],
         btnNavega: {left: true, right: true},
         idxSeccion: 0,
         secciones: null,
@@ -178,12 +179,10 @@ var app = new Vue({
             modalsize: 'modal-lg'
         },
         cambioaulagrupos: [],
-        cambioaulagrupo: {
-            id: "",
-            oficina: {id: ""},
-            aulaInicio: {id: ""},
-            grupoInicio: {id: ""},
-            motivo: ""
+        changeAulaGpo: {
+            oficina: {},
+            aulaInicio: {},
+            grupoInicio: {}
         },
         ampliaciones: [],
         ampliacionVacante: {
@@ -251,6 +250,7 @@ var app = new Vue({
         this.grupoSeccion = JSON.parse(gpoSeccionJson);
         this.navega = JSON.parse(navigationJson);
         this.ciclo = JSON.parse(cicloJson);
+        this.oficinas = JSON.parse(oficinasJson);
         this.loadDataPantalla();
 
     },
@@ -945,6 +945,7 @@ var app = new Vue({
             docSeccionSend.id = docSeccion.id;
             docSeccionSend.fechaInicio = docSeccion.fechaInicio;
             MODAL.showWait("Espere un momento por favor");
+
             $.ajax({
                 url: APP.url('academico/gposeccion/updateFechaInicio'),
                 dataType: "json",
@@ -1541,24 +1542,11 @@ var app = new Vue({
 
             let $vue = this;
 
-            var tipo = $vue.seccionSeleccionada.tipoSeccion;
-            if (tipo == 'TCUR') {
-                return;
-            }
-//
-//            $vue.ampliacionVacante = {
-//                id: null,
-//                motivo: '',
-//                colaborador: {id: null},
-//                oficina: {id: null},
-//                seccion: $vue.seccionSeleccionada,
-//                vacantesInicio: $vue.seccionSeleccionada.vacantes,
-//                incremento: 0,
-//                vacantesFin: 0
-//            }
-            $vue.cambioaulagrupo.oficina = $vue.seccionSeleccionada.oficina;
-            $vue.cambioaulagrupo.aulaFin = $vue.seccionSeleccionada.aula;
-            $vue.cambioaulagrupo.grupoHorasFin = $vue.seccionSeleccionada.grupoHoras;
+            $vue.changeAulaGpo = {
+                oficina: {}
+            };
+
+            $vue.changeAulaGpo.seccion = $vue.seccionSeleccionada;
             $vue.$refs.modalEnviarSolicitud.open();
 
         },
@@ -1569,7 +1557,7 @@ var app = new Vue({
             if ($('#formAulaGrupo').parsley().validate() !== true) {
                 return;
             }
-            console.log($vue.cambioaulagrupo);
+            console.log($vue.changeAulaGpo);
 
 //            if ($vue.ampliacionVacante.vacantesFin < $vue.seccionSeleccionada.matriculados) {
 //                swal({text: 'Ya existen alumnos matriculados', icon: "error", dangerMode: true, button: {text: "Aceptar"}});
@@ -1584,9 +1572,12 @@ var app = new Vue({
 //            }
 
             $.ajax({
-                method: 'POST',
                 url: APP.url('academico/gposeccion/savecambioaulagrupo'),
-                data: $('#formAulaGrupo').serialize(),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify($vue.changeAulaGpo),
                 success: function (response) {
                     if (response.success) {
 
@@ -1636,7 +1627,7 @@ var app = new Vue({
                 }
             })
         },
-        
+
     }
 });
 
