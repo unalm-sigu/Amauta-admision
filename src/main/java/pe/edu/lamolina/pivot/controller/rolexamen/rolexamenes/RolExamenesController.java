@@ -51,7 +51,9 @@ public class RolExamenesController {
             for (RolExamenes rolexamen : rolexamenes) {
                 ObjectNode node = JsonHelper.createJson(rolexamen, JsonNodeFactory.instance, true,
                         new String[]{
-                        "*"
+                        "*",
+                         "cicloAcademico.descripcion",
+                         "tipo", "estado"                         
                         });
 
                 array.add(node);

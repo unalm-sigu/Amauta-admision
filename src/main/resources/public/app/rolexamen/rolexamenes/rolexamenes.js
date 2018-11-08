@@ -3,7 +3,7 @@ Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#rolexamenesVUE',
     data: {
-        rolexamenesURL: APP.url('rolexamen/rol/list')
+        rolexamenesURL: APP.url('rolexamen/rolexamenes/list')
     },
     mounted() {
         let $vue = this;
