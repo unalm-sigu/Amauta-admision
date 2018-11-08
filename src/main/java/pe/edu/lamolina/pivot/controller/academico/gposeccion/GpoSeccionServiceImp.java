@@ -567,6 +567,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionPCUR.setHorasPractica(curso.getHorasPractica());
         seccionPCUR.setHorasTeoria(curso.getHorasTeoria());*/
         seccionPCUR.setHorasSemanales(curso.getHorasPractica());
+        seccionPCUR.setVacantes(0);
+        seccionPCUR.setPrematriculados(0);
+        seccionPCUR.setMatriculados(0);
+        seccionPCUR.setRetirados(0);
+        seccionPCUR.setReservados(0);
 
         seccionPCUR.setDocenteSeccion(new ArrayList<>());
         DocenteSeccion docenteSeccion2 = new DocenteSeccion();
