@@ -9,17 +9,13 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.pivot.dao.atencion.MensajeTicketAyudaDAO;
 import pe.edu.lamolina.model.atencion.MensajeTicketAyuda;
+import pe.edu.lamolina.model.atencion.TicketAtencionResumen;
 import pe.edu.lamolina.model.atencion.TicketAyuda;
 import pe.edu.lamolina.model.enums.EstadoTicketAyudaEnum;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.enums.TipoMensajeTicketAyudaEnum;
-import pe.edu.lamolina.pivot.controller.atencion.TicketAtencionResumen;
+import pe.edu.lamolina.model.general.Oficina;
 
 @Repository
 public class MensajeTicketAyudaDAOH extends AbstractEasyDAO<MensajeTicketAyuda> implements MensajeTicketAyudaDAO {
@@ -30,13 +26,14 @@ public class MensajeTicketAyudaDAOH extends AbstractEasyDAO<MensajeTicketAyuda> 
     }
 
     @Override
-    public List<MensajeTicketAyuda> allByDynatable(DynatableFilter filter) {
+    public List<MensajeTicketAyuda> allByDynatable(DynatableFilter filter,  Oficina oficina) {
 
         DynatableSql sql = new DynatableSql(filter);
         sql.from(MensajeTicketAyuda.class, "me")
                 .join("ticketAyuda tic", "tic.persona per", "tic.oficina ofi")
-                .leftJoin("tic.colaborador co")
+                .leftJoin("tic.colaborador co","co.persona peco")
                 .filter("me.tipo", TipoMensajeTicketAyudaEnum.TICKET.name())
+                .filter("ofi.id", oficina)
                 .orderBy("me.fechaRegistro desc");
         sql.beginRelativeFilters();
         this.setCondicionEstado(filter, sql);
@@ -101,7 +98,7 @@ public class MensajeTicketAyudaDAOH extends AbstractEasyDAO<MensajeTicketAyuda> 
     }
 
     @Override
-    public TicketAtencionResumen findResumen() {
+    public TicketAtencionResumen findResumen(Oficina oficina) {
 
         StringBuilder sql = new StringBuilder();
 
@@ -115,6 +112,7 @@ public class MensajeTicketAyudaDAOH extends AbstractEasyDAO<MensajeTicketAyuda> 
         sql.append("  inner join msj.ticketAyuda tic ");
         sql.append("  inner join tic.oficina ofi ");
         sql.append("  where msj.tipo = :TIPOTICKET ");
+        sql.append("      and ofi.id = :IDOFICINA ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
 
@@ -123,6 +121,7 @@ public class MensajeTicketAyudaDAOH extends AbstractEasyDAO<MensajeTicketAyuda> 
         query.setString("RESUELTO", EstadoTicketAyudaEnum.RESUELTO.name());
 
         query.setString("TIPOTICKET", TipoMensajeTicketAyudaEnum.TICKET.name());
+        query.setLong("IDOFICINA",oficina.getId());
 
         return (TicketAtencionResumen) query.uniqueResult();
     }

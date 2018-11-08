@@ -4,12 +4,13 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.atencion.MensajeTicketAyuda;
+import pe.edu.lamolina.model.atencion.TicketAtencionResumen;
 import pe.edu.lamolina.model.atencion.TicketAyuda;
-import pe.edu.lamolina.pivot.controller.atencion.TicketAtencionResumen;
+import pe.edu.lamolina.model.general.Oficina;
 
 public interface MensajeTicketAyudaDAO extends EasyDAO<MensajeTicketAyuda> {
 
-    List<MensajeTicketAyuda> allByDynatable(DynatableFilter filter);
+    List<MensajeTicketAyuda> allByDynatable(DynatableFilter filter, Oficina oficina);
 
     MensajeTicketAyuda findByTicket(TicketAyuda ticketDb);
 
@@ -17,6 +18,6 @@ public interface MensajeTicketAyudaDAO extends EasyDAO<MensajeTicketAyuda> {
 
     List<MensajeTicketAyuda> allByTicketExcept(TicketAyuda ticket, MensajeTicketAyuda mensaje);
 
-    TicketAtencionResumen findResumen();
+    TicketAtencionResumen findResumen(Oficina oficina);
 
 }

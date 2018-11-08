@@ -12,17 +12,22 @@ import pe.albatross.zelpers.aws.S3Service;
 import pe.edu.lamolina.pivot.dao.atencion.MensajeTicketAyudaDAO;
 import pe.edu.lamolina.pivot.dao.atencion.TicketAyudaDAO;
 import pe.edu.lamolina.model.atencion.MensajeTicketAyuda;
+import pe.edu.lamolina.model.atencion.TicketAtencionResumen;
 import pe.edu.lamolina.model.atencion.TicketAyuda;
+import pe.edu.lamolina.model.atencion.TrasladoAtencionTicket;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.EstadoTicketAyudaEnum;
 import pe.edu.lamolina.model.enums.InstanciaEnum;
 import pe.edu.lamolina.model.enums.PrioridadTicketAyudaEnum;
 import pe.edu.lamolina.model.enums.TipoMensajeTicketAyudaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.model.enums.TipoTrasladoTicketEnum;
 import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.pivot.dao.atencion.TrasladoAtencionTicketDAO;
 import pe.edu.lamolina.pivot.dao.general.ArchivoDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
@@ -58,11 +63,14 @@ public class TicketAyudaServiceImp implements TicketAyudaService {
     @Autowired
     ContenidoCartaDAO contenidoCartaDAO;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Autowired
+    TrasladoAtencionTicketDAO trasladoAtencionTicketDAO;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     @Override
-    public List<MensajeTicketAyuda> allByDynatable(DynatableFilter filter) {
-        return mensajeTicketAyudaDAO.allByDynatable(filter);
+    public List<MensajeTicketAyuda> allByDynatable(DynatableFilter filter, Oficina oficina) {
+                return mensajeTicketAyudaDAO.allByDynatable(filter,oficina);
     }
 
     @Override
@@ -98,8 +106,9 @@ public class TicketAyudaServiceImp implements TicketAyudaService {
         if (ticket.getColaborador() == null) {
             Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(ticket.getOficina(), ds.getPersona());
             ticket.setColaborador(colaborador);
-            ticketAyudaDAO.update(ticket);
         }
+        ticket.setEstadoEnum(EstadoTicketAyudaEnum.RESPONDIDO);
+        ticketAyudaDAO.update(ticket);
 
         MensajeTicketAyuda mensajePrincipal = mensajeTicketAyudaDAO.findByTicket(ticket);
         mensajePrincipal.setEstadoEnum(EstadoTicketAyudaEnum.RESPONDIDO);
@@ -117,22 +126,22 @@ public class TicketAyudaServiceImp implements TicketAyudaService {
     }
 
     private void sendNotificacionTicketRespuesta(TicketAyuda ticket) {
-        
+
         ContenidoCarta contenido = contenidoCartaDAO.findByCodigoEnum(ContenidoCartaEnum.HELPDESK_RESPUESTA);
         mailerService.enviarNotificacionTicketHelpDesk(ticket.getPersona(), contenido);
-        
+
     }
 
     private void sendNotificacionTicketCreate(TicketAyuda ticket) {
-        
+
         ContenidoCarta contenido = contenidoCartaDAO.findByCodigoEnum(ContenidoCartaEnum.HELPDESK_NUEVO);
         mailerService.enviarNotificacionTicketHelpDesk(ticket.getPersona(), contenido);
-        
+
     }
 
     @Override
-    public TicketAtencionResumen findResumen() {
-        return mensajeTicketAyudaDAO.findResumen();
+    public TicketAtencionResumen findResumen(Oficina oficina) {
+        return mensajeTicketAyudaDAO.findResumen(oficina);
     }
 
     @Override
@@ -177,6 +186,47 @@ public class TicketAyudaServiceImp implements TicketAyudaService {
 
         //this.sendNotificacionTicketCreate(ticket);
         return mensaje;
+    }
+
+    @Override
+    public List<Oficina> findoficina(String nombre, Compania compania) {
+        return oficinaDAO.allByNombre(nombre, compania);
+    }
+
+    @Override
+    @Transactional
+    public void trasladocolaborador(TrasladoAtencionTicket traslado, DataSessionPivot ds) {
+
+        TicketAyuda ticket = ticketAyudaDAO.find(traslado.getTicketAyuda());
+        traslado.setColaboradorOrigen(ticket.getColaborador());
+        traslado.setTipoEnum(TipoTrasladoTicketEnum.TCOL);
+        traslado.setFechaTraslado(new Date());
+        trasladoAtencionTicketDAO.save(traslado);
+
+        ticket.setEstadoEnum(EstadoTicketAyudaEnum.TCOL);
+        ticket.setColaborador(traslado.getColaboradorDestino());
+        ticket.setFechaColaborador(new Date());
+        ticketAyudaDAO.update(ticket);
+
+    }
+
+    @Override
+    @Transactional
+    public void trasladooficina(TrasladoAtencionTicket traslado, DataSessionPivot ds) {
+
+        TicketAyuda ticket = ticketAyudaDAO.find(traslado.getTicketAyuda());
+
+        traslado.setOficinaOrigen(ticket.getOficina());
+        traslado.setTipoEnum(TipoTrasladoTicketEnum.TOFI);
+        traslado.setFechaTraslado(new Date());
+        trasladoAtencionTicketDAO.save(traslado);
+
+        ticket.setEstadoEnum(EstadoTicketAyudaEnum.TOFI);
+        ticket.setOficina(traslado.getOficinaDestino());
+        ticket.setColaborador(null);
+        ticket.setFechaColaborador(null);
+        ticketAyudaDAO.update(ticket);
+
     }
 
 }

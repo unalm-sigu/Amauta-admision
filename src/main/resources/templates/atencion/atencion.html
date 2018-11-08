@@ -4,16 +4,16 @@
     </head>
 
     <body>
-        <div  id="main"  layout:fragment="main"  v-cloak="">
+        <div  layout:fragment="main" >
 
             <header class="header b-b padder-lg">
 
-                <h1>Ticket</h1>
+                <h1>Ticket de Ayuda</h1>
 
             </header>
 
 
-            <section class="wrapper-lg">
+            <section class="wrapper-lg"  id="main"    v-cloak=""  >
                 <section class="panel m-b-md">
                     <section class="panel-body">
 
@@ -21,15 +21,15 @@
 
                         <div class="col-md-12">
                             <div class="row">
-                                
+
 
                                 <div class="col-md-3 text-center"  v-bind:class="{ 'bg-light' : seleccionado=='ACTIVO' }" >
-                                    <a v-on:click="verEstado('ACTIVO')"   >
+                                    <a v-on:click="verEstado('ACTIVO')"   class="text-primary pointer" >
                                         <span class="h1 block bold" th:text="${resumen.activo}">23</span>
                                         <small class="block m-b-xs">Activos</small>
                                     </a>
                                 </div>
-                                
+
 
                                 <div class="col-md-3 text-center"  v-bind:class="{ 'bg-light' : seleccionado=='RESPONDIDO' }"  >
                                     <a v-on:click="verEstado('RESPONDIDO')" class="text-black pointer"  >
@@ -37,7 +37,7 @@
                                         <small class="block m-b-xs">Respondidos</small>
                                     </a>
                                 </div>
-                                
+
 
                                 <div class="col-md-3 text-center"  v-bind:class="{ 'bg-light' : seleccionado=='RESUELTO' }"  >
                                     <a v-on:click="verEstado('RESUELTO')" class="text-success pointer" >
@@ -55,11 +55,11 @@
 
 
                 <section class="panel">
-                    <section class="panel-body"  v-cloak="">
+                    <section class="panel-body"  >
 
 
 
-                        <raptor-table v-bind:url="`/atencion/ticket/list`" v-bind:searcher="false" ref="raptorMensajes" v-bind:paginate="false">
+                        <raptor-table v-bind:url="`/atencion/ticket/list`" v-bind:searcher="false" ref="raptorMensajes" v-bind:paginate="true" v-bind:pagination="pagination">
                             <template scope="props">
 
 
@@ -68,8 +68,9 @@
                                     <thead>
                                         <tr>
                                             <th class="col-sm-3 v-middle">Nombre </th>
-                                            <th class="col-sm-6 v-middle">Título </th>
-                                            <th class="col-sm-2 v-middle">Fecha </th>
+                                            <th class="col-sm-4 v-middle">Título </th>
+                                            <th class="col-sm-3 v-middle">Asignado </th>
+                                            <th class="col-sm-1 v-middle">Fecha </th>
                                             <th class="col-sm-1 v-middle">Estado </th>
                                             <th></th>
                                         </tr>
@@ -85,6 +86,12 @@
                                                 <a href="#"  v-on:click.prevent="responder(item)"  >{{item.titulo}}</a>
                                             </td>
 
+                                            <td class="v-middle">
+                                                <p v-if="item.ticketAyuda.colaborador">
+                                                    {{item.ticketAyuda.colaborador.persona.nombreCompleto}}
+                                                </p> 
+                                            </td>
+
 
                                             <td class="v-middle">
                                                 <strong class="m-r-sm">{{item.fechaRegistro}}</strong>
@@ -93,20 +100,23 @@
                                             <td class="v-middle">
                                                 <span v-if="item.estado=='ACTIVO' "  class="label label-danger" v-text="item.estadoEnum.value">Activo</span>
                                                 <span v-if="item.estado=='RESPONDIDO' " class="label label-primary" v-text="item.estadoEnum.value">Respondido</span>
-                                                <span v-if="item.estado=='RESULETO' " class="label label-success" v-text="item.estadoEnum.value">Resuelto</span>
+                                                <span v-if="item.estado=='RESUELTO' " class="label label-success" v-text="item.estadoEnum.value">Resuelto</span>
                                             </td>
 
 
                                             <td class=" v-middle">
 
-                                                <div class="pull-right">
+                                                <div class="pull-right" v-if="item.estado=='ACTIVO' " >
                                                     <div class="actions">
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a  href="#"  v-on:click.prevent="trasladarOficina(item)" >Trasladar Oficina</a></li>
+                                                            <li><a  href="#"  v-on:click.prevent="trasladarColaborador(item)" >Trasladar Colaborador</a></li>
+                                                        </ul>
                                                     </div>
                                                 </div>
 
                                             </td>
-
 
                                         </tr>
                                     </tbody>
@@ -119,15 +129,11 @@
 
 
 
-
-
-
-
-
                     </section>
 
                 </section>
 
+                <div th:substituteby="atencion/atencionmodal"/>
 
             </section>
 
@@ -137,6 +143,8 @@
 
             <div th:substituteby="_modules/vue-modal2"></div>
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/phobos/modules/vuelect2.js}" charset="utf-8"></script>
+            <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
             <script th:src="@{/app/atencion/atencion.js}" charset="utf-8"></script>
 
         </div>

@@ -23,11 +23,14 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.atencion.MensajeTicketAyuda;
 import pe.edu.lamolina.model.atencion.TicketAyuda;
+import pe.edu.lamolina.model.atencion.TrasladoAtencionTicket;
 import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -45,7 +48,10 @@ public class TicketAyudaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
-        model.addAttribute("resumen", service.findResumen());
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        Oficina oficina = ds.getOficinaMain();
+        logger.debug("OFICINA MAIN {}",oficina.getId());
+        model.addAttribute("resumen", service.findResumen(oficina));
         return "atencion/atencion";
     }
 
@@ -57,9 +63,12 @@ public class TicketAyudaController {
 
         try {
 
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Oficina oficina = ds.getOficinaMain();
+
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
-            List<MensajeTicketAyuda> tickets = service.allByDynatable(filter);
+            List<MensajeTicketAyuda> tickets = service.allByDynatable(filter, oficina);
 
             ArrayNode array = new ArrayNode(jFactory);
 
@@ -69,7 +78,9 @@ public class TicketAyudaController {
                     "*",
                     "ticketAyuda.*",
                     "ticketAyuda.oficina.*",
-                    "ticketAyuda.persona.*"
+                    "ticketAyuda.persona.*",
+                    "ticketAyuda.colaborador.*",
+                    "ticketAyuda.colaborador.persona.*"
                 });
 
                 array.add(node);
@@ -323,6 +334,125 @@ public class TicketAyudaController {
 
             response.setData(node);
             response.setMessage(Messages.CREATED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("findoficina")
+    public JsonResponse findoficina(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Compania compania = ds.getCompania();
+
+            List<Oficina> oficinas = service.findoficina(nombre, compania);
+            ArrayNode array = new ArrayNode(jsonFactory);
+            for (Oficina oficina : oficinas) {
+                ObjectNode a = new ObjectNode(jsonFactory);
+                a.put("id", oficina.getId());
+                a.put("codigo", oficina.getCodigo());
+                a.put("nombre", oficina.getNombre());
+                array.add(a);
+            }
+
+            response.setData(array);
+            response.setTotal(array.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("trasladooficina")
+    public JsonResponse trasladooficina(TrasladoAtencionTicket traslado, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.trasladooficina(traslado, ds);
+            response.setMessage(Messages.UPDATED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("trasladocolaborador")
+    public JsonResponse trasladocolaborador(TrasladoAtencionTicket traslado, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.trasladocolaborador(traslado, ds);
+            response.setMessage(Messages.UPDATED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allcolaborador")
+    public JsonResponse allcolaborador(TicketAyuda ticketForm, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ObjectNode data = new ObjectNode(jFactory);
+
+            TicketAyuda ticket = service.find(ticketForm);
+
+            List<Colaborador> colaboradores = service.allColaboradorByOficina(ticket.getOficina());
+            ArrayNode arrayColaboradores = new ArrayNode(jFactory);
+
+            for (Colaborador colaboradore : colaboradores) {
+
+                ObjectNode jColaborador = JsonHelper.createJson(colaboradore, jFactory, true, new String[]{
+                    "*",
+                    "persona.*",
+                    "oficina.*",
+                    "cargo.*"
+                });
+
+                arrayColaboradores.add(jColaborador);
+
+            }
+
+            data.set("colaboradores", arrayColaboradores);
+
+            response.setMessage(Messages.APPROVED);
+            response.setData(data);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
