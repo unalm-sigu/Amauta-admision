@@ -47,7 +47,6 @@ public class RolExamenesController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
 
-
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());

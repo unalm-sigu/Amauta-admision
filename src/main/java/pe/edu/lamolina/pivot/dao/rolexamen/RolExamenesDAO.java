@@ -10,6 +10,6 @@ public interface RolExamenesDAO extends EasyDAO<RolExamenes> {
 
     List<RolExamenes> allActiveByCiclo(CicloAcademico cicloAcademico);
 
-    public List<RolExamenes> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<RolExamenes> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
 }
