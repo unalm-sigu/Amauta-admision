@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.rolexamen.rolexamenes;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -46,6 +48,14 @@ public class RolExamenesController {
             List<RolExamenes> rolexamenes = service.allRolExamenes(filter, ds.getCicloAcademico());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
+            for (RolExamenes rolexamen : rolexamenes) {
+                ObjectNode node = JsonHelper.createJson(rolexamen, JsonNodeFactory.instance, true,
+                        new String[]{
+                        "*"
+                        });
+
+                array.add(node);
+            }
 
             json.setData(array);
             json.setTotal(filter.getTotal());
