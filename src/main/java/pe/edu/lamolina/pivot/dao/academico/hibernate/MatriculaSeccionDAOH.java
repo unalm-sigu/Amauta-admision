@@ -37,7 +37,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
 
         return all(sql);
     }
-
+    
     @Override
     public MatriculaSeccion find(long id) {
         Octavia sql = Octavia.query()

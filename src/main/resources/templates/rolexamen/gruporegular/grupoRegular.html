@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title> Cursos Masivos </title>
+        <title> Cursos Regulares </title>
     </head>
     <body>
         <section layout:fragment="main">
@@ -8,11 +8,15 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <h2>Rol Examenes - Cursos Masivos <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+                    <h2>Grupos Regulares <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
                     <!-- 
                     <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
                     <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>  
                     -->
+
+                    <div class="pull-right m-t" >
+                        <a class="btn btn-success"  th:href="@{/rolexamen/gruporegular/nuevogruporegular}">Nuevo Grupo Regular</a>
+                    </div>
                 </header>
 
                 <section class="wrapper-lg">
@@ -30,7 +34,7 @@
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script th:src="@{/app/rolexamen/masivo/masivo.js}" charset="utf-8"></script>
+            <script th:src="@{/app/rolexamen/gruporegular/grupoRegular.js}" charset="utf-8"></script>
         </div>
 
     </body>
