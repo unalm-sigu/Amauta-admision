@@ -46,17 +46,7 @@ public class RolExamenesController {
             List<RolExamenes> rolexamenes = service.allRolExamenes(filter, ds.getCicloAcademico());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-//            for (CuotasGrupoHoras cuota : cuotagpohoras) {
-//                ObjectNode node = JsonHelper.createJson(cuota, JsonNodeFactory.instance, true,
-//                        new String[]{
-//                            "anexoBoletin.id", "anexoBoletin.nombre", "anexoBoletin.codigo", "anexoBoletin.estado",
-//                            "grupoHoras.codigo", "grupoHoras.letra", "grupoHoras.tipoCiclo",
-//                            "cicloAcademico.descripcion2",
-//                            "cuotas", "asignadasSistema", "totalUtilizadas"
-//                        });
-//
-//                array.add(node);
-//            }
+
 
             json.setData(array);
             json.setTotal(filter.getTotal());
