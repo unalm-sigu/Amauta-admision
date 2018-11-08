@@ -1,0 +1,105 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Cursos Regulares </title>
+    </head>
+    <body>
+        <section layout:fragment="main">
+
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <h2>Nuevo Grupo Regular <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>  
+                    -->
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <form id="frmCalcular">
+                            <div class="row">
+                                <div class="form-group">
+                                    <label class="col-md-2 bold">Rol Examen</label>
+
+                                    <div class="col-md-4">  
+
+                                        <multiselect 
+                                            v-model="grupoRegularExamen.rolExamen"
+                                            track-by="id"
+                                            v-bind:options="rolesExamenes"
+                                            v-bind:custom-label="rolExamenCustomLabel" 
+                                            required="true"
+                                            >
+                                        </multiselect>
+                                    </div>
+                                    <div class="col-md-4">
+                                         <a class="btn btn-success"
+                                            v-on:click.prevent="calcularGrupoRegular">
+                                             Calcular
+                                         </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <raptor-table v-bind:url="`${URL}/listGruposRegulares`" ref="tblGrupos" th:if="false">
+                                <template scope="props">
+                                   <table class="table table-striped">
+                                      <thead>
+                                         <tr>
+                                            <th class="col-md-2 text-center">Grupo</th>
+                                            <th class="col-md-2 text-center">Secciones</th>
+                                            <th class="col-md-2 text-center">Alumnos</th>
+                                            <th class="col-md-2 text-center">Fecha</th>
+                                            <th class="col-md-1 text-center">Hora</th>
+                                            <th class="col-md-2 text-center">Estado</th>
+                                            <th class="col-md-1 text-center"></th>
+                                         </tr>
+                                      </thead>
+                                      <tbody>
+                                         <tr v-for="item in props.data">
+                                            <td>
+                                               <span class="block text-primary">{{ item.carrera.nombre }}</span>
+                                            </td>
+                                            <td >
+                                               <span>{{ item.cicloInicio.descripcion2 }}</span>
+                                            </td>
+                                            <td class="v-middle">
+                                               <div class="dropdown actions">
+                                                  <a class="dropdown-toggle" data-toggle="dropdown">
+                                                  <i class="glyphicon glyphicon-option-vertical"></i>
+                                                  </a> 
+                                                  <ul class="dropdown-menu pull-right">
+                                                     <li><a >Editar</a></li>
+                                                     <li><a >Clonar</a></li>
+                                                  </ul>
+                                               </div>
+                                            </td>
+                                         </tr>
+                                      </tbody>
+                                   </table>
+                                </template>
+                             </raptor-table>
+                             </div>
+                            </form>
+                        </section>
+                    </section>
+                </section>
+
+
+            </div>
+
+        </section>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+
+            <script th:inline="javascript">
+                var jRolesExamenes = /*[[${jRolesExamenes}]]*/ {};
+                var jGrupoRegularExamen = /*[[${jGrupoRegularExamen}]]*/ {};
+            </script>
+            <script th:src="@{/app/rolexamen/gruporegular/nuevoGrupoRegular.js}" charset="utf-8"></script>
+
+
+        </div>
+
+    </body>
+</html>

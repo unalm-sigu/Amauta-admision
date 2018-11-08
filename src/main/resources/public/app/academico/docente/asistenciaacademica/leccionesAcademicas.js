@@ -27,9 +27,9 @@ var app = new Vue({
             horaFin: ""
         },
         aulasOptions: []
-    }, created: function() {
+    }, created: function () {
         this.seccion = JSON.parse(seccionJson);
-    }, mounted: function() {
+    }, mounted: function () {
         let $vue = this;
 
     }, methods: {
@@ -42,7 +42,7 @@ var app = new Vue({
             let $vue = this;
             $vue.leccionReprogramada.seccion = $vue.seccion;
 
-            $('#frmReprogramacion').find(".multiselect__input").each(function() {
+            $('#frmReprogramacion').find(".multiselect__input").each(function () {
                 $(this).attr("required", true);
             });
 
@@ -60,7 +60,7 @@ var app = new Vue({
                 type: 'POST',
                 async: false,
                 data: JSON.stringify($vue.leccionReprogramada),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
                         $vue.$refs.tblLecciones.loadRemoteData();
@@ -71,7 +71,7 @@ var app = new Vue({
                     }
                     MODAL.hideWait();
                 },
-                error: function() {
+                error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
@@ -84,7 +84,7 @@ var app = new Vue({
                 data: {
                     seccion: $vue.seccion.id
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
 
                         $vue.reprogramacionAttr.fechaInicioOrigen = response.data.fechaInicio;
@@ -97,7 +97,7 @@ var app = new Vue({
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 },
-                error: function() {
+                error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });

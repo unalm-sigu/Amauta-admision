@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.rolexamen.masivo;
+package pe.edu.lamolina.pivot.controller.rolexamen.grupomasivo;
 
 import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -9,14 +9,14 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("rolexamen/masivo")
-public class MasivoController {
+@RequestMapping("rolexamen/grupomasivo")
+public class GrupoMasivoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        return "rolexamen/masivo/masivo";
+        return "rolexamen/grupomasivo/grupoMasivo";
     }
 
 }
