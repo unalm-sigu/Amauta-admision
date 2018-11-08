@@ -163,7 +163,7 @@
            v-bind:okaction="enviarCambioAulaGrupoAceptar">
 
     <div slot="body">
-
+       
         <form class="panel-body" id="formAulaGrupo"  data-parsley-validate="true">
 
             
@@ -194,7 +194,7 @@
             <div class="row">
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label>Aula</label>
+                        <label>Aula Nueva</label>
                         <multiselect  v-model="changeAulaGpo.aulaFin"  
                                       v-on:search-change="asyncFindCambioAulas"
                                       v-bind:options="aulas"
@@ -211,8 +211,8 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label> Grupo </label>
-                        <multiselect  v-model="changeAulaGpo.grupoFin"  
+                        <label> Grupo Nuevo</label>
+                        <multiselect  v-model="changeAulaGpo.grupoHorasFin"  
                                       v-on:search-change="asyncFindCambioGrupos"
                                       v-bind:options="grupos"
                                       track-by="id"
@@ -271,14 +271,12 @@
 
             <div class="row">
                 <div class="form-group">
-                    <div class="col-md-4">
-                        <label class="control-label">Aula Anterior : </label>
-                        <p class="capitalize text-primary h5"  v-text="seccionSeleccionada.aula.codigo"></p>
+                    <div class="col-md-3">
+                        <span>Aula Actual : {{seccionSeleccionada.aula.codigo}}</span>
                     </div>
 
-                    <div class="col-md-4">
-                        <label class="control-label">Grupo Anterior :</label>
-                        <p class="capitalize text-primary h5"  v-text="seccionSeleccionada.grupoHoras.codigo"></p>
+                    <div class="col-md-3">
+                        <span>Grupo Actual : {{seccionSeleccionada.grupoHoras.codigo}}</span>
                     </div>
                 </div>
             </div>
@@ -286,3 +284,36 @@
     </div>
 </modal-vik>
 
+<modal-vik ref="aceptarCambioAulaGrupo"
+           v-bind="aceptarCambioAulaGrupoModal"
+           v-bind:okaction="aceptarCambioAulaGrupo">
+
+    <div slot="body">
+
+        <form class="panel-body" id="aceptarFormCambioAulaGrupo"  data-parsley-validate="true">
+            <input type="hidden" name="id"  v-bind:value="changeAulaGpo.id" />
+            <p class="h4 m-t-xs m-b-xs">¿Está seguro en aceptar el cambio de aula grupo?</p>
+        </form>
+
+    </div>
+</modal-vik>
+
+<modal-vik ref="rechazarCambioAulaGrupo"
+           v-bind="rechazarCambioAulaGrupoModal"
+           v-bind:okaction="rechazarCambioAulaGrupo">
+
+    <div slot="body">
+
+        <form class="panel-body" id="formRechazaCambioAulaGrupo"  data-parsley-validate="true">
+
+            <input type="hidden" name="id"  v-bind:value="changeAulaGpo.id" />
+
+            <div class="form-group" >
+                <label  class="control-label">Indique el motivo del rechazo</label>
+                <textarea class="form-control" maxlength="200" v-model="changeAulaGpo.comentarioRespuesta" required="true" name="comentarioRespuesta" ></textarea>
+            </div>
+
+        </form>
+
+    </div>
+</modal-vik>
