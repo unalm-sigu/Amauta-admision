@@ -21,7 +21,6 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-
 @Controller
 @RequestMapping("academico/gposeccion")
 public class CambioAulaGrupoController {
@@ -68,11 +67,80 @@ public class CambioAulaGrupoController {
     @RequestMapping("savecambioaulagrupo")
     public JsonResponse savecambioaulagrupo(@RequestBody CambioAulaGrupo cambioAulaGrupo, HttpSession session) {
 
+        logger.debug("Estoy en save CambioAulaGrupo ");
+        
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.saveCambioAulaGrupo(cambioAulaGrupo, ds);
-            response.setMessage("Solictud de Cambio de Aula / Grupo fue registrada satisfactoriamente");
+            response.setMessage("Cambio de aula / grupo fue registrada satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("aceptarcambioaulagrupo")
+    public JsonResponse aceptarcambioaulagrupo(@RequestBody CambioAulaGrupo cambioAulaGrupo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.aceptarCambioAulaGrupo(cambioAulaGrupo, ds);
+            response.setMessage("Cambio de aula / grupo aceptada");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("rechazarcambioaulagrupo")
+    public JsonResponse rechazarcambioaulagrupo(@RequestBody CambioAulaGrupo cambioAulaGrupo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.rechazarCambioAulaGrupo(cambioAulaGrupo, ds);
+            response.setMessage("Cambio de aula / grupo rechazada");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping("deletecambioaulagrupo")
+    public JsonResponse deletecambioaulagrupo(CambioAulaGrupo cambioAulaGrupo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.deleteCambioAulaGrupo(cambioAulaGrupo, ds);
+            response.setMessage("Cambio de aula / grupo anulada");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
