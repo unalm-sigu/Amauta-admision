@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
 
 @Service
@@ -20,8 +22,18 @@ public class RolExamenesServiceImp implements RolExamenesService {
     @Autowired
     RolExamenesDAO rolexamenesDAO;
 
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
     @Override
     public List<RolExamenes> allRolExamenes(DynatableFilter filter, CicloAcademico cicloAcademico) {
-       return rolexamenesDAO.allByDynatable(filter, cicloAcademico);
-    } 
+        return rolexamenesDAO.allByDynatable(filter, cicloAcademico);
+    }
+
+    @Override
+    public List<EventoCicloAcademico> allEventoCicloAcademicos(CicloAcademico cicloAcademico) {
+        List<EventoCicloAcademico> eventoCicloAcademicos = eventoCicloAcademicoDAO.allEventoCicloAcademicos(cicloAcademico);
+        return eventoCicloAcademicos;
+    }
+
 }
