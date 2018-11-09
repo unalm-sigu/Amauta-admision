@@ -5,7 +5,7 @@ new Vue({
     data: {
         URL: APP.url('rolexamen/gruporegular'),
         rolesExamenes: JSON.parse(jRolesExamenes),
-        grupoRegularExamen: JSON.parse(jGrupoRegularExamen)
+        rolExamen: null
     },
     mounted() {
         console.dir(this.rolesExamenes);
@@ -36,10 +36,10 @@ new Vue({
             if (!form.parsley().validate()) {
                 return;
             }
-            AXIOS.post(`${this.URL}/calcularGruposRegulares`, this.grupoRegularExamen)
+            AXIOS.post(`${this.URL}/calcularGruposRegulares`, this.rolExamen)
                     .then(response => {
                         if (response.data.success) {
-                            
+
                             notify(response.data.message, 'info');
                         } else {
                             notify(response.data.message, 'error');
