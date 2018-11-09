@@ -448,7 +448,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     @Override
     public List<Seccion> allForRolExamenAndTipoGrupoHora(CicloAcademico ciclo, TipoGrupoHorasEnum tipoGrupoHorasEnum) {
         Octavia sql = Octavia.query()
-                .select("sec")
+                .selectDistinct("sec")
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "seccion sec")
                 .join("mr.cicloAcademico ca", "sec.grupoSeccion gs")
