@@ -1,7 +1,9 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
@@ -10,8 +12,10 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
@@ -97,6 +101,18 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
     }
     
     @Override
+    public List<GrupoHoras> allByTipoGrupoHoraAndCiclo(TipoGrupoHorasEnum tipoGrupoHorasEnum, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("gh")
+                .from(DiaHoraGrupo.class, "dhg")
+                .join("dia", "hora")
+                .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ca")
+                .filter("tgh.tipo", tipoGrupoHorasEnum)
+                .filter("ca.id", cicloAcademico);
+        return sql.all(getCurrentSession());
+    }
+    
+    @Override
     public List<GrupoHoras> allByTipoGpoDynatable(DynatableFilter filter,
             TipoGrupoHoras tipoGrupoHoras,
             CicloAcademico cicloAcademico,
@@ -146,5 +162,28 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .limit(limit);
         
         return sql.all(getCurrentSession());
+    }
+    
+    @Override
+    public Map<Long, Integer> countAlumnosGroupByGrupoHoras(List grupoHoras, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .select("gh.id", "count(distinct mr)")
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
+                .join("mr.cicloAcademico ca")
+                .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
+                .join("sec.grupoHoras gh")
+                .leftJoin("per.tipoDocumento tdoc")
+                .in("gh.id", grupoHoras)
+                .filter("ca.id", cicloAcademico)
+                .filter("ms.estado", EstadoMatriculaEnum.MAT)
+                .groupBy("gh.id");
+        
+        List<Object[]> resultado = sql.all(getCurrentSession());
+        Map<Long, Integer> result = new HashMap<>();
+        for (Object[] objects : resultado) {
+            result.put(TypesUtil.getLong(objects[0]), TypesUtil.getInt(objects[1]));
+        }
+        return result;
     }
 }
