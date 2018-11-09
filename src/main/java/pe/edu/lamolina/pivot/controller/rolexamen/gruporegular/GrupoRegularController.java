@@ -54,7 +54,7 @@ public class GrupoRegularController {
                     }));
         });
         model.addAttribute("jRolesExamenes", jRolesExamenes.toString());
-
+        /*
         LetraGrupoRegular letraGrupoRegular = new LetraGrupoRegular();
         letraGrupoRegular.setRolExamenes(new RolExamenes());
         model.addAttribute("jLetraGrupoRegular",
@@ -62,7 +62,7 @@ public class GrupoRegularController {
                         new String[]{
                             "*",
                             "rolExamen.*"}).toString()
-        );
+        );*/
         return "rolexamen/gruporegular/nuevoGrupoRegular";
     }
 

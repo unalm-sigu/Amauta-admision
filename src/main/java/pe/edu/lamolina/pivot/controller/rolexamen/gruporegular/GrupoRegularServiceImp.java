@@ -89,7 +89,6 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         grupoHorasLetraMap = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
         this.crearLetraGrupoRegular(seccionesEspeciales, letrasGruposRegulares, grupoHorasLetraMap, today, ds.getUsuario());
 
-        throw new PhobosException("no pasaras papu");
     }
 
     public void crearLetraGrupoRegular(
@@ -101,6 +100,9 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
 
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
             List<Seccion> seccionesByLetra = grupoHorasLetraMap.get(letraGrupoRegular.getLetra());
+            if (seccionesByLetra == null) {
+                continue;
+            }
             for (Seccion seccion : seccionesByLetra) {
                 //   List<AlumnoGrupoRegular> alumnosGrupoRegulares = alumnoGrupoRegularDAO.allByLetraGrupoActives(letraGrupoRegular);
                 List<AlumnoGrupoRegular> alumnosGrupoRegulares = letraGrupoRegular.getAlumnosGruposRegulares();
