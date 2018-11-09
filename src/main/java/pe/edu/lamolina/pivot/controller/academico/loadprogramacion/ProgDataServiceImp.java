@@ -1691,6 +1691,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     Curso cursoDb = mapCursos.get(curNuevo);
                     cursoDb.setCreditosTeoria(curCreditTeo);
                     cursoDb.setCreditosPractica(curCreditPra);
+                    cursoDb.setDepartamentoAcademico(mapDepartamentosAcademicos.get(depCodigo));
                     cursoDAO.update(cursoDb);
                     continue;
                 }
