@@ -420,18 +420,18 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
         EventoCicloAcademico eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAnalisis, eventoEnum);
 
-        Assert.isNotNull(eventoCiclo, "No se asignó un evento para el ciclo " + cicloAnalisis.getDescripcion());
+        Assert.isNotNull(eventoCiclo, "No se configuró el evento " + eventoEnum.getValue() + " para el ciclo " + cicloAnalisis.getDescripcion());
 
         if (eventoEnum == CLASES_PRE) {
             eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAnalisis, CLASES_EPG);
         }
 
-        Assert.isNotNull(eventoCiclo, "No se asignó un evento para el ciclo " + cicloAnalisis.getDescripcion());
+        Assert.isNotNull(eventoCiclo, "No se configuró el evento " + eventoEnum.getValue() + " para el ciclo " + cicloAnalisis.getDescripcion());
 
         List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByCicloAndTipoCiclo(cicloAnalisis);
 
-        Assert.isNotNull(diaHoraGrupos, "No existe horarios para el ciclo " + cicloAnalisis.getDescripcion());
-        Assert.isFalse(diaHoraGrupos.isEmpty(), "No existe horarios para el ciclo " + cicloAnalisis.getDescripcion());
+        Assert.isNotNull(diaHoraGrupos, "No existe grupo horarios para el ciclo " + cicloAnalisis.getDescripcion());
+        Assert.isFalse(diaHoraGrupos.isEmpty(), "No existe grupo horarios para el ciclo " + cicloAnalisis.getDescripcion());
     }
 
     @Override
@@ -572,6 +572,5 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         cicloProgDB.setActualizarBoletin(Boolean.TRUE);
         cicloAcademicoDAO.update(cicloProgDB);
     }
-    
 
 }

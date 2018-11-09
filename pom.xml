@@ -353,8 +353,6 @@
             <version>3.0.0</version>
         </dependency>
 
-        
-
         <dependency>
             <groupId>com.github.albatrosscloud</groupId>
             <!--<groupId>pe.albatross</groupId>-->
@@ -365,7 +363,7 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-            <version>0.15.36</version>
+            <version>0.15.38</version>
         </dependency>
 
     </dependencies>
