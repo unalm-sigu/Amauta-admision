@@ -117,6 +117,7 @@ var app = new Vue({
         tabVisible: "DOCENTES",
         colorEstado: {CRE: "default", ACT: "success", ANU: "danger", INA: "danger", BLO: "warning", FUS: "warning"},
         colorEstadoAmpliacion: {PENDIENTE: "default", ACEPTADO: "success", RECHAZADO: "danger", ANULADA: "warning"},
+        colorEstadoAulaGrupo: {PENDIENTE: "default", ACEPTADO: "success", RECHAZADO: "danger", ANULADA: "warning"},
         grupoModal: {
             id: 'modalGrupo',
             header: true,
@@ -183,6 +184,20 @@ var app = new Vue({
             oficina: {},
             aulaInicio: {},
             grupoInicio: {}
+        },
+        aceptarCambioAulaGrupoModal: {
+            id: 'aceptarCambioAulaGrupoModal',
+            header: true,
+            title: 'Aceptar cambio de aula / grupo',
+            okbtn: 'Si, aceptar',
+            modalsize: 'modal-md'
+        },
+        rechazarCambioAulaGrupoModal: {
+            id: 'rechazarCambioAulaGrupoModal',
+            header: true,
+            title: 'Rechazar cambio de aula / grupo',
+            okbtn: 'Rechazar',
+            modalsize: 'modal-md'
         },
         ampliaciones: [],
         ampliacionVacante: {
@@ -341,6 +356,7 @@ var app = new Vue({
                         }
                         $vue.seccionSeleccionada = $vue.secciones[$vue.idxSeccion];
                         $vue.docentesSeccion = $vue.seccionSeleccionada.docenteSeccion;
+                        $vue.cambioaulagrupos = $vue.seccionSeleccionada.cambioAulaGrupos;
                         $vue.refreshDataFusion();
                     } else {
                         notify(response.message, "error");
@@ -1546,18 +1562,20 @@ var app = new Vue({
                 oficina: {}
             };
 
-            $vue.changeAulaGpo.seccion = $vue.seccionSeleccionada;
+
             $vue.$refs.modalEnviarCambioAulaGrupo.open();
 
         },
         enviarCambioAulaGrupoAceptar() {
 
             let $vue = this;
+            $vue.changeAulaGpo.seccion = {};
+            $vue.changeAulaGpo.seccion.id = $vue.seccionSeleccionada.id;
 
             if ($('#formAulaGrupo').parsley().validate() !== true) {
                 return;
             }
-//            console.log($vue.changeAulaGpo);
+            console.log($vue.changeAulaGpo);
             $.ajax({
                 url: APP.url('academico/gposeccion/savecambioaulagrupo'),
                 dataType: "json",
@@ -1567,8 +1585,8 @@ var app = new Vue({
                 data: JSON.stringify($vue.changeAulaGpo),
                 success: function (response) {
                     if (response.success) {
-
-//                        $vue.allSolicitarIncremento();
+                        $vue.allCambioAulaGrupo();
+                        $vue.loadGpoSeccionFlash();
                         $vue.$refs.modalEnviarCambioAulaGrupo.close();
                         notify(response.message, 'info');
 
@@ -1614,7 +1632,155 @@ var app = new Vue({
                 }
             })
         },
+        aceptarCambioAulaGrupo() {
 
+            let $vue = this;
+
+            if ($('#formAulaGrupo').parsley().validate() !== true) {
+                return;
+            }
+
+            $.ajax({
+                url: APP.url('academico/gposeccion/aceptarcambioaulagrupo'),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify($vue.changeAulaGpo),
+                success: function (response) {
+                    if (response.success) {
+
+                        $vue.loadGpoSeccionFlash();
+                        $vue.allCambioAulaGrupo();
+                        $vue.$refs.aceptarCambioAulaGrupo.close();
+                        notify(response.message, 'info');
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        rechazarCambioAulaGrupo() {
+
+            let $vue = this;
+
+            if ($('#formAulaGrupo').parsley().validate() !== true) {
+                return;
+            }
+
+            $.ajax({
+                url: APP.url('academico/gposeccion/rechazarcambioaulagrupo'),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify($vue.changeAulaGpo),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.loadGpoSeccionFlash();
+                        $vue.allCambioAulaGrupo();
+                        $vue.$refs.rechazarCambioAulaGrupo.close();
+                        notify(response.message, 'info');
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        getEstadoAulaGrupoClass: function (estadoCode) {
+            return "label-" + this.colorEstadoAulaGrupo[estadoCode];
+        },
+        eliminarSolicitudCambioAulaGrupo(cambioaulagrupo) {
+
+            let $vue = this;
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea eliminar el cambio aula/grupo?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/gposeccion/deletecambioaulagrupo'),
+                            data: {
+                                id: cambioaulagrupo.id
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    $vue.loadGpoSeccionFlash();
+                                    $vue.allCambioAulaGrupo();
+                                    MODAL.hideWait();
+                                } else {
+                                    notify(response.message, "error");
+                                    MODAL.hideWait();
+                                }
+                            }, error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                                MODAL.hideWait();
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        aceptarSolicitudCambioAulaGrupo: function (cambioaulagrupo) {
+
+            let $vue = this;
+            console.log('aceptarSolicitudCambioAulaGrupo');
+            $vue.changeAulaGpo = Object.assign({}, cambioaulagrupo);
+            $vue.$refs.aceptarCambioAulaGrupo.open();
+
+        },
+        rechazarSolicitudCambioAulaGrupo: function (cambioaulagrupo) {
+
+            let $vue = this;
+            console.log('rechazarSolicitudCambioAulaGrupo');
+            $vue.changeAulaGpo = Object.assign({}, cambioaulagrupo);
+            $vue.$refs.rechazarCambioAulaGrupo.open();
+
+        },
+        allCambioAulaGrupo() {
+
+            let $vue = this;
+
+            if ($vue.seccionSeleccionada == null) {
+                return;
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/allcambioaulagrupo'),
+                data: {id: $vue.seccionSeleccionada.id},
+                success: function (response) {
+                    if (response.success) {
+                        $vue.cambioaulagrupos = response.data;
+                        $vue.seccionSeleccionada.cambioAulaGrupos = $vue.cambioaulagrupos;
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+
+        },
     }
 });
 

@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.academico.CambioAulaGrupo;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AmpliacionVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.CambioAulaGrupoEstadoEnum;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
@@ -36,13 +37,14 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
 
     @Autowired
     OficinaService oficinaService;
-        
+
     @Autowired
     ColaboradorDAO colaboradorDAO;
 
     @Override
     public List<CambioAulaGrupo> allAulaGrupos(Seccion seccion) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return cambioAulaGrupoDAO.allBySeccion(seccion);
+
     }
 
     @Override
@@ -58,18 +60,99 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         Assert.isNotNull(colaborador, "Usted no se encuentra activo en la oficina " + oficinaReal.getNombre());
 
         cambioAulaGrupo.setColaborador(colaborador);
-        
+
         Seccion seccionForm = cambioAulaGrupo.getSeccion();
         Seccion seccionBD = seccionDAO.find(seccionForm);
-        
+
         cambioAulaGrupo.setAulaInicio(seccionBD.getAula());
-        
+        cambioAulaGrupo.setGrupoHorasInicio(seccionBD.getGrupoHoras());
+
         cambioAulaGrupo.setFechaRegistro(new Date());
         cambioAulaGrupo.setFechaSolicitud(new Date());
         cambioAulaGrupo.setUserRegistro(ds.getUsuario());
         cambioAulaGrupo.setEstadoEnum(CambioAulaGrupoEstadoEnum.PENDIENTE);
 
         cambioAulaGrupoDAO.save(cambioAulaGrupo);
+    }
+
+    @Override
+    @Transactional
+    public void rechazarCambioAulaGrupo(CambioAulaGrupo cambioAulaGrupoForm, DataSessionPivot ds) {
+        Persona persona = ds.getPersona();
+        Oficina oficinaMain = cambioAulaGrupoForm.getOficina();
+        Oficina oficinaReal = oficinaService.findOficinaHija(persona, oficinaMain);
+        Assert.isNotNull(oficinaReal, "Usted no se encuentra activo en la oficina " + oficinaMain.getNombre());
+
+        Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(oficinaReal, persona);
+        Assert.isNotNull(colaborador, "Usted no se encuentra activo en la oficina " + oficinaReal.getNombre());
+
+        cambioAulaGrupoForm.setColaborador(colaborador);
+        
+        
+        CambioAulaGrupo cambioAulaGrupo = cambioAulaGrupoDAO.find(cambioAulaGrupoForm);
+        cambioAulaGrupo.setEstadoEnum(CambioAulaGrupoEstadoEnum.RECHAZADO);
+        cambioAulaGrupo.setUserModificacion(ds.getUsuario());
+        cambioAulaGrupo.setFechaModificacion(new Date());
+        cambioAulaGrupo.setFechaRespuesta(new Date());
+        cambioAulaGrupo.setComentarioRespuesta(cambioAulaGrupoForm.getComentarioRespuesta());
+        cambioAulaGrupoDAO.update(cambioAulaGrupo);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCambioAulaGrupo(CambioAulaGrupo cambioAulaGrupoForm, DataSessionPivot ds) {
+        CambioAulaGrupo cambioAulaGrupoBD = cambioAulaGrupoDAO.find(cambioAulaGrupoForm);
+        Assert.isTrue(cambioAulaGrupoBD.getEstadoEnum() == CambioAulaGrupoEstadoEnum.PENDIENTE, "No puede eliminarse ni anularse esta solicitud");
+
+        Persona personaAnulador = ds.getPersona();
+        Persona personaSolicitud = cambioAulaGrupoBD.getColaborador().getPersona();
+        if (personaAnulador.getId() != personaSolicitud.getId().longValue()) {
+            Oficina oficinaMain = cambioAulaGrupoBD.getOficina();
+            boolean esMismaOficina = false;
+            List<Oficina> oficinasPersona = oficinaService.allOficinasMainByPersona(personaAnulador);
+            for (Oficina oficina : oficinasPersona) {
+                if (oficina.getId() == oficinaMain.getId().longValue()) {
+                    esMismaOficina = true;
+                    break;
+                }
+            }
+            Assert.isTrue(esMismaOficina, "Solo una persona de la misma oficina del solicitante puede anular esta solicitud");
+        }
+
+        cambioAulaGrupoBD.setEstadoEnum(CambioAulaGrupoEstadoEnum.ANULADA);
+        cambioAulaGrupoBD.setUserModificacion(ds.getUsuario());
+        cambioAulaGrupoBD.setFechaModificacion(new Date());
+        cambioAulaGrupoDAO.update(cambioAulaGrupoBD);
+    }
+
+    @Override
+    @Transactional
+    public void aceptarCambioAulaGrupo(CambioAulaGrupo cambioAulaGrupoForm, DataSessionPivot ds) {
+        CambioAulaGrupo cambioAulaGrupoBD = cambioAulaGrupoDAO.find(cambioAulaGrupoForm);
+        
+        Persona persona = ds.getPersona();
+        Oficina oficinaMain = cambioAulaGrupoForm.getOficina();
+        Oficina oficinaReal = oficinaService.findOficinaHija(persona, oficinaMain);
+        Assert.isNotNull(oficinaReal, "Usted no se encuentra activo en la oficina " + oficinaMain.getNombre());
+
+        Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(oficinaReal, persona);
+        Assert.isNotNull(colaborador, "Usted no se encuentra activo en la oficina " + oficinaReal.getNombre());
+
+        cambioAulaGrupoForm.setColaborador(colaborador);
+
+        Seccion seccionForm = cambioAulaGrupoForm.getSeccion();
+        Seccion seccionBD = seccionDAO.find(seccionForm);
+
+        cambioAulaGrupoForm.setAulaInicio(seccionBD.getAula());
+        cambioAulaGrupoForm.setGrupoHorasInicio(seccionBD.getGrupoHoras());
+
+        cambioAulaGrupoForm.setEstadoEnum(CambioAulaGrupoEstadoEnum.ACEPTADO);
+        cambioAulaGrupoForm.setUserRegistro(ds.getUsuario());
+        cambioAulaGrupoForm.setUserModificacion(ds.getUsuario());
+        cambioAulaGrupoForm.setFechaModificacion(new Date());
+        cambioAulaGrupoForm.setFechaRespuesta(new Date());
+        cambioAulaGrupoDAO.update(cambioAulaGrupoForm);
+
     }
 
 }

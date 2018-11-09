@@ -3,7 +3,7 @@
     v-on:click.prevent="enviarCambioAulaGrupo()">
     Solicitud de Cambio de Aula / Grupo
 </a>
-
+<!--<pre>{{cambioaulagrupos}}</pre>-->
 <table v-if="cambioaulagrupos.length > 0" class="table">
     <thead> 
         <tr > 
@@ -12,32 +12,48 @@
             <th class="col-md-1 text-center v-middle">Fecha Solicitud</th>
             <th class="col-md-1 text-center v-middle">Fecha Respuesta</th>
             <th class="col-md-1 text-center v-middle">Aula Inicio</th>
-            <th class="col-md-1 text-center v-middle">Aula Final</th>
+            <th class="col-md-1 text-center v-middle">Aula Fin</th>
             <th class="col-md-1 text-center v-middle">Grupo Inicio</th>
-            <th class="col-md-1 text-center v-middle">Grupo Final</th>
+            <th class="col-md-1 text-center v-middle">Grupo Fin</th>
             <th class="col-md-1 text-center v-middle">Estado</th>
             <th class=""></th>
         </tr>
     </thead>
     <tbody>
         <tr v-for="cambioaulagrupo in cambioaulagrupos">
-
-            <td class="v-middle">
+            <td class="text-center v-middle">
                 <p class="h5">{{cambioaulagrupo.colaborador.persona.nombreCompleto}}</p>
                 <span class="text-sm text-primary block">{{cambioaulagrupo.colaborador.cargo.nombre}}</span>
                 <span class="text-sm text-primary block">{{cambioaulagrupo.oficina.nombre}}</span>
             </td>
-            <td class="">
-               
+            <td class="text-center v-middle">
                 <p><strong>Motivo:</strong> {{cambioaulagrupo.motivo}}</p>
                 <p v-if="cambioaulagrupo.comentarioRespuesta != '' "><strong>Respuesta:</strong> {{cambioaulagrupo.comentarioRespuesta}}</p>
             </td>
-            <td class="text-center">{{cambioaulagrupo.fechaSolicitud}}</td>
-            <td class="text-center">{{cambioaulagrupo.fechaRespuesta}}</td>
-            <td class="text-center">{{cambioaulagrupo.aulaInicio.codigo}}</td>
-            <td class="text-center">{{cambioaulagrupo.aulaFin.codigo}}</td>
-            <td class="text-center">{{cambioaulagrupo.grupoInicio.codigo}}</td>
-            <td class="text-center">{{cambioaulagrupo.grupoFin.codigo}}</td>
+            <td class="text-center v-middle">{{cambioaulagrupo.fechaSolicitud}}</td>
+            <td class="text-center v-middle">{{cambioaulagrupo.fechaRespuesta}}</td>
+            <td class="text-center v-middle">{{cambioaulagrupo.aulaInicio.codigo}}</td>
+            <td class="text-center v-middle">{{cambioaulagrupo.aulaFin.codigo}}</td>
+             <td class="text-center v-middle">{{cambioaulagrupo.grupoHorasInicio.codigo}}</td>
+              <td class="text-center v-middle">{{cambioaulagrupo.grupoHorasFin.codigo}}</td>
+           
+            <td class="text-center v-middle">
+                <span class="label" v-bind:class="getEstadoAulaGrupoClass(cambioaulagrupo.estado)">{{ cambioaulagrupo.estadoEnum.value }}</span>
+            </td>
+            
+            <td class="v-middle">
+                <div  v-if="cambioaulagrupo.estado=='PENDIENTE' " class="actions">
+                    <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                    <ul class="dropdown-menu pull-right">
+                        <li><a href="#" v-on:click.prevent="aceptarSolicitudCambioAulaGrupo(cambioaulagrupo)">Aceptar</a></li>
+                        <li><a href="#" v-on:click.prevent="rechazarSolicitudCambioAulaGrupo(cambioaulagrupo)">Rechazar</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#" v-on:click.prevent="eliminarSolicitudCambioAulaGrupo(cambioaulagrupo)">Eliminar</a></li>
+                    </ul>
+                </div>
+            </td>
+            
+            
             
         </tr>
     </tbody>
