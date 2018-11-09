@@ -7,6 +7,11 @@
             <div id="rolexamenesVUE">
 
                 <header class="header b-b padder-lg">
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success" v-on:click="verNuevoRolExamen()">Nuevo Rol Examen</a>
+                        </div>
+                    </div> 
                     <h2>Roles de Exámenes <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
                 </header>
 
@@ -19,7 +24,7 @@
                                     <table class="table table-striped">
                                         <thead> 
                                             <tr> 
-                                                <th class="col-md-4 v-middle text-center">Tipo</th>
+                                                <th class="col-md-4 v-middle text-center">Nombre</th>
                                                 <th class="col-md-2 v-middle text-center">Fecha Inicio</th>
                                                 <th class="col-md-2 v-middle text-center">Fecha Fin</th>
                                                 <th class="col-md-2 v-middle text-center">Fecha Publicación</th>
@@ -53,12 +58,25 @@
                     </section>
                 </section>
 
+                <modal-vik ref="modalConfirmar"
+                           v-bind="confirmarModal"
+                           v-bind:okaction="verGuardar()">
+                    <div slot="body">                                                
+                        <div class="form-group">
+                            <label>Eventos Ciclos Académicos</label>                            
+                            <multiselect>
+                            </multiselect>
+                        </div>
+                    </div>
+                </modal-vik>
+
             </div>
             <div th:substituteby="_modules/vue-modal"/>
         </section>
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
             <script th:src="@{/app/rolexamen/rolexamenes/rolexamenes.js}" charset="utf-8"></script>
         </div>
 

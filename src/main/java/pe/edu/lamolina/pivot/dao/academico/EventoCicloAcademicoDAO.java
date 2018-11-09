@@ -15,11 +15,13 @@ public interface EventoCicloAcademicoDAO extends EasyDAO<EventoCicloAcademico> {
 
     List<EventoCicloAcademico> allcalendar(CicloAcademico ciclo);
 
-    public List<EventoCicloAcademico> allEventosMatriculaByCiclo(CicloAcademico cicloAcademico);
+    List<EventoCicloAcademico> allEventosMatriculaByCiclo(CicloAcademico cicloAcademico);
 
     List<EventoCicloAcademico> allActivosByCicloEventos(CicloAcademico cicloAcademico, List<EventoAcademicoEnum> eventoAcademicos);
 
     List<EventoCicloAcademico> allEventoAcademicoByCicloAca(CicloAcademico cicloAcademico);
 
     EventoCicloAcademico findActivoByCicloTipoEvento(CicloAcademico cicloAcademico, EventoAcademicoEnum eventoAcademicoEnum);
+
+    List<EventoCicloAcademico> allEventoCicloAcademicos(CicloAcademico cicloAcademico);
 }

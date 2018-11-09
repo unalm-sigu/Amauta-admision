@@ -16,7 +16,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -26,7 +30,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public class RolExamenesController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     RolExamenesService service;
 
@@ -51,9 +55,9 @@ public class RolExamenesController {
             for (RolExamenes rolexamen : rolexamenes) {
                 ObjectNode node = JsonHelper.createJson(rolexamen, JsonNodeFactory.instance, true,
                         new String[]{
-                        "*",
-                         "cicloAcademico.descripcion",
-                         "tipo", "estado"                         
+                            "*",
+                            "cicloAcademico.descripcion",
+                            "tipo", "estado"
                         });
 
                 array.add(node);
@@ -67,6 +71,44 @@ public class RolExamenesController {
             e.printStackTrace();
             json.setTotal(0);
         }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("allEventoCicloAcademico")
+    public JsonResponse allEventoCicloAcademico(HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<EventoCicloAcademico> eventoCicloAcademicos = service.allEventoCicloAcademicos(ds.getCicloAcademico());
+
+            ArrayNode arrayEventosCiclosAcademicos = new ArrayNode(jsonFactory);
+            for (EventoCicloAcademico eventoCicloAcademico : eventoCicloAcademicos) {
+                ObjectNode json = createEventoCicloAcademicoJson(eventoCicloAcademico);
+                arrayEventosCiclosAcademicos.add(json);
+            }
+
+            response.setData(arrayEventosCiclosAcademicos);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    private ObjectNode createEventoCicloAcademicoJson(EventoCicloAcademico eventoCicloAcademico) {
+        ObjectNode json = JsonHelper.createJson(eventoCicloAcademico, JsonNodeFactory.instance, true, new String[]{
+            "eventoAcademico.id", "eventoAcademico.codigo", "eventoAcademico.tipo", "eventoAcademico.nombre",
+            "cicloAcademico.id", "cicloAcademico.codigo", "cicloAcademico.descripcion", "cicloAcademico.descripcion2",
+            "color.id", "color.codigo",
+            "id", "estado", "fechaInicio", "fechaFin", "fechaRegistro"
+        });
         return json;
     }
 
