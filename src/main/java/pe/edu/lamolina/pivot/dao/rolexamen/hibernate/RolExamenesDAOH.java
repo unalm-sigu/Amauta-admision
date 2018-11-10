@@ -7,8 +7,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.EventoCicloAcademico;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
 
@@ -34,9 +32,9 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
     public List<RolExamenes> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(RolExamenes.class, "re")
-                .join("cicloAcademico ca")
+                .join("eventoCicloAcademico eca", "eca.cicloAcademico ca")
                 .filter("ca.id", cicloAcademico)
-                .searchFields("ca.descripcion")
+                .searchFields("ca.descripcion", "re.nombre")
                 .orderBy("re.id desc");
         return all(sql);
     }

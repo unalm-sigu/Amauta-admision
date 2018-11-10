@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.rolexamenes;
 
+import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,14 +29,22 @@ public class RolExamenesServiceImp implements RolExamenesService {
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
     @Override
+    public List<EventoCicloAcademico> allEventoCicloAcademicos(CicloAcademico cicloAcademico) {
+        List<EventoCicloAcademico> eventoCicloAcademicos = eventoCicloAcademicoDAO.allEventoCicloAcademicos(cicloAcademico);
+        return eventoCicloAcademicos;
+    }
+
+    @Override
     public List<RolExamenes> allRolExamenes(DynatableFilter filter, CicloAcademico cicloAcademico) {
         return rolexamenesDAO.allByDynatable(filter, cicloAcademico);
     }
 
     @Override
-    public List<EventoCicloAcademico> allEventoCicloAcademicos(CicloAcademico cicloAcademico) {
-        List<EventoCicloAcademico> eventoCicloAcademicos = eventoCicloAcademicoDAO.allEventoCicloAcademicos(cicloAcademico);
-        return eventoCicloAcademicos;
+    public void save(RolExamenes rolExamenes, DataSessionPivot ds) {
+        rolExamenes.setEstado(EstadoEnum.CRE.name());
+        rolExamenes.setFechaRegistro(new Date());
+        rolExamenes.setUserRegistro(ds.getUsuario());
+        rolexamenesDAO.save(rolExamenes);
     }
 
 }

@@ -7,18 +7,25 @@ new Vue({
         confirmarModal: {
             id: 'modalConfirmar',
             header: true,
-            title: 'Configurar Nuevo Rol Examen',
+            title: 'Crear Nuevo Rol Examen',
             cancelbtn: 'Cancelar',
             okbtn: 'Guardar',
             modalsize: 'modal-md'
         },
-        eventosCiclosAcademicos: []
+        eventosCiclos: [],
+        rolExamenes: {eventoCicloAcademico: {}}
 
     },
     mounted() {
         let $vue = this;
     },
     methods: {
+        eventoAcademicoCustomLabel( { eventoAcademico }) {
+            if (eventoAcademico == null) {
+                return "";
+            }
+            return `${eventoAcademico.nombre}`;
+        },
         verNuevoRolExamen() {
             let $vue = this;
 
@@ -28,7 +35,9 @@ new Vue({
                 type: 'post',
             }).then(response => {
                 if (response.success) {
-                    $vue.eventosCiclosAcademicos = response.data;
+                    $vue.eventosCiclos = response.data;
+                    console.log("Estoy dentro del ajax");
+                    console.log($vue.eventosCiclos);
                     $vue.$refs.modalConfirmar.open();
                 } else {
                     notify(response.message, 'error');
@@ -37,8 +46,34 @@ new Vue({
                 notify(MESSAGES.errorComunicacion, 'error');
             });
         },
-        verGuardar() {
+        guardarRol() {
             let $vue = this;
+
+            if ($('#formEvento').parsley().validate() !== true) {
+                return;
+            }
+
+            $.ajax({
+                url: APP.url('rolexamen/rolexamenes/save'),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify($vue.rolExamenes),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.raptorRolExamenes.loadRemoteData();
+                        $vue.$refs.modalConfirmar.close();
+                        notify(response.message, 'info');
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
 
         },
     }
