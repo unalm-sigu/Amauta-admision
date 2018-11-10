@@ -17,6 +17,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.rolexamen.GrupoRegularExamen;
+import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -54,10 +55,10 @@ public class GrupoRegularController {
         });
         model.addAttribute("jRolesExamenes", jRolesExamenes.toString());
         /*
-        GrupoRegularExamen grupoRegularExamen = new GrupoRegularExamen();
-        grupoRegularExamen.setRolExamen(new RolExamenes());
-        model.addAttribute("jGrupoRegularExamen",
-                JsonHelper.createJson(grupoRegularExamen, jc, true,
+        LetraGrupoRegular letraGrupoRegular = new LetraGrupoRegular();
+        letraGrupoRegular.setRolExamenes(new RolExamenes());
+        model.addAttribute("jLetraGrupoRegular",
+                JsonHelper.createJson(letraGrupoRegular, jc, true,
                         new String[]{
                             "*",
                             "rolExamen.*"}).toString()
@@ -67,12 +68,12 @@ public class GrupoRegularController {
 
     @ResponseBody
     @RequestMapping(value = "calcularGruposRegulares", method = RequestMethod.POST)
-    public JsonResponse calcularGruposRegulares(@RequestBody GrupoRegularExamen grupoRegularExamen,
+    public JsonResponse calcularGruposRegulares(@RequestBody RolExamenes rolExamenes,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            grupoRegularService.calcularExamenesGrupoRegular(grupoRegularExamen, ds.getCicloAcademico());
+            grupoRegularService.calcularExamenesGrupoRegular(rolExamenes, ds.getCicloAcademico(), ds);
             response.setMessage("Grupos regulares calculados corretamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
