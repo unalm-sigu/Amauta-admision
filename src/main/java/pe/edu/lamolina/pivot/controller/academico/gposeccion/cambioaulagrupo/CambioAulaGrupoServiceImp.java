@@ -2,7 +2,6 @@ package pe.edu.lamolina.pivot.controller.academico.gposeccion.cambioaulagrupo;
 
 import java.util.Date;
 import java.util.List;
-import static org.apache.commons.math3.stat.inference.TestUtils.t;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
@@ -10,17 +9,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.model.academico.CambioAulaGrupo;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.enums.AmpliacionVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.CambioAulaGrupoEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CambioAulaGrupoDAO;
+import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
+import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -40,6 +42,12 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
 
     @Autowired
     ColaboradorDAO colaboradorDAO;
+
+    @Autowired
+    AulaDAO aulaDAO;
+
+    @Autowired
+    GrupoHorasDAO grupoHorasDAO;
 
     @Override
     public List<CambioAulaGrupo> allAulaGrupos(Seccion seccion) {
@@ -87,8 +95,7 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         Assert.isNotNull(colaborador, "Usted no se encuentra activo en la oficina " + oficinaReal.getNombre());
 
         cambioAulaGrupoForm.setColaborador(colaborador);
-        
-        
+
         CambioAulaGrupo cambioAulaGrupo = cambioAulaGrupoDAO.find(cambioAulaGrupoForm);
         cambioAulaGrupo.setEstadoEnum(CambioAulaGrupoEstadoEnum.RECHAZADO);
         cambioAulaGrupo.setUserModificacion(ds.getUsuario());
@@ -129,7 +136,7 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
     @Transactional
     public void aceptarCambioAulaGrupo(CambioAulaGrupo cambioAulaGrupoForm, DataSessionPivot ds) {
         CambioAulaGrupo cambioAulaGrupoBD = cambioAulaGrupoDAO.find(cambioAulaGrupoForm);
-        
+
         Persona persona = ds.getPersona();
         Oficina oficinaMain = cambioAulaGrupoForm.getOficina();
         Oficina oficinaReal = oficinaService.findOficinaHija(persona, oficinaMain);
@@ -153,6 +160,22 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         cambioAulaGrupoForm.setFechaRespuesta(new Date());
         cambioAulaGrupoDAO.update(cambioAulaGrupoForm);
 
+    }
+
+    @Override
+    public List<Aula> searchCambioAulaByName(String nombre, CicloAcademico ciclo) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        List<Aula> aulas = aulaDAO.searchByNombreFilter(nombre, 15);
+
+        return aulas;
+    }
+
+    @Override
+    public List<GrupoHoras> searchCambioGrupoByName(String nombre, CicloAcademico ciclo) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        List<GrupoHoras> gruposHoras = grupoHorasDAO.searchByNombreFilter(nombre, 15);
+
+        return gruposHoras;
     }
 
 }

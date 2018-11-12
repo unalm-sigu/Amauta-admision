@@ -194,8 +194,6 @@ public interface GpoSeccionService {
 
     List<DiaHoraGrupo> searchDiasHorasByHorasSemanales(List<DiaHoraGrupo> diasHoras, Integer horasSemanales, List<Dia> dias);
 
-    List<Aula> searchCambioAulaByName(String nombre, CicloAcademico ciclo);
-
-    List<GrupoHoras> searchCambioGrupoByName(String nombre, CicloAcademico ciclo);
+    
 
 }

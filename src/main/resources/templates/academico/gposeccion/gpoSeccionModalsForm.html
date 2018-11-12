@@ -163,10 +163,10 @@
            v-bind:okaction="enviarCambioAulaGrupoAceptar">
 
     <div slot="body">
-       
+
         <form class="panel-body" id="formAulaGrupo"  data-parsley-validate="true">
 
-            
+
 
             <div class="row">
                 <div class="col-md-6" >
@@ -181,6 +181,7 @@
                         <multiselect  v-model="changeAulaGpo.oficina"
                                       v-bind:options="oficinas"
                                       track-by="id"
+                                      placeholder="Seccione una oficina"
                                       deselect-label=""
                                       select-label=""
                                       v-bind:limit="15"
@@ -198,9 +199,12 @@
                         <multiselect  v-model="changeAulaGpo.aulaFin"  
                                       v-on:search-change="asyncFindCambioAulas"
                                       v-bind:options="aulas"
-                                      track-by="id"
                                       v-bind:internal-search="false"
                                       v-bind:limit="15"
+                                      placeholder="Escriba una aula"
+                                      track-by="id"
+                                      deselect-label=""
+                                      select-label=""
                                       label="codigo">
                             <template slot="option" slot-scope="props">
                                 <span class="block">Aula: {{props.option.codigo}}</span>
@@ -211,15 +215,17 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label> Grupo Nuevo</label>
+                        <label>Grupo Nuevo</label>
                         <multiselect  v-model="changeAulaGpo.grupoHorasFin"  
                                       v-on:search-change="asyncFindCambioGrupos"
                                       v-bind:options="grupos"
-                                      track-by="id"
                                       v-bind:internal-search="false"
                                       v-bind:limit="15"
-                                      label="codigo"
-                                      >
+                                      placeholder="Escriba un grupo"
+                                      track-by="id"
+                                      deselect-label=""
+                                      select-label=""
+                                      label="codigo">
                         </multiselect>
                     </div>
                 </div>
@@ -233,7 +239,7 @@
                     </div>
                 </div>
             </div>
-            
+
 
             <div class="tab-pane">
                 <section class="block">

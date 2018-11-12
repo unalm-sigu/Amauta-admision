@@ -11,13 +11,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CambioAulaGrupo;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -149,6 +153,71 @@ public class CambioAulaGrupoController {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping("asyncFindCambioAulas")
+    public JsonResponse asyncFindCambioAulas(
+            @RequestParam("nombre") String nombre,
+            HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            List<Aula> aulas = service.searchCambioAulaByName(nombre, ciclo);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Aula aula : aulas) {
+                ObjectNode json = JsonHelper.createJson(aula, jsonFactory, true, new String[]{"*", "aulaSuperior.nombre"});
+                json.put("esEspecifica", Boolean.TRUE);
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("asyncFindCambioGrupos")
+    public JsonResponse asyncFindCambioGrupos(
+            @RequestParam("nombre") String nombre,
+            HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            List<GrupoHoras> gruposHoras = service.searchCambioGrupoByName(nombre, ciclo);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (GrupoHoras gruposHora : gruposHoras) {
+                ObjectNode json = JsonHelper.createJson(gruposHora, jsonFactory, true, new String[]{"*"});
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 
