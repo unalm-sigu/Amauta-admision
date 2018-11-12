@@ -49,6 +49,7 @@ Vue.component("vuelect", {
                 formatSelection: function (info) {
                     vue.ciclo.descripcion2 = info.descripcion2;
                     vue.ciclo.id = info.id;
+                    vue.ciclo.tipo = info.tipo;
                     return info.descripcion2;
                 },
                 escapeMarkup: function (m) {

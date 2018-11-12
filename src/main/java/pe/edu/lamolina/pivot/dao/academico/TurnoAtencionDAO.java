@@ -1,7 +1,9 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
+import java.math.BigDecimal;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 
@@ -15,4 +17,5 @@ public interface TurnoAtencionDAO extends EasyDAO<TurnoAtencion> {
 
     TurnoAtencion findLastByConfiguracion(ConfiguracionTurnosAtencion config);
 
+    TurnoAtencion findByPrioridad(BigDecimal prioridad, CicloAcademico ciclo);
 }

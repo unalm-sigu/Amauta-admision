@@ -8,6 +8,8 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 
 public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
@@ -37,5 +39,17 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
     List<MatriculaResumen> allByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
 
     List<MatriculaResumen> findNotasIncompletas(List<Alumno> alumnos, CicloAcademico cicloAcademico);
+
+    public void updateList(List<Long> matriculables);
+
+    public void deleteMatriculable(CicloAcademico cicloAcademico);
+
+    public void savePosGrado(List<String> situacionesPosgrado, CicloAcademico cicloAcademico);
+
+    public void savePreGrado(List<String> situacionesPregrado, CicloAcademico cicloAcademico);
+
+    public MatriculaResumen findByAntPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
+
+    public MatriculaResumen findByDesPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
 
 }

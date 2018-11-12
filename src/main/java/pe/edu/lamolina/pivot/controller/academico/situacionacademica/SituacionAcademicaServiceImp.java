@@ -50,11 +50,11 @@ public class SituacionAcademicaServiceImp implements SituacionAcademicaService {
         situacionConfig.setSiguienteCiclo(BigDecimal.ONE.intValue());
         situacionConfig.setTramite(-1);
         situacionConfig.setCicloRegular(cicloAcademico.isTipoRegular() ? BigDecimal.ONE.intValue() : BigDecimal.ZERO.intValue());
-
+        /*
         logger.debug("Situacion Inicial {}, Esta Aprobado {}, Ciclos Estudiados {}, Capa {}, Ciclo Regular {}",
                 situacionAcademicaIni.getId(), alumnoCiclo.getEstaAprobado(),
                 ciclosEstudiados, situacionConfig.getCapa(), situacionConfig.getCicloRegular());
-
+         */
         //   SituacionConfig situacionFinal = situacionConfigDAO.findForSituacionFinal(situacionConfig);
         SituacionConfig situacionFinal = situacionConfigDAO.findsSituacionConfig(situacionConfig);
         return situacionFinal != null ? situacionAcademicaDAO.find(situacionFinal.getSituacionFinal().getId()) : null;

@@ -43,6 +43,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.CambioAulaGrupo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -119,12 +120,14 @@ public class GpoSeccionController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
+        CicloAcademico ciclo = service.findCiclo(ds.getCicloAcademico());
         Long cantidad = service.contarGpoSecc(ciclo);
 
         model.addAttribute("cantidad", cantidad);
         model.addAttribute("ciclo", ciclo);
-        model.addAttribute("resumen", service.resumenByCiclo(ciclo));
+        model.addAttribute("cicloJson", createCicloJson(ciclo).toString());
+        model.addAttribute("resumenJson", createResumenJson(service.resumenByCiclo(ciclo)));
+//        model.addAttribute("resumen", service.resumenByCiclo(ciclo));
         return "academico/gposeccion/gpoSeccion";
     }
 
@@ -221,6 +224,7 @@ public class GpoSeccionController {
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
         model.addAttribute("navigationJson", createNavegationJson(ruta, gpos, gpoSeccId, ds.getCicloAcademico()).toString());
         model.addAttribute("origen", ruta);
+        model.addAttribute("oficinasJson", createOficinasJson(oficinas).toString());
         model.addAttribute("oficinas", oficinas);
 
         return "academico/gposeccion/gpoSeccionForm";
@@ -372,6 +376,24 @@ public class GpoSeccionController {
             result.set("minFechaPeriodo", null);
             result.set("maxFechaPeriodo", null);
         }*/
+        jsonResponse.setSuccess(true);
+        jsonResponse.setData(result);
+        return jsonResponse;
+    }
+
+    @ResponseBody
+    @RequestMapping("{seccion}/loadCambiarAulaGrupo")
+    public JsonResponse loadCambiarAulaGrupo(@PathVariable("seccion") Long seccionId, HttpSession session) {
+        JsonResponse jsonResponse = new JsonResponse();
+        JsonNodeFactory nc = JsonNodeFactory.instance;
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        ObjectNode result = new ObjectNode(nc);
+
+        Seccion seccion = service.findSeccion(seccionId);
+
+        JsonHelper.createJson(new CambioAulaGrupo(), nc, false, new String[]{"*"});
+
         jsonResponse.setSuccess(true);
         jsonResponse.setData(result);
         return jsonResponse;
@@ -2277,7 +2299,22 @@ public class GpoSeccionController {
                 "ampliacionesVacantes.colaborador.cargo.nombre",
                 "ampliacionesVacantes.colaborador.persona.nombreCompleto",
                 "ampliacionesVacantes.oficina.id",
-                "ampliacionesVacantes.oficina.nombre",});
+                "ampliacionesVacantes.oficina.nombre",
+                "cambioAulaGrupos.*",
+                "cambioAulaGrupos.seccion.id",
+                "cambioAulaGrupos.colaborador.id",
+                "cambioAulaGrupos.colaborador.cargo.nombre",
+                "cambioAulaGrupos.colaborador.persona.nombreCompleto",
+                "cambioAulaGrupos.oficina.id",
+                "cambioAulaGrupos.oficina.nombre",
+                "cambioAulaGrupos.aulaInicio.id",
+                "cambioAulaGrupos.aulaInicio.codigo",
+                "cambioAulaGrupos.aulaFin.id",
+                "cambioAulaGrupos.aulaFin.codigo",
+                "cambioAulaGrupos.grupoHorasInicio.id",
+                "cambioAulaGrupos.grupoHorasInicio.codigo",
+                "cambioAulaGrupos.grupoHorasFin.id",
+                "cambioAulaGrupos.grupoHorasFin.codigo"});
 
             BigDecimal porcentajeAvance = BigDecimal.ZERO;
             for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
@@ -2444,6 +2481,22 @@ public class GpoSeccionController {
             gpos.add(new GrupoSeccion(Long.parseLong(string)));
         }
         return gpos;
+    }
+
+    private ObjectNode createResumenJson(GpoSeccionResumen resumen) {
+        ObjectNode nodeJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
+        return nodeJson;
+    }
+
+    private ArrayNode createOficinasJson(List<Oficina> oficinas) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (Oficina oficina : oficinas) {
+            ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
+                "*"
+            });
+            array.add(node);
+        }
+        return array;
     }
 
 }

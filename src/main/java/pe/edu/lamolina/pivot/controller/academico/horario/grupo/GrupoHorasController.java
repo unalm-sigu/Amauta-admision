@@ -327,7 +327,7 @@ public class GrupoHorasController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.clonar(cicloOrigen, ds.getCicloAcademico());
             response.setSuccess(Boolean.TRUE);
-            response.setMessage("Se retiró el horario satisfactoriamente");
+            response.setMessage("Se clonó el horario satisfactoriamente");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

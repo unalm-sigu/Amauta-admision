@@ -1289,6 +1289,13 @@ public class ProgDataServiceImp implements ProgDataService {
             String gpoSeccCode = entry.getKey();
             Seccion seccionTCUR = entry.getValue();
             List<Seccion> seccionesPCUR = mapSeccionesPCurBD.get(gpoSeccCode);
+            if (seccionesPCUR == null) {
+                System.out.println("No hay secciones PCUR para el TCUR " + seccionTCUR.getCodigo());
+                System.out.println("No hay secciones PCUR para el TCUR " + seccionTCUR.getCodigo());
+                System.out.println("No hay secciones PCUR para el TCUR " + seccionTCUR.getCodigo());
+                System.out.println("No hay secciones PCUR para el TCUR " + seccionTCUR.getCodigo());
+            }
+            seccionesPCUR = (seccionesPCUR == null) ? new ArrayList() : seccionesPCUR;
             for (Seccion seccionPCUR : seccionesPCUR) {
                 seccionPCUR.setSeccionSuperior(seccionTCUR);
                 seccionDAO.update(seccionPCUR);
@@ -1691,6 +1698,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     Curso cursoDb = mapCursos.get(curNuevo);
                     cursoDb.setCreditosTeoria(curCreditTeo);
                     cursoDb.setCreditosPractica(curCreditPra);
+                    cursoDb.setDepartamentoAcademico(mapDepartamentosAcademicos.get(depCodigo));
                     cursoDAO.update(cursoDb);
                     continue;
                 }

@@ -76,4 +76,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     void updateSituacionCapaCredCur(Alumno alumno);
 
+    public List<Alumno> allByNameSinMatriculaResumen(String nombre, CicloAcademico cicloAcademico);
+
 }

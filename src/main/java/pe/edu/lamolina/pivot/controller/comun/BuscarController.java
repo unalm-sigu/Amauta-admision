@@ -632,7 +632,7 @@ public class BuscarController {
             for (CicloAcademico ciclo : ciclos) {
                 ObjectNode node = JsonHelper.createJson(ciclo, jFactory, true,
                         new String[]{
-                            "id", "descripcion", "codigo", "descripcion2"
+                            "id", "descripcion", "codigo", "descripcion2","tipo"
                         });
                 jsonList.add(node);
             }

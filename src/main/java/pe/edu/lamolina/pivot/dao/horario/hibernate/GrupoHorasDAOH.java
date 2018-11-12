@@ -11,6 +11,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
@@ -20,23 +21,23 @@ import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 
 @Repository
 public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements GrupoHorasDAO {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     public GrupoHorasDAOH() {
         super();
         setClazz(GrupoHoras.class);
     }
-
+    
     @Override
     public GrupoHoras findByCode(String codigo) {
         Octavia sql = Octavia.query()
                 .from(GrupoHoras.class, "gh")
                 .filter("gh.codigo", codigo);
-
+        
         return find(sql);
     }
-
+    
     @Override
     public GrupoHoras findByCodeTipoCiclo(String codigo, TipoCicloEnum tipoCicloEnum) {
         List<String> tiposCiclos = new ArrayList<>();
@@ -49,29 +50,29 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .in("tgh.tipoCiclo", tiposCiclos);
         return find(sql);
     }
-
+    
     @Override
     public GrupoHoras findGrupoHorasByCode(String codigo) {
         Octavia sql = Octavia.query()
                 .from(GrupoHoras.class, "grup")
                 .filter("codigo", codigo);
-
+        
         return find(sql);
     }
-
+    
     @Override
     public List<GrupoHoras> allGrupoHoras(DynatableFilter filter, Long idTipoGrupo) {
-
+        
         DynatableSql sql = new DynatableSql(filter)
                 .from(GrupoHoras.class, "gh")
                 .leftJoin("tipoGrupoHoras tgh")
                 .searchFields("codigo", "letra")
                 .filter("tgh.id", idTipoGrupo)
                 .orderBy("gh.id desc");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public GrupoHoras find(GrupoHoras grupoHoras) {
         Octavia sql = Octavia.query()
@@ -79,10 +80,10 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .leftJoin("diaHoraGrupo dhg")
                 .leftJoin("tipoGrupoHoras tgh")
                 .filter("grup.id", grupoHoras);
-
+        
         return find(sql);
     }
-
+    
     @Override
     public List<GrupoHoras> allByTipoGrupoHora(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -94,13 +95,13 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .filter("ca.id", cicloAcademico);
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<GrupoHoras> allByTipoGpoDynatable(DynatableFilter filter,
             TipoGrupoHoras tipoGrupoHoras,
             CicloAcademico cicloAcademico,
             List<GrupoHoras> grupoHorasFilter) {
-
+        
         DynatableSql sql = new DynatableSql(filter)
                 .selectDistinct("gh")
                 .from(DiaHoraGrupo.class, "dhg")
@@ -109,10 +110,10 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .filter("ca.id", cicloAcademico)
                 .in("gh.id", grupoHorasFilter)
                 .searchFields("gh.codigo");
-
+        
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<GrupoHoras> allZetasByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
@@ -122,7 +123,7 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .searchFields("gh.codigo");
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<GrupoHoras> allGrupo() {
         Octavia sql = Octavia.query()
@@ -131,8 +132,19 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .filter("gh.tipoCiclo", "REGULAR")
                 .filter("gh.tipoSeccion", TipoSeccionEnum.TEO)
                 .orderBy("gh.codigo");
-
+        
         return all(sql);
     }
-
+    
+    @Override
+    public List<GrupoHoras> searchByNombreFilter(String nombre, Integer limit) {
+        Octavia sql = Octavia.query()
+                .from(GrupoHoras.class, "gh")
+                .join("tipoGrupoHoras tgh")
+                .filter("gh.codigo", "like", nombre)
+                .orderBy("gh.codigo")
+                .limit(limit);
+        
+        return sql.all(getCurrentSession());
+    }
 }

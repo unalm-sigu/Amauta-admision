@@ -117,7 +117,6 @@ public class ConfiguracionTurnoController {
             ArrayNode horas = new ArrayNode(JsonNodeFactory.instance);
             ArrayNode dias = new ArrayNode(JsonNodeFactory.instance);
 
-//            List<TurnoAtencion> turnosHora = null;
             int i = 1;
             for (Map.Entry<String, List<TurnoAtencion>> map : mapTurnos.entrySet()) {
                 List<TurnoAtencion> turnosHora = map.getValue();

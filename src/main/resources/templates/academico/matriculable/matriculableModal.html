@@ -1,37 +1,35 @@
-<div class="modal fade" id="viewModal">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title bold">Agregar Matriculable</h5>
-            </div>
-            <div class="modal-body">
-                <form id="formMatriculable" method="POST" th:action="@{/academico/matriculable/save}">
-
-                    <div class="row m-b-md">
-                        <div class="form-group">
-                            <div class="col-md-12 text-center">
-                                <input type="text" class="form-control"/>
-                            </div>
-                        </div>
-                        <hr/>
-                        <div class="form-group">
-                            <label for="ciclos" class="col-md-12 control-label">Modalidad de Estudio</label>
-                            <div class="col-md-12">
-                                <select name="" required="true" class="form-control select2">
-                                    <option></option>
-                                    <option th:each="item : ${modalidades}"  
-                                            th:text="${item.nombre}"
-                                            th:value="${item.id}" ></option>
-                                </select>
-                            </div>
+<modal-vik ref="modalMatriculable"
+           v-bind="modalMatriculable"
+           v-bind:okaction="saveMatriculable">
+    <div slot="body">
+        <div class="modal-body">
+            <form id="formMatriculable" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
+                <div class="row m-b-md">
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <label>Alumno</label>
+                            <multiselect v-model="alumno" 
+                                         v-bind:options='alumnos'
+                                         v-on:search-change="loadAlumno"
+                                         v-bind:custom-label='customLabel'
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Ingresa un caracter como mínimo"
+                                         required="true" >
+                                <template slot="option" slot-scope="props">
+                                    <div class="option__desc">
+                                        <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                                        <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                                    </div>
+                                </template>
+                            </multiselect>
                         </div>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Aceptar</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-            </div>
+                    <hr/>
+                </div>
+            </form>
         </div>
     </div>
-</div>
+</modal-vik>
