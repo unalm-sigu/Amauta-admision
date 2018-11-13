@@ -139,7 +139,7 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
                 MatriculaSeccion matSecc = getMatriSeccion(matriSeccionAlu, TipoSeccionEnum.TCUR);
                 matSecc.setEstadoEnum(EstadoMatriculaEnum.TRAS);
                 matriculaSeccionDAO.update(matSecc);
-
+                
                 MatriculaSeccion newMatriculaSeccion = new MatriculaSeccion();
                 newMatriculaSeccion.setVisible(null);
                 newMatriculaSeccion.setMatriculaResumen(matSecc.getMatriculaResumen());
