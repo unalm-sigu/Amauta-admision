@@ -97,8 +97,9 @@ public class EventoCicloAcademicoDAOH extends AbstractEasyDAO<EventoCicloAcademi
     public List<EventoCicloAcademico> allEventoCicloAcademicos(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(EventoCicloAcademico.class, "eca")
-                .join("eventoAcademico ea", "cicloAcademico ca", "color co")
-                .filter("eca.estado", EstadoEnum.ACT)
+                .join("eventoAcademico ea", "cicloAcademico ca")
+                .left("color col")
+                .filter("eca.estado", EstadoEnum.CRE)
                 .filter("ea.tipo", TipoEventoAcademicoEnum.EXAMEN)
                 .filter("eca.cicloAcademico", cicloAcademico);
         return all(sql);

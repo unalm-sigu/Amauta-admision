@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -56,8 +57,9 @@ public class RolExamenesController {
                 ObjectNode node = JsonHelper.createJson(rolexamen, JsonNodeFactory.instance, true,
                         new String[]{
                             "*",
-                            "cicloAcademico.descripcion",
-                            "tipo", "estado"
+                            "eventoCicloAcademico.cicloAcademico.descripcion",
+                            "eventoCicloAcademico.fechaInicio", "eventoCicloAcademico.fechaFin",
+                            "nombre", "estado", "fechaPublicacion"
                         });
 
                 array.add(node);
@@ -84,9 +86,10 @@ public class RolExamenesController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<EventoCicloAcademico> eventoCicloAcademicos = service.allEventoCicloAcademicos(ds.getCicloAcademico());
-
+            logger.debug("Estoy fuera del for allEventoCicloAcademico");
             ArrayNode arrayEventosCiclosAcademicos = new ArrayNode(jsonFactory);
             for (EventoCicloAcademico eventoCicloAcademico : eventoCicloAcademicos) {
+                logger.debug("Estoy dentro del for allEventoCicloAcademico", eventoCicloAcademico.getEstado());
                 ObjectNode json = createEventoCicloAcademicoJson(eventoCicloAcademico);
                 arrayEventosCiclosAcademicos.add(json);
             }
@@ -110,6 +113,28 @@ public class RolExamenesController {
             "id", "estado", "fechaInicio", "fechaFin", "fechaRegistro"
         });
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("save")
+    public JsonResponse save(@RequestBody RolExamenes rolExamenes, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.save(rolExamenes, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Guardado satisfactoriamnente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }
