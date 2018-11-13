@@ -82,7 +82,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         //  List<SeccionCursoMasivo> allSeccionesCursoMasivosActives = seccionCursoMasivoDAO.allActiveByCursosMasivos(allCursoMasivoExamenByGrupoRegular);
         DateTime today = new DateTime();
 
-        List<Seccion> seccionesEspeciales = new ArrayList<>();
+        List<Seccion> seccionesEspecialesRecolected = new ArrayList<>();
         List<Seccion> secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.REGULAR); //grupo horas regulares
         Map<String, List<Seccion>> grupoHorasLetraMap = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
         List<String> letras = new ArrayList<>(grupoHorasLetraMap.keySet());
@@ -102,12 +102,12 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
             letrasGruposRegulares.add(letraGrupoRegular);
         });
 
-        this.crearLetraGrupoRegular(seccionesEspeciales, letrasGruposRegulares, grupoHorasLetraMap, today, ds.getUsuario());
+        this.crearLetraGrupoRegular(seccionesEspecialesRecolected, letrasGruposRegulares, grupoHorasLetraMap, today, ds.getUsuario());
 
         secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.ESPECIAL);
         //consultar si se puede encontrar mas legras
         grupoHorasLetraMap = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
-        this.crearLetraGrupoRegular(seccionesEspeciales, letrasGruposRegulares, grupoHorasLetraMap, today, ds.getUsuario());
+        this.crearLetraGrupoRegular(seccionesEspecialesRecolected, letrasGruposRegulares, grupoHorasLetraMap, today, ds.getUsuario());
 
         for (LetraGrupoRegular letrasGruposRegulare : letrasGruposRegulares) {
             letraGrupoRegularDAO.save(letrasGruposRegulare);
