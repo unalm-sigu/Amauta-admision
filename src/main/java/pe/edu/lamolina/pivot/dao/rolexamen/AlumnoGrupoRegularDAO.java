@@ -12,4 +12,7 @@ public interface AlumnoGrupoRegularDAO extends EasyDAO<AlumnoGrupoRegular> {
 
     List<AlumnoGrupoRegular> allByLetraGrupoAndEstado(LetraGrupoRegular letraGrupoRegular, AlumnoRolExamenEstadoEnum estadoEnum);
 
+    List<AlumnoGrupoRegular> allByLetraGrupoRegularAndEstados(LetraGrupoRegular letrasGruposRegular, List<AlumnoRolExamenEstadoEnum> estados);
+
+    void updateEstado(AlumnoGrupoRegular alumnoGrupoRegular);
 }

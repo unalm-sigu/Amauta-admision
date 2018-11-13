@@ -32,4 +32,25 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
         return all(sql);
     }
 
+    @Override
+    public List<AlumnoGrupoRegular> allByLetraGrupoRegularAndEstados(LetraGrupoRegular letrasGruposRegular,
+            List<AlumnoRolExamenEstadoEnum> estados) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoGrupoRegular.class, "agr")
+                .join("letraGrupoRegular lgr", "userRegistro cur", "agr.alumno alu")
+                .join("alu.persona per")
+                .in("agr.estado", estados)
+                .filter("lgr.id", letrasGruposRegular);
+        return all(sql);
+    }
+
+    @Override
+    public void updateEstado(AlumnoGrupoRegular alumnoGrupoRegular) {
+        Octavia octavia = Octavia.update(AlumnoGrupoRegular.class);
+        octavia.set(alumnoGrupoRegular, "estado");
+        octavia.set(alumnoGrupoRegular, "usuarioExclusion");
+        octavia.set(alumnoGrupoRegular, "fechaExclusion");
+        this.update(octavia);
+    }
+
 }

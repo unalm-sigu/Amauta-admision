@@ -1,7 +1,11 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
+import java.util.List;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
+import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 
@@ -11,6 +15,26 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
     public SeccionGrupoRegularDAOH() {
         super();
         setClazz(SeccionGrupoRegular.class);
+    }
+
+    @Override
+    public List<SeccionGrupoRegular> allByLetraGrupoRegularAndEstados(
+            LetraGrupoRegular letrasGruposRegular, List<SeccionRolExamenEstadoEnum> estados) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("letraGrupoRegular lgr", "seccion sec")
+                .filter("lgr.id", letrasGruposRegular)
+                .in("sgr.estado", estados);
+        return all(sql);
+    }
+
+    @Override
+    public void updateEstado(SeccionGrupoRegular seccionGrupoRegularUpd) {
+        Octavia octavia = Octavia.update(SeccionGrupoRegular.class);
+        octavia.set(seccionGrupoRegularUpd, "estado");
+        octavia.set(seccionGrupoRegularUpd, "usuarioExclusion");
+        octavia.set(seccionGrupoRegularUpd, "fechaExclusion");
+        this.update(octavia);
     }
 
 }

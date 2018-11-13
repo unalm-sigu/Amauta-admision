@@ -1,9 +1,13 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.gruporegular;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,9 +18,11 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
+import pe.edu.lamolina.model.enums.GrupoHorasRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.GrupoRegularExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
@@ -25,7 +31,10 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoRegularDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.GrupoRegularExamenDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.LetraGrupoRegularDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoRegularDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -53,6 +62,15 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     @Autowired
     AlumnoGrupoRegularDAO alumnoGrupoRegularDAO;
 
+    @Autowired
+    LetraGrupoRegularDAO letraGrupoRegularDAO;
+
+    @Autowired
+    GrupoRegularExamenDAO grupoRegularExamenDAO;
+
+    @Autowired
+    SeccionGrupoRegularDAO seccionGrupoRegularDAO;
+
     @Override
     public List<RolExamenes> allRolExamenesActives(CicloAcademico cicloAcademico) {
         return rolExamenesDAO.allActiveByCiclo(cicloAcademico);
@@ -76,7 +94,10 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
             LetraGrupoRegular letraGrupoRegular = new LetraGrupoRegular();
             letraGrupoRegular.setLetra(x);
             letraGrupoRegular.setRolExamenes(rolExamenes);
+            letraGrupoRegular.setFechaRegistro(today.toDate());
+            letraGrupoRegular.setUserRegistro(ds.getUsuario());
 
+            letraGrupoRegular.setGruposRegularesExamenes(new ArrayList<>());
             letraGrupoRegular.setAlumnosGruposRegulares(new ArrayList<>());
             letraGrupoRegular.setSeccionesGruposRegulares(new ArrayList<>());
             letrasGruposRegulares.add(letraGrupoRegular);
@@ -89,6 +110,38 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         grupoHorasLetraMap = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
         this.crearLetraGrupoRegular(seccionesEspeciales, letrasGruposRegulares, grupoHorasLetraMap, today, ds.getUsuario());
 
+        for (LetraGrupoRegular letrasGruposRegulare : letrasGruposRegulares) {
+            letraGrupoRegularDAO.save(letrasGruposRegulare);
+        }
+    }
+
+    @Override
+    public List<LetraGrupoRegular> listGruposRegulares(RolExamenes rolExamenes) {
+        rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
+        List<LetraGrupoRegular> letrasGruposRegulares = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
+        for (LetraGrupoRegular letrasGruposRegular : letrasGruposRegulares) {
+
+            List<GrupoRegularExamen> grupos = grupoRegularExamenDAO.
+                    allByLetraGrupoRegularAndEstados(letrasGruposRegular, Arrays.asList(GrupoHorasRolExamenEstadoEnum.ACT, GrupoHorasRolExamenEstadoEnum.EXC));
+            List<SeccionGrupoRegular> secciones = seccionGrupoRegularDAO.
+                    allByLetraGrupoRegularAndEstados(letrasGruposRegular, Arrays.asList(SeccionRolExamenEstadoEnum.ACT, SeccionRolExamenEstadoEnum.EXC));
+            List<AlumnoGrupoRegular> alumnos = alumnoGrupoRegularDAO.
+                    allByLetraGrupoRegularAndEstados(letrasGruposRegular, Arrays.asList(AlumnoRolExamenEstadoEnum.ACT, AlumnoRolExamenEstadoEnum.EXC));
+
+            letrasGruposRegular.setGruposRegularesExamenes(grupos);
+            List<GrupoRegularExamen> gruposRegularesExamenesActivos = grupos.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
+            letrasGruposRegular.setGruposRegularesActivosCount(gruposRegularesExamenesActivos.size());
+
+            letrasGruposRegular.setSeccionesGruposRegulares(secciones);
+            List<SeccionGrupoRegular> seccionesGruposRegularesActivos = secciones.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
+            letrasGruposRegular.setSeccionesRegularesActivosCount(seccionesGruposRegularesActivos.size());
+
+            letrasGruposRegular.setAlumnosGruposRegulares(alumnos);
+            List<AlumnoGrupoRegular> alumnosGruposRegularesActivos = alumnos.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
+            letrasGruposRegular.setAlumnosRegularesActivosCount(alumnosGruposRegularesActivos.size());
+        }
+
+        return letrasGruposRegulares;
     }
 
     public void crearLetraGrupoRegular(
@@ -121,11 +174,26 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
                     seccionesEspeciales.add(seccion);
                 } else {
                     SeccionGrupoRegular seccionGrupoRegular = new SeccionGrupoRegular();
+                    seccionGrupoRegular.setSeccion(seccion);
                     seccionGrupoRegular.setEstadoEnum(SeccionRolExamenEstadoEnum.ACT);
                     seccionGrupoRegular.setFechaRegistro(today.toDate());
                     seccionGrupoRegular.setLetraGrupoRegular(letraGrupoRegular);
                     seccionGrupoRegular.setUserRegistro(usuario);
                     letraGrupoRegular.getSeccionesGruposRegulares().add(seccionGrupoRegular);
+
+                    GrupoRegularExamen grupoRegularExamen = letraGrupoRegular.getGruposRegularesExamenes()
+                            .stream().filter(x -> x.getGrupoHoras().equals(seccion.getGrupoHoras()))
+                            .findFirst().orElse(null);
+
+                    if (grupoRegularExamen == null) {
+                        grupoRegularExamen = new GrupoRegularExamen();
+                        grupoRegularExamen.setEstadoEnum(GrupoHorasRolExamenEstadoEnum.ACT);
+                        grupoRegularExamen.setFechaRegistro(today.toDate());
+                        grupoRegularExamen.setGrupoHoras(seccion.getGrupoHoras());
+                        grupoRegularExamen.setLetraGrupoRegular(letraGrupoRegular);
+                        grupoRegularExamen.setUserRegistro(usuario);
+                        letraGrupoRegular.getGruposRegularesExamenes().add(grupoRegularExamen);
+                    }
 
                     matriculadosPorSeccion.forEach(x -> {
                         AlumnoGrupoRegular alumnoGrupoRegular = new AlumnoGrupoRegular();
@@ -140,6 +208,33 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
             }
         }
 
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void excluirGrupoRegular(SeccionGrupoRegular seccionGrupoRegular, Usuario usuario) {
+        seccionGrupoRegular.setUsuarioExclusion(usuario);
+        seccionGrupoRegular.setFechaExclusion(new Date());
+        seccionGrupoRegular.setEstadoEnum(SeccionRolExamenEstadoEnum.EXC);
+        seccionGrupoRegularDAO.updateEstado(seccionGrupoRegular);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void excluirGrupoRegular(GrupoRegularExamen grupoRegularExamen, Usuario usuario) {
+        grupoRegularExamen.setUsuarioExclusion(usuario);
+        grupoRegularExamen.setFechaExclusion(new Date());
+        grupoRegularExamen.setEstadoEnum(GrupoHorasRolExamenEstadoEnum.EXC);
+        grupoRegularExamenDAO.updateEstado(grupoRegularExamen);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void excluirGrupoRegular(AlumnoGrupoRegular alumnoGrupoRegular, Usuario usuario) {
+        alumnoGrupoRegular.setUsuarioExclusion(usuario);
+        alumnoGrupoRegular.setFechaExclusion(new Date());
+        alumnoGrupoRegular.setEstadoEnum(AlumnoRolExamenEstadoEnum.EXC);
+        alumnoGrupoRegularDAO.updateEstado(alumnoGrupoRegular);
     }
 
 }

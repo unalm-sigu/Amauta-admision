@@ -4,11 +4,22 @@ new Vue({
     el: '#main',
     data: {
         URL: APP.url('rolexamen/gruporegular'),
+        tipoAccion: {
+            LETRA: "LETRA",
+            GRUPO: "GRUPO",
+            SECCION: "SECCION",
+            ALUMNO: "ALUMNO"
+        },
         rolesExamenes: JSON.parse(jRolesExamenes),
-        rolExamen: null
+        rolExamen: null,
+        letraSelected: null,
+        letrasGruposRegulares: [],
+        seccionesGrupoRegularSelected: [],
+        gruposRegularesSelected: [],
+        alumnosGruposRegulares: []
     },
     mounted() {
-        console.dir(this.rolesExamenes);
+
     },
     methods: {
         rolExamenCustomLabel( { eventoCicloAcademico }) {
@@ -42,14 +53,58 @@ new Vue({
                         if (response.data.success) {
                             console.log("1");
                             // notify(response.data.message, 'info');
+                            this.listGruposRegulares(this.rolExamen);
                         } else {
                             //   notify(response.data.message, 'error');
                             console.log("2");
                         }
                         MODAL.hideWait();
-                    })
-                    .catch(error => {
-                        console.log(error);
+                    });
+        }, changeRolExamen() {
+            this.listGruposRegulares(this.rolExamen);
+        }, listGruposRegulares(rolExamen) {
+            MODAL.showWait("Espere un momento por favor");
+            AXIOS.post(`${this.URL}/listGruposRegulares`, rolExamen)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.letrasGruposRegulares = response.data.data;
+                        }
+                        MODAL.hideWait();
+                    });
+        }, loadModalSecciones(letraGrupoRegular) {
+            this.letraSelected = letraGrupoRegular;
+            this.seccionesGrupoRegularSelected = letraGrupoRegular.seccionesGruposRegulares;
+            this.$refs.seccionModal.open();
+        }, loadModalGrupos(letraGrupoRegular) {
+            this.letraSelected = letraGrupoRegular;
+            this.gruposRegularesSelected = letraGrupoRegular.gruposRegularesExamenes;
+            this.$refs.gruposModal.open();
+        }, loadModalAlumnos(letraGrupoRegular) {
+            this.letraSelected = letraGrupoRegular;
+            this.alumnosGruposRegulares = letraGrupoRegular.alumnosGruposRegulares;
+            this.$refs.alumnosModal.open();
+        }, excluir(obj, tipoAccion) {
+            MODAL.showWait("Espere un momento por favor");
+            AXIOS.post(`${this.URL}/${tipoAccion}/excluir`, obj)
+                    .then(response => {
+                        if (response.data.success) {
+                            obj.estadoEnum = {
+                                "name": "EXC",
+                                "value": "Excluido"
+                            };
+                            obj.estado = obj.estadoEnum.name;
+                            switch (tipoAccion) {
+                                case this.tipoAccion.GRUPO:
+                                    this.letraSelected.gruposRegularesActivosCount--;
+                                    break;
+                                case this.tipoAccion.SECCION:
+                                    this.letraSelected.seccionesRegularesActivosCount--;
+                                    break;
+                                case this.tipoAccion.ALUMNO:
+                                    this.letraSelected.alumnosRegularesActivosCount--;
+                                    break;
+                            }
+                        }
                         MODAL.hideWait();
                     });
         }
