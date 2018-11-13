@@ -191,10 +191,7 @@ public class GrupoRegularController {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-            if (TipoAccion.LETRA.name().equals(tipoAccion)) {
-                LetraGrupoRegular letraGrupoRegular = (LetraGrupoRegular) mapper.readValue(objeto.toString(), LetraGrupoRegular.class);
-                // grupoRegularService.excluirGrupoRegular(letraGrupoRegular, ds.getUsuario());
-            } else if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
+            if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
                 GrupoRegularExamen grupoRegularExamen = (GrupoRegularExamen) mapper.readValue(objeto.toString(), GrupoRegularExamen.class);
                 grupoRegularService.excluirGrupoRegular(grupoRegularExamen, ds.getUsuario(), ds.getCicloAcademico());
             } else if (TipoAccion.SECCION.name().equals(tipoAccion)) {
