@@ -1,0 +1,51 @@
+<template id="modalGrupoRegularAulaComp"> 
+    <div> 
+        <section class="panel-body">
+            <!--<section class="panel-body">-->
+            <div class="table-responsive" >
+                <table class="table table-bordered m-b-xs" >
+
+                    <thead>
+                        <tr>
+                            <th style="width: 12.5%" class="text-center">Hora</th>
+                            <th style="width: 12.5%" class="text-center" 
+                                v-for="dia in tabGrupos['regulares'].tblHorarios.dias">
+                                {{dia.nombre}}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="hora in tabGrupos['regulares'].tblHorarios.horas">
+                            <td class="v-middle">
+                                <span 
+                                    >
+                                    {{hora.descripcion}}
+                                </span>
+
+                            </td>
+                            <td  v-for="dia in tabGrupos['regulares'].tblHorarios.dias"> 
+                                <template v-if="tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
+                                    <span v-if="tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
+                                          v-on:click="selectDiaHoraGrupo(tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
+                                          class="form-control pointer"
+                                          v-bind:class="getClassGpoHorario(tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
+                                        {{tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}}
+                                    </span>
+                                </template>
+
+
+                                <span v-if="tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
+                                      class="form-control btn-danger"
+                                      >
+                                    {{tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
+                                </span>
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!--</section>-->
+        </section>
+    </div> 
+</template>

@@ -1561,7 +1561,8 @@ var app = new Vue({
             $vue.changeAulaGpo = {
                 oficina: {}
             };
-
+            
+            $global.$emit("loadGrupoRegularAulaComponent", $vue.seccionSeleccionada.id);
 
             $vue.$refs.modalEnviarCambioAulaGrupo.open();
 
