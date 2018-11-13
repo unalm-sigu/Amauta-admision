@@ -14,8 +14,8 @@ new Vue({
         rolExamen: null,
         letraSelected: null,
         letrasGruposRegulares: [],
-        seccionesGrupoRegularSelected: [],
-        gruposRegularesSelected: [],
+        seccionesGrupoRegulares: [],
+        gruposRegulares: [],
         alumnosGruposRegulares: []
     },
     mounted() {
@@ -73,40 +73,84 @@ new Vue({
                     });
         }, loadModalSecciones(letraGrupoRegular) {
             this.letraSelected = letraGrupoRegular;
-            this.seccionesGrupoRegularSelected = letraGrupoRegular.seccionesGruposRegulares;
-            this.$refs.seccionModal.open();
-        }, loadModalGrupos(letraGrupoRegular) {
-            this.letraSelected = letraGrupoRegular;
-            this.gruposRegularesSelected = letraGrupoRegular.gruposRegularesExamenes;
-            this.$refs.gruposModal.open();
-        }, loadModalAlumnos(letraGrupoRegular) {
-            this.letraSelected = letraGrupoRegular;
-            this.alumnosGruposRegulares = letraGrupoRegular.alumnosGruposRegulares;
-            this.$refs.alumnosModal.open();
-        }, excluir(obj, tipoAccion) {
             MODAL.showWait("Espere un momento por favor");
-            AXIOS.post(`${this.URL}/${tipoAccion}/excluir`, obj)
+            AXIOS.post(`${this.URL}/${this.tipoAccion.SECCION}/loadLetraGrupoRegularInfo`, letraGrupoRegular)
                     .then(response => {
                         if (response.data.success) {
-                            obj.estadoEnum = {
-                                "name": "EXC",
-                                "value": "Excluido"
-                            };
-                            obj.estado = obj.estadoEnum.name;
-                            switch (tipoAccion) {
-                                case this.tipoAccion.GRUPO:
-                                    this.letraSelected.gruposRegularesActivosCount--;
-                                    break;
-                                case this.tipoAccion.SECCION:
-                                    this.letraSelected.seccionesRegularesActivosCount--;
-                                    break;
-                                case this.tipoAccion.ALUMNO:
-                                    this.letraSelected.alumnosRegularesActivosCount--;
-                                    break;
-                            }
+                            this.seccionesGrupoRegulares = response.data.data;
+                            this.$refs.seccionModal.open();
+                        } else {
+                            //   notify(response.data.message, 'error');
                         }
                         MODAL.hideWait();
                     });
+
+        }, loadModalGrupos(letraGrupoRegular) {
+            this.letraSelected = letraGrupoRegular;
+
+            MODAL.showWait("Espere un momento por favor");
+            AXIOS.post(`${this.URL}/${this.tipoAccion.GRUPO}/loadLetraGrupoRegularInfo`, letraGrupoRegular)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.gruposRegulares = response.data.data;
+                            console.dir(response.data.data);
+                            this.$refs.gruposModal.open();
+                        } else {
+                            //   notify(response.data.message, 'error');
+                        }
+                        MODAL.hideWait();
+                    });
+        }, loadModalAlumnos(letraGrupoRegular) {
+            this.letraSelected = letraGrupoRegular;
+            MODAL.showWait("Espere un momento por favor");
+            AXIOS.post(`${this.URL}/${this.tipoAccion.ALUMNO}/loadLetraGrupoRegularInfo`, letraGrupoRegular)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.alumnosGruposRegulares = response.data.data;
+                            this.$refs.alumnosModal.open();
+                        } else {
+                            //   notify(response.data.message, 'error');
+                        }
+                        MODAL.hideWait();
+                    });
+        }, excluir(obj, tipoAccion) {
+            let vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea excluir?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/${tipoAccion}/excluir`, obj)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        obj.estadoEnum = {
+                                            "name": "EXC",
+                                            "value": "Excluido"
+                                        };
+                                        obj.estado = obj.estadoEnum.name;
+
+                                        switch (tipoAccion) {
+                                            case vue.tipoAccion.GRUPO:
+                                                vue.$refs.gruposModal.close();
+                                                break;
+                                            case vue.tipoAccion.SECCION:
+                                                vue.$refs.seccionModal.close();
+                                                vue;
+                                            case vue.tipoAccion.ALUMNO:
+                                                vue.$refs.alumnosModal.close();
+                                                break;
+                                        }
+                                        vue.listGruposRegulares(vue.rolExamen);
+                                    }
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
         }
     }
 });

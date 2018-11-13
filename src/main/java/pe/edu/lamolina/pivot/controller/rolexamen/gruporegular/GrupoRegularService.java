@@ -18,6 +18,12 @@ public interface GrupoRegularService {
 
     List<LetraGrupoRegular> listGruposRegulares(RolExamenes rolExamenes);
 
+    List<GrupoRegularExamen> allGruposRegularExamenByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
+
+    List<SeccionGrupoRegular> allSeccionesGrupoRegularExamenByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
+
+    List<AlumnoGrupoRegular> allAlumnosGrupoRegularByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
+
     void excluirGrupoRegular(SeccionGrupoRegular seccionGrupoRegular, Usuario usuario);
 
     void excluirGrupoRegular(GrupoRegularExamen grupoRegularExamen, Usuario usuario);

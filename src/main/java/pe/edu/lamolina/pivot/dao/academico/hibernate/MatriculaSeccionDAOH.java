@@ -1,24 +1,19 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
-import pe.edu.lamolina.model.horario.GrupoHoras;
 
 @Repository
 public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> implements MatriculaSeccionDAO {
@@ -36,6 +31,19 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
                 .leftJoin("per.tipoDocumento tdoc")
                 .filter("ms.estado", EstadoMatriculaEnum.MAT)
+                .filter("sec.id", seccion)
+                .orderBy("per.paterno", "per.materno", "per.nombres");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<MatriculaSeccion> allBySeccion(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
+                .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
+                .leftJoin("per.tipoDocumento tdoc")
                 .filter("sec.id", seccion)
                 .orderBy("per.paterno", "per.materno", "per.nombres");
 
