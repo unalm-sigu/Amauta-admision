@@ -196,7 +196,7 @@ public class GrupoRegularController {
                 // grupoRegularService.excluirGrupoRegular(letraGrupoRegular, ds.getUsuario());
             } else if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
                 GrupoRegularExamen grupoRegularExamen = (GrupoRegularExamen) mapper.readValue(objeto.toString(), GrupoRegularExamen.class);
-                grupoRegularService.excluirGrupoRegular(grupoRegularExamen, ds.getUsuario());
+                grupoRegularService.excluirGrupoRegular(grupoRegularExamen, ds.getUsuario(), ds.getCicloAcademico());
             } else if (TipoAccion.SECCION.name().equals(tipoAccion)) {
                 SeccionGrupoRegular seccionGrupoRegular = (SeccionGrupoRegular) mapper.readValue(objeto.toString(), SeccionGrupoRegular.class);
                 grupoRegularService.excluirGrupoRegular(seccionGrupoRegular, ds.getUsuario());

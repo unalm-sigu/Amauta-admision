@@ -26,7 +26,7 @@ public interface GrupoRegularService {
 
     void excluirGrupoRegular(SeccionGrupoRegular seccionGrupoRegular, Usuario usuario);
 
-    void excluirGrupoRegular(GrupoRegularExamen grupoRegularExamen, Usuario usuario);
+    void excluirGrupoRegular(GrupoRegularExamen grupoRegularExamen, Usuario usuario, CicloAcademico cicloAcademico);
 
     void excluirGrupoRegular(AlumnoGrupoRegular seccionGrupoRegular, Usuario usuario);
 

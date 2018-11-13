@@ -221,6 +221,23 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
 
     @Override
     @Transactional(readOnly = false)
+    public void excluirGrupoRegular(GrupoRegularExamen grupoRegularExamen, Usuario usuario, CicloAcademico cicloAcademico) {
+        grupoRegularExamen = grupoRegularExamenDAO.find(grupoRegularExamen.getId());
+        grupoRegularExamen.setUsuarioExclusion(usuario);
+        grupoRegularExamen.setFechaExclusion(new Date());
+        grupoRegularExamen.setEstadoEnum(GrupoHorasRolExamenEstadoEnum.EXC);
+        grupoRegularExamenDAO.updateEstado(grupoRegularExamen);
+
+        List<Seccion> secciones = seccionDAO.allByCicloAndGrupoHoras(cicloAcademico, grupoRegularExamen.getGrupoHoras());
+        List<SeccionGrupoRegular> seccionesGruposRegulares
+                = seccionGrupoRegularDAO.allByLetraGrupoRegularAndSecciones(grupoRegularExamen.getLetraGrupoRegular(), secciones);
+        for (SeccionGrupoRegular seccionGrupoRegular : seccionesGruposRegulares) {
+            this.excluirGrupoRegular(seccionGrupoRegular, usuario);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
     public void excluirGrupoRegular(SeccionGrupoRegular seccionGrupoRegular, Usuario usuario) {
         seccionGrupoRegular = seccionGrupoRegularDAO.find(seccionGrupoRegular.getId());
 
@@ -235,15 +252,6 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccionGrupoRegular.getSeccion());
         List<Alumno> alumnos = matriculasSeccion.stream().map(x -> x.getMatriculaResumen().getAlumno()).collect(Collectors.toList());
         alumnoGrupoRegularDAO.updateEstado(alumnos, AlumnoRolExamenEstadoEnum.EXC, usuario, today.toDate());
-    }
-
-    @Override
-    @Transactional(readOnly = false)
-    public void excluirGrupoRegular(GrupoRegularExamen grupoRegularExamen, Usuario usuario) {
-        grupoRegularExamen.setUsuarioExclusion(usuario);
-        grupoRegularExamen.setFechaExclusion(new Date());
-        grupoRegularExamen.setEstadoEnum(GrupoHorasRolExamenEstadoEnum.EXC);
-        grupoRegularExamenDAO.updateEstado(grupoRegularExamen);
     }
 
     @Override

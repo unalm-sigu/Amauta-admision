@@ -21,6 +21,15 @@ public class GrupoRegularExamenDAOH extends AbstractEasyDAO<GrupoRegularExamen> 
     }
 
     @Override
+    public GrupoRegularExamen find(long id) {
+        Octavia sql = Octavia.query()
+                .from(GrupoRegularExamen.class, "gre")
+                .join("letraGrupoRegular lgr", "grupoHoras gh")
+                .filter("lgr.id", id);
+        return find(sql);
+    }
+
+    @Override
     public List<GrupoRegularExamen> allByLetraGrupoRegularAndEstados(LetraGrupoRegular letrasGruposRegular,
             List<GrupoHorasRolExamenEstadoEnum> estados) {
         Octavia sql = Octavia.query()

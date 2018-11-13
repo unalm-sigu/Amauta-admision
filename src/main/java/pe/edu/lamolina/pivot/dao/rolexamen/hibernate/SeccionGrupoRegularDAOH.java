@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
@@ -37,6 +38,17 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
                 .join("letraGrupoRegular lgr", "seccion sec")
                 .filter("lgr.id", letrasGruposRegular)
                 .in("sgr.estado", estados);
+        return all(sql);
+    }
+
+    @Override
+    public List<SeccionGrupoRegular> allByLetraGrupoRegularAndSecciones(
+            LetraGrupoRegular letrasGruposRegular, List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("letraGrupoRegular lgr", "seccion sec")
+                .filter("lgr.id", letrasGruposRegular)
+                .in("sec.id", secciones);
         return all(sql);
     }
 
