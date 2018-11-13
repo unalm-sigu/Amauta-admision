@@ -52,14 +52,6 @@ public class GrupoRegularController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
-        return "rolexamen/gruporegular/grupoRegular";
-    }
-
-    @RequestMapping(value = "nuevogruporegular", method = RequestMethod.GET)
-    public String nuevoGrupoRegular(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-
         List<RolExamenes> rolesExamenes = grupoRegularService.allRolExamenesActives(ds.getCicloAcademico());
 
         JsonNodeFactory jc = JsonNodeFactory.instance;
@@ -84,7 +76,7 @@ public class GrupoRegularController {
                             "*",
                             "rolExamen.*"}).toString()
         );*/
-        return "rolexamen/gruporegular/nuevoGrupoRegular";
+        return "rolexamen/gruporegular/grupoRegular";
     }
 
     @ResponseBody

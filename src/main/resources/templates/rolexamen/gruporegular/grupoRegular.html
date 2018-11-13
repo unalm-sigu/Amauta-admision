@@ -9,32 +9,245 @@
 
                 <header class="header b-b padder-lg">
                     <h2>Grupos Regulares <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
-                    <!-- 
-                    <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
-                    <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>  
-                    -->
-
-                    <div class="pull-right m-t" >
-                        <a class="btn btn-success"  th:href="@{/rolexamen/gruporegular/nuevogruporegular}">Nuevo Grupo Regular</a>
-                    </div>
                 </header>
 
                 <section class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
 
+                            <div class="row">
+                                <form id="frmCalcular">
+                                    <div class="form-group">
+                                        <label class="col-md-2 bold">Rol Examen</label>
+
+                                        <div class="col-md-4">  
+
+                                            <multiselect 
+                                                v-model="rolExamen"
+                                                v-on:input="changeRolExamen"
+                                                track-by="id"
+                                                v-bind:options="rolesExamenes"
+                                                v-bind:custom-label="rolExamenCustomLabel" 
+                                                required="true"
+                                                >
+                                            </multiselect>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <a class="btn btn-success"
+                                               v-on:click.prevent="calcularGrupoRegular">
+                                                Calcular
+                                            </a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                        </section>
+                    </section>
+
+                    <section class="panel">
+                        <section class="panel-body">
+                            <div class="row">
+
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-2 text-center">Grupo</th>
+                                            <th class="col-md-2 text-center">Secciones</th>
+                                            <th class="col-md-2 text-center">Alumnos</th>
+                                            <th class="col-md-2 text-center">Fecha</th>
+                                            <th class="col-md-1 text-center">Hora</th>
+                                            <th class="col-md-2 text-center">Registro</th>
+                                            <th class="col-md-1 text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in letrasGruposRegulares" v-if="letrasGruposRegulares">
+                                            <td>
+                                                <a v-on:click="loadModalGrupos(item)"
+                                                   class="pointer"
+                                                   >{{ item.letra }} ({{item.gruposRegularesActivosCount}})</a>
+                                            </td>
+                                            <td>  
+                                                <a v-on:click.prevent="loadModalSecciones(item)"
+                                                   class="pointer">{{ item.seccionesRegularesActivosCount}}</a>
+                                            </td>
+                                            <td>
+                                                <a v-on:click.prevent="loadModalAlumnos(item)"
+                                                   class="pointer">{{ item.alumnosRegularesActivosCount }}</a>
+                                            </td>
+                                            <td>
+                                                <span v-text="item.fechaExamen"></span>
+                                            </td>
+                                            <td>
+                                                <span v-if="item.hora" v-text="item.hora.descripcion"></span>
+                                            </td>
+                                            <td>
+                                                <span class="block" v-text="item.userRegistro.persona.apellidosNombres"></span>
+                                                <small v-text="item.fechaRegistro">
+                                                </small>
+                                            </td>
+                                            <td class="v-middle">
+                                                <div class="dropdown actions">
+                                                    <a class="dropdown-toggle" data-toggle="dropdown">
+                                                        <i class="glyphicon glyphicon-option-vertical"></i>
+                                                    </a> 
+                                                    <ul class="dropdown-menu pull-right">
+                                                        <li><a v-on:click.prevent="excluir(item,tipoAccion.LETRA)">Excluir</a></li>
+                                                        <li><a v-on:click.prevent="excluir(item,tipoAccion.LETRA)">Mover</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+
                         </section>
                     </section>
                 </section>
 
+                <modal-vik ref="gruposModal"
+                           id="modalGrupos"
+                           header="true"
+                           title="Grupos Horarios"
+                           modalsize="modal-md"
+                           v-bind:showaccept="false">
+                    <div slot="body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-6 text-center">Codigo</th>
+                                    <th class="col-md-5 text-center">Estado</th>
+                                    <th class="col-md-1 text-center"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="gHor in gruposRegularesSelected">
+                                    <td>
+                                        <span v-text="gHor.grupoHoras.codigo"></span>
+                                    </td>
+                                    <td class="text-center">
+                            <v-estado v-bind:codigo="gHor.estado" v-bind:valor="gHor.estadoEnum.value"/> 
+                            </td>
+                            <td>
+                                <div class="dropdown actions">
+                                    <a class="dropdown-toggle" data-toggle="dropdown">
+                                        <i class="glyphicon glyphicon-option-vertical"></i>
+                                    </a> 
+                                    <ul class="dropdown-menu pull-right">
+                                        <li><a v-if="gHor.isEstadoActivo" v-on:click.prevent="excluir(gHor,tipoAccion.GRUPO)">Excluir</a></li>
+                                        <li><a >Mover</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </modal-vik>
 
+
+                <modal-vik ref="seccionModal"
+                           id="modalSecciones"
+                           header="true"
+                           title="Secciones"
+                           modalsize="modal-md"
+                           v-bind:showaccept="false">
+                    <div slot="body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-6 text-center">Codigo</th>
+                                    <th class="col-md-5 text-center">Estado</th>
+                                    <th class="col-md-1 text-center"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="sec in seccionesGrupoRegularSelected">
+                                    <td>
+                                        <span v-text="sec.seccion.codigo2"></span>
+                                    </td>
+                                    <td >
+                            <v-estado v-bind:codigo="sec.estado" v-bind:valor="sec.estadoEnum.value"/> 
+                            </td>
+                            <td>
+                                <div class="dropdown actions pointer">
+                                    <a class="dropdown-toggle" data-toggle="dropdown">
+                                        <i class="glyphicon glyphicon-option-vertical"></i>
+                                    </a> 
+                                    <ul class="dropdown-menu pull-right">
+                                        <li><a v-if="sec.isEstadoActivo"  v-on:click.prevent="excluir(sec,tipoAccion.SECCION)">Excluir</a></li>
+                                        <li><a >Mover</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </modal-vik>
+
+                <modal-vik ref="alumnosModal"
+                           id="modalAlumnos"
+                           header="true"
+                           title="Alumnos"
+                           modalsize="modal-md"
+                           v-bind:showaccept="false">
+                    <div slot="body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-3 text-center">Codigo</th>
+                                    <th class="col-md-5 text-center">Alumno</th>
+                                    <th class="col-md-3 text-center">Estado</th>
+                                    <th class="col-md-1 text-center"></th>
+                                </tr>
+                            </thead>
+                            <tbody style="height:200px;overflow-y:auto;">
+                                <tr v-for="alu in alumnosGruposRegulares">
+                                    <td>
+                                        <span v-text="alu.alumno.codigo"></span>
+                                    </td>
+                                    <td v-text="alu.alumno.persona.apellidosNombres">
+
+                                    </td>
+                                    <td >
+                            <v-estado v-bind:codigo="alu.estado" v-bind:valor="alu.estadoEnum.value"/> 
+                            </td>
+                            <td>
+                                <div class="dropdown actions pointer">
+                                    <a class="dropdown-toggle" data-toggle="dropdown">
+                                        <i class="glyphicon glyphicon-option-vertical"></i>
+                                    </a> 
+                                    <ul class="dropdown-menu pull-right">
+                                        <li><a v-if="alu.isEstadoActivo" v-on:click.prevent="excluir(alu,tipoAccion.ALUMNO)">Excluir</a></li>
+                                        <li><a >Mover</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </modal-vik>
             </div>
 
         </section>
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_modules/vue-modal2"></div>
+            <script th:src="@{/phobos/modules/vue-generalComponents.js}" charset="utf-8"></script>
+
+            <script th:inline="javascript">
+                var jRolesExamenes = /*[[${jRolesExamenes}]]*/ {};
+                var jGrupoRegularExamen = /*[[${jGrupoRegularExamen}]]*/ {};
+            </script>
             <script th:src="@{/app/rolexamen/gruporegular/grupoRegular.js}" charset="utf-8"></script>
+
+
         </div>
 
     </body>
