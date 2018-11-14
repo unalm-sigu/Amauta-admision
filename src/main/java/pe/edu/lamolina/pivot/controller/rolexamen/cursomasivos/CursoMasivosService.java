@@ -16,13 +16,10 @@ public interface CursoMasivosService {
 
     List<RolExamenes> allRolExamenesByCicloActivo(CicloAcademico cicloAcademico);  
 
-//    void save(List<CursoMasivoExamen> cursoMasivosExamenes, CicloAcademico cicloAcademico, DataSessionPivot ds);
-
     void save(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     List<CursoMasivoExamen> listCursosMasivosExamenes(RolExamenes rolExamenes);
 
-    //Curso
     List<Curso> allCursosByCiclo(String nombre, RolExamenes rolExamenes, CicloAcademico cicloAcademico);
 
 }
