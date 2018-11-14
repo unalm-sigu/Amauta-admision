@@ -22,7 +22,9 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -37,8 +39,20 @@ public class RolExamenesController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
+        JsonNodeFactory jc = JsonNodeFactory.instance;
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+
+        List<Hora> horas = service.allHoras();
+        ArrayNode jHoras = new ArrayNode(jc);
+        horas.forEach(x -> {
+            jHoras.add(JsonHelper.createJson(x, jc, false,
+                    new String[]{
+                        "*"
+                    }));
+        });
+        model.addAttribute("jHoras", jHoras.toString());
         return "rolexamen/rolexamenes/rolexamenes";
     }
 
@@ -95,6 +109,36 @@ public class RolExamenesController {
             }
 
             response.setData(arrayEventosCiclosAcademicos);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("changeEventoCicloAcademico")
+    public JsonResponse changeEventoCicloAcademico(@RequestBody EventoCicloAcademico eventoCicloAcademico, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<SemanaExamen> semanasExamen = service.allSemanaExamenByEventoCiclo(eventoCicloAcademico);
+            ArrayNode jSemanasExamen = new ArrayNode(jsonFactory);
+            semanasExamen.forEach(x -> {
+                jSemanasExamen.add(JsonHelper.createJson(x, jsonFactory, true,
+                        new String[]{
+                            "*",
+                            "horaInicio.*",
+                            "horaFin.*"
+                        }));
+            });
+
+            response.setData(jSemanasExamen);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

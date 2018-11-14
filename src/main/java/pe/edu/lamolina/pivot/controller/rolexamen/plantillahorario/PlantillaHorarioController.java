@@ -19,6 +19,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -53,15 +54,57 @@ public class PlantillaHorarioController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "rolExamenInformation", method = RequestMethod.POST)
-    public JsonResponse rolExamenInformation(@RequestBody RolExamenes rolExamenes,
+    @RequestMapping(value = "changeRolExamen", method = RequestMethod.POST)
+    public JsonResponse changeRolExamen(@RequestBody RolExamenes rolExamenes,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             rolExamenes = plantillaHorarioService.findRolExamenes(rolExamenes);
-            
-            response.setMessage("Grupos regulares calculados corretamente.");
+            response.setData(JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, false,
+                    new String[]{
+                        "*",
+                        "eventoCicloAcademico.eventoAcademico.*",
+                        "semanasExamen.rolExamenes",
+                        "semanasExamen.*",
+                        "semanasExamen.horaFin",
+                        "semanasExamen.horaInicio"
+                    }));
+
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "changeSemanaExamen", method = RequestMethod.POST)
+    public JsonResponse changeSemanaExamen(@RequestBody SemanaExamen semanaExamen,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            logger.debug("changeSemanaExamen");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "calcularPlantillaHorario", method = RequestMethod.POST)
+    public JsonResponse calcularPlantillaHorario(@RequestBody SemanaExamen semanaExamen,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            logger.debug("changeSemanaExamen");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

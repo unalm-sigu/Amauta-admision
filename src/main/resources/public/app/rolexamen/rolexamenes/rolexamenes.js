@@ -13,8 +13,11 @@ new Vue({
             modalsize: 'modal-md'
         },
         eventosCiclos: [],
-        rolExamenes: {eventoCicloAcademico: {}}
-
+        rolExamenes: {
+            eventoCicloAcademico: {},
+            semanasExamen: []
+        },
+        horas: JSON.parse(jHoras)
     },
     mounted() {
         let $vue = this;
@@ -75,6 +78,14 @@ new Vue({
                 }
             });
 
-        },
+        }, changeEventoCicloAcademico() {
+
+            AXIOS.post(APP.url('rolexamen/rolexamenes/changeEventoCicloAcademico'), this.rolExamenes.eventoCicloAcademico)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.rolExamenes.semanasExamen = response.data.data;
+                        }
+                    });
+        }
     }
 });

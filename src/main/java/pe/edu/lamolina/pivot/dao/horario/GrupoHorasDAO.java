@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 
 public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
 
@@ -19,6 +20,8 @@ public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
     GrupoHoras findGrupoHorasByCode(String codigo);
 
     List<GrupoHoras> allGrupoHoras(DynatableFilter filter, Long idTipoGrupo);
+
+    List<GrupoHoras> allGrupoHoras(List<Long> gruposHoras);
 
     GrupoHoras find(GrupoHoras grupoHoras);
 
@@ -37,5 +40,9 @@ public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
     List<GrupoHoras> searchByNombreFilter(String nombre, Integer limit);
 
     Map<Long, Integer> countAlumnosGroupByGrupoHoras(List grupoHoras, CicloAcademico cicloAcademico);
+
+    Map<Long, Integer> allGruposCountBySemanaExamen(SemanaExamen semanaExamen,
+            CicloAcademico cicloAcademico,
+            TipoGrupoHorasEnum tipoGrupoHorasEnum);
 
 }

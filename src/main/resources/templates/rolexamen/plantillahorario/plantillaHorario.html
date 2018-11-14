@@ -22,14 +22,15 @@
 
                                         <div class="col-md-4">  
 
-                                            <multiselect 
-                                                v-model="rolExamen"
-                                                v-on:input="changeRolExamen"
-                                                track-by="id"
-                                                v-bind:options="rolesExamenes"
-                                                v-bind:custom-label="rolExamenCustomLabel" 
-                                                required="true"
-                                                >
+                                            <multiselect v-model='rolExamen' 
+                                                         label="nombre"
+                                                         v-on:input="changeRolExamen"
+                                                         placeholder=""
+                                                         track-by="id"
+                                                         v-bind:allow-empty="false"
+                                                         v-bind:options="rolesExamenes"
+                                                         deselect-label=""
+                                                         select-label="">
                                             </multiselect>
                                         </div>
                                     </div>
@@ -39,19 +40,27 @@
                                         <div class="col-md-4">  
 
                                             <multiselect 
-                                                v-model="rolExamen"
-                                                v-on:input="changeRolExamen"
+                                                v-model="semanaExamen"
+                                                v-on:input="changeSemanaExamen"
                                                 track-by="id"
-                                                v-bind:options="rolesExamenes"
-                                                v-bind:custom-label="rolExamenCustomLabel" 
-                                                required="true"
+                                                v-bind:options="rolExamen.semanasExamen"
+                                                label="numeroSemana"
+                                                internal-search="false"
+                                                v-bind:allow-empty="false"
+                                                deselect-label="" 
+                                                select-label="" 
                                                 >
                                             </multiselect>
                                         </div>
                                     </div>
                                 </form>
                             </div>
-
+                            <div class="row">
+                                <a class="btn btn-success pull-right"
+                                   v-on:click.prevent="calcularPlantillaHorario">
+                                    Calcular
+                                </a>
+                            </div>
                         </section>
                     </section>
 

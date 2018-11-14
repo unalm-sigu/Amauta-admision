@@ -1,50 +1,107 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.rolexamenes;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.Weeks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
 public class RolExamenesServiceImp implements RolExamenesService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     RolExamenesDAO rolexamenesDAO;
-
+    
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
+    
+    @Autowired
+    HoraDAO horaDAO;
+    
     @Override
     public List<EventoCicloAcademico> allEventoCicloAcademicos(CicloAcademico cicloAcademico) {
         List<EventoCicloAcademico> eventoCicloAcademicos = eventoCicloAcademicoDAO.allEventoCicloAcademicos(cicloAcademico);
         return eventoCicloAcademicos;
     }
-
+    
     @Override
     public List<RolExamenes> allRolExamenes(DynatableFilter filter, CicloAcademico cicloAcademico) {
         return rolexamenesDAO.allByDynatable(filter, cicloAcademico);
     }
-
+    
     @Override
     public void save(RolExamenes rolExamenes, DataSessionPivot ds) {
         rolExamenes.setEstado(EstadoEnum.CRE.name());
         rolExamenes.setFechaRegistro(new Date());
         rolExamenes.setUserRegistro(ds.getUsuario());
+        
+        rolExamenes.getSemanasExamen().forEach(x -> {
+            x.setRolExamenes(rolExamenes);
+        });
+        
         rolexamenesDAO.save(rolExamenes);
     }
-
+    
+    @Override
+    public List<Hora> allHoras() {
+        return horaDAO.all();
+    }
+    
+    @Override
+    public List<SemanaExamen> allSemanaExamenByEventoCiclo(EventoCicloAcademico eventoCicloAcademico) {
+        eventoCicloAcademico = eventoCicloAcademicoDAO.findEventoCicloAcademico(eventoCicloAcademico);
+        DateTime dateTime1 = new DateTime(eventoCicloAcademico.getFechaInicio());
+        DateTime dateTime2 = new DateTime(eventoCicloAcademico.getFechaFin());
+        
+        int dias = Days.daysBetween(dateTime1.toLocalDate(), dateTime2.toLocalDate()).getDays();
+        int diasSemana = dateTime1.dayOfWeek().withMaximumValue().getDayOfWeek();
+        if (++dias % diasSemana != 0) {
+            throw new PhobosException("La fecha inicio y fin programadas al evento, deben ser semanas contabilizables.");
+        }
+        //Weeks weeks = Weeks.weeksBetween(dateTime1.toLocalDate(), dateTime2.toLocalDate());
+        int weeks = dias / diasSemana;
+        List<SemanaExamen> semanasExamen = new ArrayList<>();
+        
+        DateTime lastDateOfWeek = null;
+        for (int i = 1; i <= weeks; i++) {
+            SemanaExamen semanaExamen = new SemanaExamen();
+            
+            semanaExamen.setNumeroSemana(i);
+            
+            DateTime fechaInicio = lastDateOfWeek == null ? new DateTime(dateTime1) : lastDateOfWeek.plusDays(BigDecimal.ONE.intValue());
+            semanaExamen.setFechaInicio(fechaInicio.toDate());
+            
+            lastDateOfWeek = fechaInicio.dayOfWeek().withMaximumValue();
+            semanaExamen.setFechaFin(lastDateOfWeek.toDate());
+            
+            semanaExamen.setHoraInicio(new Hora());
+            semanaExamen.setHoraFin(new Hora());
+            semanasExamen.add(semanaExamen);
+        }
+        
+        return semanasExamen;
+    }
+    
 }

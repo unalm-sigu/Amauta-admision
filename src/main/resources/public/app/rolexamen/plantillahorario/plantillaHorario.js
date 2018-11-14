@@ -5,7 +5,10 @@ new Vue({
     data: {
         URL: APP.url('rolexamen/plantillahorario'),
         rolesExamenes: JSON.parse(jRolesExamenes),
-        rolExamen: null
+        rolExamen: {
+            semanasExamen: []
+        },
+        semanaExamen: null
     },
     mounted() {
 
@@ -17,15 +20,27 @@ new Vue({
             }
             return `${eventoCicloAcademico.eventoAcademico.nombre}`;
         }, changeRolExamen() {
-            AXIOS.post(`${this.URL}/rolExamenInformation`, this.rolExamen)
+            AXIOS.post(`${this.URL}/changeRolExamen`, this.rolExamen)
                     .then(response => {
                         if (response.data.success) {
-                            // notify(response.data.message, 'info');
-                            this.listGruposRegulares(this.rolExamen);
-                        } else {
-                            //   notify(response.data.message, 'error');
+                            this.rolExamen = response.data.data;
                         }
-                        MODAL.hideWait();
+                    });
+        }, changeSemanaExamen() {
+            AXIOS.post(`${this.URL}/changeSemanaExamen`, this.semanaExamen)
+                    .then(response => {
+                        if (response.data.success) {
+
+                        }
+                        // MODAL.hideWait();
+                    });
+        }, calcularPlantillaHorario() {
+            AXIOS.post(`${this.URL}/calcularPlantillaHorario`, this.semanaExamen)
+                    .then(response => {
+                        if (response.data.success) {
+                            
+                        }
+                        // MODAL.hideWait();
                     });
         }
     }
