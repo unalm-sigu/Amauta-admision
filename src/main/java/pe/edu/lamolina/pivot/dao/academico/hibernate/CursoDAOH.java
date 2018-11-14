@@ -19,10 +19,14 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import static pe.edu.lamolina.model.enums.EstadoCursoCachimboEnum.ACT;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 
 @Repository
 public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
@@ -313,4 +317,31 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
         sql.limit(limit);
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public List<Curso> allForExamenByCiclo(String nombre, RolExamenes rolExamenes, CicloAcademico cicloAcademico) {
+        Octavia subQuery = Octavia.query()
+                .from(CursoMasivoExamen.class, "cme")
+                .join("rolExamenes re", "curso cur")
+                .filter("re.id", rolExamenes);
+
+        Octavia sql = Octavia.query()
+                .selectDistinct("cu")
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.cicloAcademico ca", "mc.curso cu")
+                .join("cu.departamentoAcademico")
+                .filter("mc.estado", EstadoMatriculaEnum.MAT)
+                .filter("ca.id", cicloAcademico)
+                .beginBlock()
+                .__().filter("cu.codigo", "like", nombre)
+                .__().filter("cu.nombre", "like", nombre)
+                .endBlock()
+                .notExists(subQuery)
+                .linkedBy("cu.id", "cur.id")
+                .orderBy("cu.nombre")
+                .limit(15);
+        return all(sql);
+
+    }
+
 }

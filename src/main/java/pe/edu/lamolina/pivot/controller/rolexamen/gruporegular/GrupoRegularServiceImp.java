@@ -56,7 +56,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     GrupoHorasDAO grupoHorasDAO;
 
     @Autowired
-    MatriculaSeccionDAO matriculaSeccionDAO;
+    MatriculaSeccionDAO matriculaSeccionDAO; 
 
     @Autowired
     AlumnoGrupoRegularDAO alumnoGrupoRegularDAO;
@@ -224,7 +224,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     public void excluirGrupoRegular(GrupoRegularExamen grupoRegularExamen, Usuario usuario, CicloAcademico cicloAcademico) {
         grupoRegularExamen = grupoRegularExamenDAO.find(grupoRegularExamen.getId());
         grupoRegularExamen.setUsuarioExclusion(usuario);
-        grupoRegularExamen.setFechaExclusion(new Date());
+        grupoRegularExamen.setFechaExclusion(new Date()); 
         grupoRegularExamen.setEstadoEnum(GrupoHorasRolExamenEstadoEnum.EXC);
         grupoRegularExamenDAO.updateEstado(grupoRegularExamen);
 
