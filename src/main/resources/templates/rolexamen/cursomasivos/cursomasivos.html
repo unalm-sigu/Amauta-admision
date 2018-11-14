@@ -1,0 +1,150 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Cursos Masivos </title>
+    </head>
+    <body>
+        <section layout:fragment="main">
+            <div id="cursomasivosVUE">
+
+                <header class="header b-b padder-lg">
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a th:if="false" type="button" class="btn btn-success" v-on:click="verNuevoCursoMasivos()">Nuevo Curso Masivo</a>
+                        </div>
+                    </div> 
+                    <h2>Cursos Masivos <span th:text="${cicloAcademico.descripcion}">2018-II</span></h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <div class="row">
+                                                            
+                                    <div class="row">
+                                        <div class="form-group">
+                                            <label class="m-t-md col-md-2 bold">Rol Examen</label>  
+                                            <div class="m-t-md col-md-4">
+                                                <multiselect 
+                                                    label="nombre"
+                                                    v-model="rolExamenes"
+                                                    placeholder=""
+                                                    track-by="id"
+                                                    v-bind:allow-empty="false"
+                                                    v-bind:options="rolesExamenes"
+                                                    deselect-label=""
+                                                    select-label="Seleccione este rol examen"
+                                                    v-on:input="loadCursosMasivosByRoleExamen">
+                                                </multiselect>
+                                            </div>
+                                        </div>
+                                    </div>                                   
+
+                                    <div class="row">
+                                        <div class="form-group">
+                                            <label class="m-t-lg col-md-2 bold">Cursos</label>
+                                            <div class="m-t-md col-md-4">
+                                                <multiselect 
+                                                    label="nombre"
+                                                    v-model="curso"
+                                                    v-on:search-change="loadCurso"
+                                                    placeholder=""
+                                                    track-by="id"
+                                                    v-bind:allow-empty="false"
+                                                    v-bind:internal-search="false"
+                                                    v-bind:options="cursos"
+                                                    v-bind:limit="15">
+                                                    <template slot="option" slot-scope="props">
+                                                        <div class="option__desc">
+                                                            <div >
+                                                                <span class="bold option__title">
+                                                                    {{ props.option.codigo }}
+                                                                </span>
+                                                                <span class="bold  option__small">
+                                                                    {{ props.option.nombre }}
+                                                                </span>
+                                                            </div>
+                                                            <div >
+                                                                <span  class="block">
+                                                                    <span class="bold" style="color: blue;">Dpto. Acad.:</span> : {{ props.option.departamentoAcademico.nombre }}
+                                                                </span>    
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </multiselect>
+                                            </div>
+                                            <div class="m-t-md col-md-4">
+                                                <a type="button" class="btn btn-success pull-right" v-on:click.prevent="agregarCursoMasivo">Agregar Curso</a>  
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+                            </div>
+
+                        </section>
+                    </section>
+
+                    <section class="panel">
+                        <section class="panel-body">
+                            <div class="row">
+                                <table class="table table-striped">
+                                    <thead> 
+                                        <tr> 
+                                            <th class="col-md-4 v-middle text-center">Curso</th>
+                                            <th class="col-md-2 v-middle text-center">Fecha / Hora</th>
+                                            <th class="col-md-2 v-middle text-center">Sección</th>
+                                            <th class="col-md-2 v-middle text-center">Alumnos</th>
+                                            <th class="col-md-2 v-middle text-center">Aulas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in cursosMasivosByRolExamenes" v-if="cursosMasivosByRolExamenes">
+                                            <td class="v-middle text-center">
+<span class="block text-primary bold h5 m-b-xs m-t-xs"
+        v-text="item.curso.nombre"></span>
+    <span class="block">
+        {{item.curso.codigo}}&nbsp;
+        <i class="fa fa-bookmark text-primary"></i>
+        {{item.curso.tpc}}</span>
+</td>
+<td class="v-middle text-center"> 
+    {{ item.fechaExamen }}
+</td>
+<td class="v-middle text-center"> 
+    {{ item.secciones }}
+</td>
+<td class="v-middle text-center"> 
+    {{ item.alumnos }}
+</td>
+<td class="v-middle text-center"> 
+    {{ item.capacidadAulas }}
+</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+</section>
+</section>
+</section>
+
+
+</div>
+<div th:substituteby="_modules/vue-modal"/>
+</section>
+
+<div layout:fragment="js">
+    <script  th:inline="javascript" >
+        /*<![CDATA[*/
+        var jRolexamenes = /*[[${jRolexamenes}]]*/ '';
+        var jCursos = /*[[${jCursos}]]*/ '';
+        /*]]>*/
+</script>
+<div th:substituteby="_modules/vue-raptor-table"></div>
+<script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
+<script th:src="@{/app/rolexamen/cursomasivos/cursomasivos.js}" charset="utf-8"></script>
+</div>
+
+    </body>
+</html>

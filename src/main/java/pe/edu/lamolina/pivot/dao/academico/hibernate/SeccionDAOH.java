@@ -462,6 +462,21 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         return all(sql);
     }
 
+    public List<Seccion> allByCicloAndCurso(CicloAcademico ciclo, Curso curso) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("sec")
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec")
+                .join("mr.cicloAcademico ca", "sec.grupoSeccion gs", "gs.curso cur")
+                .join("sec.grupoHoras gh", "gh.tipoGrupoHoras tgh")
+                .filter("ca.id", ciclo)
+                .filter("sec.tipoSeccion", "!=", TipoSeccionEnum.PCUR)
+                .filter("cur.id", curso)
+                .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.MAT))
+                .orderBy("gh.codigo");
+        return all(sql);
+    }
+
     @Override
     public void updateMatriculados(Seccion seccion, Integer matriculados) {
         StringBuilder sql = new StringBuilder();
