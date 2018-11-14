@@ -37,8 +37,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
     @Autowired
     RolExamenesDAO rolExamenesDAO;
-    
-    
+
     @Autowired
     CursoDAO cursoDAO;
 
@@ -47,10 +46,8 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
 //    @Autowired
 //    AulaCursoMasivoDAO aulaCursoMasivoDAO;
-
     @Autowired
     AlumnoCursoMasivoDAO alumnoCursoMasivoDAO;
-    
 
     @Override
     public List<CursoMasivoExamen> allCursoMasivoExamenes(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -84,25 +81,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
         List<CursoMasivoExamen> cursosMasivosExamenes = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes);
         for (CursoMasivoExamen cursoMasivoExamen : cursosMasivosExamenes) {
-
-            List<SeccionCursoMasivo> secciones = seccionCursoMasivoDAO.
-                    allByCursoMasivoExamenAndEstados(cursoMasivoExamen, Arrays.asList(SeccionRolExamenEstadoEnum.ACT, SeccionRolExamenEstadoEnum.EXC));
-//            List<AulaCursoMasivo> capacidadAulas = aulaCursoMasivoDAO.
-//                    allByCursoMasivoExamenAndEstados(cursoMasivoExamen, Arrays.asList(AulaRolExamenEstadoEnum.ACT, AulaRolExamenEstadoEnum.EXC));
-            List<AlumnoCursoMasivo> alumnos = alumnoCursoMasivoDAO.
-                    allByLetraGrupoRegularAndEstados(cursoMasivoExamen, Arrays.asList(AlumnoRolExamenEstadoEnum.ACT, AlumnoRolExamenEstadoEnum.EXC));
-
-            cursoMasivoExamen.setSeccionesCursosMasivos(secciones);
-            List<SeccionCursoMasivo> seccionesCursosMasivosActivos = secciones.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
-            cursoMasivoExamen.setSeccionesCursosMasivosCount(seccionesCursosMasivosActivos.size());
-
-//            cursoMasivoExamen.setAulasCursosMasivos(capacidadAulas);
-//            List<AulaCursoMasivo> seccionesGruposRegularesActivos = capacidadAulas.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
-//            cursoMasivoExamen.setAulasCursosMasivosCount(seccionesGruposRegularesActivos.size());
-
-            cursoMasivoExamen.setAlumnosCursosMasivos(alumnos);
-            List<AlumnoCursoMasivo> alumnosGruposRegularesActivos = alumnos.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
-            cursoMasivoExamen.setAlumnosCursosMasivosCount(alumnosGruposRegularesActivos.size());
+            
         }
 
         return cursosMasivosExamenes;
@@ -110,9 +89,8 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
     @Override
     public List<Curso> allCursosByCiclo(String nombre, RolExamenes rolExamenes, CicloAcademico cicloAcademico) {
-        nombre = "%" + nombre.replaceAll(" ", "%") + "%"; 
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         return cursoDAO.allForExamenByCiclo(nombre, rolExamenes, cicloAcademico);
     }
 
-    
 }
