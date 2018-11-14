@@ -44,6 +44,7 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.OBL;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.PROD;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.TECIND;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -1078,6 +1079,13 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         }
 
         cursoAdicionalCurriculaDAO.update(cacBD);
+    }
+
+    @Override
+    public List<Carrera> allCarrerasByuser(Usuario usuario) {
+
+        return new ArrayList();
+
     }
 
 }

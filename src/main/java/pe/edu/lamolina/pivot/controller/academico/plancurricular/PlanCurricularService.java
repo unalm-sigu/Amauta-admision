@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PlanCurricularService {
@@ -74,7 +75,7 @@ public interface PlanCurricularService {
     void updateCursoCurricula(CursoCurricula cursoCurricula, DataSessionPivot ds);
 
     void saveCursoAdicional(CursoAdicionalCurricula cursoAdicionalCurricula, DataSessionPivot ds);
-    
+
     void updateCursoAdicional(CursoAdicionalCurricula cursoAdicionalCurricula, DataSessionPivot ds);
 
     void deleteCursoEquivalenteByGrupoCursoCurricula(Integer grupo, CursoCurricula curso);
@@ -116,5 +117,7 @@ public interface PlanCurricularService {
     Long countAlumnosByPlanCurricular(PlanCurricular planCurricular);
 
     CursoAdicionalCurricula findCursoAdicional(Long cursoAdicionalId);
-    
+
+    List<Carrera> allCarrerasByuser(Usuario usuario);
+
 }

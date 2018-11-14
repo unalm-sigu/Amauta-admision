@@ -15,7 +15,7 @@
                 <section class="panel-body bg-white b">
 
 
-                    <form th:action="@{/general/oficina/save}" method="post"  class="form-horizontal m-t-lg" data-parsley-validate="true">
+                    <form id="formOficina" class="form-horizontal m-t-lg" data-parsley-validate="true">
 
                         <input type="hidden" name="id" th:value="${oficina.id}"/>
 
@@ -55,7 +55,7 @@
 
                         <div class="form-group">
 
-                            <label for="docIdentidad" class="col-sm-3 control-label">Tipo</label>
+                            <label for="tipoOficina.id" class="col-sm-3 control-label">Tipo</label>
 
                             <div class="col-sm-4">
                                 <select name="tipoOficina.id" 
@@ -104,10 +104,9 @@
 
                         <div class="form-group m-t-xxlg">
                             <div id="footerOficina" class="col-sm-10 col-sm-offset-4">
-                                <button class="btn btn-primary" 
-                                        type="submit"
-                                        th:text="${oficina.id!=null?'Actualizar':'Guardar'}"
-                                        id="btnSave">Guardar</button>                                        
+                                <a class="btn btn-primary send-datos"
+                                   th:text="${oficina.id!=null? 'Actualizar' : 'Guardar'}"
+                                   id="btnSave">Guardar</a>                                        
                                 <a th:href="@{/general/oficina}" class="btn btn-link" >Cancelar</a>
                             </div>
                         </div>

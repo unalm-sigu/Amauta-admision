@@ -416,9 +416,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
     }
 
     private void validarClonacion(CicloAcademico cicloAnalisis) {
-        if (1 == 1) {
-            return;
-        }
         EventoAcademicoEnum eventoEnum = cicloAnalisis.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
 
         EventoCicloAcademico eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAnalisis, eventoEnum);

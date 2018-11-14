@@ -165,8 +165,38 @@ $(function () {
         },
         removeReferencia: function () {
             $("#placeReferencia").html('');
+        },
+        sendDatos() {
+            var form = $("#formOficina");
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            $.ajax({
+                url: APP.url('general/oficina/save'),
+                type: 'POST',
+                async: true,
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        setTimeout(function () {
+                            location.href = APP.url('general/oficina')
+                        }, 1200);
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     };
+
+    $("body").delegate(".send-datos", "click", function () {
+        Oficina.sendDatos();
+    });
 
     Oficina.init();
 

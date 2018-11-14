@@ -469,26 +469,57 @@ public class OficinaController {
         return "general/oficina/oficinaForm";
     }
 
+//    @RequestMapping("save")
+//    public String save(Oficina oficina, HttpSession session, RedirectAttributes redirectAttr) {
+//        try {
+//            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//            Compania compania = ds.getCompania();
+//            oficina.setCompania(compania);
+//
+//            if (oficina.getId() != null) {
+//                service.update(oficina, ds);
+//                Notificaciones.crearMsg("Oficina Actualizado", redirectAttr);
+//            } else {
+//                service.save(oficina, ds);
+//                Notificaciones.crearMsg("Oficina Creada", redirectAttr);
+//            }
+//        } catch (PhobosException ex) {
+//            ExceptionHandler.handleException(ex, redirectAttr);
+//        } catch (Exception e) {
+//            ExceptionHandler.handleException(e, redirectAttr);
+//        }
+//        return "redirect:/general/oficina";
+//    }
+
+    @ResponseBody
     @RequestMapping("save")
-    public String save(Oficina oficina, HttpSession session, RedirectAttributes redirectAttr) {
+    public JsonResponse save(Oficina oficina, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
             oficina.setCompania(compania);
 
             if (oficina.getId() != null) {
                 service.update(oficina, ds);
-                Notificaciones.crearMsg("Oficina Actualizado", redirectAttr);
+                response.setMessage("Oficina actualizada satisfactoriamente");
             } else {
                 service.save(oficina, ds);
-                Notificaciones.crearMsg("Oficina Creada", redirectAttr);
+                response.setMessage("Oficina creada satisfactoriamente");
             }
-        } catch (PhobosException ex) {
-            ExceptionHandler.handleException(ex, redirectAttr);
+
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
-            ExceptionHandler.handleException(e, redirectAttr);
+            ExceptionHandler.handleException(e, response);
         }
-        return "redirect:/general/oficina";
+        return response;
     }
 
 //    @ResponseBody
