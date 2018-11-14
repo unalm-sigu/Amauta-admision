@@ -20,14 +20,14 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public class GrupoEspecialController {
 
     @Autowired
-    GrupoRegularService grupoRegularService;
+    GrupoEspecialService grupoEspecialService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
-        List<RolExamenes> rolesExamenes = grupoRegularService.allRolExamenesActives(ds.getCicloAcademico());
+        List<RolExamenes> rolesExamenes = grupoEspecialService.allRolExamenesActives(ds.getCicloAcademico());
         JsonNodeFactory jc = JsonNodeFactory.instance;
 
         ArrayNode jRolesExamenes = new ArrayNode(jc);

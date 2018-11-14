@@ -51,12 +51,10 @@ new Vue({
             AXIOS.post(`${this.URL}/calcularGruposRegulares`, this.rolExamen)
                     .then(response => {
                         if (response.data.success) {
-                            console.log("1");
                             // notify(response.data.message, 'info');
                             this.listGruposRegulares(this.rolExamen);
                         } else {
                             //   notify(response.data.message, 'error');
-                            console.log("2");
                         }
                         MODAL.hideWait();
                     });

@@ -64,17 +64,6 @@ public class GrupoRegularController {
                     }));
         });
         model.addAttribute("jRolesExamenes", jRolesExamenes.toString());
-
-
-        /*
-        LetraGrupoRegular letraGrupoRegular = new LetraGrupoRegular();
-        letraGrupoRegular.setRolExamenes(new RolExamenes());
-        model.addAttribute("jLetraGrupoRegular",
-                JsonHelper.createJson(letraGrupoRegular, jc, true,
-                        new String[]{
-                            "*",
-                            "rolExamen.*"}).toString()
-        );*/
         return "rolexamen/gruporegular/grupoRegular";
     }
 
