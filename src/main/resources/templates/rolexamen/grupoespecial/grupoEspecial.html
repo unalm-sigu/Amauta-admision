@@ -8,17 +8,38 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <h2>Rol Examenes - Cursos Especiales <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
-                    <!-- 
-                    <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
-                    <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>  
-                    -->
+                    <h2>Grupos Especiales <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
                 </header>
 
                 <section class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
+                            <div class="row">
+                                <form id="frmCalcular">
+                                    <div class="form-group">
+                                        <label class="col-md-2 bold">Rol Examen</label>
 
+                                        <div class="col-md-4">  
+
+                                            <multiselect 
+                                                v-model="rolExamen"
+                                                v-on:input="changeRolExamen"
+                                                track-by="id"
+                                                v-bind:options="rolesExamenes"
+                                                v-bind:custom-label="rolExamenCustomLabel" 
+                                                required="true"
+                                                >
+                                            </multiselect>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <a class="btn btn-success"
+                                               v-on:click.prevent="calcularGrupoRegular">
+                                                Calcular
+                                            </a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                         </section>
                     </section>
                 </section>
@@ -30,6 +51,10 @@
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
+
+            <script th:inline="javascript">
+                var jRolesExamenes = /*[[${jRolesExamenes}]]*/ {};
+            </script>
             <script th:src="@{/app/rolexamen/grupoespecial/grupoEspecial.js}" charset="utf-8"></script>
         </div>
 

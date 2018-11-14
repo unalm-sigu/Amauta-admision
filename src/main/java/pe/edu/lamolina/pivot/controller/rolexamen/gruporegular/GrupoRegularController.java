@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.gruporegular;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -52,14 +51,6 @@ public class GrupoRegularController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
-        return "rolexamen/gruporegular/grupoRegular";
-    }
-
-    @RequestMapping(value = "nuevogruporegular", method = RequestMethod.GET)
-    public String nuevoGrupoRegular(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-
         List<RolExamenes> rolesExamenes = grupoRegularService.allRolExamenesActives(ds.getCicloAcademico());
 
         JsonNodeFactory jc = JsonNodeFactory.instance;
@@ -84,7 +75,7 @@ public class GrupoRegularController {
                             "*",
                             "rolExamen.*"}).toString()
         );*/
-        return "rolexamen/gruporegular/nuevoGrupoRegular";
+        return "rolexamen/gruporegular/grupoRegular";
     }
 
     @ResponseBody
@@ -121,19 +112,64 @@ public class GrupoRegularController {
                         new String[]{
                             "*",
                             "userRegistro.*",
-                            "userRegistro.persona.apellidosNombres",
-                            "gruposRegularesExamenes.*",
-                            "gruposRegularesExamenes.grupoHoras.codigo",
-                            "gruposRegularesExamenes.grupoHoras.letra",
-                            "seccionesGruposRegulares.*",
-                            "seccionesGruposRegulares.seccion.codigo",
-                            "seccionesGruposRegulares.seccion.codigo2",
-                            "alumnosGruposRegulares.*",
-                            "alumnosGruposRegulares.alumno.codigo",
-                            "alumnosGruposRegulares.alumno.persona.apellidosNombres"
+                            "userRegistro.persona.apellidosNombres"
                         }));
             }
             response.setData(jLetrasGruposRegulares);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{tipoAccion}/loadLetraGrupoRegularInfo", method = RequestMethod.POST)
+    public JsonResponse loadLetraGrupoRegularInfo(
+            @PathVariable("tipoAccion") String tipoAccion,
+            @RequestBody LetraGrupoRegular letraGrupoRegular,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            JsonNodeFactory jc = JsonNodeFactory.instance;
+            if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
+                List<GrupoRegularExamen> grupos = grupoRegularService.allGruposRegularExamenByLetraGrupoRegular(letraGrupoRegular);
+                ArrayNode jGrupos = new ArrayNode(jc);
+                grupos.forEach(x -> {
+                    jGrupos.add(JsonHelper.createJson(x, jc, false,
+                            new String[]{
+                                "*",
+                                "grupoHoras.codigo",
+                                "grupoHoras.letra",}));
+                });
+                response.setData(jGrupos);
+            } else if (TipoAccion.SECCION.name().equals(tipoAccion)) {
+                ArrayNode jSecciones = new ArrayNode(jc);
+                List<SeccionGrupoRegular> secciones = grupoRegularService.allSeccionesGrupoRegularExamenByLetraGrupoRegular(letraGrupoRegular);
+                secciones.forEach(x -> {
+                    jSecciones.add(JsonHelper.createJson(x, jc, false,
+                            new String[]{
+                                "*",
+                                "seccion.codigo",
+                                "seccion.codigo2",}));
+                });
+                response.setData(jSecciones);
+            } else if (TipoAccion.ALUMNO.name().equals(tipoAccion)) {
+                ArrayNode jAlumnos = new ArrayNode(jc);
+                List<AlumnoGrupoRegular> alumnos = grupoRegularService.allAlumnosGrupoRegularByLetraGrupoRegular(letraGrupoRegular);
+                alumnos.forEach(x -> {
+                    jAlumnos.add(JsonHelper.createJson(x, jc, false,
+                            new String[]{
+                                "*",
+                                "alumno.codigo",
+                                "alumno.persona.apellidosNombres"
+                            }));
+                });
+                response.setData(jAlumnos);
+            }
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -155,12 +191,9 @@ public class GrupoRegularController {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-            if (TipoAccion.LETRA.name().equals(tipoAccion)) {
-                LetraGrupoRegular letraGrupoRegular = (LetraGrupoRegular) mapper.readValue(objeto.toString(), LetraGrupoRegular.class);
-                // grupoRegularService.excluirGrupoRegular(letraGrupoRegular, ds.getUsuario());
-            } else if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
+            if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
                 GrupoRegularExamen grupoRegularExamen = (GrupoRegularExamen) mapper.readValue(objeto.toString(), GrupoRegularExamen.class);
-                grupoRegularService.excluirGrupoRegular(grupoRegularExamen, ds.getUsuario());
+                grupoRegularService.excluirGrupoRegular(grupoRegularExamen, ds.getUsuario(), ds.getCicloAcademico());
             } else if (TipoAccion.SECCION.name().equals(tipoAccion)) {
                 SeccionGrupoRegular seccionGrupoRegular = (SeccionGrupoRegular) mapper.readValue(objeto.toString(), SeccionGrupoRegular.class);
                 grupoRegularService.excluirGrupoRegular(seccionGrupoRegular, ds.getUsuario());

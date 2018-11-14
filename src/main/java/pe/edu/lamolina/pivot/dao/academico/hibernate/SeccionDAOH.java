@@ -21,6 +21,7 @@ import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
+import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -455,7 +456,6 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .join("sec.grupoHoras gh", "gh.tipoGrupoHoras tgh")
                 .filter("ca.id", ciclo)
                 .filter("tgh.tipo", tipoGrupoHorasEnum)
-                .filter("ca.id", ciclo)
                 .filter("sec.tipoSeccion", "!=", TipoSeccionEnum.PCUR)
                 .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.MAT))
                 .orderBy("gh.codigo");
@@ -473,6 +473,22 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .filter("sec.tipoSeccion", "!=", TipoSeccionEnum.PCUR)
                 .filter("cur.id", curso)
                 .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.MAT))
+                .orderBy("gh.codigo");
+        return all(sql);
+    }
+
+    @Override
+    public List<Seccion> allByCicloAndGrupoHoras(CicloAcademico ciclo, GrupoHoras grupoHoras) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("sec")
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec")
+                .join("mr.cicloAcademico ca", "sec.grupoSeccion gs")
+                .join("sec.grupoHoras gh", "gh.tipoGrupoHoras tgh")
+                .filter("ca.id", ciclo)
+                .filter("gh.id", grupoHoras)
+                .filter("sec.tipoSeccion", "!=", TipoSeccionEnum.PCUR)
+                //.in("ms.estado", Arrays.asList(EstadoMatriculaEnum.MAT))
                 .orderBy("gh.codigo");
         return all(sql);
     }
