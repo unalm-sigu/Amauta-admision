@@ -13,7 +13,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
-import pe.edu.lamolina.model.enums.AulaRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.AulaCursoMasivo;
@@ -44,14 +43,14 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Autowired
     CursoDAO cursoDAO;
 
-//    @Autowired
-//    SeccionCursoMasivoDAO seccionCursoMasivoDAO;
-//
+    @Autowired
+    SeccionCursoMasivoDAO seccionCursoMasivoDAO;
+
 //    @Autowired
 //    AulaCursoMasivoDAO aulaCursoMasivoDAO;
-//
-//    @Autowired
-//    AlumnoCursoMasivoDAO alumnoCursoMasivoDAO;
+
+    @Autowired
+    AlumnoCursoMasivoDAO alumnoCursoMasivoDAO;
     
 
     @Override
@@ -85,27 +84,27 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public List<CursoMasivoExamen> listCursosMasivosExamenes(RolExamenes rolExamenes) {
         rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
         List<CursoMasivoExamen> cursosMasivosExamenes = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes);
-//        for (CursoMasivoExamen cursoMasivoExamen : cursosMasivosExamenes) {
-//
-//            List<SeccionCursoMasivo> secciones = seccionCursoMasivoDAO.
-//                    allByCursoMasivoExamenAndEstados(cursoMasivoExamen, Arrays.asList(SeccionRolExamenEstadoEnum.ACT, SeccionRolExamenEstadoEnum.EXC));
+        for (CursoMasivoExamen cursoMasivoExamen : cursosMasivosExamenes) {
+
+            List<SeccionCursoMasivo> secciones = seccionCursoMasivoDAO.
+                    allByCursoMasivoExamenAndEstados(cursoMasivoExamen, Arrays.asList(SeccionRolExamenEstadoEnum.ACT, SeccionRolExamenEstadoEnum.EXC));
 //            List<AulaCursoMasivo> capacidadAulas = aulaCursoMasivoDAO.
 //                    allByCursoMasivoExamenAndEstados(cursoMasivoExamen, Arrays.asList(AulaRolExamenEstadoEnum.ACT, AulaRolExamenEstadoEnum.EXC));
-//            List<AlumnoCursoMasivo> alumnos = alumnoCursoMasivoDAO.
-//                    allByLetraGrupoRegularAndEstados(cursoMasivoExamen, Arrays.asList(AlumnoRolExamenEstadoEnum.ACT, AlumnoRolExamenEstadoEnum.EXC));
-//
-//            cursoMasivoExamen.setSeccionesCursosMasivos(secciones);
-//            List<SeccionCursoMasivo> seccionesCursosMasivosActivos = secciones.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
-//            cursoMasivoExamen.setSeccionesCursosMasivosCount(seccionesCursosMasivosActivos.size());
-//
+            List<AlumnoCursoMasivo> alumnos = alumnoCursoMasivoDAO.
+                    allByLetraGrupoRegularAndEstados(cursoMasivoExamen, Arrays.asList(AlumnoRolExamenEstadoEnum.ACT, AlumnoRolExamenEstadoEnum.EXC));
+
+            cursoMasivoExamen.setSeccionesCursosMasivos(secciones);
+            List<SeccionCursoMasivo> seccionesCursosMasivosActivos = secciones.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
+            cursoMasivoExamen.setSeccionesCursosMasivosCount(seccionesCursosMasivosActivos.size());
+
 //            cursoMasivoExamen.setAulasCursosMasivos(capacidadAulas);
 //            List<AulaCursoMasivo> seccionesGruposRegularesActivos = capacidadAulas.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
 //            cursoMasivoExamen.setAulasCursosMasivosCount(seccionesGruposRegularesActivos.size());
-//
-//            cursoMasivoExamen.setAlumnosCursosMasivos(alumnos);
-//            List<AlumnoCursoMasivo> alumnosGruposRegularesActivos = alumnos.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
-//            cursoMasivoExamen.setAlumnosCursosMasivosCount(alumnosGruposRegularesActivos.size());
-//        }
+
+            cursoMasivoExamen.setAlumnosCursosMasivos(alumnos);
+            List<AlumnoCursoMasivo> alumnosGruposRegularesActivos = alumnos.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
+            cursoMasivoExamen.setAlumnosCursosMasivosCount(alumnosGruposRegularesActivos.size());
+        }
 
         return cursosMasivosExamenes;
     }

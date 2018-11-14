@@ -20,14 +20,10 @@ new Vue({
     },
     mounted() {
         let $vue = this;
-        //loadRolExamenes();
-        //loadCursoMasivo();
-
     },
     methods: {
         loadCurso(nombre) {
             let $vue = this;
-//            console.log("Estoy los Rol Exámenes");
 
             $.ajax({
                 method: "POST",
@@ -39,7 +35,6 @@ new Vue({
                 if (response.success) {
                     console.dir(response.data);
                     $vue.cursos = response.data;
-//                    console.dir($vue.cursosMasivosByRolExamenes);
                 } else {
                     notify(response.message, 'error');
                 }
