@@ -89,4 +89,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allByCicloAndGrupoHoras(CicloAcademico ciclo, GrupoHoras grupoHoras);
 
+    List<Seccion> allByCicloAndCurso(CicloAcademico ciclo, Curso curso);
+    
+
 }

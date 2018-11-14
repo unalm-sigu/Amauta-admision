@@ -462,6 +462,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         return all(sql);
     }
 
+    @Override
     public List<Seccion> allByCicloAndCurso(CicloAcademico ciclo, Curso curso) {
         Octavia sql = Octavia.query()
                 .selectDistinct("sec")

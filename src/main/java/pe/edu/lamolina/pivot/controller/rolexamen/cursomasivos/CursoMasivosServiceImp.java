@@ -10,18 +10,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
+
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
-import pe.edu.lamolina.model.rolexamen.AulaCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoCursoMasivoDAO;
-import pe.edu.lamolina.pivot.dao.rolexamen.AulaCursoMasivoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoMasivoExamenDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionCursoMasivoDAO;
@@ -38,8 +42,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
     @Autowired
     RolExamenesDAO rolExamenesDAO;
-    
-    
+
     @Autowired
     CursoDAO cursoDAO;
 
@@ -48,10 +51,14 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
 //    @Autowired
 //    AulaCursoMasivoDAO aulaCursoMasivoDAO;
-
     @Autowired
     AlumnoCursoMasivoDAO alumnoCursoMasivoDAO;
-    
+
+    @Autowired
+    SeccionDAO seccionDAO;
+
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
 
     @Override
     public List<CursoMasivoExamen> allCursoMasivoExamenes(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -72,12 +79,40 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Transactional
     public void save(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         logger.debug("Contenido de cursoMasivoExamen= {}", cursoMasivosExamen.getCurso());
+
         cursoMasivosExamen.setUserRegistro(ds.getUsuario());
         cursoMasivosExamen.setFechaRegistro(new Date());
-        cursoMasivosExamen.setAlumnos(15);
-        cursoMasivosExamen.setSecciones(2);
-        cursoMasivosExamen.setCapacidadAulas(3);
         cursoMasivoExamenDAO.save(cursoMasivosExamen);
+
+        List<Seccion> secciones = seccionDAO.allByCicloAndCurso(cicloAcademico, cursoMasivosExamen.getCurso());
+
+        int alus = 0;
+        for (Seccion seccion : secciones) {
+            SeccionCursoMasivo seccionCursoMasivo = new SeccionCursoMasivo();
+            seccionCursoMasivo.setCursoMasivoExamen(cursoMasivosExamen);
+            seccionCursoMasivo.setEstadoEnum(SeccionRolExamenEstadoEnum.ACT);
+            seccionCursoMasivo.setSeccion(seccion);
+            seccionCursoMasivo.setFechaRegistro(new Date());
+            seccionCursoMasivo.setUserRegistro(ds.getUsuario());
+            seccionCursoMasivoDAO.save(seccionCursoMasivo);
+            List<MatriculaSeccion> matriculadosPorSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
+            alus += matriculadosPorSeccion.size();
+            for (MatriculaSeccion matriculaSeccion : matriculadosPorSeccion) {
+                Alumno alumno = matriculaSeccion.getMatriculaResumen().getAlumno();
+                AlumnoCursoMasivo alumnoCursoMasivo = new AlumnoCursoMasivo();
+                alumnoCursoMasivo.setAlumno(alumno);
+                alumnoCursoMasivo.setCursoMasivoExamen(cursoMasivosExamen);
+                alumnoCursoMasivo.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
+                alumnoCursoMasivo.setFechaRegistro(new Date());
+                alumnoCursoMasivo.setUserRegistro(ds.getUsuario());                
+                alumnoCursoMasivoDAO.save(alumnoCursoMasivo);
+            }
+        }
+
+        cursoMasivosExamen.setAlumnos(alus);
+        cursoMasivosExamen.setSecciones(secciones.size());
+        cursoMasivoExamenDAO.update(cursoMasivosExamen);
+
     }
 
     @Override
@@ -86,24 +121,6 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         List<CursoMasivoExamen> cursosMasivosExamenes = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes);
         for (CursoMasivoExamen cursoMasivoExamen : cursosMasivosExamenes) {
 
-            List<SeccionCursoMasivo> secciones = seccionCursoMasivoDAO.
-                    allByCursoMasivoExamenAndEstados(cursoMasivoExamen, Arrays.asList(SeccionRolExamenEstadoEnum.ACT, SeccionRolExamenEstadoEnum.EXC));
-//            List<AulaCursoMasivo> capacidadAulas = aulaCursoMasivoDAO.
-//                    allByCursoMasivoExamenAndEstados(cursoMasivoExamen, Arrays.asList(AulaRolExamenEstadoEnum.ACT, AulaRolExamenEstadoEnum.EXC));
-            List<AlumnoCursoMasivo> alumnos = alumnoCursoMasivoDAO.
-                    allByLetraGrupoRegularAndEstados(cursoMasivoExamen, Arrays.asList(AlumnoRolExamenEstadoEnum.ACT, AlumnoRolExamenEstadoEnum.EXC));
-
-            cursoMasivoExamen.setSeccionesCursosMasivos(secciones);
-            List<SeccionCursoMasivo> seccionesCursosMasivosActivos = secciones.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
-            cursoMasivoExamen.setSeccionesCursosMasivosCount(seccionesCursosMasivosActivos.size());
-
-//            cursoMasivoExamen.setAulasCursosMasivos(capacidadAulas);
-//            List<AulaCursoMasivo> seccionesGruposRegularesActivos = capacidadAulas.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
-//            cursoMasivoExamen.setAulasCursosMasivosCount(seccionesGruposRegularesActivos.size());
-
-            cursoMasivoExamen.setAlumnosCursosMasivos(alumnos);
-            List<AlumnoCursoMasivo> alumnosGruposRegularesActivos = alumnos.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
-            cursoMasivoExamen.setAlumnosCursosMasivosCount(alumnosGruposRegularesActivos.size());
         }
 
         return cursosMasivosExamenes;
@@ -111,9 +128,8 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
     @Override
     public List<Curso> allCursosByCiclo(String nombre, RolExamenes rolExamenes, CicloAcademico cicloAcademico) {
-        nombre = "%" + nombre.replaceAll(" ", "%") + "%"; 
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         return cursoDAO.allForExamenByCiclo(nombre, rolExamenes, cicloAcademico);
     }
 
-    
 }
