@@ -1562,6 +1562,11 @@ var app = new Vue({
                 oficina: {}
             };
             
+            $vue.seccionModal=$vue.seccionSeleccionada;
+            
+            console.log("========================");
+            console.log($vue.seccionModal.id);
+            
             $global.$emit("loadGrupoRegularAulaComponent", $vue.seccionSeleccionada.id);
 
             $vue.$refs.modalEnviarCambioAulaGrupo.open();
