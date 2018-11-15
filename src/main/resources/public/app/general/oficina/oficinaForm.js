@@ -170,7 +170,7 @@ $(function () {
             var form = $("#formOficina");
             if (!form.parsley().validate()) {
                 return;
-            }
+            } 
 
             $.ajax({
                 url: APP.url('general/oficina/save'),
