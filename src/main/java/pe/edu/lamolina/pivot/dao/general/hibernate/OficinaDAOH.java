@@ -224,7 +224,6 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .selectDistinct("ofi")
                 .from(UsuarioRol.class, "ur")
                 .join("usuario u", "rol r1", "oficina ofi")
-                .isNotNull("ur.idInstancia")
                 .filter("u.id", usuario)
                 .exists(subquery)
                 .linkedBy("r1.id", "r2.id");

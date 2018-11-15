@@ -10,7 +10,7 @@ import pe.edu.lamolina.model.general.Compania;
 
 public interface DepartamentoService {
 
-    List<DepartamentoAcademico> allDepartamentoAcademico(DynatableFilter filter);
+    List<DepartamentoAcademico> allDepartamentoAcademico(DynatableFilter filter, List<DepartamentoAcademico> departamentos);
 
     DepartamentoAcademico findDepartamentoAcademico(Long idDepartamentoAcademico);
 

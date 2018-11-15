@@ -128,8 +128,8 @@ public class AlumnoServiceImp implements AlumnoService {
     }
 
     @Override
-    public List<Alumno> allAlumnosByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades) {
-        return alumnoDAO.allByFacultadDynatable(filter, facultades);
+    public List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras) {
+        return alumnoDAO.allByFacultadDynatable(filter, carreras);
     }
 
     @Override

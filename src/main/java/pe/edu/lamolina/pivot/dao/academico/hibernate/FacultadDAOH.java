@@ -21,10 +21,11 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
     }
 
     @Override
-    public List<Facultad> allDynatable(DynatableFilter filter) {
+    public List<Facultad> allDynatable(DynatableFilter filter, List<Facultad> facultads) {
 
         DynatableSql sql = new DynatableSql(filter)
                 .from(Facultad.class, "fa")
+                .in("fa.id", facultads)
                 .searchFields("fa.nombre", "fa.codigo", "fa.estado")
                 .orderBy("fa.id desc");
 

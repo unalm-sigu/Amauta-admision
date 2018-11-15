@@ -118,25 +118,7 @@ public class OficinaController {
 
                 ObjectNode node = createOficinaJson(oficina);
 
-                /*
-                node.put("id", oficina.getId());
-                node.put("nombre", oficina.getNombre());
-                node.put("codigo", oficina.getCodigo());
-                node.put("nivel", OficinaNivel.getNombre(oficina.getTipoOficina().getNivel()));
-                node.put("tipo", TipoOficinaEnum.getNombre(oficina.getTipoOficina().getCodigo()));
-                node.put("cambiarEstado", oficina.getEstado());
-                node.put("estadoEnum", oficina.getEstadoEnum().getValue());
-                node.put("dependencia", (String) ObjectUtil.getParentTree(oficina, "oficinaSuperior.nombre"));
-                node.put("colaboradores", colaboradores.size());
-                node.put("motivoAusenciaJefe", oficina.getMotivoAusenciaJefe());
-                node.put("cargoJefe", (String) ObjectUtil.getParentTree(oficina, "cargoJefe.nombre"));
-                node.put("fechaInicioJefatura", TypesUtil.getStringDate(oficina.getFechaInicioJefatura(), "dd/MM/yyyy"));
-                node.put("fechaEncargatura", TypesUtil.getStringDate(oficina.getFechaEncargatura(), "dd/MM/yyyy"));
-                node.put("jefe", (String) ObjectUtil.getParentTree(oficina, "personaJefe.nombreConTitulo"));
-                node.put("encargado", (String) ObjectUtil.getParentTree(oficina, "jefeEncargado.nombreConTitulo"));
-                node.put("idJefe", (Long) ObjectUtil.getParentTree(oficina, "personaJefe.id"));
-                node.put("idEncargado", (Long) ObjectUtil.getParentTree(oficina, "jefeEncargado.id"));
-                //*/
+              
                 node.put("colaboradores", colaboradores.size());
                 array.add(node);
             }

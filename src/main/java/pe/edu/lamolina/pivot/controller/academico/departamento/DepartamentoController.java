@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -36,7 +37,9 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -48,6 +51,9 @@ public class DepartamentoController {
 
     @Autowired
     DepartamentoService service;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -82,12 +88,15 @@ public class DepartamentoController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<DepartamentoAcademico> departamentos = service.allDepartamentoAcademico(filter);
+            List<DepartamentoAcademico> departamentosUser = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+            
+            List<DepartamentoAcademico> departamentos = service.allDepartamentoAcademico(filter, departamentosUser);
+            
             List<DepartamentoCursoDocente> departamentoCursoDocente = service.allDepartamentoCursoDocente(departamentos);
 
             Map<Long, DepartamentoCursoDocente> departamentoMap = TypesUtil.convertListToMap("id", departamentoCursoDocente);
