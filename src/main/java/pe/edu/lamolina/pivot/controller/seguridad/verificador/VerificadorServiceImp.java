@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuRolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -28,6 +29,9 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Autowired
     UsuarioRolDAO usuarioRolDAO;
+    
+        @Autowired
+        OficinaDAO oficinaDAO;
 
     @Override
     public void revisarPermiso(HttpServletRequest request, DataSessionPivot ds) {
@@ -37,7 +41,7 @@ public class VerificadorServiceImp implements VerificadorService {
         }
     }
 
-    @Override
+    @Override   
     public List<Object> allInstanciasByMenuRol(TipoOficinaEnum tipoOficina, HttpServletRequest request, DataSessionPivot ds) {
         Menu menu = findMenu(ds.getMenu(), obtainPath(request));
 
@@ -45,7 +49,7 @@ public class VerificadorServiceImp implements VerificadorService {
             return new ArrayList();
         }
 
-        List<Long> instancias = usuarioRolDAO.allInstanciasByUsuarioMenuTipoOficna(ds.getUsuario(), menu, tipoOficina);
+        List<Oficina> instancias = oficinaDAO.allOficinaByUserMenu(ds.getUsuario(), menu);
 
         switch (tipoOficina) {
             case FAC:

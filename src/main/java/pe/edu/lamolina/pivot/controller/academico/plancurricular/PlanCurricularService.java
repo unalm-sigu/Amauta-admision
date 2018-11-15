@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -118,6 +119,6 @@ public interface PlanCurricularService {
 
     CursoAdicionalCurricula findCursoAdicional(Long cursoAdicionalId);
 
-    List<Carrera> allCarrerasByuser(Usuario usuario);
+    List<Carrera> allCarrerasByuser(Usuario usuario, Persona persona);
 
 }
