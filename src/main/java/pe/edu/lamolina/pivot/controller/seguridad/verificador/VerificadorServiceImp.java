@@ -49,17 +49,17 @@ public class VerificadorServiceImp implements VerificadorService {
             return new ArrayList();
         }
 
-        List<Oficina> instancias = oficinaDAO.allOficinaByUserMenu(ds.getUsuario(), menu);
+        List<Oficina> oficinas = oficinaDAO.allOficinaByUserMenu(ds.getUsuario(), menu);
 
         switch (tipoOficina) {
             case FAC:
-                return (List) instancias.stream().map(x -> new Facultad(x)).collect(Collectors.toList());
+                return (List) oficinas.stream().map(x -> new Facultad(x)).collect(Collectors.toList());
             case OFI:
-                return (List) instancias.stream().map(x -> new Oficina(x)).collect(Collectors.toList());
+                return (List) oficinas.stream().map(x -> new Oficina(x)).collect(Collectors.toList());
             case DPTO:
-                return (List) instancias.stream().map(x -> new DepartamentoAcademico(x)).collect(Collectors.toList());
+                return (List) oficinas.stream().map(x -> new DepartamentoAcademico(x)).collect(Collectors.toList());
             case ESP:
-                return (List) instancias.stream().map(x -> new Carrera(x)).collect(Collectors.toList());
+                return (List) oficinas.stream().map(x -> new Carrera(x)).collect(Collectors.toList());
             default:
                 throw new AssertionError();
         }
