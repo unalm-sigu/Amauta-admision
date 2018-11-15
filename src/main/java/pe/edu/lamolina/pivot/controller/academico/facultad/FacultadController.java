@@ -82,6 +82,7 @@ public class FacultadController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            
             List<Facultad> facultades = service.allFacultad(filter);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 

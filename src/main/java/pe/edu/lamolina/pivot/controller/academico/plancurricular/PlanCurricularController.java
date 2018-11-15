@@ -106,6 +106,7 @@ public class PlanCurricularController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<Carrera> carreras = service.allCarrerasByuser(ds.getUsuario(),ds.getPersona());
             List<PlanCurricular> curriculas = service.allByDynatable(filter, ds.getCarreras());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);

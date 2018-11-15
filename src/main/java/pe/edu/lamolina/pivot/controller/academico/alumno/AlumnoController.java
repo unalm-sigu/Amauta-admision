@@ -35,6 +35,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoVisitante;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -106,7 +107,8 @@ public class AlumnoController {
             List<Alumno> alumnos = null;
 
             if (facultades.isEmpty()) {
-                alumnos = service.allAlumnosByCicloDynatable(filter, ds.getCarreras());
+                List<Carrera> carreras = service.allCarrerasByuser(ds.getUsuario(), ds.getPersona());
+                alumnos = service.allAlumnosByCicloDynatable(filter, carreras);
             } else {
                 alumnos = service.allAlumnosByFacultadDynatable(filter, facultades);
             }
