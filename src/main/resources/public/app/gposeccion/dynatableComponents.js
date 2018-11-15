@@ -213,7 +213,6 @@ Vue.component("dynatable-especial", {
 
 Vue.component("dynatable-especial-generico", {
     template: "#dynatableTemplateGenerico",
-    // props: ["project", "dynatable"],
     props: {
         project: {required: false},
         dynatable: {required: false},
@@ -223,10 +222,9 @@ Vue.component("dynatable-especial-generico", {
     },
     mounted: function () {
         let $vue = this;
-        console.log("creadoooooooooooooooo");
-        console.log($vue.$el);
+
         $global.$on("reloadDynaEspecialGenerico", function (seccion) {
-            console.log("reloadDynaEspecialGenerico");
+
             if ($vue.dynatable == null) {
                 $vue.createDynatable();
                 $vue.dynatable.queries.add("seccion", seccion);
@@ -341,8 +339,7 @@ Vue.component("dynatable-zeta-generico", {
     },
     mounted: function () {
         let $vue = this;
-        console.log("creadoooooooooooooooo zzzzzzzz");
-        console.log($vue.$el);
+
         $global.$on("reloadDynaZetaGenerico", function () {
             if ($vue.dynatable == null) {
                 $vue.createDynatable();

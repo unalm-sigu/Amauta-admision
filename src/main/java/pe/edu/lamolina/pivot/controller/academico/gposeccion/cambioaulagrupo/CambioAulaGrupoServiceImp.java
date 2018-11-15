@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.CambioAulaGrupo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -58,7 +59,7 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
     @Override
     @Transactional
     public void saveCambioAulaGrupo(CambioAulaGrupo cambioAulaGrupo, DataSessionPivot ds) {
-
+        
         Persona persona = ds.getPersona();
         Oficina oficinaMain = cambioAulaGrupo.getOficina();
         Oficina oficinaReal = oficinaService.findOficinaHija(persona, oficinaMain);

@@ -1,7 +1,20 @@
 Vue.component("grupo-regular-aula-component", {
     template: "#modalGrupoRegularAulaComp",
     props: {
-
+        aula: {
+            required: false,
+            type: Object,
+            default: null
+        },
+        grupohoras: {
+            required: false,
+            type: Object,
+            default: null
+        }, seccion: {
+            required: true,
+            type: Object,
+            default: null
+        },
     },
     data: function () {
         return {
@@ -25,10 +38,6 @@ Vue.component("grupo-regular-aula-component", {
 
         let $vue = this;
 
-        $global.$on("loadGrupoRegularAulaComponent", function (seccion) {
-            $vue.loadGrupoRegularAulaComponent($vue, seccion);
-        });
-
         var activos = $($vue.$el).find('.nav li.active');
         if (activos.length > 1) {
             $($vue.$el).find('.nav li.active:last').removeClass('active');
@@ -48,7 +57,8 @@ Vue.component("grupo-regular-aula-component", {
 
     },
     methods: {
-        loadGrupoRegularAulaComponent($vue, seccion) {
+        loadGrupoRegularAulaComponent() {
+            let $vue = this;
             $vue.tabGrupos = {
                 grupoHorarioSel: {},
                 regulares: {
@@ -72,7 +82,8 @@ Vue.component("grupo-regular-aula-component", {
                 method: 'POST',
                 url: APP.url('academico/gposeccion/loadModalGrupo'),
                 data: {
-                    seccion: seccion
+                    seccion: $vue.seccion.id,
+                    grupoHoras: $vue.grupohoras.ids
                 },
                 success: function (response) {
                     if (response.success) {
@@ -116,7 +127,6 @@ Vue.component("grupo-regular-aula-component", {
         cambiarCboTipoGrupoHorReg() {
 
 
-            console.log("cambiarCboTipoGrupoHorReg  cambiarCboTipoGrupoHorReg  ");
             let $vue = this;
             $.ajax({
                 url: APP.url('academico/gposeccion/horariosRegulares'),
@@ -124,7 +134,8 @@ Vue.component("grupo-regular-aula-component", {
                 async: false,
                 data: {
                     tipoGrupoHorasId: $vue.tabGrupos['regulares'].tipoGrupoHorasSeleccionado.id,
-                    seccionId: $vue.seccionModal.id
+                    seccionId: $vue.seccionModal.id,
+                    aulaId: $vue.aula.id
                 },
                 success: function (response) {
                     if (response.success) {
@@ -181,7 +192,6 @@ Vue.component("grupo-regular-aula-component", {
         seleccionarGrupoEsp(grupo) {
 
 
-            console.log("seleccionarGrupoGenEsp seleccionarGrupoGenEsp");
 
             let $vue = this;
             $.ajax({
@@ -246,8 +256,12 @@ Vue.component("grupo-regular-aula-component", {
             console.log(seleccionado);
             console.log(diaHoraGrupo.grupoHorario);
             console.log(diaHoraGrupo.grupoHorario.codigo);
+            if (seleccionado) {
+                $global.$emit("selectGrupoHorarioChange", diaHoraGrupo.grupoHorario);
+            }else{
+                $global.$emit("selectGrupoHorarioChange", {});
+            }
 
-            $global.$emit("selectGrupoHorarioChange", diaHoraGrupo.grupoHorario);
 
             if (seleccionado) {
                 let tabGrupo = this.tabGrupos.grupoHorarioSel["tabGrupo"]
@@ -316,7 +330,7 @@ Vue.component("grupo-regular-aula-component", {
                             }
                         }
                         if (cantSelecteds == 0) {
-                            this.tabGrupos.grupoHorarioSel = null;
+                            this.tabGrupos.grupoHorarioSel = {tabGrupo:this.tabGrupos.grupoHorarioSel.tabGrupo};
                         }
                     }
                 } else if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoRegular) {
@@ -334,7 +348,7 @@ Vue.component("grupo-regular-aula-component", {
                             }
                         }
                         if (cantSelecteds == 0) {
-                            this.tabGrupos.grupoHorarioSel = null;
+                            this.tabGrupos.grupoHorarioSel = {tabGrupo:this.tabGrupos.grupoHorarioSel.tabGrupo};
                         }
                     }
                 }
@@ -560,7 +574,7 @@ Vue.component("grupo-regular-aula-component", {
             });
         },
         cleanDiasHorasGrupoDiferentGpoHorario(grupoHorario) {
-            console.log("cleanDiasHorasGrupoDiferentGpoHorario")
+
             if (!grupoHorario.tipoGrupoHoras.isTipoGrupoZeta) {
                 if (this.tabGrupos['zetas'].tblHorarios != null) {
                     console.log("isTipoGrupoZeta isTipoGrupoZeta isTipoGrupoZeta")

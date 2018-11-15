@@ -196,7 +196,8 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>Aula Nueva</label>
-                        <multiselect  v-model="changeAulaGpo.aulaFin"  
+                        <multiselect  v-model="changeAulaGpo.aulaFin"
+                                      v-on:input="cambioAula()"
                                       v-on:search-change="asyncFindCambioAulas"
                                       v-bind:options="aulas"
                                       v-bind:internal-search="false"
@@ -214,22 +215,22 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    
+
                     <div class="form-group">
                         <label>Grupo Nuevo</label>
-                        
+
                         <pre>{{changeAulaGpo.grupoHorasFin.codigo}}</pre>
-<!--                        <multiselect  v-model="changeAulaGpo.grupoHorasFin"  
-                                      v-on:search-change="asyncFindCambioGrupos"
-                                      v-bind:options="grupos"
-                                      v-bind:internal-search="false"
-                                      v-bind:limit="15"
-                                      placeholder=" "
-                                      track-by="id"
-                                      deselect-label=""
-                                      select-label=""
-                                      label="codigo">
-                        </multiselect>-->
+                        <!--                        <multiselect  v-model="changeAulaGpo.grupoHorasFin"  
+                                                              v-on:search-change="asyncFindCambioGrupos"
+                                                              v-bind:options="grupos"
+                                                              v-bind:internal-search="false"
+                                                              v-bind:limit="15"
+                                                              placeholder=" "
+                                                              track-by="id"
+                                                              deselect-label=""
+                                                              select-label=""
+                                                              label="codigo">
+                                                </multiselect>-->
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -249,8 +250,11 @@
                     <label class="control-label">Horario Aula </label>
                     <div class="table-responsive" >
                         
-                         <grupo-regular-aula-component></grupo-regular-aula-component>
-                        
+                        <grupo-regular-aula-component ref="grupoRegularComponent"
+                                                      v-bind:aula="changeAulaGpo.aulaFin"
+                                                      v-bind:grupohoras="changeAulaGpo.grupoHorasFin"
+                                                      ></grupo-regular-aula-component>
+
                     </div>
                 </section>
             </div>

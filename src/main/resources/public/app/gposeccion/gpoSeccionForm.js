@@ -184,8 +184,8 @@ var app = new Vue({
             oficina: {},
             aulaInicio: {},
             grupoInicio: {},
-            grupoHorasFin:{},
-            aulaFin:{}
+            grupoHorasFin: {},
+            aulaFin: {}
         },
         aceptarCambioAulaGrupoModal: {
             id: 'aceptarCambioAulaGrupoModal',
@@ -288,7 +288,7 @@ var app = new Vue({
         $global.$on("selectGrupoHorarioChange", function (grupoHorario) {
             $vue.selectGrupoHorarioChange(grupoHorario, $vue);
         });
-        
+
     },
     methods: {
         getClassTab(tabBuscar) {
@@ -1566,21 +1566,21 @@ var app = new Vue({
 
             $vue.changeAulaGpo = {
                 oficina: {},
-                grupoHorasFin:{},
-                aulaFin:{}
+                grupoHorasFin: {},
+                aulaFin: {}
             };
-            
-            $vue.seccionModal=$vue.seccionSeleccionada;
-            
-            console.log("=============xxxxxxx===========");
-            console.log($vue.seccionModal.id);
-            console.log($vue.seccionModal.diaHoraGrupo);
-            
-            $vue.changeAulaGpo.aulaFin=$vue.seccionSeleccionada.aula;
-            $vue.changeAulaGpo.grupoHorasFin=$vue.seccionSeleccionada.grupoHoras;
-            
-            $global.$emit("loadGrupoRegularAulaComponent", $vue.seccionSeleccionada.id);
 
+            $vue.seccionModal = $vue.seccionSeleccionada;
+
+
+            $vue.changeAulaGpo.aulaFin = $vue.seccionSeleccionada.aula;
+            $vue.changeAulaGpo.grupoHorasFin = $vue.seccionSeleccionada.grupoHoras;
+
+            //   $vue.$refs.grupoRegularComponent.aula=$vue.seccionSeleccionada.aula;
+            //   $vue.$refs.grupoRegularComponent.grupohoras=$vue.seccionSeleccionada.grupoHoras;;
+            //   $global.$emit("loadGrupoRegularAulaComponent", $vue.seccionSeleccionada.id);
+            $vue.$refs.grupoRegularComponent.seccion = $vue.seccionSeleccionada;
+            $vue.$refs.grupoRegularComponent.loadGrupoRegularAulaComponent();
             $vue.$refs.modalEnviarCambioAulaGrupo.open();
 
         },
@@ -1595,7 +1595,7 @@ var app = new Vue({
             }
             console.log($vue.changeAulaGpo);
             $.ajax({
-                url: APP.url('academico/gposeccion/savecambioaulagrupoXXX'),
+                url: APP.url('academico/gposeccion/savecambioaulagrupo'),
                 dataType: "json",
                 contentType: "application/json",
                 type: 'POST',
@@ -1799,9 +1799,24 @@ var app = new Vue({
 
 
         },
-        selectGrupoHorarioChange(grupoHorario, $vue){
-            console.log("============selectGrupoHorarioChange==================");
-            $vue.changeAulaGpo.grupoHorasFin=grupoHorario;
+        selectGrupoHorarioChange(grupoHorario, $vue) {
+            $vue.changeAulaGpo.grupoHorasFin = grupoHorario;
+        },
+        cambioAula() {
+
+            let $vue = this;
+
+            if ($vue.changeAulaGpo.aulaFin.id == $vue.seccionSeleccionada.aula.id) {
+
+                $vue.changeAulaGpo.grupoHorasFin = $vue.seccionSeleccionada.grupoHoras;
+
+            } else {
+
+                $vue.changeAulaGpo.grupoHorasFin = {};
+                
+            }
+
+            $vue.$refs.grupoRegularComponent.loadGrupoRegularAulaComponent();
         }
     }
 });

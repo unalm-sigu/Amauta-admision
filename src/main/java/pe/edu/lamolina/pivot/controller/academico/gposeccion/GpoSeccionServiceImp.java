@@ -1006,8 +1006,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         return aulas;
     }
 
-    
-
     @Override
     @Transactional
     public void cambiarDocentePrincipal(DocenteSeccion docenteSeccion) {
@@ -1941,6 +1939,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public GrupoHoras findGrupoHorasWithHorario(Seccion seccion, CicloAcademico ciclo) {
         GrupoHoras grupoHoras = seccion.getGrupoHoras();
+        return this.findGrupoHorasWithHorario(seccion, grupoHoras, ciclo);
+    }
+
+    @Override
+    public GrupoHoras findGrupoHorasWithHorario(Seccion seccion, GrupoHoras grupoHoras, CicloAcademico ciclo) {
         Map<String, HorarioSeccion> mapHorarioSecc = TypesUtil.convertListToMap("horaDia", horarioSeccionDAO.allBySeccion(seccion));
 
         GrupoHoras gpoBD = grupoHorasDAO.find(grupoHoras);
