@@ -70,10 +70,10 @@
                     <div class="tab-pane" id="grupo5" 
                          v-bind:class="{active : tabGrupos.grupoHorarioSel.tabGrupo=='especiales'}">
                         <section class="block">
-                            
+
                             <dynatable-especial-generico v-bind:onclick="seleccionarGrupoEsp"
-                                                v-bind:gruposeleccionado="tabGrupos.grupoHorarioSel"
-                                                ></dynatable-especial-generico>
+                                                         v-bind:gruposeleccionado="tabGrupos.grupoHorarioSel"
+                                                         ></dynatable-especial-generico>
                         </section>
 
                         <section class="panel-body block m-t-lg">
@@ -123,10 +123,10 @@
                     <div class="tab-pane" id="grupo6" 
                          v-bind:class="{active : tabGrupos.grupoHorarioSel.tabGrupo=='zetas'}">
                         <section class="panel-body block">
-                            
+
                             <dynatable-zeta-generico v-bind:onclick="seleccionarGrupoZ"
-                                            v-bind:gruposeleccionado="tabGrupos.grupoHorarioSel"
-                                            ></dynatable-zeta-generico>
+                                                     v-bind:gruposeleccionado="tabGrupos.grupoHorarioSel"
+                                                     ></dynatable-zeta-generico>
                         </section>
 
                         <section class="block">

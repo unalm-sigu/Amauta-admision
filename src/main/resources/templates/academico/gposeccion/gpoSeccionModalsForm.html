@@ -201,7 +201,7 @@
                                       v-bind:options="aulas"
                                       v-bind:internal-search="false"
                                       v-bind:limit="15"
-                                      placeholder="Escriba una aula"
+                                      placeholder=" "
                                       track-by="id"
                                       deselect-label=""
                                       select-label=""
@@ -214,19 +214,22 @@
                     </div>
                 </div>
                 <div class="col-md-3">
+                    
                     <div class="form-group">
                         <label>Grupo Nuevo</label>
-                        <multiselect  v-model="changeAulaGpo.grupoHorasFin"  
+                        
+                        <pre>{{changeAulaGpo.grupoHorasFin.codigo}}</pre>
+<!--                        <multiselect  v-model="changeAulaGpo.grupoHorasFin"  
                                       v-on:search-change="asyncFindCambioGrupos"
                                       v-bind:options="grupos"
                                       v-bind:internal-search="false"
                                       v-bind:limit="15"
-                                      placeholder="Escriba un grupo"
+                                      placeholder=" "
                                       track-by="id"
                                       deselect-label=""
                                       select-label=""
                                       label="codigo">
-                        </multiselect>
+                        </multiselect>-->
                     </div>
                 </div>
                 <div class="col-md-6">

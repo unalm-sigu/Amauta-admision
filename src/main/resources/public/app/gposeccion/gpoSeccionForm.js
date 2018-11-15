@@ -183,7 +183,9 @@ var app = new Vue({
         changeAulaGpo: {
             oficina: {},
             aulaInicio: {},
-            grupoInicio: {}
+            grupoInicio: {},
+            grupoHorasFin:{},
+            aulaFin:{}
         },
         aceptarCambioAulaGrupoModal: {
             id: 'aceptarCambioAulaGrupoModal',
@@ -283,6 +285,10 @@ var app = new Vue({
         $global.$on("afterSaveTipoRepRestriccion", function (response) {
             $vue.afterSaveTipoRepRestriccion(response, $vue);
         });
+        $global.$on("selectGrupoHorarioChange", function (grupoHorario) {
+            $vue.selectGrupoHorarioChange(grupoHorario, $vue);
+        });
+        
     },
     methods: {
         getClassTab(tabBuscar) {
@@ -1559,13 +1565,19 @@ var app = new Vue({
             let $vue = this;
 
             $vue.changeAulaGpo = {
-                oficina: {}
+                oficina: {},
+                grupoHorasFin:{},
+                aulaFin:{}
             };
             
             $vue.seccionModal=$vue.seccionSeleccionada;
             
-            console.log("========================");
+            console.log("=============xxxxxxx===========");
             console.log($vue.seccionModal.id);
+            console.log($vue.seccionModal.diaHoraGrupo);
+            
+            $vue.changeAulaGpo.aulaFin=$vue.seccionSeleccionada.aula;
+            $vue.changeAulaGpo.grupoHorasFin=$vue.seccionSeleccionada.grupoHoras;
             
             $global.$emit("loadGrupoRegularAulaComponent", $vue.seccionSeleccionada.id);
 
@@ -1583,7 +1595,7 @@ var app = new Vue({
             }
             console.log($vue.changeAulaGpo);
             $.ajax({
-                url: APP.url('academico/gposeccion/savecambioaulagrupo'),
+                url: APP.url('academico/gposeccion/savecambioaulagrupoXXX'),
                 dataType: "json",
                 contentType: "application/json",
                 type: 'POST',
@@ -1787,6 +1799,10 @@ var app = new Vue({
 
 
         },
+        selectGrupoHorarioChange(grupoHorario, $vue){
+            console.log("============selectGrupoHorarioChange==================");
+            $vue.changeAulaGpo.grupoHorasFin=grupoHorario;
+        }
     }
 });
 

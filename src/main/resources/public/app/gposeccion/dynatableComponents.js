@@ -256,7 +256,7 @@ Vue.component("dynatable-especial-generico", {
         createDynatable: function () {
             let $vue = this;
 
-            $vue.dynatable = $($vue.$el).find('.dynaTables:first').dynatable({
+            $vue.dynatable = $('#dynaTableGenerico').dynatable({
                 dataset: {
                     ajaxUrl: APP.url('academico/gposeccion/listGrupoHorariosEspeciales'),
                     perPageDefault: 6,
@@ -272,11 +272,12 @@ Vue.component("dynatable-especial-generico", {
                     recordCount: false
                 },
                 inputs: {
+                    pageText: 'Páginas ',
                     processingText: '<i class="fa fa-spinner fa-spin"></i> Cargando información...'
                 }
             }).data('dynatable');
 
-            $($vue.$el).find('.dynaTables:first').bind('dynatable:afterUpdate', function (e, dynatable) {
+            $('#dynaTableGenerico').bind('dynatable:afterUpdate', function (e, dynatable) {
                 $("[name='dvGruposEsp']").each(function () {
                     let grupo = $(this).attr("rel");
 
@@ -286,6 +287,10 @@ Vue.component("dynatable-especial-generico", {
                         $(this).addClass("active");
                     }
                 });
+                var primeroo = $('#dynatable-pagination-links-dynaTableGenerico').find('li').first();
+                if (primeroo.has('span').length > 0) {
+                    primeroo.remove();
+                }
             });
 
             $("body").delegate(".cls-grupos-sel-esp", "click", function (e) {
@@ -326,7 +331,7 @@ Vue.component("dynatable-especial-generico", {
 
 
 Vue.component("dynatable-zeta-generico", {
-    template: "#dynatableTemplateGenerico",
+    template: "#dynatableTemplateZetaGenerico",
     props: {
         project: {required: false},
         dynatable: {required: false},
@@ -366,7 +371,7 @@ Vue.component("dynatable-zeta-generico", {
         createDynatable: function () {
             let $vue = this;
 
-            $vue.dynatable = $($vue.$el).find('.dynaTables:first').dynatable({
+            $vue.dynatable = $('#dynaTableZetaGenerico').dynatable({
                 dataset: {
                     ajaxUrl: APP.url('academico/gposeccion/listGrupoHorariosZetas'),
                     perPageDefault: 6,
@@ -380,11 +385,12 @@ Vue.component("dynatable-zeta-generico", {
                     recordCount: false
                 },
                 inputs: {
+                    pageText: 'Páginas ',
                     processingText: '<i class="fa fa-spinner fa-spin"></i> Cargando información...'
                 }
             }).data('dynatable');
 
-            $($vue.$el).find('.dynaTables:first').bind('dynatable:afterUpdate', function (e, dynatable) {
+            $('#dynaTableZetaGenerico').bind('dynatable:afterUpdate', function (e, dynatable) {
                 $("[name='dvGruposZeta']").each(function () {
                     let grupo = $(this).attr("rel");
                     $(this).removeClass("active");
@@ -392,6 +398,10 @@ Vue.component("dynatable-zeta-generico", {
                         $(this).addClass("active");
                     }
                 });
+                var primeroo = $('#dynatable-pagination-links-dynaTableZetaGenerico').find('li').first();
+                if (primeroo.has('span').length > 0) {
+                    primeroo.remove();
+                }
             });
 
             $("body").delegate(".cls-grupos-sel", "click", function (e) {
