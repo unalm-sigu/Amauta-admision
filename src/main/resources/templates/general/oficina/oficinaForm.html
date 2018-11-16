@@ -7,7 +7,7 @@
             <div id="oficinaFormVUE" >
                 <header class="header b-b padder-lg">                
                     <a href="/general/oficina" class="btn btn-default btn-sm pull-right">Regresar</a>
-                    <h2   v-text="'Nueva Oficina' " >Nuevo Oficina</h2> 
+                    <h2   v-text="oficina != null ? oficina.nombre : 'Nueva Oficina' " >Nuevo Oficina</h2> 
                 </header>
 
                 <section class="panel">
@@ -45,7 +45,7 @@
                             </div>
 
                             <div class="form-group ">
-                                <label>Tipo</label>
+                                <label class="col-sm-3 control-label"> Tipo</label>
                                 <div class="col-sm-4">
                                     <multiselect v-model="tipoOficina" 
                                                  v-bind:options='tipos'
@@ -54,55 +54,61 @@
                                                  v-bind:allow-empty="false"
                                                  v-on:select ="tipoSelect"
                                                  placeholder="Seleccione tipo de oficina">
-                                    
+
                                     </multiselect>
                                     <input type="text" v-model="oficina.tipoOficina" class="hide"/>
                                 </div>
                             </div>
                             <div class="form-group" v-if="hayInstancia">
 
-                                <label>Referencia</label>
-                                <multiselect v-model="oficina.instanciaOficina" 
-                                             v-bind:options='instanciaOficina'
-                                             label='nombre'
-                                             track-by='id'
-                                             v-bind:allow-empty="false"
-                                             placeholder="Seleccione Referencia">
-                                </multiselect>
-                                <input type="text" v-model="oficina.instanciaOficina" class="hide"/>
+                                <label class="col-sm-3 control-label">Referencia</label>
+                                <div class="col-sm-4">
+                                    <multiselect v-model="oficina.instanciaOficina" 
+                                                 v-bind:options='instanciaOficina'
+                                                 label='nombre'
+                                                 track-by='id'
+                                                 v-bind:allow-empty="false"
+                                                 placeholder="Seleccione Referencia">
+                                    </multiselect>
+                                    <input type="text" v-model="oficina.instanciaOficina" class="hide"/>
+                                </div>
                             </div>
                             <div class="form-group">
 
-                                <label>Unidad Superior</label>
-                                <multiselect v-model="oficina.oficinaSuperior" 
-                                             v-on:search-change="findOficinaSuperior"
-                                             v-bind:options='oficinaSuperior'
-                                             label='nombre'
-                                             track-by='id'
-                                             v-bind:allow-empty="false"
-                                             placeholder="Seleccione Unidad superior">
-                                </multiselect>
-                                <input type="text" v-model="oficina.oficinaSuperior" class="hide"/>
+                                <label class="col-sm-3 control-label">Unidad Superior</label>
+                                <div class="col-sm-4">
+                                    <multiselect v-model="oficina.oficinaSuperior" 
+                                                 v-on:search-change="findOficinaSuperior"
+                                                 v-bind:options='oficinaSuperior'
+                                                 label='nombre'
+                                                 track-by='id'
+                                                 v-bind:allow-empty="false"
+                                                 placeholder="Seleccione Unidad superior">
+                                    </multiselect>
+                                    <input type="text" v-model="oficina.oficinaSuperior" class="hide"/>
+                                </div>
                             </div>
 
                             <div class="form-group">
 
-                                <label>Cargo Jefe</label>
-                                <multiselect v-model="oficina.cargoJefe" 
-                                             v-bind:options='cargosJefe'
-                                             v-on:search-change="allCargoJefe"
-                                             label='nombre'
-                                             track-by='id'
-                                             v-bind:allow-empty="false"
-                                             placeholder="Seleccione Cargo">
-                                </multiselect>
-                                <input type="text" v-model="oficina.cargoJefe" class="hide"/>
+                                <label class="col-sm-3 control-label">Cargo Jefe</label>
+                                <div class="col-sm-4">
+                                    <multiselect v-model="oficina.cargoJefe" 
+                                                 v-bind:options='cargosJefe'
+                                                 v-on:search-change="allCargoJefe"
+                                                 label='nombre'
+                                                 track-by='id'
+                                                 v-bind:allow-empty="false"
+                                                 placeholder="Seleccione Cargo">
+                                    </multiselect>
+                                    <input type="text" v-model="oficina.cargoJefe" class="hide"/>
+                                </div>
                             </div>
 
                             <div class="form-group m-t-xxlg">
                                 <div id="footerOficina" class="col-sm-10 col-sm-offset-4">
                                     <a class="btn btn-primary"
-                                       v-text="'Guardar'"></a>                                        
+                                       v-text="oficina != null ? 'Actualizar' :'Guardar'" v-on:click='save'></a>                                        
                                     <a href="/general/oficina" class="btn btn-link" >Cancelar</a>
                                 </div>
                             </div>
