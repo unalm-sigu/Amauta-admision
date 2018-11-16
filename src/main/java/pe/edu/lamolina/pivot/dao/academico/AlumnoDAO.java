@@ -12,7 +12,7 @@ import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
-import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableResumen;
 
 public interface AlumnoDAO extends EasyDAO<Alumno> {
 
