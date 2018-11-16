@@ -1,5 +1,7 @@
 package pe.edu.lamolina.pivot.dao.seguridad.hibernate;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
@@ -40,26 +42,6 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
                 .linkedBy("r1.id", "r2.id");
 
         return all(sql);
-    }
-
-    @Override
-    public List<Long> allInstanciasByUsuarioMenuTipoOficna(Usuario usuario, Menu menu, TipoOficinaEnum tipoOficina) {
-        Octavia subquery = Octavia.query()
-                .from(MenuRol.class, "mr")
-                .join("menu m", "rol r2")
-                .filter("m.id", menu);
-
-        Octavia sql = Octavia.query()
-                .select("ur.idInstancia")
-                .from(UsuarioRol.class, "ur")
-                .join("usuario u", "rol r1")
-                .isNotNull("ur.idInstancia")
-                .filter("ur.tipoOficina", tipoOficina)
-                .filter("u.id", usuario)
-                .exists(subquery)
-                .linkedBy("r1.id", "r2.id");
-
-        return sql.all(getCurrentSession());
     }
 
     @Override
@@ -166,6 +148,19 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
         query.setParameter("estado", INA.toString());
         query.executeUpdate();
 
+    }
+
+    @Override
+    public List<UsuarioRol> findByUsuario(Usuario usuario) {
+        Octavia sql = new Octavia()
+                .from(UsuarioRol.class, "ur")
+                .join("oficina ofi", "ofi.tipoOficina tof", "usuario us")
+                .filter("us.id", usuario)
+                .in("tof.codigo", Arrays.asList(TipoOficinaEnum.ESP, TipoOficinaEnum.FAC))
+                .filter("ofi.estado", ACT)
+                .filter("ur.estado", ACT);
+        
+        return all(sql);
     }
 
 }

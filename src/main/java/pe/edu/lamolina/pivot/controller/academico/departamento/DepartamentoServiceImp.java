@@ -37,8 +37,8 @@ public class DepartamentoServiceImp implements DepartamentoService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<DepartamentoAcademico> allDepartamentoAcademico(DynatableFilter filter) {
-        return departamentoAcademicoDAO.allDynatable(filter);
+    public List<DepartamentoAcademico> allDepartamentoAcademico(DynatableFilter filter, List<DepartamentoAcademico> departamentos) {
+        return departamentoAcademicoDAO.allDynatable(filter, departamentos);
     }
 
     @Override

@@ -12,11 +12,11 @@ import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
-import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableResumen;
 
 public interface AlumnoDAO extends EasyDAO<Alumno> {
 
-    public List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades);
+    public List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Carrera> facultades);
 
     List<Alumno> allByModalidadesDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<String> modalidades);
 
