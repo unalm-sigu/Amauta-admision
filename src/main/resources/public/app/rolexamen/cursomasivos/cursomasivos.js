@@ -1,7 +1,7 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 
 new Vue({
-    el: '#cursomasivosVUE',
+    el: '#main',
     data: {
         cursomasivosURL: APP.url('rolexamen/cursomasivos/list'),
         confirmarModal: {
@@ -36,7 +36,6 @@ new Vue({
                 method: "POST",
                 url: APP.url("rolexamen/cursomasivos/" + $vue.rolExamenes.id + "/loadCurso"),
                 data: {nombre: nombre}
-
             }).then(response => {
                 if (response.success) {
                     $vue.cursos = response.data;
@@ -49,7 +48,6 @@ new Vue({
         },
         loadModulos() {
             let $vue = this;
-
             $.ajax({
                 method: "POST",
                 contentType: "application/json",
@@ -88,6 +86,7 @@ new Vue({
                 curso: $vue.curso,
                 rolExamenes: $vue.rolExamenes
             }
+            MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: "POST",
                 contentType: "application/json",
@@ -95,10 +94,13 @@ new Vue({
                 data: JSON.stringify(cursoMasivo)
             }).then(response => {
                 if (response.success) {
+                    $vue.loadCursosMasivosByRoleExamen();
+                    $vue.curso = null;
                     notify(response.message, "info")
                 } else {
                     notify(response.message, 'error');
                 }
+                MODAL.hideWait();
             }, error => {
                 notify(MESSAGES.errorComunicacion, 'error');
             });
@@ -149,7 +151,6 @@ new Vue({
                         }).then(response => {
                             if (response.success) {
                                 $vue.$refs.modalConfirmar.close();
-                                //$vue.$refs.;
                                 notify(response.message, "info")
                             } else {
                                 notify(response.message, 'error');
@@ -172,6 +173,7 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
+                        MODAL.showWait("Espere un momento por favor");
                         $.ajax({
                             url: APP.url('rolexamen/cursomasivos/eliminar'),
                             type: 'POST',
@@ -179,11 +181,13 @@ new Vue({
                             data: {id: del.id},
                             success: function (response) {
                                 if (response.success) {
-//                                    $vue.$refs.load.loadRemoteData();
+                                    $vue.loadCursosMasivosByRoleExamen();
+                                    $vue.curso = null;
                                     notify(response.message, "info");
                                 } else {
                                     notify(response.message, "error");
                                 }
+                                MODAL.hideWait();
                             },
                             error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");

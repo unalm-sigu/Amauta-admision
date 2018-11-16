@@ -4,7 +4,7 @@
     </head>
     <body>
         <section layout:fragment="main">
-            <div id="cursomasivosVUE">
+            <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
                     <h2>Cursos Masivos <span th:text="${cicloAcademico.descripcion}">2018-II</span></h2>
@@ -18,7 +18,7 @@
 
                                 <div class="row">
                                     <div class="form-group">
-                                        <label class="m-t-md col-md-2 bold">Rol Examen</label>  
+                                        <label class="m col-md-2 bold">Rol Examen</label>  
                                         <div class="m-t-md col-md-4">
                                             <multiselect 
                                                 label="nombre"
@@ -37,7 +37,7 @@
 
                                 <div class="row">
                                     <div class="form-group">
-                                        <label class="m-t-lg col-md-2 bold">Cursos</label>
+                                        <label class="m col-md-2 bold">Cursos</label>
                                         <div class="m-t-md col-md-4">
                                             <multiselect 
                                                 label="nombre"
@@ -121,12 +121,12 @@
                                             </td>
                                             <td class="v-middle">
                                                 <div class="actions">
-                                                    <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="fa fa-ellipsis-v fa-lg"> </i></a>
-
+                                                    <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="glyphicon glyphicon-cog"> </i></a>
+                                                    <!--fa fa-ellipsis-v fa-lg-->
                                                     <ul class="dropdown-menu pull-right" >
-                                                        <li role="presentation"><a class="btn-link" v-on:click="agregarAulas(item)">Agregar Aulas</a></li>                                                        
-                                                        <li role="presentation" class="divider"></li>                                                        
-                                                        <li><a class=" pointer" v-on:click="eliminar(item)">Eliminar</a></li>
+                                                        <li><a class=" pointer btn-link bold" v-on:click="agregarAulas(item)">Agregar Aulas</a></li>                                                        
+                                                        <li class="divider"></li>                                                        
+                                                        <li><a class=" pointer bold" v-on:click="eliminar(item)">Eliminar</a></li>
                                                     </ul>
                                                 </div>
                                             </td>
