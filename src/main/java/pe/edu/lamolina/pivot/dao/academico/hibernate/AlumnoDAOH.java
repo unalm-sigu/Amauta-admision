@@ -29,7 +29,7 @@ import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
-import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableResumen;
 
 @Repository
 public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
