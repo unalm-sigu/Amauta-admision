@@ -118,7 +118,6 @@ public class OficinaController {
 
                 ObjectNode node = createOficinaJson(oficina);
 
-              
                 node.put("colaboradores", colaboradores.size());
                 array.add(node);
             }
@@ -432,8 +431,16 @@ public class OficinaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Compania compania = ds.getCompania();
         List<TipoOficina> tipoOficina = service.allTipoOficina();
-        model.addAttribute("oficina", new Oficina());
-        model.addAttribute("tipos", tipoOficina);
+        ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoOficina tipoOficina1 : tipoOficina) {
+            node.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{
+                "*"
+            }));
+        }
+        ObjectNode objectNode = JsonHelper.createJson(new Oficina(), JsonNodeFactory.instance, new String[]{
+            "*"});
+        model.addAttribute("tipos", node.toString());
+        model.addAttribute("oficina", objectNode.toString());
         return "general/oficina/oficinaForm";
     }
 
@@ -443,9 +450,21 @@ public class OficinaController {
         Compania compania = ds.getCompania();
         Oficina oficina = service.find(new Oficina(idOficina));
         service.fillReferencia(oficina);
+        
         List<TipoOficina> tipoOficina = service.allTipoOficina();
-        model.addAttribute("oficina", oficina);
-        model.addAttribute("tipos", tipoOficina);
+        
+        ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoOficina tipoOficina1 : tipoOficina) {
+            node.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{
+                "*"
+            }));
+        }
+
+        ObjectNode objectNode = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
+            "*","tipoOficina.*","cargoJefe.*","oficinaSuperior.*"});
+        
+        model.addAttribute("tipos", node.toString());
+        model.addAttribute("oficina", objectNode.toString());
         return "general/oficina/oficinaForm";
     }
 
@@ -470,7 +489,6 @@ public class OficinaController {
 //        }
 //        return "redirect:/general/oficina";
 //    }
-
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(Oficina oficina, HttpSession session) {
