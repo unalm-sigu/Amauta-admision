@@ -103,15 +103,11 @@ public class AlumnoController {
 
         try {
 
-            List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
+            List<Carrera> carrera = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
             List<Alumno> alumnos = null;
 
-            if (facultades.isEmpty()) {
-                List<Carrera> carreras = service.allCarrerasByuser(ds.getUsuario(), ds.getPersona());
-                alumnos = service.allAlumnosByCicloDynatable(filter, carreras);
-            } else {
-                alumnos = service.allAlumnosByFacultadDynatable(filter, facultades);
-            }
+            alumnos = service.allAlumnosbyDynatable(filter, carrera);
+
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 

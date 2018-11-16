@@ -6,7 +6,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 
 public interface FacultadService {
 
-    List<Facultad> allFacultad(DynatableFilter filter);
+    List<Facultad> allFacultad(DynatableFilter filter, List<Facultad> facultads );
 
     Facultad findFacultad(Long idFacultad);
 

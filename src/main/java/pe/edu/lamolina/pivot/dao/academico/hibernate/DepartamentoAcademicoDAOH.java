@@ -117,11 +117,12 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
     }
     
     @Override
-    public List<DepartamentoAcademico> allDynatable(DynatableFilter filter) {
+    public List<DepartamentoAcademico> allDynatable(DynatableFilter filter, List<DepartamentoAcademico> dptos) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(DepartamentoAcademico.class, "da")
                 .join("facultad fa")
                 .searchFields("da.nombre", "da.codigo", "da.estado", "da.nombreLargo", "fa.nombre")
+                .in("da.id", dptos)
                 .orderBy("da.estado", "da.id desc");
         return all(sql);
     }

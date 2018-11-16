@@ -51,6 +51,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import static pe.edu.lamolina.model.enums.TipoOficinaEnum.DPTO;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.FotoHelper;
@@ -118,15 +119,11 @@ public class ProfesorController {
 
         try {
 
-            List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
-
+            List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+       
             List<Docente> docentes;
 
-            if (facultades.isEmpty()) {
-                docentes = service.allByDynatable(filter, ds.getDepartamentos());
-            } else {
-                docentes = service.allByFacultadesDynatable(filter, facultades);
-            }
+            docentes = service.allByDepartamentoDynatable(filter, departamentos);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 

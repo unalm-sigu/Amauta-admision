@@ -93,8 +93,8 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     @Override
-    public List<Docente> allByFacultadesDynatable(DynatableFilter filter, List<Facultad> facultades) {
-        return docenteDAO.allByFacultadesDyantable(filter, facultades);
+    public List<Docente> allByDepartamentoDynatable(DynatableFilter filter, List<DepartamentoAcademico> departament) {
+        return docenteDAO.allByFacultadesDyantable(filter, departament);
     }
 
     @Override

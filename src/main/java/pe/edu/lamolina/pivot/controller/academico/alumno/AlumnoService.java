@@ -16,7 +16,7 @@ public interface AlumnoService {
 
     List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras);
 
-    List<Alumno> allAlumnosByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades);
+    List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> facultades);
 
     AlumnoResumen findResumen();
 

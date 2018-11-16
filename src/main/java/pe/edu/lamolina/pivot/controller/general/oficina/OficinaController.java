@@ -118,25 +118,6 @@ public class OficinaController {
 
                 ObjectNode node = createOficinaJson(oficina);
 
-                /*
-                node.put("id", oficina.getId());
-                node.put("nombre", oficina.getNombre());
-                node.put("codigo", oficina.getCodigo());
-                node.put("nivel", OficinaNivel.getNombre(oficina.getTipoOficina().getNivel()));
-                node.put("tipo", TipoOficinaEnum.getNombre(oficina.getTipoOficina().getCodigo()));
-                node.put("cambiarEstado", oficina.getEstado());
-                node.put("estadoEnum", oficina.getEstadoEnum().getValue());
-                node.put("dependencia", (String) ObjectUtil.getParentTree(oficina, "oficinaSuperior.nombre"));
-                node.put("colaboradores", colaboradores.size());
-                node.put("motivoAusenciaJefe", oficina.getMotivoAusenciaJefe());
-                node.put("cargoJefe", (String) ObjectUtil.getParentTree(oficina, "cargoJefe.nombre"));
-                node.put("fechaInicioJefatura", TypesUtil.getStringDate(oficina.getFechaInicioJefatura(), "dd/MM/yyyy"));
-                node.put("fechaEncargatura", TypesUtil.getStringDate(oficina.getFechaEncargatura(), "dd/MM/yyyy"));
-                node.put("jefe", (String) ObjectUtil.getParentTree(oficina, "personaJefe.nombreConTitulo"));
-                node.put("encargado", (String) ObjectUtil.getParentTree(oficina, "jefeEncargado.nombreConTitulo"));
-                node.put("idJefe", (Long) ObjectUtil.getParentTree(oficina, "personaJefe.id"));
-                node.put("idEncargado", (Long) ObjectUtil.getParentTree(oficina, "jefeEncargado.id"));
-                //*/
                 node.put("colaboradores", colaboradores.size());
                 array.add(node);
             }
@@ -450,8 +431,16 @@ public class OficinaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Compania compania = ds.getCompania();
         List<TipoOficina> tipoOficina = service.allTipoOficina();
-        model.addAttribute("oficina", new Oficina());
-        model.addAttribute("tipos", tipoOficina);
+        ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoOficina tipoOficina1 : tipoOficina) {
+            node.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{
+                "*"
+            }));
+        }
+        ObjectNode objectNode = JsonHelper.createJson(new Oficina(), JsonNodeFactory.instance, new String[]{
+            "*"});
+        model.addAttribute("tipos", node.toString());
+        model.addAttribute("oficina", objectNode.toString());
         return "general/oficina/oficinaForm";
     }
 
@@ -461,9 +450,21 @@ public class OficinaController {
         Compania compania = ds.getCompania();
         Oficina oficina = service.find(new Oficina(idOficina));
         service.fillReferencia(oficina);
+        
         List<TipoOficina> tipoOficina = service.allTipoOficina();
-        model.addAttribute("oficina", oficina);
-        model.addAttribute("tipos", tipoOficina);
+        
+        ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoOficina tipoOficina1 : tipoOficina) {
+            node.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{
+                "*"
+            }));
+        }
+
+        ObjectNode objectNode = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
+            "*","tipoOficina.*","cargoJefe.*","oficinaSuperior.*"});
+        
+        model.addAttribute("tipos", node.toString());
+        model.addAttribute("oficina", objectNode.toString());
         return "general/oficina/oficinaForm";
     }
 
@@ -488,7 +489,6 @@ public class OficinaController {
 //        }
 //        return "redirect:/general/oficina";
 //    }
-
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(Oficina oficina, HttpSession session) {

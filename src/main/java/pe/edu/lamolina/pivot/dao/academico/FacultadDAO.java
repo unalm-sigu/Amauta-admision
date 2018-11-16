@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.general.Compania;
 
 public interface FacultadDAO extends EasyDAO<Facultad> {
 
-    List<Facultad> allDynatable(DynatableFilter filter);
+    List<Facultad> allDynatable(DynatableFilter filter, List<Facultad> facultads);
 
     List<Facultad> allByCompania(Compania compania);
 

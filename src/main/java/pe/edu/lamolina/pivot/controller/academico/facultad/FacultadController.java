@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -30,8 +31,11 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -43,6 +47,9 @@ public class FacultadController {
 
     @Autowired
     FacultadService service;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -77,13 +84,14 @@ public class FacultadController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<Facultad> facultadUser = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
             
-            List<Facultad> facultades = service.allFacultad(filter);
+            List<Facultad> facultades = service.allFacultad(filter, facultadUser);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Facultad facultad : facultades) {

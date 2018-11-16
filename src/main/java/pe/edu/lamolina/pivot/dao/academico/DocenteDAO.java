@@ -11,7 +11,7 @@ import pe.edu.lamolina.model.general.Persona;
 
 public interface DocenteDAO extends EasyDAO<Docente> {
 
-    List<Docente> allByFacultadesDyantable(DynatableFilter filter, List<Facultad> facultades);
+    List<Docente> allByFacultadesDyantable(DynatableFilter filter, List<DepartamentoAcademico> departamento);
 
     Docente findByCode(String codigo);
 

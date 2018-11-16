@@ -199,12 +199,12 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades) {
+    public List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Carrera> carrera) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Alumno.class, "al")
                 .join("persona per", "carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac")
                 .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
-                //.in("fac.id", facultades)
+                .in("ca.id", carrera)
                 .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
