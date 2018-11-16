@@ -1,0 +1,94 @@
+<modal-vik ref="nuevoAgregarAulasModal"
+           v-bind="confirmarModal"
+           v-bind:okaction="saveAulas">
+    <div slot="body">
+        <div class="panel">
+            <div class="panel-body">
+                <form data-parsley-validate="true" id="formAulas" v-if="cursoMasivoExamen">
+                    <div class="tab-pane">
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-md-6">
+                                    <label>Total Aulas : </label>
+                                    {{cursoMasivoExamen.aulas}}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label>Total Capacidad : </label>
+                                    {{cursoMasivoExamen.capacidadAulas}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-md-6">
+                                    <label>Alumnos :  </label>
+                                    {{cursoMasivoExamen.alumnos}}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label>Faltantes : </label>
+                                    {{cursoMasivoExamen.capacidadAulas - cursoMasivoExamen.alumnos }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Módulo:</label>
+                                    <multiselect  v-model="modulo"
+                                                  label='nombre'
+                                                  track-by="id"
+                                                  v-bind:options="modulos"	
+                                                  v-bind:internal-search="false"                                                  
+                                                  v-on:input="allAulasModulo"
+                                                  deselect-label=""
+                                                  select-label="Seleccione este módulo"
+                                                  placeholder="">
+                                    </multiselect>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--<pre>{{aulasModulo}}</pre>-->
+                    Aulas Disponibles
+                    <div class="tab-pane">
+                        <div class="row">
+                            <div v-for="aula in aulasModulo" class="col-md-1 m-t-md pointer"
+                                 v-if="noExiste(aula)">
+                                <div class="list-group-item item" 
+                                     style="min-height: 50px; min-width: 60px;border-width: 1px; background-color: #33ACFF;color: white;"
+                                     v-on:click="addAula(aula)">
+                                    <div>
+                                        <span class="h4" v-text="aula.codigo"></span>
+                                        <small>({{aula.capacidadAula}})</small>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    Aulas Asignadas
+                    <div class="tab-pane">
+                        <div class="row">
+                            <div v-for="aula in aulas" class="col-md-1 m-t-md pointer">
+                                <div class="list-group-item item" 
+                                     style="min-height: 50px; min-width: 60px;border-width: 1px; background-color: #21B021;color: white;"
+                                     >
+                                    <div>
+                                        <span class="h4" v-text="aula.codigo"></span>
+                                        <small>({{aula.capacidadAula}})</small>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</modal-vik>

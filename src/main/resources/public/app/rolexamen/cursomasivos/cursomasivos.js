@@ -7,19 +7,26 @@ new Vue({
         confirmarModal: {
             id: 'modalConfirmar',
             header: true,
-            title: 'Configurar Nuevo Curso Masivo',
+            title: 'Agregar Aulas',
             cancelbtn: 'Cancelar',
-            okbtn: 'Guardar',
-            modalsize: 'modal-md'
+            okbtn: 'Asignar',
+            modalsize: 'modal-lg'
         },
-        rolExamenes: null, //rol examen seleccionado
-        rolesExamenes: JSON.parse(jRolexamenes), //lista
+        rolExamenes: null,
+        rolesExamenes: JSON.parse(jRolexamenes),
         curso: null,
         cursos: [],
-        cursosMasivosByRolExamenes: []
+        cursosMasivosByRolExamenes: [],
+        modulo: null,
+        modulos: [],
+        cursoMasivoExamen: [],
+        aulasModulo: [],
+        aulas: [],
+        aula: null
     },
     mounted() {
         let $vue = this;
+        $vue.loadModulos();
     },
     methods: {
         loadCurso(nombre) {
@@ -27,13 +34,11 @@ new Vue({
 
             $.ajax({
                 method: "POST",
-                //contentType: "application/json",
                 url: APP.url("rolexamen/cursomasivos/" + $vue.rolExamenes.id + "/loadCurso"),
                 data: {nombre: nombre}
 
             }).then(response => {
                 if (response.success) {
-                    console.dir(response.data);
                     $vue.cursos = response.data;
                 } else {
                     notify(response.message, 'error');
@@ -42,8 +47,40 @@ new Vue({
                 notify(MESSAGES.errorComunicacion, 'error');
             });
         },
-        loadCursoMasivo() {
+        loadModulos() {
+            let $vue = this;
 
+            $.ajax({
+                method: "POST",
+                contentType: "application/json",
+                url: APP.url("rolexamen/cursomasivos/allModulos")
+            }).then(response => {
+                if (response.success) {
+                    $vue.modulos = response.data;
+                } else {
+                    notify(response.message, 'error');
+                }
+            }, error => {
+                notify(MESSAGES.errorComunicacion, 'error');
+            });
+        },
+        allAulasModulo(nombre) {
+            let $vue = this;
+            console.log(nombre);
+            console.log("Buscar Módulos");
+            $.ajax({
+                url: APP.url("rolexamen/cursomasivos/allAulasModulo"),
+                data: JSON.stringify(nombre),
+                dataType: 'json',
+                contentType: "application/json",
+                type: 'POST',
+                success: function (response) {
+                    if (response.success) {
+                        console.log(response.data);
+                        $vue.aulasModulo = response.data;
+                    }
+                }
+            });
         },
         agregarCursoMasivo() {
             let $vue = this;
@@ -51,9 +88,6 @@ new Vue({
                 curso: $vue.curso,
                 rolExamenes: $vue.rolExamenes
             }
-            console.dir(cursoMasivo);
-            console.log("Estoy antes del ajax");
-
             $.ajax({
                 method: "POST",
                 contentType: "application/json",
@@ -61,7 +95,6 @@ new Vue({
                 data: JSON.stringify(cursoMasivo)
             }).then(response => {
                 if (response.success) {
-                    console.dir(response);
                     notify(response.message, "info")
                 } else {
                     notify(response.message, 'error');
@@ -69,15 +102,9 @@ new Vue({
             }, error => {
                 notify(MESSAGES.errorComunicacion, 'error');
             });
-
-
-
         },
         loadCursosMasivosByRoleExamen() {
             let $vue = this;
-            console.log("Estoy en cargar Cursos Masivos por Rol Examens");
-            console.dir(this.rolExamenes);
-            console.log("Esto paso siguiente");
 
             $.ajax({
                 method: "POST",
@@ -86,9 +113,7 @@ new Vue({
                 data: JSON.stringify($vue.rolExamenes)
             }).then(response => {
                 if (response.success) {
-                    console.dir(response.data);
                     $vue.cursosMasivosByRolExamenes = response.data;
-                    console.dir($vue.cursosMasivosByRolExamenes);
                 } else {
                     notify(response.message, 'error');
                 }
@@ -96,12 +121,93 @@ new Vue({
                 notify(MESSAGES.errorComunicacion, 'error');
             });
         },
-        verNuevoCurso() {
+        agregarAulas(item) {
+            let $vue = this;
+            this.cursoMasivoExamen = item;
+            $vue.$refs.nuevoAgregarAulasModal.open();
         },
-        listCursosMasivos() {},
-        loadModalSecciones() {},
-        loadModalAlumnos() {},
-        loadModalAulas() {},
+        saveAulas() {
+            var form = $("#formAulas");
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea agregar un aula?',
+                buttons: {
+                    confirm: {label: 'Si, guardar', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: "POST",
+                            contentType: "application/json",
+                            url: APP.url("rolexamen/cursomasivos/saveAulas"),
+//                            data: JSON.stringify($vue.)
+                        }).then(response => {
+                            if (response.success) {
+                                $vue.$refs.modalConfirmar.close();
+                                //$vue.$refs.;
+                                notify(response.message, "info")
+                            } else {
+                                notify(response.message, 'error');
+                            }
+                        }, error => {
+                            notify(MESSAGES.errorComunicacion, 'error');
+                        });
+                    }
+                }
+            });
+        },
+        eliminar(item) {
+            let $vue = this;
+            var del = item;
+            bootbox.confirm({
+                message: '¿Está seguro que desea eliminar el registro curso <b>' + item.curso.nombre + '</b>?',
+                buttons: {
+                    confirm: {label: 'Si, eliminar', className: 'btn-danger'},
+                    cancel: {label: 'Cancelar', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: APP.url('rolexamen/cursomasivos/eliminar'),
+                            type: 'POST',
+                            async: true,
+                            data: {id: del.id},
+                            success: function (response) {
+                                if (response.success) {
+//                                    $vue.$refs.load.loadRemoteData();
+                                    notify(response.message, "info");
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        noExiste(aula) {
+            let $vue = this;
+            for (var i = 0; i < $vue.aulas.length; i++) {
+                if (aula.id == $vue.aulas[i].id) {
+                    return false;
+                }
+            }
+            return true;
+        },
+        addAula(aula) {
+            let $vue = this;
+            $vue.aulas.push(aula);
+            $vue.cursoMasivoExamen.aulas = $vue.cursoMasivoExamen.aulas + 1;
+            $vue.cursoMasivoExamen.capacidadAulas = $vue.cursoMasivoExamen.capacidadAulas + aula.capacidadAula;
+        }
 
     }
 });

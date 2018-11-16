@@ -69,4 +69,14 @@ public class CursoMasivoExamenDAOH extends AbstractEasyDAO<CursoMasivoExamen> im
         return all(sql);
     }
 
+    @Override
+    public CursoMasivoExamen find(Long id) {
+         Octavia sql = Octavia.query()
+                .from(CursoMasivoExamen.class, "cm")
+                .join("rolExamenes re", "userRegistro ur", "curso cu")
+                .filter("cm.id", id);
+        
+        return find(sql);
+    }
+
 }

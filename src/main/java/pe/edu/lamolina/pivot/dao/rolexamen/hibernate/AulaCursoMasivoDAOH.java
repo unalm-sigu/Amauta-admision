@@ -4,21 +4,21 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
-import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoCursoMasivoDAO;
+import pe.edu.lamolina.model.rolexamen.AulaCursoMasivo;
+import pe.edu.lamolina.pivot.dao.rolexamen.AulaCursoMasivoDAO;
 
 @Repository
-public class AlumnoCursoMasivoDAOH extends AbstractEasyDAO<AlumnoCursoMasivo> implements AlumnoCursoMasivoDAO {
+public class AulaCursoMasivoDAOH extends AbstractEasyDAO<AulaCursoMasivo> implements AulaCursoMasivoDAO {
 
-    public AlumnoCursoMasivoDAOH() {
+    public AulaCursoMasivoDAOH() {
         super();
-        setClazz(AlumnoCursoMasivo.class);
+        setClazz(AulaCursoMasivo.class);
     }        
 
     @Override
-    public List<AlumnoCursoMasivo> allAlumnoByCursoMasivo(Long id) {
+    public List<AulaCursoMasivo> allAulaByCursoMasivo(Long id) {
          Octavia sql = Octavia.query()
-                .from(AlumnoCursoMasivo.class, "acm")
+                .from(AulaCursoMasivo.class, "acm")
                 .join("cursoMasivoExamen cme", "userRegistro ur")
                 .filter("cme.id", id);
         return all(sql);

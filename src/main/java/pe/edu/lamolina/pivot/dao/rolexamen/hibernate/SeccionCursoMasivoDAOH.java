@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
+import java.util.List;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
@@ -11,5 +13,14 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
     public SeccionCursoMasivoDAOH() {
         super();
         setClazz(SeccionCursoMasivo.class);
+    }
+
+    @Override
+    public List<SeccionCursoMasivo> allSeccionByCursoMasivo(Long id) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme", "userRegistro ur")
+                .filter("cme.id", id);
+        return all(sql);
     }
 }

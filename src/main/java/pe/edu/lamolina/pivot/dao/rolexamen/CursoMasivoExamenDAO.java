@@ -17,5 +17,7 @@ public interface CursoMasivoExamenDAO extends EasyDAO<CursoMasivoExamen> {
     List<Curso> allCursosByCicloActivo(CicloAcademico cicloAcademico);
 
     List<CursoMasivoExamen> allByRolExamenes(RolExamenes rolExamenes);
+    
+    CursoMasivoExamen find(Long id);
 
 }
