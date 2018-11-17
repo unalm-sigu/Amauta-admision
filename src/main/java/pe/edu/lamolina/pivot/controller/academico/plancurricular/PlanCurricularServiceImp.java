@@ -35,6 +35,7 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.CRE;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
@@ -44,6 +45,13 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.OBL;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.PROD;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.TECIND;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.TipoOficina;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -61,6 +69,8 @@ import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoOpcionalDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -119,6 +129,12 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Autowired
     CursoEquivalenteElectivoDAO cursoEquivalenteElectivoDAO;
+
+    @Autowired
+    UsuarioRolDAO usuarioRolDAO;
+
+    @Autowired
+    ColaboradorDAO colaboradorDAO;
 
     @Override
     public List<Carrera> allCarreras(List<Carrera> carreras) {
@@ -1078,6 +1094,39 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         }
 
         cursoAdicionalCurriculaDAO.update(cacBD);
+    }
+
+    @Override
+    public List<Carrera> allCarrerasByuser(Usuario usuario, Persona persona) {
+
+        Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(new Oficina(OficinaEnum.OERA.getId()), persona);
+
+        if (colaborador != null) {
+            return carreraDAO.all();
+        }
+
+        List<UsuarioRol> usu = usuarioRolDAO.findByUsuario(usuario);
+
+        List<Long> idFac = new ArrayList();
+        List<Long> idEsp = new ArrayList();
+
+        for (UsuarioRol usuarioRol : usu) {
+            Oficina ofi = usuarioRol.getOficina();
+            TipoOficina tipoOfi = ofi.getTipoOficina();
+            if (tipoOfi.getCodigo().equals(TipoOficinaEnum.FAC.name())) {
+                idFac.add(ofi.getInstanciaOficina());
+            } else if (tipoOfi.getCodigo().equals(TipoOficinaEnum.ESP.name())) {
+                idEsp.add(ofi.getInstanciaOficina());
+            }
+        }
+        List<Carrera> all = new ArrayList();
+        List<Carrera> carrera1 = carreraDAO.all(idEsp);
+        List<Carrera> carrera2 = carreraDAO.allOficinaAndIds(idFac);
+
+        all.addAll(carrera1);
+        all.addAll(carrera2);
+        return all;
+
     }
 
 }

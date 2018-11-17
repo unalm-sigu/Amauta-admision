@@ -20,6 +20,10 @@ import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.MenuRol;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
@@ -209,4 +213,21 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
         return resultado;
     }
 
+    @Override
+    public List<Oficina> allOficinaByUserMenu(Usuario usuario, Menu menu) {
+        Octavia subquery = Octavia.query()
+                .from(MenuRol.class, "mr")
+                .join("menu m", "rol r2")
+                .filter("m.id", menu);
+
+        Octavia sql = Octavia.query()
+                .selectDistinct("ofi")
+                .from(UsuarioRol.class, "ur")
+                .join("usuario u", "rol r1", "oficina ofi")
+                .filter("u.id", usuario)
+                .exists(subquery)
+                .linkedBy("r1.id", "r2.id");
+
+        return sql.all(getCurrentSession());
+    }
 }

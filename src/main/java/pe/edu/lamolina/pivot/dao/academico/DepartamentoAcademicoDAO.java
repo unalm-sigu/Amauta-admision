@@ -18,7 +18,7 @@ public interface DepartamentoAcademicoDAO extends EasyDAO<DepartamentoAcademico>
 
     List<DepartamentoAcademico> allByCompania(Compania compania);
 
-    List<DepartamentoAcademico> allDynatable(DynatableFilter filter);
+    List<DepartamentoAcademico> allDynatable(DynatableFilter filter, List<DepartamentoAcademico> dptos);
 
     DepartamentoAcademico findDepartamentoAcademico(Long idDepartamentoAcademico);
 
@@ -29,6 +29,5 @@ public interface DepartamentoAcademicoDAO extends EasyDAO<DepartamentoAcademico>
     List<DepartamentoAcademico> allDepartamentos(String nombre);
 
     List<DepartamentoAcademico> allActivos();
-
 
 }

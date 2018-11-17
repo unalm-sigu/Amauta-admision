@@ -1,9 +1,12 @@
 package pe.edu.lamolina.pivot.zelper;
 
+import org.joda.time.DateTime;
+
 public class Laboratory {
 
     public static void main666(String[] args) {
-        System.out.println("1.2.B".substring(0,3));
+        DateTime dt = new DateTime();
+        System.err.println(dt.toString("yyyy-MM-dd"));
     }
 
 }

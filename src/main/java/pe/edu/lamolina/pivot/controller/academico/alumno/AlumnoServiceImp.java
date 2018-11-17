@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.alumno;
 
 import com.google.common.base.Strings;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -27,12 +28,17 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
+import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
@@ -49,6 +55,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.OrientacionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
+import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
@@ -112,6 +119,8 @@ public class AlumnoServiceImp implements AlumnoService {
     UsuarioRolDAO usuarioRolDAO;
     @Autowired
     OrientacionCarreraDAO orientacionCarreraDAO;
+    @Autowired
+    ColaboradorDAO colaboradorDAO;
 
     @Override
     public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras) {
@@ -119,8 +128,8 @@ public class AlumnoServiceImp implements AlumnoService {
     }
 
     @Override
-    public List<Alumno> allAlumnosByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades) {
-        return alumnoDAO.allByFacultadDynatable(filter, facultades);
+    public List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras) {
+        return alumnoDAO.allByFacultadDynatable(filter, carreras);
     }
 
     @Override
@@ -574,6 +583,39 @@ public class AlumnoServiceImp implements AlumnoService {
         token.setValor(valor);
         tokenIngresanteDAO.save(token);
         return alumno.getCodigo();
+    }
+
+   @Override
+    public List<Carrera> allCarrerasByuser(Usuario usuario, Persona persona) {
+
+        Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(new Oficina(OficinaEnum.OERA.getId()), persona);
+
+        if (colaborador != null) {
+            return carreraDAO.all();
+        }
+
+        List<UsuarioRol> usu = usuarioRolDAO.findByUsuario(usuario);
+
+        List<Long> idFac = new ArrayList();
+        List<Long> idEsp = new ArrayList();
+
+        for (UsuarioRol usuarioRol : usu) {
+            Oficina ofi = usuarioRol.getOficina();
+            TipoOficina tipoOfi = ofi.getTipoOficina();
+            if (tipoOfi.getCodigo().equals(TipoOficinaEnum.FAC.name())) {
+                idFac.add(ofi.getInstanciaOficina());
+            } else if (tipoOfi.getCodigo().equals(TipoOficinaEnum.ESP.name())) {
+                idEsp.add(ofi.getInstanciaOficina());
+            }
+        }
+        List<Carrera> all = new ArrayList();
+        List<Carrera> carrera1 = carreraDAO.all(idEsp);
+        List<Carrera> carrera2 = carreraDAO.allOficinaAndIds(idFac);
+
+        all.addAll(carrera1);
+        all.addAll(carrera2);
+        return all;
+
     }
 
 }

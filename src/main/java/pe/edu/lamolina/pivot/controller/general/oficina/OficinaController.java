@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -35,7 +34,6 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -120,25 +118,6 @@ public class OficinaController {
 
                 ObjectNode node = createOficinaJson(oficina);
 
-                /*
-                node.put("id", oficina.getId());
-                node.put("nombre", oficina.getNombre());
-                node.put("codigo", oficina.getCodigo());
-                node.put("nivel", OficinaNivel.getNombre(oficina.getTipoOficina().getNivel()));
-                node.put("tipo", TipoOficinaEnum.getNombre(oficina.getTipoOficina().getCodigo()));
-                node.put("cambiarEstado", oficina.getEstado());
-                node.put("estadoEnum", oficina.getEstadoEnum().getValue());
-                node.put("dependencia", (String) ObjectUtil.getParentTree(oficina, "oficinaSuperior.nombre"));
-                node.put("colaboradores", colaboradores.size());
-                node.put("motivoAusenciaJefe", oficina.getMotivoAusenciaJefe());
-                node.put("cargoJefe", (String) ObjectUtil.getParentTree(oficina, "cargoJefe.nombre"));
-                node.put("fechaInicioJefatura", TypesUtil.getStringDate(oficina.getFechaInicioJefatura(), "dd/MM/yyyy"));
-                node.put("fechaEncargatura", TypesUtil.getStringDate(oficina.getFechaEncargatura(), "dd/MM/yyyy"));
-                node.put("jefe", (String) ObjectUtil.getParentTree(oficina, "personaJefe.nombreConTitulo"));
-                node.put("encargado", (String) ObjectUtil.getParentTree(oficina, "jefeEncargado.nombreConTitulo"));
-                node.put("idJefe", (Long) ObjectUtil.getParentTree(oficina, "personaJefe.id"));
-                node.put("idEncargado", (Long) ObjectUtil.getParentTree(oficina, "jefeEncargado.id"));
-                //*/
                 node.put("colaboradores", colaboradores.size());
                 array.add(node);
             }
@@ -452,8 +431,16 @@ public class OficinaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Compania compania = ds.getCompania();
         List<TipoOficina> tipoOficina = service.allTipoOficina();
-        model.addAttribute("oficina", new Oficina());
-        model.addAttribute("tipos", tipoOficina);
+        ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoOficina tipoOficina1 : tipoOficina) {
+            node.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{
+                "*"
+            }));
+        }
+        ObjectNode objectNode = JsonHelper.createJson(new Oficina(), JsonNodeFactory.instance, new String[]{
+            "*"});
+        model.addAttribute("tipos", node.toString());
+        model.addAttribute("oficina", objectNode.toString());
         return "general/oficina/oficinaForm";
     }
 
@@ -463,32 +450,74 @@ public class OficinaController {
         Compania compania = ds.getCompania();
         Oficina oficina = service.find(new Oficina(idOficina));
         service.fillReferencia(oficina);
+        
         List<TipoOficina> tipoOficina = service.allTipoOficina();
-        model.addAttribute("oficina", oficina);
-        model.addAttribute("tipos", tipoOficina);
+        
+        ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoOficina tipoOficina1 : tipoOficina) {
+            node.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{
+                "*"
+            }));
+        }
+
+        ObjectNode objectNode = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
+            "*","tipoOficina.*","cargoJefe.*","oficinaSuperior.*"});
+        
+        model.addAttribute("tipos", node.toString());
+        model.addAttribute("oficina", objectNode.toString());
         return "general/oficina/oficinaForm";
     }
 
+//    @RequestMapping("save")
+//    public String save(Oficina oficina, HttpSession session, RedirectAttributes redirectAttr) {
+//        try {
+//            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//            Compania compania = ds.getCompania();
+//            oficina.setCompania(compania);
+//
+//            if (oficina.getId() != null) {
+//                service.update(oficina, ds);
+//                Notificaciones.crearMsg("Oficina Actualizado", redirectAttr);
+//            } else {
+//                service.save(oficina, ds);
+//                Notificaciones.crearMsg("Oficina Creada", redirectAttr);
+//            }
+//        } catch (PhobosException ex) {
+//            ExceptionHandler.handleException(ex, redirectAttr);
+//        } catch (Exception e) {
+//            ExceptionHandler.handleException(e, redirectAttr);
+//        }
+//        return "redirect:/general/oficina";
+//    }
+    @ResponseBody
     @RequestMapping("save")
-    public String save(Oficina oficina, HttpSession session, RedirectAttributes redirectAttr) {
+    public JsonResponse save(@RequestBody Oficina oficina, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
             oficina.setCompania(compania);
 
             if (oficina.getId() != null) {
                 service.update(oficina, ds);
-                Notificaciones.crearMsg("Oficina Actualizado", redirectAttr);
+                response.setMessage("Oficina actualizada satisfactoriamente");
             } else {
                 service.save(oficina, ds);
-                Notificaciones.crearMsg("Oficina Creada", redirectAttr);
+                response.setMessage("Oficina creada satisfactoriamente");
             }
-        } catch (PhobosException ex) {
-            ExceptionHandler.handleException(ex, redirectAttr);
+
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
-            ExceptionHandler.handleException(e, redirectAttr);
+            ExceptionHandler.handleException(e, response);
         }
-        return "redirect:/general/oficina";
+        return response;
     }
 
 //    @ResponseBody

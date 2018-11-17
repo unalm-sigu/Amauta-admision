@@ -39,7 +39,7 @@ public class PrecioCursoCicloController {
 
         model.addAttribute("ciclo", ds.getCicloAcademico());
 
-        return "academico/preciocursociclo/preciocursociclo";
+        return "academico/preciocursociclo/precioCursoCiclo";
     }
 
     @ResponseBody
