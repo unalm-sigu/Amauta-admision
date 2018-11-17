@@ -111,7 +111,7 @@
 
                                         </td>
                                         <td v-for="dia in dias" style="width: 12.5%" v-on:click="conterObjHdia(dia,hora) == null ? asignarHora(dia,hora) : desasignarHora(dia,hora)">
-                                            <span v-value="hora.id + '-' + dia.id" class="form-control pointer text-center"
+                                            <span v-bind:value="hora.id + '-' + dia.id" class="form-control pointer text-center"
                                                   v-bind:style="styleHdia(dia,hora)"
                                                   v-text="conteHdia(dia,hora)">
                                                 <!--span class="text-item-horario"

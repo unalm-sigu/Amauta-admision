@@ -199,23 +199,26 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
     }
 
     @Override
-    public Map<Long, Integer> allGruposCountBySemanaExamen(SemanaExamen semanaExamen,
+    public Map<Long, Long> allGruposCountBySemanaExamen(SemanaExamen semanaExamen,
             CicloAcademico cicloAcademico,
-            TipoGrupoHorasEnum tipoGrupoHorasEnum) {
+            TipoGrupoHorasEnum tipoGrupoHorasEnum,
+            Integer horasForDay) {
         Octavia sql = Octavia.query()
-                .select("gh.id", "count(cc)")
+                .select("gh.id", "d.id", "count(dhg)")
                 .from(DiaHoraGrupo.class, "dhg")
                 .join("grupoHorario gh", "cicloAcademico ca", "dia d", "hora h")
                 .join("gh.tipoGrupoHoras tgh")
                 .filter("ca.id", cicloAcademico)
-                .filter("gh.tipo", tipoGrupoHorasEnum)
+                .filter("tgh.tipo", tipoGrupoHorasEnum)
                 .filter("h.numero", ">=", semanaExamen.getHoraInicio().getNumero())
                 .filter("h.numero", "<=", semanaExamen.getHoraFin().getNumero())
-                .groupBy("gh.id");
+                .groupBy("gh.id", "d.id");
         List<Object[]> resultado = sql.all(getCurrentSession());
-        Map<Long, Integer> result = new HashMap();
+        Map<Long, Long> result = new HashMap();
         for (Object[] objects : resultado) {
-            result.put(TypesUtil.getLong(objects[0]), TypesUtil.getInt(objects[1]));
+            if (TypesUtil.getInt(objects[2]) >= horasForDay) {
+                result.put(TypesUtil.getLong(objects[0]), TypesUtil.getLong(objects[1]));
+            }
         }
         return result;
     }

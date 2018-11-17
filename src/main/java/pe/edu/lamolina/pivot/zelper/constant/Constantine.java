@@ -95,4 +95,6 @@ public interface Constantine {
     String CICLO_ORDEN_MERITO = "CICLO_ORDEN_MERITO";
     String CICLO_ANEXO_BOLETIN = "CICLO_ANEXO_BOLETIN";
 
+    final static Integer CANTIDAD_HORAS_POR_EXAMEN = 2;
+
 }

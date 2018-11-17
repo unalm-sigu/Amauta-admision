@@ -17,6 +17,15 @@ public class SemanaExamenDAOH extends AbstractEasyDAO<SemanaExamen> implements S
     }
 
     @Override
+    public SemanaExamen find(long id) {
+        Octavia sql = Octavia.query()
+                .from(SemanaExamen.class, "se")
+                .join("horaInicio hi", "horaFin hf", "rolExamenes rex")
+                .filter("se.id", id);
+        return find(sql);
+    }
+
+    @Override
     public List<SemanaExamen> allByRolExamenes(RolExamenes rolExamenes) {
         Octavia sql = Octavia.query()
                 .from(SemanaExamen.class, "se")
