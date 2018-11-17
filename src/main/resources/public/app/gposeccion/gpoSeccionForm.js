@@ -185,7 +185,8 @@ var app = new Vue({
             aulaInicio: {},
             grupoInicio: {},
             grupoHorasFin: {},
-            aulaFin: {}
+            aulaFin: {},
+            diahoragruposelects: []
         },
         aceptarCambioAulaGrupoModal: {
             id: 'aceptarCambioAulaGrupoModal',
@@ -1590,9 +1591,12 @@ var app = new Vue({
             $vue.changeAulaGpo.seccion = {};
             $vue.changeAulaGpo.seccion.id = $vue.seccionSeleccionada.id;
 
+            $global.$emit('preSaveGrupoHorario');
+
             if ($('#formAulaGrupo').parsley().validate() !== true) {
                 return;
             }
+            
             console.log($vue.changeAulaGpo);
             $.ajax({
                 url: APP.url('academico/gposeccion/savecambioaulagrupo'),
@@ -1813,7 +1817,7 @@ var app = new Vue({
             } else {
 
                 $vue.changeAulaGpo.grupoHorasFin = {};
-                
+
             }
 
             $vue.$refs.grupoRegularComponent.loadGrupoRegularAulaComponent();

@@ -15,6 +15,11 @@ Vue.component("grupo-regular-aula-component", {
             type: Object,
             default: null
         },
+        diahoragruposelects: {
+            required: true,
+            type: Array,
+            default: []
+        },
     },
     data: function () {
         return {
@@ -43,6 +48,10 @@ Vue.component("grupo-regular-aula-component", {
             $($vue.$el).find('.nav li.active:last').removeClass('active');
             $($vue.$el).find('.tab-pane.active:last').removeClass('active');
         }
+
+        $global.$on("preSaveGrupoHorario", function () {
+            $vue.preSaveGrupoHorario();
+        });
 
     },
     updated: function () {
@@ -254,11 +263,12 @@ Vue.component("grupo-regular-aula-component", {
             var seleccionado = !diaHoraGrupo.seleccionado;
             this.errorsMessage = null;
             console.log(seleccionado);
-            console.log(diaHoraGrupo.grupoHorario);
+            console.log(diaHoraGrupo.id);
+            console.log(diaHoraGrupo.grupoHorario.id);
             console.log(diaHoraGrupo.grupoHorario.codigo);
             if (seleccionado) {
                 $global.$emit("selectGrupoHorarioChange", diaHoraGrupo.grupoHorario);
-            }else{
+            } else {
                 $global.$emit("selectGrupoHorarioChange", {});
             }
 
@@ -330,7 +340,7 @@ Vue.component("grupo-regular-aula-component", {
                             }
                         }
                         if (cantSelecteds == 0) {
-                            this.tabGrupos.grupoHorarioSel = {tabGrupo:this.tabGrupos.grupoHorarioSel.tabGrupo};
+                            this.tabGrupos.grupoHorarioSel = {tabGrupo: this.tabGrupos.grupoHorarioSel.tabGrupo};
                         }
                     }
                 } else if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoRegular) {
@@ -348,7 +358,7 @@ Vue.component("grupo-regular-aula-component", {
                             }
                         }
                         if (cantSelecteds == 0) {
-                            this.tabGrupos.grupoHorarioSel = {tabGrupo:this.tabGrupos.grupoHorarioSel.tabGrupo};
+                            this.tabGrupos.grupoHorarioSel = {tabGrupo: this.tabGrupos.grupoHorarioSel.tabGrupo};
                         }
                     }
                 }
@@ -449,12 +459,17 @@ Vue.component("grupo-regular-aula-component", {
             }
             return true;
         },
-        saveGrupoHorario($vue) {
+        preSaveGrupoHorario() {
+            let $vue=this;
+            
+            console.log("preSaveGrupoHorario");
 
             if ($vue.tabGrupos.grupoHorarioSel == null) {
                 notify("Seleccione un grupo horario.", "error");
                 return;
             }
+
+            $vue.diahoragruposelects = [];
 
             let diasHorasGrupo = [];
 
@@ -532,46 +547,15 @@ Vue.component("grupo-regular-aula-component", {
                 notify("Asignar la cantidad de horas requeridas para la sección.", "error");
                 return
             }
+
             $vue.tabGrupos.grupoHorarioSel.diaHoraGrupo = diasHorasGrupo;
 
-
-            bootbox.confirm({
-                message: "¿Está seguro que desea grabar?",
-                buttons: {
-                    confirm: {label: 'Si', className: "btn-warning"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
-                },
-                callback: function (result) {
-
-                    if (result) {
-                        MODAL.showWait("Espere un momento por favor");
-                        $.ajax({
-                            url: APP.url('academico/gposeccion/' + $vue.seccionModal.id + '/saveSeccionGrupo'),
-                            dataType: "json",
-                            contentType: "application/json",
-                            type: 'POST',
-                            async: true,
-                            data: JSON.stringify($vue.tabGrupos.grupoHorarioSel),
-                            success: function (response) {
-                                if (response.success) {
-                                    MODAL.hideWait();
-                                    $global.$emit("afterSaveGrupo", response);
-                                } else {
-                                    MODAL.hideWait();
-                                    notify(response.message, "error");
-                                }
-                            },
-                            error: function (response) {
-                                MODAL.hideWait();
-                                $global.$emit("afterSaveGrupo", response);
-                                notify(MESSAGES.errorComunicacion, "error");
-                            }
-                        });
+            $vue.diahoragruposelects = diasHorasGrupo;
+            
+            console.log("==================diahoragruposelects===================");
+            console.log($vue.diahoragruposelects.length);
 
 
-                    }
-                }
-            });
         },
         cleanDiasHorasGrupoDiferentGpoHorario(grupoHorario) {
 

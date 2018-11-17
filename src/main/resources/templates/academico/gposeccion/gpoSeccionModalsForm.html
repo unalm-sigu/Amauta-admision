@@ -250,9 +250,12 @@
                     <label class="control-label">Horario Aula </label>
                     <div class="table-responsive" >
                         
+                        <pre>{{seccionSeleccionada}}</pre>
+                        
                         <grupo-regular-aula-component ref="grupoRegularComponent"
                                                       v-bind:aula="changeAulaGpo.aulaFin"
                                                       v-bind:grupohoras="changeAulaGpo.grupoHorasFin"
+                                                      v-bind:diahoragruposelects="changeAulaGpo.diahoragruposelects"
                                                       ></grupo-regular-aula-component>
 
                     </div>
