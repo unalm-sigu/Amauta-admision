@@ -27,4 +27,6 @@ public interface CursoMasivosService {
 
     List<Aula> allAulasByOficinaModulo(Oficina oficinaOERA, Aula modulo);
 
+    void saveAula(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds);
+
 }

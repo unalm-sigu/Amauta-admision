@@ -4,10 +4,10 @@ new Vue({
     el: '#main',
     data: {
         cursomasivosURL: APP.url('rolexamen/cursomasivos/list'),
-        confirmarModal: {
+        configAddAulasModal: {
             id: 'modalConfirmar',
             header: true,
-            title: 'Agregar Aulas',
+            title: 'Asignar Aulas',
             cancelbtn: 'Cancelar',
             okbtn: 'Asignar',
             modalsize: 'modal-lg'
@@ -17,7 +17,7 @@ new Vue({
         curso: null,
         cursos: [],
         cursosMasivosByRolExamenes: [],
-        modulo: null,
+        modulo: {},
         modulos: [],
         cursoMasivoExamen: [],
         aulasModulo: [],
@@ -123,10 +123,13 @@ new Vue({
                 notify(MESSAGES.errorComunicacion, 'error');
             });
         },
-        agregarAulas(item) {
+        verAsignarAulas(item) {
             let $vue = this;
-            this.cursoMasivoExamen = item;
-            $vue.$refs.nuevoAgregarAulasModal.open();
+            $vue.modulo = {};
+            $vue.aulasModulo = [];
+            $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
+            $vue.aulas = $vue.cursoMasivoExamen.aulasCursosMasivos;
+            $vue.$refs.addAulasModal.open();
         },
         saveAulas() {
             var form = $("#formAulas");
@@ -136,25 +139,29 @@ new Vue({
 
             let $vue = this;
             bootbox.confirm({
-                message: '¿Está seguro que desea agregar un aula?',
+                message: '¿Está seguro que desea asignar estas aulas?',
                 buttons: {
                     confirm: {label: 'Si, guardar', className: 'btn-success'},
                     cancel: {label: 'No', className: 'btn-link'}
                 },
                 callback: function (result) {
                     if (result) {
+                        MODAL.showWait("Espere un momento por favor");
                         $.ajax({
                             method: "POST",
                             contentType: "application/json",
                             url: APP.url("rolexamen/cursomasivos/saveAulas"),
-//                            data: JSON.stringify($vue.)
+                            data: JSON.stringify($vue.cursoMasivoExamen)
                         }).then(response => {
                             if (response.success) {
-                                $vue.$refs.modalConfirmar.close();
+                                $vue.$refs.addAulasModal.close();
+                                $vue.loadCursosMasivosByRoleExamen();
+                                $vue.curso = null;
                                 notify(response.message, "info")
                             } else {
                                 notify(response.message, 'error');
                             }
+                            MODAL.hideWait();
                         }, error => {
                             notify(MESSAGES.errorComunicacion, 'error');
                         });
@@ -200,7 +207,7 @@ new Vue({
         noExiste(aula) {
             let $vue = this;
             for (var i = 0; i < $vue.aulas.length; i++) {
-                if (aula.id == $vue.aulas[i].id) {
+                if (aula.id == $vue.aulas[i].aula.id) {
                     return false;
                 }
             }
@@ -208,9 +215,40 @@ new Vue({
         },
         addAula(aula) {
             let $vue = this;
-            $vue.aulas.push(aula);
+            $vue.aulas.push({id: '', aula: aula});
             $vue.cursoMasivoExamen.aulas = $vue.cursoMasivoExamen.aulas + 1;
             $vue.cursoMasivoExamen.capacidadAulas = $vue.cursoMasivoExamen.capacidadAulas + aula.capacidadAula;
+        },
+        removeAula(aula, idx) {
+            let $vue = this;
+            if (aula.id == '') {
+                $vue.aulas.splice(idx, 1);
+                $vue.cursoMasivoExamen.aulas = $vue.cursoMasivoExamen.aulas - 1;
+                $vue.cursoMasivoExamen.capacidadAulas = $vue.cursoMasivoExamen.capacidadAulas - aula.aula.capacidadAula;
+
+            } else {
+                bootbox.confirm({
+                    message: '¿Está seguro que desea eliminar esta aula?',
+                    buttons: {
+                        confirm: {label: 'Si, eliminar', className: 'btn-danger'},
+                        cancel: {label: 'No', className: 'btn-link'}
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $vue.aulas.splice(idx, 1);
+                            $vue.cursoMasivoExamen.aulas = $vue.cursoMasivoExamen.aulas - 1;
+                            $vue.cursoMasivoExamen.capacidadAulas = $vue.cursoMasivoExamen.capacidadAulas - aula.aula.capacidadAula;
+                        }
+                    }
+                });
+            }
+
+        },
+        styleBgColor(aula) {
+            if (aula.id == '') {
+                return "background-color: #FFC300;";
+            }
+            return "background-color: #21B021;";
         }
 
     }

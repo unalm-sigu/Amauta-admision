@@ -81,60 +81,59 @@
 
                     <section class="panel">
                         <section class="panel-body">
-                            <div class="row">
-                                <table class="table table-striped">
-                                    <thead> 
-                                        <tr> 
-                                            <th class="col-md-5 v-middle text-center">Curso</th>
-                                            <th class="col-md-3 v-middle text-center">Fecha / Hora</th>
-                                            <th class="col-md-1 v-middle text-center">Sección</th>
-                                            <th class="col-md-1 v-middle text-center">Alumnos</th>
-                                            <th class="col-md-1 v-middle text-center">Aulas</th>
-                                            <th class="col-md-1 v-middle text-center">Capacidad de Aulas</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="item in cursosMasivosByRolExamenes" v-if="cursosMasivosByRolExamenes">
-                                            <td class="v-middle text-left">
-                                                <span class="block text-primary bold h5 m-b-xs m-t-xs"
-                                                      v-text="item.curso.nombre"></span>
-                                                <span class="block">
-                                                    {{item.curso.codigo}}&nbsp;
-                                                    <i class="fa fa-bookmark text-primary"></i>
-                                                    {{item.curso.tpc}}</span>
-                                            </td>
-                                            <td class="v-middle text-center"> 
-                                                {{ item.fechaExamen }}
-                                            </td>
-                                            <td class="v-middle text-center"> 
-                                                {{ item.secciones }}
-                                            </td>
-                                            <td class="v-middle text-center"> 
-                                                {{ item.alumnos }}
-                                            </td>
-                                            <td class="v-middle text-center"> 
-                                                {{ item.aulas }}
-                                            </td>
-                                            <td class="v-middle text-center"> 
-                                                {{ item.capacidadAulas }}
-                                            </td>
-                                            <td class="v-middle">
-                                                <div class="actions">
-                                                    <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="glyphicon glyphicon-cog"> </i></a>
-                                                    <!--fa fa-ellipsis-v fa-lg-->
-                                                    <ul class="dropdown-menu pull-right" >
-                                                        <li><a class=" pointer btn-link bold" v-on:click="agregarAulas(item)">Agregar Aulas</a></li>                                                        
-                                                        <li class="divider"></li>                                                        
-                                                        <li><a class=" pointer bold" v-on:click="eliminar(item)">Eliminar</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </div>
+                            <table class="table table-striped">
+                                <thead> 
+                                    <tr> 
+                                        <th class="col-md-5 v-middle text-center">Curso</th>
+                                        <th class="col-md-3 v-middle text-center">Fecha / Hora</th>
+                                        <th class="col-md-1 v-middle text-center">Secciones</th>
+                                        <th class="col-md-1 v-middle text-center">Alumnos</th>
+                                        <th class="col-md-1 v-middle text-center">Aulas</th>
+                                        <th class="col-md-1 v-middle text-center">Capacidad de Aulas</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in cursosMasivosByRolExamenes" v-if="cursosMasivosByRolExamenes">
+                                        <td class="v-middle text-left">
+                                            <span class="block text-primary bold h5 m-b-xs m-t-xs"
+                                                  v-text="item.curso.nombre"></span>
+                                            <span class="block">
+                                                {{item.curso.codigo}}&nbsp;
+                                                <i class="fa fa-bookmark text-primary"></i>
+                                                {{item.curso.tpc}}</span>
+                                        </td>
+                                        <td class="v-middle text-center"> 
+                                            {{ item.fechaExamen }}
+                                        </td>
+                                        <td class="v-middle text-center"> 
+                                            <span class="badge pointer"
+                                                  vonclick="verAulas(item)">{{ item.secciones }}</span>
+                                        </td>
+                                        <td class="v-middle text-center"> 
+                                            {{ item.alumnos }}
+                                        </td>
+                                        <td class="v-middle text-center"> 
+                                            <span class="badge pointer"
+                                                  vonclick="verAulas(item)">{{ item.aulas }}</span>
+                                        </td>
+                                        <td class="v-middle text-center"> 
+                                            {{ item.capacidadAulas }}
+                                        </td>
+                                        <td class="v-middle">
+                                            <div class="actions">
+                                                <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="glyphicon glyphicon-cog"> </i></a>
+                                                <!--fa fa-ellipsis-v fa-lg-->
+                                                <ul class="dropdown-menu pull-right" >
+                                                    <li><a class=" pointer btn-link bold" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>                                                        
+                                                    <li class="divider"></li>                                                        
+                                                    <li><a class=" pointer bold" v-on:click="eliminar(item)">Eliminar</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
                         </section>
                     </section>

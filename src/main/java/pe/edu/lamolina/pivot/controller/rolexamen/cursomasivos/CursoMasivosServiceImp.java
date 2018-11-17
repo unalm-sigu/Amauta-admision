@@ -1,12 +1,16 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.cursomasivos;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.ListsInspector;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -37,56 +41,56 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class CursoMasivosServiceImp implements CursoMasivosService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     CursoMasivoExamenDAO cursoMasivoExamenDAO;
-
+    
     @Autowired
     RolExamenesDAO rolExamenesDAO;
-
+    
     @Autowired
     CursoDAO cursoDAO;
-
+    
     @Autowired
     SeccionCursoMasivoDAO seccionCursoMasivoDAO;
-
+    
     @Autowired
     AulaCursoMasivoDAO aulaCursoMasivoDAO;
     
     @Autowired
     AlumnoCursoMasivoDAO alumnoCursoMasivoDAO;
-
+    
     @Autowired
     SeccionDAO seccionDAO;
-
+    
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
-
+    
     @Autowired
     OficinaDAO oficinaDAO;
-
+    
     @Autowired
     AulaDAO aulaDAO;
-
+    
     @Override
     public List<RolExamenes> allRolExamenesByCicloActivo(CicloAcademico cicloAcademico) {
         return cursoMasivoExamenDAO.allRolExamenesByCicloActivo(cicloAcademico);
     }
-
+    
     @Override
     @Transactional
     public void save(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds) {
-
+        
         cursoMasivosExamen.setUserRegistro(ds.getUsuario());
         cursoMasivosExamen.setFechaRegistro(new Date());
         cursoMasivoExamenDAO.save(cursoMasivosExamen);
-
+        
         List<Seccion> secciones = seccionDAO.allByCicloAndCurso(cicloAcademico, cursoMasivosExamen.getCurso());
-
+        
         int alus = 0;
-
+        
         for (Seccion seccion : secciones) {
             SeccionCursoMasivo seccionCursoMasivo = new SeccionCursoMasivo();
             seccionCursoMasivo.setCursoMasivoExamen(cursoMasivosExamen);
@@ -94,7 +98,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             seccionCursoMasivo.setSeccion(seccion);
             seccionCursoMasivo.setFechaRegistro(new Date());
             seccionCursoMasivo.setUserRegistro(ds.getUsuario());
-
+            
             seccionCursoMasivoDAO.save(seccionCursoMasivo);
             List<MatriculaSeccion> matriculadosPorSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
             alus += matriculadosPorSeccion.size();
@@ -109,42 +113,49 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
                 alumnoCursoMasivoDAO.save(alumnoCursoMasivo);
             }
         }
-
+        
         cursoMasivosExamen.setAulas(0);
         cursoMasivosExamen.setCapacidadAulas(0);
         cursoMasivosExamen.setAlumnos(alus);
         cursoMasivosExamen.setSecciones(secciones.size());
         cursoMasivoExamenDAO.update(cursoMasivosExamen);
-
+        
     }
-
+    
     @Override
     public List<CursoMasivoExamen> listCursosMasivosExamenes(RolExamenes rolExamenes) {
+        
         rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
-        List<CursoMasivoExamen> cursosMasivosExamenes = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes);
-        for (CursoMasivoExamen cursoMasivoExamen : cursosMasivosExamenes) {
-
+        List<CursoMasivoExamen> cursosMasivos = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes);
+        List<AulaCursoMasivo> aulasCursos = aulaCursoMasivoDAO.allByCursosMasivos(cursosMasivos);
+        
+        Map<Long, List<AulaCursoMasivo>> mapAulasCursos = TypesUtil.convertListToMapList("cursoMasivoExamen.id", aulasCursos);
+        
+        for (CursoMasivoExamen cursoMasivo : cursosMasivos) {
+            List<AulaCursoMasivo> aulasByCurso = mapAulasCursos.get(cursoMasivo.getId());
+            aulasByCurso = (aulasByCurso == null) ? new ArrayList() : aulasByCurso;
+            cursoMasivo.setAulasCursosMasivos(aulasByCurso);
         }
-
-        return cursosMasivosExamenes;
+        
+        return cursosMasivos;
     }
-
+    
     @Override
     public List<Curso> allCursosByCiclo(String nombre, RolExamenes rolExamenes, CicloAcademico cicloAcademico) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         return cursoDAO.allForExamenByCiclo(nombre, rolExamenes, cicloAcademico);
     }
-
+    
     @Override
     public Oficina findOficinaOera() {
         return oficinaDAO.findByCode("OERA");
     }
-
+    
     @Override
     public List<Aula> allPabellonesByOficina(Oficina oficinaOERA) {
         return aulaDAO.allPabellonesByOficina(oficinaOERA);
     }
-
+    
     @Override
     @Transactional
     public void eliminarCursoMasivoExamen(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds) {
@@ -160,18 +171,50 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             alumnoCursoMasivoDAO.delete(alumnoCursoMasivo);
         }
         
-        List<AulaCursoMasivo> aulaCursoMasivos = aulaCursoMasivoDAO.allAulaByCursoMasivo(cursoMasivoExamenBD.getId());
+        List<AulaCursoMasivo> aulaCursoMasivos = aulaCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamenBD);
         for (AulaCursoMasivo aulaCursoMasivo : aulaCursoMasivos) {
             aulaCursoMasivoDAO.delete(aulaCursoMasivo);
         }
-                
+        
         cursoMasivoExamenDAO.delete(cursoMasivoExamenBD);
     }
-
+    
     @Override
     public List<Aula> allAulasByOficinaModulo(Oficina oficinaOERA, Aula modulo) {
-       return aulaDAO.allByOficinaModulo(oficinaOERA, modulo);
+        return aulaDAO.allByOficinaModulo(oficinaOERA, modulo);
     }
     
+    @Override
+    @Transactional
+    public void saveAula(CursoMasivoExamen cursoMasivo, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        
+        CursoMasivoExamen cursoMasivoBD = cursoMasivoExamenDAO.find(cursoMasivo.getId());
+        
+        List<AulaCursoMasivo> aulasCurso = cursoMasivo.getAulasCursosMasivos();
+        List<AulaCursoMasivo> aulasCursoBD = aulaCursoMasivoDAO.allByCursoMasivo(cursoMasivoBD);
+        ListsInspector inspector = TypesUtil.analizeLists(aulasCursoBD, aulasCurso, "aula.id");
+        
+        int total1 = 0;
+        for (Object obj : inspector.getNewList()) {
+            AulaCursoMasivo aulaCurso = (AulaCursoMasivo) obj;
+            aulaCurso.setCursoMasivoExamen(cursoMasivoBD);
+            aulaCurso.setAula(aulaCurso.getAula());
+            aulaCurso.setUserRegistro(ds.getUsuario());
+            aulaCurso.setFechaRegistro(new Date());
+            aulaCursoMasivoDAO.save(aulaCurso);
+            total1 += aulaCurso.getAula().getCapacidadAula();
+        }
+        int total2 = 0;
+        for (Object obj : inspector.getDeadList()) {
+            AulaCursoMasivo aulaCurso = (AulaCursoMasivo) obj;
+            aulaCursoMasivoDAO.delete(aulaCurso);
+            total1 += aulaCurso.getAula().getCapacidadAula();
+        }
+        int total = total1 - total2;
+        cursoMasivoBD.setCapacidadAulas(total);
+        cursoMasivoBD.setAulas(aulasCurso.size());
+        cursoMasivoExamenDAO.update(cursoMasivoBD);
+        
+    }
     
 }

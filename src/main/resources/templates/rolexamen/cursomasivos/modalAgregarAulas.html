@@ -1,8 +1,8 @@
-<modal-vik ref="nuevoAgregarAulasModal"
-           v-bind="confirmarModal"
+<modal-vik ref="addAulasModal"
+           v-bind="configAddAulasModal"
            v-bind:okaction="saveAulas">
     <div slot="body">
-        <div class="panel">
+        <div class="panel m-b-n">
             <div class="panel-body">
                 <form data-parsley-validate="true" id="formAulas" v-if="cursoMasivoExamen">
                     <div class="tab-pane">
@@ -19,6 +19,8 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!--<pre>{{aulas}}</pre>-->
 
                         <div class="row">
                             <div class="form-group">
@@ -29,9 +31,12 @@
 
                                 <div class="col-md-6 bold">
                                     <label class="bold">Faltantes : </label>
-                                    <span>
+                                    <span v-if="(cursoMasivoExamen.alumnos - cursoMasivoExamen.capacidadAulas)>0">
                                         {{cursoMasivoExamen.alumnos - cursoMasivoExamen.capacidadAulas}}
-                                    </span>                                    
+                                    </span>
+                                    <span v-else="">
+                                        0
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -55,9 +60,10 @@
                             </div>
                         </div>
                     </div>
-                    <!--<pre>{{aulasModulo}}</pre>-->
-                    <label class="bold">Aulas Disponibles</label>
-                    <div class="tab-pane">
+
+                    <label class="bold"
+                           v-if="modulo.id != undefined ">Aulas Disponibles</label>
+                    <div class="tab-pane m-t-n m-b">
                         <div class="row">
                             <div v-for="aula in aulasModulo" class="col-md-1 m-t-md pointer"
                                  v-if="noExiste(aula)">
@@ -74,16 +80,18 @@
                         </div>
                     </div>
 
-                    <label class="bold">Aulas Asignadas</label>
-                    <div class="tab-pane">
+                    <label class="bold" 
+                           v-if="aulas.length > 0">Aulas Asignadas</label>
+                    <div class="tab-pane m-t-n">
                         <div class="row">
-                            <div v-for="aula in aulas" class="col-md-1 m-t-md pointer">
+                            <div v-for="(aula,idx) in aulas" class="col-md-1 m-t-md pointer">
                                 <div class="list-group-item item" 
-                                     style="min-height: 50px; min-width: 60px;border-width: 1px; background-color: #21B021;color: white;"
-                                     >
+                                     style="min-height: 50px; min-width: 60px;border-width: 1px; color: white;"
+                                     v-bind:style="styleBgColor(aula)"
+                                     v-on:click="removeAula(aula,idx)">
                                     <div>
-                                        <span class="h4" v-text="aula.codigo"></span>
-                                        <small>({{aula.capacidadAula}})</small>
+                                        <span class="h4" v-text="aula.aula.codigo"></span>
+                                        <small>({{aula.aula.capacidadAula}})</small>
                                     </div>
 
                                 </div>
