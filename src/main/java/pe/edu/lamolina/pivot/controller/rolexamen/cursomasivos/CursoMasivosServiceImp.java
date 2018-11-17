@@ -137,6 +137,16 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             cursoMasivo.setAulasCursosMasivos(aulasByCurso);
         }
         
+        List<SeccionCursoMasivo> seccionesCursos = seccionCursoMasivoDAO.allByCursosMasivos(cursosMasivos);
+        
+        Map<Long, List<SeccionCursoMasivo>> mapSeccionesCursos = TypesUtil.convertListToMapList("cursoMasivoExamen.id", seccionesCursos);
+        
+        for (CursoMasivoExamen cursoMasivo : cursosMasivos) {
+            List<SeccionCursoMasivo> seccionesByCurso = mapSeccionesCursos.get(cursoMasivo.getId());
+            seccionesByCurso = (seccionesByCurso == null) ? new ArrayList() : seccionesByCurso;
+            cursoMasivo.setSeccionesCursosMasivos(seccionesByCurso);
+        }
+        
         return cursosMasivos;
     }
     

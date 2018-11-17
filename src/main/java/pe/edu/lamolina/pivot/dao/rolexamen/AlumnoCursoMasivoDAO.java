@@ -6,7 +6,5 @@ import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 
 public interface AlumnoCursoMasivoDAO extends EasyDAO<AlumnoCursoMasivo> {
 
-    public List<AlumnoCursoMasivo> allAlumnoByCursoMasivo(Long id);
-
-
+    List<AlumnoCursoMasivo> allAlumnoByCursoMasivo(Long id);
 }

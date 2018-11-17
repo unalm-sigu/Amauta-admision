@@ -108,14 +108,14 @@
                                         </td>
                                         <td class="v-middle text-center"> 
                                             <span class="badge pointer"
-                                                  vonclick="verAulas(item)">{{ item.secciones }}</span>
+                                                  v-on:click="verSeccionesAsignadas(item)">{{ item.secciones }}</span>
                                         </td>
                                         <td class="v-middle text-center"> 
                                             {{ item.alumnos }}
                                         </td>
                                         <td class="v-middle text-center"> 
                                             <span class="badge pointer"
-                                                  vonclick="verAulas(item)">{{ item.aulas }}</span>
+                                                  v-on:click="verAulasAsignadas(item)">{{ item.aulas }}</span>
                                         </td>
                                         <td class="v-middle text-center"> 
                                             {{ item.capacidadAulas }}
@@ -139,7 +139,8 @@
                     </section>
                 </section>
 
-                <div th:substituteby="rolexamen/cursomasivos/modalAgregarAulas"/>
+                <div th:substituteby="rolexamen/cursomasivos/cursoMasivoModals"/>
+              
             </div>
             <div th:substituteby="_modules/vue-modal"/>
         </section>

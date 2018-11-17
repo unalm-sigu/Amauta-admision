@@ -121,7 +121,8 @@ public class CursoMasivosController {
                         new String[]{
                             "*",
                             "curso.*",
-                            "aulasCursosMasivos.aula.*"
+                            "aulasCursosMasivos.aula.*",
+                            "seccionesCursosMasivos.seccion.*"
                         });
 
                 jCursoMasivosByRolExamen.add(cursoMasivo);
