@@ -86,6 +86,9 @@ new Vue({
                             this.rolExamenes.semanasExamen = response.data.data;
                         }
                     });
+        }, redireccionarWithRol(ruta, rolExamen) {
+            console.log(APP.url(ruta) + "/" + rolExamen.id);
+            location.href = APP.url(ruta) + "/" + rolExamen.id;
         }
     }
 });

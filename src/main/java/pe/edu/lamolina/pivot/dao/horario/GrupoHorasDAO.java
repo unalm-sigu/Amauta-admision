@@ -41,8 +41,9 @@ public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
 
     Map<Long, Integer> countAlumnosGroupByGrupoHoras(List grupoHoras, CicloAcademico cicloAcademico);
 
-    Map<Long, Integer> allGruposCountBySemanaExamen(SemanaExamen semanaExamen,
+    Map<Long, Long> allGruposCountBySemanaExamen(SemanaExamen semanaExamen,
             CicloAcademico cicloAcademico,
-            TipoGrupoHorasEnum tipoGrupoHorasEnum);
+            TipoGrupoHorasEnum tipoGrupoHorasEnum,
+            Integer horasForDay);
 
 }

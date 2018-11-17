@@ -24,7 +24,6 @@ import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
-import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Repository
 public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO {

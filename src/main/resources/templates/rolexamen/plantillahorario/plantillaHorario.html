@@ -5,22 +5,21 @@
     <body>
         <section layout:fragment="main">
 
-            <div id="main" v-cloak="">
+            <div id="main" v-cloak=""> 
 
                 <header class="header b-b padder-lg">
                     <h2>Plantilla Horarios <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
                 </header>
 
                 <section class="wrapper-lg">
-                    <section class="panel">
+                    <section class="panel m-b-xs">
                         <section class="panel-body">
-
                             <div class="row">
                                 <form id="frmPlantillaHorario">
-                                    <div class="form-group">
-                                        <label class="col-md-2 bold">Rol Examen</label>
+                                    <div class="form-group col-md-6">
+                                        <label class="col-md-4 bold">Rol Examen</label>
 
-                                        <div class="col-md-4">  
+                                        <div class="col-md-8">  
 
                                             <multiselect v-model='rolExamen' 
                                                          label="nombre"
@@ -34,43 +33,145 @@
                                             </multiselect>
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="col-md-2 bold">Semana</label>
-
-                                        <div class="col-md-4">  
-
-                                            <multiselect 
-                                                v-model="semanaExamen"
-                                                v-on:input="changeSemanaExamen"
-                                                track-by="id"
-                                                v-bind:options="rolExamen.semanasExamen"
-                                                label="numeroSemana"
-                                                internal-search="false"
-                                                v-bind:allow-empty="false"
-                                                deselect-label="" 
-                                                select-label="" 
-                                                >
-                                            </multiselect>
-                                        </div>
+                                    <div class="form-group col-md-1">
+                                        <a class="btn btn-success "
+                                           v-on:click.prevent="calcularPlantillaHorario">
+                                            Calcular
+                                        </a>
+                                    </div>
+                                    <div class="form-group col-md-5" >
+                                         <label class=""  v-if="!hasGruposHorasExamen()">Pendiente de calcular</label>
                                     </div>
                                 </form>
-                            </div>
-                            <div class="row">
-                                <a class="btn btn-success pull-right"
-                                   v-on:click.prevent="calcularPlantillaHorario">
-                                    Calcular
-                                </a>
                             </div>
                         </section>
                     </section>
 
-                    <section class="panel">
+                    
+                    <section class="panel m-b-xs" 
+                             v-bind:class="{'hide':!hasGruposHorasExamen()}">
                         <section class="panel-body">
                             <div class="row">
-                                GrupoHorasController
+                                <a class="btn btn-warning pull-left m-l-sm"
+                                   v-on:click.prevent="calcularPlantillaHorario">
+                                    <i class="fa fa-arrow-left"></i>
+                                    Configurar Rol Examenes
+                                </a>
 
-
+                                <a class="btn btn-success pull-right m-r-sm"
+                                   v-on:click.prevent="calcularPlantillaHorario">
+                                    Configurar Cursos Masivos
+                                    <i class="fa fa-arrow-right"></i>
+                                </a>
                             </div>
+                            <div class="row">
+                                <raptor-table v-bind:url="`${URL}/listarGruposExamenByRolExamen`" 
+                                              v-bind:preload="false" 
+                                              v-bind:pagination="paginationGpo"
+                                              ref="raptorGrupo"
+                                              >
+                                    <template scope="props" >
+                                        <div class="col-sm-1 col-xs-1" 
+                                             v-for="item in props.data">
+                                            <div class="list-group">
+
+                                                <div  href="#" 
+                                                      class="list-group-item item" 
+                                                      style="min-height: 100px;border-width: 1px;"
+                                                      v-bind:style="styleBorder(item)">
+
+                                                    <div class="m-t-sm pointer verhorario" v-on:click="seleccionarHorario(item,$event)">
+                                                        <h4 class="list-group-item-heading" >{{item.grupoHoras.codigo}}</h4>
+                                                        <h5 class="list-group-item-heading" >{{item.grupoHoras.tipoSeccion}}/{{item.grupoHoras.letra}}</h5>
+
+                                                        <h5 class="list-group-item-heading text-center m-t-md" >
+                                                            <span class="label" v-bind:class="classHoras(item)"> {{item.fechasHorasGruposExamen.length}} horas </span>
+                                                        </h5>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </raptor-table>
+                            </div>
+                        </section>
+                        <section class="panel-body">
+                            <div class="row">
+                                <!--
+                                    
+                                -->
+                                <header class="page-header m-t-xs m-b-xs" style="border-bottom: 1px solid white;">
+                                    <div class="tabbable-line" style="margin-top: 8px;">	
+                                        <ul class="nav nav-tabs">
+                                            <li v-for="semExamen in semanasExamen">
+                                                <a v-bind:href="'#'+semExamen.numeroSemana" 
+                                                   v-bind:id="'semana'+semExamen.numeroSemana"
+                                                   data-toggle="tab"
+                                                   v-text="`Semana ${semExamen.numeroSemana}`"
+                                                   v-bind:class="{active : semExamen.selected}"
+                                                   v-bind:aria-expanded="semExamen.selected"
+                                                   v-on:click="seleccionarSemana(semExamen)"
+                                                   >xxx</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </header>
+                                <div class="tab-content">
+                                    <div class="tab-pane"
+                                         v-bind:id="semExamen.numeroSemana"
+                                         v-bind:class="{active : semExamen.selected}"
+                                         v-for="semExamen in semanasExamen">
+                                        <section class="panel-body">
+                                            <div class="table-responsive">
+
+                                                <table  class="table table-bordered m-b-xs">
+
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width: 12.5%" class="text-center">Hora</th>
+                                                            <th style="width: 12.5%" class="text-center" 
+                                                                v-for="dia in semExamen.tblHorarioSeamanaExamen.dias" v-text="dia.nombre" >
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+
+                                                    <tbody >
+                                                        <tr v-for="hora in semExamen.tblHorarioSeamanaExamen.horas">
+                                                            <td style="width: 12.5%" class="v-middle">
+                                                                <span 
+                                                                    class="form-control"
+                                                                    th:style="'border-color:#fff;'">
+                                                                    {{hora.descripcion}}
+                                                                </span>
+
+                                                            </td>
+                                                            <td v-for="dia in semExamen.tblHorarioSeamanaExamen.dias" style="width: 12.5%">
+                                                                <!-- v-bind:class="getClassGpoHorario(tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])" -->
+                                                                <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id]" 
+                                                                      v-on:click="selectFechaHoraGrupo(dia,hora,semExamen)"
+                                                                      class="form-control pointer"
+                                                                      v-bind:style="fechaGrupoHoraItem(semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id])"
+                                                                      >
+                                                                    {{semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].grupoHorasExamen.grupoHoras.codigo}}
+                                                                </span>
+                                                                <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id]==null" 
+                                                                      class="form-control pointer"
+                                                                      v-on:click="selectFechaHoraGrupo(dia,hora,semExamen)"
+                                                                      >
+
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+
+                                            </div>
+
+                                        </section>
+                                    </div>
+                                </div>
+                            </div>   
                         </section>
                     </section>
                 </section>
@@ -86,6 +187,7 @@
 
             <script th:inline="javascript">
                 var jRolesExamenes = /*[[${jRolesExamenes}]]*/ {};
+                var jRolExamenes = /*[[${jRolExamenes}]]*/ {};
             </script>
             <script th:src="@{/app/rolexamen/plantillahorario/plantillahorario.js}" charset="utf-8"></script>
 

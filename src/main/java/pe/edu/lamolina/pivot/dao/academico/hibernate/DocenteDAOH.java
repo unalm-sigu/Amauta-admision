@@ -23,12 +23,12 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     }
     
     @Override
-    public List<Docente> allByFacultadesDyantable(DynatableFilter filter, List<Facultad> facultades) {
+    public List<Docente> allByFacultadesDyantable(DynatableFilter filter, List<DepartamentoAcademico> departamento) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Docente.class, "doc")
                 .join("persona per", "departamentoAcademico da", "da.facultad fa")
                 .leftJoin("per.tipoDocumento tdoc")
-                .in("fa.id", facultades)
+                .in("da.id", departamento)
                 .searchFields("per.numeroDocIdentidad", "per.telefono", "per.celular", "per.emailCompania", "tdoc.simbolo")
                 .searchFields("da.nombre", "fa.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")

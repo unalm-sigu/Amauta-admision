@@ -17,12 +17,14 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -56,6 +58,8 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolExamenes.setEstado(EstadoEnum.CRE.name());
         rolExamenes.setFechaRegistro(new Date());
         rolExamenes.setUserRegistro(ds.getUsuario());
+        rolExamenes.setHorasExamen(Constantine.CANTIDAD_HORAS_POR_EXAMEN);
+        rolExamenes.setSituacionEnum(SituacionRolExamenesEnum.CONF_ROL);
         
         rolExamenes.getSemanasExamen().forEach(x -> {
             x.setRolExamenes(rolExamenes);

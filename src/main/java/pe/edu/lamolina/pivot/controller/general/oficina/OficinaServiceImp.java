@@ -146,18 +146,15 @@ public class OficinaServiceImp implements OficinaService {
     @Override
     @Transactional
     public void update(Oficina oficina, DataSessionPivot ds) {
-        ObjectUtil.eliminarAttrSinId(oficina, "oficinaSuperior");
-        ObjectUtil.eliminarAttrSinId(oficina, "cargoJefe");
-        ObjectUtil.eliminarAttrSinId(oficina, "personaJefe");
-        ObjectUtil.eliminarAttrSinId(oficina, "jefeEncargado");
+        ObjectUtil.eliminarAttrSinId(oficina);
 
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
         oficinaBD.setOficinaSuperior(oficina.getOficinaSuperior());
         oficinaBD.setNombre(oficina.getNombre());
         oficinaBD.setCodigo(oficina.getCodigo());
-        oficina.setTipoOficina(oficina.getTipoOficina());
         oficinaBD.setInstanciaOficina(oficina.getInstanciaOficina());
         oficinaBD.setCargoJefe(oficina.getCargoJefe());
+        oficinaBD.setTipoOficina(oficina.getTipoOficina());
         oficinaDAO.update(oficinaBD);
     }
 
