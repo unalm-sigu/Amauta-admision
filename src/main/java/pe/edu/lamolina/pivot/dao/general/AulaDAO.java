@@ -34,5 +34,7 @@ public interface AulaDAO extends EasyDAO<Aula> {
     List<Aula> allPabellonesByOficinasNoOera(List<Oficina> oficinas);
 
     List<Aula> searchByNombreFilter(String nombre, Integer limit);
+    
+    List<Aula> allByOficinaModulo(Oficina oficina, Aula modulo);
 
 }
