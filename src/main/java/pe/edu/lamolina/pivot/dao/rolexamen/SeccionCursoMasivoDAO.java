@@ -7,8 +7,8 @@ import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 
 public interface SeccionCursoMasivoDAO extends EasyDAO<SeccionCursoMasivo> {
 
-    List<SeccionCursoMasivo> allSeccionByCursoMasivo(Long id); //Pendiente se debe cambiar
-
     List<SeccionCursoMasivo> allByCursosMasivos(List<CursoMasivoExamen> cursosMasivos);
+
+    List<SeccionCursoMasivo> allSeccionByCursoMasivo(CursoMasivoExamen cursosMasivo);
     
 }
