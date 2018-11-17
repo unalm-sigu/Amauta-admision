@@ -177,10 +177,11 @@
             <div class="row">
                 <div v-for="(seccion,idx) in secciones" class="col-md-1 m-t-md">
                     <div class="list-group-item item"
-                         style="min-height: 50px; min-width: 65px; border-width: 1px; color: white;"
+                         style="min-height: 50px; min-width: 61px; border-width: 1px; color: white;"
                          v-bind:style="styleBgColorSeccion(seccion)">
                         <div>
                             <span class="h6" v-text="seccion.seccion.codigo2"></span>
+                            <small>({{seccion.seccion.matriculados}})</small>
                         </div>
 
                     </div>

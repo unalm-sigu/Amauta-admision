@@ -148,16 +148,12 @@ new Vue({
         },
         verAulasAsignadas(item) {
             let $vue = this;
-            $vue.modulo = {};
-            $vue.aulasModulo = [];
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
             $vue.aulas = $vue.cursoMasivoExamen.aulasCursosMasivos;
             $vue.$refs.modalAulasAsignadas.open();
         },
         verSeccionesAsignadas(item) {
             let $vue = this;
-//            $vue.modulo = {};
-//            $vue.aulasModulo = [];
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
             $vue.secciones = $vue.cursoMasivoExamen.seccionesCursosMasivos;
             $vue.$refs.modalSecciones.open();
