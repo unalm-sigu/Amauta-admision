@@ -223,6 +223,8 @@ new Vue({
     watch: {
 
         tipoOficina(value) {
+            let $vue = this;
+            $vue.oficina.tipoOficina = value;
             if (value != undefined) {
                 this.tipoSelect(value);
             }
@@ -297,6 +299,8 @@ new Vue({
                         $vue.instanciaOficina.forEach(function (item) {
                             if ($vue.oficina.instanciaOficina == item.id) {
                                 $vue.oficina.instanciaOficina = item;
+                            } else {
+                                $vue.oficina.instanciaOficina = null;
                             }
                         })
                         $vue.hayInstancia = true;
@@ -312,9 +316,17 @@ new Vue({
         },
         save() {
             let $vue = this;
+            let target = $("#formControl");
+            target.parsley().destroy();
+            target.parsley();
+            if (target.parsley().validate() !== true) {
+                return;
+            }
             var data = {};
-            data = $vue.oficina;
-            data.instanciaOficina = $vue.oficina.instanciaOficina.id;
+            data = Object.assign({}, $vue.oficina);
+            if ($vue.oficina.instanciaOficina != undefined) {
+                data.instanciaOficina = $vue.oficina.instanciaOficina.id;
+            }
             $.ajax({
                 url: APP.url('general/oficina/save'),
                 dataType: 'json',
@@ -324,6 +336,7 @@ new Vue({
                 data: JSON.stringify(data),
                 success: function (response) {
                     if (response.success) {
+                        notify(response.message, "success");
                     } else {
                         notify(response.message, "error");
                     }
