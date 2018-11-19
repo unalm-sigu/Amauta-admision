@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,17 +15,16 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.aws.S3Service;
 import pe.albatross.zelpers.file.system.FileHelper;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -36,9 +35,11 @@ import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.TramitesAcademicosService;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.flujo.FlujoTramiteAcademicoService;
+import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
@@ -100,7 +101,13 @@ public class ResolucionServiceImp implements ResolucionService {
     AccionTramiteAcademicoDAO accionTramiteAcademicoDAO;
 
     @Autowired
+    OficinaDAO oficinaDAO;
+
+    @Autowired
     TramitesAcademicosService tramitesAcademicosService;
+
+    @Autowired
+    OficinaService oficinaService;
 
     @Override
     public List<Resolucion> allResolucionesByFilter(DynatableFilter filter) {
@@ -134,12 +141,14 @@ public class ResolucionServiceImp implements ResolucionService {
         DateTime today = new DateTime();
 
         boolean someChecked = false;
+        ObjectUtil.eliminarAttrSinId(resolucion);
+        resolucion.setTramitesReunionConsejo(resolucion.getTramitesReunionConsejo() == null ? new ArrayList() : resolucion.getTramitesReunionConsejo());
         for (TramiteReunionConsejo tramiteReunionConsejo : resolucion.getTramitesReunionConsejo()) {
             if (tramiteReunionConsejo.getSeleccionado()) {
                 someChecked = true;
             }
         }
-        if (!someChecked) {
+        if (!someChecked && resolucion.getTipoResolucion().getParaTramite()) {
             throw new PhobosException("Debe seleccionar algun tramite");
         }
 
@@ -384,6 +393,24 @@ public class ResolucionServiceImp implements ResolucionService {
         List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivos();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allUltimosByNext(5, ciclosActivos);
         return ciclos;
+    }
+
+    @Override
+    public List<Oficina> allOFicinasByUser(DataSessionPivot ds) {
+        List<Oficina> oficinasResUser = new ArrayList();
+        List<Oficina> oficinasResolucion = oficinaDAO.allForResoluciones();
+        Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinasResolucion);
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
+                return oficinasResolucion;
+            }
+            Oficina ofiRes = mapOficina.get(oficina.getId());
+            if (ofiRes != null) {
+                oficinasResUser.add(oficina);
+            }
+        }
+        return oficinasResUser;
     }
 
 }
