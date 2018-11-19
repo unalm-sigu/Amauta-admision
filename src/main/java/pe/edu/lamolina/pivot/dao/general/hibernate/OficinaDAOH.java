@@ -14,6 +14,7 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -230,4 +231,19 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
 
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public List<Oficina> allForResoluciones() {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "o")
+                .join("tipoOficina to")
+                .beginBlock()
+                .__().filter("to.codigo", TipoOficinaEnum.FAC)
+                .__().filter("o.codigo", OficinaEnum.UNA)
+                .__().filter("o.codigo", OficinaEnum.EPG)
+                .endBlock();
+
+        return all(sql);
+    }
+
 }
