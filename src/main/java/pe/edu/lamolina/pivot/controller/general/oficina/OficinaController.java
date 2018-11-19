@@ -491,7 +491,7 @@ public class OficinaController {
 //    }
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(Oficina oficina, HttpSession session) {
+    public JsonResponse save(@RequestBody Oficina oficina, HttpSession session) {
 
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();

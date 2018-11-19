@@ -221,10 +221,13 @@ new Vue({
         $vue.tipoOficina = $vue.oficina.tipoOficina;
     },
     watch: {
-        
+
         tipoOficina(value) {
-            console.log(value)
-            this.tipoSelect(value);
+            let $vue = this;
+            $vue.oficina.tipoOficina = value;
+            if (value != undefined) {
+                this.tipoSelect(value);
+            }
         }
     },
     methods: {
@@ -293,6 +296,13 @@ new Vue({
                 success: function (response) {
                     if (response.data.length > 0) {
                         $vue.instanciaOficina = response.data;
+                        $vue.instanciaOficina.forEach(function (item) {
+                            if ($vue.oficina.instanciaOficina == item.id) {
+                                $vue.oficina.instanciaOficina = item;
+                            } else {
+                                $vue.oficina.instanciaOficina = null;
+                            }
+                        })
                         $vue.hayInstancia = true;
                     } else {
                         $vue.hayInstancia = false;
@@ -303,8 +313,39 @@ new Vue({
                 }
             });
 
+        },
+        save() {
+            let $vue = this;
+            let target = $("#formControl");
+            target.parsley().destroy();
+            target.parsley();
+            if (target.parsley().validate() !== true) {
+                return;
+            }
+            var data = {};
+            data = Object.assign({}, $vue.oficina);
+            if ($vue.oficina.instanciaOficina != undefined) {
+                data.instanciaOficina = $vue.oficina.instanciaOficina.id;
+            }
+            $.ajax({
+                url: APP.url('general/oficina/save'),
+                dataType: 'json',
+                type: 'POST',
+                contentType: "application/json",
+                async: true,
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
-
     }
 });
     
