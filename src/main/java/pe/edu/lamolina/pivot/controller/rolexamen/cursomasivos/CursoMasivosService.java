@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CursoMasivosService {
@@ -28,5 +29,9 @@ public interface CursoMasivosService {
     List<Aula> allAulasByOficinaModulo(Oficina oficinaOERA, Aula modulo);
 
     void saveAula(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds);
+
+    void excluirCursoMasivo(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds);
+
+    void excluirSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivo, DataSessionPivot ds);
 
 }

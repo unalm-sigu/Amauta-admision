@@ -4,7 +4,7 @@
     </head>
     <body>
         <section layout:fragment="main">
-            <div id="rolexamenesVUE"> 
+            <div id="rolexamenesVUE" v-cloak=""> 
 
                 <header class="header b-b padder-lg">
                     <div class="pull-right m-t-md">                 
@@ -54,7 +54,7 @@
                                                     <span v-if="item.estado=='CRE'" class="label label-default" >Creado</span>
                                                 </td>
                                                 <td>
-                                                   
+
                                                     <div class="dropdown actions">
 
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
@@ -62,6 +62,13 @@
                                                         </a>
 
                                                         <ul class="dropdown-menu pull-right">
+                                                            <li>
+                                                                <a href="#" 
+                                                                   v-on:click.prevent="editarRolExamen(item)"
+                                                                   >
+                                                                    Editar
+                                                                </a> 
+                                                            </li>
                                                             <li>                                                            
                                                                 <a href="#" 
                                                                    v-on:click.prevent="redireccionarWithRol('rolexamen/plantillahorario',item)"
@@ -92,7 +99,7 @@
                                                     </div>
 
                                                 </td>
-                                            </tr>
+                                            </tr> 
                                         </tbody>
                                     </table>
                                 </template>
@@ -100,6 +107,7 @@
                         </section>
                     </section>
                 </section>
+
                 <modal-vik ref="modalConfirmar"
                            v-bind="confirmarModal"
                            v-bind:okaction="guardarRol">
@@ -127,19 +135,22 @@
 
                             <div class="row">
                                 <div class="form-group">
-                                    <label class="col-md-3">Fecha Inicio</label>
-
                                     <div class="col-md-3">
-                                        <span>{{rolExamenes.eventoCicloAcademico.fechaInicio}}</span>  
+                                        Fecha Inicio:
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="form-control">{{rolExamenes.eventoCicloAcademico.fechaInicio}}</span>  
                                     </div>
 
                                     <div class="col-md-3">
                                         Fecha Fin :
                                     </div>
-                                    <span class="col-md-3" 
-                                          v-text="rolExamenes.eventoCicloAcademico.fechaFin">
+                                    <div class="col-md-3 ">
+                                        <span class="form-control" 
+                                              v-text="rolExamenes.eventoCicloAcademico.fechaFin">
 
-                                    </span>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">
@@ -219,6 +230,7 @@
         <div layout:fragment="js">
             <script th:inline="javascript">
                 var jHoras = /*[[${jHoras}]]*/ {};
+                var jEventosCiclosAcademicos = /*[[${jEventosCiclosAcademicos}]]*/ {};
             </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>

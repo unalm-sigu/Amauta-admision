@@ -10,5 +10,7 @@ public interface SeccionCursoMasivoDAO extends EasyDAO<SeccionCursoMasivo> {
     List<SeccionCursoMasivo> allByCursosMasivos(List<CursoMasivoExamen> cursosMasivos);
 
     List<SeccionCursoMasivo> allSeccionByCursoMasivo(CursoMasivoExamen cursosMasivo);
-    
+
+    void updateEstadoExcluido(SeccionCursoMasivo seccionCursoMasivo);
+
 }

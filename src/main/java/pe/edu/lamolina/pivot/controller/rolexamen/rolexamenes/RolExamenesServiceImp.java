@@ -24,6 +24,7 @@ import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.SemanaExamenDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -41,6 +42,17 @@ public class RolExamenesServiceImp implements RolExamenesService {
     
     @Autowired
     HoraDAO horaDAO;
+    
+    @Autowired
+    SemanaExamenDAO semanaExamenDAO;
+    
+    @Override
+    public RolExamenes findRolExamenes(long rolExamenId) {
+        RolExamenes rolExamenes = rolexamenesDAO.find(rolExamenId);
+        List<SemanaExamen> semanaExamens = semanaExamenDAO.allByRolExamenes(rolExamenes);
+        rolExamenes.setSemanasExamen(semanaExamens);
+        return rolExamenes;
+    }
     
     @Override
     public List<EventoCicloAcademico> allEventoCicloAcademicos(CicloAcademico cicloAcademico) {
@@ -66,6 +78,20 @@ public class RolExamenesServiceImp implements RolExamenesService {
         });
         
         rolexamenesDAO.save(rolExamenes);
+    }
+    
+    @Override
+    public void update(RolExamenes rolExamenes, DataSessionPivot ds) {
+        RolExamenes rolExamenesUpd = new RolExamenes();
+        rolExamenesUpd.setId(rolExamenes.getId());
+        rolExamenes.setEventoCicloAcademico(rolExamenes.getEventoCicloAcademico());
+        rolexamenesDAO.updateRolExamenes(rolExamenes);
+        
+        semanaExamenDAO.allByRolExamenes(rolExamenes);
+        for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
+            semanaExamen.setRolExamenes(rolExamenes);
+            semanaExamenDAO.save(semanaExamen);
+        }
     }
     
     @Override
