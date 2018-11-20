@@ -312,7 +312,6 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-
         },
         save() {
             let $vue = this;
