@@ -7,7 +7,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
 import pe.edu.lamolina.model.tramite.Resolucion;
@@ -25,7 +24,7 @@ public interface ResolucionService {
     List<TipoResolucion> allTiposResolucion();
 
     void saveResolucion(Resolucion resolucion, DataSessionPivot ds, CicloAcademico cicloAcademico);
-    
+
     void saveConfirmarResVB(Resolucion resolucion, DataSessionPivot ds, CicloAcademico cicloAcademico);
 
     List<Tramite> allTramitesByTipoEstadoTram(TipoTramiteEnum tipoTramiteEnum, EstadoTramiteEnum estadoTramiteEnum);
@@ -45,5 +44,7 @@ public interface ResolucionService {
     void saveConfirmarSubirDocumento(Resolucion resolucion, DataSessionPivot ds);
 
     List<CicloAcademico> allCiclosToReincorporacion();
+
+    List<Oficina> allOFicinasByUser(DataSessionPivot ds);
 
 }

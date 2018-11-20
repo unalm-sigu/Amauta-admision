@@ -41,6 +41,9 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
     Map findOficinaOrigenDestinoByEstadoTramiteAcad(AccionTramiteAcademico accionTramiteAcademico, Alumno alumno);
 
     List<Oficina> allOficinaByUserMenu(Usuario usuario, Menu menu);
+
+    List<Oficina> allForResoluciones();
+
     List<Oficina> allByNivel(TipoOficinaEnum tipoOficinaEnum);
 
     List<Oficina> allByNombre(String nombre, Compania compania);
