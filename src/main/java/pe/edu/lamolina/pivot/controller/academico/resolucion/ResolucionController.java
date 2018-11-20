@@ -53,12 +53,11 @@ public class ResolucionController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ResolucionService resolucionService;
+    ResolucionService service;
 
     private MultipartFile resolucionFile;
 
-    Oficina oficinaAux = new Oficina(8L);
-
+//    Oficina oficinaAux = new Oficina(8L);
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
 
@@ -95,6 +94,7 @@ public class ResolucionController {
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        model.addAttribute("resolucion", new Resolucion());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         return "academico/resolucion/resolucionForm";
     }
@@ -107,7 +107,7 @@ public class ResolucionController {
         ObjectNode resolucionJson = JsonHelper.createJson(resolucion, JsonNodeFactory.instance);
         model.addAttribute("resolucionJson", resolucionJson.toString());
 
-        resolucion = resolucionService.findResolucion(resolucionId);
+        resolucion = service.findResolucion(resolucionId);
         model.addAttribute("resolucion", resolucion);
         return "academico/resolucion/resolucionForm";
     }
@@ -124,8 +124,8 @@ public class ResolucionController {
             response.setSuccess(Boolean.TRUE);
 
             JsonNodeFactory jc = JsonNodeFactory.instance;
-            Resolucion resolucion = resolucionService.findResolucion(resolucionId);
-            List<CicloAcademico> ciclos = resolucionService.allCiclosToReincorporacion();
+            Resolucion resolucion = service.findResolucion(resolucionId);
+            List<CicloAcademico> ciclos = service.allCiclosToReincorporacion();
 
             ObjectNode resolucionJson = JsonHelper.createJson(resolucion, jc, true,
                     new String[]{"*",
@@ -175,7 +175,7 @@ public class ResolucionController {
             JsonNodeFactory jc = JsonNodeFactory.instance;
             Resolucion resolucion = new Resolucion();
             if (resolucionId != null) {
-                resolucion = resolucionService.findResolucion(resolucionId);
+                resolucion = service.findResolucion(resolucionId);
             } else {
                 resolucionFile = null;
                 resolucion.setFecha(new Date());
@@ -194,7 +194,7 @@ public class ResolucionController {
             if (resolucionId != null) {
                 resolucionJson.put("esEdicion", true);
             }
-            List<TipoResolucion> tiposResoluciones = resolucionService.allTiposResolucion();
+            List<TipoResolucion> tiposResoluciones = service.allTiposResolucion();
             ArrayNode tiposResolucionesJson = new ArrayNode(JsonNodeFactory.instance);
             for (TipoResolucion tipoResolucion : tiposResoluciones) {
                 tiposResolucionesJson.add(JsonHelper.createJson(tipoResolucion, jc, false, new String[]{
@@ -210,11 +210,14 @@ public class ResolucionController {
             data.set("resolucionJson", resolucionJson);
             data.set("tiposResolucionesJson", tiposResolucionesJson);
 
-            ObjectNode oficinas = new ObjectNode(jc);
-            oficinas.put("id", oficinaAux.getId());
-            oficinas.put("nombre", "Oficina Aux");
+            ArrayNode oficinasJson = new ArrayNode(jc);
+            List<Oficina> oficinas = service.allOFicinasByUser(ds);
+            for (Oficina oficina : oficinas) {
+                ObjectNode oficinaJson = JsonHelper.createJson(oficina, jc, true, new String[]{"*"});
+                oficinasJson.add(oficinaJson);
+            }
 
-            data.set("oficinasJson", new ArrayNode(jc).add(oficinas));
+            data.set("oficinasJson", oficinasJson);
 
             response.setData(data);
         } catch (PhobosException e) {
@@ -238,7 +241,7 @@ public class ResolucionController {
             CicloAcademico ciclo = ds.getCicloAcademico();
             DateTime today = new DateTime();
 
-            List<Resolucion> resoluciones = resolucionService.allResolucionesByFilter(filter);
+            List<Resolucion> resoluciones = service.allResolucionesByFilter(filter);
             logger.debug("cantidad de resoluciones " + resoluciones.size());
 
             for (Resolucion resolucionEach : resoluciones) {
@@ -279,7 +282,7 @@ public class ResolucionController {
                 json.setTotal(0);
                 return json;
             }
-            List<Reincorporacion> reincorporaciones = resolucionService.allReincorporacionByFilter(filter, new Resolucion(resolucionId));
+            List<Reincorporacion> reincorporaciones = service.allReincorporacionByFilter(filter, new Resolucion(resolucionId));
             logger.debug("cantidad de reincorporaciones " + reincorporaciones.size());
 
             for (Reincorporacion reincorporacion : reincorporaciones) {
@@ -329,7 +332,7 @@ public class ResolucionController {
             CicloAcademico ciclo = ds.getCicloAcademico();
             DateTime today = new DateTime();
 
-            List<TramiteReunionConsejo> alumnosReunionConsejo = resolucionService.allTramiteReunionConsejoByReunion(new ReunionConsejo(reunionConsejoId), new TipoResolucion(tipoResolucionId));
+            List<TramiteReunionConsejo> alumnosReunionConsejo = service.allTramiteReunionConsejoByReunion(new ReunionConsejo(reunionConsejoId), new TipoResolucion(tipoResolucionId));
             logger.debug("alumnos reunion consejo " + alumnosReunionConsejo.size());
             //reunionConsejo alumno
 
@@ -357,7 +360,7 @@ public class ResolucionController {
                 if (resolucionId == null) {
                     tramiteReunionConsejo.setSeleccionado(Boolean.TRUE);
                 } else {
-                    Tramite tramite = resolucionService.findTramite(tramiteReunionConsejo.getTramite().getId());
+                    Tramite tramite = service.findTramite(tramiteReunionConsejo.getTramite().getId());
                     Reincorporacion reincorporacion = tramite.getReincorporaciones().get(0);
                     tramiteReunionConsejo.setSeleccionado(reincorporacion.getAceptado() == 1 ? true : false);
                 }
@@ -401,13 +404,13 @@ public class ResolucionController {
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             if (resolucion.getId() == null) {
-                resolucionService.saveResolucion(resolucion, ds, ds.getCicloAcademico());
+                service.saveResolucion(resolucion, ds, ds.getCicloAcademico());
                 node.put("operation", "s");
                 // node.put("planCurricular", planCurricular.getId());
 
             } else {
                 node.put("operation", "u");
-                resolucionService.updateResolucion(resolucion, ds);
+                service.updateResolucion(resolucion, ds);
                 response.setMessage("Resolución actualizada correctamente.");
             }
 
@@ -443,7 +446,7 @@ public class ResolucionController {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
             node.put("operation", "s");
-            resolucionService.saveConfirmarResVB(resolucion, ds, ds.getCicloAcademico());
+            service.saveConfirmarResVB(resolucion, ds, ds.getCicloAcademico());
 
             response.setData(node);
             response.setSuccess(true);
@@ -474,7 +477,7 @@ public class ResolucionController {
         try {
             logger.debug("file {}, content type {}, size {}", file.getOriginalFilename(), file.getContentType(), file.getSize());
 
-            resolucionService.uploadResolucionFile(new Resolucion(resolucionId), file, ds);
+            service.uploadResolucionFile(new Resolucion(resolucionId), file, ds);
 
             //    response.setData(name);
             response.setMessage("Archivo cargado.");
@@ -501,7 +504,7 @@ public class ResolucionController {
             logger.debug("entro a cambiarOficina");
 
             ArrayNode reunionesConsejoJson = new ArrayNode(jsonFactory);
-            List<ReunionConsejo> reunionesConsejo = resolucionService.allReunionesConsejoByOficina(new Oficina(oficinaId));
+            List<ReunionConsejo> reunionesConsejo = service.allReunionesConsejoByOficina(new Oficina(oficinaId));
             for (ReunionConsejo reunionConsejo : reunionesConsejo) {
                 reunionesConsejoJson.add(JsonHelper.createJson(reunionConsejo, jsonFactory, false, new String[]{
                     "*",}));
@@ -532,7 +535,7 @@ public class ResolucionController {
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
-            resolucionService.saveConfirmarSubirDocumento(resolucion, ds);
+            service.saveConfirmarSubirDocumento(resolucion, ds);
 
             response.setMessage("Resolucion confirmada.");
 
