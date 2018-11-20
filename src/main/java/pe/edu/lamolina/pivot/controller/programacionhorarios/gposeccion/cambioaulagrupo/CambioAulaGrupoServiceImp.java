@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CambioAulaGrupo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -99,6 +100,13 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         cambioAulaGrupo.setEstadoEnum(CambioAulaGrupoEstadoEnum.PENDIENTE);
 
         cambioAulaGrupoDAO.save(cambioAulaGrupo);
+        
+        if(cambioAulaGrupo.getGrupoHorasFin().getId().longValue()==cambioAulaGrupo.getGrupoHorasInicio().getId()){
+            throw new PhobosException("No puede asignarle el mismo grupo sección. ");
+        }
+        
+        
+        
         Date hoy = new Date();
         logger.debug("init reserva with Today {}", hoy);
         logger.debug("seccion {}", seccionBD.getId());
@@ -109,9 +117,23 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
 
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccionBD);
 
-        for (HorarioSeccion horarioSeccion : horariosSeccion) {
+        Map<String, List<HorarioSeccion>> horariosSeccionMap = TypesUtil.convertListToMapList("estado", horariosSeccion);
 
-            Date fechaInicio = horarioSeccion.getFechaInicio();
+        List<HorarioSeccion> solicitados = horariosSeccionMap.get(EstadoHorarioAulaEnum.SOL.name());
+        List<HorarioSeccion> activos = horariosSeccionMap.get(EstadoHorarioAulaEnum.ACT.name());
+        List<HorarioSeccion> pendientes = horariosSeccionMap.get(EstadoHorarioAulaEnum.PEND.name());
+
+        if (solicitados != null && !solicitados.isEmpty()) {
+            throw new PhobosException("Tiene una solicitud pendiente.");
+        }
+
+        if (pendientes != null && !pendientes.isEmpty()) {
+            throw new PhobosException("Tiene una solicitud pendiente.");
+        }
+
+        Date fechaInicio = activos.get(0).getFechaInicio();
+        Date fechaFin = activos.get(0).getFechaFin();
+        for (HorarioSeccion horarioSeccion : activos) {
 
             if (hoy.after(fechaInicio)) {
 
@@ -122,21 +144,21 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
                 horSeccionPend.setAula(horarioSeccion.getAula());
                 horSeccionPend.setSeccion(seccionBD);
                 horSeccionPend.setFechaInicio(hoy);
-                horSeccionPend.setFechaFin(horarioSeccion.getFechaFin());
+                horSeccionPend.setFechaFin(fechaFin);
                 horSeccionPend.setReservado("Y");
                 horarioSeccionDAO.save(horSeccionPend);
                 logger.debug("creado horario seccion {}", horSeccionPend.getId());
 
                 horarioSeccion.setFechaFin(hoy);
                 horarioSeccion.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-                horarioSeccion.setReservado(null);
+                horarioSeccion.setReservado("Y");
                 horarioSeccionDAO.update(horarioSeccion);
                 logger.debug("updated horario seccion {}", horarioSeccion.getId());
 
             } else {
 
                 horarioSeccion.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
-                horarioSeccion.setReservado(null);
+                horarioSeccion.setReservado("Y");
                 horarioSeccionDAO.update(horarioSeccion);
                 logger.debug("only updated horario seccion {}", horarioSeccion.getId());
 
@@ -147,7 +169,7 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         List<HorarioAula> horariosAula = horarioAulaDAO.allBySeccion(seccionBD);
 
         for (HorarioAula horarioAula : horariosAula) {
-            Date fechaInicio = horarioAula.getFechaInicio();
+
             if (hoy.after(fechaInicio)) {
 
                 HorarioAula horAulaPend = new HorarioAula();
@@ -157,21 +179,21 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
                 horAulaPend.setAula(horarioAula.getAula());
                 horAulaPend.setSeccion(seccionBD);
                 horAulaPend.setFechaInicio(hoy);
-                horAulaPend.setFechaFin(horarioAula.getFechaFin());
+                horAulaPend.setFechaFin(fechaFin);
                 horAulaPend.setReservado("Y");
                 horarioAulaDAO.save(horAulaPend);
                 logger.debug("creado horario aula {}", horAulaPend.getId());
 
                 horarioAula.setFechaFin(hoy);
                 horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-                horarioAula.setReservado(null);
+                horarioAula.setReservado("Y");
                 horarioAulaDAO.update(horarioAula);
                 logger.debug("updated horario aula {}", horarioAula.getId());
 
             } else {
 
                 horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
-                horarioAula.setReservado(null);
+                horarioAula.setReservado("Y");
                 horarioAulaDAO.update(horarioAula);
                 logger.debug("only updated horario aula {}", horarioAula.getId());
 
@@ -194,6 +216,7 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
                 horSeccion.setAula(cambioAulaGrupo.getAulaFin());
                 horSeccion.setSeccion(seccionBD);
                 horSeccion.setFechaInicio(hoy);
+                horSeccion.setFechaFin(fechaFin);
                 horSeccion.setReservado("Y");
                 horarioSeccionDAO.save(horSeccion);
 
@@ -204,6 +227,7 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
                 horAula.setAula(cambioAulaGrupo.getAulaFin());
                 horAula.setSeccion(seccionBD);
                 horAula.setFechaInicio(hoy);
+                horAula.setFechaFin(fechaFin);
                 horAula.setReservado("Y");
                 horarioAulaDAO.save(horAula);
 
@@ -233,24 +257,66 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         cambioAulaGrupoDAO.update(cambioAulaGrupo);
 
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(cambioAulaGrupo.getSeccion());
+        Map<String, List<HorarioSeccion>> horariosSeccionMap = TypesUtil.convertListToMapList("estado", horariosSeccion);
+        {
+            List<HorarioSeccion> solicitados = horariosSeccionMap.get(EstadoHorarioAulaEnum.SOL.name());
+            List<HorarioSeccion> activos = horariosSeccionMap.get(EstadoHorarioAulaEnum.ACT.name());
+            List<HorarioSeccion> pendientes = horariosSeccionMap.get(EstadoHorarioAulaEnum.PEND.name());
 
-        boolean tieneActivos = this.getActivos(horariosSeccion);
+            if (activos != null && !activos.isEmpty()) {
 
-        if (tieneActivos) {
-            Date fechaFin = this.getFechaFin(horariosSeccion);
-            for (HorarioSeccion horarioSeccion : horariosSeccion) {
-                if (horarioSeccion.getEstadoEnum() != EstadoHorarioAulaEnum.ACT) {
-                    horarioSeccionDAO.delete(horarioSeccion);
-                } else {
-                    horarioSeccion.setFechaFin(fechaFin);
-                    horarioSeccionDAO.update(horarioSeccion);
+                Date fechaFin = pendientes.get(0).getFechaFin();
+
+                for (HorarioSeccion activo : activos) {
+                    activo.setFechaFin(fechaFin);
+                    activo.setReservado(null);
+                    horarioSeccionDAO.update(activo);
                 }
+                for (HorarioSeccion pendiente : pendientes) {
+                    horarioSeccionDAO.delete(pendiente);
+                }
+                for (HorarioSeccion solicitado : solicitados) {
+                    horarioSeccionDAO.delete(solicitado);
+                }
+
+            } else {
+
+                for (HorarioSeccion solicitado : solicitados) {
+                    horarioSeccionDAO.delete(solicitado);
+                }
+
             }
-        } else {
-            for (HorarioSeccion horarioSeccion : horariosSeccion) {
-                if (horarioSeccion.getEstadoEnum() == EstadoHorarioAulaEnum.SOL) {
-                    horarioSeccionDAO.delete(horarioSeccion);
+        }
+
+        List<HorarioAula> horariosAula = horarioAulaDAO.allBySeccion(cambioAulaGrupo.getSeccion());
+        Map<String, List<HorarioAula>> horarioAulaMap = TypesUtil.convertListToMapList("estado", horariosAula);
+        {
+            List<HorarioAula> solicitados = horarioAulaMap.get(EstadoHorarioAulaEnum.SOL.name());
+            List<HorarioAula> activos = horarioAulaMap.get(EstadoHorarioAulaEnum.ACT.name());
+            List<HorarioAula> pendientes = horarioAulaMap.get(EstadoHorarioAulaEnum.PEND.name());
+
+            if (activos != null && !activos.isEmpty()) {
+
+                Date fechaFin = pendientes.get(0).getFechaFin();
+
+                for (HorarioAula activo : activos) {
+                    activo.setFechaFin(fechaFin);
+                    activo.setReservado(null);
+                    horarioAulaDAO.update(activo);
                 }
+                for (HorarioAula pendiente : pendientes) {
+                    horarioAulaDAO.delete(pendiente);
+                }
+                for (HorarioAula solicitado : solicitados) {
+                    horarioAulaDAO.delete(solicitado);
+                }
+
+            } else {
+
+                for (HorarioAula solicitado : solicitados) {
+                    horarioAulaDAO.delete(solicitado);
+                }
+
             }
         }
     }
@@ -280,6 +346,71 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         cambioAulaGrupoBD.setUserModificacion(ds.getUsuario());
         cambioAulaGrupoBD.setFechaModificacion(new Date());
         cambioAulaGrupoDAO.update(cambioAulaGrupoBD);
+
+        List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(cambioAulaGrupoBD.getSeccion());
+        Map<String, List<HorarioSeccion>> horariosSeccionMap = TypesUtil.convertListToMapList("estado", horariosSeccion);
+        {
+            List<HorarioSeccion> solicitados = horariosSeccionMap.get(EstadoHorarioAulaEnum.SOL.name());
+            List<HorarioSeccion> activos = horariosSeccionMap.get(EstadoHorarioAulaEnum.ACT.name());
+            List<HorarioSeccion> pendientes = horariosSeccionMap.get(EstadoHorarioAulaEnum.PEND.name());
+
+            if (activos != null && !activos.isEmpty()) {
+
+                Date fechaFin = pendientes.get(0).getFechaFin();
+
+                for (HorarioSeccion activo : activos) {
+                    activo.setFechaFin(fechaFin);
+                    activo.setReservado(null);
+                    horarioSeccionDAO.update(activo);
+                }
+                for (HorarioSeccion pendiente : pendientes) {
+                    horarioSeccionDAO.delete(pendiente);
+                }
+                for (HorarioSeccion solicitado : solicitados) {
+                    horarioSeccionDAO.delete(solicitado);
+                }
+
+            } else {
+
+                for (HorarioSeccion solicitado : solicitados) {
+                    horarioSeccionDAO.delete(solicitado);
+                }
+
+            }
+        }
+
+        List<HorarioAula> horariosAula = horarioAulaDAO.allBySeccion(cambioAulaGrupoBD.getSeccion());
+        Map<String, List<HorarioAula>> horariosAulaMap = TypesUtil.convertListToMapList("estado", horariosAula);
+        {
+            List<HorarioAula> solicitados = horariosAulaMap.get(EstadoHorarioAulaEnum.SOL.name());
+            List<HorarioAula> activos = horariosAulaMap.get(EstadoHorarioAulaEnum.ACT.name());
+            List<HorarioAula> pendientes = horariosAulaMap.get(EstadoHorarioAulaEnum.PEND.name());
+
+            if (activos != null && !activos.isEmpty()) {
+
+                Date fechaFin = pendientes.get(0).getFechaFin();
+
+                for (HorarioAula activo : activos) {
+                    activo.setFechaFin(fechaFin);
+                    activo.setReservado(null);
+                    horarioAulaDAO.update(activo);
+                }
+                for (HorarioAula pendiente : pendientes) {
+                    horarioAulaDAO.delete(pendiente);
+                }
+                for (HorarioAula solicitado : solicitados) {
+                    horarioAulaDAO.delete(solicitado);
+                }
+
+            } else {
+
+                for (HorarioAula solicitado : solicitados) {
+                    horarioAulaDAO.delete(solicitado);
+                }
+
+            }
+        }
+
     }
 
     @Override
@@ -311,21 +442,53 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         cambioAulaGrupoDAO.update(cambioAulaGrupoForm);
 
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(cambioAulaGrupoBD.getSeccion());
+        Map<String, List<HorarioSeccion>> horariosSeccionMap = TypesUtil.convertListToMapList("estado", horariosSeccion);
+        {
+            List<HorarioSeccion> solicitados = horariosSeccionMap.get(EstadoHorarioAulaEnum.SOL.name());
+            List<HorarioSeccion> activos = horariosSeccionMap.get(EstadoHorarioAulaEnum.ACT.name());
+            List<HorarioSeccion> pendientes = horariosSeccionMap.get(EstadoHorarioAulaEnum.PEND.name());
 
-        Map<Long, List<HorarioSeccion>> horariosSeccionMap = TypesUtil.convertListToMapList("estado", horariosSeccion);
+            if (solicitados == null) {
+                throw new PhobosException("Tiene una solicitud pendiente.");
+            }
 
-        List<HorarioSeccion> solicitados = horariosSeccionMap.get(EstadoHorarioAulaEnum.SOL.name());
-        for (HorarioSeccion solicitado : solicitados) {
-            solicitado.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-            horarioSeccionDAO.update(solicitado);
+            for (HorarioSeccion solicitado : solicitados) {
+                solicitado.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                solicitado.setReservado(null);
+                horarioSeccionDAO.update(solicitado);
+            }
+            for (HorarioSeccion activo : activos) {
+                activo.setReservado(null);
+                horarioSeccionDAO.update(activo);
+            }
+            for (HorarioSeccion pendiente : pendientes) {
+                horarioSeccionDAO.delete(pendiente);
+            }
         }
-        List<HorarioSeccion> activos = horariosSeccionMap.get(EstadoHorarioAulaEnum.ACT.name());
-        for (HorarioSeccion activo : activos) {
-            horarioSeccionDAO.delete(activo);
-        }
-        List<HorarioSeccion> pendientes = horariosSeccionMap.get(EstadoHorarioAulaEnum.PEND.name());
-        for (HorarioSeccion pendiente : pendientes) {
-            horarioSeccionDAO.delete(pendiente);
+
+        List<HorarioAula> horariosAula = horarioAulaDAO.allBySeccion(cambioAulaGrupoBD.getSeccion());
+        Map<String, List<HorarioAula>> horariosAulaMap = TypesUtil.convertListToMapList("estado", horariosAula);
+        {
+            List<HorarioAula> solicitados = horariosAulaMap.get(EstadoHorarioAulaEnum.SOL.name());
+            List<HorarioAula> activos = horariosAulaMap.get(EstadoHorarioAulaEnum.ACT.name());
+            List<HorarioAula> pendientes = horariosAulaMap.get(EstadoHorarioAulaEnum.PEND.name());
+
+            if (solicitados == null) {
+                throw new PhobosException("Tiene una solicitud pendiente.");
+            }
+
+            for (HorarioAula solicitado : solicitados) {
+                solicitado.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                solicitado.setReservado(null);
+                horarioAulaDAO.update(solicitado);
+            }
+            for (HorarioAula activo : activos) {
+                activo.setReservado(null);
+                horarioAulaDAO.update(activo);
+            }
+            for (HorarioAula pendiente : pendientes) {
+                horarioAulaDAO.delete(pendiente);
+            }
         }
 
     }
@@ -344,24 +507,6 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         List<GrupoHoras> gruposHoras = grupoHorasDAO.searchByNombreFilter(nombre, 15);
 
         return gruposHoras;
-    }
-
-    private boolean getActivos(List<HorarioSeccion> horariosSeccion) {
-        for (HorarioSeccion horarioSeccion : horariosSeccion) {
-            if (horarioSeccion.getEstadoEnum() == EstadoHorarioAulaEnum.ACT) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Date getFechaFin(List<HorarioSeccion> horariosSeccion) {
-        for (HorarioSeccion horarioSeccion : horariosSeccion) {
-            if (horarioSeccion.getEstadoEnum() == EstadoHorarioAulaEnum.PEND) {
-                return horarioSeccion.getFechaFin();
-            }
-        }
-        return null;
     }
 
 }
