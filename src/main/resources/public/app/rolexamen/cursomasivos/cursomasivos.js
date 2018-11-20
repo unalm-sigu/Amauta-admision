@@ -12,6 +12,20 @@ new Vue({
             okbtn: 'Asignar',
             modalsize: 'modal-lg'
         },
+        aulasAsignadasModal: {
+            id: 'modalAulasAsignadas',
+            header: true,
+            title: 'Aulas Asignadas',
+            showaccept:"false",
+            modalsize: 'modal-lg'
+        },
+        seccionesModal: {
+            id: 'modalSecciones',
+            header: true,
+            title: 'Secciones Asignadas',
+            showaccept:"false",
+            modalsize: 'modal-lg'
+        },
         rolExamenes: null,
         rolesExamenes: JSON.parse(jRolexamenes),
         curso: null,
@@ -22,7 +36,8 @@ new Vue({
         cursoMasivoExamen: [],
         aulasModulo: [],
         aulas: [],
-        aula: null
+        aula: null,
+        secciones: []
     },
     mounted() {
         let $vue = this;
@@ -130,6 +145,18 @@ new Vue({
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
             $vue.aulas = $vue.cursoMasivoExamen.aulasCursosMasivos;
             $vue.$refs.addAulasModal.open();
+        },
+        verAulasAsignadas(item) {
+            let $vue = this;
+            $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
+            $vue.aulas = $vue.cursoMasivoExamen.aulasCursosMasivos;
+            $vue.$refs.modalAulasAsignadas.open();
+        },
+        verSeccionesAsignadas(item) {
+            let $vue = this;
+            $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
+            $vue.secciones = $vue.cursoMasivoExamen.seccionesCursosMasivos;
+            $vue.$refs.modalSecciones.open();
         },
         saveAulas() {
             var form = $("#formAulas");
@@ -249,7 +276,20 @@ new Vue({
                 return "background-color: #FFC300;";
             }
             return "background-color: #21B021;";
+        },
+        styleBgColorSeccion(seccion) {
+            if (seccion.id == '') {
+                return "background-color: #FFC300;";
+            }
+            return "background-color: #21B021;";
+        },
+        viewSecciones() {
+            let $vue = this;
+            $vue.$refs.modalSecciones.close();
+        },
+        viewAulas() {
+            let $vue = this;
+            $vue.$refs.modalAulasAsignadas.close();
         }
-
     }
 });

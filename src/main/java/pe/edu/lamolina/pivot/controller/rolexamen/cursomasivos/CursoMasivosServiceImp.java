@@ -137,6 +137,16 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             cursoMasivo.setAulasCursosMasivos(aulasByCurso);
         }
         
+        List<SeccionCursoMasivo> seccionesCursos = seccionCursoMasivoDAO.allByCursosMasivos(cursosMasivos);
+        
+        Map<Long, List<SeccionCursoMasivo>> mapSeccionesCursos = TypesUtil.convertListToMapList("cursoMasivoExamen.id", seccionesCursos);
+        
+        for (CursoMasivoExamen cursoMasivo : cursosMasivos) {
+            List<SeccionCursoMasivo> seccionesByCurso = mapSeccionesCursos.get(cursoMasivo.getId());
+            seccionesByCurso = (seccionesByCurso == null) ? new ArrayList() : seccionesByCurso;
+            cursoMasivo.setSeccionesCursosMasivos(seccionesByCurso);
+        }
+        
         return cursosMasivos;
     }
     
@@ -161,12 +171,12 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void eliminarCursoMasivoExamen(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds) {
         CursoMasivoExamen cursoMasivoExamenBD = cursoMasivoExamenDAO.find(cursoMasivoExamen.getId());
         
-        List<SeccionCursoMasivo> seccionCursoMasivos = seccionCursoMasivoDAO.allSeccionByCursoMasivo(cursoMasivoExamenBD.getId());
+        List<SeccionCursoMasivo> seccionCursoMasivos = seccionCursoMasivoDAO.allSeccionByCursoMasivo(cursoMasivoExamenBD);
         for (SeccionCursoMasivo seccionCursoMasivo : seccionCursoMasivos) {
             seccionCursoMasivoDAO.delete(seccionCursoMasivo);
         }
         
-        List<AlumnoCursoMasivo> alumnoCursoMasivos = alumnoCursoMasivoDAO.allAlumnoByCursoMasivo(cursoMasivoExamenBD.getId());
+        List<AlumnoCursoMasivo> alumnoCursoMasivos = alumnoCursoMasivoDAO.allAlumnoByCursoMasivo(cursoMasivoExamenBD);
         for (AlumnoCursoMasivo alumnoCursoMasivo : alumnoCursoMasivos) {
             alumnoCursoMasivoDAO.delete(alumnoCursoMasivo);
         }
