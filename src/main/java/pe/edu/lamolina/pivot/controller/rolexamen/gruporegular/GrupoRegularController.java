@@ -32,7 +32,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("rolexamen/gruporegular")
-public class GrupoRegularController {
+public class GrupoRegularController { 
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

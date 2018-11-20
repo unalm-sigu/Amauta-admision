@@ -20,4 +20,6 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
     List<SeccionGrupoRegular> allByLetraGrupoRegularAndSecciones(
             LetraGrupoRegular letrasGruposRegular, List<Seccion> secciones);
 
+    void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
+
 }

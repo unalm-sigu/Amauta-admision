@@ -7,6 +7,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
@@ -45,5 +46,7 @@ public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
             CicloAcademico cicloAcademico,
             TipoGrupoHorasEnum tipoGrupoHorasEnum,
             Integer horasForDay);
+
+    List<GrupoHoras> allByLetrasAndTipoGrupoHoras(List<String> letras, TipoSeccionEnum tipoSeccionEnum, TipoGrupoHorasEnum tipoGrupoHorasEnum);
 
 }

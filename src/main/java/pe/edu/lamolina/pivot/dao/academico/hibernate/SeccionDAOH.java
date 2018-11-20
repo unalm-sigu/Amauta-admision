@@ -17,6 +17,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
@@ -452,8 +453,10 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "seccion sec")
                 .join("mr.cicloAcademico ca", "sec.grupoSeccion gs")
+                .join("gs.curso cur", "cur.modalidadEstudio mest")
                 .join("sec.grupoHoras gh", "gh.tipoGrupoHoras tgh")
                 .filter("ca.id", ciclo)
+                .filter("mest.codigo", ModalidadEstudioEnum.PRE)
                 .filter("tgh.tipo", tipoGrupoHorasEnum)
                 .filter("sec.tipoSeccion", "!=", TipoSeccionEnum.PCUR)
                 .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.MAT))
@@ -468,7 +471,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "seccion sec")
                 .join("mr.cicloAcademico ca", "sec.grupoSeccion gs", "gs.curso cur")
-                .join("sec.grupoHoras gh", "gh.tipoGrupoHoras tgh","sec.aula aul")
+                .join("sec.grupoHoras gh", "gh.tipoGrupoHoras tgh", "sec.aula aul")
                 .filter("ca.id", ciclo)
                 .filter("sec.tipoSeccion", "!=", TipoSeccionEnum.PCUR)
                 .filter("cur.id", curso)

@@ -4,7 +4,7 @@
     </head>
     <body>
         <section layout:fragment="main">
-            <div id="rolexamenesVUE">
+            <div id="rolexamenesVUE"> 
 
                 <header class="header b-b padder-lg">
                     <div class="pull-right m-t-md">                 
@@ -54,28 +54,43 @@
                                                     <span v-if="item.estado=='CRE'" class="label label-default" >Creado</span>
                                                 </td>
                                                 <td>
-                                                    <div class="dropdown actions open">
-                                                        <a href="#" data-toggle="dropdown" class="dropdown-toggle" aria-expanded="true">
+                                                   
+                                                    <div class="dropdown actions">
+
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
                                                             <i class="glyphicon glyphicon-option-vertical"></i>
                                                         </a>
+
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li role="presentation">
+                                                            <li>                                                            
                                                                 <a href="#" 
-                                                                   v-on:click.prevent="redireccionarWithRol('rolexamen/plantillahorario',item)">
+                                                                   v-on:click.prevent="redireccionarWithRol('rolexamen/plantillahorario',item)"
+                                                                   v-if="item.isSituacionConfigurarRol || item.isSituacionConfigurarHorario">
                                                                     Configurar Horarios
                                                                 </a> 
-                                                                <a  th:href="@{/rolexamen/cursomasivos}" >
+                                                            </li>
+                                                            <li>
+                                                                <a  th:href="@{/rolexamen/cursomasivos}" 
+                                                                    v-if="item.isSituacionConfigurarCursoMasivo">
                                                                     Configurar Cursos Masivos
                                                                 </a>
-                                                                <a th:href="@{/rolexamen/gruporegular}" >
+                                                            </li>
+                                                            <li>
+                                                                <a th:href="@{/rolexamen/gruporegular}" 
+                                                                   v-if="item.isSituacionConfigurarCursoRegular">
                                                                     Configurar Cursos Regulares
                                                                 </a> 
-                                                                <a th:href="@{/rolexamen/grupoespecial}" >
+                                                            </li>
+                                                            <li>
+                                                                <a th:href="@{/rolexamen/grupoespecial}" 
+                                                                   v-if="item.isSituacionConfigurarCursoEspecial">
                                                                     Configurar Cursos Especiales
                                                                 </a>
                                                             </li>
                                                         </ul>
+
                                                     </div>
+
                                                 </td>
                                             </tr>
                                         </tbody>

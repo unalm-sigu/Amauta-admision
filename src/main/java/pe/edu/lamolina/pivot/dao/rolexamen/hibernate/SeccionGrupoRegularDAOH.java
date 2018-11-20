@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -10,6 +11,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 
@@ -77,6 +79,16 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
             result.put(TypesUtil.getLong(objects[0]), TypesUtil.getInt(objects[1]));
         }
         return result;
+    }
+
+    @Override
+    public void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  SeccionGrupoRegular sgr where sgr.letraGrupoRegular.id=:LETRA_ID");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("LETRA_ID", letraGrupoRegular.getId());
+        query.executeUpdate();
     }
 
 }
