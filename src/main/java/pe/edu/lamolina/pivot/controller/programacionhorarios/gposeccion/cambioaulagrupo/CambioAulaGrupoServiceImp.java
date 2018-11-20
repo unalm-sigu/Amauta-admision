@@ -2,12 +2,14 @@ package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.cambioa
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CambioAulaGrupo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -95,124 +97,115 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         cambioAulaGrupo.setFechaSolicitud(new Date());
         cambioAulaGrupo.setUserRegistro(ds.getUsuario());
         cambioAulaGrupo.setEstadoEnum(CambioAulaGrupoEstadoEnum.PENDIENTE);
-        
-        if(true){
-            return;
-        }
 
-        //cambioAulaGrupoDAO.save(cambioAulaGrupo);
+        cambioAulaGrupoDAO.save(cambioAulaGrupo);
         Date hoy = new Date();
         logger.debug("init reserva with Today {}", hoy);
         logger.debug("seccion {}", seccionBD.getId());
         logger.debug("grupo seccion {}", seccionBD.getGrupoSeccion().getId());
         logger.debug("ciclo academico {}", ds.getCicloAcademico().getId());
 
-        GrupoHoras grupoHoraInicio = cambioAulaGrupo.getGrupoHorasInicio();
         GrupoHoras grupoHoraFin = cambioAulaGrupo.getGrupoHorasFin();
 
-        List<DiaHoraGrupo> diaHoraGrupoInicio = diaHoraGrupoDAO.allByGrupoCiclo(grupoHoraInicio, ds.getCicloAcademico());
+        List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccionBD);
 
-        for (DiaHoraGrupo diaHoraGrp : diaHoraGrupoInicio) {
+        for (HorarioSeccion horarioSeccion : horariosSeccion) {
 
-            List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccionDiaHora(seccionBD, diaHoraGrp.getDia(), diaHoraGrp.getHora());
+            Date fechaInicio = horarioSeccion.getFechaInicio();
 
-            for (HorarioSeccion horarioSeccion : horariosSeccion) {
-                Date fechaInicio = horarioSeccion.getFechaInicio();
-                if (fechaInicio.compareTo(hoy) > 0) {
+            if (hoy.after(fechaInicio)) {
 
-                    HorarioSeccion horSeccion = new HorarioSeccion();
-                    horSeccion.setEstadoEnum(EstadoHorarioAulaEnum.SOL);
-                    horSeccion.setDia(horarioSeccion.getDia());
-                    horSeccion.setHora(horarioSeccion.getHora());
-                    horSeccion.setAula(horarioSeccion.getAula());
-                    horSeccion.setSeccion(horarioSeccion.getSeccion());
-                    horSeccion.setFechaInicio(hoy);
-                    horSeccion.setReservado("Y");
-                    horarioSeccionDAO.save(horSeccion);
+                HorarioSeccion horSeccionPend = new HorarioSeccion();
+                horSeccionPend.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
+                horSeccionPend.setDia(horarioSeccion.getDia());
+                horSeccionPend.setHora(horarioSeccion.getHora());
+                horSeccionPend.setAula(horarioSeccion.getAula());
+                horSeccionPend.setSeccion(seccionBD);
+                horSeccionPend.setFechaInicio(hoy);
+                horSeccionPend.setFechaFin(horarioSeccion.getFechaFin());
+                horSeccionPend.setReservado("Y");
+                horarioSeccionDAO.save(horSeccionPend);
+                logger.debug("creado horario seccion {}", horSeccionPend.getId());
 
-                    horarioSeccion.setFechaFin(hoy);
-                    horarioSeccion.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-                    horarioSeccion.setReservado(null);
-                    horarioSeccionDAO.update(horarioSeccion);
+                horarioSeccion.setFechaFin(hoy);
+                horarioSeccion.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                horarioSeccion.setReservado(null);
+                horarioSeccionDAO.update(horarioSeccion);
+                logger.debug("updated horario seccion {}", horarioSeccion.getId());
 
-                    HorarioSeccion horSeccionPend = new HorarioSeccion();
-                    horSeccionPend.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
-                    horSeccionPend.setDia(horarioSeccion.getDia());
-                    horSeccionPend.setHora(horarioSeccion.getHora());
-                    horSeccionPend.setAula(horarioSeccion.getAula());
-                    horSeccionPend.setSeccion(horarioSeccion.getSeccion());
-                    horSeccionPend.setFechaInicio(hoy);
-                    horSeccion.setReservado("Y");
-                    horarioSeccionDAO.save(horSeccionPend);
+            } else {
 
-                } else {
-
-                    HorarioSeccion horSeccion = new HorarioSeccion();
-                    horSeccion.setEstadoEnum(EstadoHorarioAulaEnum.SOL);
-                    horSeccion.setDia(horarioSeccion.getDia());
-                    horSeccion.setHora(horarioSeccion.getHora());
-                    horSeccion.setAula(horarioSeccion.getAula());
-                    horSeccion.setSeccion(horarioSeccion.getSeccion());
-                    horSeccion.setFechaInicio(hoy);
-                    horSeccion.setReservado("Y");
-                    horarioSeccionDAO.save(horSeccion);
-
-                    horarioSeccion.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
-                    horarioSeccion.setReservado(null);
-                    horarioSeccionDAO.update(horarioSeccion);
-
-                }
+                horarioSeccion.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
+                horarioSeccion.setReservado(null);
+                horarioSeccionDAO.update(horarioSeccion);
+                logger.debug("only updated horario seccion {}", horarioSeccion.getId());
 
             }
 
-            List<HorarioAula> horariosAula = horarioAulaDAO.allBySeccionDiaHora(seccionBD, diaHoraGrp.getDia(), diaHoraGrp.getHora());
+        }
 
-            for (HorarioAula horarioAula : horariosAula) {
-                Date fechaInicio = horarioAula.getFechaInicio();
-                if (fechaInicio.compareTo(hoy) > 0) {
+        List<HorarioAula> horariosAula = horarioAulaDAO.allBySeccion(seccionBD);
 
-                    HorarioAula horAula = new HorarioAula();
-                    horAula.setEstadoEnum(EstadoHorarioAulaEnum.SOL);
-                    horAula.setDia(horarioAula.getDia());
-                    horAula.setHora(horarioAula.getHora());
-                    horAula.setAula(horarioAula.getAula());
-                    horAula.setSeccion(horarioAula.getSeccion());
-                    horAula.setFechaInicio(hoy);
-                    horAula.setReservado("Y");
-                    horarioAulaDAO.save(horAula);
+        for (HorarioAula horarioAula : horariosAula) {
+            Date fechaInicio = horarioAula.getFechaInicio();
+            if (hoy.after(fechaInicio)) {
 
-                    horarioAula.setFechaFin(hoy);
-                    horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-                    horarioAula.setReservado(null);
-                    horarioAulaDAO.update(horarioAula);
+                HorarioAula horAulaPend = new HorarioAula();
+                horAulaPend.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
+                horAulaPend.setDia(horarioAula.getDia());
+                horAulaPend.setHora(horarioAula.getHora());
+                horAulaPend.setAula(horarioAula.getAula());
+                horAulaPend.setSeccion(seccionBD);
+                horAulaPend.setFechaInicio(hoy);
+                horAulaPend.setFechaFin(horarioAula.getFechaFin());
+                horAulaPend.setReservado("Y");
+                horarioAulaDAO.save(horAulaPend);
+                logger.debug("creado horario aula {}", horAulaPend.getId());
 
-                    HorarioAula horAulaPend = new HorarioAula();
-                    horAulaPend.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
-                    horAulaPend.setDia(horarioAula.getDia());
-                    horAulaPend.setHora(horarioAula.getHora());
-                    horAulaPend.setAula(horarioAula.getAula());
-                    horAulaPend.setSeccion(horarioAula.getSeccion());
-                    horAulaPend.setFechaInicio(hoy);
-                    horAula.setReservado("Y");
-                    horarioAulaDAO.save(horAulaPend);
+                horarioAula.setFechaFin(hoy);
+                horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                horarioAula.setReservado(null);
+                horarioAulaDAO.update(horarioAula);
+                logger.debug("updated horario aula {}", horarioAula.getId());
 
-                } else {
+            } else {
 
-                    HorarioAula horAula = new HorarioAula();
-                    horAula.setEstadoEnum(EstadoHorarioAulaEnum.SOL);
-                    horAula.setDia(horarioAula.getDia());
-                    horAula.setHora(horarioAula.getHora());
-                    horAula.setAula(horarioAula.getAula());
-                    horAula.setSeccion(horarioAula.getSeccion());
-                    horAula.setFechaInicio(hoy);
-                    horAula.setReservado("Y");
-                    horarioAulaDAO.save(horAula);
+                horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
+                horarioAula.setReservado(null);
+                horarioAulaDAO.update(horarioAula);
+                logger.debug("only updated horario aula {}", horarioAula.getId());
 
-                    horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
-                    horarioAula.setReservado(null);
-                    horarioAulaDAO.update(horarioAula);
+            }
 
-                }
+        }
+
+        logger.debug("grupoHoraFin.getDiaHoraGrupo  {}", grupoHoraFin.getDiaHoraGrupo() != null);
+        if (grupoHoraFin.getDiaHoraGrupo() != null) {
+            logger.debug("grupoHoraFin.getDiaHoraGrupo size {}", grupoHoraFin.getDiaHoraGrupo().size());
+
+            List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByDiaHoraGrupo(grupoHoraFin.getDiaHoraGrupo());
+            for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
+                logger.debug("***** new DiaHoraGrupo {}", diaHoraGrupo.getId());
+
+                HorarioSeccion horSeccion = new HorarioSeccion();
+                horSeccion.setEstadoEnum(EstadoHorarioAulaEnum.SOL);
+                horSeccion.setDia(diaHoraGrupo.getDia());
+                horSeccion.setHora(diaHoraGrupo.getHora());
+                horSeccion.setAula(cambioAulaGrupo.getAulaFin());
+                horSeccion.setSeccion(seccionBD);
+                horSeccion.setFechaInicio(hoy);
+                horSeccion.setReservado("Y");
+                horarioSeccionDAO.save(horSeccion);
+
+                HorarioAula horAula = new HorarioAula();
+                horAula.setEstadoEnum(EstadoHorarioAulaEnum.SOL);
+                horAula.setDia(diaHoraGrupo.getDia());
+                horAula.setHora(diaHoraGrupo.getHora());
+                horAula.setAula(cambioAulaGrupo.getAulaFin());
+                horAula.setSeccion(seccionBD);
+                horAula.setFechaInicio(hoy);
+                horAula.setReservado("Y");
+                horarioAulaDAO.save(horAula);
 
             }
         }
@@ -238,6 +231,28 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         cambioAulaGrupo.setFechaRespuesta(new Date());
         cambioAulaGrupo.setComentarioRespuesta(cambioAulaGrupoForm.getComentarioRespuesta());
         cambioAulaGrupoDAO.update(cambioAulaGrupo);
+
+        List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(cambioAulaGrupo.getSeccion());
+
+        boolean tieneActivos = this.getActivos(horariosSeccion);
+
+        if (tieneActivos) {
+            Date fechaFin = this.getFechaFin(horariosSeccion);
+            for (HorarioSeccion horarioSeccion : horariosSeccion) {
+                if (horarioSeccion.getEstadoEnum() != EstadoHorarioAulaEnum.ACT) {
+                    horarioSeccionDAO.delete(horarioSeccion);
+                } else {
+                    horarioSeccion.setFechaFin(fechaFin);
+                    horarioSeccionDAO.update(horarioSeccion);
+                }
+            }
+        } else {
+            for (HorarioSeccion horarioSeccion : horariosSeccion) {
+                if (horarioSeccion.getEstadoEnum() == EstadoHorarioAulaEnum.SOL) {
+                    horarioSeccionDAO.delete(horarioSeccion);
+                }
+            }
+        }
     }
 
     @Override
@@ -295,6 +310,24 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         cambioAulaGrupoForm.setFechaRespuesta(new Date());
         cambioAulaGrupoDAO.update(cambioAulaGrupoForm);
 
+        List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(cambioAulaGrupoBD.getSeccion());
+
+        Map<Long, List<HorarioSeccion>> horariosSeccionMap = TypesUtil.convertListToMapList("estado", horariosSeccion);
+
+        List<HorarioSeccion> solicitados = horariosSeccionMap.get(EstadoHorarioAulaEnum.SOL.name());
+        for (HorarioSeccion solicitado : solicitados) {
+            solicitado.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+            horarioSeccionDAO.update(solicitado);
+        }
+        List<HorarioSeccion> activos = horariosSeccionMap.get(EstadoHorarioAulaEnum.ACT.name());
+        for (HorarioSeccion activo : activos) {
+            horarioSeccionDAO.delete(activo);
+        }
+        List<HorarioSeccion> pendientes = horariosSeccionMap.get(EstadoHorarioAulaEnum.PEND.name());
+        for (HorarioSeccion pendiente : pendientes) {
+            horarioSeccionDAO.delete(pendiente);
+        }
+
     }
 
     @Override
@@ -311,6 +344,24 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         List<GrupoHoras> gruposHoras = grupoHorasDAO.searchByNombreFilter(nombre, 15);
 
         return gruposHoras;
+    }
+
+    private boolean getActivos(List<HorarioSeccion> horariosSeccion) {
+        for (HorarioSeccion horarioSeccion : horariosSeccion) {
+            if (horarioSeccion.getEstadoEnum() == EstadoHorarioAulaEnum.ACT) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Date getFechaFin(List<HorarioSeccion> horariosSeccion) {
+        for (HorarioSeccion horarioSeccion : horariosSeccion) {
+            if (horarioSeccion.getEstadoEnum() == EstadoHorarioAulaEnum.PEND) {
+                return horarioSeccion.getFechaFin();
+            }
+        }
+        return null;
     }
 
 }

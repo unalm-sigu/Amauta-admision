@@ -16,7 +16,6 @@ public interface DiaHoraGrupoDAO extends EasyDAO<DiaHoraGrupo> {
     List<DiaHoraGrupo> allByGrupoCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
     //List<DiaHoraGrupo> allByGruposCiclo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico);
-
     List<DiaHoraGrupo> allByTipoGpoCiclo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
 
     List<DiaHoraGrupo> allByGruposCiclo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico);
@@ -26,10 +25,12 @@ public interface DiaHoraGrupoDAO extends EasyDAO<DiaHoraGrupo> {
     void deleteAllByNotInList(List<DiaHoraGrupo> horarios);
 
     //List<DiaHoraGrupo> allByGrupo(GrupoHoras grupo, CicloAcademico ciclo);
-
     void deleteAllInList(List<DiaHoraGrupo> diaHoraGrupos);
 
     List<DiaHoraGrupo> allByCiclo(CicloAcademico ciclo);
 
-    public List<DiaHoraGrupo> allByCicloAndTipoCiclo(CicloAcademico cicloDestino);
+    List<DiaHoraGrupo> allByCicloAndTipoCiclo(CicloAcademico cicloDestino);
+
+    List<DiaHoraGrupo> allByDiaHoraGrupo(List<DiaHoraGrupo> diaHoraGrupo);
+
 }

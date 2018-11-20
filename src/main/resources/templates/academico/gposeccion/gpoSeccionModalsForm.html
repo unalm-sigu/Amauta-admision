@@ -169,6 +169,10 @@
 
 
             <div class="row">
+                <div class="col-md-12" >
+                    <label>Horas</label>
+                    <span>{{seccionSeleccionada.horasSemanales}}</span>
+                </div>
                 <div class="col-md-6" >
                     <div class="form-group">
                         <label> Solicitante</label>
@@ -249,9 +253,7 @@
                 <section class="block">
                     <label class="control-label">Horario Aula </label>
                     <div class="table-responsive" >
-                        
-                        <pre>{{seccionSeleccionada}}</pre>
-                        
+
                         <grupo-regular-aula-component ref="grupoRegularComponent"
                                                       v-bind:aula="changeAulaGpo.aulaFin"
                                                       v-bind:grupohoras="changeAulaGpo.grupoHorasFin"
