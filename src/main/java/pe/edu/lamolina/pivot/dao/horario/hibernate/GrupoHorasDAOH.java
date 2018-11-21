@@ -199,6 +199,18 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
     }
 
     @Override
+    public List<GrupoHoras> allByLetrasAndTipoGrupoHoras(List<String> letras, TipoSeccionEnum tipoSeccionEnum, TipoGrupoHorasEnum tipoGrupoHorasEnum) {
+        Octavia sql = Octavia.query()
+                .from(GrupoHoras.class, "gh")
+                .join("tipoGrupoHoras tgh")
+                .in("gh.letra", letras)
+                .filter("tgh.tipo", tipoGrupoHorasEnum.name())
+                .filter("gh.tipoSeccion", tipoSeccionEnum.name())
+                .orderBy("gh.codigo");
+        return all(sql);
+    }
+
+    @Override
     public Map<Long, Long> allGruposCountBySemanaExamen(SemanaExamen semanaExamen,
             CicloAcademico cicloAcademico,
             TipoGrupoHorasEnum tipoGrupoHorasEnum,

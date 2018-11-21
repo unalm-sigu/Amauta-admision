@@ -9,6 +9,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
@@ -72,12 +73,23 @@ public class CursoMasivoExamenDAOH extends AbstractEasyDAO<CursoMasivoExamen> im
 
     @Override
     public CursoMasivoExamen find(Long id) {
-         Octavia sql = Octavia.query()
+        Octavia sql = Octavia.query()
                 .from(CursoMasivoExamen.class, "cm")
                 .join("rolExamenes re", "userRegistro ur", "curso cu")
                 .filter("cm.id", id);
-        
+
         return find(sql);
+    }
+
+    @Override
+    public void updateEstadoExcluido(CursoMasivoExamen cursoMasivoExamen) {
+        cursoMasivoExamen.setEstadoEnum(EstadoCursoMasivoEnum.EXC);
+
+        Octavia octavia = Octavia.update(CursoMasivoExamen.class);
+        octavia.set(cursoMasivoExamen, "estado");
+        octavia.set(cursoMasivoExamen, "usuarioExclusion");
+        octavia.set(cursoMasivoExamen, "fechaExclusion");
+        this.update(octavia);
     }
 
 }

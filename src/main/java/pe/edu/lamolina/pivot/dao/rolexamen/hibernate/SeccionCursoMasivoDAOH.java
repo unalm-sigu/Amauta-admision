@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
@@ -32,5 +33,16 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .join("cursoMasivoExamen cme", "userRegistro ur")
                 .filter("cme.id", cursoMasivo);
         return all(sql);
+    }
+
+    @Override
+    public void updateEstadoExcluido(SeccionCursoMasivo seccionCursoMasivo) {
+        seccionCursoMasivo.setEstadoEnum(SeccionRolExamenEstadoEnum.EXC);
+
+        Octavia octavia = Octavia.update(CursoMasivoExamen.class);
+        octavia.set(seccionCursoMasivo, "estado");
+        octavia.set(seccionCursoMasivo, "usuarioExclusion");
+        octavia.set(seccionCursoMasivo, "fechaExclusion");
+        this.update(octavia);
     }
 }

@@ -99,4 +99,14 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
         return result;
     }
 
+    @Override
+    public void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  AlumnoGrupoRegular agr where agr.letraGrupoRegular.id=:LETRA_ID");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("LETRA_ID", letraGrupoRegular.getId());
+        query.executeUpdate();
+    }
+
 }

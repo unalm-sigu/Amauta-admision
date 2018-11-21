@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -65,6 +66,16 @@ public class GrupoRegularExamenDAOH extends AbstractEasyDAO<GrupoRegularExamen> 
             result.put(TypesUtil.getLong(objects[0]), TypesUtil.getInt(objects[1]));
         }
         return result;
+    }
+
+    @Override
+    public void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  GrupoRegularExamen gre where gre.letraGrupoRegular.id=:LETRA_ID");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("LETRA_ID", letraGrupoRegular.getId());
+        query.executeUpdate();
     }
 
 }

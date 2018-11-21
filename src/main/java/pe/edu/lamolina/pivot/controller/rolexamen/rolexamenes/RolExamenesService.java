@@ -11,11 +11,15 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface RolExamenesService {
 
+    RolExamenes findRolExamenes(long rolExamenId);
+
     List<EventoCicloAcademico> allEventoCicloAcademicos(CicloAcademico cicloAcademico);
 
     List<RolExamenes> allRolExamenes(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     void save(RolExamenes rolExamenes, DataSessionPivot ds);
+
+    void update(RolExamenes rolExamenes, DataSessionPivot ds);
 
     List<Hora> allHoras();
 

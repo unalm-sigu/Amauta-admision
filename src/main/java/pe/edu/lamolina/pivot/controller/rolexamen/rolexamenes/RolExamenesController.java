@@ -22,7 +22,6 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
-import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
@@ -54,6 +53,14 @@ public class RolExamenesController {
                     }));
         });
         model.addAttribute("jHoras", jHoras.toString());
+
+        List<EventoCicloAcademico> eventoCicloAcademicos = service.allEventoCicloAcademicos(ds.getCicloAcademico());
+        ArrayNode arrayEventosCiclosAcademicos = new ArrayNode(jc);
+        for (EventoCicloAcademico eventoCicloAcademico : eventoCicloAcademicos) {
+            ObjectNode json = createEventoCicloAcademicoJson(eventoCicloAcademico);
+            arrayEventosCiclosAcademicos.add(json);
+        }
+        model.addAttribute("jEventosCiclosAcademicos", arrayEventosCiclosAcademicos.toString());
         return "rolexamen/rolexamenes/rolexamenes";
     }
 
@@ -121,6 +128,36 @@ public class RolExamenesController {
     }
 
     @ResponseBody
+    @RequestMapping("loadRolExamenesInfo")
+    public JsonResponse loadRolExamenesInfo(@RequestBody RolExamenes rolExamenes, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            rolExamenes = service.findRolExamenes(rolExamenes.getId());
+            response.setData(JsonHelper.createJson(rolExamenes, jsonFactory, false,
+                    new String[]{
+                        "*",
+                        "userRegistro.persona.*",
+                        "eventoCicloAcademico.*",
+                        "eventoCicloAcademico.eventoAcademico.*",
+                        "semanasExamen.*",
+                        "semanasExamen.horaInicio.*",
+                        "semanasExamen.horaFin.*"
+                    }));
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("changeEventoCicloAcademico")
     public JsonResponse changeEventoCicloAcademico(@RequestBody EventoCicloAcademico eventoCicloAcademico, HttpSession session) {
 
@@ -169,10 +206,14 @@ public class RolExamenesController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.save(rolExamenes, ds);
-
+            if (rolExamenes.getId() == null) {
+                service.save(rolExamenes, ds);
+                response.setMessage("Guardado satisfactoriamnente");
+            } else {
+                service.update(rolExamenes, ds);
+                response.setMessage("Actualizado satisfactoriamnente");
+            }
             response.setSuccess(true);
-            response.setMessage("Guardado satisfactoriamnente");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

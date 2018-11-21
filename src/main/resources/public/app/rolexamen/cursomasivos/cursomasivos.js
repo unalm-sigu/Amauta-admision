@@ -3,6 +3,7 @@ Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     data: {
+        URL: APP.url('rolexamen/cursomasivos'),
         cursomasivosURL: APP.url('rolexamen/cursomasivos/list'),
         configAddAulasModal: {
             id: 'modalConfirmar',
@@ -16,14 +17,14 @@ new Vue({
             id: 'modalAulasAsignadas',
             header: true,
             title: 'Aulas Asignadas',
-            showaccept:"false",
+            showaccept: "false",
             modalsize: 'modal-lg'
         },
         seccionesModal: {
             id: 'modalSecciones',
             header: true,
             title: 'Secciones Asignadas',
-            showaccept:"false",
+            showaccept: "false",
             modalsize: 'modal-lg'
         },
         rolExamenes: null,
@@ -37,7 +38,11 @@ new Vue({
         aulasModulo: [],
         aulas: [],
         aula: null,
-        secciones: []
+        secciones: [],
+        tipoAccion: {
+            CURSO: "CURSO",
+            SECCION: "SECCION"
+        }
     },
     mounted() {
         let $vue = this;
@@ -227,6 +232,42 @@ new Vue({
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
+                    }
+                }
+            });
+        }, excluir(item, tipoAccion) {
+            console.dir(item);
+            let vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea excluir?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/${tipoAccion}/excluir`, item)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        /* obj.estadoEnum = {
+                                         "name": "EXC",
+                                         "value": "Excluido"
+                                         };
+                                         obj.estado = obj.estadoEnum.name;*/
+
+                                        switch (tipoAccion) {
+                                            case vue.tipoAccion.SECCION:
+                                                vue.$refs.seccionModal.close();
+                                                vue;
+                                            case vue.tipoAccion.ALUMNO:
+                                                vue.$refs.alumnosModal.close();
+                                                break;
+                                        }
+                                        vue.loadCursosMasivosByRoleExamen();
+                                    }
+                                    MODAL.hideWait();
+                                });
                     }
                 }
             });

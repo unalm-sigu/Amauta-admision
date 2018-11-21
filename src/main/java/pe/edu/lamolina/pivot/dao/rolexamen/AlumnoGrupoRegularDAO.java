@@ -23,4 +23,6 @@ public interface AlumnoGrupoRegularDAO extends EasyDAO<AlumnoGrupoRegular> {
     void updateEstado(List<Alumno> alumnos, AlumnoRolExamenEstadoEnum estadoEnum, Usuario usuario, Date fecha);
 
     Map<Long, Integer> countByLetrasGruposRegulares(List<LetraGrupoRegular> letraGrupoRegulars, AlumnoRolExamenEstadoEnum... estados);
+
+    void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
 }

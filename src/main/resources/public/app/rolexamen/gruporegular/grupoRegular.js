@@ -47,17 +47,46 @@ new Vue({
             if (!form.parsley().validate()) {
                 return;
             }
-            MODAL.showWait("Espere un momento por favor");
-            AXIOS.post(`${this.URL}/calcularGruposRegulares`, this.rolExamen)
-                    .then(response => {
-                        if (response.data.success) {
-                            // notify(response.data.message, 'info');
-                            this.listGruposRegulares(this.rolExamen);
-                        } else {
-                            //   notify(response.data.message, 'error');
+
+            if (this.letrasGruposRegulares.length > 0) {
+                let vue=this;
+                bootbox.confirm({
+                    message: "¿Si continua se perdera el avance de los grupos regulares?",
+                    buttons: {
+                        confirm: {label: 'Si', className: "btn-warning"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            MODAL.showWait("Espere un momento por favor");
+                            AXIOS.post(`${vue.URL}/calcularGruposRegulares`, vue.rolExamen)
+                                    .then(response => {
+                                        if (response.data.success) {
+                                            // notify(response.data.message, 'info');
+                                            vue.listGruposRegulares(vue.rolExamen);
+                                        } else {
+                                            //   notify(response.data.message, 'error');
+                                        }
+                                        MODAL.hideWait();
+                                    });
                         }
-                        MODAL.hideWait();
-                    });
+                    }
+                });
+            } else {
+                MODAL.showWait("Espere un momento por favor");
+                AXIOS.post(`${this.URL}/calcularGruposRegulares`, this.rolExamen)
+                        .then(response => {
+                            if (response.data.success) {
+                                // notify(response.data.message, 'info');
+                                this.listGruposRegulares(this.rolExamen);
+                            } else {
+                                //   notify(response.data.message, 'error');
+                            }
+                            MODAL.hideWait();
+                        });
+            }
+
+
         }, changeRolExamen() {
             this.listGruposRegulares(this.rolExamen);
         }, listGruposRegulares(rolExamen) {

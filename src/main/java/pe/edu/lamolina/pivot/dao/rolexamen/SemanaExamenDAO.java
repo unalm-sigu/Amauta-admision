@@ -9,4 +9,6 @@ public interface SemanaExamenDAO extends EasyDAO<SemanaExamen> {
 
     List<SemanaExamen> allByRolExamenes(RolExamenes rolExamenes);
 
+    void deleteByRolExamenes(RolExamenes rolExamenes);
+
 }

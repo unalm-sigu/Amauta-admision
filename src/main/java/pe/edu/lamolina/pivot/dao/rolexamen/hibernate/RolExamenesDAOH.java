@@ -23,6 +23,7 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
         Octavia sql = Octavia.query()
                 .from(RolExamenes.class, "rexa")
                 .join("eventoCicloAcademico eca", "userRegistro ur")
+                .join("ur.persona per")
                 .join("eca.eventoAcademico ea", "eca.cicloAcademico ca")
                 .filter("rexa.id", id);
         return find(sql);
@@ -47,6 +48,14 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
                 .searchFields("ca.descripcion", "re.nombre")
                 .orderBy("re.id desc");
         return all(sql);
+    }
+
+    @Override
+    public void updateRolExamenes(RolExamenes rolExamenes) {
+        Octavia octavia = Octavia.update(RolExamenes.class);
+        octavia.set(rolExamenes, "eventoCicloAcademico");
+        octavia.set(rolExamenes, "nombre");
+        this.update(octavia);
     }
 
 }

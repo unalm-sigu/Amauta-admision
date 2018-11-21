@@ -12,7 +12,7 @@ new Vue({
             okbtn: 'Guardar',
             modalsize: 'modal-md'
         },
-        eventosCiclos: [],
+        eventosCiclos: JSON.parse(jEventosCiclosAcademicos),
         rolExamenes: {
             eventoCicloAcademico: {},
             semanasExamen: []
@@ -32,15 +32,46 @@ new Vue({
         verNuevoRolExamen() {
             let $vue = this;
 
+            this.rolExamenes = {
+                eventoCicloAcademico: {},
+                semanasExamen: []
+            };
+            this.confirmarModal.title = 'Crear Nuevo Rol Examen';
+            this.$refs.modalConfirmar.open();
+
+            /*
+             $.ajax({
+             url: APP.url("rolexamen/rolexamenes/allEventoCicloAcademico"),
+             dataType: 'json',
+             type: 'post',
+             }).then(response => {
+             if (response.success) {
+             $vue.eventosCiclos = response.data;
+             console.log("Estoy dentro del ajax");
+             console.log($vue.eventosCiclos);
+             $vue.confirmarModal.title = 'Crear Nuevo Rol Examen';
+             $vue.$refs.modalConfirmar.open();
+             } else {
+             notify(response.message, 'error');
+             }
+             }, error => {
+             notify(MESSAGES.errorComunicacion, 'error');
+             });*/
+        },
+        editarRolExamen(rolExamen) {
+            let $vue = this;
+            console.log("editarRolExamen");
+            console.dir(rolExamen);
             $.ajax({
-                url: APP.url("rolexamen/rolexamenes/allEventoCicloAcademico"),
+                url: APP.url("rolexamen/rolexamenes/loadRolExamenesInfo"),
                 dataType: 'json',
+                contentType: "application/json",
+                data: JSON.stringify(rolExamen),
                 type: 'post',
             }).then(response => {
                 if (response.success) {
-                    $vue.eventosCiclos = response.data;
-                    console.log("Estoy dentro del ajax");
-                    console.log($vue.eventosCiclos);
+                    $vue.rolExamenes = response.data;
+                    $vue.confirmarModal.title = 'Editar Rol Examen';
                     $vue.$refs.modalConfirmar.open();
                 } else {
                     notify(response.message, 'error');
