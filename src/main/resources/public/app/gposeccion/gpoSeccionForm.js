@@ -1596,8 +1596,22 @@ var app = new Vue({
             if ($('#formAulaGrupo').parsley().validate() !== true) {
                 return;
             }
-            
+            if (!$vue.changeAulaGpo.grupoHorasFin.diaHoraGrupo) {
+                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
+                return;
+            }
+            if (!$vue.changeAulaGpo.grupoHorasFin.diaHoraGrupo.length) {
+                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
+                return;
+            }
+            if ($vue.changeAulaGpo.grupoHorasFin.diaHoraGrupo.length < 1) {
+                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
+                return;
+            }
+
             console.log($vue.changeAulaGpo);
+            console.log("=====cantidad========");
+            console.log($vue.changeAulaGpo.grupoHorasFin.diaHoraGrupo.length);
             $.ajax({
                 url: APP.url('academico/gposeccion/savecambioaulagrupo'),
                 dataType: "json",

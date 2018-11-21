@@ -320,6 +320,8 @@ Vue.component("grupo-regular-aula-component", {
                     this.cleanDiasHorasGrupoDiferentGpoHorario(this.tabGrupos.grupoHorarioSel);
                 }
 
+//                $global.$emit("selectGrupoHorarioChange", this.tabGrupos);
+
             } else {
                 if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoZeta) {
                     if (this.deseleccionarGrupoValidate(this, diaHoraGrupo, this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo)) {
@@ -362,6 +364,9 @@ Vue.component("grupo-regular-aula-component", {
                         }
                     }
                 }
+
+                //$global.$emit("selectGrupoHorarioChange", {});
+                //$global.$emit("selectGrupoHorarioChange", this.tabGrupos);
             }
         },
         seleccionarGrupoValidate($vue, diaHoraGrupo, tabGrupo) {
@@ -460,8 +465,8 @@ Vue.component("grupo-regular-aula-component", {
             return true;
         },
         preSaveGrupoHorario() {
-            let $vue=this;
-            
+            let $vue = this;
+
             console.log("preSaveGrupoHorario");
 
             if ($vue.tabGrupos.grupoHorarioSel == null) {
@@ -551,7 +556,7 @@ Vue.component("grupo-regular-aula-component", {
             $vue.tabGrupos.grupoHorarioSel.diaHoraGrupo = diasHorasGrupo;
 
             $vue.diahoragruposelects = diasHorasGrupo;
-            
+
             console.log("==================diahoragruposelects===================");
             console.log($vue.diahoragruposelects.length);
 

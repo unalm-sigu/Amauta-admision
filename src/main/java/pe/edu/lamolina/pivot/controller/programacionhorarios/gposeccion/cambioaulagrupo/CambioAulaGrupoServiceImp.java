@@ -100,16 +100,24 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         cambioAulaGrupo.setEstadoEnum(CambioAulaGrupoEstadoEnum.PENDIENTE);
 
         cambioAulaGrupoDAO.save(cambioAulaGrupo);
-        
-        if(cambioAulaGrupo.getGrupoHorasFin().getId().longValue()==cambioAulaGrupo.getGrupoHorasInicio().getId()){
+
+        if (cambioAulaGrupo.getGrupoHorasFin().getId().longValue() == cambioAulaGrupo.getGrupoHorasInicio().getId()) {
             throw new PhobosException("No puede asignarle el mismo grupo sección. ");
         }
-        
-        
-        
+
+        if (cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo() != null) {
+            logger.debug("grupoHoraFin.getDiaHoraGrupo size {}", cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo().size());
+            if (cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo().size() != seccionBD.getHorasSemanales().intValue()) {
+                throw new PhobosException("Asignar la cantidad de horas requeridas para la sección.");
+            }
+        } else {
+            throw new PhobosException("No hay horarios para asignar.");
+        }
+
         Date hoy = new Date();
         logger.debug("init reserva with Today {}", hoy);
         logger.debug("seccion {}", seccionBD.getId());
+        logger.debug("seccion horas semanales {}", seccionBD.getHorasSemanales());
         logger.debug("grupo seccion {}", seccionBD.getGrupoSeccion().getId());
         logger.debug("ciclo academico {}", ds.getCicloAcademico().getId());
 
@@ -304,17 +312,22 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
                     activo.setReservado(null);
                     horarioAulaDAO.update(activo);
                 }
-                for (HorarioAula pendiente : pendientes) {
-                    horarioAulaDAO.delete(pendiente);
+                if (pendientes != null) {
+                    for (HorarioAula pendiente : pendientes) {
+                        horarioAulaDAO.delete(pendiente);
+                    }
                 }
-                for (HorarioAula solicitado : solicitados) {
-                    horarioAulaDAO.delete(solicitado);
+                if (solicitados != null) {
+                    for (HorarioAula solicitado : solicitados) {
+                        horarioAulaDAO.delete(solicitado);
+                    }
                 }
 
             } else {
-
-                for (HorarioAula solicitado : solicitados) {
-                    horarioAulaDAO.delete(solicitado);
+                if (solicitados != null) {
+                    for (HorarioAula solicitado : solicitados) {
+                        horarioAulaDAO.delete(solicitado);
+                    }
                 }
 
             }
@@ -363,19 +376,23 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
                     activo.setReservado(null);
                     horarioSeccionDAO.update(activo);
                 }
-                for (HorarioSeccion pendiente : pendientes) {
-                    horarioSeccionDAO.delete(pendiente);
+                if (pendientes != null) {
+                    for (HorarioSeccion pendiente : pendientes) {
+                        horarioSeccionDAO.delete(pendiente);
+                    }
                 }
-                for (HorarioSeccion solicitado : solicitados) {
-                    horarioSeccionDAO.delete(solicitado);
+                if (solicitados != null) {
+                    for (HorarioSeccion solicitado : solicitados) {
+                        horarioSeccionDAO.delete(solicitado);
+                    }
                 }
 
             } else {
-
-                for (HorarioSeccion solicitado : solicitados) {
-                    horarioSeccionDAO.delete(solicitado);
+                if (solicitados != null) {
+                    for (HorarioSeccion solicitado : solicitados) {
+                        horarioSeccionDAO.delete(solicitado);
+                    }
                 }
-
             }
         }
 
@@ -395,19 +412,23 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
                     activo.setReservado(null);
                     horarioAulaDAO.update(activo);
                 }
-                for (HorarioAula pendiente : pendientes) {
-                    horarioAulaDAO.delete(pendiente);
+                if (pendientes != null) {
+                    for (HorarioAula pendiente : pendientes) {
+                        horarioAulaDAO.delete(pendiente);
+                    }
                 }
-                for (HorarioAula solicitado : solicitados) {
-                    horarioAulaDAO.delete(solicitado);
+                if (solicitados != null) {
+                    for (HorarioAula solicitado : solicitados) {
+                        horarioAulaDAO.delete(solicitado);
+                    }
                 }
 
             } else {
-
-                for (HorarioAula solicitado : solicitados) {
-                    horarioAulaDAO.delete(solicitado);
+                if (solicitados != null) {
+                    for (HorarioAula solicitado : solicitados) {
+                        horarioAulaDAO.delete(solicitado);
+                    }
                 }
-
             }
         }
 
