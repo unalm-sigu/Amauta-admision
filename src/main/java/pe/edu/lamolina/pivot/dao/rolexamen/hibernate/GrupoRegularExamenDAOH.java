@@ -26,6 +26,7 @@ public class GrupoRegularExamenDAOH extends AbstractEasyDAO<GrupoRegularExamen> 
         Octavia sql = Octavia.query()
                 .from(GrupoRegularExamen.class, "gre")
                 .join("letraGrupoRegular lgr", "grupoHoras gh")
+                .join("lgr.rolExamenes rex")
                 .filter("lgr.id", id);
         return find(sql);
     }

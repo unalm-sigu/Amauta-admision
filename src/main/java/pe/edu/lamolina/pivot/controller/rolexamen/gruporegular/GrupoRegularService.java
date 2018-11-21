@@ -24,10 +24,10 @@ public interface GrupoRegularService {
 
     List<AlumnoGrupoRegular> allAlumnosGrupoRegularByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
 
-    void excluirGrupoRegular(SeccionGrupoRegular seccionGrupoRegular, Usuario usuario);
+    void excluirGrupoRegular(SeccionGrupoRegular seccionGrupoRegular, DataSessionPivot ds);
 
-    void excluirGrupoRegular(GrupoRegularExamen grupoRegularExamen, Usuario usuario, CicloAcademico cicloAcademico);
+    void excluirGrupoRegular(GrupoRegularExamen grupoRegularExamen, DataSessionPivot ds);
 
-    void excluirGrupoRegular(AlumnoGrupoRegular seccionGrupoRegular, Usuario usuario);
+    void excluirGrupoRegular(AlumnoGrupoRegular seccionGrupoRegular, DataSessionPivot ds);
 
 }
