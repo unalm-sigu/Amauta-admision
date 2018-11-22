@@ -363,7 +363,11 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
+<<<<<<< HEAD
             <version>0.15.42</version>
+=======
+            <version>0.15.43</version>
+>>>>>>> master
         </dependency>
 
     </dependencies>
