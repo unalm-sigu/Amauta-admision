@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -32,7 +33,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("rolexamen/gruporegular")
-public class GrupoRegularController { 
+public class GrupoRegularController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -176,19 +177,20 @@ public class GrupoRegularController {
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
             if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
                 GrupoRegularExamen grupoRegularExamen = (GrupoRegularExamen) mapper.readValue(objeto.toString(), GrupoRegularExamen.class);
-                grupoRegularService.excluirGrupoRegular(grupoRegularExamen, ds.getUsuario(), ds.getCicloAcademico());
+                grupoRegularService.excluirGrupoRegular(grupoRegularExamen, ds);
             } else if (TipoAccion.SECCION.name().equals(tipoAccion)) {
                 SeccionGrupoRegular seccionGrupoRegular = (SeccionGrupoRegular) mapper.readValue(objeto.toString(), SeccionGrupoRegular.class);
-                grupoRegularService.excluirGrupoRegular(seccionGrupoRegular, ds.getUsuario());
+                grupoRegularService.excluirGrupoRegular(seccionGrupoRegular, ds);
             } else if (TipoAccion.ALUMNO.name().equals(tipoAccion)) {
                 AlumnoGrupoRegular alumnoRegularExamen = (AlumnoGrupoRegular) mapper.readValue(objeto.toString(), AlumnoGrupoRegular.class);
-                grupoRegularService.excluirGrupoRegular(alumnoRegularExamen, ds.getUsuario());
+                grupoRegularService.excluirGrupoRegular(alumnoRegularExamen, ds);
             }
 
             response.setMessage("Excluido corretamente.");

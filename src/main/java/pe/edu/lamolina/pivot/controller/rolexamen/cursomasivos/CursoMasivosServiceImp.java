@@ -254,7 +254,6 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             seccionExcluido.setRolExamenes(cursoMasivoExamen.getRolExamenes());
             seccionExcluido.setSeccion(seccionCursoMasivo.getSeccion());
             seccionExcluido.setUserRegistro(ds.getUsuario());
-            seccionExcluido.setFechaRegistro(ds.getFechaAccionAudit());
             seccionExcluidoDAO.save(seccionExcluido);
             this.excluirCursoMasivo(cursoMasivoExamen, ds);
         }

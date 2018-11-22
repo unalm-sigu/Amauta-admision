@@ -58,4 +58,11 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
         this.update(octavia);
     }
 
+    @Override
+    public void updateSituacion(RolExamenes rolExamenes) {
+        Octavia octavia = Octavia.update(RolExamenes.class);
+        octavia.set(rolExamenes, "situacion");
+        this.update(octavia);
+    }
+
 }
