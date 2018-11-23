@@ -1,0 +1,487 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Inventario Aula</title>
+        <link th:substituteby="_layout/includes :: styles-dynatable"></link>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <h2 th:inline="text" >Ambiente: [[${aula.tipoAula.nombre}]]   [[${aula.tipoAula.codigo}]] -  [[${aula.nombre}]]  </h2>
+
+                </header>
+
+
+                <section class="wrapper-lg">
+                    <section class="panel m-b-xs">
+                        <section class="panel-body">
+                            <section class="col-xs-12" >
+
+
+                                <form class="form" data-parsley-validate="true" 
+                                      style="margin-bottom: 0;" 
+                                      method="post" 
+                                      th:action="@{'/activo/guardar'}" 
+                                      accept-charset="UTF-8">
+
+                                    <input type='hidden' name="id" v-bind:value="inventario.id"    /> 
+
+
+                                    <div class="row">
+
+                                        <div class="col-sm-3 text-center">
+                                            <div class=" v-middle">
+
+                                                <div class="thumb-lg text-right m-t-lg">
+
+                                                    <img  height="800" width="800"
+                                                          id="imagenProfile" 
+                                                          th:src="@{/phobos/images/img.svg}" 
+                                                          class="img-rounded pointer"/>
+
+                                                    <input type="hidden" id="avatar" name="avatar" />
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-sm-9">
+
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label>Código</label>
+                                                    <input type="text" 
+                                                           class="form-control" 
+                                                           name="codigo" 
+                                                           v-bind:value="inventario.codigo" />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label>Tipo</label>
+
+                                                    <!--                                                    <select class='form-control' 
+                                                                                                                name="producto.id"  
+                                                                                                                th:value="${inventario.producto}" 
+                                                                                                                required="true" 
+                                                                                                                data-trigger="change">
+                                                    
+                                                                                                            <option></option>
+                                                    
+                                                                                                            <option th:each="item : ${grupos}"
+                                                                                                                    th:value="${item.DisplayName}" 
+                                                                                                                    th:text="${item.DisplayName}"
+                                                                                                                    th:selected='${activo.grupo != null ? item.DisplayName == activo.grupo : ""}'/>
+                                                    
+                                                                                                        </select>-->
+
+                                                </div>
+                                            </div>
+
+
+
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+
+                                                    <label>Nombre</label>
+
+                                                    <input type="text" 
+                                                           class="form-control" 
+                                                           name="descripcion" 
+                                                           v-bind:value="inventario.descripcion" 
+                                                           required="true" 
+                                                           data-trigger="change"/>
+
+                                                </div>
+                                            </div>
+
+
+
+                                            <div class="divEquipo">
+
+                                                <h5 class="m-l-sm bold">Info. Equipos</h5>
+
+                                                <div class="col-sm-4">
+                                                    <div class="form-group">
+                                                        <label>Modelo</label>
+                                                        <input type='text' name="modelo" 
+                                                               class='form-control' 
+                                                               v-bind:value="inventario.modelo"/>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-4">
+                                                    <div class="form-group">
+                                                        <label>Serie</label>
+                                                        <input type='text' 
+                                                               name="nroSerieFabricacion"  
+                                                               class='form-control' 
+                                                               v-bind:value="inventario.nroSerieFabricacion" />
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-sm-4">
+                                                    <div class="form-group">
+                                                        <label>Año Fabricación</label>
+                                                        <div class='input-group'>
+                                                            <input  type='text' 
+                                                                    class='form-control' 
+                                                                    name="anioFabricacion" 
+                                                                    id="anioFabricacion"
+                                                                    v-bind:value="inventario.anioFabricacion"/> 
+                                                            <span class="input-group-addon pointer"><i class="fa fa-calendar"></i></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>  
+
+
+                                            <div class="divMueble">
+
+                                                <h5 class="m-l-sm bold">Info. Muebles</h5>
+
+                                                <div class="col-sm-3">
+                                                    <div class="form-group">
+                                                        <label>Material</label>
+                                                        <input type="text" 
+                                                               class="form-control" 
+                                                               name="material" 
+                                                               v-bind:value="inventario.material" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-3">
+                                                    <div class="form-group">
+                                                        <label>Largo(cm)</label>
+                                                        <input type="text" 
+                                                               class="form-control decimal" 
+                                                               name="largo" 
+                                                               v-bind:value="inventario.largo" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-3">
+                                                    <div class="form-group">
+                                                        <label>Ancho(cm)</label>
+                                                        <input type="text" 
+                                                               class="form-control decimal" 
+                                                               name="ancho" 
+                                                               v-bind:value="inventario.ancho" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-3">
+                                                    <div class="form-group">
+                                                        <label>Altura(cm)</label>
+                                                        <input type="text" 
+                                                               class="form-control decimal" 
+                                                               name="altura" 
+                                                               v-bind:value="inventario.altura"  />
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+
+
+                                        </div>    
+
+
+                                        <div class='row'>
+
+
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>Marca</label>
+                                                    <input type="text" 
+                                                           class="form-control" 
+                                                           name='marca' 
+                                                           v-bind:value="inventario.marca"  />
+                                                </div>
+                                            </div> 
+
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label>Color</label>
+                                                    <div class="form-group">
+                                                        <input type="text" 
+                                                               class="form-control" 
+                                                               name='color'
+                                                               v-bind:value="inventario.color"  />
+
+                                                    </div>
+                                                </div>
+                                            </div> 
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label>Condición</label>
+                                                    <select class="form-control" 
+                                                            name="estado" 
+                                                            required="true" 
+                                                            data-trigger="change">
+
+                                                        <option th:each="item : ${estados}"
+                                                                th:value="${item.DisplayName}"
+                                                                th:text="${item.DisplayName}"
+                                                                th:selected="${activo.estado} != null ? ${activo.estado == item.DisplayName} : '' ">
+                                                        </option>
+
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="row">
+
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label>Proveedor</label>
+                                                    <input type='text' 
+                                                           name="proveedor.id" 
+                                                           class='form-control' 
+                                                           v-bind:value="inventario.proveedor" 
+                                                           data-trigger="change" />
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label>Fecha de vencimiento de la Garantia</label>
+                                                    <div class='input-group date'>
+                                                        <input  type='text' 
+                                                                class='form-control' 
+                                                                name="fechaVencimientoGarantia"
+                                                                v-bind:value="inventario.fechaVencimientoGarantia" 
+                                                                /> 
+                                                        <span class="input-group-addon pointer"><i class="fa fa-calendar"></i></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label>Vida Util</label>
+                                                    <input type="text" 
+                                                           class="form-control numerico" 
+                                                           name="vidaUtil" 
+                                                           v-bind:value="inventario.vidaUtil" 
+                                                           />
+                                                </div>
+                                            </div>
+
+
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label>Saldo inicial del bien</label>
+                                                    <input type="text" 
+                                                           class="form-control decimal" 
+                                                           name="saldoInicial" 
+                                                           v-bind:value="inventario.saldoInicial" 
+                                                           />
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+
+                                        <div class="row">
+
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label>% Depreciación Anual</label>
+                                                    <input type="text" 
+                                                           class="form-control decimal" 
+                                                           name="deprecionAnual" 
+                                                           v-bind:value="inventario.deprecionAnual"
+                                                           />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label>Depreciación del periodo</label>
+                                                    <input type="text" 
+                                                           class="form-control decimal" 
+                                                           name="deprecionPeriodo" 
+                                                           v-bind:value="inventario.deprecionPeriodo"
+                                                           />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label>Depreciación Acumulada</label>
+                                                    <input type="text" 
+                                                           class="form-control decimal" 
+                                                           name="deprecionAcumulada" 
+                                                           v-bind:value="inventario.deprecionAcumulada"
+                                                           />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <label>Valor Actual en Libros</label>
+                                                    <input type="text" 
+                                                           class="form-control decimal" 
+                                                           name="valorActualLibros" 
+                                                           v-bind:value="inventario.valorActualLibros" 
+                                                           />
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>  
+
+                                    <div class="line line-dashed b-b line-lg pull-in"></div>
+
+                                    <div class="col-sm-12 text-center" >    
+
+                                        <button class="btn btn-primary" v-on:click.prevent="guardarInventario()"  type="button" > Guardar </button> 
+                                        <a class='btn btn-danger btn-bg' th:href="@{'/general/aula'}"> Cancelar</a>
+
+                                    </div>
+
+                                </form>
+
+
+                            </section>
+                        </section>
+                    </section>
+                </section>
+
+
+
+                <section class="wrapper-lg">
+                    <section class="panel m-b-xs">
+                        <section class="panel-body">
+
+
+                            <raptor-table v-bind:url="inventarioURL" v-bind:preload="false" ref="load">
+                                <div slot="header"></div>
+
+                                <template scope="props" >
+                                    <table class="table table-striped table-hover">
+                                        <thead> 
+                                            <tr>
+                                                <th class="col-sm-6 text-center">Articulo</th>
+                                                <th class="col-sm-6 text-center v-middle">Categoria</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle">
+                                                    <div class="pull-left">
+                                                        <div v-if="item.persona.tipoFoto=='POSTUL' "
+                                                             class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                            <img class="img-foto-list" v-bind:src="item.persona.rutaFoto" />
+                                                        </div>
+
+                                                        <img v-else-if="item.persona.tipoFoto=='COMUN' " 
+                                                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                                             v-bind:src="item.persona.rutaFoto" />
+
+                                                        <img v-else="" 
+                                                             class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                                             v-bind:src="item.persona.rutaFoto" />
+                                                    </div>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <a v-bind:href="urlAcademico(item)" class="block text-primary bold h5 m-b-xs m-t-xs" >
+                                                        {{item.persona.apellidosNombres}}
+                                                    </a>
+                                                    <span class="block">
+                                                        Matrícula: {{item.codigo}}
+                                                    </span>
+                                                    <small v-if="item.persona.numeroDocIdentidad != '' " class="block bold">
+                                                        {{item.persona.tipoDocumento.simbolo}} {{item.persona.numeroDocIdentidad}}
+                                                    </small>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span v-if="verTipoCarrera(item)"
+                                                          class="block text-info bold">{{item.carrera.tipoEnum.value}} en</span>
+                                                    <span class="block text-success">{{item.carrera.nombre}}</span>
+
+                                                    <span v-if="verFacultad(item)" class="block">Facultad de {{item.carrera.facultad.nombre}}</span>
+                                                    <small class="block bold">{{item.modalidadEstudio.nombre}}</small>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span class="block h5 text-primary m-t-xs m-b-xs">{{item.situacionAcademica.nombre}}</span>
+                                                    <span class="block"><b>Ingresó:</b> {{item.cicloIngreso.descripcion}}</span>
+                                                    <span v-if="item.cicloActivo.descripcion != '' "
+                                                          class="block"><b>Último ciclo:</b> {{item.cicloActivo.descripcion}}</span>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <span v-if="item.ppa != '' " class="block"><b>ppa:</b> {{item.promedioAcumulado}}</span>
+                                                    <span v-if="item.cca != '' " class="block"><b>cca:</b> {{item.creditosCursados}}</span>
+                                                    <span v-if="item.capa != '' " class="block"><b>capa:</b> {{item.creditosAprobados}}</span>
+                                                </td>
+
+                                                <td class="text-center v-middle">
+                                                    <span class="clear" v-if="item.estadoEnum">
+                                                        <a v-if="item.estado == 'ANU' "
+                                                           href="#" data-toggle="tooltip" data-html="true" data-placement="left" v-bind:title='item.motivo'>
+                                                            <span class="label label-danger" >{{item.estadoEnum.value}} </span>
+                                                        </a>
+                                                        <span v-else="" class="label label-success">{{item.estadoEnum.value}} </span>
+                                                    </span>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <div class="actions">
+                                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a v-bind:href="urlDataPersonal(item)">Modificar datos</a></li>
+                                                            <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
+                                                            <li><a v-bind:href="urlMatricula(item)">Matricula</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+
+                        </section>
+                    </section>
+                </section>
+
+
+
+
+
+            </div>
+
+        </div>
+
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var idaula = /*[[${aula.id}]]*/ '';
+                /*]]>*/
+            </script>
+            <!--<div th:substituteby="_modules/vue-raptor-table"></div>-->
+            <script th:src="@{/app/general/inventarioaula/inventarioaula.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
