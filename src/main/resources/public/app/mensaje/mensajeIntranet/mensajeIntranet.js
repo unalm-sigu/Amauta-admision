@@ -5,7 +5,7 @@ new Vue({
     el: '#mensajeriaVUE',
     data: {
         mensajeriaURL: APP.url('mensajeria/list'),
-        mensajeria: {porFecha: false},
+        mensajeria: {},
         gruposAlumno: JSON.parse(gruposAlumnoJson),
         tiposMensaje: JSON.parse(tiposMensajeJson),
         cicloAcademico: JSON.parse(cicloJson),
@@ -35,7 +35,7 @@ new Vue({
         },
         nuevo() {
             let $vue = this;
-            $vue.mensajeria = {esObligatorio: 0};
+            $vue.mensajeria = {esObligatorio: 0, porFecha: false};
             $vue.addMensajeria.okbtn = "Guardar";
             $vue.addMensajeria.title = "Nuevo Mensaje Intranet";
             $("#formMensajeria").parsley().destroy();
@@ -147,7 +147,10 @@ new Vue({
             }
         },
         chkbIsFecha() {
-
+            let $vue = this;
+            if ($vue.mensajeria.porFecha) {
+                $vue.mensajeria.vecesVisible = 0;
+            }
         }
     }
 });
