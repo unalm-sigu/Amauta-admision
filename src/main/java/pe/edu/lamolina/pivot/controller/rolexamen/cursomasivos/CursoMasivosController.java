@@ -29,6 +29,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -36,22 +37,22 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("rolexamen/cursomasivos")
 public class CursoMasivosController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     CursoMasivosService service;
-    
+
     private enum TipoAccion {
         CURSO,
         SECCION
     }
-    
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        
+
         List<RolExamenes> rolexamenes = service.allRolExamenesByCicloActivo(ds.getCicloAcademico());
         ArrayNode jRolexamenes = new ArrayNode(JsonNodeFactory.instance);
         for (RolExamenes rolexamen : rolexamenes) {
@@ -62,28 +63,74 @@ public class CursoMasivosController {
                         "eventoCicloAcademico.fechaInicio", "eventoCicloAcademico.fechaFin",
                         "nombre", "estado", "fechaPublicacion"
                     });
-            
+
             jRolexamenes.add(rolExam);
         }
-        
+
         model.addAttribute("jRolexamenes", jRolexamenes.toString());
-        
+
         return "rolexamen/cursomasivos/cursomasivos";
     }
-    
+
+    @RequestMapping("secciones/{cursoMasivo}")
+    public String secciones(@PathVariable("cursoMasivo") Long idCursoMasivo, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+
+        JsonResponse cursoMasivoExamen = this.findCursoMasivo(model, new CursoMasivoExamen(idCursoMasivo), session);
+        model.addAttribute("jCursoMasivoExamen", cursoMasivoExamen.getData().toString());
+        return "rolexamen/cursomasivos/cursoMasivoSecciones";
+    }
+
+    @ResponseBody
+    @RequestMapping("findCursoMasivo")
+    public JsonResponse findCursoMasivo(Model model, @RequestBody CursoMasivoExamen cursoMasivosExamen, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CursoMasivoExamen cursoMasivoExamen = service.findCursoMasivo(cursoMasivosExamen.getId());
+            model.addAttribute("cursoMasivoExamen", cursoMasivoExamen);
+
+            response.setData(JsonHelper.createJson(cursoMasivoExamen, jsonFactory, true,
+                    new String[]{
+                        "*",
+                        "rolExamenes.*",
+                        "curso.*",
+                        "userRegistro.*",
+                        "userRegistro.persona.*",
+                        "seccionesCursosMasivos.*",
+                        "seccionesCursosMasivos.seccion.*",
+                        "seccionesCursosMasivos.userRegistro.*",
+                        "seccionesCursosMasivos.userRegistro.persona.*",
+                        "seccionesCursosMasivos.usuarioExclusion.*",
+                        "seccionesCursosMasivos.usuarioExclusion.persona.*"
+                    }));
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody CursoMasivoExamen cursoMasivosExamen, HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.save(cursoMasivosExamen, ds.getCicloAcademico(), ds);
             response.setSuccess(true);
             response.setMessage("Curso guardado satisfactoriamnente");
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -91,20 +138,20 @@ public class CursoMasivosController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("saveAulas")
     public JsonResponse saveAulas(@RequestBody CursoMasivoExamen cursoMasivosExamen, HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.saveAula(cursoMasivosExamen, ds.getCicloAcademico(), ds);
             response.setSuccess(true);
             response.setMessage("Aula guardado satisfactoriamnente");
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -112,19 +159,19 @@ public class CursoMasivosController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("list")
     public JsonResponse list(@RequestBody RolExamenes rolExamenes, HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            
+
             List<CursoMasivoExamen> cursoMasivosByRolExamenes = service.listCursosMasivosExamenes(rolExamenes);
-            
+
             ArrayNode jCursoMasivosByRolExamen = new ArrayNode(JsonNodeFactory.instance);
             for (CursoMasivoExamen cursoMasivoByRolExamen : cursoMasivosByRolExamenes) {
-                
+
                 ObjectNode cursoMasivo = JsonHelper.createJson(cursoMasivoByRolExamen, JsonNodeFactory.instance, true,
                         new String[]{
                             "*",
@@ -132,7 +179,7 @@ public class CursoMasivosController {
                             "aulasCursosMasivos.aula.*",
                             "seccionesCursosMasivos.seccion.*"
                         });
-                
+
                 jCursoMasivosByRolExamen.add(cursoMasivo);
             }
             response.setData(jCursoMasivosByRolExamen);
@@ -142,10 +189,10 @@ public class CursoMasivosController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-        
+
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("{idRolExamen}/loadCurso")
     public JsonResponse loadCurso(
@@ -153,13 +200,13 @@ public class CursoMasivosController {
             @PathVariable("idRolExamen") Long idRolExamen,
             HttpSession session,
             HttpServletRequest request) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            
+
             List<Curso> cursos = service.allCursosByCiclo(nombre, new RolExamenes(idRolExamen), ds.getCicloAcademico());
             ArrayNode jCursos = new ArrayNode(JsonNodeFactory.instance);
             for (Curso curso : cursos) {
@@ -171,9 +218,9 @@ public class CursoMasivosController {
                 jCursos.add(cur);
             }
             response.setData(jCursos);
-            
+
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -181,27 +228,27 @@ public class CursoMasivosController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("allModulos")
     public JsonResponse allModulos(HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             Oficina oficinaOERA = service.findOficinaOera();
             List<Aula> pabellones = service.allPabellonesByOficina(oficinaOERA);
-            
+
             ArrayNode arrayPabellones = new ArrayNode(jsonFactory);
             for (Aula pabellon : pabellones) {
                 ObjectNode json = createPabellonesJson(pabellon);
                 arrayPabellones.add(json);
             }
-            
+
             response.setData(arrayPabellones);
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -209,7 +256,7 @@ public class CursoMasivosController {
         }
         return response;
     }
-    
+
     private ObjectNode createPabellonesJson(Aula pabellon) {
         ObjectNode json = JsonHelper.createJson(pabellon, JsonNodeFactory.instance, true, new String[]{
             "id",
@@ -218,20 +265,20 @@ public class CursoMasivosController {
         });
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("eliminar")
     public JsonResponse eliminar(CursoMasivoExamen cursoMasivoExamen, HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.eliminarCursoMasivoExamen(cursoMasivoExamen, ds);
-            
+
             response.setMessage("Curso eliminado satisfactoriamente.");
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -241,27 +288,27 @@ public class CursoMasivosController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("allAulasModulo")
     public JsonResponse allAulasModulo(
             @RequestBody Aula modulo, HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             Oficina oficinaOERA = service.findOficinaOera();
             List<Aula> aulas = service.allAulasByOficinaModulo(oficinaOERA, modulo);
-            
+
             ArrayNode arrayAulas = new ArrayNode(jsonFactory);
             for (Aula aula : aulas) {
                 ObjectNode json = createAulasJson(aula);
                 arrayAulas.add(json);
             }
-            
+
             response.setData(arrayAulas);
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -269,7 +316,7 @@ public class CursoMasivosController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "{tipoAccion}/excluir", method = RequestMethod.POST)
     public JsonResponse excluir(
@@ -282,10 +329,29 @@ public class CursoMasivosController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            
+
             if (CursoMasivosController.TipoAccion.CURSO.name().equals(tipoAccion)) {
                 CursoMasivoExamen cursoMasivoExamen = (CursoMasivoExamen) mapper.readValue(objeto.toString(), CursoMasivoExamen.class);
                 service.excluirCursoMasivo(cursoMasivoExamen, ds);
+            } else if (CursoMasivosController.TipoAccion.SECCION.name().equals(tipoAccion)) {
+                SeccionCursoMasivo seccionCursoMasivo = (SeccionCursoMasivo) mapper.readValue(objeto.toString(), SeccionCursoMasivo.class);
+                service.excluirSeccionCursoMasivo(seccionCursoMasivo, ds);
+                CursoMasivoExamen cursoMasivoExamen = service.findCursoMasivo(seccionCursoMasivo.getCursoMasivoExamen().getId());
+
+                response.setData(JsonHelper.createJson(cursoMasivoExamen, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "*",
+                            "rolExamenes.*",
+                            "curso.*",
+                            "userRegistro.*",
+                            "userRegistro.persona.*",
+                            "seccionesCursosMasivos.*",
+                            "seccionesCursosMasivos.seccion.*",
+                            "seccionesCursosMasivos.userRegistro.*",
+                            "seccionesCursosMasivos.userRegistro.persona.*",
+                            "seccionesCursosMasivos.usuarioExclusion.*",
+                            "seccionesCursosMasivos.usuarioExclusion.persona.*"
+                        }));
             }
             response.setMessage("Excluido corretamente.");
             response.setSuccess(Boolean.TRUE);
@@ -296,7 +362,7 @@ public class CursoMasivosController {
         }
         return response;
     }
-    
+
     private ObjectNode createAulasJson(Aula aula) {
         ObjectNode json = JsonHelper.createJson(aula, JsonNodeFactory.instance, true, new String[]{
             "*",

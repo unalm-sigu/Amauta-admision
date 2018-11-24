@@ -94,6 +94,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         List<GrupoHoras> gruposHoras = this.allGrupoHorasBySemanaExamen(semanaExamen);
         //  List<GrupoHorasExamen> gruposHorasExamenes = new ArrayList<>();
         for (GrupoHoras gruposHora : gruposHoras) {
+
             GrupoHorasExamen grupoHorasExamen = new GrupoHorasExamen();
             grupoHorasExamen.setGrupoHoras(gruposHora);
             grupoHorasExamen.setRolExamenes(semanaExamen.getRolExamenes());
@@ -110,6 +111,10 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                 DateTime fechaInicio = new DateTime(semanaExamen.getFechaInicio());
                 DateTime fecha = fechaInicio.withDayOfWeek(fechaHoraGrupoExamen.getDia().getNumeroDia());
                 fechaHoraGrupoExamen.setFecha(fecha.toDate());
+                if (fecha.getDayOfMonth() == 29 && fecha.getMonthOfYear() == 11) { //&& diaHoraGrupo.getHora().getNumero() == 9
+                    logger.debug("Grupo Horas {}", gruposHora.getId());
+                    logger.debug("Dia Hora Grupo {}, Dia {}, Hora {}", diaHoraGrupo.getId(), diaHoraGrupo.getDia().getId(), diaHoraGrupo.getHora().getId());
+                }
 
                 if (grupoHorasExamen.getFechasHorasGruposExamen().size() < semanaExamen.getRolExamenes().getHorasExamen()) {
                     grupoHorasExamen.getFechasHorasGruposExamen().add(fechaHoraGrupoExamen);

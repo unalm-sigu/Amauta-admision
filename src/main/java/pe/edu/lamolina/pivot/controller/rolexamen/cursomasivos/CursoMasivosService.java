@@ -34,4 +34,6 @@ public interface CursoMasivosService {
 
     void excluirSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivo, DataSessionPivot ds);
 
+    CursoMasivoExamen findCursoMasivo(Long idCursoMasivo);
+
 }

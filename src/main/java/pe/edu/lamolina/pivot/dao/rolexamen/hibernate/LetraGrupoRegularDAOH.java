@@ -22,7 +22,7 @@ public class LetraGrupoRegularDAOH extends AbstractEasyDAO<LetraGrupoRegular> im
         Octavia sql = Octavia.query()
                 .from(LetraGrupoRegular.class, "lgr")
                 .join("rolExamenes re", "userRegistro ur")
-                .leftJoin("dia d", "hora h")
+              //  .leftJoin("dia d", "hora h")
                 .left("ur.persona urPer")
                 .filter("lgr.id", id);
         return find(sql);
@@ -33,7 +33,7 @@ public class LetraGrupoRegularDAOH extends AbstractEasyDAO<LetraGrupoRegular> im
         Octavia sql = Octavia.query()
                 .from(LetraGrupoRegular.class, "lgr")
                 .join("rolExamenes re", "userRegistro ur")
-                .leftJoin("dia d", "hora h")
+              //  .leftJoin("dia d", "hora h")
                 .left("ur.persona urPer")
                 .filter("re.id", rolExamenes);
         return all(sql);

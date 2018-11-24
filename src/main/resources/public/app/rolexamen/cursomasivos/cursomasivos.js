@@ -1,5 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default);
- 
+
 new Vue({
     el: '#main',
     data: {
@@ -150,6 +150,9 @@ new Vue({
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
             $vue.aulas = $vue.cursoMasivoExamen.aulasCursosMasivos;
             $vue.$refs.addAulasModal.open();
+        }
+        , cursoMasivoSecciones(item) {
+            location.href = `${this.URL}/secciones/${item.id}`;
         },
         verAulasAsignadas(item) {
             let $vue = this;

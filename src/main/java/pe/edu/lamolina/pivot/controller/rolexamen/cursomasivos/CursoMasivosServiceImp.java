@@ -95,6 +95,9 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         cursoMasivosExamen.setUserRegistro(ds.getUsuario());
         cursoMasivosExamen.setFechaRegistro(new Date());
         cursoMasivosExamen.setEstadoEnum(EstadoCursoMasivoEnum.ACT);
+        cursoMasivosExamen.setAulas(0);
+        cursoMasivosExamen.setCapacidadAulas(0);
+        cursoMasivosExamen.setAlumnos(0);
         cursoMasivoExamenDAO.save(cursoMasivosExamen);
 
         List<Seccion> secciones = seccionDAO.allByCicloAndCurso(cicloAcademico, cursoMasivosExamen.getCurso());
@@ -124,8 +127,6 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             }
         }
 
-        cursoMasivosExamen.setAulas(0);
-        cursoMasivosExamen.setCapacidadAulas(0);
         cursoMasivosExamen.setAlumnos(alus);
         cursoMasivosExamen.setSecciones(secciones.size());
         cursoMasivoExamenDAO.update(cursoMasivosExamen);
@@ -261,13 +262,22 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = false)
     public void excluirSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivo, DataSessionPivot ds) {
         SeccionCursoMasivo seccionCursoMasivoUpd = new SeccionCursoMasivo();
         seccionCursoMasivoUpd.setId(seccionCursoMasivo.getId());
+        seccionCursoMasivo.setEstadoEnum(SeccionRolExamenEstadoEnum.EXC);
         seccionCursoMasivoUpd.setUsuarioExclusion(ds.getUsuario());
         seccionCursoMasivoUpd.setFechaExclusion(ds.getFechaAccionAudit());
-        seccionCursoMasivoDAO.updateEstadoExcluido(seccionCursoMasivo);
+        seccionCursoMasivoDAO.updateEstadoExcluido(seccionCursoMasivoUpd);
+    }
+
+    @Override
+    public CursoMasivoExamen findCursoMasivo(Long idCursoMasivo) {
+        CursoMasivoExamen cursoMasivoExamen = cursoMasivoExamenDAO.find(idCursoMasivo);
+        List<SeccionCursoMasivo> seccionesCursoMasivo = seccionCursoMasivoDAO.allSeccionByCursoMasivo(cursoMasivoExamen);
+        cursoMasivoExamen.setSeccionesCursosMasivos(seccionesCursoMasivo);
+        return cursoMasivoExamen;
     }
 
 }

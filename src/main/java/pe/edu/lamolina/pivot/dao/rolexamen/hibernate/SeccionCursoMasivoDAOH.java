@@ -31,6 +31,8 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
         Octavia sql = Octavia.query()
                 .from(SeccionCursoMasivo.class, "scm")
                 .join("cursoMasivoExamen cme", "userRegistro ur")
+                .join("userRegistro ureg", "ureg.persona pureg")
+                .left("usuarioExclusion uexl", "uexl.persona puexl")
                 .filter("cme.id", cursoMasivo);
         return all(sql);
     }
@@ -39,7 +41,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
     public void updateEstadoExcluido(SeccionCursoMasivo seccionCursoMasivo) {
         seccionCursoMasivo.setEstadoEnum(SeccionRolExamenEstadoEnum.EXC);
 
-        Octavia octavia = Octavia.update(CursoMasivoExamen.class);
+        Octavia octavia = Octavia.update(SeccionCursoMasivo.class);
         octavia.set(seccionCursoMasivo, "estado");
         octavia.set(seccionCursoMasivo, "usuarioExclusion");
         octavia.set(seccionCursoMasivo, "fechaExclusion");
