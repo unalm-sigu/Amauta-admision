@@ -6,32 +6,32 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
-import pe.edu.lamolina.model.academico.AlumnoBecado;
-import pe.edu.lamolina.pivot.dao.academico.AlumnoBecadoDAO;
+import pe.edu.lamolina.model.academico.AlumnoIntercambio;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoIntercambioDAO;
 
 @Repository
-public class AlumnoBecadoDAOH extends AbstractDAO<AlumnoBecado> implements AlumnoBecadoDAO {
+public class AlumnoIntercambioDAOH extends AbstractDAO<AlumnoIntercambio> implements AlumnoIntercambioDAO {
 
-    public AlumnoBecadoDAOH() {
+    public AlumnoIntercambioDAOH() {
         super();
-        setClazz(AlumnoBecado.class);
+        setClazz(AlumnoIntercambio.class);
     }
 
     @Override
-    public AlumnoBecado findAlumnoBecado(AlumnoBecado alumnoBecado) {
+    public AlumnoIntercambio findAlumnoBecado(AlumnoIntercambio alumnoBecado) {
         Octavia sql = Octavia.query()
-                .from(AlumnoBecado.class, "ab")
-                .join("universidadDestino uni", "cicloBeca ciclo", "alumno alu", "paisDestino pd", "alu.persona per", "alu.carrera car", "car.facultad fa")
+                .from(AlumnoIntercambio.class, "ab")
+                .join("universidadDestino uni", "cicloIntercambio ciclo", "alumno alu", "paisDestino pd", "alu.persona per", "alu.carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td")
                 .filter("ab.id", alumnoBecado);
-        return (AlumnoBecado) sql.find(getCurrentSession());
+        return (AlumnoIntercambio) sql.find(getCurrentSession());
     }
 
     @Override
-    public List<AlumnoBecado> allByDynatable(DynatableFilter filter) {
+    public List<AlumnoIntercambio> allByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
-                .from(AlumnoBecado.class, "ab")
-                .join("universidadDestino uni", "cicloBeca ciclo", "alumno alu", "paisDestino pd", "alu.persona per", "alu.carrera car", "car.facultad fa")
+                .from(AlumnoIntercambio.class, "ab")
+                .join("universidadDestino uni", "cicloIntercambio ciclo", "alumno alu", "paisDestino pd", "alu.persona per", "alu.carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td")
                 .searchFields("ciclo.descripcion", "ab.monto", "ab.nombreUniversidadDestino", "ab.facultadDestino")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")

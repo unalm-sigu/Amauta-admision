@@ -1,6 +1,5 @@
-package pe.edu.lamolina.pivot.controller.academico.becado;
+package pe.edu.lamolina.pivot.controller.academico.intercambio;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import org.joda.time.DateTime;
@@ -11,24 +10,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoBecado;
+import pe.edu.lamolina.model.academico.AlumnoIntercambio;
+import pe.edu.lamolina.model.academico.BecaEstudio;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.AlumnoBecadoEstadoEnum;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.dao.academico.AlumnoBecadoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoIntercambioDAO;
+import pe.edu.lamolina.pivot.dao.academico.BecaEstudioDAO;
 
 @Service
 @Transactional(readOnly = true)
-public class AlumnoBecadoServiceImp implements AlumnoBecadoService {
+public class AlumnoIntercambioServiceImp implements AlumnoIntercambioService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    AlumnoBecadoDAO alumnoBecadoDAO;
+    AlumnoIntercambioDAO alumnoBecadoDAO;
 
     @Autowired
     AlumnoDAO alumnoDAO;
@@ -39,8 +40,11 @@ public class AlumnoBecadoServiceImp implements AlumnoBecadoService {
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
 
+    @Autowired
+    BecaEstudioDAO becaEstudioDAO;
+
     @Override
-    public List<AlumnoBecado> allAlumnoBecado(DynatableFilter filter, CicloAcademico cicloAcademico) {
+    public List<AlumnoIntercambio> allAlumnoBecado(DynatableFilter filter, CicloAcademico cicloAcademico) {
         return alumnoBecadoDAO.allByDynatable(filter);
     }
 
@@ -53,25 +57,26 @@ public class AlumnoBecadoServiceImp implements AlumnoBecadoService {
     public List<CicloAcademico> allCicloAcademico() {
         int year = new DateTime().getYear();
         int yearinit = year - 4;
-        int yearend = year + 3;
+        int yearend = year + 5;
         return cicloAcademicoDAO.allPregradoByRange(yearinit, yearend);
     }
 
     @Override
     @Transactional
-    public void save(AlumnoBecado alumnoBecado, Usuario user) {
+    public void save(AlumnoIntercambio alumnoBecado, Usuario user,CicloAcademico ciclo) {
         alumnoBecado.setUserRegistro(user);
         alumnoBecado.setFechaRegistro(new Date());
         alumnoBecado.setEstado(AlumnoBecadoEstadoEnum.ACT.name());
+        alumnoBecado.setCicloIntercambio(ciclo);
         alumnoBecadoDAO.save(alumnoBecado);
     }
 
     @Override
     @Transactional
-    public void update(AlumnoBecado alumnoBecado, Usuario user) {
-        AlumnoBecado alumnoBecadoDb = alumnoBecadoDAO.findAlumnoBecado(alumnoBecado);
+    public void update(AlumnoIntercambio alumnoBecado, Usuario user) {
+        AlumnoIntercambio alumnoBecadoDb = alumnoBecadoDAO.findAlumnoBecado(alumnoBecado);
         alumnoBecadoDb.setAlumno(alumnoBecado.getAlumno());
-        alumnoBecadoDb.setCicloBeca(alumnoBecado.getCicloBeca());
+        //alumnoBecadoDb.setCicloIntercambio(alumnoBecado.getCicloIntercambio());
         alumnoBecadoDb.setPaisDestino(alumnoBecado.getPaisDestino());
         alumnoBecadoDb.setUniversidadDestino(alumnoBecado.getUniversidadDestino());
         alumnoBecadoDb.setNombreUniversidadDestino(alumnoBecado.getNombreUniversidadDestino());
@@ -87,13 +92,22 @@ public class AlumnoBecadoServiceImp implements AlumnoBecadoService {
 
     @Override
     @Transactional
-    public void delete(AlumnoBecado alumnoBecado) {
+    public void delete(AlumnoIntercambio alumnoBecado) {
         alumnoBecadoDAO.delete(alumnoBecado);
     }
 
     @Override
-    public AlumnoBecado find(AlumnoBecado alumnoBecado) {
+    public AlumnoIntercambio find(AlumnoIntercambio alumnoBecado) {
         return alumnoBecadoDAO.findAlumnoBecado(alumnoBecado);
+    }
+
+    @Override
+    public List<BecaEstudio> allBeca(String nombre) {
+        return becaEstudioDAO.allBecaByName(this.forLike(nombre));
+    }
+
+    private String forLike(String nombre) {
+        return "%" + nombre.replaceAll(" ", "%") + "%";
     }
 
 }

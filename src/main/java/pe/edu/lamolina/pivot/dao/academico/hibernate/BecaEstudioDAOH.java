@@ -7,20 +7,21 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.BecaEstudio;
+import pe.edu.lamolina.model.general.Universidad;
 import pe.edu.lamolina.pivot.dao.academico.BecaEstudioDAO;
 
 @Repository
-public class BecaEstudioDAOH extends AbstractEasyDAO<BecaEstudio> implements BecaEstudioDAO{
-    
+public class BecaEstudioDAOH extends AbstractEasyDAO<BecaEstudio> implements BecaEstudioDAO {
+
     public BecaEstudioDAOH() {
         super();
         setClazz(BecaEstudio.class);
-    }    
+    }
 
     @Override
     public List<BecaEstudio> allDynaTable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
-                .from(BecaEstudio.class,"bec")
+                .from(BecaEstudio.class, "bec")
                 .searchFields("nombre", "institucionOtorga")
                 .orderBy("bec.id desc");
 
@@ -33,6 +34,17 @@ public class BecaEstudioDAOH extends AbstractEasyDAO<BecaEstudio> implements Bec
                 .from(BecaEstudio.class, "be")
                 .in("be.nombre", nombre).
                 orderBy("be.nombre desc");
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<BecaEstudio> allBecaByName(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(BecaEstudio.class, "bec")
+                .beginBlock()
+                .__().filter("bec.nombre", "like", nombre)
+                .endBlock()
+                .limit(15);
         return sql.all(getCurrentSession());
     }
 }
