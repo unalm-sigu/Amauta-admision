@@ -75,8 +75,12 @@ new Vue({
     },
     methods: {
         editar(id) {
-
             var vue = this;
+            $(location).attr('href', APP.url('academico/becado/alumno/' + id + '/update'));
+
+            return;
+
+            //var vue = this;
             vue.becado = {id: null, alumno: {persona: {}}, cicloBeca: {}, universidad: {}, paisDestino: {}};
 
             $.ajax({
@@ -284,6 +288,7 @@ new Vue({
                     }
                 }
             });
-        }
+        },
+
     }
 });

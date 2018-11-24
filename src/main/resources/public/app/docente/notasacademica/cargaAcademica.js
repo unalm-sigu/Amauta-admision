@@ -32,6 +32,8 @@ $(function () {
                 seccionesHtml += 'class="notas-academicas"';
             } else if (secciones[i].split("|")[4] == "VER") {
                 seccionesHtml += 'class="ver-alumnos"';
+            } else if (secciones[i].split("|")[4] == "SIN-ALU") {
+                seccionesHtml += 'class="text-warning sin-alumnos"';
             } else {
                 seccionesHtml += 'class="text-danger no-ver-alumnos"';
             }
@@ -220,6 +222,9 @@ $(function () {
         },
         noVerAlumnos: function ($this, e) {
             notify("Usted no es docente de esta clave", "error");
+        },
+        verSinAlumnos: function ($this, e) {
+            notify("No existe alumnos matriculados en esta clave", "error");
         },
         addTipoEvaluacion: function (e) {
             e.preventDefault();
@@ -432,6 +437,9 @@ $(function () {
     });
     $("body").delegate(".ver-alumnos", "click", function (e) {
         CargaAcademica.verAlumnos($(this), e);
+    });
+    $("body").delegate(".sin-alumnos", "click", function (e) {
+        CargaAcademica.verSinAlumnos($(this), e);
     });
     $("body").delegate(".new-sis-calificacion", "click", function (e) {
         CargaAcademica.verNuevoSC(e);

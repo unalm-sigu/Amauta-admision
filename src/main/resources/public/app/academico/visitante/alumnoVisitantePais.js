@@ -10,16 +10,35 @@ Vue.component("paissearh", {
     props: {
         pais: {id: null},
         nombre: {type: String, default: ''},
+        changevalue: {type: Function, default: () => {
+            }},
     },
     mounted: function () {
         let vue = this;
         let self = $(vue.$el);
-        self.select2(vue.buscarPais(vue));
+        self.select2(vue.buscarPais(vue))
+                .on('change.select2', function (e) {
+                    if (e.val == '') {
+                        var keys = Object.keys(vue.pais);
+                        for (var key in keys) {
+                            vue.pais['' + keys[key]] = null;
+                        }
+                    }
+                });
     },
     updated: function () {
         let vue = this;
         let self = $(vue.$el);
-        self.select2(vue.buscarPais(vue));
+        self.select2(vue.buscarPais(vue))
+                .on('change.select2', function (e) {
+                    if (e.val == '') {
+                        var keys = Object.keys(vue.pais);
+                        for (var key in keys) {
+                            vue.pais['' + keys[key]] = null;
+                        }
+                    }
+                    vue.changevalue(vue.pais);
+                });
     },
     methods: {
         buscarPais: function (vue) {

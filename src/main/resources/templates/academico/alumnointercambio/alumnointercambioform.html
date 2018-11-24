@@ -1,0 +1,274 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Alumno Intercambio </title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div  id="main"  v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <div class="pull-right m-t-md">
+                        <a class="btn btn-default" type="button"   th:href="@{/academico/becado/alumno}"  >Regresar</a>
+                    </div>
+                    <h2 v-text="persona.nombreCompleto!=null?persona.nombreCompleto:'Registro de Alumno Intercambio'" >Registrar Alumno Intercambio</h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <form id="formAlumnoBecado"  data-parsley-validate="true">
+
+                                <input type="hidden" name="id" value="becado.id" v-model="becado.id" />
+
+                                <div class="col-sm-8">
+
+                                    <div class="form-group">
+                                        <label>Alumno</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               name="alumno.id"
+                                               value="becado.alumno.id"
+                                               v-model="becado.alumno.id"
+                                               required="true"/>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label>Ciclo Beca</label>
+                                        <select name="cicloBeca.id"
+                                                class="form-control"
+                                                required="true">
+                                            <option></option>
+                                            <option th:each="ciclo : ${ciclos}"
+                                                    th:value="${ciclo.id}"
+                                                    th:text="${ciclo.descripcion}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    
+                                    <div class="form-group">
+                                        <label>Pais Destino</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               name="paisDestino.id"
+                                               value="becado.paisDestino.id"
+                                               v-model="becado.paisDestino.id"
+                                               required="true"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+
+                                    <div class="form-group">
+                                        <label>Universidad</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               name="universidad.id"
+                                               value="becado.universidad.id"
+                                               v-model="becado.universidad.id"
+                                               required="true"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Universidad Destino</label>
+                                        
+                                        <div class="input-group">
+
+                                            <vuelect 
+                                                required="true"
+                                                v-bind:objetogenerico="becado.universidadDestino"
+                                                data-parsley-errors-container="#erroruniversidaddestino"
+                                                nameinput="universidadDestino.id"
+                                                v-bind:postdata="{pais:becado.paisDestino.id}"
+                                                remoteurl="comun/buscar/allUniversidadXpais"
+                                                v-model="becado.universidadDestino"
+                                                ></vuelect>
+
+                                            <div class="input-group-addon">
+                                                <i class="fa fa-plus pointer" v-on:click.prevent="addUniversidad()" aria-hidden="true"></i>
+                                            </div>
+                                        </div>
+
+                                        <span id="erroruniversidaddestino"></span>
+
+                                    </div>
+                                </div>
+
+
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Facultad Destino</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               maxlength="200"
+                                               name="facultadDestino"
+                                               v-model="becado.facultadDestino"
+                                               required="true"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Beca</label>
+
+
+                                        <vuelect 
+                                            required="true"
+                                            v-bind:objetogenerico="becado.beca"
+                                            nameinput="beca.id"
+                                            remoteurl="academico/becado/alumno/allBeca"
+                                            v-model="becado.universidadDestino"
+                                            ></vuelect>
+
+
+
+                                    </div>
+                                </div>
+
+
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Monto Beca</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               name="monto"
+                                               maxlength="10"
+                                               step="0.01"
+                                               v-model="becado.monto"
+                                               required="true"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="line line-dashed b-b line-lg pull-in"></div>
+
+                                <div class="col-md-12 text-center">
+
+                                    <button type="button" 
+                                            class="btn btn-success" 
+                                            v-bind:disabled="isprocess"
+                                            v-on:click.prevent="createAlumnoBecado">
+
+                                        <i v-if="isprocess" class="fa fa-spinner fa-spin fa-lg"></i>
+
+                                        {{actualizar==true?'Actualizar':'Guardar'}}
+
+                                    </button>
+                                </div>
+
+                            </form>
+
+
+                        </section>
+                    </section>
+                </section>
+
+                <modal-vik ref="nuevaUniversidadExtranjera"
+                           v-bind="dataNuevaUniversidadExtranjera"
+                           v-bind:okaction="saveNuevaUniversidadExtranjera" >
+
+                    <div slot="body" vclass="panel">
+
+                        <div class="text-center">
+                            <h4>Registrar Universidad en {{becado.paisDestino.nombre}}</h4>
+                        </div>
+
+                        <div class="panel-body">
+
+                            <form id='formNuevaUniversidadExtranjera' class="form-horizontal" data-parsley-validate="true">
+
+                                <input type="hidden" name="pais.id" v-bind:value="becado.paisDestino.id" />
+
+                                <div class="form-group">
+                                    <label>Nombre</label>
+                                    <input type="text"
+                                           class="form-control input-sm"
+                                           name="nombre"
+                                           v-model="nuevauniversidad.nombre"
+                                           v-bind:value="nuevauniversidad.nombre"
+                                           required="true"/>
+                                </div>
+                                <div class="form-group">
+                                    <label>Código</label>
+                                    <input type="text"
+                                           class="form-control input-sm"
+                                           name="codigo"
+                                           v-model="nuevauniversidad.codigo"
+                                           v-bind:value="nuevauniversidad.codigo"
+                                           required="true"/>
+                                </div>
+                                <div class="form-group">
+                                    <label>Acrónimo</label>
+                                    <input type="text"
+                                           class="form-control input-sm"
+                                           name="siglas"
+                                           v-model="nuevauniversidad.siglas"
+                                           v-bind:value="nuevauniversidad.siglas"
+                                           required="true"/>
+                                </div>
+                                <div class="form-group">
+                                    <label>Gestion</label>
+                                    <select name="gestion"
+                                            v-bind:valor="nuevauniversidad.gestion"
+                                            class="form-control" 
+                                            required="true">
+                                        <option></option>
+
+                                        <option th:each="item : ${gestiones}"
+                                                th:value="${item.name()}"
+                                                th:text="${item.value}"></option>
+
+                                    </select>               
+                                </div>
+                            </form>
+
+                        </div>
+
+
+                    </div>
+                </modal-vik>
+
+            </div>
+
+            <div id="divBuscarAlumno" type="text/x-jsrender" class="hide" >
+                <span class="block bold">{{:nombre}}</span>
+                <span class="block">{{:carrera}}
+                    {{if codigoCarrera != codigoFacultad}}
+                    <span>Facultad de {{:facultad}}</span> 
+                    {{/if}}
+                </span>
+                <small class="block">{{:codigo}} </small>
+                {{if nroDocumento != undefined}}
+                <small class="block">{{:tipoDoc}} {{:nroDocumento}} </small>
+                {{/if}}
+            </div>
+
+            <div th:substituteby="_modules/vue-modal"/>
+
+        </div>
+
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var idalumno = /*[[${alumno.id}]]*/ '';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_layout/includes :: vue-loader"/>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/phobos/modules/vuelect2.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/alumnointercambio/alumnointercambioform.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

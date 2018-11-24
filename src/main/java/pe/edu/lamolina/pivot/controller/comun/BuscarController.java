@@ -313,6 +313,36 @@ public class BuscarController {
     }
 
     @ResponseBody
+    @RequestMapping("allUniversidadXpais")
+    public JsonResponse allUniversidadXpais(@RequestParam("nombre") String nombre,@RequestParam("pais") Long pais, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Universidad> universidades = buscarService.allUniversidadByNamePais(nombre,pais);
+            for (Universidad universidad : universidades) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", universidad.getId());
+                json.put("nombre", universidad.getNombre());
+                json.put("codigo", universidad.getSiglas() == null ? "" : universidad.getSiglas());
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("allSituacionAcademica")
     public JsonResponse allSituacionAcademica(HttpSession session) {
 
