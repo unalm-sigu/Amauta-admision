@@ -5,6 +5,17 @@
         <form id="formMensajeria" data-parsley-validate="true" method="post">
             <div class="row">
                 <div class="col-sm-6">
+                    <label>Modo de Obligatoriedad por fecha</label>
+                    <div class="form-group">
+                        <label class="switch">
+                            <input type="checkbox"  v-model="mensajeria.porFecha"/>
+                            <span></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
                     <label>Grupo alumno</label>
                     <div class="form-group">
                         <multiselect                                                   
@@ -19,7 +30,7 @@
                             v-bind:clear-on-select="false"
                             track-by="id">
                         </multiselect>
-                    <input class="hide" v-model='mensajeria.grupoAlumno' required="true"/>
+                        <input class="hide" v-model='mensajeria.grupoAlumno' required="true"/>
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -69,6 +80,34 @@
                     </div>
                 </div>
             </div>
+            <div class="row" v-if="mensajeria.porFecha">
+                <div class="col-sm-6">
+                    <label>Fecha inicio obligatoriedad</label>
+                    <div class="form-group">
+                        <div class="input-group date">
+                            <date-picker v-model="mensajeria.fechaInicioObligatoriedad" required="true" 
+                                         v-bind:config="configDate" v-bind:wrap="true">
+                            </date-picker>  
+                            <div class="input-group-addon">
+                                <span class="fa fa-calendar"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Fecha fin obligatoriedad</label>
+                    <div class="form-group">
+                        <div class="input-group date">
+                            <date-picker v-model="mensajeria.fechaFinObligatoriedad" required="true" 
+                                         v-bind:config="configDate" v-bind:wrap="true">
+                            </date-picker>  
+                            <div class="input-group-addon">
+                                <span class="fa fa-calendar"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-sm-6">
                     <label>Prioridad</label>
@@ -76,7 +115,7 @@
                         <input type="text" class="form-control numeric" required="true" v-model="mensajeria.prioridad"/>
                     </div>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6" v-if="!mensajeria.porFecha">
                     <label>Veces Visible</label>
                     <div class="form-group">
                         <input type="text" class="form-control numeric" required="true" v-model="mensajeria.vecesVisible"/>
@@ -84,7 +123,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-6">
+                <div class="col-sm-6" v-if="!mensajeria.porFecha">
                     <label>Veces antes de ser Obligatorio</label>
                     <div class="form-group">
                         <input type="text" class="form-control numeric" v-on:keyup="onChangePreObli" required="true" v-model="mensajeria.preObligatorio"/>

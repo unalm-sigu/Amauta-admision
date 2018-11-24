@@ -5,7 +5,7 @@ new Vue({
     el: '#mensajeriaVUE',
     data: {
         mensajeriaURL: APP.url('mensajeria/list'),
-        mensajeria: {},
+        mensajeria: {porFecha: false},
         gruposAlumno: JSON.parse(gruposAlumnoJson),
         tiposMensaje: JSON.parse(tiposMensajeJson),
         cicloAcademico: JSON.parse(cicloJson),
@@ -111,7 +111,6 @@ new Vue({
                         method: 'POST',
                         url: APP.url('mensajeria/eliminar'),
                         data: JSON.stringify(item),
-                        contentType: "application/json",
                         success: function (response) {
                             if (response.success) {
                                 $vue.$refs.load.loadRemoteData();
@@ -146,6 +145,9 @@ new Vue({
             if (!e.target.checked) {
                 $vue.mensajeria.preObligatorio = 0;
             }
+        },
+        chkbIsFecha() {
+
         }
     }
 });
