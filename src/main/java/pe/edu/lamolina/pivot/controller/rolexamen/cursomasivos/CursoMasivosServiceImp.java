@@ -264,12 +264,22 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Override
     @Transactional(readOnly = false)
     public void excluirSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivo, DataSessionPivot ds) {
+        seccionCursoMasivo = seccionCursoMasivoDAO.find(seccionCursoMasivo.getId());
+
         SeccionCursoMasivo seccionCursoMasivoUpd = new SeccionCursoMasivo();
         seccionCursoMasivoUpd.setId(seccionCursoMasivo.getId());
-        seccionCursoMasivo.setEstadoEnum(SeccionRolExamenEstadoEnum.EXC);
         seccionCursoMasivoUpd.setUsuarioExclusion(ds.getUsuario());
         seccionCursoMasivoUpd.setFechaExclusion(ds.getFechaAccionAudit());
         seccionCursoMasivoDAO.updateEstadoExcluido(seccionCursoMasivoUpd);
+
+        SeccionExcluido seccionExcluido = new SeccionExcluido();
+        seccionExcluido.setEstadoEnum(EstadoEnum.ACT);
+        seccionExcluido.setFechaRegistro(ds.getFechaAccionAudit());
+        seccionExcluido.setRolExamenes(seccionCursoMasivo.getCursoMasivoExamen().getRolExamenes());
+        seccionExcluido.setSeccion(seccionCursoMasivo.getSeccion());
+        seccionExcluido.setUserRegistro(ds.getUsuario());
+        seccionExcluidoDAO.save(seccionExcluido);
+
     }
 
     @Override

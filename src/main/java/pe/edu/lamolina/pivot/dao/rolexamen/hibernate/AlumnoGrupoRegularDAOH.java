@@ -102,7 +102,8 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
     @Override
     public void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
         StringBuilder strb = new StringBuilder();
-        strb.append(" delete from  AlumnoGrupoRegular agr where agr.letraGrupoRegular.id=:LETRA_ID");
+        strb.append(" delete from  AlumnoGrupoRegular agr where agr.seccionGrupoRegular.id in ");
+        strb.append(" (Select ssgr.id from SeccionGrupoRegular ssgr where  ssgr.letraGrupoRegular.id=:LETRA_ID) ");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("LETRA_ID", letraGrupoRegular.getId());

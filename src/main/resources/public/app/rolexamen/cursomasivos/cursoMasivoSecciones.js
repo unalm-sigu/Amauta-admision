@@ -24,8 +24,7 @@ new Vue({
                         AXIOS.post(`${vue.URL}/${tipoAccion}/excluir`, item)
                                 .then(response => {
                                     if (response.data.success) {
-                                        console.dir(response.data.data);
-                                        vue.cursoMasivoExamen = response.data.data;
+                                        vue.findCursoMasivoExamen();
                                     }
                                     MODAL.hideWait();
                                 });
@@ -33,16 +32,11 @@ new Vue({
                 }
             });
         }, findCursoMasivoExamen() {
-            MODAL.showWait("Espere un momento por favor");
-            let cursoMasivo = {
-                id: this.rolExamen
-            };
-            AXIOS.post(`${this.URL}/findCursoMasivo`, cursoMasivo)
+            AXIOS.post(`${this.URL}/findCursoMasivo`, this.cursoMasivoExamen)
                     .then(response => {
                         if (response.data.success) {
                             this.cursoMasivoExamen = response.data.data;
                         }
-                        MODAL.hideWait();
                     });
         }
     }

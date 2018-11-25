@@ -150,6 +150,14 @@ new Vue({
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
             $vue.aulas = $vue.cursoMasivoExamen.aulasCursosMasivos;
             $vue.$refs.addAulasModal.open();
+        },
+        verAsignarHorario(item) {
+            let $vue = this;
+            $vue.modulo = {};
+            $vue.aulasModulo = [];
+            $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
+            $vue.aulas = $vue.cursoMasivoExamen.aulasCursosMasivos;
+            $vue.$refs.addAulasModal.open();
         }
         , cursoMasivoSecciones(item) {
             location.href = `${this.URL}/secciones/${item.id}`;

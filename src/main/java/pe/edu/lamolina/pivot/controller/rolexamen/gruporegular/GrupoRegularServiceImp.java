@@ -52,9 +52,9 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class GrupoRegularServiceImp implements GrupoRegularService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     RolExamenesDAO rolExamenesDAO;
     /*
@@ -66,63 +66,69 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
      */
     @Autowired
     SeccionDAO seccionDAO;
-    
+
     @Autowired
     GrupoHorasDAO grupoHorasDAO;
-    
+
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
-    
+
     @Autowired
     AlumnoGrupoRegularDAO alumnoGrupoRegularDAO;
-    
+
     @Autowired
     LetraGrupoRegularDAO letraGrupoRegularDAO;
-    
+
     @Autowired
     GrupoRegularExamenDAO grupoRegularExamenDAO;
-    
+
     @Autowired
     SeccionGrupoRegularDAO seccionGrupoRegularDAO;
-    
+
     @Autowired
     GrupoRegularConnector grupoRegularConnector;
-    
+
     @Autowired
     DiaHoraGrupoDAO diaHoraGrupoDAO;
-    
+
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
-    
+
     @Autowired
     GrupoHorasExamenDAO grupoHorasExamenDAO;
-    
+
     @Autowired
     FechaHoraGrupoExamenDAO fechaHoraGrupoExamenDAO;
-    
+
     @Autowired
     SeccionExcluidoDAO seccionExcluidoDAO;
-    
+
     @Override
     public List<RolExamenes> allRolExamenesActives(CicloAcademico cicloAcademico) {
         return rolExamenesDAO.allActiveByCiclo(cicloAcademico);
     }
-    
+
     @Override
     @Transactional(readOnly = false)
     public void calcularExamenesGrupoRegular(RolExamenes rolExamenes, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         //    List<CursoMasivoExamen> allCursoMasivoExamenByGrupoRegular = cursoMasivoExamenDAO.allActiveByRolExamen(grupoRegularExamen.getRolExamen());
         //  List<SeccionCursoMasivo> allSeccionesCursoMasivosActives = seccionCursoMasivoDAO.allActiveByCursosMasivos(allCursoMasivoExamenByGrupoRegular);
         DateTime today = new DateTime(ds.getFechaAccionAudit());
-        
+
         this.deleteGrupoRegular(rolExamenes);
+
+        List<SeccionExcluido> seccionesExcluidasByRolExamen = seccionExcluidoDAO.allByRolExamenes(rolExamenes);
+
         List<LetraGrupoRegular> letrasGruposRegularesOnBD = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
         logger.debug("letras grupos regulares en bd {}", letrasGruposRegularesOnBD.size());
-        
+
         List<Seccion> seccionesEspecialesRecolected = new ArrayList<>();
-        
+
         logger.debug("Crear grupos regulares");
         List<Seccion> secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.REGULAR); //grupo horas regulares
+        for (SeccionExcluido seccionExcluido : seccionesExcluidasByRolExamen) {
+            secciones.removeIf(x -> x.equals(seccionExcluido.getSeccion()));
+        }
         Map<String, List<Seccion>> grupoHorasLetrasRegularesMap = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
         List<String> letras = new ArrayList<>(grupoHorasLetrasRegularesMap.keySet());
         logger.debug("Letras Grupos Regulares {}", String.join(",", letras));
@@ -130,13 +136,16 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         //creamos las letras regulares
         List<GrupoHorasExamen> gruposHorasExamen = this.allGrupoHorasExamenByRol(rolExamenes);
         List<LetraGrupoRegular> letrasGruposRegulares = this.convertLetraToLetraGpo(letras, rolExamenes, gruposHorasExamen, today, ds.getUsuario());
-        
+
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
             grupoRegularConnector.crearLetraGrupoRegularByLetra(letraGrupoRegular, grupoHorasLetrasRegularesMap, seccionesEspecialesRecolected, today, ds.getUsuario());
         }
-        
+
         logger.debug("Grupos Especiales");
         secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.ESPECIAL);
+        for (SeccionExcluido seccionExcluido : seccionesExcluidasByRolExamen) {
+            secciones.removeIf(x -> x.equals(seccionExcluido.getSeccion()));
+        }
         Map<String, List<Seccion>> grupoHorasLetrasEspecialesMap = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
         //hacemos encajar los grupos especiales en las letras regulares 
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
@@ -148,7 +157,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         for (LetraGrupoRegular letraGruposRegular : letrasGruposRegulares) {
             letras.removeIf(x -> x.equals(letraGruposRegular.getLetra()));
         }
-        
+
         logger.debug("Letras Grupos Especiales {}", String.join(",", letras));
         for (String letra : letras) {
             this.calcularGruposEspeciales(letra, grupoHorasLetrasEspecialesMap,
@@ -158,30 +167,30 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         for (Seccion seccionEach : seccionesEspecialesRecolected) {
             logger.debug("seccionEach {}", seccionEach.getId());
         }
-        
+
         logger.debug("letras grupos regulares a guardar {}", letrasGruposRegulares.size());
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
             logger.debug("guardara la letra {}", letraGrupoRegular.getLetra());
             letraGrupoRegularDAO.save(letraGrupoRegular);
         }
-        
+
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
         rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_REG);
         rolExamenesDAO.updateSituacion(rolExamenesUpd);
     }
-    
+
     public void calcularGruposEspeciales(String letraEspeciales,
             Map<String, List<Seccion>> grupoHorasLetrasEspecialesMap,
             List<LetraGrupoRegular> letrasGruposRegulares,
             List<Seccion> seccionesEspecialesRecolected,
             Usuario usuario,
             DateTime today) {
-        
+
         List<Seccion> seccionesByLetra = grupoHorasLetrasEspecialesMap.get(letraEspeciales);
         List<HorarioSeccion> horarios = horarioSeccionDAO.allBySeccionesSortByDiaHora(seccionesByLetra);
         Map horariosBySeccion = TypesUtil.convertListToMapList("seccion.id", horarios);
-        
+
         for (Seccion seccion : seccionesByLetra) {
             seccion.setHorarioSeccion((List<HorarioSeccion>) horariosBySeccion.get(seccion.getId()));
             boolean found = false;
@@ -201,9 +210,9 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
                 seccionesEspecialesRecolected.add(seccion);
             }
         }
-        
+
     }
-    
+
     public List<GrupoHorasExamen> allGrupoHorasExamenByRol(
             RolExamenes rolExamenes) {
         List<GrupoHorasExamen> gruposHorasExamen = grupoHorasExamenDAO.allByRolExamenes(rolExamenes);
@@ -214,7 +223,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         }
         return gruposHorasExamen;
     }
-    
+
     public List<LetraGrupoRegular> convertLetraToLetraGpo(List<String> letras,
             RolExamenes rolExamenes,
             List<GrupoHorasExamen> gruposHorasExamenes,
@@ -231,71 +240,71 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         });
         return letrasGruposRegulares;
     }
-    
+
     @Transactional(readOnly = false)
     public void deleteGrupoRegular(RolExamenes rolExamenes) {
         List<LetraGrupoRegular> letrasGruposRegular = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
         logger.debug("Letras Grupos Regulares a eliminar {}", letrasGruposRegular.size());
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegular) {
-            seccionGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
             alumnoGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
+            seccionGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
             grupoRegularExamenDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
             letraGrupoRegularDAO.delete(letraGrupoRegular);
         }
     }
-    
+
     @Override
     public List<LetraGrupoRegular> listGruposRegulares(RolExamenes rolExamenes) {
         rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
         List<LetraGrupoRegular> letrasGruposRegulares = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
-        
+
         Map<Long, Integer> countGruposRegulares = grupoRegularExamenDAO.countByLetrasGruposRegulares(letrasGruposRegulares, GrupoHorasRolExamenEstadoEnum.ACT);
         Map<Long, Integer> countSeccionesGruposRegulares = seccionGrupoRegularDAO.countByLetrasGruposRegulares(letrasGruposRegulares, SeccionRolExamenEstadoEnum.ACT);
         Map<Long, Integer> countAlumnosGruposRegulares = alumnoGrupoRegularDAO.countByLetrasGruposRegulares(letrasGruposRegulares, AlumnoRolExamenEstadoEnum.ACT);
-        
+
         for (LetraGrupoRegular letraGruposRegular : letrasGruposRegulares) {
             letraGruposRegular.setGruposRegularesActivosCount(countGruposRegulares.get(letraGruposRegular.getId()));
             letraGruposRegular.setSeccionesRegularesActivosCount(countSeccionesGruposRegulares.get(letraGruposRegular.getId()));
             letraGruposRegular.setAlumnosRegularesActivosCount(countAlumnosGruposRegulares.get(letraGruposRegular.getId()));
         }
-        
+
         return letrasGruposRegulares;
     }
-    
+
     @Override
     public List<GrupoRegularExamen> allGruposRegularExamenByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
         List<GrupoRegularExamen> grupos = grupoRegularExamenDAO.
                 allByLetraGrupoRegularAndEstados(letraGrupoRegular, Arrays.asList(GrupoHorasRolExamenEstadoEnum.ACT, GrupoHorasRolExamenEstadoEnum.EXC));
         return grupos;
     }
-    
+
     @Override
     public List<SeccionGrupoRegular> allSeccionesGrupoRegularExamenByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
         List<SeccionGrupoRegular> secciones = seccionGrupoRegularDAO.
                 allByLetraGrupoRegularAndEstados(letraGrupoRegular, Arrays.asList(SeccionRolExamenEstadoEnum.ACT, SeccionRolExamenEstadoEnum.EXC));
         return secciones;
     }
-    
+
     @Override
     public List<AlumnoGrupoRegular> allAlumnosGrupoRegularByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
         List<AlumnoGrupoRegular> alumnos = alumnoGrupoRegularDAO.
                 allByLetraGrupoRegularAndEstados(letraGrupoRegular, Arrays.asList(AlumnoRolExamenEstadoEnum.ACT, AlumnoRolExamenEstadoEnum.EXC));
         return alumnos;
     }
-    
+
     public void crearLetraGrupoRegular(
             List<Seccion> seccionesEspeciales,
             List<LetraGrupoRegular> letrasGruposRegulares,
             Map<String, List<Seccion>> grupoHorasLetraMap,
             DateTime today,
             Usuario usuario) {
-        
+
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
             //  grupoRegularConnector.crearLetraGrupoRegularByLetra(seccionesEspeciales, letraGrupoRegular, grupoHorasLetraMap, today, usuario);
         }
-        
+
     }
-    
+
     @Override
     @Transactional(readOnly = false)
     public void excluirGrupoRegular(GrupoRegularExamen grupoRegularExamen, DataSessionPivot ds) {
@@ -304,7 +313,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         grupoRegularExamen.setFechaExclusion(new Date());
         grupoRegularExamen.setEstadoEnum(GrupoHorasRolExamenEstadoEnum.EXC);
         grupoRegularExamenDAO.updateEstado(grupoRegularExamen);
-        
+
         List<Seccion> secciones = seccionDAO.allByCicloAndGrupoHoras(ds.getCicloAcademico(), grupoRegularExamen.getGrupoHoras());
         List<SeccionGrupoRegular> seccionesGruposRegulares
                 = seccionGrupoRegularDAO.allByLetraGrupoRegularAndSecciones(grupoRegularExamen.getLetraGrupoRegular(), secciones);
@@ -312,12 +321,12 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
             this.excluirGrupoRegular(seccionGrupoRegular, ds);
         }
     }
-    
+
     @Override
     @Transactional(readOnly = false)
     public void excluirGrupoRegular(SeccionGrupoRegular seccionGrupoRegular, DataSessionPivot ds) {
         seccionGrupoRegular = seccionGrupoRegularDAO.find(seccionGrupoRegular.getId());
-        
+
         DateTime today = new DateTime();
         SeccionGrupoRegular seccionGrupoRegularUpd = new SeccionGrupoRegular();
         seccionGrupoRegularUpd.setId(seccionGrupoRegular.getId());
@@ -325,7 +334,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         seccionGrupoRegularUpd.setFechaExclusion(ds.getFechaAccionAudit());
         seccionGrupoRegularUpd.setEstadoEnum(SeccionRolExamenEstadoEnum.EXC);
         seccionGrupoRegularDAO.updateEstado(seccionGrupoRegularUpd);
-        
+
         SeccionExcluido seccionExcluido = new SeccionExcluido();
         seccionExcluido.setEstadoEnum(EstadoEnum.ACT);
         seccionExcluido.setFechaRegistro(ds.getFechaAccionAudit());
@@ -333,12 +342,12 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         seccionExcluido.setSeccion(seccionGrupoRegular.getSeccion());
         seccionExcluido.setUserRegistro(ds.getUsuario());
         seccionExcluidoDAO.save(seccionExcluido);
-        
+
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccionGrupoRegular.getSeccion());
         List<Alumno> alumnos = matriculasSeccion.stream().map(x -> x.getMatriculaResumen().getAlumno()).collect(Collectors.toList());
         alumnoGrupoRegularDAO.updateEstado(alumnos, AlumnoRolExamenEstadoEnum.EXC, ds.getUsuario(), ds.getFechaAccionAudit());
     }
-    
+
     @Override
     @Transactional(readOnly = false)
     public void excluirGrupoRegular(AlumnoGrupoRegular alumnoGrupoRegular, DataSessionPivot ds) {
@@ -347,5 +356,5 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         alumnoGrupoRegular.setEstadoEnum(AlumnoRolExamenEstadoEnum.EXC);
         alumnoGrupoRegularDAO.updateEstado(alumnoGrupoRegular);
     }
-    
+
 }
