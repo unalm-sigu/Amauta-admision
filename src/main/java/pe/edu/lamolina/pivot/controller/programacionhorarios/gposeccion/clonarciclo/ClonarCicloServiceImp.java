@@ -514,8 +514,8 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
     public void limpiarCiclo(CicloAcademico ciclo) {
         CicloAcademico cicloDB = cicloAcademicoDAO.find(ciclo);
 
-        Assert.isNull(cicloDB.getFechaCierreClonacion(), "El ciclo ya no permite limpiar la clonación");
-        Assert.isNotNull(cicloDB.getFechaClonacion(), "El ciclo aun no ha sido clonado");
+//        Assert.isNull(cicloDB.getFechaCierreClonacion(), "El ciclo ya no permite limpiar la clonación");
+//        Assert.isNotNull(cicloDB.getFechaClonacion(), "El ciclo aun no ha sido clonado");
         cicloDB.setFechaClonacion(null);
         cicloDB.setFechaCierreOrden(null);
         cicloDB.setFechaOrdenHorarios(null);
@@ -530,8 +530,8 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         seccionDAO.deleteAllNotSuperiorByCiclo(ciclo);
         seccionDAO.deleteAllByCiclo(ciclo);
         grupoSeccionDAO.deleteAllByCiclo(ciclo);
-//        precioCursoEstructuraDAO.deleteAllByCiclo(ciclo);
-//        cursoCicloAcademicoDAO.deleteAllByCiclo(ciclo);
+        precioCursoEstructuraDAO.deleteAllByCiclo(ciclo);
+        cursoCicloAcademicoDAO.deleteAllByCiclo(ciclo);
 
     }
 
