@@ -192,3 +192,117 @@
         </div>
     </div>
 </modal-vik>
+
+
+<modal-vik ref="modalHorarios"
+           id="modalHorarios"
+           header="true"
+           title="Horarios"
+           modalsize="modal-lg"
+           v-bind:okaction="saveHorarioExamen">
+    <div slot="body">
+        <form id="frmHorarios">
+            <section class="panel-body">
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-md-2">Curso Masivo</label>
+
+                        <div class="col-md-4"
+                             v-if="cursoMasivoExamen.curso">
+                            <span class=" text-primary bold h5 m-b-xs m-t-xs"
+                                  v-text="cursoMasivoExamen.curso.nombre"
+                                  v-if="cursoMasivoExamen"></span>
+                            <span class="">
+                                {{cursoMasivoExamen.curso.codigo}}&nbsp;
+                                <i class="fa fa-bookmark text-primary"></i>
+                                {{cursoMasivoExamen.curso.tpc}}
+                            </span>
+                        </div>
+                        <div class="col-md-2">
+                            Rol Examenes
+                        </div>
+                        <span class="col-md-4" 
+                              v-text="rolExamenes.nombre"
+                              v-if="rolExamenes">
+
+                        </span>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <header class="page-header m-t-xs m-b-xs" style="border-bottom: 1px solid white;">
+                        <div class="tabbable-line" style="margin-top: 8px;">	
+                            <ul class="nav nav-tabs">
+                                <li v-for="semExamen in semanasExamen">
+                                    <a v-bind:href="'#'+semExamen.numeroSemana" 
+                                       v-bind:id="'semana'+semExamen.numeroSemana"
+                                       data-toggle="tab"
+                                       v-text="`Semana ${semExamen.numeroSemana}`"
+                                       v-bind:class="{active : semExamen.selected}"
+                                       v-bind:aria-expanded="semExamen.selected"
+                                       v-on:click="seleccionarSemana(semExamen)"
+                                       >xxx</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </header>
+                    <div class="tab-content">
+                        <div class="tab-pane"
+                             v-bind:id="semExamen.numeroSemana"
+                             v-bind:class="{active : semExamen.selected}"
+                             v-for="semExamen in semanasExamen">
+                            <section class="panel-body">
+                                <div class="table-responsive">
+
+                                    <table  class="table table-bordered m-b-xs">
+
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 12.5%" class="text-center">Hora</th>
+                                                <th style="width: 12.5%" class="text-center" 
+                                                    v-for="dia in semExamen.tblHorarioSeamanaExamen.dias" v-text="dia.nombre" >
+                                                </th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody >
+                                            <tr v-for="hora in semExamen.tblHorarioSeamanaExamen.horas">
+                                                <td style="width: 12.5%" class="v-middle">
+                                                    <span 
+                                                        class="form-control"
+                                                        th:style="'border-color:#fff;'">
+                                                        {{hora.descripcion}}
+                                                    </span>
+
+                                                </td>
+                                                <td v-for="dia in semExamen.tblHorarioSeamanaExamen.dias" style="width: 12.5%">
+                                                    <!-- v-bind:class="getClassGpoHorario(tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])" -->
+                                                    <!--   v-on:click="selectFechaHoraGrupo(dia,hora,semExamen)" -->
+                                                    <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id]" 
+                                                          v-on:click="seleccionarGrupoHorasExamen(dia,hora,semExamen)"
+                                                          class="form-control pointer"
+                                                          v-bind:style="fechaGrupoHoraItem(semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id])"
+                                                          >
+                                                        {{semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].grupoHorasExamen.grupoHoras.codigo}}
+                                                    </span>
+                                                    <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id]==null" 
+                                                          class="form-control"
+                                                          >
+
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                            </section>
+                        </div>
+                    </div>
+                </div>   
+            </section>
+        </form>
+    </div>
+</modal-vik>
+

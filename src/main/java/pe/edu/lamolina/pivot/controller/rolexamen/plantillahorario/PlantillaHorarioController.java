@@ -178,9 +178,10 @@ public class PlantillaHorarioController {
                         });
                 jSemanaExamen.set("tblHorarioSeamanaExamen", jTblSeamanaExamen);
                 jSemanaExamen.put("selected", Boolean.FALSE);
+                /*
                 if (semanaExamen.getNumeroSemana() == BigDecimal.ONE.intValue()) {
                     jSemanaExamen.put("selected", Boolean.TRUE);
-                }
+                }*/
                 jSeamanasExamen.add(jSemanaExamen);
             }
             response.setData(jSeamanasExamen);
@@ -226,7 +227,6 @@ public class PlantillaHorarioController {
                         "grupoHorasExamen.*",
                         "grupoHorasExamen.grupoHoras.codigo", "grupoHorasExamen.grupoHoras.id",
                         "grupoHorasExamen.grupoHoras.tipoGrupoHoras.*"});
-            //   jsonFechaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
             jFechasHorasGrupos.putPOJO(fechaHoraGrupoExamen.getIdDiaHora(), jsonFechaHoraGrupoEach);
         }
         data.set("fechasHorasGrupos", jFechasHorasGrupos);

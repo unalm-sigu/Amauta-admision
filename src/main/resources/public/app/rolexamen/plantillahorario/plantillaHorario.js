@@ -9,7 +9,7 @@ new Vue({
         },
         paginationGpo: {'total-items': 0, 'items-per-page': 30, 'max-size': 3, 'boundary-link-numbers': true},
         semanasExamen: [],
-        semanaExamenActiva: null, //to delete
+        semanaExamenActiva: null,
         grupoActivo: null,
     },
     mounted() {
