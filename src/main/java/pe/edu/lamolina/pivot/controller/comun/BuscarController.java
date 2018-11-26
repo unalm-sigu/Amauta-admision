@@ -314,23 +314,25 @@ public class BuscarController {
 
     @ResponseBody
     @RequestMapping("allUniversidadXpais")
-    public JsonResponse allUniversidadXpais(@RequestParam("nombre") String nombre,@RequestParam("pais") Long pais, HttpSession session) {
+    public JsonResponse allUniversidadXpais(@RequestParam("nombre") String nombre, @RequestParam("pais") Long pais, HttpSession session) {
 
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
 
         try {
-            ArrayNode jsonList = new ArrayNode(jsonFactory);
-            List<Universidad> universidades = buscarService.allUniversidadByNamePais(nombre,pais);
+
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ArrayNode jsonList = new ArrayNode(jFactory);
+            List<Universidad> universidades = buscarService.allUniversidadByNamePais(nombre, pais);
+
             for (Universidad universidad : universidades) {
-                ObjectNode json = new ObjectNode(jsonFactory);
-
-                json.put("id", universidad.getId());
-                json.put("nombre", universidad.getNombre());
-                json.put("codigo", universidad.getSiglas() == null ? "" : universidad.getSiglas());
-
-                jsonList.add(json);
+                ObjectNode jUniversidad = JsonHelper.createJson(universidad, jFactory, true, new String[]{
+                    "id",
+                    "codigo",
+                    "nombre",
+                    "pais.*",});
+                jsonList.add(jUniversidad);
             }
+            
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);
@@ -662,7 +664,7 @@ public class BuscarController {
             for (CicloAcademico ciclo : ciclos) {
                 ObjectNode node = JsonHelper.createJson(ciclo, jFactory, true,
                         new String[]{
-                            "id", "descripcion", "codigo", "descripcion2","tipo"
+                            "id", "descripcion", "codigo", "descripcion2", "tipo"
                         });
                 jsonList.add(node);
             }

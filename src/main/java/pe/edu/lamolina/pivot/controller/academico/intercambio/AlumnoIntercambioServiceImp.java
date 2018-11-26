@@ -29,7 +29,7 @@ public class AlumnoIntercambioServiceImp implements AlumnoIntercambioService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    AlumnoIntercambioDAO alumnoBecadoDAO;
+    AlumnoIntercambioDAO alumnoIntercambioDAO;
 
     @Autowired
     AlumnoDAO alumnoDAO;
@@ -45,7 +45,7 @@ public class AlumnoIntercambioServiceImp implements AlumnoIntercambioService {
 
     @Override
     public List<AlumnoIntercambio> allAlumnoBecado(DynatableFilter filter, CicloAcademico cicloAcademico) {
-        return alumnoBecadoDAO.allByDynatable(filter);
+        return alumnoIntercambioDAO.allByDynatable(filter);
     }
 
     @Override
@@ -63,26 +63,25 @@ public class AlumnoIntercambioServiceImp implements AlumnoIntercambioService {
 
     @Override
     @Transactional
-    public void save(AlumnoIntercambio alumnoBecado, Usuario user,CicloAcademico ciclo) {
+    public void save(AlumnoIntercambio alumnoBecado, Usuario user) {
         alumnoBecado.setUserRegistro(user);
         alumnoBecado.setFechaRegistro(new Date());
         alumnoBecado.setEstado(AlumnoBecadoEstadoEnum.ACT.name());
-        alumnoBecado.setCicloIntercambio(ciclo);
-        alumnoBecadoDAO.save(alumnoBecado);
+        alumnoIntercambioDAO.save(alumnoBecado);
     }
 
     @Override
     @Transactional
-    public void update(AlumnoIntercambio alumnoBecado, Usuario user) {
-        AlumnoIntercambio alumnoBecadoDb = alumnoBecadoDAO.findAlumnoBecado(alumnoBecado);
-        alumnoBecadoDb.setAlumno(alumnoBecado.getAlumno());
-        //alumnoBecadoDb.setCicloIntercambio(alumnoBecado.getCicloIntercambio());
-        alumnoBecadoDb.setPaisDestino(alumnoBecado.getPaisDestino());
-        alumnoBecadoDb.setUniversidadDestino(alumnoBecado.getUniversidadDestino());
-        alumnoBecadoDb.setNombreUniversidadDestino(alumnoBecado.getNombreUniversidadDestino());
-        alumnoBecadoDb.setFacultadDestino(alumnoBecado.getFacultadDestino());
-        alumnoBecadoDb.setMonto(alumnoBecado.getMonto());
-        alumnoBecadoDAO.update(alumnoBecadoDb);
+    public void update(AlumnoIntercambio alumnoIntercambio) {
+        AlumnoIntercambio alumnoBecadoDb = alumnoIntercambioDAO.find(alumnoIntercambio);
+        alumnoBecadoDb.setAlumno(alumnoIntercambio.getAlumno());
+        alumnoBecadoDb.setCicloIntercambio(alumnoIntercambio.getCicloIntercambio());
+        alumnoBecadoDb.setPaisDestino(alumnoIntercambio.getPaisDestino());
+        alumnoBecadoDb.setUniversidadDestino(alumnoIntercambio.getUniversidadDestino());
+        alumnoBecadoDb.setFacultadDestino(alumnoIntercambio.getFacultadDestino());
+        alumnoBecadoDb.setMonto(alumnoIntercambio.getMonto());
+        alumnoBecadoDb.setBecaEstudio(alumnoIntercambio.getBecaEstudio());
+        alumnoIntercambioDAO.update(alumnoBecadoDb);
     }
 
     @Override
@@ -93,12 +92,12 @@ public class AlumnoIntercambioServiceImp implements AlumnoIntercambioService {
     @Override
     @Transactional
     public void delete(AlumnoIntercambio alumnoBecado) {
-        alumnoBecadoDAO.delete(alumnoBecado);
+        alumnoIntercambioDAO.delete(alumnoBecado);
     }
 
     @Override
     public AlumnoIntercambio find(AlumnoIntercambio alumnoBecado) {
-        return alumnoBecadoDAO.findAlumnoBecado(alumnoBecado);
+        return alumnoIntercambioDAO.find(alumnoBecado);
     }
 
     @Override

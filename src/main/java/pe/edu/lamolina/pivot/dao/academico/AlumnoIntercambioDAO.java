@@ -7,7 +7,7 @@ import pe.edu.lamolina.model.academico.AlumnoIntercambio;
 
 public interface AlumnoIntercambioDAO extends Crud<AlumnoIntercambio> {
 
-    public AlumnoIntercambio findAlumnoBecado(AlumnoIntercambio alumnoBecado);
+    public AlumnoIntercambio find(AlumnoIntercambio alumnoBecado);
 
     public List<AlumnoIntercambio> allByDynatable(DynatableFilter filter);
 
