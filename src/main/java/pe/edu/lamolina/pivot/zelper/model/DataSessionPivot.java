@@ -1,9 +1,11 @@
 package pe.edu.lamolina.pivot.zelper.model;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.joda.time.DateTime;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -61,6 +63,8 @@ public class DataSessionPivot implements Serializable {
     private String direccionIp;
 
     private String sistemaOperativo;
+
+    private Date fechaAccionAudit;
 
     public List<Colaborador> getColaborador() {
         return colaborador;
@@ -234,6 +238,14 @@ public class DataSessionPivot implements Serializable {
 
     public void setOficinaMain(Oficina oficinaMain) {
         this.oficinaMain = oficinaMain;
+    }
+
+    public Date getFechaAccionAudit() {
+        return fechaAccionAudit;
+    }
+
+    public void setFechaAccionAudit(Date fechaAccionAudit) {
+        this.fechaAccionAudit = fechaAccionAudit;
     }
 
 }

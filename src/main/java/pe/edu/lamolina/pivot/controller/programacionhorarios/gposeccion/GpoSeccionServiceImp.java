@@ -237,7 +237,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
             PrecioCursoEstructura precioCurso = precioCursoEstructuraDAO.findByTpcCiclo(tpc, ciclo);
 
-            curso.setPrecio(cursoCiclo.getPrecio());
+            curso.setPrecio(cursoCiclo.getPrecio().add(cursoCiclo.getPrecioAdicional()));
             curso.setPrecioTpc(precioCurso.getPrecio());
         }
 
@@ -1005,8 +1005,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         return aulas;
     }
-
-    
 
     @Override
     @Transactional
