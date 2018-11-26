@@ -983,6 +983,8 @@ public class PromedioServiceImp implements PromedioService {
             alumnoCicloCurso.setRegistroActivo(BigDecimal.ONE.intValue());
             alumnoCicloCurso.setUserModificacion(usuario);
             alumnoCicloCurso.setUsuarioRegistro(usuario);
+            alumnoCicloCurso.setVecesCursado(alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(curso, alumno, cicloAcademico).intValue() + 1);
+            alumnoCicloCurso.setVecesCursadoRegular(alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCicloReg(curso, alumno, cicloAcademico).intValue() + 1);
             alumnoCicloCursoDAO.save(alumnoCicloCurso);
             alumnoCicloCurso.getId();
         } else {
