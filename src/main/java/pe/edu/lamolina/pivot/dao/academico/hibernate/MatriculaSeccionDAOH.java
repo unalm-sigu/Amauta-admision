@@ -11,7 +11,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
@@ -32,6 +31,19 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
                 .leftJoin("per.tipoDocumento tdoc")
                 .filter("ms.estado", EstadoMatriculaEnum.MAT)
+                .filter("sec.id", seccion)
+                .orderBy("per.paterno", "per.materno", "per.nombres");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<MatriculaSeccion> allBySeccion(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
+                .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
+                .leftJoin("per.tipoDocumento tdoc")
                 .filter("sec.id", seccion)
                 .orderBy("per.paterno", "per.materno", "per.nombres");
 

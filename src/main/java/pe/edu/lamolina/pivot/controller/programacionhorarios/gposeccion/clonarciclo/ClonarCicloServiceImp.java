@@ -530,8 +530,8 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         seccionDAO.deleteAllNotSuperiorByCiclo(ciclo);
         seccionDAO.deleteAllByCiclo(ciclo);
         grupoSeccionDAO.deleteAllByCiclo(ciclo);
-//        precioCursoEstructuraDAO.deleteAllByCiclo(ciclo);
-//        cursoCicloAcademicoDAO.deleteAllByCiclo(ciclo);
+        precioCursoEstructuraDAO.deleteAllByCiclo(ciclo);
+        cursoCicloAcademicoDAO.deleteAllByCiclo(ciclo);
 
     }
 

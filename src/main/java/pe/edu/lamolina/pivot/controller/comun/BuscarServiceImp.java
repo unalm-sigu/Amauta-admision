@@ -117,7 +117,6 @@ public class BuscarServiceImp implements BuscarService {
     public List<Empresa> allEmpresaByName(Pais pais, String nombre) {
         return empresaDAO.allEmpresaByName(pais, this.forLike(nombre));
     }
-   
 
     @Override
     public List<SituacionAcademica> allSituaciones() {
@@ -177,6 +176,11 @@ public class BuscarServiceImp implements BuscarService {
     public List<CicloAcademico> allCicloByDescripcionDescendent(String nombre) {
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         return cicloAcademicoDAO.allCicloByNameDescendent(nombre, modalidad);
+    }
+
+    @Override
+    public List<Universidad> allUniversidadByNamePais(String nombre, Long pais) {
+        return universidadDAO.allUniversidadByNamePais(this.forLike(nombre), new Pais(pais));
     }
 
 }

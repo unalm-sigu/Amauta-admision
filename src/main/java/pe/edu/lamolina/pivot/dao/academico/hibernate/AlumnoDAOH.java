@@ -17,9 +17,12 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
@@ -526,9 +529,9 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allByNameSinMatriculaResumen(String nombre, CicloAcademico cicloAcademico) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia subQuery = new Octavia()
-                .from(MatriculaResumen.class,"mr")
+                .from(MatriculaResumen.class, "mr")
                 .join("alumno alum");
-                
+
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa")

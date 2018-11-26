@@ -10,6 +10,7 @@ Vue.component("universidadsearch", {
     props: {
         universidad: {id: null},
         nombre: {type: String, default: ''},
+        pais: {type: Object, default: {id:null}},
     },
     mounted: function () {
         let vue = this;
@@ -26,11 +27,11 @@ Vue.component("universidadsearch", {
             return {
                 minimumInputLength: 2,
                 ajax: {
-                    url: APP.url("comun/buscar/allUniversidad"),
+                    url: APP.url("comun/buscar/allUniversidadXpais"),
                     dataType: 'json',
                     type: 'post',
                     data: function (term, page) {
-                        return {nombre: term, page: page};
+                        return {nombre: term, page: page,pais:vue.pais.id};
                     },
                     results: function (response, page) {
                         return {results: response.data};

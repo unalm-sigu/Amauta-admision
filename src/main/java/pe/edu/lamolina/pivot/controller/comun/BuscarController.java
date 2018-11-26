@@ -313,6 +313,38 @@ public class BuscarController {
     }
 
     @ResponseBody
+    @RequestMapping("allUniversidadXpais")
+    public JsonResponse allUniversidadXpais(@RequestParam("nombre") String nombre, @RequestParam("pais") Long pais, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ArrayNode jsonList = new ArrayNode(jFactory);
+            List<Universidad> universidades = buscarService.allUniversidadByNamePais(nombre, pais);
+
+            for (Universidad universidad : universidades) {
+                ObjectNode jUniversidad = JsonHelper.createJson(universidad, jFactory, true, new String[]{
+                    "id",
+                    "codigo",
+                    "nombre",
+                    "pais.*",});
+                jsonList.add(jUniversidad);
+            }
+            
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("allSituacionAcademica")
     public JsonResponse allSituacionAcademica(HttpSession session) {
 
@@ -632,7 +664,7 @@ public class BuscarController {
             for (CicloAcademico ciclo : ciclos) {
                 ObjectNode node = JsonHelper.createJson(ciclo, jFactory, true,
                         new String[]{
-                            "id", "descripcion", "codigo", "descripcion2","tipo"
+                            "id", "descripcion", "codigo", "descripcion2", "tipo"
                         });
                 jsonList.add(node);
             }

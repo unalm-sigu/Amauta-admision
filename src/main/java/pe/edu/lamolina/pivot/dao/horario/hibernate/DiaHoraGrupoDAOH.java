@@ -115,6 +115,16 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
         return all(sql);
     }
 
+    public void adad(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .select("pc.id", "count(cc)")
+                .from(DiaHoraGrupo.class, "dhg")
+                .join("grupoHorario gh", "cicloAcademico ca", "dia d", "hora h")
+                .filter("ca.id", cicloAcademico)
+                .groupBy("gh.id", "d.id");
+
+    }
+
 //    @Override
 //    public List<DiaHoraGrupo> allByGrupo(GrupoHoras grupo, CicloAcademico ciclo) {
 //        Octavia sql = Octavia.query()
