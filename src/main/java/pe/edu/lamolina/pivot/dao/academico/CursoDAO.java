@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 
 public interface CursoDAO extends EasyDAO<Curso> {
 
@@ -47,4 +48,6 @@ public interface CursoDAO extends EasyDAO<Curso> {
     List<Curso> allNoEncuestar();
 
     List<Curso> searchLikeNombre(String nombre, Integer limit);
+
+    List<Curso> allForExamenByCiclo(String nombre, RolExamenes rolExamenes, CicloAcademico cicloAcademico);
 }

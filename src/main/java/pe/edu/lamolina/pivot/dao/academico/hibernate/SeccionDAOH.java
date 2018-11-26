@@ -14,10 +14,15 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
+import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 
@@ -440,6 +445,56 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
 
         return all(sql);
 
+    }
+
+    @Override
+    public List<Seccion> allForRolExamenAndTipoGrupoHora(CicloAcademico ciclo, TipoGrupoHorasEnum tipoGrupoHorasEnum) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("sec")
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec")
+                .join("mr.cicloAcademico ca", "sec.grupoSeccion gs")
+                .join("gs.curso cur", "cur.modalidadEstudio mest")
+                .join("sec.grupoHoras gh", "gh.tipoGrupoHoras tgh")
+                .filter("ca.id", ciclo)
+                .filter("mest.codigo", ModalidadEstudioEnum.PRE)
+                .filter("tgh.tipo", tipoGrupoHorasEnum)
+                .filter("sec.tipoSeccion", "!=", TipoSeccionEnum.PCUR)
+                .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.MAT))
+                .orderBy("gh.codigo");
+        return all(sql);
+    }
+
+    @Override
+    public List<Seccion> allByCicloAndCurso(CicloAcademico ciclo, Curso curso) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("sec")
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec")
+                .join("mr.cicloAcademico ca", "sec.grupoSeccion gs", "gs.curso cur")
+                .join("sec.grupoHoras gh", "gh.tipoGrupoHoras tgh", "sec.aula aul")
+                .filter("ca.id", ciclo)
+                .filter("sec.tipoSeccion", "!=", TipoSeccionEnum.PCUR)
+                .filter("cur.id", curso)
+                .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.MAT))
+                .orderBy("gh.codigo");
+        return all(sql);
+    }
+
+    @Override
+    public List<Seccion> allByCicloAndGrupoHoras(CicloAcademico ciclo, GrupoHoras grupoHoras) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("sec")
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec")
+                .join("mr.cicloAcademico ca", "sec.grupoSeccion gs")
+                .join("sec.grupoHoras gh", "gh.tipoGrupoHoras tgh")
+                .filter("ca.id", ciclo)
+                .filter("gh.id", grupoHoras)
+                .filter("sec.tipoSeccion", "!=", TipoSeccionEnum.PCUR)
+                //.in("ms.estado", Arrays.asList(EstadoMatriculaEnum.MAT))
+                .orderBy("gh.codigo");
+        return all(sql);
     }
 
     @Override

@@ -32,3 +32,47 @@ Vue.component("format-date", {
 
     }
 });
+
+Vue.component("v-estado", {
+    template: `<span class="label" v-bind:class="getEstadoClass(codigo)" v-text="valor"></span>`,
+    props: {
+        codigo: {
+            required: true
+        },
+        valor: {
+            required: true
+        }
+    },
+    data: function () {
+        return {
+            colorEstado: {CRE: "default", ACT: "success", EXC: "danger", ANU: "danger", INA: "danger", BLO: "warning", FUS: "warning"}
+        }
+    },
+    methods: {
+        getEstadoClass(estadoCode) {
+            return "label-" + this.colorEstado[estadoCode];
+        }
+    }
+});
+
+Vue.component("estado", {
+    template: `<span class="label" v-bind:class="getEstadoClass(codigo)" v-text="valor"></span>`,
+    props: {
+        codigo: {
+            required: true
+        },
+        valor: {
+            required: true
+        }
+    },
+    data: function () {
+        return {
+            colorEstado: {CRE: "default", ACT: "success", EXC: "danger", ANU: "danger", INA: "danger", BLO: "warning", FUS: "warning"}
+        }
+    },
+    methods: {
+        getEstadoClass(estadoCode) {
+            return "label-" + this.colorEstado[estadoCode];
+        }
+    }
+});

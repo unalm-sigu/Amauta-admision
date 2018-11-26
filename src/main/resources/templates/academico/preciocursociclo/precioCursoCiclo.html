@@ -68,9 +68,8 @@
                                                     {{item.cantidadGpoSecc}}
                                                 </td>
                                                 <td class="v-middle text-center">
-                                                    <!--<i class="fa fa-check-circle-o text-success fa-2x"></i>-->
-                                                    <!--<i class="fa fa-times-circle-o text-danger fa-2x"></i>-->
-                                                    <i v-if="item.precioPersonalizado!=0 " class="fa fa-check text-success"></i>
+                                                    <i v-if="item.precioPersonalizado!=0 " class="fa fa-check-square-o fa-lg text-success"></i>
+                                                    <i v-else-if="item.precioAdicional>0" class="fa fa-check-square-o fa-lg text-success"></i>
                                                     <i v-if="item.precioPersonalizado=='' "></i>
                                                 </td>
                                                 <td class="v-middle text-center"> 
@@ -81,7 +80,7 @@
                                                 <td class="v-middle text-center">
                                                     <input v-if="verTabla" type="text"
                                                            class="form-control" v-model="item.precioAdicional"/>
-                                                    <span v-else="" v-text="'S/.'+ item.precioAdicionalFormato"></span>
+                                                    <span v-else-if="item.precioAdicional>0" v-text="'S/.'+ item.precioAdicionalFormato"></span>
                                                 </td>
                                                 <td class="v-middle text-center">
                                                     <input v-if="verTabla" type="text"
