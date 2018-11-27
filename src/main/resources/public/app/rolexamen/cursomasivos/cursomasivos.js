@@ -340,14 +340,21 @@ new Vue({
         },
         verAsignarHorario(item) {
             let $vue = this;
-            $vue.grupoActivo = null;
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
+            $vue.grupoActivo = $vue.cursoMasivoExamen.grupoHorasExamen;
             this.listarHorarioSemanal();
             $vue.$refs.modalHorarios.open();
         }, saveHorarioExamen() {
             let $vue = this;
-            console.dir($vue.cursoMasivoExamen);
-            console.dir($vue.grupoActivo);
+            //   $vue.grupoActivo.semanaExamen = this.semanaExamenActiva;
+            $vue.cursoMasivoExamen.grupoHorasExamen = {id: $vue.grupoActivo.id};
+            AXIOS.post(`${this.URL}/saveHorarioExamen`, $vue.cursoMasivoExamen)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.loadCursosMasivosByRoleExamen();
+                        }
+                        // MODAL.hideWait();
+                    });
             $vue.$refs.modalHorarios.close();
         }, listarHorarioSemanal() {
             AXIOS.post(`${APP.url('rolexamen/plantillahorario')}/listarHorarioSemanal`, this.rolExamenes)

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Dia;
@@ -82,15 +83,16 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     public void calcularPlantillaHorario(RolExamenes rolExamenes) {
         this.deletePlantillaHorario(rolExamenes);
         List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
+        List<Hora> horas = horaDAO.all();
+
         for (SemanaExamen semana : semanas) {
             logger.debug("######################################################");
             logger.debug("CALCULAR PLANTILLA HORARIO DE LA SEMANA " + semana.getNumeroSemana());
-            this.calcularPlantillaHorario(semana);
+            this.calcularPlantillaHorario(semana, horas);
         }
     }
 
-    @Override
-    public void calcularPlantillaHorario(SemanaExamen semanaExamen) {
+    public void calcularPlantillaHorario(SemanaExamen semanaExamen, List<Hora> horas) {
         List<GrupoHoras> gruposHoras = this.allGrupoHorasBySemanaExamen(semanaExamen);
         //  List<GrupoHorasExamen> gruposHorasExamenes = new ArrayList<>();
         for (GrupoHoras gruposHora : gruposHoras) {
@@ -111,12 +113,16 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                 DateTime fechaInicio = new DateTime(semanaExamen.getFechaInicio());
                 DateTime fecha = fechaInicio.withDayOfWeek(fechaHoraGrupoExamen.getDia().getNumeroDia());
                 fechaHoraGrupoExamen.setFecha(fecha.toDate());
-                if (fecha.getDayOfMonth() == 29 && fecha.getMonthOfYear() == 11) { //&& diaHoraGrupo.getHora().getNumero() == 9
-                    logger.debug("Grupo Horas {}", gruposHora.getId());
-                    logger.debug("Dia Hora Grupo {}, Dia {}, Hora {}", diaHoraGrupo.getId(), diaHoraGrupo.getDia().getId(), diaHoraGrupo.getHora().getId());
+
+                if (grupoHorasExamen.getFecha() == null) {
+                    grupoHorasExamen.setFecha(fecha.toDate());
+                    grupoHorasExamen.setDia(fechaHoraGrupoExamen.getDia());
+                    grupoHorasExamen.setHoraInicio(fechaHoraGrupoExamen.getHora());
                 }
 
                 if (grupoHorasExamen.getFechasHorasGruposExamen().size() < semanaExamen.getRolExamenes().getHorasExamen()) {
+                    Hora horaFinalVisual = horas.stream().filter(x -> x.getNumero().compareTo(fechaHoraGrupoExamen.getHora().getNumero() + 1) == 0).findFirst().orElse(null);
+                    grupoHorasExamen.setHoraFin(horaFinalVisual);
                     grupoHorasExamen.getFechasHorasGruposExamen().add(fechaHoraGrupoExamen);
                 }
             }
@@ -142,6 +148,38 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         DateTime fecha = fechaInicio.withDayOfWeek(fechaHoraGrupoExamen.getDia().getNumeroDia());
         fechaHoraGrupoExamen.setFecha(fecha.toDate());
         fechaHoraGrupoExamenDAO.save(fechaHoraGrupoExamen);
+
+        this.actualizarFechaGrupoHorasExamen(fechaHoraGrupoExamen.getGrupoHorasExamen());
+
+    }
+
+    public void actualizarFechaGrupoHorasExamen(GrupoHorasExamen grupoHorasExamen) {
+        List<FechaHoraGrupoExamen> fechasHorasGrupos = fechaHoraGrupoExamenDAO.allByGrupoHorasExamenOrderByDiaHora(grupoHorasExamen);
+
+        if (fechasHorasGrupos.isEmpty()) {
+            GrupoHorasExamen grupoHorasExamenUpd = new GrupoHorasExamen();
+            grupoHorasExamenUpd.setId(grupoHorasExamen.getId());
+            grupoHorasExamenUpd.setFecha(null);
+            grupoHorasExamenUpd.setDia(null);
+            grupoHorasExamenUpd.setHoraInicio(null);
+            grupoHorasExamenUpd.setHoraFin(null);
+            grupoHorasExamenDAO.updateFechaExamen(grupoHorasExamenUpd);
+        } else {
+            DateTime fechaInicio = new DateTime(fechasHorasGrupos.get(0).getSemanaExamen().getFechaInicio());
+            DateTime fecha = fechaInicio.withDayOfWeek(fechasHorasGrupos.get(0).getDia().getNumeroDia());
+
+            GrupoHorasExamen grupoHorasExamenUpd = new GrupoHorasExamen();
+            grupoHorasExamenUpd.setId(grupoHorasExamen.getId());
+            grupoHorasExamenUpd.setFecha(fecha.toDate());
+            grupoHorasExamenUpd.setDia(fechasHorasGrupos.get(0).getDia());
+            grupoHorasExamenUpd.setHoraInicio(fechasHorasGrupos.get(0).getHora());
+            grupoHorasExamenUpd.setHoraFin(fechasHorasGrupos.get(fechasHorasGrupos.size() - 1).getHora());
+
+            Hora horaVisual = horaDAO.findByNumeroHora(grupoHorasExamenUpd.getHoraFin().getNumero() + 1);
+            grupoHorasExamenUpd.setHoraFin(horaVisual);
+
+            grupoHorasExamenDAO.updateFechaExamen(grupoHorasExamenUpd);
+        }
     }
 
     public void deletePlantillaHorario(RolExamenes rolExamenes) {
@@ -263,7 +301,11 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     @Override
     @Transactional(readOnly = false)
     public void deleteFechaHoraGrupoExamen(FechaHoraGrupoExamen fechaHoraGrupoExamen) {
+        GrupoHorasExamen grupoHorasExamen = fechaHoraGrupoExamen.getGrupoHorasExamen();
         fechaHoraGrupoExamen = fechaHoraGrupoExamenDAO.find(fechaHoraGrupoExamen.getId());
         fechaHoraGrupoExamenDAO.delete(fechaHoraGrupoExamen);
+
+        this.actualizarFechaGrupoHorasExamen(grupoHorasExamen);
+
     }
 }

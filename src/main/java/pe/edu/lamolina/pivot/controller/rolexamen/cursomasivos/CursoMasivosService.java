@@ -36,4 +36,6 @@ public interface CursoMasivosService {
 
     CursoMasivoExamen findCursoMasivo(Long idCursoMasivo);
 
+    void saveHorarioExamen(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds);
+
 }

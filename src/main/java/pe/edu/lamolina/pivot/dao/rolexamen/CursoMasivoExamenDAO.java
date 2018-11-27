@@ -21,4 +21,6 @@ public interface CursoMasivoExamenDAO extends EasyDAO<CursoMasivoExamen> {
     CursoMasivoExamen find(Long id);
 
     void updateEstadoExcluido(CursoMasivoExamen cursoMasivoExamen);
+
+    void updateFechaExamen(CursoMasivoExamen cursoMasivoExamen);
 }

@@ -177,7 +177,11 @@ public class CursoMasivosController {
                             "*",
                             "curso.*",
                             "aulasCursosMasivos.aula.*",
-                            "seccionesCursosMasivos.seccion.*"
+                            "seccionesCursosMasivos.seccion.*",
+                            "grupoHorasExamen.*",
+                            "grupoHorasExamen.dia.*",
+                            "grupoHorasExamen.horaInicio.*",
+                            "grupoHorasExamen.horaFin.*"
                         });
 
                 jCursoMasivosByRolExamen.add(cursoMasivo);
@@ -331,10 +335,13 @@ public class CursoMasivosController {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
             if (CursoMasivosController.TipoAccion.CURSO.name().equals(tipoAccion)) {
-                CursoMasivoExamen cursoMasivoExamen = (CursoMasivoExamen) mapper.readValue(objeto.toString(), CursoMasivoExamen.class);
+                CursoMasivoExamen cursoMasivoExamen = (CursoMasivoExamen) mapper.readValue(objeto.toString(), CursoMasivoExamen.class
+                );
                 service.excluirCursoMasivo(cursoMasivoExamen, ds);
+
             } else if (CursoMasivosController.TipoAccion.SECCION.name().equals(tipoAccion)) {
-                SeccionCursoMasivo seccionCursoMasivo = (SeccionCursoMasivo) mapper.readValue(objeto.toString(), SeccionCursoMasivo.class);
+                SeccionCursoMasivo seccionCursoMasivo = (SeccionCursoMasivo) mapper.readValue(objeto.toString(), SeccionCursoMasivo.class
+                );
                 service.excluirSeccionCursoMasivo(seccionCursoMasivo, ds);
                 CursoMasivoExamen cursoMasivoExamen = service.findCursoMasivo(seccionCursoMasivo.getCursoMasivoExamen().getId());
 
@@ -354,6 +361,27 @@ public class CursoMasivosController {
                         }));
             }
             response.setMessage("Excluido corretamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "saveHorarioExamen", method = RequestMethod.POST)
+    public JsonResponse saveHorarioExamen(
+            @RequestBody CursoMasivoExamen cursoMasivoExamen,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        try {
+            logger.debug("saveHorarioExamen");
+            service.saveHorarioExamen(cursoMasivoExamen, ds);
+            response.setMessage("Horario guardado correctamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

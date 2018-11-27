@@ -34,28 +34,28 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("rolexamen/gruporegular")
 public class GrupoRegularController {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     GrupoRegularService grupoRegularService;
-
+    
     private enum TipoAccion {
         LETRA,
         SECCION,
         GRUPO,
         ALUMNO
     }
-
+    
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-
+        
         List<RolExamenes> rolesExamenes = grupoRegularService.allRolExamenesActives(ds.getCicloAcademico());
-
+        
         JsonNodeFactory jc = JsonNodeFactory.instance;
-
+        
         ArrayNode jRolesExamenes = new ArrayNode(jc);
         rolesExamenes.forEach(x -> {
             jRolesExamenes.add(JsonHelper.createJson(x, jc, false,
@@ -67,13 +67,14 @@ public class GrupoRegularController {
         model.addAttribute("jRolesExamenes", jRolesExamenes.toString());
         return "rolexamen/gruporegular/grupoRegular";
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "calcularGruposRegulares", method = RequestMethod.POST)
     public JsonResponse calcularGruposRegulares(@RequestBody RolExamenes rolExamenes,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
         try {
             grupoRegularService.calcularExamenesGrupoRegular(rolExamenes, ds.getCicloAcademico(), ds);
             response.setMessage("Grupos regulares calculados corretamente.");
@@ -85,7 +86,7 @@ public class GrupoRegularController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "listGruposRegulares", method = RequestMethod.POST)
     public JsonResponse listGruposRegulares(@RequestBody RolExamenes rolExamenes,
@@ -94,7 +95,7 @@ public class GrupoRegularController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             List<LetraGrupoRegular> letrasGruposRegulares = grupoRegularService.listGruposRegulares(rolExamenes);
-
+            
             JsonNodeFactory jc = JsonNodeFactory.instance;
             ArrayNode jLetrasGruposRegulares = new ArrayNode(jc);
             for (LetraGrupoRegular letrasGruposRegulare : letrasGruposRegulares) {
@@ -114,7 +115,7 @@ public class GrupoRegularController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "{tipoAccion}/loadLetraGrupoRegularInfo", method = RequestMethod.POST)
     public JsonResponse loadLetraGrupoRegularInfo(
@@ -168,7 +169,7 @@ public class GrupoRegularController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "{tipoAccion}/excluir", method = RequestMethod.POST)
     public JsonResponse excluir(
@@ -181,7 +182,7 @@ public class GrupoRegularController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
+            
             if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
                 GrupoRegularExamen grupoRegularExamen = (GrupoRegularExamen) mapper.readValue(objeto.toString(), GrupoRegularExamen.class);
                 grupoRegularService.excluirGrupoRegular(grupoRegularExamen, ds);
@@ -192,7 +193,7 @@ public class GrupoRegularController {
                 AlumnoGrupoRegular alumnoRegularExamen = (AlumnoGrupoRegular) mapper.readValue(objeto.toString(), AlumnoGrupoRegular.class);
                 grupoRegularService.excluirGrupoRegular(alumnoRegularExamen, ds);
             }
-
+            
             response.setMessage("Excluido corretamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -202,5 +203,5 @@ public class GrupoRegularController {
         }
         return response;
     }
-
+    
 }

@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout"> 
-    <head>
-        <title> Cursos Masivos </title> 
+    <head> 
+        <title> Cursos Masivos </title>  
     </head>
     <body>
         <section layout:fragment="main">
@@ -105,7 +105,16 @@
                                                 {{item.curso.tpc}}</span>
                                         </td>
                                         <td class="v-middle text-center"> 
-                                            {{ item.fechaExamen }}
+                                            <div v-if="item.grupoHorasExamen.fecha">
+                                                {{item.grupoHorasExamen.fecha }}
+                                                <small class="block">Hora Inicio: {{item.grupoHorasExamen.horaInicio.descripcion}}</small>
+                                                <small class="block">Hora Fin: {{item.grupoHorasExamen.horaFin.descripcion}}</small>
+                                            </div>
+                                            <div v-else="" >
+                                                <label class="alert alert-info">
+                                                    Sin Asignar Horario
+                                                </label>
+                                            </div>
                                         </td>
                                         <td class="v-middle text-center"> 
                                             <span class="badge pointer"
