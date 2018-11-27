@@ -1051,6 +1051,11 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.ACT);
                 gpoSeccBD.setCursoDirigido(gpoSecc.getCursoDirigido());
                 gpoSeccBD.setAnexoBoletin(anexo);
+                if (gpoSeccBD.getEstadoGrupoEnum() == EstadoGrupoSeccionEnum.CER && gpoSeccBD.getUsuarioCierraActa() == null) {
+                    gpoSeccBD.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
+                    gpoSeccBD.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
+                    gpoSeccBD.setFechaCierreActa(null);
+                }
                 grupoSeccionDAO.update(gpoSeccBD);
 
                 visor.agregarLog("gpoSecc", "saveGpoSecc", "Gpo-Seccion " + gpoSeccBD.getCodigo() + " ya existe, se actualizo", true, "info");
@@ -1581,6 +1586,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSecc.setEstadoEnum(SeccionEstadoEnum.INA);
                 gpoSecc.setEstadoPlanEnum(EstadoPlanCalificaEnum.CER);
                 gpoSecc.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
+                gpoSecc.setFechaCierreActa(new Date());
                 gpoSecc.setVersion("0");
                 grupoSeccionDAO.update(gpoSecc);
                 visor.agregarLog("gpoSeccBD", "revisarGpoSecc", "GpoSeccion " + gpoSecc.getCodigo() + " queda Inactiva", true, "info");

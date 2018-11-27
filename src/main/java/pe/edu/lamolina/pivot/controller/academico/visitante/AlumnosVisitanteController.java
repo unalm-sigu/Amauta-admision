@@ -36,6 +36,7 @@ import pe.edu.lamolina.model.academico.AlumnoVisitante;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.TipoGestionEnum;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
@@ -154,6 +155,7 @@ public class AlumnosVisitanteController {
         model.addAttribute("alumnoVisitante", new AlumnoVisitante());
         model.addAttribute("tiposDocIdentidad", tiposDocIdentidad);
         model.addAttribute("ciclos", ciclos);
+        model.addAttribute("gestiones", TipoGestionEnum.values());
         return "academico/visitante/alumnovisitanteform";
 
     }
@@ -167,6 +169,7 @@ public class AlumnosVisitanteController {
         model.addAttribute("alumnoVisitante", new AlumnoVisitante(idAlumnoVisitante));
         model.addAttribute("tiposDocIdentidad", tiposDocIdentidad);
         model.addAttribute("ciclos", ciclos);
+        model.addAttribute("gestiones", TipoGestionEnum.values());
         return "academico/visitante/alumnovisitanteform";
 
     }
@@ -221,7 +224,7 @@ public class AlumnosVisitanteController {
             if (alumnoVisitante.getId() == null) {
                 service.save(alumnoVisitante, ds);
                 response.setMessage("Alumno Visitante guardado satisfactoriamente");
-            } 
+            }
             /*else {
                 service.update(alumnoVisitante, ds);
                 response.setMessage("Alumno Visitante actualizado satisfactoriamente");
@@ -262,6 +265,28 @@ public class AlumnosVisitanteController {
             alumnoVisitanteForm.setPersona(persona);
             ObjectNode jPersona = service.validarAlumno(alumnoVisitanteForm);
             response.setData(jPersona);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveuniversidad")
+    public JsonResponse saveUniversidad(Universidad universidad, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            service.saveUniversidad(universidad,ds);
+            ObjectNode jUniversidad = JsonHelper.createJson(universidad, jFactory, true, new String[]{
+                "*",});
+            response.setData(jUniversidad);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

@@ -171,7 +171,7 @@ public class NotaAcademicaController {
                     } else {
                         secciones += " | |";
                     }
-                    secciones += (seccion.getVerInformacion() ? "VER" : "NO-VER") + ",";
+                    secciones += (seccion.getVerInformacion() ? (seccion.getMatriculados() > 0 ? "VER" : "SIN-ALU") : "NO-VER") + ",";
                 }
                 node.put("secciones", secciones.substring(0, secciones.length() - 1));
 
