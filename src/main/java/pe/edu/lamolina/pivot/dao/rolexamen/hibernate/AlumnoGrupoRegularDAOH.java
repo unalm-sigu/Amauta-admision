@@ -34,7 +34,7 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
     public List<AlumnoGrupoRegular> allByLetraGrupoAndEstado(LetraGrupoRegular letraGrupoRegular, AlumnoRolExamenEstadoEnum estadoEnum) {
         Octavia sql = Octavia.query()
                 .from(AlumnoGrupoRegular.class, "agr")
-                .join("letraGruposRegulares gs", "userRegistro cur")
+                .join("agr.seccionGrupoRegular sgr", "sgr.letraGruposRegulares gs", "userRegistro cur")
                 .filter("agr.estado", estadoEnum)
                 .filter("gs.id", letraGrupoRegular);
         return all(sql);
@@ -45,7 +45,7 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
             List<AlumnoRolExamenEstadoEnum> estados) {
         Octavia sql = Octavia.query()
                 .from(AlumnoGrupoRegular.class, "agr")
-                .join("letraGrupoRegular lgr", "userRegistro cur", "agr.alumno alu")
+                .join("agr.seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr", "userRegistro cur", "agr.alumno alu")
                 .join("alu.persona per")
                 .in("agr.estado", estados)
                 .filter("lgr.id", letrasGruposRegular);
@@ -86,7 +86,7 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
         Octavia sql = Octavia.query()
                 .select("lgr.id", "count(agr)")
                 .from(AlumnoGrupoRegular.class, "agr")
-                .join("letraGrupoRegular lgr")
+                .join("seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr")
                 .in("agr.estado", estados)
                 .in("lgr.id", letraGrupoRegulars)
                 .groupBy("lgr.id");
@@ -102,7 +102,8 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
     @Override
     public void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
         StringBuilder strb = new StringBuilder();
-        strb.append(" delete from  AlumnoGrupoRegular agr where agr.letraGrupoRegular.id=:LETRA_ID");
+        strb.append(" delete from  AlumnoGrupoRegular agr where agr.seccionGrupoRegular.id in ");
+        strb.append(" (Select ssgr.id from SeccionGrupoRegular ssgr where  ssgr.letraGrupoRegular.id=:LETRA_ID) ");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("LETRA_ID", letraGrupoRegular.getId());

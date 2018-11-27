@@ -1,5 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default);
- 
+
 new Vue({
     el: '#main',
     data: {
@@ -42,7 +42,10 @@ new Vue({
         tipoAccion: {
             CURSO: "CURSO",
             SECCION: "SECCION"
-        }
+        },
+        semanasExamen: [],
+        semanaExamenActiva: null,
+        grupoActivo: null
     },
     mounted() {
         let $vue = this;
@@ -150,6 +153,9 @@ new Vue({
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
             $vue.aulas = $vue.cursoMasivoExamen.aulasCursosMasivos;
             $vue.$refs.addAulasModal.open();
+        }
+        , cursoMasivoSecciones(item) {
+            location.href = `${this.URL}/secciones/${item.id}`;
         },
         verAulasAsignadas(item) {
             let $vue = this;
@@ -331,6 +337,61 @@ new Vue({
         viewAulas() {
             let $vue = this;
             $vue.$refs.modalAulasAsignadas.close();
+        },
+        verAsignarHorario(item) {
+            let $vue = this;
+            $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
+            $vue.grupoActivo = $vue.cursoMasivoExamen.grupoHorasExamen;
+            this.listarHorarioSemanal();
+            $vue.$refs.modalHorarios.open();
+        }, saveHorarioExamen() {
+            let $vue = this;
+            //   $vue.grupoActivo.semanaExamen = this.semanaExamenActiva;
+            $vue.cursoMasivoExamen.grupoHorasExamen = {id: $vue.grupoActivo.id};
+            AXIOS.post(`${this.URL}/saveHorarioExamen`, $vue.cursoMasivoExamen)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.loadCursosMasivosByRoleExamen();
+                        }
+                        // MODAL.hideWait();
+                    });
+            $vue.$refs.modalHorarios.close();
+        }, listarHorarioSemanal() {
+            AXIOS.post(`${APP.url('rolexamen/plantillahorario')}/listarHorarioSemanal`, this.rolExamenes)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.semanasExamen = response.data.data;
+                            if (this.semanaExamenActiva != null) {
+                                this.seleccionarSemana(this.semanaExamenActiva);
+                            } else {
+                                this.seleccionarSemana(this.semanasExamen[0]);
+                            }
+                        }
+                        // MODAL.hideWait();
+                    });
+        }, fechaGrupoHoraItem(fechaGrupoHora) {
+            if (this.grupoActivo != null && fechaGrupoHora.grupoHorasExamen.id == this.grupoActivo.id) {
+                return "border-color:#600D63; background-color:#DCDFE3;color:#000000;"
+            }
+
+            return "border-color:#DFE7EE; background-color:#FFFFFF;color:#E40DEB;"
+        }, seleccionarSemana(semana) {
+            let vue = this;
+            this.semanasExamen.forEach(function (x) {
+                if (x.id == semana.id) {
+                    x.selected = true;
+                    vue.semanaExamenActiva = x;
+                } else {
+                    x.selected = false;
+                }
+            });
+        }, seleccionarGrupoHorasExamen(dia, hora, semExamen) {
+            let fechaHoraGrupoExamen = semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id + '_' + hora.id];
+            console.log("fecha hora grupo examen seleccionado");
+            console.dir(fechaHoraGrupoExamen);
+            console.log("semana examen");
+            console.dir(semExamen);
+            this.grupoActivo = fechaHoraGrupoExamen.grupoHorasExamen;
         }
     }
 });

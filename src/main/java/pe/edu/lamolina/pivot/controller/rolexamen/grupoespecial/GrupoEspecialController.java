@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
-import pe.edu.lamolina.pivot.controller.rolexamen.gruporegular.GrupoRegularService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 

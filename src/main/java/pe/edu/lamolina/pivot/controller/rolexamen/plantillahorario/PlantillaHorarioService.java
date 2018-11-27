@@ -19,8 +19,6 @@ public interface PlantillaHorarioService {
 
     void calcularPlantillaHorario(RolExamenes rolExamenes);
 
-    void calcularPlantillaHorario(SemanaExamen semanaExamen);
-
     List<GrupoHoras> allGrupoHorasBySemanaExamen(SemanaExamen semanaExamen);
 
     List<GrupoHorasExamen> allGrupoHorasExamenByRolExamen(RolExamenes rolExamenes, DynatableFilter filter);

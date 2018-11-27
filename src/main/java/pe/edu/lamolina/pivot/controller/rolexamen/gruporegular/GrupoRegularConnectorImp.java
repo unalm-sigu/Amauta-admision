@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.gruporegular;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +58,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         }
         int i = 1;
         letraGrupoRegular.setContadorSecciones(BigDecimal.ZERO.intValue());
-        List<AlumnoGrupoRegular> alumnosGrupoRegularesByLetra = letraGrupoRegular.getAlumnosGruposRegulares();
+        //  List<AlumnoGrupoRegular> alumnosGrupoRegularesByLetra = letraGrupoRegular.getAlumnosGruposRegulares();
 
         for (Seccion seccion : seccionesByLetra) {
             boolean result = this.procesarSeccionesByLetra(letraGrupoRegular, seccion, seccionesByLetra, usuario, today);
@@ -130,7 +131,8 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             List<Seccion> seccionesByLetra,
             Usuario usuario, DateTime today) {
         letraGrupoRegular.setContadorSecciones(letraGrupoRegular.getContadorSecciones() + 1);
-        List<AlumnoGrupoRegular> alumnosGrupoRegularesByLetra = letraGrupoRegular.getAlumnosGruposRegulares();
+        List<SeccionGrupoRegular> seccionesGruposRegularesByLetra = letraGrupoRegular.getSeccionesGruposRegulares();
+        //    List<AlumnoGrupoRegular> alumnosGrupoRegularesByLetra = letraGrupoRegular.getAlumnosGruposRegulares();
         List<MatriculaSeccion> matriculadosPorSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
         logger.debug("Letra {}, seccion {}, cant. alumnos {}, numero {}",
                 letraGrupoRegular.getLetra(),
@@ -139,13 +141,29 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 letraGrupoRegular.getContadorSecciones() + " de " + seccionesByLetra.size());
 
         boolean conConflictos = false;
+        MATRICULAS_BY_SEC:
         for (MatriculaSeccion matriculaSeccion : matriculadosPorSeccion) {
+            /*
+            //old implementation
             AlumnoGrupoRegular alumnoGrupoRegularFound = alumnosGrupoRegularesByLetra
                     .stream().filter(x -> x.getAlumno().equals(matriculaSeccion.getMatriculaResumen().getAlumno())).findFirst().orElse(null);
             if (alumnoGrupoRegularFound != null) {
                 conConflictos = true;
                 break;
+            }*/
+
+            for (SeccionGrupoRegular seccionGrupoRegular : seccionesGruposRegularesByLetra) {
+                AlumnoGrupoRegular alumnoSeccionRegularFound = seccionGrupoRegular.getAlumnosGruposRegulares()
+                        .stream().filter(x -> x.getAlumno().equals(matriculaSeccion.getMatriculaResumen().getAlumno())).findFirst().orElse(null);
+                if (alumnoSeccionRegularFound != null) {
+                    conConflictos = true;
+                    break MATRICULAS_BY_SEC;
+                }
             }
+            /*
+            if (conConflictos) {
+                break;
+            }*/
         }
         if (!conConflictos) {
             SeccionGrupoRegular seccionGrupoRegular = new SeccionGrupoRegular();
@@ -154,6 +172,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             seccionGrupoRegular.setFechaRegistro(today.toDate());
             seccionGrupoRegular.setLetraGrupoRegular(letraGrupoRegular);
             seccionGrupoRegular.setUserRegistro(usuario);
+            seccionGrupoRegular.setAlumnosGruposRegulares(new ArrayList<>());
             letraGrupoRegular.getSeccionesGruposRegulares().add(seccionGrupoRegular);
 
             GrupoRegularExamen grupoRegularExamen = letraGrupoRegular.getGruposRegularesExamenes()
@@ -175,9 +194,12 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 alumnoGrupoRegular.setAlumno(x.getMatriculaResumen().getAlumno());
                 alumnoGrupoRegular.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
                 alumnoGrupoRegular.setFechaRegistro(today.toDate());
-                alumnoGrupoRegular.setLetraGrupoRegular(letraGrupoRegular);
+                alumnoGrupoRegular.setSeccionGrupoRegular(seccionGrupoRegular);
+                //   alumnoGrupoRegular.setLetraGrupoRegular(letraGrupoRegular);
                 alumnoGrupoRegular.setUserRegistro(usuario);
-                letraGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
+
+                //  letraGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
+                seccionGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
             });
         }
         if (conConflictos) {

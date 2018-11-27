@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -18,6 +19,15 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
     }
 
     @Override
+    public SeccionCursoMasivo find(long id) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "userRegistro ur", "seccion se")
+                .filter("scm.id", id);
+        return find(sql);
+    }
+
+    @Override
     public List<SeccionCursoMasivo> allByCursosMasivos(List<CursoMasivoExamen> cursosMasivosExamenes) {
         Octavia sql = Octavia.query()
                 .from(SeccionCursoMasivo.class, "scm")
@@ -31,18 +41,23 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
         Octavia sql = Octavia.query()
                 .from(SeccionCursoMasivo.class, "scm")
                 .join("cursoMasivoExamen cme", "userRegistro ur")
+                .join("userRegistro ureg", "ureg.persona pureg")
+                .left("usuarioExclusion uexl", "uexl.persona puexl")
                 .filter("cme.id", cursoMasivo);
         return all(sql);
     }
 
     @Override
     public void updateEstadoExcluido(SeccionCursoMasivo seccionCursoMasivo) {
-        seccionCursoMasivo.setEstadoEnum(SeccionRolExamenEstadoEnum.EXC);
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append(" update SeccionCursoMasivo scm set scm.estado=:ESTADO, scm.usuarioExclusion.id=:USUARIO, scm.fechaExclusion=:FECHA_EXC ");
+        strBuilder.append(" where scm.id=:PRM_ID ");
+        Query query = getCurrentSession().createQuery(strBuilder.toString());
+        query.setParameter("PRM_ID", seccionCursoMasivo.getId());
+        query.setParameter("ESTADO", SeccionRolExamenEstadoEnum.EXC.name());
+        query.setParameter("USUARIO", seccionCursoMasivo.getUsuarioExclusion().getId());
+        query.setParameter("FECHA_EXC", seccionCursoMasivo.getFechaExclusion());
+        query.executeUpdate();
 
-        Octavia octavia = Octavia.update(CursoMasivoExamen.class);
-        octavia.set(seccionCursoMasivo, "estado");
-        octavia.set(seccionCursoMasivo, "usuarioExclusion");
-        octavia.set(seccionCursoMasivo, "fechaExclusion");
-        this.update(octavia);
     }
 }
