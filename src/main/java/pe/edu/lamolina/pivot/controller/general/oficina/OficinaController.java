@@ -823,10 +823,14 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         logger.debug("buscar {}", buscar);
         try {
-
+            ArrayNode node = new ArrayNode(jsonFactory);
             List<Persona> personas = service.allPersonasByNombre(buscar);
-
-            response.setData(new Persona().toJsonArray(personas));
+            for (Persona persona : personas) {
+                node.add(JsonHelper.createJson(persona, jsonFactory, new String[]{
+                    "*",
+                }));
+            }
+            response.setData(node);
             response.setSuccess(true);
 
         } catch (Exception e) {
