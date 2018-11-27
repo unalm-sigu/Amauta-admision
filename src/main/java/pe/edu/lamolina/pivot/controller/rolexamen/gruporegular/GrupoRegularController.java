@@ -67,12 +67,14 @@ public class GrupoRegularController {
         model.addAttribute("jRolesExamenes", jRolesExamenes.toString());
         return "rolexamen/gruporegular/grupoRegular";
     }
+    
     @ResponseBody
     @RequestMapping(value = "calcularGruposRegulares", method = RequestMethod.POST)
     public JsonResponse calcularGruposRegulares(@RequestBody RolExamenes rolExamenes,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
         try {
             grupoRegularService.calcularExamenesGrupoRegular(rolExamenes, ds.getCicloAcademico(), ds);
             response.setMessage("Grupos regulares calculados corretamente.");
@@ -93,7 +95,7 @@ public class GrupoRegularController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             List<LetraGrupoRegular> letrasGruposRegulares = grupoRegularService.listGruposRegulares(rolExamenes);
-        ds.setFechaAccionAudit(new Date());
+            
             JsonNodeFactory jc = JsonNodeFactory.instance;
             ArrayNode jLetrasGruposRegulares = new ArrayNode(jc);
             for (LetraGrupoRegular letrasGruposRegulare : letrasGruposRegulares) {
@@ -167,7 +169,7 @@ public class GrupoRegularController {
         }
         return response;
     }
-            
+    
     @ResponseBody
     @RequestMapping(value = "{tipoAccion}/excluir", method = RequestMethod.POST)
     public JsonResponse excluir(
@@ -180,7 +182,7 @@ public class GrupoRegularController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    
+            
             if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
                 GrupoRegularExamen grupoRegularExamen = (GrupoRegularExamen) mapper.readValue(objeto.toString(), GrupoRegularExamen.class);
                 grupoRegularService.excluirGrupoRegular(grupoRegularExamen, ds);
@@ -191,7 +193,7 @@ public class GrupoRegularController {
                 AlumnoGrupoRegular alumnoRegularExamen = (AlumnoGrupoRegular) mapper.readValue(objeto.toString(), AlumnoGrupoRegular.class);
                 grupoRegularService.excluirGrupoRegular(alumnoRegularExamen, ds);
             }
-    
+            
             response.setMessage("Excluido corretamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -201,5 +203,5 @@ public class GrupoRegularController {
         }
         return response;
     }
-            
+    
 }
