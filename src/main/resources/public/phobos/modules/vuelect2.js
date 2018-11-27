@@ -9,6 +9,10 @@ Vue.component("vuelect", {
         remoteurl: {type: String, default: '/'},
         allowclear: {type: Boolean, default: false},
         required: {type: Boolean, default: false},
+        usetemplateresult: {type: Boolean, default: false},
+        idtemplateresult: {type: String, default: null},
+        usetemplateselection: {type: Boolean, default: false},
+        idtemplateselection: {type: String, default: null},
         changevalue: {type: Function, default: () => {
             }},
         postdata: {type: Object, default: {}},
@@ -40,6 +44,7 @@ Vue.component("vuelect", {
                     }
                     vue.changevalue(vue.objetogenerico);
                 });
+        self.select2('data', vue.objetogenerico).trigger('change.select2');
     },
     methods: {
         buscarGenerico: function (vue) {
@@ -69,6 +74,14 @@ Vue.component("vuelect", {
                     }
                 },
                 formatResult: function (info) {
+                    var templatee = "#" + vue.idtemplateresult;
+                    if (vue.usetemplateresult) {
+                        var SelectRowTemplate = Vue.component("selectRow", {template: templatee, props: {item: {type: Object, default: {}}}});
+                        var selectRowTemplate = new SelectRowTemplate();
+                        selectRowTemplate.item = info;
+                        var itemmcomponent = selectRowTemplate.$mount();
+                        return itemmcomponent.$el;
+                    }
                     return info[vue.formatresult];
                 },
                 formatSelection: function (info) {
@@ -79,7 +92,29 @@ Vue.component("vuelect", {
                         vue.objetogenerico['' + keys[key]] = info['' + keys[key]];
                     }
 
-                    return info[vue.formatselection];
+                    var templatee = "#" + vue.idtemplateselection;
+
+                    if (vue.usetemplateselection) {
+                        var SelectionItemTemplate = Vue.component("selectionItem", {template: templatee, props: {item: {type: Object, default: {}}}});
+                        var selectionItemTemplate = new SelectionItemTemplate();
+                        selectionItemTemplate.item = info;
+                        var itemmm = selectionItemTemplate.$mount();
+                        return itemmm.$el;
+                    }
+
+                    if (vue.formatselection) {
+                        var splitedd = vue.formatselection.split('.');
+                        if (splitedd.length > 1) {
+                            var infoo = info;
+                            for (var ii in splitedd) {
+                                infoo = infoo[splitedd[ii]];
+                            }
+                            return infoo;
+                        }
+                        return info[vue.formatselection];
+                    }
+
+                    return info['nombre'];
                 },
                 escapeMarkup: function (m) {
                     return m;

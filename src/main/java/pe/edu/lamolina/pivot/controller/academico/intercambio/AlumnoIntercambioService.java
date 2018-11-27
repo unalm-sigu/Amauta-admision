@@ -19,7 +19,7 @@ public interface AlumnoIntercambioService {
 
     List<Alumno> allAlumnoByName(String nombre);
 
-    void update(AlumnoIntercambio alumnoBecado, Usuario user);
+    void update(AlumnoIntercambio alumnoBecado);
 
     void delete(AlumnoIntercambio alumnoBecado);
 
@@ -27,6 +27,6 @@ public interface AlumnoIntercambioService {
 
     List<BecaEstudio> allBeca(String nombre);
 
-    void save(AlumnoIntercambio alumnoBecado, Usuario user, CicloAcademico ciclo);
+    void save(AlumnoIntercambio alumnoBecado, Usuario user);
 
 }

@@ -75,16 +75,3 @@
     </tr>
 </template>
 
-<div id="divBuscarAlumno" type="text/x-jsrender" class="hide" >
-    <span class="block bold">{{:nombre}}</span>
-    <span class="block">{{:carrera}}
-        {{if codigoCarrera != codigoFacultad}}
-        <span>Facultad de {{:facultad}}</span> 
-        {{/if}}
-    </span>
-    <small class="block">{{:codigo}} </small>
-    {{if nroDocumento != undefined}}
-        <small class="block">{{:tipoDoc}} {{:nroDocumento}} </small>
-    {{/if}}
-</div>
-

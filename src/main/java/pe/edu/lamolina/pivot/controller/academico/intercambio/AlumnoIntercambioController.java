@@ -37,9 +37,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TipoGestionEnum;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -80,17 +78,6 @@ public class AlumnoIntercambioController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico cicloAcademico = ds.getCicloAcademico();
-
-        List<TipoDocIdentidad> tiposDocIdentidad = service.allTiposDocIdentidad();
-        List<CicloAcademico> ciclos = service.allCicloAcademico();
-
-        model.addAttribute("cicloAcademico", cicloAcademico);
-        model.addAttribute("tiposDocIdentidad", tiposDocIdentidad);
-        model.addAttribute("ciclos", ciclos);
-        model.addAttribute("helper", new AlumnoHelper());
-
         return "academico/alumnointercambio/alumnointercambio";
 
     }
@@ -98,41 +85,21 @@ public class AlumnoIntercambioController {
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico cicloAcademico = ds.getCicloAcademico();
-
-        List<TipoDocIdentidad> tiposDocIdentidad = service.allTiposDocIdentidad();
-        List<CicloAcademico> ciclos = service.allCicloAcademico();
-
-        model.addAttribute("cicloAcademico", cicloAcademico);
-        model.addAttribute("tiposDocIdentidad", tiposDocIdentidad);
-        model.addAttribute("ciclos", ciclos);
-        model.addAttribute("helper", new AlumnoHelper());
         model.addAttribute("alumno", new Alumno());
+        model.addAttribute("ciclos", service.allCicloAcademico());
         model.addAttribute("gestiones", TipoGestionEnum.values());
-
+        
         return "academico/alumnointercambio/alumnointercambioform";
-
     }
 
     @RequestMapping("{alumno}/update")
     public String update(@PathVariable("alumno") Long alumno, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico cicloAcademico = ds.getCicloAcademico();
-
-        List<TipoDocIdentidad> tiposDocIdentidad = service.allTiposDocIdentidad();
-        List<CicloAcademico> ciclos = service.allCicloAcademico();
-
-        model.addAttribute("cicloAcademico", cicloAcademico);
-        model.addAttribute("tiposDocIdentidad", tiposDocIdentidad);
-        model.addAttribute("ciclos", ciclos);
-        model.addAttribute("helper", new AlumnoHelper());
         model.addAttribute("alumno", new Alumno(alumno));
+        model.addAttribute("ciclos", service.allCicloAcademico());
         model.addAttribute("gestiones", TipoGestionEnum.values());
-
+        
         return "academico/alumnointercambio/alumnointercambioform";
-
     }
 
     @ResponseBody
@@ -147,11 +114,11 @@ public class AlumnoIntercambioController {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             logger.debug("cicloAcademico {} {}", cicloAcademico.getId(), cicloAcademico.getDescripcion());
             List<AlumnoIntercambio> becados = service.allAlumnoBecado(filter, cicloAcademico);
-            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            ArrayNode array = new ArrayNode(jsonFactory);
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jFactory);
 
             for (AlumnoIntercambio becado : becados) {
-                ObjectNode node = new ObjectNode(jsonFactory);
+                ObjectNode node = new ObjectNode(jFactory);
 
                 Alumno alumno = becado.getAlumno();
                 Persona persona = alumno.getPersona();
@@ -169,7 +136,6 @@ public class AlumnoIntercambioController {
                 node.put("codigoFacultad", carrera.getFacultad().getCodigo());
                 node.put("monto", becado.getMonto());
                 node.put("facultadDestino", becado.getFacultadDestino());
-                node.put("nombreUniversidadDestino", becado.getNombreUniversidadDestino());
                 node.put("universidadDestino", (String) ObjectUtil.getParentTree(becado, "universidadDestino.nombre"));
                 node.put("ciclo", ciclo.getDescripcion());
                 node.put("estado", becado.getEstado());
@@ -193,13 +159,12 @@ public class AlumnoIntercambioController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            Usuario user = ds.getUsuario();
-            CicloAcademico ciclo = ds.getCicloAcademico();
             if (alumnoBecado.getId() == null) {
-                service.save(alumnoBecado, user,ciclo);
+                Usuario user = ds.getUsuario();
+                service.save(alumnoBecado, user);
                 response.setMessage("Alumno de Intercambio agregado satisfactoriamente");
             } else {
-                service.update(alumnoBecado, user);
+                service.update(alumnoBecado);
                 response.setMessage("Alumno de Intercambio  actualizado satisfactoriamente");
             }
             response.setSuccess(Boolean.TRUE);
@@ -230,15 +195,22 @@ public class AlumnoIntercambioController {
     @ResponseBody
     @RequestMapping("update")
     public JsonResponse update(AlumnoIntercambio alumnoBecado, HttpSession session) {
-
         JsonResponse response = new JsonResponse();
         try {
-
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
             AlumnoIntercambio becado = service.find(alumnoBecado);
-            ObjectNode json = becado.toJson();
-            response.setData(json);
+            ObjectNode jBecado = JsonHelper.createJson(becado, jFactory, true, new String[]{
+                "*",
+                "alumno.id",
+                "alumno.persona.*",
+                "becaEstudio.*",
+                "paisDestino.*",
+                "universidadDestino.*",
+                "universidadDestino.pais.*",
+                "cicloIntercambio.*"
+            });
+            response.setData(jBecado);
             response.setSuccess(true);
-
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -250,31 +222,20 @@ public class AlumnoIntercambioController {
     @ResponseBody
     @RequestMapping("searchAlumno")
     public JsonResponse searchAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
-
         JsonResponse response = new JsonResponse();
-
         try {
-
-            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
             List<Alumno> alumnos = service.allAlumnoByName(nombre);
-            ArrayNode jsonList = new ArrayNode(jsonFactory);
-
+            ArrayNode jsonList = new ArrayNode(jFactory);
             for (Alumno alumno : alumnos) {
-
-                Persona persona = alumno.getPersona();
-
-                ObjectNode json = new ObjectNode(jsonFactory);
-                json.put("id", alumno.getId());
-                json.put("nombre", alumno.getPersona().getNombreCompleto());
-                json.put("codigo", alumno.getCodigo());
-                json.put("carrera", alumno.getCarrera().getNombre());
-                json.put("codigoCarrera", alumno.getCarrera().getCodigo());
-                json.put("facultad", alumno.getCarrera().getFacultad().getNombre());
-                json.put("codigoFacultad", alumno.getCarrera().getFacultad().getCodigo());
-                json.put("tipoDoc", (String) ObjectUtil.getParentTree(persona, "tipoDocumento.simbolo"));
-                json.put("nroDocumento", alumno.getPersona().getNumeroDocIdentidad());
-                jsonList.add(json);
-
+                ObjectNode jAlumno = JsonHelper.createJson(alumno, jFactory, true, new String[]{
+                    "*",
+                    "persona.*",
+                    "persona.tipoDocumento.*",
+                    "carrera.*",
+                    "carrera.facultad.*"
+                });
+                jsonList.add(jAlumno);
             }
             response.setData(jsonList);
             response.setTotal(jsonList.size());
@@ -290,16 +251,11 @@ public class AlumnoIntercambioController {
     @ResponseBody
     @RequestMapping("allBeca")
     public JsonResponse allBeca(@RequestParam("nombre") String nombre, HttpSession session) {
-
         JsonResponse response = new JsonResponse();
-
         try {
-
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
             ArrayNode jsonList = new ArrayNode(jFactory);
-
             List<BecaEstudio> becas = service.allBeca(nombre);
-
             for (BecaEstudio beca : becas) {
                 ObjectNode jBeca = JsonHelper.createJson(beca, jFactory, true, new String[]{
                     "*",
@@ -307,15 +263,14 @@ public class AlumnoIntercambioController {
                 });
                 jsonList.add(jBeca);
             }
-
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);
-
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-
         return response;
     }
 

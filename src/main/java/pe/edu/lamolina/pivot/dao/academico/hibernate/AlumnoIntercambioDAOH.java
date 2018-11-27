@@ -18,12 +18,12 @@ public class AlumnoIntercambioDAOH extends AbstractDAO<AlumnoIntercambio> implem
     }
 
     @Override
-    public AlumnoIntercambio findAlumnoBecado(AlumnoIntercambio alumnoBecado) {
+    public AlumnoIntercambio find(AlumnoIntercambio alumnoIntercambio) {
         Octavia sql = Octavia.query()
                 .from(AlumnoIntercambio.class, "ab")
                 .join("universidadDestino uni", "cicloIntercambio ciclo", "alumno alu", "paisDestino pd", "alu.persona per", "alu.carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td")
-                .filter("ab.id", alumnoBecado);
+                .filter("ab.id", alumnoIntercambio);
         return (AlumnoIntercambio) sql.find(getCurrentSession());
     }
 
@@ -33,7 +33,7 @@ public class AlumnoIntercambioDAOH extends AbstractDAO<AlumnoIntercambio> implem
                 .from(AlumnoIntercambio.class, "ab")
                 .join("universidadDestino uni", "cicloIntercambio ciclo", "alumno alu", "paisDestino pd", "alu.persona per", "alu.carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td")
-                .searchFields("ciclo.descripcion", "ab.monto", "ab.nombreUniversidadDestino", "ab.facultadDestino")
+                .searchFields("ciclo.descripcion", "ab.monto", "uni.nombre", "ab.facultadDestino")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("ab.id desc");

@@ -38,7 +38,7 @@ public class BecaEstudioServiceImp implements BecaEstudioService {
         Assert.isNotNull(becaestudioForm.getNombre(), "El nombre esta vacio");
 
         becaestudioBD.setNombre(becaestudioForm.getNombre());
-        becaestudioBD.setInstitucionOtorga(becaestudioForm.getInstitucionOtorga());
+        becaestudioBD.setInstitucion(becaestudioForm.getInstitucion());
         becaestudioDAO.update(becaestudioBD);
     }
 

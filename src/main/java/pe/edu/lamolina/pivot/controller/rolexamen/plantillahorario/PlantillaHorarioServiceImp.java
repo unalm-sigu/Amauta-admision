@@ -114,15 +114,6 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                 DateTime fecha = fechaInicio.withDayOfWeek(fechaHoraGrupoExamen.getDia().getNumeroDia());
                 fechaHoraGrupoExamen.setFecha(fecha.toDate());
 
-                if (grupoHorasExamen.getFecha() == null) {
-                    grupoHorasExamen.setFecha(fecha.toDate());
-                    grupoHorasExamen.setDia(fechaHoraGrupoExamen.getDia());
-                    grupoHorasExamen.setHoraInicio(fechaHoraGrupoExamen.getHora());
-                }
-
-                if (grupoHorasExamen.getFechasHorasGruposExamen().size() < semanaExamen.getRolExamenes().getHorasExamen()) {
-                    Hora horaFinalVisual = horas.stream().filter(x -> x.getNumero().compareTo(fechaHoraGrupoExamen.getHora().getNumero() + 1) == 0).findFirst().orElse(null);
-                    grupoHorasExamen.setHoraFin(horaFinalVisual);
                     grupoHorasExamen.getFechasHorasGruposExamen().add(fechaHoraGrupoExamen);
                 }
             }
@@ -148,38 +139,15 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         DateTime fecha = fechaInicio.withDayOfWeek(fechaHoraGrupoExamen.getDia().getNumeroDia());
         fechaHoraGrupoExamen.setFecha(fecha.toDate());
         fechaHoraGrupoExamenDAO.save(fechaHoraGrupoExamen);
+                if (grupoHorasExamen.getFecha() == null) {
+                    grupoHorasExamen.setFecha(fecha.toDate());
+                    grupoHorasExamen.setDia(fechaHoraGrupoExamen.getDia());
+                    grupoHorasExamen.setHoraInicio(fechaHoraGrupoExamen.getHora());
+                }
 
-        this.actualizarFechaGrupoHorasExamen(fechaHoraGrupoExamen.getGrupoHorasExamen());
-
-    }
-
-    public void actualizarFechaGrupoHorasExamen(GrupoHorasExamen grupoHorasExamen) {
-        List<FechaHoraGrupoExamen> fechasHorasGrupos = fechaHoraGrupoExamenDAO.allByGrupoHorasExamenOrderByDiaHora(grupoHorasExamen);
-
-        if (fechasHorasGrupos.isEmpty()) {
-            GrupoHorasExamen grupoHorasExamenUpd = new GrupoHorasExamen();
-            grupoHorasExamenUpd.setId(grupoHorasExamen.getId());
-            grupoHorasExamenUpd.setFecha(null);
-            grupoHorasExamenUpd.setDia(null);
-            grupoHorasExamenUpd.setHoraInicio(null);
-            grupoHorasExamenUpd.setHoraFin(null);
-            grupoHorasExamenDAO.updateFechaExamen(grupoHorasExamenUpd);
-        } else {
-            DateTime fechaInicio = new DateTime(fechasHorasGrupos.get(0).getSemanaExamen().getFechaInicio());
-            DateTime fecha = fechaInicio.withDayOfWeek(fechasHorasGrupos.get(0).getDia().getNumeroDia());
-
-            GrupoHorasExamen grupoHorasExamenUpd = new GrupoHorasExamen();
-            grupoHorasExamenUpd.setId(grupoHorasExamen.getId());
-            grupoHorasExamenUpd.setFecha(fecha.toDate());
-            grupoHorasExamenUpd.setDia(fechasHorasGrupos.get(0).getDia());
-            grupoHorasExamenUpd.setHoraInicio(fechasHorasGrupos.get(0).getHora());
-            grupoHorasExamenUpd.setHoraFin(fechasHorasGrupos.get(fechasHorasGrupos.size() - 1).getHora());
-
-            Hora horaVisual = horaDAO.findByNumeroHora(grupoHorasExamenUpd.getHoraFin().getNumero() + 1);
-            grupoHorasExamenUpd.setHoraFin(horaVisual);
-
-            grupoHorasExamenDAO.updateFechaExamen(grupoHorasExamenUpd);
-        }
+                if (grupoHorasExamen.getFechasHorasGruposExamen().size() < semanaExamen.getRolExamenes().getHorasExamen()) {
+                    Hora horaFinalVisual = horas.stream().filter(x -> x.getNumero().compareTo(fechaHoraGrupoExamen.getHora().getNumero() + 1) == 0).findFirst().orElse(null);
+                    grupoHorasExamen.setHoraFin(horaFinalVisual);
     }
 
     public void deletePlantillaHorario(RolExamenes rolExamenes) {
@@ -301,11 +269,37 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     @Override
     @Transactional(readOnly = false)
     public void deleteFechaHoraGrupoExamen(FechaHoraGrupoExamen fechaHoraGrupoExamen) {
-        GrupoHorasExamen grupoHorasExamen = fechaHoraGrupoExamen.getGrupoHorasExamen();
-        fechaHoraGrupoExamen = fechaHoraGrupoExamenDAO.find(fechaHoraGrupoExamen.getId());
-        fechaHoraGrupoExamenDAO.delete(fechaHoraGrupoExamen);
 
-        this.actualizarFechaGrupoHorasExamen(grupoHorasExamen);
+        this.actualizarFechaGrupoHorasExamen(fechaHoraGrupoExamen.getGrupoHorasExamen());
 
+    }
+
+    public void actualizarFechaGrupoHorasExamen(GrupoHorasExamen grupoHorasExamen) {
+        List<FechaHoraGrupoExamen> fechasHorasGrupos = fechaHoraGrupoExamenDAO.allByGrupoHorasExamenOrderByDiaHora(grupoHorasExamen);
+
+        if (fechasHorasGrupos.isEmpty()) {
+            GrupoHorasExamen grupoHorasExamenUpd = new GrupoHorasExamen();
+            grupoHorasExamenUpd.setId(grupoHorasExamen.getId());
+            grupoHorasExamenUpd.setFecha(null);
+            grupoHorasExamenUpd.setDia(null);
+            grupoHorasExamenUpd.setHoraInicio(null);
+            grupoHorasExamenUpd.setHoraFin(null);
+            grupoHorasExamenDAO.updateFechaExamen(grupoHorasExamenUpd);
+        } else {
+            DateTime fechaInicio = new DateTime(fechasHorasGrupos.get(0).getSemanaExamen().getFechaInicio());
+            DateTime fecha = fechaInicio.withDayOfWeek(fechasHorasGrupos.get(0).getDia().getNumeroDia());
+
+            GrupoHorasExamen grupoHorasExamenUpd = new GrupoHorasExamen();
+            grupoHorasExamenUpd.setId(grupoHorasExamen.getId());
+            grupoHorasExamenUpd.setFecha(fecha.toDate());
+            grupoHorasExamenUpd.setDia(fechasHorasGrupos.get(0).getDia());
+            grupoHorasExamenUpd.setHoraInicio(fechasHorasGrupos.get(0).getHora());
+            grupoHorasExamenUpd.setHoraFin(fechasHorasGrupos.get(fechasHorasGrupos.size() - 1).getHora());
+
+            Hora horaVisual = horaDAO.findByNumeroHora(grupoHorasExamenUpd.getHoraFin().getNumero() + 1);
+            grupoHorasExamenUpd.setHoraFin(horaVisual);
+
+            grupoHorasExamenDAO.updateFechaExamen(grupoHorasExamenUpd);
+        }
     }
 }

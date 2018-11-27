@@ -12,7 +12,7 @@
                     <div class="pull-right m-t-md">
                         <a class="btn btn-default" type="button"   th:href="@{/academico/becado/alumno}"  >Regresar</a>
                     </div>
-                    <h2 v-text="persona.nombreCompleto!=null?persona.nombreCompleto:'Registro de Alumno Intercambio'" >Registrar Alumno Intercambio</h2>
+                    <h2 v-text="becado.alumno.persona.nombreCompleto!=null?becado.alumno.persona.nombreCompleto:'Registro de Alumno Intercambio'" >Registrar Alumno Intercambio</h2>
                 </header>
 
                 <section class="wrapper-lg">
@@ -23,65 +23,62 @@
 
                                 <input type="hidden" name="id" value="becado.id" v-model="becado.id" />
 
-                                <div class="col-sm-8">
+                                <div class="col-sm-12">
 
                                     <div class="form-group">
+
                                         <label>Alumno</label>
-                                        <input type="text"
-                                               class="form-control"
-                                               name="alumno.id"
-                                               value="becado.alumno.id"
-                                               v-model="becado.alumno.id"
-                                               required="true"/>
+
+                                        <vuelect 
+                                            required="true"
+                                            usetemplateresult="true"
+                                            idtemplateresult="divBuscarAlumno"
+                                            v-bind:objetogenerico="becado.alumno"
+                                            v-bind:initobject="becado.alumno"
+                                            formatselection="persona.nombreCompleto"
+                                            nameinput="alumno.id"
+                                            remoteurl="academico/becado/alumno/searchAlumno"
+                                            v-model="becado.alumno"
+                                            ></vuelect>
+
                                     </div>
 
                                 </div>
 
+
                                 <div class="col-sm-4">
                                     <div class="form-group">
-                                        <label>Ciclo Beca</label>
-                                        <select name="cicloBeca.id"
-                                                class="form-control"
-                                                required="true">
+                                        <label>Ciclo Intercambio</label>
+                                        <vueselect name="cicloIntercambio.id"
+                                                   v-bind:valor="becado.cicloIntercambio"
+                                                   class="form-control"
+                                                   required="true">
                                             <option></option>
                                             <option th:each="ciclo : ${ciclos}"
                                                     th:value="${ciclo.id}"
                                                     th:text="${ciclo.descripcion}"></option>
-                                        </select>
+                                        </vueselect>
                                     </div>
                                 </div>
 
-                                <div class="col-sm-6">
-                                    
+                                <div class="col-sm-8">
+
                                     <div class="form-group">
                                         <label>Pais Destino</label>
-                                        <input type="text"
-                                               class="form-control"
-                                               name="paisDestino.id"
-                                               value="becado.paisDestino.id"
-                                               v-model="becado.paisDestino.id"
-                                               required="true"/>
+                                        <vuelect 
+                                            required="true"
+                                            v-bind:objetogenerico="becado.paisDestino"
+                                            v-bind:changevalue="changePaisDestino"
+                                            nameinput="paisDestino.id"
+                                            remoteurl="comun/buscar/allPaises"
+                                            ></vuelect>
                                     </div>
                                 </div>
-
-                                <div class="col-sm-6">
-
-                                    <div class="form-group">
-                                        <label>Universidad</label>
-                                        <input type="text"
-                                               class="form-control"
-                                               name="universidad.id"
-                                               value="becado.universidad.id"
-                                               v-model="becado.universidad.id"
-                                               required="true"/>
-                                    </div>
-                                </div>
-
 
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label>Universidad Destino</label>
-                                        
+
                                         <div class="input-group">
 
                                             <vuelect 
@@ -125,10 +122,11 @@
 
                                         <vuelect 
                                             required="true"
-                                            v-bind:objetogenerico="becado.beca"
-                                            nameinput="beca.id"
+                                            v-bind:objetogenerico="becado.becaEstudio"
+                                            v-bind:initobject="becado.becaEstudio"
+                                            nameinput="becaEstudio.id"
                                             remoteurl="academico/becado/alumno/allBeca"
-                                            v-model="becado.universidadDestino"
+                                            v-model="becado.becaEstudio"
                                             ></vuelect>
 
 
@@ -150,10 +148,10 @@
                                     </div>
                                 </div>
 
+                                
+                                <div class="col-xs-12 text-center">
 
-                                <div class="line line-dashed b-b line-lg pull-in"></div>
-
-                                <div class="col-md-12 text-center">
+                                    <div class="line line-dashed b-b line-lg pull-in"></div>
 
                                     <button type="button" 
                                             class="btn btn-success" 
@@ -162,7 +160,7 @@
 
                                         <i v-if="isprocess" class="fa fa-spinner fa-spin fa-lg"></i>
 
-                                        {{actualizar==true?'Actualizar':'Guardar'}}
+                                        {{becado.id!=null?'Actualizar':'Guardar'}}
 
                                     </button>
                                 </div>
@@ -241,18 +239,16 @@
 
             </div>
 
-            <div id="divBuscarAlumno" type="text/x-jsrender" class="hide" >
-                <span class="block bold">{{:nombre}}</span>
-                <span class="block">{{:carrera}}
-                    {{if codigoCarrera != codigoFacultad}}
-                    <span>Facultad de {{:facultad}}</span> 
-                    {{/if}}
-                </span>
-                <small class="block">{{:codigo}} </small>
-                {{if nroDocumento != undefined}}
-                <small class="block">{{:tipoDoc}} {{:nroDocumento}} </small>
-                {{/if}}
-            </div>
+            <template  type="text/x-template" id="divBuscarAlumno">
+                <div>
+                    <span class="block bold">{{item.persona.nombreCompleto}}</span>
+                    <span class="block">{{item.carrera.nombre}}
+                        <span v-if="item.codigoCarrera != item.codigoFacultad" >Facultad de {{item.carrera.facultad.nombre}}</span> 
+                    </span>
+                    <small class="block">{{item.codigo}} </small>
+                    <small v-if="item.nroDocumento != undefined " class="block">{{item.persona.tipoDocumento.simbolo}} {{item.persona.numeroDocIdentidad}} </small>
+                </div>
+            </template>
 
             <div th:substituteby="_modules/vue-modal"/>
 
@@ -267,6 +263,7 @@
             <div th:substituteby="_layout/includes :: vue-loader"/>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/phobos/modules/vuelect2.js}" charset="utf-8"></script>
+            <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumnointercambio/alumnointercambioform.js}" charset="utf-8"></script>
         </div>
 

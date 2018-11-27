@@ -1,7 +1,7 @@
 Vue.component("vueselect", {
     template: '<select class="form-control"  v-model="valor.id" ><slot /></select>',
     props: {
-        valor: {id: null},
+        valor: {type: Object, default: {id: null}},
     },
     data() {
         return {valor: {id: null}};
