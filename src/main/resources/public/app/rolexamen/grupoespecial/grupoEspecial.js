@@ -17,7 +17,8 @@ new Vue({
             }
             return `${eventoCicloAcademico.eventoAcademico.nombre}`;
         }, changeRolExamen() {
-            //  this.listGruposRegulares(this.rolExamen);
+            this.$refs.raptor.ajaxdata = {rolexamenes: this.rolExamen.id};
+            this.$refs.raptor.loadRemoteData();
         }
     }
 });
