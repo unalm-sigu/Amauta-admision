@@ -4,12 +4,13 @@ new Vue({
         inventario: {},
         inventarios: [],
         aula: {id: idaula},
-        inventarioURL:APP('general/aula/inventario/all')
+        inventarioURL:APP.url('general/aula/inventario/'+idaula+'/all')
     },
     computed: {
     },
     mounted: function () {
         let $vue = this;
+        console.log(idaula);
     },
     methods: {
         allInventario() {
