@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.general.inventarioaula;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.almacen.Inventario;
+import pe.edu.lamolina.model.almacen.Producto;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
@@ -19,5 +20,9 @@ public interface InventarioAulaService {
     void delete(Inventario inventario);
 
     Inventario find(Inventario inventario);
+
+    List<Producto> allProducto();
+
+    void saveProducto(Producto producto, Usuario user);
 
 }

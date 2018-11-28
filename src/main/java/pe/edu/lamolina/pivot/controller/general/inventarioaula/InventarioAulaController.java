@@ -26,8 +26,10 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.AlumnoIntercambio;
 import pe.edu.lamolina.model.almacen.Inventario;
+import pe.edu.lamolina.model.almacen.Producto;
+import pe.edu.lamolina.model.enums.CondicionInventarioEnum;
+import pe.edu.lamolina.model.enums.TipoArticuloEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -70,16 +72,46 @@ public class InventarioAulaController {
 
     @RequestMapping("{idaula}")
     public String index(@PathVariable("idaula") Long idaula, Model model, HttpSession session) {
-
         model.addAttribute("aula", service.findAula(idaula));
+        model.addAttribute("condiciones", CondicionInventarioEnum.values());
+        model.addAttribute("tipos", TipoArticuloEnum.values());
         return "general/inventarioaula/inventarioaula";
     }
 
     @RequestMapping("{idaula}/resumen")
     public String resumen(@PathVariable("idaula") Long idaula, Model model, HttpSession session) {
-
         model.addAttribute("aula", service.findAula(idaula));
         return "general/inventarioaula/inventarioaularesumen";
+    }
+
+    @ResponseBody
+    @RequestMapping("allProducto")
+    public JsonResponse allProducto(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            List<Producto> productos = service.allProducto();
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (Producto producto : productos) {
+                ObjectNode jInventario = JsonHelper.createJson(producto, jFactory, true, new String[]{
+                    "*",
+                    "tipoProducto.*",
+                    "productoSuperior.*",
+                    "unidadPrincipal.*",
+                    "productos.*"
+                });
+                array.add(jInventario);
+            }
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     @ResponseBody
@@ -158,7 +190,7 @@ public class InventarioAulaController {
     public JsonResponse update(Inventario inventarioForm, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            
+
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
             Inventario inventario = service.find(inventarioForm);
             ObjectNode jInventario = JsonHelper.createJson(inventario, jFactory, true, new String[]{
@@ -168,9 +200,34 @@ public class InventarioAulaController {
                 "producto.productoSuperior.*",
                 "producto.unidadPrincipal.*"
             });
-            
+
             response.setData(jInventario);
             response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveproducto")
+    public JsonResponse saveProducto(Producto producto, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            if (producto.getId() == null) {
+                Usuario user = ds.getUsuario();
+                service.saveProducto(producto, user);
+                response.setMessage("Artículo agregado satisfactoriamente");
+                JsonNodeFactory jFactory = JsonNodeFactory.instance;
+                ObjectNode jProducto = JsonHelper.createJson(producto, jFactory, true, new String[]{
+                    "*"
+                });
+                response.setData(jProducto);
+            }
+            response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
