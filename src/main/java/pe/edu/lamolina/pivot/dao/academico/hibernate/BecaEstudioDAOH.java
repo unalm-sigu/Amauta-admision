@@ -7,7 +7,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.BecaEstudio;
-import pe.edu.lamolina.model.general.Universidad;
 import pe.edu.lamolina.pivot.dao.academico.BecaEstudioDAO;
 
 @Repository
@@ -22,7 +21,7 @@ public class BecaEstudioDAOH extends AbstractEasyDAO<BecaEstudio> implements Bec
     public List<BecaEstudio> allDynaTable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(BecaEstudio.class, "bec")
-                .searchFields("nombre", "institucionOtorga")
+                .searchFields("nombre", "institucion")
                 .orderBy("bec.id desc");
 
         return all(sql);

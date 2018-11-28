@@ -259,7 +259,7 @@ public class AlumnoIntercambioController {
             for (BecaEstudio beca : becas) {
                 ObjectNode jBeca = JsonHelper.createJson(beca, jFactory, true, new String[]{
                     "*",
-                    "institucionOtorga.*"
+                    "institucion.*"
                 });
                 jsonList.add(jBeca);
             }

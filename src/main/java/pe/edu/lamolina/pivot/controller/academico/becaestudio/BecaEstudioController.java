@@ -53,7 +53,7 @@ public class BecaEstudioController {
             for (BecaEstudio becaest : becaestudio) {
                 ObjectNode node = JsonHelper.createJson(becaest, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id", "nombre", "institucionOtorga"
+                            "id", "nombre", "institucion"
                         });
 
                 array.add(node);
@@ -69,7 +69,7 @@ public class BecaEstudioController {
         }
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody BecaEstudio becaestudio, HttpSession session) {
@@ -95,6 +95,5 @@ public class BecaEstudioController {
         }
         return response;
     }
-
 
 }
