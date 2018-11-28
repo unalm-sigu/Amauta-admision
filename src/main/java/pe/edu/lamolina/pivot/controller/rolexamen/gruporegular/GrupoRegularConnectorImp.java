@@ -57,7 +57,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         }
         int i = 1;
         letraGrupoRegular.setContadorSecciones(BigDecimal.ZERO.intValue());
-        List<AlumnoGrupoRegular> alumnosGrupoRegularesByLetra = letraGrupoRegular.getAlumnosGruposRegulares();
+        List<AlumnoGrupoRegular> alumnosGrupoRegularesByLetra = null; //letraGrupoRegular.getAlumnosGruposRegulares();
 
         for (Seccion seccion : seccionesByLetra) {
             boolean result = this.procesarSeccionesByLetra(letraGrupoRegular, seccion, seccionesByLetra, usuario, today);
@@ -130,7 +130,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             List<Seccion> seccionesByLetra,
             Usuario usuario, DateTime today) {
         letraGrupoRegular.setContadorSecciones(letraGrupoRegular.getContadorSecciones() + 1);
-        List<AlumnoGrupoRegular> alumnosGrupoRegularesByLetra = letraGrupoRegular.getAlumnosGruposRegulares();
+        List<AlumnoGrupoRegular> alumnosGrupoRegularesByLetra = null; //letraGrupoRegular.getAlumnosGruposRegulares();
         List<MatriculaSeccion> matriculadosPorSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
         logger.debug("Letra {}, seccion {}, cant. alumnos {}, numero {}",
                 letraGrupoRegular.getLetra(),
@@ -175,9 +175,9 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 alumnoGrupoRegular.setAlumno(x.getMatriculaResumen().getAlumno());
                 alumnoGrupoRegular.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
                 alumnoGrupoRegular.setFechaRegistro(today.toDate());
-                alumnoGrupoRegular.setLetraGrupoRegular(letraGrupoRegular);
+                //alumnoGrupoRegular.setLetraGrupoRegular(letraGrupoRegular);
                 alumnoGrupoRegular.setUserRegistro(usuario);
-                letraGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
+                //letraGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
             });
         }
         if (conConflictos) {
