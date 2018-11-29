@@ -32,37 +32,37 @@ import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 @Service
 @Transactional(readOnly = true)
 public class InventarioAulaServiceImp implements InventarioAulaService {
-
+    
     @Autowired
     InventarioDAO inventarioDAO;
-
+    
     @Autowired
     AulaDAO aulaDAO;
-
+    
     @Autowired
     ProductoDAO productoDAO;
-
+    
     @Autowired
     TipoProductoDAO tipoProductoDAO;
-
+    
     @Autowired
     ResumenInventarioDAO resumenInventarioDAO;
-
+    
     @Autowired
     AlmacenDAO almacenDAO;
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Override
     public Aula findAula(Long idaula) {
         return aulaDAO.find(idaula);
     }
-
+    
     @Override
     public List<Inventario> allByDynatable(DynatableFilter filter, Aula aula) {
         return inventarioDAO.allByDynatable(filter, aula);
     }
-
+    
     @Override
     @Transactional
     public void update(Inventario inventario) {
@@ -74,11 +74,11 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         inventario.setEstado(inventarioDb.getEstado());
         inventarioDAO.update(inventario);
     }
-
+    
     @Override
     @Transactional
     public void save(Inventario inventario, Usuario user) {
-
+        
         Almacen almacen = almacenDAO.findByAula(inventario.getAlmacen().getAula());
         if (almacen == null) {
             almacen = new Almacen();
@@ -93,19 +93,40 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         inventario.setUserRegistro(user);
         inventario.setEstadoEnum(EstadoInventarioEnum.DISP);
         inventarioDAO.save(inventario);
+        ResumenInventario resumen = resumenInventarioDAO.findByAlmacenProducto(almacen, inventario.getProducto());
+        if (resumen == null) {
+            resumen = new ResumenInventario();
+            resumen.setVisibleReporteParcial(0);
+            resumen.setAlmacen(almacen);
+            resumen.setProducto(inventario.getProducto());
+            resumen.setCantidad(1);
+            resumenInventarioDAO.save(resumen);
+            return;
+        }
+        resumen.setCantidad((resumen.getCantidad() + 1));
+        resumenInventarioDAO.update(resumen);
     }
-
+    
     @Override
     @Transactional
     public void delete(Inventario inventario) {
-        inventarioDAO.delete(inventario);
+        
+        Inventario inventarioDb = inventarioDAO.find(inventario.getId());
+        ResumenInventario resumen = resumenInventarioDAO.findByAlmacenProducto(inventarioDb.getAlmacen(), inventarioDb.getProducto());
+        if (resumen != null) {
+            if (resumen.getCantidad() > 0) {
+                resumen.setCantidad((resumen.getCantidad() - 1));
+                resumenInventarioDAO.update(resumen);
+            }
+        }
+        inventarioDAO.delete(inventarioDb);
     }
-
+    
     @Override
     public Inventario find(Inventario inventario) {
         return inventarioDAO.find(inventario.getId());
     }
-
+    
     @Override
     public List<Producto> allProducto() {
         List<Producto> productos = productoDAO.allTipoBienes();
@@ -117,7 +138,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         });
         return masters;
     }
-
+    
     @Override
     @Transactional
     public void saveProducto(Producto producto, Usuario user) {
@@ -131,10 +152,18 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         producto.setUnidadPrincipal(new UnidadMedida(1));
         productoDAO.save(producto);
     }
-
+    
     @Override
     public List<ResumenInventario> allResumenByDynatable(DynatableFilter filter, Aula aula) {
         return resumenInventarioDAO.allByDynatable(filter, aula);
     }
-
+    
+    @Override
+    @Transactional
+    public void updateResumen(ResumenInventario resumen) {
+        ResumenInventario resumenDb = resumenInventarioDAO.find(resumen.getId());
+        resumenDb.setVisibleReporteParcial(resumen.getVisibleReporteParcial());
+        resumenInventarioDAO.update(resumenDb);
+    }
+    
 }

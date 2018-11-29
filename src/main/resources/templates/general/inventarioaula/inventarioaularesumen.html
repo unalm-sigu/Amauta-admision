@@ -48,13 +48,12 @@
                                                 </td>
 
                                                 <td class="v-middle">
-                                                    <div class="actions">
-                                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
-                                                        <ul class="dropdown-menu pull-right">
-                                                            <li><a href="#" v-on:click.prevent="editarInventario(item)">Editar</a></li>
-                                                            <li><a href="#"  v-on:click.prevent="eliminarInventario(item)">Eliminar</a></li>
-                                                        </ul>
-                                                    </div>
+
+                                                    <label class="switch">
+                                                        <input type="checkbox" v-on:click="changeEstadoVisible(item)" value="1" v-model="item.visibleReporteParcial"/>
+                                                        <span></span>
+                                                    </label>
+
                                                 </td>
 
 
@@ -71,71 +70,7 @@
                     </section>
                 </section>
 
-
-
-
-                <modal-vik ref="nuevoProducto"
-                           v-bind="dataNuevoProducto"
-                           v-bind:okaction="saveNuevoProducto" >
-
-                    <div slot="body" vclass="panel">
-
-                        <div class="text-center">
-                            <h4 v-if='categoria != null'>Registrar Nuevo Artículo en {{categoria.nombre}}</h4>
-                        </div>
-
-                        <div class="panel-body">
-
-                            <form id='formNuevoProducto' class="form-horizontal" data-parsley-validate="true">
-
-                                <input v-if='categoria != null' type="hidden" name="productoSuperior.id" v-bind:value="categoria.id" />
-
-                                <div class="form-group">
-                                    <label>codigo</label>
-                                    <input type="text"
-                                           class="form-control input-sm"
-                                           name="codigo"
-                                           v-model="nuevoproducto.codigo"
-                                           v-bind:value="nuevoproducto.codigo"
-                                           required="true"/>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Nombre</label>
-                                    <input type="text"
-                                           class="form-control input-sm"
-                                           name="nombre"
-                                           v-model="nuevoproducto.nombre"
-                                           v-bind:value="nuevoproducto.nombre"
-                                           required="true"/>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Tipo</label>
-                                    <select name="tipo"
-                                            v-bind:valor="nuevoproducto.tipo"
-                                            class="form-control" 
-                                            required="true">
-                                        <option></option>
-
-                                        <option th:each="item : ${tipos}"
-                                                th:value="${item.name()}"
-                                                th:text="${item.value}"></option>
-
-                                    </select>               
-                                </div>
-
-                            </form>
-
-                        </div>
-
-
-                    </div>
-                </modal-vik>
-
             </div>
-
-            <div th:substituteby="_modules/vue-modal"/>
 
         </div>
 
@@ -147,10 +82,7 @@
             </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vue-loader"/>
-            <div th:substituteby="_layout/includes :: javascript-upload" />
             <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
-            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8" type="text/javascript" ></script>
-            <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
             <script th:src="@{/app/general/inventarioaula/inventarioaularesumen.js}" charset="utf-8"></script>
         </div>
 

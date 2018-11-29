@@ -260,7 +260,7 @@
                                                     <select class="form-control" 
                                                             name="condicion" 
                                                             required="true"
-                                                            v-model="inventario.condicion"
+                                                            v-bind:value="inventario.condicion"
                                                             data-trigger="change">
 
                                                         <option></option>
@@ -415,7 +415,7 @@
                                                               class="form-control" 
                                                               name="comentario" 
                                                               v-text="inventario.comentario"
-                                                              v-model="micomentario"
+                                                              v-bind:value="inventario.comentario"
                                                               ></textarea>
                                                 </div>
                                             </div>

@@ -124,6 +124,16 @@ $(function () {
             });
 
         },
+        verAulasInventario: function (e, $this) {
+            e.preventDefault();
+            var rec = APP.recDynatable(dynatable, e);
+            bootbox.alert({
+                message: $.templates("#divAulasInventario").render(rec),
+                buttons: {
+                    ok: {label: 'Aceptar', className: 'btn-primary'}
+                }
+            });
+        },
         verAulaHorario: function (e, $this) {
             e.preventDefault();
             var rec = APP.recDynatable(dynatable, e);
@@ -175,6 +185,10 @@ $(function () {
 
     $("body").delegate(".ver-aula-horario", "click", function (e) {
         Aula.verAulaHorario(e, $(this));
+    });
+
+    $("body").delegate(".ver-contenido-aula", "click", function (e) {
+        Aula.verAulasInventario(e, $(this));
     });
 
 });

@@ -124,6 +124,8 @@ new Vue({
                         notify(response.message, "info");
                         vue.inventario = {};
                         vue.micomentario = '';
+                        vue.categoria = null;
+                        vue.producto = null;
                     } else {
                         notify(response.message, 'error');
                     }
@@ -139,6 +141,8 @@ new Vue({
             var vue = this;
             vue.inventario = {};
             vue.micomentario = '';
+            vue.categoria = null;
+            vue.producto = null;
         },
         editarInventario(item) {
             var vue = this;

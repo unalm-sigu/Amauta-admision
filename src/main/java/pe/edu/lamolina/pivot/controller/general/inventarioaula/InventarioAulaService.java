@@ -28,4 +28,6 @@ public interface InventarioAulaService {
 
     List<ResumenInventario> allResumenByDynatable(DynatableFilter filter, Aula aula);
 
+    void updateResumen(ResumenInventario resumen);
+
 }

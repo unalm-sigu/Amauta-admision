@@ -82,11 +82,15 @@
                 <li><a class="change-estado pointer" >Activar</a></li>
                 {{/if}}
                 <li><a class="eliminar-aula pointer" >Eliminar</a></li>
-                
+
+                {{if tipoAmbiente=='EDI'}}
+                {{else}}
                 <li class="divider"></li>
                 <li><a th:href="@{'/general/aula/inventario/{{:id}}'}" class="" >Inventario</a></li>
                 <li><a th:href="@{'/general/aula/inventario/{{:id}}/resumen'}" class="" >Resumen Inventario</a></li>
-            
+                {{/if}}
+
+
             </ul>
         </div>
     </td>

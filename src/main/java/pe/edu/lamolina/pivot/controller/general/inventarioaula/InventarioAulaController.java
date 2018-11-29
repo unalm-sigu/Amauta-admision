@@ -14,6 +14,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.Message;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -39,6 +40,7 @@ import pe.edu.lamolina.model.enums.TipoArticuloEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -169,7 +171,9 @@ public class InventarioAulaController {
                 ObjectNode jInventario = JsonHelper.createJson(resumen, jFactory, true, new String[]{
                     "*",
                     "almacen.*",
-                    "producto.*"
+                    "producto.*",
+                    "producto.productoSuperior.*",
+                    "producto.unidadPrincipal.*"
                 });
                 array.add(jInventario);
             }
@@ -196,6 +200,26 @@ public class InventarioAulaController {
                 response.setMessage("Inventario agregado satisfactoriamente");
             } else {
                 service.update(inventario);
+                response.setMessage("Inventario actualizado satisfactoriamente");
+            }
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("updateresumen")
+    public JsonResponse updateResumen(ResumenInventario resumen, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            if (resumen.getId() == null) {
+                throw new PhobosException(Messages.ERROR_GENERAL);
+            } else {
+                service.updateResumen(resumen);
                 response.setMessage("Inventario actualizado satisfactoriamente");
             }
             response.setSuccess(Boolean.TRUE);
