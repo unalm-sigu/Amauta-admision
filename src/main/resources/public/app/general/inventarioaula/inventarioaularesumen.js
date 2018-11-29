@@ -1,4 +1,3 @@
-Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     mixins: [VueLoader],
@@ -9,7 +8,7 @@ new Vue({
         productos: [],
         producto: null,
         aula: {id: idaula},
-        inventarioURL: APP.url('general/aula/inventario/' + idaula + '/all'),
+        inventarioURL: APP.url('general/aula/inventario/' + idaula + '/allresumen'),
         nuevoproducto: {},
         dataNuevoProducto: {
             id: 'modalNuevoProducto',

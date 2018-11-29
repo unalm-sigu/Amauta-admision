@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +20,20 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.almacen.Inventario;
 import pe.edu.lamolina.model.almacen.Producto;
+import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.CondicionInventarioEnum;
 import pe.edu.lamolina.model.enums.TipoArticuloEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -81,6 +87,8 @@ public class InventarioAulaController {
     @RequestMapping("{idaula}/resumen")
     public String resumen(@PathVariable("idaula") Long idaula, Model model, HttpSession session) {
         model.addAttribute("aula", service.findAula(idaula));
+        model.addAttribute("condiciones", CondicionInventarioEnum.values());
+        model.addAttribute("tipos", TipoArticuloEnum.values());
         return "general/inventarioaula/inventarioaularesumen";
     }
 
@@ -132,6 +140,36 @@ public class InventarioAulaController {
                     "producto.*",
                     "producto.productoSuperior.*",
                     "producto.unidadPrincipal.*"
+                });
+                array.add(jInventario);
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idaula}/allresumen")
+    public DynatableResponse allResumenByDynatable(@PathVariable("idaula") Long aula, DynatableFilter filter, HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+        try {
+
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            List<ResumenInventario> resumenes = service.allResumenByDynatable(filter, new Aula(aula));
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (ResumenInventario resumen : resumenes) {
+                ObjectNode jInventario = JsonHelper.createJson(resumen, jFactory, true, new String[]{
+                    "*",
+                    "almacen.*",
+                    "producto.*"
                 });
                 array.add(jInventario);
             }
@@ -228,6 +266,39 @@ public class InventarioAulaController {
                 response.setData(jProducto);
             }
             response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("upload")
+    public JsonResponse upload(@RequestParam("file") MultipartFile archivo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ObjectNode json = new ObjectNode(jsonFactory);
+
+            String fileExt = TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())).toLowerCase();
+            String fileName = TypesUtil.getUnixTime() + "." + fileExt;
+            String absoluteName = Constantine.TMP_DIR + fileName;
+            FileHelper.saveToDisk(archivo, absoluteName);
+            
+            json.put("name", archivo.getOriginalFilename());
+            json.put("ruta", fileName);
+            json.put("mime", TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())));
+            json.put("size", archivo.getSize());
+
+            response.setData(json);
+            response.setSuccess(true);
+            response.setMessage("Carga satisfactoria del archivo");
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

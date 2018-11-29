@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.almacen.Inventario;
 import pe.edu.lamolina.model.almacen.Producto;
+import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
@@ -24,5 +25,7 @@ public interface InventarioAulaService {
     List<Producto> allProducto();
 
     void saveProducto(Producto producto, Usuario user);
+
+    List<ResumenInventario> allResumenByDynatable(DynatableFilter filter, Aula aula);
 
 }

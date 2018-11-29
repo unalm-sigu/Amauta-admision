@@ -8,4 +8,6 @@ public interface ProductoDAO extends EasyDAO<Producto> {
 
     public List<Producto> allTipoBienes();
 
+    public Producto findByCodigo(String codigo);
+
 }
