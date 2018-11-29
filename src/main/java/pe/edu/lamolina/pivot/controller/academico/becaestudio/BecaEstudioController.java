@@ -22,6 +22,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.BecaEstudio;
+import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -37,6 +38,18 @@ public class BecaEstudioController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        List<Empresa> instituciones = service.allInstituciones();
+        ArrayNode arrayInstitucion = new ArrayNode(JsonNodeFactory.instance);
+
+        for (Empresa institucion : instituciones) {
+            ObjectNode json = JsonHelper.createJson(institucion, JsonNodeFactory.instance, new String[]{
+                "id","numeroDocIdentidad","razonSocial"
+            });
+            arrayInstitucion.add(json);
+        }
+
+        model.addAttribute("instituciones", arrayInstitucion);
         return "academico/becaestudio/becaestudio";
     }
 
@@ -53,7 +66,7 @@ public class BecaEstudioController {
             for (BecaEstudio becaest : becaestudio) {
                 ObjectNode node = JsonHelper.createJson(becaest, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id", "nombre", "institucionOtorga"
+                            "id", "nombre", "institucion.*"
                         });
 
                 array.add(node);
@@ -69,7 +82,7 @@ public class BecaEstudioController {
         }
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody BecaEstudio becaestudio, HttpSession session) {
@@ -96,5 +109,55 @@ public class BecaEstudioController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("delete")
+    public JsonResponse delete(BecaEstudio becaestudio, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.delete(becaestudio, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Eliminada satisfactoriamnente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveInstitucion")
+    public JsonResponse saveInstitucion(@RequestBody Empresa insticion, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            Empresa institucionBD = service.saveInstitucion(insticion);
+            ObjectNode node = JsonHelper.createJson(institucionBD, JsonNodeFactory.instance, true,
+                    new String[]{
+                        "*"
+                    });
+            response.setData(node);
+            response.setSuccess(true);
+            response.setMessage("Guardado satisfactoriamnente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 
 }

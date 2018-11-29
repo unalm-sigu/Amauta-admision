@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.academico.AlumnoIntercambio;
 import pe.edu.lamolina.model.academico.BecaEstudio;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.AlumnoBecadoEstadoEnum;
+import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -21,6 +22,7 @@ import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoIntercambioDAO;
 import pe.edu.lamolina.pivot.dao.academico.BecaEstudioDAO;
+import pe.edu.lamolina.pivot.dao.general.EmpresaDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -42,6 +44,9 @@ public class AlumnoIntercambioServiceImp implements AlumnoIntercambioService {
 
     @Autowired
     BecaEstudioDAO becaEstudioDAO;
+
+    @Autowired
+    EmpresaDAO empresaDAO;
 
     @Override
     public List<AlumnoIntercambio> allAlumnoBecado(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -107,6 +112,18 @@ public class AlumnoIntercambioServiceImp implements AlumnoIntercambioService {
 
     private String forLike(String nombre) {
         return "%" + nombre.replaceAll(" ", "%") + "%";
+    }
+
+    @Override
+    @Transactional
+    public BecaEstudio saveBeca(BecaEstudio becaEstudio) {
+        becaEstudioDAO.save(becaEstudio);
+        return becaEstudio;
+    }
+
+    @Override
+    public List<Empresa> allInstituciones() {
+        return empresaDAO.all();
     }
 
 }

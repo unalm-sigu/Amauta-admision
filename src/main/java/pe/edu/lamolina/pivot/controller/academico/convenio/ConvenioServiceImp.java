@@ -168,4 +168,18 @@ public class ConvenioServiceImp implements ConvenioService {
         }
     }
 
+    @Override
+    @Transactional
+    public void changeEstado(Long id) {
+        ConvenioBeca beca = convenioBecaDAO.find(id);
+
+        if (beca.getEstado().equals(EstadoConvenioBecaEnum.ACT.name())) {
+            beca.setEstado(EstadoConvenioBecaEnum.DES.name());
+        } else {
+            beca.setEstado(EstadoConvenioBecaEnum.ACT.name());
+        }
+
+        convenioBecaDAO.update(beca);
+    }
+
 }

@@ -9,7 +9,14 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.model.academico.BecaEstudio;
+import pe.edu.lamolina.model.enums.TipoDocIdentidadEnum;
+import pe.edu.lamolina.model.general.Empresa;
+import pe.edu.lamolina.model.general.Pais;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.dao.academico.BecaEstudioDAO;
+import pe.edu.lamolina.pivot.dao.general.EmpresaDAO;
+import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -19,11 +26,15 @@ public class BecaEstudioServiceImp implements BecaEstudioService {
 
     @Autowired
     BecaEstudioDAO becaestudioDAO;
-    
+    @Autowired
+    EmpresaDAO empresaDAO;
+    @Autowired
+    TipoDocIdentidadDAO tipoDocIdentidadDAO;
+
     @Override
     public List<BecaEstudio> allByDynatable(DynatableFilter filter) {
         return becaestudioDAO.allDynaTable(filter);
-    }   
+    }
 
     @Override
     @Transactional
@@ -40,6 +51,28 @@ public class BecaEstudioServiceImp implements BecaEstudioService {
         becaestudioBD.setNombre(becaestudioForm.getNombre());
         becaestudioBD.setInstitucion(becaestudioForm.getInstitucion());
         becaestudioDAO.update(becaestudioBD);
+    }
+
+    @Override
+    @Transactional
+    public Empresa saveInstitucion(Empresa insticion) {
+        TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimbolo(TipoDocIdentidadEnum.RUC.name());
+
+        insticion.setTipoDocIdentidad(doc);
+        insticion.setPaisUbicacion(new Pais(Constantine.ID_PERU));
+        empresaDAO.save(insticion);
+        return insticion;
+    }
+
+    @Override
+    @Transactional
+    public void delete(BecaEstudio becaestudio, DataSessionPivot ds) {
+        becaestudioDAO.delete(becaestudio);
+    }
+
+    @Override
+    public List<Empresa> allInstituciones() {
+        return empresaDAO.all();
     }
 
 }
