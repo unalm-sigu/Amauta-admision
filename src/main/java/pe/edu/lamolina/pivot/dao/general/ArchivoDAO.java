@@ -7,7 +7,10 @@ import pe.edu.lamolina.model.general.Archivo;
 
 public interface ArchivoDAO extends EasyDAO<Archivo> {
 
-    public List<Archivo> allByInstanciaTipoInstancia(Long idInstancia, InstanciaEnum instanciaEnum);
+    List<Archivo> allByInstanciaTipoInstancia(Long idInstancia, InstanciaEnum instanciaEnum);
+
+    List<Archivo> allByInstanciasTipoInstancia(List<Long> idInstancias, InstanciaEnum instanciaEnum);
+
+    Archivo findFirstByInstanciasTipoInstancia(Long idInstancia, InstanciaEnum instanciaEnum);
 
 }
-

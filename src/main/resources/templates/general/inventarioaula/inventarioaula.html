@@ -25,9 +25,10 @@
                                       id='formInventario'
                                       accept-charset="UTF-8">
 
-                                    <input type='hidden' name="id" v-bind:value="inventario.id"    /> 
-
                                     <input type='hidden' name="almacen.aula.id" th:value="${aula.id}"    /> 
+                                    
+                                    <input type='hidden' name="id" v-bind:value="inventario.id"    /> 
+                                    <input type='hidden' name="imagentemporal"  v-bind:value="imagentemporal"   /> 
 
                                     <input type="hidden" id="avatar" name="avatar" />
 
@@ -50,15 +51,15 @@
 
                                                     <img  height="800" width="800"
                                                           id="imagenProfile" 
-                                                          th:src="@{/phobos/images/img.svg}"
+                                                          
+                                                          v-bind:src="inventario.imagen" 
                                                           v-bind:class="{ 'opacity-3': isactiveprogressbar }"
                                                           class="img-rounded pointer"/>
 
-                                                    <button type="button"  
-                                                            v-bind:disabled="isprocess"   
-                                                            v-on:click="openFilePicker" 
+                                                    <a v-if="!isprocess"   
+                                                            v-on:click.prevent="openFilePicker" 
                                                             href="#" 
-                                                            class="btn btn-link btn-sm" >imagen</button>
+                                                            class="btn btn-link btn-sm" >imagen</a>
 
                                                 </div>
 
@@ -452,9 +453,7 @@
                         </section>
                     </section>
                 </section>
-
-
-
+                
                 <section class="wrapper-lg">
                     <section class="panel m-b-xs">
                         <section class="panel-body">

@@ -9,12 +9,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.connection.Message;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -36,7 +37,9 @@ import pe.edu.lamolina.model.almacen.Inventario;
 import pe.edu.lamolina.model.almacen.Producto;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.CondicionInventarioEnum;
+import pe.edu.lamolina.model.enums.InstanciaEnum;
 import pe.edu.lamolina.model.enums.TipoArticuloEnum;
+import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -194,12 +197,12 @@ public class InventarioAulaController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Usuario user = ds.getUsuario();
             if (inventario.getId() == null) {
-                Usuario user = ds.getUsuario();
                 service.save(inventario, user);
                 response.setMessage("Inventario agregado satisfactoriamente");
             } else {
-                service.update(inventario);
+                service.update(inventario, user);
                 response.setMessage("Inventario actualizado satisfactoriamente");
             }
             response.setSuccess(Boolean.TRUE);
@@ -313,7 +316,7 @@ public class InventarioAulaController {
             String fileName = TypesUtil.getUnixTime() + "." + fileExt;
             String absoluteName = Constantine.TMP_DIR + fileName;
             FileHelper.saveToDisk(archivo, absoluteName);
-            
+
             json.put("name", archivo.getOriginalFilename());
             json.put("ruta", fileName);
             json.put("mime", TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())));
@@ -322,7 +325,7 @@ public class InventarioAulaController {
             response.setData(json);
             response.setSuccess(true);
             response.setMessage("Carga satisfactoria del archivo");
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

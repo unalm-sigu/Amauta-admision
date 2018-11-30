@@ -99,5 +99,8 @@ public interface Constantine {
     String S3_DIR_ARCHIVO_ATENCION = "archivo/atencion/";
 
     final static Integer CANTIDAD_HORAS_POR_EXAMEN = 2;
+    
+    //folder of inventario 
+    String S3_DIR_INVENTARIO = "inventario/";
 
 }

@@ -3,7 +3,7 @@ new Vue({
     el: '#main',
     mixins: [VueLoader],
     data: {
-        inventario: {},
+        inventario: {imagen:APP.url('phobos/images/img.svg')},
         categorias: [],
         categoria: null,
         productos: [],
@@ -18,7 +18,8 @@ new Vue({
         },
         isprocess: false,
         isactiveprogressbar: false,
-        micomentario: ''
+        micomentario: '',
+        imagentemporal: ''
     },
     mounted: function () {
         let $vue = this;
@@ -126,6 +127,7 @@ new Vue({
                         vue.micomentario = '';
                         vue.categoria = null;
                         vue.producto = null;
+                        vue.imagentemporal = '';
                     } else {
                         notify(response.message, 'error');
                     }
@@ -139,10 +141,12 @@ new Vue({
         },
         cancelarUpdate() {
             var vue = this;
-            vue.inventario = {};
+            vue.inventario = {imagen:APP.url('phobos/images/img.svg')};
             vue.micomentario = '';
             vue.categoria = null;
             vue.producto = null;
+            vue.imagentemporal = '';
+            $('#imagenProfile').attr('src', APP.url('phobos/images/img.svg'));
         },
         editarInventario(item) {
             var vue = this;
@@ -231,7 +235,6 @@ new Vue({
                         reader.readAsDataURL(data.files[0]);
                     }
                     data.submit();
-
                     $vue.isprocess = true;
                     $vue.isactiveprogressbar = true;
                 },
@@ -245,6 +248,7 @@ new Vue({
                 },
                 done: function (e, data) {
                     if (data.result.success) {
+                        $vue.imagentemporal = data.result.data.ruta;
                         notify(data.result.message, "info");
                     } else {
                         notify(data.result.message, "error");

@@ -14,7 +14,7 @@ public interface InventarioAulaService {
 
     List<Inventario> allByDynatable(DynatableFilter filter, Aula aula);
 
-    void update(Inventario inventario);
+    void update(Inventario inventario, Usuario user);
 
     void save(Inventario inventario, Usuario user);
 

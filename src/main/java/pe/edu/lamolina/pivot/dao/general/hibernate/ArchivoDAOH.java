@@ -26,4 +26,30 @@ public class ArchivoDAOH extends AbstractEasyDAO<Archivo> implements ArchivoDAO 
         return all(sql);
         
     }
+
+    @Override
+    public List<Archivo> allByInstanciasTipoInstancia(List<Long> idInstancias, InstanciaEnum instanciaEnum) {
+
+        Octavia sql = Octavia.query()
+                .from(Archivo.class, "ar")
+                .in("ar.idInstancia", idInstancias)
+                .filter("ar.instancia", instanciaEnum.name());
+        return all(sql);
+        
+    }
+    
+    
+    @Override
+    public Archivo findFirstByInstanciasTipoInstancia(Long idInstancia, InstanciaEnum instanciaEnum)  {
+
+        Octavia sql = Octavia.query()
+                .from(Archivo.class, "ar")
+                .filter("ar.idInstancia", idInstancia)
+                .filter("ar.instancia", instanciaEnum.name())
+                .limit(1);
+        return find(sql);
+        
+    }
+    
+    
 }
