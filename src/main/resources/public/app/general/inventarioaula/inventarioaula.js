@@ -1,9 +1,11 @@
 Vue.component("multiselect", window.VueMultiselect.default);
+Vue.component('file-upload', VueUploadComponent);
+Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 new Vue({
     el: '#main',
     mixins: [VueLoader],
     data: {
-        inventario: {imagen:APP.url('phobos/images/img.svg')},
+        inventario: {imagen: APP.url('phobos/images/img.svg')},
         categorias: [],
         categoria: null,
         productos: [],
@@ -19,22 +21,16 @@ new Vue({
         isprocess: false,
         isactiveprogressbar: false,
         micomentario: '',
-        imagentemporal: ''
+        imagentemporal: '',
+        files: [],
+        configDate: {
+            format: "DD/MM/YYYY",
+            useCurrent: false
+        },
     },
     mounted: function () {
         let $vue = this;
         $vue.allProducto();
-        $vue.applyFileupload();
-        $('[name="fechaVencimientoGarantia"]').datepickerBoot();
-        $('[name="anoFabricacion"]').datepickerBoot();
-        $('[name="fechaIngreso"]').datepickerBoot();
-        $('[name="fechaBaja"]').datepickerBoot();
-    },
-    updated: function () {
-        $('[name="fechaVencimientoGarantia"]').datepickerBoot();
-        $('[name="anoFabricacion"]').datepickerBoot();
-        $('[name="fechaIngreso"]').datepickerBoot();
-        $('[name="fechaBaja"]').datepickerBoot();
     },
     methods: {
         allProducto() {
@@ -61,23 +57,18 @@ new Vue({
             vue.productos = item.productos;
         },
         addNuevoProducto() {
-
             let vue = this;
-
             if (vue.categoria == null) {
                 notify('Seleccione una categoria', 'info');
                 return;
             }
-
             $('#formNuevoProducto').parsley().destroy();
             $('#formNuevoProducto').parsley();
-
             var keys = Object.keys(vue.nuevoproducto);
             for (var key in keys) {
                 vue.nuevoproducto['' + keys[key]] = null;
             }
             vue.$refs.nuevoProducto.open();
-
             $('#formNuevoProducto').find('[name=tipo]').select2({minimumResultsForSearch: -1});
         },
         saveNuevoProducto() {
@@ -93,15 +84,12 @@ new Vue({
                 async: false,
                 success: function (response) {
                     if (response.success) {
-
                         vue.producto = response.data;
                         vue.$refs.nuevoProducto.close();
-
                     } else {
                         notify(response.message, 'error');
                     }
                     vue.hideLoader();
-
                 }, error: function () {
                     vue.hideLoader();
                     notify(MESSAGES.errorComunicacion, "error");
@@ -123,7 +111,7 @@ new Vue({
                     if (response.success) {
                         vue.$refs.load.loadRemoteData();
                         notify(response.message, "info");
-                        vue.inventario = {};
+                        vue.inventario = {imagen: APP.url('phobos/images/img.svg')};
                         vue.micomentario = '';
                         vue.categoria = null;
                         vue.producto = null;
@@ -137,16 +125,13 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-
         },
         cancelarUpdate() {
             var vue = this;
-            vue.inventario = {imagen:APP.url('phobos/images/img.svg')};
-            vue.micomentario = '';
             vue.categoria = null;
             vue.producto = null;
             vue.imagentemporal = '';
-            $('#imagenProfile').attr('src', APP.url('phobos/images/img.svg'));
+            vue.inventario = {imagen: APP.url('phobos/images/img.svg')};
         },
         editarInventario(item) {
             var vue = this;
@@ -210,58 +195,36 @@ new Vue({
                 }
             });
         },
-        openFilePicker() {
-            $('#fileupload').trigger('click');
-        },
-        applyFileupload() {
-
+        inputFilter(newFile, oldFile, prevent) {
             let $vue = this;
-
-            $('#fileupload').fileupload({
-                url: APP.url('general/aula/inventario/upload'),
-                maxNumberOfFiles: 1,
-                dataType: 'json',
-                dropZone: '#dragarea',
-                add: function (e, data) {
-                    if (data.files[0].type.search(/(\.|\/)(jpe?g|png)$/i) == -1) {
-                        notify("Formato de archivo no soportado.", "error");
-                        return;
-                    }
-                    if (data.files && data.files[0]) {
-                        var reader = new FileReader();
-                        reader.onload = function (e) {
-                            $('#imagenProfile').attr('src', e.target.result);
-                        };
-                        reader.readAsDataURL(data.files[0]);
-                    }
-                    data.submit();
-                    $vue.isprocess = true;
-                    $vue.isactiveprogressbar = true;
-                },
-                progress: function (e, data) {
-                    var progress = parseInt(data.loaded / data.total * 100, 10);
-                    $('#progress-bar').css('width', progress + '%');
-                    if (progress === 100) {
-                        $vue.isactiveprogressbar = false;
-                        $('#progress-bar').css('width', 0 + '%');
-                    }
-                },
-                done: function (e, data) {
-                    if (data.result.success) {
-                        $vue.imagentemporal = data.result.data.ruta;
-                        notify(data.result.message, "info");
-                    } else {
-                        notify(data.result.message, "error");
-                    }
-                    $vue.isprocess = false;
-                    $vue.isactiveprogressbar = false;
-                },
-                fail: function (e, data) {
-                    $vue.isprocess = false;
-                    $vue.isactiveprogressbar = false;
-                    notify(MESSAGES.errorComunicacion, "error");
+            if (newFile && !oldFile) {
+                if (!/\.(gif|jpg|jpeg|png|webp)$/i.test(newFile.name)) {
+                    swal('Error de tipo de archivo', 'Este archivo no es una imagen!', 'error', {buttons: {ok: "Aceptar"}});
+                    return prevent();
                 }
-            });
+            }
+            let URL = window.URL || window.webkitURL
+            if (URL && URL.createObjectURL) {
+                $vue.inventario.imagen = URL.createObjectURL(newFile.file)
+            }
+        },
+        inputFile(newFile, oldFile) {
+            let $vue = this;
+            $vue.isprocess = true;
+            if (newFile) {
+                $('#progress-bar').css('width', newFile.progress + '%');
+                if (Boolean(newFile) !== Boolean(oldFile) || oldFile.error !== newFile.error) {
+                    if (!$vue.$refs.upload.active) {
+                        $vue.$refs.upload.active = true
+                    }
+                }
+            }
+            if (oldFile && newFile) {
+                if (newFile.success !== oldFile.success) {
+                    $vue.imagentemporal = newFile.response.data.ruta;
+                    $vue.isprocess = false;
+                }
+            }
         }
     }
 });      

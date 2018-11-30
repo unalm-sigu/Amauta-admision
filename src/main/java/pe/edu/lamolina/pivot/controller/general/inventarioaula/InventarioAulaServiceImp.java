@@ -40,38 +40,38 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 @Service
 @Transactional(readOnly = true)
 public class InventarioAulaServiceImp implements InventarioAulaService {
-    
+
     @Autowired
     InventarioDAO inventarioDAO;
-    
+
     @Autowired
     AulaDAO aulaDAO;
-    
+
     @Autowired
     ProductoDAO productoDAO;
-    
+
     @Autowired
     TipoProductoDAO tipoProductoDAO;
-    
+
     @Autowired
     ResumenInventarioDAO resumenInventarioDAO;
-    
+
     @Autowired
     AlmacenDAO almacenDAO;
-    
+
     @Autowired
     ArchivoDAO archivoDAO;
-    
+
     @Autowired
     S3Service s3Service;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Override
     public Aula findAula(Long idaula) {
         return aulaDAO.find(idaula);
     }
-    
+
     @Override
     public List<Inventario> allByDynatable(DynatableFilter filter, Aula aula) {
         List<Inventario> inventarios = inventarioDAO.allByDynatable(filter, aula);
@@ -86,7 +86,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         }
         return inventarios;
     }
-    
+
     @Override
     @Transactional
     public void update(Inventario inventario, Usuario user) {
@@ -117,11 +117,11 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             }
         }
     }
-    
+
     @Override
     @Transactional
     public void save(Inventario inventario, Usuario user) {
-        
+
         Almacen almacen = almacenDAO.findByAula(inventario.getAlmacen().getAula());
         if (almacen == null) {
             almacen = new Almacen();
@@ -137,7 +137,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         inventario.setEstadoEnum(EstadoInventarioEnum.DISP);
         inventarioDAO.save(inventario);
         String imagen = inventario.getImagentemporal().trim();
-        
+
         if (!Strings.isNullOrEmpty(imagen)) {
             this.sendArchivoS3(imagen);
             Archivo archivo = new Archivo();
@@ -149,7 +149,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             archivo.setNombre(imagen);
             archivoDAO.save(archivo);
         }
-        
+
         ResumenInventario resumen = resumenInventarioDAO.findByAlmacenProducto(almacen, inventario.getProducto());
         if (resumen == null) {
             resumen = new ResumenInventario();
@@ -163,17 +163,17 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         resumen.setCantidad((resumen.getCantidad() + 1));
         resumenInventarioDAO.update(resumen);
     }
-    
+
     @Override
     @Transactional
     public void delete(Inventario inventario) {
-        
+
         Archivo archivo = archivoDAO.findFirstByInstanciasTipoInstancia(inventario.getId(), InstanciaEnum.INVENTARIO);
         if (archivo != null) {
             this.deleteArchivoS3(archivo.getNombre());
             archivoDAO.delete(archivo);
         }
-        
+
         Inventario inventarioDb = inventarioDAO.find(inventario.getId());
         ResumenInventario resumen = resumenInventarioDAO.findByAlmacenProducto(inventarioDb.getAlmacen(), inventarioDb.getProducto());
         if (resumen != null) {
@@ -184,17 +184,17 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         }
         inventarioDAO.delete(inventarioDb);
     }
-    
+
     @Override
     public Inventario find(Inventario inventario) {
-        
         Inventario inventarioDb = inventarioDAO.find(inventario.getId());
-        Archivo archivos = archivoDAO.findFirstByInstanciasTipoInstancia(inventario.getId(), InstanciaEnum.INVENTARIO);
-        inventarioDb.setImagen(archivos.getRuta());
+        Archivo archivo = archivoDAO.findFirstByInstanciasTipoInstancia(inventario.getId(), InstanciaEnum.INVENTARIO);
+        if (archivo != null) {
+            inventarioDb.setImagen(archivo.getRuta());
+        }
         return inventarioDb;
-        
     }
-    
+
     @Override
     public List<Producto> allProducto() {
         List<Producto> productos = productoDAO.allTipoBienes();
@@ -206,7 +206,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         });
         return masters;
     }
-    
+
     @Override
     @Transactional
     public void saveProducto(Producto producto, Usuario user) {
@@ -220,12 +220,12 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         producto.setUnidadPrincipal(new UnidadMedida(1));
         productoDAO.save(producto);
     }
-    
+
     @Override
     public List<ResumenInventario> allResumenByDynatable(DynatableFilter filter, Aula aula) {
         return resumenInventarioDAO.allByDynatable(filter, aula);
     }
-    
+
     @Override
     @Transactional
     public void updateResumen(ResumenInventario resumen) {
@@ -233,7 +233,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         resumenDb.setVisibleReporteParcial(resumen.getVisibleReporteParcial());
         resumenInventarioDAO.update(resumenDb);
     }
-    
+
     private void sendArchivoS3(String nombreArchivo) {
         File file = new File(Constantine.TMP_DIR + nombreArchivo);
         logger.debug("el archivo {} existe {} ", (Constantine.TMP_DIR + nombreArchivo), (file.exists()));
@@ -242,9 +242,9 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         }
         s3Service.uploadFile(Constantine.S3_DIR, Constantine.S3_DIR_INVENTARIO, Constantine.TMP_DIR, nombreArchivo, true);
     }
-    
+
     private void deleteArchivoS3(String nombreArchivo) {
         s3Service.deleteFile(Constantine.S3_DIR, Constantine.S3_DIR_INVENTARIO, nombreArchivo);
     }
-    
+
 }

@@ -1917,3 +1917,14 @@ div.notas {
 .opacity-3 {
     opacity: 0.3;
 }
+
+/*center label preloader image*/
+.center-label-preloader {
+    overflow: hidden;
+    position: absolute;
+    width: 100px;
+    height: 3px;
+    top: 65%;
+}
+
+

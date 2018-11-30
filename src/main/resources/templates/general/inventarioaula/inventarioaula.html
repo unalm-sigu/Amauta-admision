@@ -26,7 +26,7 @@
                                       accept-charset="UTF-8">
 
                                     <input type='hidden' name="almacen.aula.id" th:value="${aula.id}"    /> 
-                                    
+
                                     <input type='hidden' name="id" v-bind:value="inventario.id"    /> 
                                     <input type='hidden' name="imagentemporal"  v-bind:value="imagentemporal"   /> 
 
@@ -37,9 +37,11 @@
                                         <div class="col-sm-3 text-center">
                                             <div class=" v-middle">
 
-                                                <div id="dragarea" class="thumb-lg m-t-lg">
+                                                <div id="dragarea" class="container thumb-lg m-t-lg">
 
-                                                    <div v-if="isactiveprogressbar" class="progress" style="height: 2px;">
+                                                    <div v-show="!($refs.upload &amp;&amp; $refs.upload.uploaded)"
+                                                         class="progress center-label-preloader" 
+                                                         style="height: 3px;">
                                                         <div id="progress-bar" class="progress-bar" 
                                                              role="progressbar" 
                                                              style="width: 0%;" 
@@ -49,17 +51,27 @@
                                                              ></div>
                                                     </div>
 
-                                                    <img  height="800" width="800"
+                                                    <img  height="200" width="100"
                                                           id="imagenProfile" 
-                                                          
                                                           v-bind:src="inventario.imagen" 
-                                                          v-bind:class="{ 'opacity-3': isactiveprogressbar }"
+                                                          th:onerror="|this.src='@{/phobos/images/img.svg}';|"
+                                                          v-bind:class="{ 'opacity-3': !($refs.upload &amp;&amp; $refs.upload.uploaded) }"
                                                           class="img-rounded pointer"/>
 
-                                                    <a v-if="!isprocess"   
-                                                            v-on:click.prevent="openFilePicker" 
-                                                            href="#" 
-                                                            class="btn btn-link btn-sm" >imagen</a>
+                                                    <file-upload
+                                                        v-show="!isprocess"
+                                                        extensions="gif,jpg,jpeg,png,webp"
+                                                        accept="image/png,image/gif,image/jpeg,image/webp"
+                                                        name="file"
+                                                        class="btn btn-link pointer btn-sm"
+                                                        post-action="/general/aula/inventario/upload"
+                                                        v-model="files"
+                                                        chunk-enabled="true"
+                                                        v-on:input-filter="inputFilter"
+                                                        v-on:input-file="inputFile"
+                                                        ref="upload">
+                                                        Imagen
+                                                    </file-upload>
 
                                                 </div>
 
@@ -124,6 +136,7 @@
                                                            name="codigo" 
                                                            required="true"
                                                            v-bind:value="inventario.codigo" 
+                                                           v-model="inventario.codigo" 
                                                            />
                                                 </div>
                                             </div>
@@ -136,6 +149,7 @@
                                                            class="form-control" 
                                                            name='marca' 
                                                            v-bind:value="inventario.marca"  
+                                                           v-model="inventario.marca"  
                                                            />
                                                 </div>
                                             </div> 
@@ -149,6 +163,7 @@
                                                         <input type='text' name="modelo" 
                                                                class='form-control'
                                                                v-bind:value="inventario.modelo"
+                                                               v-model="inventario.modelo"
                                                                />
                                                     </div>
                                                 </div>
@@ -160,6 +175,7 @@
                                                                name="serie"  
                                                                class='form-control' 
                                                                v-bind:value="inventario.serie" 
+                                                               v-model="inventario.serie" 
                                                                />
                                                     </div>
                                                 </div>
@@ -169,12 +185,15 @@
                                                     <div class="form-group">
                                                         <label>Año Fabricación</label>
                                                         <div class='input-group'>
-                                                            <input  type='text' 
-                                                                    class='form-control' 
-                                                                    name="anoFabricacion" 
-                                                                    id="anioFabricacion"
-                                                                    v-bind:value="inventario.anoFabricacion"
-                                                                    /> 
+
+                                                            <date-picker 
+                                                                v-bind:config="configDate" 
+                                                                name="anoFabricacion" 
+                                                                class='form-control' 
+                                                                id="anioFabricacion"
+                                                                v-bind:wrap="true" 
+                                                                v-model="inventario.anoFabricacion"></date-picker>
+
                                                             <span class="input-group-addon pointer"><i class="fa fa-calendar"></i></span>
                                                         </div>
                                                     </div>
@@ -193,6 +212,7 @@
                                                                class="form-control" 
                                                                name="material" 
                                                                v-bind:value="inventario.material"
+                                                               v-model="inventario.material"
                                                                />
                                                     </div>
                                                 </div>
@@ -204,6 +224,7 @@
                                                                class="form-control decimal" 
                                                                name="largo" 
                                                                v-bind:value="inventario.largo" 
+                                                               v-model="inventario.largo" 
                                                                />
                                                     </div>
                                                 </div>
@@ -215,6 +236,7 @@
                                                                class="form-control decimal" 
                                                                name="ancho" 
                                                                v-bind:value="inventario.ancho"
+                                                               v-model="inventario.ancho"
                                                                />
                                                     </div>
                                                 </div>
@@ -226,6 +248,7 @@
                                                                class="form-control decimal" 
                                                                name="alto" 
                                                                v-bind:value="inventario.alto"
+                                                               v-model="inventario.alto"
                                                                />
                                                     </div>
                                                 </div>
@@ -249,6 +272,7 @@
                                                                class="form-control" 
                                                                name='color'
                                                                v-bind:value="inventario.color"  
+                                                               v-model="inventario.color"  
                                                                />
 
                                                     </div>
@@ -258,10 +282,11 @@
                                             <div class="col-sm-3">
                                                 <div class="form-group">
                                                     <label>Condición</label>
-                                                    <select class="form-control" 
+                                                    <select class="form-control custom-select" 
                                                             name="condicion" 
                                                             required="true"
                                                             v-bind:value="inventario.condicion"
+                                                            v-model="inventario.condicion"
                                                             data-trigger="change">
 
                                                         <option></option>
@@ -280,12 +305,16 @@
                                                 <div class="form-group">
                                                     <label>Fecha Ingreso </label>
                                                     <div class='input-group date'>
-                                                        <input  type='text' 
-                                                                class='form-control' 
-                                                                name="fechaIngreso"
-                                                                required="true"
-                                                                v-bind:value="inventario.fechaIngreso" 
-                                                                /> 
+
+                                                        <date-picker 
+                                                            v-bind:config="configDate" 
+                                                            name="fechaIngreso" 
+                                                            class='form-control' 
+                                                            id="fechaIngreso"
+                                                            required="true"
+                                                            v-bind:wrap="true" 
+                                                            v-model="inventario.fechaIngreso"></date-picker>
+
                                                         <span class="input-group-addon pointer"><i class="fa fa-calendar"></i></span>
                                                     </div>
                                                 </div>
@@ -296,11 +325,17 @@
                                                 <div class="form-group">
                                                     <label>Fecha Baja </label>
                                                     <div class='input-group date'>
-                                                        <input  type='text' 
-                                                                class='form-control' 
-                                                                name="fechaBaja"
-                                                                v-bind:value="inventario.fechaBaja" 
-                                                                /> 
+
+                                                        <date-picker 
+                                                            v-bind:config="configDate" 
+                                                            name="fechaBaja" 
+                                                            class='form-control' 
+                                                            id="fechaBaja"
+                                                            required="true"
+                                                            v-bind:wrap="true" 
+                                                            v-model="inventario.fechaBaja"></date-picker>
+
+
                                                         <span class="input-group-addon pointer"><i class="fa fa-calendar"></i></span>
                                                     </div>
                                                 </div>
@@ -320,6 +355,7 @@
                                                            name="proveedor" 
                                                            class='form-control' 
                                                            v-bind:value="inventario.proveedor" 
+                                                           v-model="inventario.proveedor" 
                                                            data-trigger="change" />
                                                 </div>
                                             </div>
@@ -329,11 +365,16 @@
                                                 <div class="form-group">
                                                     <label>Fecha de vencimiento de la Garantia</label>
                                                     <div class='input-group date'>
-                                                        <input  type='text' 
-                                                                class='form-control' 
-                                                                name="fechaVencimientoGarantia"
-                                                                v-bind:value="inventario.fechaVencimientoGarantia" 
-                                                                /> 
+
+                                                        <date-picker 
+                                                            v-bind:config="configDate" 
+                                                            name="fechaVencimientoGarantia" 
+                                                            class='form-control' 
+                                                            id="fechaVencimientoGarantia"
+                                                            required="true"
+                                                            v-bind:wrap="true" 
+                                                            v-model="inventario.fechaVencimientoGarantia"></date-picker>
+
                                                         <span class="input-group-addon pointer"><i class="fa fa-calendar"></i></span>
                                                     </div>
                                                 </div>
@@ -347,6 +388,7 @@
                                                            class="form-control numerico" 
                                                            name="vidaUtil" 
                                                            v-bind:value="inventario.vidaUtil" 
+                                                           v-model="inventario.vidaUtil" 
                                                            />
                                                 </div>
                                             </div>
@@ -359,6 +401,7 @@
                                                            class="form-control decimal" 
                                                            name="saldoInicialBien" 
                                                            v-bind:value="inventario.saldoInicialBien" 
+                                                           v-model="inventario.saldoInicialBien" 
                                                            />
                                                 </div>
                                             </div>
@@ -372,6 +415,7 @@
                                                            class="form-control decimal" 
                                                            name="depreciacionAnual" 
                                                            v-bind:value="inventario.depreciacionAnual"
+                                                           v-model="inventario.depreciacionAnual"
                                                            />
                                                 </div>
                                             </div>
@@ -383,6 +427,7 @@
                                                            class="form-control decimal" 
                                                            name="depreciacionPeriodo" 
                                                            v-bind:value="inventario.depreciacionPeriodo"
+                                                           v-model="inventario.depreciacionPeriodo"
                                                            />
                                                 </div>
                                             </div>
@@ -394,6 +439,7 @@
                                                            class="form-control decimal" 
                                                            name="depreciacionAcumulada" 
                                                            v-bind:value="inventario.depreciacionAcumulada"
+                                                           v-model="inventario.depreciacionAcumulada"
                                                            />
                                                 </div>
                                             </div>
@@ -405,6 +451,7 @@
                                                            class="form-control decimal" 
                                                            name="valorActualLibros" 
                                                            v-bind:value="inventario.valorActualLibros"
+                                                           v-model="inventario.valorActualLibros"
                                                            />
                                                 </div>
                                             </div>
@@ -417,6 +464,7 @@
                                                               name="comentario" 
                                                               v-text="inventario.comentario"
                                                               v-bind:value="inventario.comentario"
+                                                              v-model="inventario.comentario"
                                                               ></textarea>
                                                 </div>
                                             </div>
@@ -453,7 +501,7 @@
                         </section>
                     </section>
                 </section>
-                
+
                 <section class="wrapper-lg">
                     <section class="panel m-b-xs">
                         <section class="panel-body">
@@ -586,16 +634,13 @@
                 var idaula = /*[[${aula.id}]]*/ '';
                 /*]]>*/
             </script>
-            <script charset="utf-8">
-                var datepicker = $.fn.datepicker.noConflict();
-                $.fn.datepickerBoot = datepicker;
-            </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vue-loader"/>
-            <div th:substituteby="_layout/includes :: javascript-upload" />
+            <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
+            <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
+            <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
             <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8" type="text/javascript" ></script>
-            <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
             <script th:src="@{/app/general/inventarioaula/inventarioaula.js}" charset="utf-8"></script>
         </div>
 
