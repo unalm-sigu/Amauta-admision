@@ -24,8 +24,8 @@ public class ResumenInventarioDAOH extends AbstractEasyDAO<ResumenInventario> im
     public List<ResumenInventario> allByDynatable(DynatableFilter filter, Aula aula) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(ResumenInventario.class, "inv")
-                .join("almacen al", "al.aula au", "producto pro")
-                .searchFields("inv.comentario", "inv.codigo", "pro.nombre", "pro.codigo")
+                .join("almacen al", "al.aula au", "producto pro", "pro.productoSuperior ps")
+                .searchFields("pro.nombre", "pro.codigo","ps.nombre", "ps.codigo")
                 .filter("au.id", aula)
                 .orderBy("inv.id desc");
         return all(sql);

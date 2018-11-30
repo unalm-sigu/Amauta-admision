@@ -9,8 +9,8 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <h2 th:inline="text" >Ambiente: [[${aula.tipoAula.nombre}]]   [[${aula.tipoAula.codigo}]] -  [[${aula.nombre}]]  </h2>
                     <a th:href="@{/general/aula}" class="btn btn-default btn-sm pull-right">Regresar</a>
+                    <h2 th:inline="text" >Ambiente: [[${aula.tipoAula.nombre}]]   [[${aula.tipoAula.codigo}]] -  [[${aula.nombre}]]  </h2>
                 </header>
 
                 <section class="wrapper-lg">
@@ -41,7 +41,7 @@
 
                                                     <div v-show="!($refs.upload &amp;&amp; $refs.upload.uploaded)"
                                                          class="progress center-label-preloader" 
-                                                         style="height: 3px;">
+                                                         style="height: 4px;">
                                                         <div id="progress-bar" class="progress-bar" 
                                                              role="progressbar" 
                                                              style="width: 0%;" 
@@ -99,9 +99,9 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-sm-12">
+                                            <div class=""  v-bind:class="{ 'col-sm-12': (inventario.id!=null),'col-sm-10': (inventario.id==null) }" >
                                                 <div class="form-group">
-                                                    <label>Articulo</label>
+                                                    <label>Artículo</label>
 
 
                                                     <div class="input-group">
@@ -124,6 +124,19 @@
 
                                                     <input v-if="producto!=null" type='hidden' required="true" name="producto.id" v-bind:value="producto.id"    /> 
 
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-2"  v-if="inventario.id==null" >
+                                                <div class="form-group">
+                                                    <label>Cantidad</label>
+                                                    <input type="text" 
+                                                           class="form-control" 
+                                                           name="times" 
+                                                           required="true"
+                                                           v-bind:value="inventario.times" 
+                                                           v-model="inventario.times" 
+                                                           />
                                                 </div>
                                             </div>
 

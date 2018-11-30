@@ -31,6 +31,11 @@ new Vue({
     mounted: function () {
         let $vue = this;
         $vue.allProducto();
+        $('[name="times"]').numeric();
+    },
+    updated:function(){
+        let $vue = this;
+        $('[name="times"]').numeric();
     },
     methods: {
         allProducto() {

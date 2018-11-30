@@ -122,6 +122,15 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
     @Transactional
     public void save(Inventario inventario, Usuario user) {
 
+        Integer times = inventario.getTimes();
+
+        if (times != null) {
+            if (times > 0) {
+                this.saveMultipleInventariado(inventario, user);
+                return;
+            }
+        }
+
         Almacen almacen = almacenDAO.findByAula(inventario.getAlmacen().getAula());
         if (almacen == null) {
             almacen = new Almacen();
@@ -162,6 +171,77 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         }
         resumen.setCantidad((resumen.getCantidad() + 1));
         resumenInventarioDAO.update(resumen);
+    }
+
+    @Transactional
+    private void saveMultipleInventariado(Inventario inventario, Usuario user) {
+
+        inventario.setTimes(Math.abs(inventario.getTimes()));
+
+        Almacen almacen = almacenDAO.findByAula(inventario.getAlmacen().getAula());
+
+        if (almacen == null) {
+            almacen = new Almacen();
+            almacen.setAula(inventario.getAlmacen().getAula());
+            almacen.setUserRegistro(user);
+            almacen.setFechaRegistro(new Date());
+            almacenDAO.save(almacen);
+        }
+
+        ResumenInventario resumen = resumenInventarioDAO.findByAlmacenProducto(almacen, inventario.getProducto());
+
+        if (resumen == null) {
+            resumen = new ResumenInventario();
+            resumen.setVisibleReporteParcial(0);
+            resumen.setAlmacen(almacen);
+            resumen.setProducto(inventario.getProducto());
+            resumen.setCantidad(0);
+            resumenInventarioDAO.save(resumen);
+        }
+
+        for (int i = 0; i < inventario.getTimes(); i++) {
+
+            Inventario inventarioNew = new Inventario();
+            inventarioNew.setAlmacen(almacen);
+            inventarioNew.setProducto(inventario.getProducto());
+            inventarioNew.setCodigo(inventario.getCodigo().trim());
+            inventarioNew.setFechaRegistro(new Date());
+            inventarioNew.setUserRegistro(user);
+            inventarioNew.setEstadoEnum(EstadoInventarioEnum.DISP);
+            
+            inventarioNew.setCodigo(inventario.getCodigo());
+            inventarioNew.setMarca(inventario.getMarca());
+            
+            inventarioNew.setModelo(inventario.getModelo());
+            inventarioNew.setSerie(inventario.getSerie());
+            inventarioNew.setAnoFabricacion(inventario.getAnoFabricacion());
+            
+            inventarioNew.setMaterial(inventario.getMaterial());
+            inventarioNew.setLargo(inventario.getLargo());
+            inventarioNew.setAncho(inventario.getAncho());
+            inventarioNew.setAlto(inventario.getAlto());
+            
+            inventarioNew.setColor(inventario.getColor());
+            inventarioNew.setCondicion(inventario.getCondicion());
+            inventarioNew.setFechaIngreso(inventario.getFechaIngreso());
+            inventarioNew.setFechaBaja(inventario.getFechaBaja());
+            
+            inventarioNew.setProveedor(inventario.getProveedor());
+            inventarioNew.setFechaVencimientoGarantia(inventario.getFechaVencimientoGarantia());
+            inventarioNew.setVidaUtil(inventario.getVidaUtil());
+            inventarioNew.setSaldoInicialBien(inventario.getSaldoInicialBien());
+            inventarioNew.setDepreciacionAnual(inventario.getDepreciacionAnual());
+            inventarioNew.setDepreciacionPeriodo(inventario.getDepreciacionPeriodo());
+            inventarioNew.setDepreciacionAcumulada(inventario.getDepreciacionAcumulada());
+            inventarioNew.setValorActualLibros(inventario.getValorActualLibros());
+            inventarioNew.setComentario(inventario.getComentario());
+            
+            inventarioDAO.save(inventarioNew);
+            resumen.setCantidad((resumen.getCantidad() + 1));
+        }
+
+        resumenInventarioDAO.update(resumen);
+
     }
 
     @Override

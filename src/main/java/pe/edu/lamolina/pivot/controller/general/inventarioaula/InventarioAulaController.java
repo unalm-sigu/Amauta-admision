@@ -9,8 +9,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -37,9 +35,7 @@ import pe.edu.lamolina.model.almacen.Inventario;
 import pe.edu.lamolina.model.almacen.Producto;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.CondicionInventarioEnum;
-import pe.edu.lamolina.model.enums.InstanciaEnum;
 import pe.edu.lamolina.model.enums.TipoArticuloEnum;
-import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -154,6 +150,7 @@ public class InventarioAulaController {
             json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
+            e.printStackTrace();
             json.setTotal(0);
         }
         return json;
@@ -186,6 +183,7 @@ public class InventarioAulaController {
             json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
+            e.printStackTrace();
             json.setTotal(0);
         }
         return json;
