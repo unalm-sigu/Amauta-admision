@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface AlumnoGrupoRegularDAO extends EasyDAO<AlumnoGrupoRegular> {
@@ -17,6 +18,9 @@ public interface AlumnoGrupoRegularDAO extends EasyDAO<AlumnoGrupoRegular> {
     List<AlumnoGrupoRegular> allByLetraGrupoAndEstado(LetraGrupoRegular letraGrupoRegular, AlumnoRolExamenEstadoEnum estadoEnum);
 
     List<AlumnoGrupoRegular> allByLetraGrupoRegularAndEstados(LetraGrupoRegular letrasGruposRegular, List<AlumnoRolExamenEstadoEnum> estados);
+
+    List<AlumnoGrupoRegular> allBySeccionGrupoRegularAndEstados(SeccionGrupoRegular seccionGrupoRegular,
+            AlumnoRolExamenEstadoEnum... estados);
 
     void updateEstado(AlumnoGrupoRegular alumnoGrupoRegular);
 

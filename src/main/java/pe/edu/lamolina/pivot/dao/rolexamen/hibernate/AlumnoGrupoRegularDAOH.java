@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoRegularDAO;
 
@@ -49,6 +50,18 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
                 .join("alu.persona per")
                 .in("agr.estado", estados)
                 .filter("lgr.id", letrasGruposRegular);
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoGrupoRegular> allBySeccionGrupoRegularAndEstados(SeccionGrupoRegular seccionGrupoRegular,
+            AlumnoRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoGrupoRegular.class, "agr")
+                .join("agr.seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr", "userRegistro cur", "agr.alumno alu")
+                .join("alu.persona per")
+                .in("agr.estado", estados)
+                .filter("sgr.id", seccionGrupoRegular);
         return all(sql);
     }
 

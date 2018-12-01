@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
-import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoEspecialDAO;
@@ -41,6 +40,12 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
             seccionGrupoEspecial.setAlumnosEspecialesActivosCount(mapAlumnosBySeccion.get(seccionGrupoEspecial.getId()) == null ? 0 : mapAlumnosBySeccion.get(seccionGrupoEspecial.getId()));
         }
         return seccionesGrupoEspecial;
+    }
+
+    @Override
+    public void deleteGrupoEspecial(RolExamenes rolExamenes) {
+        alumnoGrupoEspecialDAO.deleteByRolExamenes(rolExamenes);
+        seccionGrupoEspecialDAO.deleteByRolExamenes(rolExamenes);
     }
 
 }

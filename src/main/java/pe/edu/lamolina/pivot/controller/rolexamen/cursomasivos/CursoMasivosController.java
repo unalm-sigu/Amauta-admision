@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -28,6 +30,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -45,7 +48,8 @@ public class CursoMasivosController {
 
     private enum TipoAccion {
         CURSO,
-        SECCION
+        SECCION,
+        DOCENTE
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -181,8 +185,16 @@ public class CursoMasivosController {
                             "grupoHorasExamen.*",
                             "grupoHorasExamen.dia.*",
                             "grupoHorasExamen.horaInicio.*",
-                            "grupoHorasExamen.horaFin.*"
-                        });
+                            "grupoHorasExamen.horaFin.*",
+                            "grupoHorasExamen.semanaExamen.id",
+                            "grupoHorasExamen.semanaExamen.numeroSemana",
+                            "grupoHorasExamen.grupoHoras.letra",
+                            "rolExamenes.id",
+                            "docentesCursosMasivos.id",
+                            "docentesCursosMasivos.docente.codigo",
+                            "docentesCursosMasivos.docente.persona.apellidosNombres",
+                            "docentesCursosMasivos.estado",
+                            "docentesCursosMasivos.estadoEnum",});
 
                 jCursoMasivosByRolExamen.add(cursoMasivo);
             }
@@ -335,30 +347,14 @@ public class CursoMasivosController {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
             if (CursoMasivosController.TipoAccion.CURSO.name().equals(tipoAccion)) {
-                CursoMasivoExamen cursoMasivoExamen = (CursoMasivoExamen) mapper.readValue(objeto.toString(), CursoMasivoExamen.class
-                );
+                CursoMasivoExamen cursoMasivoExamen = (CursoMasivoExamen) mapper.readValue(objeto.toString(), CursoMasivoExamen.class);
                 service.excluirCursoMasivo(cursoMasivoExamen, ds);
-
             } else if (CursoMasivosController.TipoAccion.SECCION.name().equals(tipoAccion)) {
-                SeccionCursoMasivo seccionCursoMasivo = (SeccionCursoMasivo) mapper.readValue(objeto.toString(), SeccionCursoMasivo.class
-                );
+                SeccionCursoMasivo seccionCursoMasivo = (SeccionCursoMasivo) mapper.readValue(objeto.toString(), SeccionCursoMasivo.class);
                 service.excluirSeccionCursoMasivo(seccionCursoMasivo, ds);
-                CursoMasivoExamen cursoMasivoExamen = service.findCursoMasivo(seccionCursoMasivo.getCursoMasivoExamen().getId());
-
-                response.setData(JsonHelper.createJson(cursoMasivoExamen, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "*",
-                            "rolExamenes.*",
-                            "curso.*",
-                            "userRegistro.*",
-                            "userRegistro.persona.*",
-                            "seccionesCursosMasivos.*",
-                            "seccionesCursosMasivos.seccion.*",
-                            "seccionesCursosMasivos.userRegistro.*",
-                            "seccionesCursosMasivos.userRegistro.persona.*",
-                            "seccionesCursosMasivos.usuarioExclusion.*",
-                            "seccionesCursosMasivos.usuarioExclusion.persona.*"
-                        }));
+            } else if (CursoMasivosController.TipoAccion.DOCENTE.name().equals(tipoAccion)) {
+                DocenteCursoMasivo docenteCursoMasivo = (DocenteCursoMasivo) mapper.readValue(objeto.toString(), DocenteCursoMasivo.class);
+                service.excluirDocenteCursoMasivo(docenteCursoMasivo, ds);
             }
             response.setMessage("Excluido corretamente.");
             response.setSuccess(Boolean.TRUE);
@@ -389,6 +385,30 @@ public class CursoMasivosController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "listDocentesCursosMasivos", method = RequestMethod.GET)
+    public DynatableResponse listDocentesCursosMasivos(DynatableFilter filter, @RequestParam("cursoMasivo") Long idCursoMasivo, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DynatableResponse json = new DynatableResponse();
+
+        List<DocenteCursoMasivo> list = service.allDocentesCursosMasivosDynaByCursoMasivo(filter, new CursoMasivoExamen(idCursoMasivo));
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+        for (DocenteCursoMasivo item : list) {
+            array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                "*",
+                "docente.codigo",
+                "docente.persona.apellidosNombres"
+            }));
+        }
+
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
+        return json;
     }
 
     private ObjectNode createAulasJson(Aula aula) {

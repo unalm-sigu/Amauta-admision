@@ -11,7 +11,7 @@ import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
 
     List<SeccionGrupoRegular> allByLetraGrupoRegularAndEstados(
-            LetraGrupoRegular letrasGruposRegular, List<SeccionRolExamenEstadoEnum> estados);
+            LetraGrupoRegular letrasGruposRegular, SeccionRolExamenEstadoEnum... estados);
 
     void updateEstado(SeccionGrupoRegular seccionGrupoRegularUpd);
 

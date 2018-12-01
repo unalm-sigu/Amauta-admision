@@ -52,18 +52,22 @@
                                         <table class="table table-striped">
                                             <thead>
                                                 <tr>
-                                                    <th class="col-md-4">Seccion</th>
-                                                    <th class="col-md-2">Aula</th>
-                                                    <th class="col-md-2">Alumnos</th>
-                                                    <th class="col-md-3">Registro</th>
+                                                    <th class="col-md-1 text-center">Seccion</th>
+                                                    <th class="col-md-4 text-center">Docente</th>
+                                                    <th class="col-md-1 text-center">Aula</th>
+                                                    <th class="col-md-1 text-center">Alumnos</th>
+                                                    <th class="col-md-3 text-center">Registro</th>
                                                     <th class="col-md-1 text-center">Estado</th>
-                                                    <th></th>
+                                                    <th  class="col-md-1 text-center"></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr v-for="item in props.data">
                                                     <td>
                                                         <span v-text="item.seccion.codigo2"></span>
+                                                    </td>
+                                                    <td>
+                                                        <span v-text="item.docente.persona.apellidosNombres"></span>
                                                     </td>
                                                     <td>
                                                         <span v-text="item.aula"></span>
@@ -75,21 +79,21 @@
                                                         <span class="block" v-text="item.userRegistro.persona.apellidosNombres"></span>
                                                         <small class="block" v-text="item.fechaRegistro"></small>
                                                     </td>
-                                                    <td>
-                                                        <span v-text="item.seccion.codigo2"></span>
-                                                    </td>
-                                                    <td class="v-middle">
-                                                        <div class="dropdown actions" >
-                                                            <a class="dropdown-toggle" data-toggle="dropdown">
-                                                                <i class="glyphicon glyphicon-option-vertical"></i>
-                                                            </a> 
-                                                            <ul class="dropdown-menu pull-right">
-                                                                <li><a >Editar</a></li>
-                                                                <li><a >Clonar</a></li>
-                                                            </ul>
-                                                        </div>
-                                                    </td>
-                                                </tr>
+                                                    <td class="text-center">
+                                            <v-estado v-bind:codigo="item.estado" v-bind:valor="item.estadoEnum.value"/> 
+                                            </td>
+                                            <td class="v-middle">
+                                                <div class="dropdown actions" >
+                                                    <a class="dropdown-toggle" data-toggle="dropdown">
+                                                        <i class="glyphicon glyphicon-option-vertical"></i>
+                                                    </a> 
+                                                    <ul class="dropdown-menu pull-right">
+                                                        <li><a >Editar</a></li>
+                                                        <li><a >Clonar</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                            </tr>
                                             </tbody>
                                         </table>
                                     </template>
@@ -108,7 +112,7 @@
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
-
+            <script th:src="@{/phobos/modules/vue-generalComponents.js}" charset="utf-8"></script>
             <script th:inline="javascript">
                 var jRolesExamenes = /*[[${jRolesExamenes}]]*/ {};
             </script>

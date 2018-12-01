@@ -81,7 +81,8 @@ public class RolExamenesController {
                             "*",
                             "eventoCicloAcademico.cicloAcademico.descripcion",
                             "eventoCicloAcademico.fechaInicio", "eventoCicloAcademico.fechaFin",
-                            "nombre", "estado", "fechaPublicacion"
+                            "nombre", "estado", "fechaPublicacion",
+                            "userRegistro.persona.apellidosNombres"
                         });
 
                 array.add(node);

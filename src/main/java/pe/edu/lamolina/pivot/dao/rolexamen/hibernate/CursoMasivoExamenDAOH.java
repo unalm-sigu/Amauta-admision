@@ -1,19 +1,25 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+import pe.edu.lamolina.model.enums.GrupoHorasRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
+import pe.edu.lamolina.model.rolexamen.GrupoRegularExamen;
+import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoMasivoExamenDAO;
 
@@ -66,8 +72,21 @@ public class CursoMasivoExamenDAOH extends AbstractEasyDAO<CursoMasivoExamen> im
                 .from(CursoMasivoExamen.class, "cme")
                 .join("rolExamenes re", "userRegistro ur", "curso cu")
                 //      .leftJoin("dia d", "hora h")
-                .left("ur.persona urPer", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin")
+                .left("ur.persona urPer", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras gh")
                 .filter("re.id", rolExamenes)
+                .orderBy("cme.id desc");
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoMasivoExamen> allByRolExamenes(RolExamenes rolExamenes, EstadoCursoMasivoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(CursoMasivoExamen.class, "cme")
+                .join("rolExamenes re", "userRegistro ur", "curso cu")
+                //      .leftJoin("dia d", "hora h")
+                .left("ur.persona urPer", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras gh")
+                .filter("re.id", rolExamenes)
+                .in("cme.estado", estados)
                 .orderBy("cme.id desc");
         return all(sql);
     }

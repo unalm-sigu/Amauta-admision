@@ -3,9 +3,16 @@ package pe.edu.lamolina.pivot.controller.rolexamen.gruporegular;
 import java.util.List;
 import java.util.Map;
 import org.joda.time.DateTime;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface GrupoRegularConnector {
 
@@ -15,12 +22,18 @@ public interface GrupoRegularConnector {
             LetraGrupoRegular letraGrupoRegular,
             Map<String, List<Seccion>> grupoHorasLetraMap,
             List<Seccion> seccionesEspeciales,
-            DateTime today,
-            Usuario usuario);
+            DataSessionPivot ds);
 
     boolean procesarSeccionesByLetra(
             LetraGrupoRegular letraGrupoRegular, Seccion seccion,
             List<Seccion> seccionesByLetra,
-            Usuario usuario, DateTime today);
+            DataSessionPivot ds);
+
+    boolean validarCursosMasivos(RolExamenes rolExamenes, List<CursoMasivoExamen> cursosMasivosByRolExamen,
+            List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnosBySeccion,
+            GrupoHorasExamen grupoHorasExamen);
+
+    boolean validarGrupoRegular(LetraGrupoRegular letraGrupoRegular,
+            List<Alumno> alumnos, List<Docente> docentes, List<Aula> aulas);
 
 }

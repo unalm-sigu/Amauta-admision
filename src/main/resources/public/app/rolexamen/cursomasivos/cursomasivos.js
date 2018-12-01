@@ -41,7 +41,8 @@ new Vue({
         secciones: [],
         tipoAccion: {
             CURSO: "CURSO",
-            SECCION: "SECCION"
+            SECCION: "SECCION",
+            DOCENTE: "DOCENTE"
         },
         semanasExamen: [],
         semanaExamenActiva: null,
@@ -265,9 +266,11 @@ new Vue({
                                         switch (tipoAccion) {
                                             case vue.tipoAccion.SECCION:
                                                 vue.$refs.seccionModal.close();
-                                                vue;
                                             case vue.tipoAccion.ALUMNO:
                                                 vue.$refs.alumnosModal.close();
+                                                break;
+                                            case vue.tipoAccion.DOCENTE:
+                                                vue.$refs.tblDocentesCursosMasivos.loadRemoteData();
                                                 break;
                                         }
                                         vue.loadCursosMasivosByRoleExamen();
@@ -342,6 +345,14 @@ new Vue({
             let $vue = this;
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
             $vue.grupoActivo = $vue.cursoMasivoExamen.grupoHorasExamen;
+            this.semanaExamenActiva = null;
+            if ($vue.cursoMasivoExamen.hasOwnProperty("grupoHorasExamen.id")) {
+                this.semanaExamenActiva = $vue.cursoMasivoExamen.grupoHorasExamen.semanaExamen;
+
+                $("#semana" + $vue.semanaExamenActiva.numeroSemana).click();
+                $("#semana" + $vue.semanaExamenActiva.numeroSemana).tab('show');
+
+            }
             this.listarHorarioSemanal();
             $vue.$refs.modalHorarios.open();
         }, saveHorarioExamen() {
@@ -364,6 +375,8 @@ new Vue({
                             if (this.semanaExamenActiva != null) {
                                 this.seleccionarSemana(this.semanaExamenActiva);
                             } else {
+                                console.log("###############");
+                                console.dir(this.semanasExamen[0]);
                                 this.seleccionarSemana(this.semanasExamen[0]);
                             }
                         }
@@ -376,6 +389,7 @@ new Vue({
 
             return "border-color:#DFE7EE; background-color:#FFFFFF;color:#E40DEB;"
         }, seleccionarSemana(semana) {
+            console.dir(semana);
             let vue = this;
             this.semanasExamen.forEach(function (x) {
                 if (x.id == semana.id) {
@@ -392,6 +406,12 @@ new Vue({
             console.log("semana examen");
             console.dir(semExamen);
             this.grupoActivo = fechaHoraGrupoExamen.grupoHorasExamen;
+        }, verDocentes(cursoMasivo) {
+            this.cursoMasivoExamen = cursoMasivo;
+            console.dir(this.cursoMasivoExamen)
+            this.$refs.tblDocentesCursosMasivos.ajaxdata = {cursoMasivo: this.cursoMasivoExamen.id};
+            this.$refs.tblDocentesCursosMasivos.loadRemoteData();
+            this.$refs.docenteModal.open();
         }
     }
 });

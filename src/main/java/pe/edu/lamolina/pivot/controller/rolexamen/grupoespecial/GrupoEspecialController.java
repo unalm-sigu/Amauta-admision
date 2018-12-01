@@ -64,7 +64,8 @@ public class GrupoEspecialController {
                 "seccion.*",
                 "rolExamenes.*",
                 "userRegistro.*",
-                "userRegistro.persona.*"
+                "userRegistro.persona.*",
+                "docente.persona.apellidosNombres"
             });
             jItem.put("alumnosEspecialesActivosCount", item.getAlumnosEspecialesActivosCount());
             array.add(jItem);
