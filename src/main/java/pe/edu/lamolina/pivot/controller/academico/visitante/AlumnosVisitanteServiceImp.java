@@ -274,9 +274,9 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     private String generateCodigo(CicloAcademico ciclo) {
 
         StringBuilder ssb = new StringBuilder();
-        ssb.append("Configuración del ciclo académico UNALM  ");
+        ssb.append("Configuración del ciclo académico UNALM ");
         ssb.append(ciclo.getDescripcion());
-        ssb.append("  no esta completa");
+        ssb.append(" no esta completa");
         if (ciclo.getMatriculaSiguiente() == null || ciclo.getMatriculaInicio() == null) {
             throw new PhobosException(ssb.toString());
         }
