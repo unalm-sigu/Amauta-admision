@@ -40,4 +40,17 @@ public class ProductoDAOH extends AbstractEasyDAO<Producto> implements ProductoD
         return find(sql);
     }
 
+    @Override
+    public Producto findLastByCodeInventario(CodigoTipoProductoEnum codigoTipoProductoEnum) {
+        Octavia sql = Octavia.query()
+                .from(Producto.class, "prod")
+                .join("tipoProducto tip", "unidadPrincipal uni")
+                .leftJoin("productoSuperior sup")
+                .filter("tip.codigo", CodigoTipoProductoEnum.BIENES.name())
+                .filter("prod.codigo","LIKE","INV%")
+                .orderBy("prod.codigo desc")
+                .limit(1);
+        return find(sql);
+    }
+
 }

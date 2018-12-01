@@ -53,25 +53,24 @@
 <script id="divAulasInventario" type="text/x-jsrender" class="hide"><span>
     </span>
     <p>
-    En <b>{{:codigo}}
+    Inventario de <b>{{:codigo}}
     {{if nombre}}
     - {{:nombre}}
     {{/if}}
     </b>
-    existen lo siguiente
     </p>
     <table class="table table-striped">
     <thead>
     <tr>
-    <th class="col-md-3">Cantidad</th>
     <th class="col-md-9">Nombre</th>
+    <th class="col-md-3">Cantidad</th>
     </tr>
     </thead>
     <tbody>
     {{for inventarios}}
     <tr>
-    <td>{{:cantidad}}</td>
     <td>{{:producto.nombre}}</td>
+    <td>{{:cantidad}}</td>
     </tr>
     {{/for}}
     </tbody>

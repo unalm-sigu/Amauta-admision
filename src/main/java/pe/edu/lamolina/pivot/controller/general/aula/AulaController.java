@@ -150,6 +150,7 @@ public class AulaController {
                     }
                 }
                 node.set("inventarios", inventariosHijas);
+                node.put("cantidadinventarios", inventariosHijas.size());
                 
                 array.add(node);
             }

@@ -37,7 +37,7 @@
                                         <div class="col-sm-3 text-center">
                                             <div class=" v-middle">
 
-                                                <div id="dragarea" class="container thumb-lg m-t-lg">
+                                                <div class="thumb-xl m-t-lg">
 
                                                     <div v-show="!($refs.upload &amp;&amp; $refs.upload.uploaded)"
                                                          class="progress center-label-preloader" 
@@ -51,7 +51,7 @@
                                                              ></div>
                                                     </div>
 
-                                                    <img  height="200" width="100"
+                                                    <img  height="200" width="200"
                                                           id="imagenProfile" 
                                                           v-bind:src="inventario.imagen" 
                                                           th:onerror="|this.src='@{/phobos/images/img.svg}';|"
@@ -406,69 +406,6 @@
                                                 </div>
                                             </div>
 
-
-                                            <div class="col-sm-3">
-                                                <div class="form-group">
-                                                    <label>Saldo inicial del bien</label>
-                                                    <input type="text" 
-                                                           class="form-control decimal" 
-                                                           name="saldoInicialBien" 
-                                                           v-bind:value="inventario.saldoInicialBien" 
-                                                           v-model="inventario.saldoInicialBien" 
-                                                           />
-                                                </div>
-                                            </div>
-
-
-
-                                            <div class="col-sm-3">
-                                                <div class="form-group">
-                                                    <label>% Depreciación Anual</label>
-                                                    <input type="text" 
-                                                           class="form-control decimal" 
-                                                           name="depreciacionAnual" 
-                                                           v-bind:value="inventario.depreciacionAnual"
-                                                           v-model="inventario.depreciacionAnual"
-                                                           />
-                                                </div>
-                                            </div>
-
-                                            <div class="col-sm-3">
-                                                <div class="form-group">
-                                                    <label>Depreciación del periodo</label>
-                                                    <input type="text" 
-                                                           class="form-control decimal" 
-                                                           name="depreciacionPeriodo" 
-                                                           v-bind:value="inventario.depreciacionPeriodo"
-                                                           v-model="inventario.depreciacionPeriodo"
-                                                           />
-                                                </div>
-                                            </div>
-
-                                            <div class="col-sm-3">
-                                                <div class="form-group">
-                                                    <label>Depreciación Acumulada</label>
-                                                    <input type="text" 
-                                                           class="form-control decimal" 
-                                                           name="depreciacionAcumulada" 
-                                                           v-bind:value="inventario.depreciacionAcumulada"
-                                                           v-model="inventario.depreciacionAcumulada"
-                                                           />
-                                                </div>
-                                            </div>
-
-                                            <div class="col-sm-3">
-                                                <div class="form-group">
-                                                    <label>Valor Actual en Libros</label>
-                                                    <input type="text" 
-                                                           class="form-control decimal" 
-                                                           name="valorActualLibros" 
-                                                           v-bind:value="inventario.valorActualLibros"
-                                                           v-model="inventario.valorActualLibros"
-                                                           />
-                                                </div>
-                                            </div>
-
                                             <div class="col-sm-12">
                                                 <div class="form-group">
                                                     <label>Descripcíon</label>
@@ -530,23 +467,33 @@
                                     <table class="table table-striped table-hover">
                                         <thead> 
                                             <tr>
-                                                <th></th>
-                                                <th class="col-sm-6 text-center">Artículo</th>
-                                                <th class="col-sm-6 text-center v-middle">Categoria</th>
+                                                <th class="col-sm-5 text-center v-middle">Artículo</th>
+                                                <th class="col-sm-3 text-center v-middle">Número</th>
+                                                <th class="col-sm-3 text-center v-middle">Característica</th>
+                                                <th class="col-sm-1 text-center v-middle">Condicíon</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data">
 
-                                                <td class="v-middle"></td>
+                                                <td class="v-middle">
+                                                    <p class="bold">{{item.producto.nombre}}</p>
+                                                    {{item.producto.productoSuperior.nombre}}
+                                                </td>
 
                                                 <td class="v-middle">
-                                                    {{item.producto.nombre}}
+                                                    {{item.codigo}}
                                                 </td>
 
                                                 <td class="v-middle text-center">
-                                                    {{item.producto.productoSuperior.nombre}}
+                                                    {{item.caracteristica}}
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span v-if="item.condicion=='NUEVO' " class=" label label-success">{{item.condicionEnum.value}}</span>
+                                                    <span v-if="item.condicion=='VIEJO' " class=" label label-danger">{{item.condicionEnum.value}}</span>
+                                                    <span v-if="item.condicion=='MEDIO' " class=" label label-warning">{{item.condicionEnum.value}}</span>
                                                 </td>
 
                                                 <td class="v-middle">
@@ -582,8 +529,9 @@
 
                     <div slot="body" vclass="panel">
 
-                        <div class="text-center">
-                            <h4 v-if='categoria != null'>Registrar Nuevo Artículo en {{categoria.nombre}}</h4>
+                        <div>
+                            <h4 class="text-center">Registrar Nuevo Artículo</h4>
+                            <h4  class="text-center bold text-primary" v-if='categoria != null'> {{categoria.nombre}}</h4>
                         </div>
 
                         <div class="panel-body">
@@ -591,16 +539,6 @@
                             <form id='formNuevoProducto' class="form-horizontal" data-parsley-validate="true">
 
                                 <input v-if='categoria != null' type="hidden" name="productoSuperior.id" v-bind:value="categoria.id" />
-
-                                <div class="form-group">
-                                    <label>codigo</label>
-                                    <input type="text"
-                                           class="form-control input-sm"
-                                           name="codigo"
-                                           v-model="nuevoproducto.codigo"
-                                           v-bind:value="nuevoproducto.codigo"
-                                           required="true"/>
-                                </div>
 
                                 <div class="form-group">
                                     <label>Nombre</label>

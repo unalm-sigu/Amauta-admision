@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.aws.S3Service;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.ConvenioBeca;
@@ -204,28 +205,26 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             Inventario inventarioNew = new Inventario();
             inventarioNew.setAlmacen(almacen);
             inventarioNew.setProducto(inventario.getProducto());
-            inventarioNew.setCodigo(inventario.getCodigo().trim());
             inventarioNew.setFechaRegistro(new Date());
             inventarioNew.setUserRegistro(user);
             inventarioNew.setEstadoEnum(EstadoInventarioEnum.DISP);
-            
-            inventarioNew.setCodigo(inventario.getCodigo());
+
             inventarioNew.setMarca(inventario.getMarca());
-            
+
             inventarioNew.setModelo(inventario.getModelo());
             inventarioNew.setSerie(inventario.getSerie());
             inventarioNew.setAnoFabricacion(inventario.getAnoFabricacion());
-            
+
             inventarioNew.setMaterial(inventario.getMaterial());
             inventarioNew.setLargo(inventario.getLargo());
             inventarioNew.setAncho(inventario.getAncho());
             inventarioNew.setAlto(inventario.getAlto());
-            
+
             inventarioNew.setColor(inventario.getColor());
             inventarioNew.setCondicion(inventario.getCondicion());
             inventarioNew.setFechaIngreso(inventario.getFechaIngreso());
             inventarioNew.setFechaBaja(inventario.getFechaBaja());
-            
+
             inventarioNew.setProveedor(inventario.getProveedor());
             inventarioNew.setFechaVencimientoGarantia(inventario.getFechaVencimientoGarantia());
             inventarioNew.setVidaUtil(inventario.getVidaUtil());
@@ -235,7 +234,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             inventarioNew.setDepreciacionAcumulada(inventario.getDepreciacionAcumulada());
             inventarioNew.setValorActualLibros(inventario.getValorActualLibros());
             inventarioNew.setComentario(inventario.getComentario());
-            
+
             inventarioDAO.save(inventarioNew);
             resumen.setCantidad((resumen.getCantidad() + 1));
         }
@@ -290,7 +289,15 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
     @Override
     @Transactional
     public void saveProducto(Producto producto, Usuario user) {
-        producto.setCodigo(producto.getCodigo().trim());
+        Producto last = productoDAO.findLastByCodeInventario(CodigoTipoProductoEnum.BIENES);
+        if (last == null) {
+            producto.setCodigo("INV000001");
+        } else {
+            int i=Integer.parseInt(last.getCodigo().substring(3, 9));
+            i++;
+            String full = String.format("%06d", i);
+            producto.setCodigo("INV"+full);
+        }
         Producto productoRegistrado = productoDAO.findByCodigo(producto.getCodigo());
         if (productoRegistrado != null) {
             throw new PhobosException("Código de producto ya registrado");

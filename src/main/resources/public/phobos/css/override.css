@@ -1928,3 +1928,24 @@ div.notas {
 }
 
 
+/*imagen inventario*/
+.thumb-xl {
+  width: 256px;
+  display: inline-block;
+}
+.thumb-xxl {
+  width: 356px;
+  display: inline-block;
+}
+.thumb-xxxl {
+  width: 456px;
+  display: inline-block;
+}
+.thumb-xl img,
+.thumb-xxl img,
+.thumb-xxl img {
+  height: auto;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
