@@ -18,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +37,7 @@ import pe.edu.lamolina.model.academico.BecaEstudio;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TipoGestionEnum;
+import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -85,20 +87,41 @@ public class AlumnoIntercambioController {
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
 
+        List<Empresa> instituciones = service.allInstituciones();
+        ArrayNode arrayInstitucion = new ArrayNode(JsonNodeFactory.instance);
+
+        for (Empresa institucion : instituciones) {
+            ObjectNode json = JsonHelper.createJson(institucion, JsonNodeFactory.instance, new String[]{
+                "id", "numeroDocIdentidad", "razonSocial"
+            });
+            arrayInstitucion.add(json);
+        }
+
+        model.addAttribute("instituciones", arrayInstitucion);
         model.addAttribute("alumno", new Alumno());
         model.addAttribute("ciclos", service.allCicloAcademico());
         model.addAttribute("gestiones", TipoGestionEnum.values());
-        
+
         return "academico/alumnointercambio/alumnointercambioform";
     }
 
     @RequestMapping("{alumno}/update")
     public String update(@PathVariable("alumno") Long alumno, Model model, HttpSession session) {
+        List<Empresa> instituciones = service.allInstituciones();
+        ArrayNode arrayInstitucion = new ArrayNode(JsonNodeFactory.instance);
 
+        for (Empresa institucion : instituciones) {
+            ObjectNode json = JsonHelper.createJson(institucion, JsonNodeFactory.instance, new String[]{
+                "id", "numeroDocIdentidad", "razonSocial"
+            });
+            arrayInstitucion.add(json);
+        }
+
+        model.addAttribute("instituciones", arrayInstitucion);
         model.addAttribute("alumno", new Alumno(alumno));
         model.addAttribute("ciclos", service.allCicloAcademico());
         model.addAttribute("gestiones", TipoGestionEnum.values());
-        
+
         return "academico/alumnointercambio/alumnointercambioform";
     }
 
@@ -266,6 +289,26 @@ public class AlumnoIntercambioController {
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveBeca")
+    public JsonResponse saveBeca(@RequestBody BecaEstudio becaEstudio, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            BecaEstudio beca = service.saveBeca(becaEstudio);
+            response.setMessage("Beca agregada satisfactoriamente");
+
+            response.setData(beca);
+            response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

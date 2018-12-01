@@ -152,6 +152,10 @@ new Vue({
             vue.alumnoVisitante.paisUniversidad;
             vue.$refs.nuevaUniversidadExtranjera.open();
             var keys = Object.keys(vue.nuevauniversidad);
+
+            console.dir("===")
+            console.dir(vue.alumnoVisitante.paisUniversidad.id)
+            console.dir("===")
             for (var key in keys) {
                 vue.nuevauniversidad['' + keys[key]] = null;
             }

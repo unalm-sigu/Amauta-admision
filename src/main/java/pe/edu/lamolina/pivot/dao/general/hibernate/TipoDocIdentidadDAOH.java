@@ -23,4 +23,12 @@ public class TipoDocIdentidadDAOH extends AbstractEasyDAO<TipoDocIdentidad> impl
                 .in("td.simbolo", Arrays.asList("DNI", "CEX", "CE", "PAS"));
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public TipoDocIdentidad findBySimbolo(String simbolo) {
+        Octavia sql = Octavia.query()
+                .from(TipoDocIdentidad.class, "td")
+                .filter("td.simbolo",simbolo);
+        return find(sql);
+    }
 }

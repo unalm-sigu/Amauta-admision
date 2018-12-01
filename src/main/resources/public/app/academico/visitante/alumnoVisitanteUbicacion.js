@@ -27,7 +27,7 @@ Vue.component("ubicacionsearch", {
         buscarDistrito: function (vue) {
             return {
                 placeholder: "  ",
-                minimumInputLength: 2,
+                minimumInputLength: -1,
                 ajax: {
                     url: APP.url("comun/buscar/allDistritos"),
                     dataType: 'json',

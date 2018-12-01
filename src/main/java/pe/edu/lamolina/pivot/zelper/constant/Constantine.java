@@ -97,4 +97,6 @@ public interface Constantine {
 
     final static Integer CANTIDAD_HORAS_POR_EXAMEN = 2;
 
+    Long ID_PERU = 178l;
+
 }

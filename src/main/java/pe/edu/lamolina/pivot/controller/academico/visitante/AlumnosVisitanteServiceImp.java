@@ -35,6 +35,7 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoGestionEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
@@ -619,10 +620,19 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         if (universidadDb != null) {
             throw new PhobosException("Una universidad con el mismo nombre ya fue registrada");
         }
+        Universidad universidadTmp = universidadDAO.findLastCodigoEntranjero();
+
+        String cod = NumberFormat.codigo((Integer.parseInt(universidadTmp.getCodigo().substring(3, 8)) + 1), 5);
+
         universidad.setEstado(EstadoEnum.ACT.name());
         universidad.setTipo("UNIV");
         universidad.setFechaRegistro(new Date());
         universidad.setUserRegistro(ds.getUsuario());
+        if (!universidad.getPais().esPeru()) {
+            universidad.setCodigo("EXT" + cod);
+            universidad.setGestion(TipoGestionEnum.AMB.name());
+        }
+
         universidadDAO.save(universidad);
     }
 

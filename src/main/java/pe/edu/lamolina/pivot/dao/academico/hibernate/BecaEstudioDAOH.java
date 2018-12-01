@@ -21,7 +21,8 @@ public class BecaEstudioDAOH extends AbstractEasyDAO<BecaEstudio> implements Bec
     public List<BecaEstudio> allDynaTable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(BecaEstudio.class, "bec")
-                .searchFields("nombre", "institucion")
+                .join("institucion ins")
+                .searchFields("bec.nombre", "ins.razonSocial")
                 .orderBy("bec.id desc");
 
         return all(sql);
