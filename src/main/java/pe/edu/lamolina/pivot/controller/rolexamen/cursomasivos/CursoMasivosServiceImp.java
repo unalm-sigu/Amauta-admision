@@ -46,8 +46,9 @@ import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
-import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.controller.rolexamen.gruporegular.GrupoRegularConnector;
+import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
+import pe.edu.lamolina.pivot.controller.rolexamen.util.TipoRolExamenesLoggerEnum;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
@@ -138,6 +139,9 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
     @Autowired
     GrupoRegularConnector grupoRegularConnector;
+
+    @Autowired
+    RolExamenesLogger rolExamenesLogger;
 
     @Override
     public List<RolExamenes> allRolExamenesByCicloActivo(CicloAcademico cicloAcademico) {
@@ -388,6 +392,9 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Transactional
     public void saveHorarioExamen(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds) {
         //   SemanaExamen semanaExamen = cursoMasivoExamen.getGrupoHorasExamen().getSemanaExamen();
+        if (this.rolExamenesLogger.isRunning()) {
+            throw new PhobosException("El proceso calculo de %s se esta ejecutando, espere que termine.", rolExamenesLogger.getTipoEnum().getValue());
+        }
         GrupoHorasExamen grupoHorasExamen = cursoMasivoExamen.getGrupoHorasExamen();
 
         List<AlumnoCursoMasivo> alumnosCursoMasivo = alumnoCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamen, AlumnoRolExamenEstadoEnum.ACT);
@@ -399,6 +406,8 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         cursoMasivoExamen.setDocentesCursosMasivos(docenteCursoMasivo);
 
         //validar cruce horario docentes !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        this.rolExamenesLogger = new RolExamenesLogger(TipoRolExamenesLoggerEnum.CUR_MAS);
+
         this.validateCruceCursosMasivos(cursoMasivoExamen);
         this.validarGruposRegulares(cursoMasivoExamen);
         this.validateGruposEspeciales(cursoMasivoExamen.getRolExamenes(), cursoMasivoExamen.getGrupoHorasExamen(),
@@ -411,6 +420,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         cursoMasivoUpd.setId(cursoMasivoExamen.getId());
         cursoMasivoUpd.setGrupoHorasExamen(grupoHorasExamen);
         cursoMasivoExamenDAO.updateFechaExamen(cursoMasivoExamen);
+        this.rolExamenesLogger.finalize();
     }
 
     public void validateCruceCursosMasivos(CursoMasivoExamen cursoMasivoExamen) {
@@ -431,33 +441,30 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         boolean validacionCursoMasivo = grupoRegularConnector.validarCursosMasivos(cursoMasivoExamen.getRolExamenes(), cursosMasivosOthers,
                 docentes, aulas, alumnos, cursoMasivoExamen.getGrupoHorasExamen());
-        Assert.isFalse(validacionCursoMasivo, "Tiene alumnos con confictos en otros cursos masivos.");
+        Assert.isTrue(validacionCursoMasivo, "Tiene confictos en otros cursos masivos.");
     }
 
     public void validarGruposRegulares(CursoMasivoExamen cursoMasivoExamen) {
-        List<LetraGrupoRegular> letrasGruposRegulares = letraGrupoRegularDAO.allByRolExamenes(cursoMasivoExamen.getRolExamenes());
-        letrasGruposRegulares.removeIf(x -> !x.getGrupoHorasExamen().equals(cursoMasivoExamen.getGrupoHorasExamen()));
+        LetraGrupoRegular letraGrupoRegular = letraGrupoRegularDAO.findByGrupoHorasExamen(cursoMasivoExamen.getGrupoHorasExamen());
 
-        if (letrasGruposRegulares.isEmpty()) {
+        if (letraGrupoRegular == null) {
             return;
         }
-
-        boolean conflicts = false;
-        CURSO_MASIVO:
-        for (AlumnoCursoMasivo iAlumnoCursoMasivo : cursoMasivoExamen.getAlumnosCursosMasivos()) {
-            for (LetraGrupoRegular iLetraGrupoRegular : letrasGruposRegulares) {
-                List<AlumnoGrupoRegular> alumnosGrupoRegular = alumnoGrupoRegularDAO.allByLetraGrupoAndEstado(iLetraGrupoRegular, AlumnoRolExamenEstadoEnum.ACT);
-                AlumnoGrupoRegular alumnoGrupoRegularFound = alumnosGrupoRegular
-                        .stream()
-                        .filter(x -> x.getAlumno().equals(iAlumnoCursoMasivo.getAlumno())).findFirst().orElse(null);
-
-                if (alumnoGrupoRegularFound != null) {
-                    conflicts = true;
-                    break CURSO_MASIVO;
-                }
-            }
+        List<SeccionGrupoRegular> seccionesGrupoRegular = seccionGrupoRegularDAO.allByLetraGrupoRegularAndEstados(letraGrupoRegular, SeccionRolExamenEstadoEnum.ACT);
+        List<AlumnoGrupoRegular> alumnosGruposRegular = alumnoGrupoRegularDAO.allByLetraGrupoRegularAndEstados(letraGrupoRegular, AlumnoRolExamenEstadoEnum.ACT);
+        for (SeccionGrupoRegular seccionGrupoRegular : seccionesGrupoRegular) {
+            List<AlumnoGrupoRegular> alumnosBySeccionGpoRegular = alumnosGruposRegular.stream().filter(x -> x.getSeccionGrupoRegular().equals(seccionGrupoRegular)).collect(Collectors.toList());
+            seccionGrupoRegular.setAlumnosGruposRegulares(alumnosBySeccionGpoRegular);
         }
-        Assert.isFalse(conflicts, "Tiene alumnos con confictos en los grupos regulares.");
+        letraGrupoRegular.setSeccionesGruposRegulares(seccionesGrupoRegular);
+
+        List<Alumno> alumnos = cursoMasivoExamen.getAlumnosCursosMasivos().stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<Aula> aulas = cursoMasivoExamen.getAulasCursosMasivos().stream().map(x -> x.getAula()).collect(Collectors.toList());
+        List<Docente> docentes = cursoMasivoExamen.getDocentesCursosMasivos().stream().map(x -> x.getDocente()).collect(Collectors.toList());
+
+        boolean validarGruposRegulares = grupoRegularConnector.validarGrupoRegular(letraGrupoRegular, alumnos, docentes, aulas);
+        Assert.isTrue(validarGruposRegulares, "Tiene confictos en otros grupos regulares.");
+
     }
 
     public void validateGruposEspeciales(RolExamenes rolExamenes, GrupoHorasExamen grupoHorasExamen, List<Alumno> alumnos) {

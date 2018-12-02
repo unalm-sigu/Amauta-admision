@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.LetraGrupoRegularDAO;
@@ -22,7 +22,7 @@ public class LetraGrupoRegularDAOH extends AbstractEasyDAO<LetraGrupoRegular> im
         Octavia sql = Octavia.query()
                 .from(LetraGrupoRegular.class, "lgr")
                 .join("rolExamenes re", "userRegistro ur")
-              //  .leftJoin("dia d", "hora h")
+                //  .leftJoin("dia d", "hora h")
                 .left("ur.persona urPer")
                 .filter("lgr.id", id);
         return find(sql);
@@ -33,10 +33,21 @@ public class LetraGrupoRegularDAOH extends AbstractEasyDAO<LetraGrupoRegular> im
         Octavia sql = Octavia.query()
                 .from(LetraGrupoRegular.class, "lgr")
                 .join("rolExamenes re", "userRegistro ur")
-              //  .leftJoin("dia d", "hora h")
+                //  .leftJoin("dia d", "hora h")
                 .left("ur.persona urPer")
                 .filter("re.id", rolExamenes);
         return all(sql);
+    }
+
+    @Override
+    public LetraGrupoRegular findByGrupoHorasExamen(GrupoHorasExamen grupoHorasExamen) {
+        Octavia sql = Octavia.query()
+                .from(LetraGrupoRegular.class, "lgr")
+                .join("grupoHorasExamen gex", "rolExamenes re", "userRegistro ur")
+                //  .leftJoin("dia d", "hora h")
+                .left("ur.persona urPer")
+                .filter("gex.id", grupoHorasExamen);
+        return find(sql);
     }
 
 }

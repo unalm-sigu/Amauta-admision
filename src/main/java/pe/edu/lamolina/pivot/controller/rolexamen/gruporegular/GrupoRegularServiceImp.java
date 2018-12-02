@@ -331,7 +331,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     @Override
     public List<AlumnoGrupoRegular> allAlumnosGrupoRegularByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
         List<AlumnoGrupoRegular> alumnos = alumnoGrupoRegularDAO.
-                allByLetraGrupoRegularAndEstados(letraGrupoRegular, Arrays.asList(AlumnoRolExamenEstadoEnum.ACT, AlumnoRolExamenEstadoEnum.EXC));
+                allByLetraGrupoRegularAndEstados(letraGrupoRegular, AlumnoRolExamenEstadoEnum.ACT, AlumnoRolExamenEstadoEnum.EXC);
         return alumnos;
     }
 

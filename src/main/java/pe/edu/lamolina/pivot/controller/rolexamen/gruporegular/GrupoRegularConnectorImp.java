@@ -40,6 +40,7 @@ import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoCursoMasivoDAO;
@@ -74,6 +75,9 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
     @Autowired
     AlumnoCursoMasivoDAO alumnoCursoMasivoDAO;
+
+    @Autowired
+    RolExamenesLogger rolExamenesLogger;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -156,17 +160,19 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
         //validar conflicto alumno
         boolean alumnoConflicto = false;
-        MATRICULAS_BY_SEC:
+        //  MATRICULAS_BY_SEC:
         for (Alumno alumno : alumnos) {
             for (SeccionGrupoRegular seccionGrupoRegular : seccionesGruposRegularesByLetra) {
                 AlumnoGrupoRegular alumnoSeccionRegularFound = seccionGrupoRegular.getAlumnosGruposRegulares()
                         .stream().filter(x -> x.getAlumno().equals(alumno)).findFirst().orElse(null);
                 if (alumnoSeccionRegularFound != null) {
                     alumnoConflicto = true;
-                    logger.debug("conflicto alumno {}, con el gruporegular seccion {}",
+                    logger.debug("conflicto alumno {}, con el grupo letra {} y la seccion {}",
                             alumnoSeccionRegularFound.getAlumno().getId(),
+                            letraGrupoRegular.getId(),
                             seccionGrupoRegular.getSeccion().getId());
-                    break MATRICULAS_BY_SEC;
+                    rolExamenesLogger.cruceAlumno(alumno, letraGrupoRegular, seccionGrupoRegular.getSeccion());
+                    // break MATRICULAS_BY_SEC;
                 }
             }
         }
@@ -181,7 +187,8 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 logger.debug("conflicto docente {}, con el gruporegular de seccion {}",
                         docente.getId(),
                         seccionGrupoRegularWithDocente.getSeccion().getId());
-                break;
+                rolExamenesLogger.cruceDocente(docente, letraGrupoRegular, seccionGrupoRegularWithDocente.getSeccion());
+                // break;
             }
         }
 
@@ -195,7 +202,8 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 logger.debug("Conflicto Aula {}, con el gruporegular seccion {}",
                         aula.getId(),
                         seccionGrupoRegularWithAula.getSeccion().getId());
-                break;
+                rolExamenesLogger.cruceAula(aula, letraGrupoRegular, seccionGrupoRegularWithAula.getSeccion());
+                //  break;
             }
         }
 
@@ -212,7 +220,8 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
     }
 
     @Override
-    public boolean validarCursosMasivos(RolExamenes rolExamenes, List<CursoMasivoExamen> cursosMasivosByRolExamen,
+    public boolean validarCursosMasivos(RolExamenes rolExamenes,
+            List<CursoMasivoExamen> cursosMasivosByRolExamen,
             List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos,
             GrupoHorasExamen grupoHorasExamen) {
         if (cursosMasivosByRolExamen.isEmpty()) {
@@ -222,15 +231,15 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         List<DocenteCursoMasivo> docentesCursoMasivo = docenteCursoMasivoDAO.allByCursosMasivos(cursosMasivosByRolExamen, DocenteRolExamenEstadoEnum.ACT);
         List<AlumnoCursoMasivo> alumnosCursosMasivos = alumnoCursoMasivoDAO.allByCursosMasivos(cursosMasivosByRolExamen, AlumnoRolExamenEstadoEnum.ACT);
 
-        Map<Long, List<AulaCursoMasivo>> mapAulaCursoMasivoByCursoMasivo = TypesUtil.convertListToMap("cursoMasivoExamen.id", aulasCursosMasivos);
-        Map<Long, List<DocenteCursoMasivo>> mapDocenteCursoMasivoByCursoMasivo = TypesUtil.convertListToMap("cursoMasivoExamen.id", docentesCursoMasivo);
-        Map<Long, List<AlumnoCursoMasivo>> mapAlumnosCursoMasivoByCursoMasivo = TypesUtil.convertListToMap("cursoMasivoExamen.id", alumnosCursosMasivos);
+        Map<Long, List<AulaCursoMasivo>> mapAulaCursoMasivoByCursoMasivo = TypesUtil.convertListToMapList("cursoMasivoExamen.id", aulasCursosMasivos);
+        Map<Long, List<DocenteCursoMasivo>> mapDocenteCursoMasivoByCursoMasivo = TypesUtil.convertListToMapList("cursoMasivoExamen.id", docentesCursoMasivo);
+        Map<Long, List<AlumnoCursoMasivo>> mapAlumnosCursoMasivoByCursoMasivo = TypesUtil.convertListToMapList("cursoMasivoExamen.id", alumnosCursosMasivos);
 
         boolean docenteConflicto = false;
         boolean aulaConConflicto = false;
         boolean alumnoConflicto = false;
         for (CursoMasivoExamen cursoMasivoByRolExamen : cursosMasivosByRolExamen) {
-            cursoMasivoByRolExamen = cursoMasivoByRolExamen.clone();
+            //  cursoMasivoByRolExamen = cursoMasivoByRolExamen.clone();
             cursoMasivoByRolExamen.setAulasCursosMasivos(mapAulaCursoMasivoByCursoMasivo.get(cursoMasivoByRolExamen.getId()));
             cursoMasivoByRolExamen.setDocentesCursosMasivos(mapDocenteCursoMasivoByCursoMasivo.get(cursoMasivoByRolExamen.getId()));
             cursoMasivoByRolExamen.setAlumnosCursosMasivos(mapAlumnosCursoMasivoByCursoMasivo.get(cursoMasivoByRolExamen.getId()));
@@ -245,20 +254,24 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                     logger.debug("conflicto docente {} , con el curso masivo  {}",
                             docente.getId(),
                             cursoMasivoByRolExamen.getId());
-                    break;
+                    rolExamenesLogger.cruceDocente(docente, cursoMasivoByRolExamen.getCurso());
+                    //  break;
                 }
             }
 
             //Validar Aula
-            for (Aula aula : aulas) {
-                AulaCursoMasivo aulaCursoMasivo = cursoMasivoByRolExamen.getAulasCursosMasivos().stream().
-                        filter(x -> x.getAula().equals(aula)).findFirst().orElse(null);
-                if (aulaCursoMasivo != null) {
-                    aulaConConflicto = true;
-                    logger.debug("Conflicto Aula {} con el curso masivo {}",
-                            aula.getId(),
-                            cursoMasivoByRolExamen.getId());
-                    break;
+            if (cursoMasivoByRolExamen.getAulasCursosMasivos() != null && !cursoMasivoByRolExamen.getAulasCursosMasivos().isEmpty()) {
+                for (Aula aula : aulas) {
+                    AulaCursoMasivo aulaCursoMasivo = cursoMasivoByRolExamen.getAulasCursosMasivos().stream().
+                            filter(x -> x.getAula().equals(aula)).findFirst().orElse(null);
+                    if (aulaCursoMasivo != null) {
+                        aulaConConflicto = true;
+                        logger.debug("Conflicto Aula {} con el curso masivo {}",
+                                aula.getId(),
+                                cursoMasivoByRolExamen.getId());
+                        rolExamenesLogger.cruceAula(aula, cursoMasivoByRolExamen.getCurso());
+                        // break;
+                    }
                 }
             }
 
@@ -271,7 +284,8 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                     logger.debug("conflicto alumno {}, con el curso masivo {}",
                             alumno.getId(),
                             cursoMasivoByRolExamen.getId());
-                    break;
+                    rolExamenesLogger.cruceAlumno(alumno, cursoMasivoByRolExamen.getCurso());
+                    //  break;
                 }
             }
 
