@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,8 +16,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,7 +220,9 @@ public class GpoSeccionController {
         Persona persona = ds.getPersona();
         List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(persona);
         List<GrupoSeccion> gpos = obtenerGruposSeccion(ids);
-        gpos.add(gpoSeccion);
+        if (!gpos.isEmpty()) {
+            gpos.add(gpoSeccion);
+        }
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("cicloJson", createCicloJson(ds.getCicloAcademico()).toString());
@@ -1690,10 +1695,6 @@ public class GpoSeccionController {
 
             response.setData(data);
             response.setSuccess(Boolean.TRUE);
-            long t2 = System.currentTimeMillis();
-//            System.out.println("Hor-Reg en " + (t2 - t1) + " mseg");
-
-//            System.out.println(">>>> RRRRR >>>> RRRRR >>>> RRRRR >>>> RRRRR >>>> RRRRR >>>> RRRRR >>>> RRRRR >>>> RRRRR >>>> RRRRR >>>> RRRRR >>>> RRRRR ");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -1902,7 +1903,6 @@ public class GpoSeccionController {
             long t1 = System.currentTimeMillis();
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-//            System.out.println("hora-Zeta hora-Zeta hora-Zeta hora-Zeta hora-Zeta hora-Zeta hora-Zeta hora-Zeta hora-Zeta hora-Zeta hora-Zeta hora-Zeta ");
             List<GrupoHoras> gruposHoras = service.allGrupoHorasZetasDyna(filter, ds.getCicloAcademico());
 
             JsonNodeFactory nf = JsonNodeFactory.instance;
@@ -1924,10 +1924,6 @@ public class GpoSeccionController {
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
 
-            long t2 = System.currentTimeMillis();
-//            System.out.println("GpoZeta en " + (t2 - t1) + " mseg");
-
-//            System.out.println(">> hora-Zeta  >> hora-Zeta  >> hora-Zeta  >> hora-Zeta  >> hora-Zeta  >> hora-Zeta  >> hora-Zeta  >> hora-Zeta  ");
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
@@ -1946,7 +1942,6 @@ public class GpoSeccionController {
 
         try {
             long t1 = System.currentTimeMillis();
-            System.out.println("GpoEsp - GpoEsp - GpoEsp - GpoEsp - GpoEsp - GpoEsp - GpoEsp - GpoEsp - GpoEsp - GpoEsp - GpoEsp - GpoEsp - GpoEsp - GpoEsp - ");
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
@@ -1958,15 +1953,10 @@ public class GpoSeccionController {
                     && filter.getQueries().get("seccion") != null) {
                 seccion = service.findSeccion(TypesUtil.getLong(filter.getQueries().get("seccion")));
                 long t3 = System.currentTimeMillis();
-                System.out.println("GpoEsp seccion en " + (t3 - t1) + " mseg");
             }
             if (seccion != null) {
                 TipoGrupoHoras tipoGrupoHoras = service.findTipoGpoByEnumCiclo(TipoGrupoHorasEnum.ESPECIAL, cicloAcademico);
-                long t4 = System.currentTimeMillis();
-                System.out.println("GpoEsp tipoGrupoHoras en " + (t4 - t1) + " mseg");
                 List<GrupoHoras> gruposHoras = service.allGrupoByTipoGpoSeccionDynatable(filter, tipoGrupoHoras, cicloAcademico, seccion);
-                long t3 = System.currentTimeMillis();
-                System.out.println("GpoEsp gruposHoras en " + (t3 - t1) + " mseg");
 
                 for (GrupoHoras grupoHoraEach : gruposHoras) {
                     ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -1985,11 +1975,6 @@ public class GpoSeccionController {
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-
-            long t2 = System.currentTimeMillis();
-            System.out.println("GpoEsp en " + (t2 - t1) + " mseg");
-
-            System.out.println(">> GpoEsp - >> GpoEsp - >> GpoEsp - >> GpoEsp - >> GpoEsp - >> GpoEsp - >> GpoEsp - >> GpoEsp - >> GpoEsp - ");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -2037,13 +2022,10 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<TipoRepitencia> tiposRepitencia = new ArrayList();
-            System.out.println(tiposRepitencias);
             for (JsonNode it : tiposRepitencias) {
                 ObjectNode tipoRepitencia = (ObjectNode) it;
                 tiposRepitencia.add((TipoRepitencia) JsonHelper.fromJson(tipoRepitencia.toString(), TipoRepitencia.class));
             }
-            System.out.println(tiposRepitencia);
-            System.out.println(tiposRepitencia.size());
             service.saveTipoRepitenciaRestriccion(new Seccion(seccionId), tiposRepitencia, ds);
 
             String message = "Tipo repitencia asignada correctamente.";
@@ -2368,7 +2350,7 @@ public class GpoSeccionController {
 
         DynatableFilter filter = createFilter(ruta);
         List<GrupoSeccion> gpoSecciones;
-        if (ids.size() > 1) {
+        if (ids.size() > 0) {
             gpoSecciones = service.allCleanByDynatableGruposSeccion(filter, ciclo, ids);
         } else {
             gpoSecciones = service.allCleanByDynatable(filter, ciclo);
@@ -2418,6 +2400,12 @@ public class GpoSeccionController {
         filter.setPage(1);
         filter.setOffset(0);
         filter.setPerPage(1000000);
+
+        try {
+            ruta = java.net.URLDecoder.decode(ruta, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+        }
 
         int inicio = ruta.indexOf("?");
         if (inicio < 0) {
@@ -2470,8 +2458,8 @@ public class GpoSeccionController {
     }
 
     private List<GrupoSeccion> obtenerGruposSeccion(String ids) {
-        if (ids == null) {
-            return new ArrayList<>();
+        if (StringUtils.isEmpty(ids)) {
+            return new ArrayList();
         }
         byte[] decoded = Base64.getMimeDecoder().decode(ids);
         String output = new String(decoded);

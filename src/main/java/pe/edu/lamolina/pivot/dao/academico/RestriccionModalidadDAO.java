@@ -8,6 +8,8 @@ import pe.edu.lamolina.model.academico.Seccion;
 
 public interface RestriccionModalidadDAO extends EasyDAO<RestriccionModalidad> {
 
+    List<RestriccionModalidad> allBySeccion(Seccion seccion);
+
     List<RestriccionModalidad> allActivasBySeccion(Seccion seccion);
 
     List<RestriccionModalidad> allActivasBySecciones(List<Seccion> secciones);

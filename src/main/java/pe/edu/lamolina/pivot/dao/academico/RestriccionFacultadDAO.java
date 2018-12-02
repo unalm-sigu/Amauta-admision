@@ -8,6 +8,8 @@ import pe.edu.lamolina.model.academico.Seccion;
 
 public interface RestriccionFacultadDAO extends EasyDAO<RestriccionFacultad> {
 
+    List<RestriccionFacultad> allBySeccion(Seccion seccion);
+
     List<RestriccionFacultad> allActivasBySeccion(Seccion seccion);
 
     List<RestriccionFacultad> allActivasBySecciones(List<Seccion> secciones);

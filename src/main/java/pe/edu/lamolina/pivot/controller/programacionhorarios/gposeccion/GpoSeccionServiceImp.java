@@ -846,17 +846,37 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             for (VacanteAlumno vacanteAlumno : vacantesAlumnos) {
                 vacanteAlumnoDAO.delete(vacanteAlumno);
             }
+            List<RestriccionCarrera> restriccionesCarr = restriccionCarreraDAO.allBySeccion(seccion);
+            for (RestriccionCarrera restricc : restriccionesCarr) {
+                restriccionCarreraDAO.delete(restricc);
+            }
+            List<RestriccionFacultad> restriccionesFac = restriccionFacultadDAO.allBySeccion(seccion);
+            for (RestriccionFacultad restricc : restriccionesFac) {
+                restriccionFacultadDAO.delete(restricc);
+            }
+            List<RestriccionModalidad> restriccionesMod = restriccionModalidadDAO.allBySeccion(seccion);
+            for (RestriccionModalidad restricc : restriccionesMod) {
+                restriccionModalidadDAO.delete(restricc);
+            }
+            List<RestriccionRepitencia> restriccionRep = restriccionRepitenciaDAO.allBySeccion(seccion);
+            for (RestriccionRepitencia restricc : restriccionRep) {
+                restriccionRepitenciaDAO.delete(restricc);
+            }
+
             seccionDAO.delete(seccion);
 
             List<Seccion> seccionesActivas = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
-            Collections.sort(seccionesActivas, (Seccion va1, Seccion va2) -> va1.getCodigo().compareTo(va2.getCodigo()));
+            Collections.sort(seccionesActivas, (Seccion va1, Seccion va2) -> va1.getCodigo2().compareTo(va2.getCodigo2()));
             int i = 0;
             for (Seccion seccionEach : seccionesActivas) {
-                seccionEach.setCodigo(grupoSeccion.getCodigo() + i);
-                seccionEach.setCodigo2(seccionEach.getCodigo());
-                seccionEach.setUsuarioModificacion(usuario);
-                seccionEach.setFechaModificacion(today.toDate());
-                seccionDAO.updateEstadoFechaModUsuarioMod(seccionEach);
+                String cod2 = grupoSeccion.getCodigo2() + i;
+                System.out.println("cod2 == " + cod2);
+                if (!seccionEach.getCodigo2().equals(cod2)) {
+                    seccionEach.setCodigo2(cod2);
+                    seccionEach.setUsuarioModificacion(usuario);
+                    seccionEach.setFechaModificacion(today.toDate());
+                    seccionDAO.updateEstadoFechaModUsuarioMod(seccionEach);
+                }
                 i++;
             }
 
