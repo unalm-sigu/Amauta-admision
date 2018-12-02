@@ -98,8 +98,8 @@
             </td>
 
             <td class="v-middle">
-                <template v-if="docSeccion.principal == 1 "></template>
-                <a v-else-if="docSeccion.estado != 'ACT' "
+                <template v-if="docSeccion.principal == 1 &amp;&amp; docSeccion.estado == 'ACT' "></template>
+                <a v-else=""
                    v-on:click="deleteDocSeccion(docSeccion)"
                    class="delete-tipo-evaluacion pointer"><i class="fa fa-trash-o fa-lg text-danger"></i></a>
             </td>

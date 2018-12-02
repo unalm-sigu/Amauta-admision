@@ -115,21 +115,47 @@
                                 </div>
 
 
+                                <!--                                <div class="col-sm-6">
+                                                                    <div class="form-group">
+                                                                        <label>Beca</label>
+                                
+                                
+                                                                        <vuelect 
+                                                                            required="true"
+                                                                            v-bind:objetogenerico="becado.becaEstudio"
+                                                                            v-bind:initobject="becado.becaEstudio"
+                                                                            nameinput="becaEstudio.id"
+                                                                            remoteurl="academico/becado/alumno/allBeca"
+                                                                            v-model="becado.becaEstudio"
+                                                                            ></vuelect>
+                                
+                                
+                                
+                                                                    </div>
+                                                                </div>-->
+
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <label>Beca</label>
 
+                                        <div class="input-group">
 
-                                        <vuelect 
-                                            required="true"
-                                            v-bind:objetogenerico="becado.becaEstudio"
-                                            v-bind:initobject="becado.becaEstudio"
-                                            nameinput="becaEstudio.id"
-                                            remoteurl="academico/becado/alumno/allBeca"
-                                            v-model="becado.becaEstudio"
-                                            ></vuelect>
+                                            <vuelect 
+                                                required="true"
+                                                v-bind:objetogenerico="becado.becaEstudio"
+                                                v-bind:initobject="becado.becaEstudio"
+                                                data-parsley-errors-container="#errorbeca"
+                                                nameinput="becaEstudio.id"
+                                                remoteurl="academico/becado/alumno/allBeca"
+                                                v-model="becado.becaEstudio"
+                                                ></vuelect>
 
+                                            <div class="input-group-addon">
+                                                <i class="fa fa-plus pointer" v-on:click.prevent="addBeca()" aria-hidden="true"></i>
+                                            </div>
+                                        </div>
 
+                                        <span id="errorbeca"></span>
 
                                     </div>
                                 </div>
@@ -148,7 +174,7 @@
                                     </div>
                                 </div>
 
-                                
+
                                 <div class="col-xs-12 text-center">
 
                                     <div class="line line-dashed b-b line-lg pull-in"></div>
@@ -197,7 +223,7 @@
                                            v-bind:value="nuevauniversidad.nombre"
                                            required="true"/>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group"  v-if='becado.paisDestino.id == 178'>
                                     <label>Código</label>
                                     <input type="text"
                                            class="form-control input-sm"
@@ -215,7 +241,7 @@
                                            v-bind:value="nuevauniversidad.siglas"
                                            required="true"/>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group"  v-if='becado.paisDestino.id == 178'>
                                     <label>Gestion</label>
                                     <select name="gestion"
                                             v-bind:valor="nuevauniversidad.gestion"
@@ -234,6 +260,44 @@
                         </div>
 
 
+                    </div>
+                </modal-vik>
+
+                <modal-vik ref="modalNuevaBeca"
+                           v-bind="modalNuevaBeca"
+                           v-bind:okaction="saveBeca" >
+
+                    <div slot="body" vclass="panel">
+
+                        <div class="panel-body">
+
+                            <form id='formNuevaBeca' class="form-horizontal" data-parsley-validate="true">
+
+                                <div class="form-group">
+                                    <label>Nombre</label>
+                                    <input type="text"
+                                           class="form-control input-sm"
+                                           name="nombre"
+                                           v-model="becaEstudio.nombre"
+                                           required="true"/>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Institución</label>
+                                    <multiselect                                                   
+                                        v-model='becaEstudio.institucion'
+                                        v-bind:internal-search='true'
+                                        v-bind:limit='15'
+                                        v-bind:options='instituciones'
+                                        placeholder="Seleccione una beca"
+                                        label="razonSocial"
+                                        v-bind:show-labels="false"
+                                        v-bind:allow-empty="false"
+                                        track-by="id">
+                                    </multiselect>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </modal-vik>
 
@@ -258,6 +322,7 @@
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var idalumno = /*[[${alumno.id}]]*/ '';
+                var institucionesJson = /*[[${instituciones.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
             <div th:substituteby="_layout/includes :: vue-loader"/>

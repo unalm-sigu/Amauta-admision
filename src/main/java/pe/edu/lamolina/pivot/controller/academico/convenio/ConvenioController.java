@@ -340,4 +340,24 @@ public class ConvenioController {
 
     }
 
+    @ResponseBody
+    @RequestMapping("changeEstado")
+    public JsonResponse changeEstado(@RequestParam("id") Long id) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(Boolean.FALSE);
+
+        try {
+            service.changeEstado(id);
+            response.setMessage("Se cambio de estado.");
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
 }

@@ -420,16 +420,19 @@
                                                 <li v-bind:class="getClassTab('DOCENTES')" v-on:click="verTab('DOCENTES')">
                                                     <a href="#1Conte" data-toggle="tab">Docentes</a>
                                                 </li>
-                                                <li v-bind:class="getClassTab('AMPLIACIONES')" v-on:click="verTab('AMPLIACIONES')">
+                                                <li v-if="seccionSeleccionada.estado == 'ACT' "
+                                                    v-bind:class="getClassTab('AMPLIACIONES')" v-on:click="verTab('AMPLIACIONES')">
                                                     <a href="#2Conte" data-toggle="tab">Ampliación Vacantes</a>
                                                 </li>
-                                                <li v-bind:class="getClassTab('AULAGRUPO')" v-on:click="verTab('AULAGRUPO')">
+                                                <li v-if="seccionSeleccionada.estado == 'ACT' "
+                                                    v-bind:class="getClassTab('AULAGRUPO')" v-on:click="verTab('AULAGRUPO')">
                                                     <a href="#3Conte" data-toggle="tab">Cambio Aula / Grupo</a>
                                                 </li>
-                                                <li v-bind:class="getClassTab('FUSIONES')" v-on:click="verTab('FUSIONES')">
+                                                <li v-if="seccionSeleccionada.estado == 'ACT' "
+                                                    v-bind:class="getClassTab('FUSIONES')" v-on:click="verTab('FUSIONES')">
                                                     <a href="#4Conte" data-toggle="tab">Fusiones</a>
                                                 </li>
-                                                <li v-if="ciclo.tipo == 'NIV' " 
+                                                <li v-if="ciclo.tipo == 'NIV' &amp;&amp; seccionSeleccionada.estado == 'ACT' " 
                                                     v-bind:class="getClassTab('PRECIOS')" v-on:click="verTab('PRECIOS')">
                                                     <a href="#5Conte" data-toggle="tab">Precios</a>
                                                 </li>

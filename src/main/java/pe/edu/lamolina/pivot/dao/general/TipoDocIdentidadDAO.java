@@ -8,4 +8,6 @@ public interface TipoDocIdentidadDAO extends EasyDAO<TipoDocIdentidad> {
 
     List<TipoDocIdentidad> allForPersonaNatural();
 
+    TipoDocIdentidad findBySimbolo(String name);
+
 }

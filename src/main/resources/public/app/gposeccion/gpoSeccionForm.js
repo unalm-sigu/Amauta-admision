@@ -552,7 +552,8 @@ var app = new Vue({
                         porcentajeAvance: parseFloat(docSeccion.porcentajeCarga)
                     },
                     success: function (response) {
-                        $vue.loadGpoSeccionEfecto($vue.grupoSeccion.id, "");
+                        //$vue.loadGpoSeccionEfecto($vue.grupoSeccion.id, "");
+                        $vue.loadGpoSeccionFlash();
                         if (response.success) {
                             notify(response.message, "info");
 
@@ -584,14 +585,13 @@ var app = new Vue({
                         $.ajax({
                             method: 'POST',
                             url: APP.url('academico/gposeccion/deleteSeccion'),
-                            data: {
-                                seccion: seccion.id
-                            },
+                            data: {seccion: seccion.id},
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
-                                    $vue.loadSecciones();
-                                    $vue.docentesSeccion = [];
+                                    $vue.loadGpoSeccionFlash();
+                                    //$vue.loadSecciones();
+                                    //$vue.docentesSeccion = [];
                                     MODAL.hideWait();
                                 } else {
                                     notify(response.message, "error");
@@ -626,8 +626,9 @@ var app = new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
-                                    $vue.loadSecciones();
-                                    $vue.docentesSeccion = [];
+                                    //$vue.loadSecciones();
+                                    //$vue.docentesSeccion = [];
+                                    $vue.loadGpoSeccionFlash();
                                     MODAL.hideWait();
                                 } else {
                                     notify(response.message, "error");
@@ -662,8 +663,9 @@ var app = new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
-                                    $vue.loadSecciones();
-                                    $vue.docentesSeccion = [];
+                                    $vue.loadGpoSeccionFlash();
+                                    //$vue.loadSecciones();
+                                    //$vue.docentesSeccion = [];
                                     MODAL.hideWait();
                                 } else {
                                     notify(response.message, "error");
@@ -698,8 +700,9 @@ var app = new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
-                                    $vue.loadSecciones();
-                                    $vue.docentesSeccion = [];
+                                    $vue.loadGpoSeccionFlash();
+                                    //$vue.loadSecciones();
+                                    //$vue.docentesSeccion = [];
                                     MODAL.hideWait();
                                 } else {
                                     notify(response.message, "error");
@@ -734,7 +737,8 @@ var app = new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
-                                    $vue.loadGpoSeccionEfecto($vue.grupoSeccion.id, "");
+                                    //$vue.loadGpoSeccionEfecto($vue.grupoSeccion.id, "");
+                                    $vue.loadGpoSeccionFlash();
                                     //$vue.loadSecciones();
                                     MODAL.hideWait();
                                 } else {
@@ -776,7 +780,8 @@ var app = new Vue({
             $vue.$refs.modalGrupo.close();
             if (response.success) {
                 notify(response.message, "info");
-                $vue.loadSecciones();
+                $vue.loadGpoSeccionFlash();
+                //$vue.loadSecciones();
             } else {
                 notify(response.message, "error");
             }
@@ -785,7 +790,8 @@ var app = new Vue({
             $vue.$refs.modalRestriccion.close();
             if (response.success) {
                 notify(response.message, "info");
-                $vue.loadSecciones();
+                //$vue.loadSecciones();
+                $vue.loadGpoSeccionFlash();
             } else {
                 notify(response.message, "error");
             }
@@ -794,7 +800,8 @@ var app = new Vue({
             $vue.$refs.modalTipoRepitencia.close();
             if (response.success) {
                 notify(response.message, "info");
-                $vue.loadSecciones();
+                $vue.loadGpoSeccionFlash();
+                //$vue.loadSecciones();
             } else {
                 notify(response.message, "error");
             }
@@ -879,11 +886,12 @@ var app = new Vue({
                         capa: seccion.restriccionCapa
                     },
                     success: function (response) {
+                        $vue.loadGpoSeccionFlash();
                         if (response.success) {
                             notify(response.message, "info");
-                            $vue.loadSecciones();
+                            //$vue.loadSecciones();
                         } else {
-                            $vue.loadSecciones();
+                            //$vue.loadSecciones();
                             notify(response.message, "error");
                         }
                     },
@@ -924,7 +932,8 @@ var app = new Vue({
             $vue.$refs.modalAula.close();
             if (response.success) {
                 notify(response.message, "info");
-                $vue.loadSecciones();
+                $vue.loadGpoSeccionFlash();
+                //$vue.loadSecciones();
             } else {
                 notify(response.message, "error");
             }
@@ -979,7 +988,8 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         MODAL.hideWait();
-                        $vue.loadSecciones();
+                        //$vue.loadSecciones();
+                        $vue.loadGpoSeccionFlash();
                         notify(response.message, "info");
                     } else {
                         notify(response.message, "error");
@@ -1014,7 +1024,8 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         MODAL.hideWait();
-                        $vue.loadSecciones();
+                        //$vue.loadSecciones();
+                        $vue.loadGpoSeccionFlash();
                         notify(response.message, "info");
                     } else {
                         notify(response.message, "error");
@@ -1047,7 +1058,8 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        $vue.loadSecciones();
+                        $vue.loadGpoSeccionFlash();
+                        //$vue.loadSecciones();
                     } else {
                         target.parsley().addError('forcederror', {message: response.message, updateClass: true});
                     }
@@ -1075,7 +1087,8 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        $vue.loadSecciones();
+                        $vue.loadGpoSeccionFlash();
+                        //$vue.loadSecciones();
                     } else {
                         target.parsley().addError('forcederror', {message: response.message, updateClass: true});
                     }
