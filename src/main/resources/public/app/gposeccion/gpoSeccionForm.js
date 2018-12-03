@@ -348,7 +348,7 @@ var app = new Vue({
                 }
             });
         },
-        loadGpoSeccionFlash() {
+        loadGpoSeccionFlash(modalConfirm) {
             console.log("loadGpoSeccionActual/loadGpoSeccionActual/loadGpoSeccionActual")
             let $vue = this;
             $.ajax({
@@ -368,8 +368,14 @@ var app = new Vue({
                     } else {
                         notify(response.message, "error");
                     }
+                    if (modalConfirm != undefined) {
+                        modalConfirm.modal("hide");
+                    }
                 },
                 error() {
+                    if (modalConfirm != undefined) {
+                        modalConfirm.modal("hide");
+                    }
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
@@ -589,12 +595,11 @@ var app = new Vue({
                             url: APP.url('academico/gposeccion/deleteSeccion'),
                             data: {seccion: seccion.id},
                             success: function (response) {
-                                $(".btn-modal").prop('disabled', false);
                                 if (response.success) {
-                                    mm.modal("hide");
                                     notify(response.message, "info");
-                                    $vue.loadGpoSeccionFlash();
+                                    $vue.loadGpoSeccionFlash(mm);
                                 } else {
+                                    $(".btn-modal").prop('disabled', false);
                                     $(".btn-procesar").html('Si');
                                     notify(response.message, "error");
                                 }
@@ -604,6 +609,8 @@ var app = new Vue({
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
+
+                        return false;
                     }
                 }
             });
@@ -628,12 +635,12 @@ var app = new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
-                                    $vue.loadGpoSeccionFlash();
+                                    $vue.loadGpoSeccionFlash(mm);
+
                                 } else {
                                     $(".btn-modal").prop('disabled', false);
                                     $(".btn-procesar").html('Si');
                                     notify(response.message, "error");
-                                    MODAL.hideWait();
                                 }
                             }, error: function () {
                                 $(".btn-modal").prop('disabled', false);
@@ -641,43 +648,46 @@ var app = new Vue({
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
+                        return false;
                     }
                 }
             });
         },
         activarSeccion: function (seccion) {
             let $vue = this;
-            bootbox.confirm({
+            let mm = bootbox.confirm({
                 message: "¿Está seguro que desea activar la seccón?",
                 buttons: {
-                    confirm: {label: 'Si', className: "btn-warning"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
+                    confirm: {label: 'Si', className: "btn-warning btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
                 },
                 callback: function (result) {
                     if (result) {
-                        MODAL.showWait("Espere un momento por favor");
+                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                        $(".btn-modal").prop('disabled', true);
+
                         $.ajax({
                             method: 'POST',
                             url: APP.url('academico/gposeccion/activarSeccion'),
-                            data: {
-                                seccion: seccion.id
-                            },
+                            data: {seccion: seccion.id},
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
-                                    $vue.loadGpoSeccionFlash();
-                                    //$vue.loadSecciones();
-                                    //$vue.docentesSeccion = [];
-                                    MODAL.hideWait();
+                                    $vue.loadGpoSeccionFlash(mm);
+
                                 } else {
+                                    $(".btn-modal").prop('disabled', false);
+                                    $(".btn-procesar").html('Si');
                                     notify(response.message, "error");
-                                    MODAL.hideWait();
                                 }
                             }, error: function () {
+                                $(".btn-modal").prop('disabled', false);
+                                $(".btn-procesar").html('Si');
                                 notify(MESSAGES.errorComunicacion, "error");
-                                MODAL.hideWait();
                             }
                         });
+
+                        return false;
                     }
                 }
             });
@@ -700,12 +710,12 @@ var app = new Vue({
                             url: APP.url('academico/gposeccion/anularSeccion'),
                             data: {seccion: seccion.id},
                             success: function (response) {
-                                $(".btn-modal").prop('disabled', false);
                                 if (response.success) {
-                                    mm.modal("hide");
                                     notify(response.message, "info");
-                                    $vue.loadGpoSeccionFlash();
+                                    $vue.loadGpoSeccionFlash(mm);
+
                                 } else {
+                                    $(".btn-modal").prop('disabled', false);
                                     $(".btn-procesar").html('Si');
                                     notify(response.message, "error");
                                 }
@@ -722,37 +732,38 @@ var app = new Vue({
         },
         deleteDocSeccion: function (docSeccion) {
             let $vue = this;
-            bootbox.confirm({
+            let mm = bootbox.confirm({
                 message: "¿Está seguro que desea elimar el docente?",
                 buttons: {
-                    confirm: {label: 'Si', className: "btn-warning"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
+                    confirm: {label: 'Si', className: "btn-warning btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
                 },
                 callback: function (result) {
                     if (result) {
-                        MODAL.showWait("Espere un momento por favor");
+                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                        $(".btn-modal").prop('disabled', true);
+
                         $.ajax({
                             method: 'POST',
                             url: APP.url('academico/gposeccion/deleteDocSeccion'),
-                            data: {
-                                docSeccion: docSeccion.id
-                            },
+                            data: {docSeccion: docSeccion.id},
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
-                                    //$vue.loadGpoSeccionEfecto($vue.grupoSeccion.id, "");
-                                    $vue.loadGpoSeccionFlash();
-                                    //$vue.loadSecciones();
-                                    MODAL.hideWait();
+                                    $vue.loadGpoSeccionFlash(mm);
+
                                 } else {
+                                    $(".btn-modal").prop('disabled', false);
+                                    $(".btn-procesar").html('Si');
                                     notify(response.message, "error");
-                                    MODAL.hideWait();
                                 }
                             }, error: function () {
+                                $(".btn-modal").prop('disabled', false);
+                                $(".btn-procesar").html('Si');
                                 notify(MESSAGES.errorComunicacion, "error");
-                                MODAL.hideWait();
                             }
                         });
+                        return false;
                     }
                 }
             });
@@ -1531,27 +1542,31 @@ var app = new Vue({
             let $vue = this;
             this.guardaPrecio = true;
 
-            bootbox.confirm({
+            let mm = bootbox.confirm({
                 message: '¿Está seguro que desea guardar el precio de la sección?',
                 buttons: {
-                    confirm: {label: 'Si, guardar', className: 'btn-success'},
-                    cancel: {label: 'No', className: 'btn-link'}
+                    confirm: {label: 'Si, guardar', className: 'btn-success btn-modal btn-procesar'},
+                    cancel: {label: 'No', className: 'btn-link btn-modal'}
                 },
                 callback: function (aceptar) {
                     if (aceptar) {
-                        $vue.guardarPrecio(seccionSeleccionada);
+                        $vue.guardarPrecio(seccionSeleccionada, mm);
+                        return false;
                     } else {
                         $vue.guardaPrecio = false;
                     }
                 }
             });
         },
-        guardarPrecio(seccionSeleccionada) {
+        guardarPrecio(seccionSeleccionada, modalConfirm) {
             this.guardaPrecio = true;
             let $vue = this;
             let precioSeccionSend = {};
             precioSeccionSend.id = seccionSeleccionada.id;
             precioSeccionSend.precio = seccionSeleccionada.precio;
+
+            $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+            $(".btn-modal").prop('disabled', true);
 
             $.ajax({
                 url: APP.url("academico/gposeccion/saveprecioseccion"),
@@ -1564,15 +1579,19 @@ var app = new Vue({
                     if (response.success) {
                         $vue.editaPrecio = false;
                         $vue.guardaPrecio = false;
-                        $vue.loadGpoSeccionFlash();
+                        $vue.loadGpoSeccionFlash(modalConfirm);
                         notify(response.message, "info");
                     } else {
+                        $(".btn-modal").prop('disabled', false);
+                        $(".btn-procesar").html('Si');
                         notify(response.message, 'error');
                     }
                 },
                 error: function () {
                     $vue.editaPrecio = true;
                     $vue.guardaPrecio = false;
+                    $(".btn-modal").prop('disabled', false);
+                    $(".btn-procesar").html('Si');
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
@@ -1756,36 +1775,39 @@ var app = new Vue({
 
             let $vue = this;
 
-            bootbox.confirm({
+            let mm = bootbox.confirm({
                 message: "¿Está seguro que desea eliminar el cambio aula/grupo?",
                 buttons: {
-                    confirm: {label: 'Si', className: "btn-warning"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
+                    confirm: {label: 'Si', className: "btn-warning btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
                 },
                 callback: function (result) {
                     if (result) {
-                        MODAL.showWait("Espere un momento por favor");
+                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                        $(".btn-modal").prop('disabled', true);
+
                         $.ajax({
                             method: 'POST',
                             url: APP.url('academico/gposeccion/deletecambioaulagrupo'),
-                            data: {
-                                id: cambioaulagrupo.id
-                            },
+                            data: {id: cambioaulagrupo.id},
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
-                                    $vue.loadGpoSeccionFlash();
+                                    $vue.loadGpoSeccionFlash(mm);
                                     $vue.allCambioAulaGrupo();
-                                    MODAL.hideWait();
+
                                 } else {
+                                    $(".btn-modal").prop('disabled', false);
+                                    $(".btn-procesar").html('Si');
                                     notify(response.message, "error");
-                                    MODAL.hideWait();
                                 }
                             }, error: function () {
+                                $(".btn-modal").prop('disabled', false);
+                                $(".btn-procesar").html('Si');
                                 notify(MESSAGES.errorComunicacion, "error");
-                                MODAL.hideWait();
                             }
                         });
+                        return false;
                     }
                 }
             });

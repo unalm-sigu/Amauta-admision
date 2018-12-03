@@ -806,6 +806,7 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.anularSeccion(new Seccion(seccionId), ds.getUsuario());
+            //TypesUtil.delay(5000);
             String message = "Sección anulada.";
             response.setSuccess(true);
             response.setMessage(message);

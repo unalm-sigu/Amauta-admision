@@ -836,6 +836,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccion = seccionDAO.find(seccion.getId());
         GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
 
+        List<HorarioSeccion> horarioSecc = horarioSeccionDAO.allBySeccion(seccion);
+        for (HorarioSeccion hSecc : horarioSecc) {
+            horarioSeccionDAO.delete(hSecc);
+        }
+
+        List<HorarioAula> horarioAula = horarioAulaDAO.allBySeccion(seccion);
+        for (HorarioAula hSecc : horarioAula) {
+            horarioAulaDAO.delete(hSecc);
+        }
+
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
         if (matriculasSeccion.isEmpty()) {
             List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccion);
@@ -870,7 +880,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             int i = 0;
             for (Seccion seccionEach : seccionesActivas) {
                 String cod2 = grupoSeccion.getCodigo2() + i;
-                System.out.println("cod2 == " + cod2);
                 if (!seccionEach.getCodigo2().equals(cod2)) {
                     seccionEach.setCodigo2(cod2);
                     seccionEach.setUsuarioModificacion(usuario);
@@ -886,6 +895,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccion.setEstadoEnum(SeccionEstadoEnum.ANU);
             seccionDAO.updateEstadoFechaModUsuarioMod(seccion);
         }
+
         this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), usuario, today);
         this.actualizarBoletin();
     }
