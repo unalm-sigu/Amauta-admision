@@ -9,11 +9,12 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
+                    <a href="#" v-on:click.prevent="nuevoInventario()" class="btn btn-primary btn-sm pull-right m-l-sm">Nuevo</a>
                     <a th:href="@{/general/aula}" class="btn btn-default btn-sm pull-right">Regresar</a>
                     <h2 th:inline="text" >Ambiente: [[${aula.tipoAula.nombre}]]   [[${aula.tipoAula.codigo}]] -  [[${aula.nombre}]]  </h2>
                 </header>
 
-                <section class="wrapper-lg">
+                <section  v-if="activonuevo" class="wrapper-lg">
                     <section class="panel m-b-xs">
                         <section class="panel-body">
                             <section class="col-xs-12" >
@@ -35,7 +36,7 @@
                                     <div class="row">
 
                                         <div class="col-sm-3 text-center">
-                                            <div class=" v-middle">
+                                            <div class="v-middle">
 
                                                 <div class="thumb-xl m-t-lg">
 
@@ -99,7 +100,8 @@
                                                 </div>
                                             </div>
 
-                                            <div class=""  v-bind:class="{ 'col-sm-12': (inventario.id!=null),'col-sm-10': (inventario.id==null) }" >
+                                            <!--<div class=""  v-bind:class="{ 'col-sm-12': (inventario.id!=null),'col-sm-10': (inventario.id==null) }" >-->
+                                            <div class="col-sm-12" >
                                                 <div class="form-group">
                                                     <label>Artículo</label>
 
@@ -127,9 +129,18 @@
                                                 </div>
                                             </div>
 
+
                                             <div class="col-sm-2"  v-if="inventario.id==null" >
+                                                <label class="switch">
+                                                    <input type="checkbox" v-on:click="changeEstadoVisible()" value="1" v-model="isindividual"/>
+                                                    <span></span>
+                                                </label>
+                                            </div>
+
+
+                                            <div v-show="isindividual" class="col-sm-4"  v-if="inventario.id==null" >
                                                 <div class="form-group">
-                                                    <label>Cantidad</label>
+                                                    <label>Cantidad {{inventario.times}}</label>
                                                     <input type="text" 
                                                            class="form-control" 
                                                            name="times" 
@@ -141,7 +152,7 @@
                                             </div>
 
 
-                                            <div class="col-sm-6">
+                                            <div v-show="!isindividual" class="col-sm-4">
                                                 <div class="form-group">
                                                     <label>Código</label>
                                                     <input type="text" 

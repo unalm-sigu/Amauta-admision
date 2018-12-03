@@ -27,13 +27,15 @@ new Vue({
             format: "DD/MM/YYYY",
             useCurrent: false
         },
+        activonuevo: false,
+        isindividual:false
     },
     mounted: function () {
         let $vue = this;
         $vue.allProducto();
         $('[name="times"]').numeric();
     },
-    updated:function(){
+    updated: function () {
         let $vue = this;
         $('[name="times"]').numeric();
     },
@@ -121,6 +123,8 @@ new Vue({
                         vue.categoria = null;
                         vue.producto = null;
                         vue.imagentemporal = '';
+                        vue.activonuevo = false;
+
                     } else {
                         notify(response.message, 'error');
                     }
@@ -132,11 +136,12 @@ new Vue({
             });
         },
         cancelarUpdate() {
-            var vue = this;
+            let vue = this;
             vue.categoria = null;
             vue.producto = null;
             vue.imagentemporal = '';
             vue.inventario = {imagen: APP.url('phobos/images/img.svg')};
+            vue.activonuevo = false;
         },
         editarInventario(item) {
             var vue = this;
@@ -230,6 +235,14 @@ new Vue({
                     $vue.isprocess = false;
                 }
             }
+        },
+        nuevoInventario() {
+            let vue = this;
+            vue.activonuevo = true;
+            vue.categoria = null;
+            vue.producto = null;
+            vue.imagentemporal = '';
+            vue.inventario = {imagen: APP.url('phobos/images/img.svg')};
         }
     }
 });      
