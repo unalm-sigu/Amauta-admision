@@ -161,7 +161,8 @@
             /*]]>*/
         </script>
         <div th:substituteby="_modules/vue-raptor-table"></div>
-        <div th:substituteby="academico/gposeccion/vuelect2"></div>
+        <script type="text/javascript" th:src="@{/phobos/modules/vuelect2}"></script>
+        <!--<div th:substituteby="academico/gposeccion/vuelect2"></div>-->
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <div th:substituteby="_layout/includes :: bootstrap-colorpicker"/>
         <script th:src="@{/app/academico/horario/grupo/grupo.js}" charset="utf-8"></script>
