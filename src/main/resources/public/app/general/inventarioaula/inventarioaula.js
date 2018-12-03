@@ -29,7 +29,8 @@ new Vue({
         },
         activonuevo: false,
         isindividual: false,
-        verTablaEditable: false
+        verTablaEditable: false,
+        updatable: [],
     },
     mounted: function () {
         let $vue = this;
@@ -261,15 +262,24 @@ new Vue({
                 }
             }).then((value) => {
 
+                console.log(value);
+
                 if (value != true) {
                     return;
                 }
 
+                console.log('post to backen');
+                vue.updatable = [];
+
+                vue.$refs.load.data.map((v, i) => {
+                    vue.updatable.push({id: v.id, codigo: v.codigo, codeEdit: v.codeEdit});
+                });
+
                 $.ajax({
                     method: 'POST',
-                    async: false,
+                    contentType: "application/json",
                     url: APP.url('general/aula/inventario/updateCode'),
-                    data: {id: item.id},
+                    data: JSON.stringify(vue.updatable),
                     success: function (response) {
                         if (response.success) {
                             vue.$refs.load.loadRemoteData();
@@ -292,18 +302,16 @@ new Vue({
                     swal.close();
                 }
             });
-
         },
-        nextEditable($event, indexxx) {
-            let $vue = this;
-            let idx = indexxx;
-            console.log(idx)
-            let index = idx + 1;
-            let namee = "fild-editable-" + index+"";
-            console.log(index)
-            console.log(namee)
-            eval("$vue.$refs["+namee+"].$el.focus()");
-            
+        nextEditable($event) {
+            let vue = this;
+            var inx = vue.$refs.editable.indexOf($event.target);
+            var idx = inx + 1;
+            if (vue.$refs.editable.length > idx) {
+                vue.$refs.editable[idx].focus()
+            } else {
+                swal({text: "Ya llegó al último registro", icon: "warning",  button: {text: "Aceptar"}});
+            }
         }
     }
 });      

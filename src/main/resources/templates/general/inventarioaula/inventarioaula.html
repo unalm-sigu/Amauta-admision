@@ -514,7 +514,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr v-for="(item,indexxx) in props.data">
+                                            <tr v-for="item in props.data">
 
                                                 <td class="v-middle">
                                                     <p class="bold">{{item.producto.nombre}}</p>
@@ -522,9 +522,13 @@
                                                 </td>
 
                                                 <td class="v-middle">
-                                                    <input v-bind:ref="'fild-editable-'+indexxx" v-on:keyup.enter="nextEditable($event,indexxx)" v-if="verTablaEditable &amp;&amp; item.codeEdit " type="text"
-                                                           class="form-control" v-model="item.codigo"/>
-                                                    {{item.codigo}}
+                                                    <input type="text"
+                                                           ref="editable"
+                                                           v-on:keyup.enter="nextEditable($event)" 
+                                                           v-if="verTablaEditable &amp;&amp; item.codeEdit " 
+                                                           class="form-control" 
+                                                           v-model="item.codigo"/>
+                                                    <p v-if="item.codeEdit?false:true">{{item.codigo}}</p>
                                                 </td>
 
                                                 <td class="v-middle">
