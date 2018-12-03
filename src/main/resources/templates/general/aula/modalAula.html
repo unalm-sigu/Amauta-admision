@@ -50,3 +50,31 @@
 
 </script>
 
+<script id="divAulasInventario" type="text/x-jsrender" class="hide"><span>
+    </span>
+    <p>
+    Inventario de <b>{{:codigo}}
+    {{if nombre}}
+    - {{:nombre}}
+    {{/if}}
+    </b>
+    </p>
+    <table class="table table-striped">
+    <thead>
+    <tr>
+    <th class="col-md-9">Nombre</th>
+    <th class="col-md-3">Cantidad</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{for inventarios}}
+    <tr>
+    <td>{{:producto.nombre}}</td>
+    <td>{{:cantidad}}</td>
+    </tr>
+    {{/for}}
+    </tbody>
+    </table>
+
+</script>
+

@@ -1,0 +1,82 @@
+<modal-vik ref="cambiarOficina"
+           v-bind="cambiarOficinaData"
+           v-bind:okaction="saveCambiarOficina">
+
+    <div slot="body">
+
+        <form id="formCambiarOficina"    data-parsley-validate="true">
+
+            <input type="hidden" name="ticketAyuda.id" v-bind:value="ticketAyuda.id" />
+
+            <div class="form-group">
+
+                <label class="">Oficina Destino</label>
+                
+                <div class="form-group">
+
+                    <vuelect 
+                        required="true"
+                        formatselection="nombre"
+                        formatresult="nombre"
+                        nameinput="oficinaDestino.id"
+                        allowclear="true"
+                        remoteurl="atencion/ticket/findoficina"
+                        v-bind:objetogenerico="oficinaDestino"
+                        />
+
+                </div>
+
+            </div>
+
+            <div class="form-group" >
+
+                <label class="">Indique el motivo del traslado</label>
+                <textarea name="motivo" v-model="motivo"  required="true" class="form-control" ></textarea>
+
+            </div>
+
+        </form>
+    </div>
+
+</modal-vik>
+
+
+<modal-vik ref="cambiarColaborador"
+           v-bind="cambiarColaboradorData"
+           v-bind:okaction="saveCambiarColaborador">
+
+    <div slot="body">
+
+        <form id="formCambiarColaborador"   data-parsley-validate="true">
+
+            <input type="hidden"  name="ticketAyuda.id" v-bind:value="ticketAyuda.id" />
+
+            <div class="form-group">
+
+                <label class="">Colaborador Destino</label>
+
+                <div class="form-group">
+
+                <vueselect   required="true" name="colaboradorDestino.id" v-bind:valor="colaboradorDestino" >
+                    <option></option>
+                    <option 
+                        v-for="item in colaboradores"
+                        v-bind:value="item.id"
+                        v-text="item.persona.nombreCompleto"></option>
+                </vueselect>
+
+                </div>
+
+            </div>
+
+            <div class="form-group" >
+
+                <label class="">Indique el motivo del traslado</label>
+                <textarea name="motivo"  v-model="motivo" required="true" class="form-control" ></textarea>
+
+            </div>
+
+        </form>
+    </div>
+
+</modal-vik>

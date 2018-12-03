@@ -1912,3 +1912,40 @@ div.notas {
     display: inline-block;
     float: none;
 }
+
+/*opacity*/
+.opacity-3 {
+    opacity: 0.3;
+}
+
+/*center label preloader image*/
+.center-label-preloader {
+    overflow: hidden;
+    position: absolute;
+    width: 100px;
+    height: 3px;
+    top: 65%;
+}
+
+
+/*imagen inventario*/
+.thumb-xl {
+  width: 256px;
+  display: inline-block;
+}
+.thumb-xxl {
+  width: 356px;
+  display: inline-block;
+}
+.thumb-xxxl {
+  width: 456px;
+  display: inline-block;
+}
+.thumb-xl img,
+.thumb-xxl img,
+.thumb-xxl img {
+  height: auto;
+  max-width: 100%;
+  vertical-align: middle;
+}
+

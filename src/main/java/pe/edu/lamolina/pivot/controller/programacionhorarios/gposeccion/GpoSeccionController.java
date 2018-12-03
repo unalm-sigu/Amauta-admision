@@ -1114,7 +1114,9 @@ public class GpoSeccionController {
 
     @ResponseBody
     @RequestMapping("loadModalGrupo")
-    public JsonResponse loadModalGrupo(@RequestParam("seccion") Long seccionId,
+    public JsonResponse loadModalGrupo(
+            @RequestParam("seccion") Long seccionId,
+            @RequestParam(value = "grupoHoras", required = false) Long grupoHorasId,
             Model model,
             HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
@@ -1143,14 +1145,21 @@ public class GpoSeccionController {
                 "grupoSeccion.curso.departamentoAcademico.nombre"
             }));
             node.put("tipoGrupoHorasSeleccionado", "");
-            if (seccion.getGrupoHoras() != null) {
-                GrupoHoras gpoHora = service.findGrupoHorasWithHorario(seccion, ds.getCicloAcademico());
-                node.set("grupoHorarioSel", JsonHelper.createJson(gpoHora, jsonFactory, true, new String[]{
-                    "*",
-                    "tipoGrupoHoras.*",
-                    "diaHoraGrupo.dia.*",
-                    "diaHoraGrupo.hora.*"
-                }));
+
+            String[] mapperGrupoHorarioSel = new String[]{
+                "*",
+                "tipoGrupoHoras.*",
+                "diaHoraGrupo.dia.*",
+                "diaHoraGrupo.hora.*"
+            };
+            if (grupoHorasId != null) {
+                GrupoHoras gpoHora = service.findGrupoHorasWithHorario(seccion, new GrupoHoras(grupoHorasId), ds.getCicloAcademico());
+                node.set("grupoHorarioSel", JsonHelper.createJson(gpoHora, jsonFactory, true, mapperGrupoHorarioSel));
+            } else {
+                if (seccion.getGrupoHoras() != null) {
+                    GrupoHoras gpoHora = service.findGrupoHorasWithHorario(seccion, ds.getCicloAcademico());
+                    node.set("grupoHorarioSel", JsonHelper.createJson(gpoHora, jsonFactory, true, mapperGrupoHorarioSel));
+                }
             }
 
             List<TipoGrupoHoras> tiposGrupoHoras = service.allGrupoHorasActivosTipoAndCiclo(cicloAcademico, TipoGrupoHorasEnum.REGULAR);
@@ -1611,8 +1620,11 @@ public class GpoSeccionController {
 
     @ResponseBody
     @RequestMapping("horariosRegulares")
-    public JsonResponse horariosRegulares(@RequestParam(name = "tipoGrupoHorasId", required = false) Long tipoGrupoHorasId,
-            @RequestParam(name = "seccionId", required = false) Long seccionId, Model model, HttpSession session) {
+    public JsonResponse horariosRegulares(
+            @RequestParam(name = "tipoGrupoHorasId", required = false) Long tipoGrupoHorasId,
+            @RequestParam(name = "seccionId", required = true) Long seccionId,
+            @RequestParam(name = "aulaId", required = false) Long aulaId,
+            Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             long t1 = System.currentTimeMillis();
@@ -1627,8 +1639,13 @@ public class GpoSeccionController {
             List<GrupoHoras> gruposHoras = service.allGrupoHorasBySeccionAndTipoGrupoHoras(seccion, tipoGrupo, cicloAcademico);
             List<HorarioAula> horariosAulas = null;
 
-            if (seccion.getAula() != null) {
-                horariosAulas = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
+            if (aulaId != null) {
+                Aula aula = service.findAula(aulaId);
+                horariosAulas = service.allHorariosAula(aula, ds.getCicloAcademico());
+            } else {
+                if (seccion.getAula() != null) {
+                    horariosAulas = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
+                }
             }
 
             List<DiaHoraGrupo> diaHoraGrupos = new ArrayList();
@@ -1705,7 +1722,9 @@ public class GpoSeccionController {
 
     @ResponseBody
     @RequestMapping("horariosEspeciales")
-    public JsonResponse horariosEspeciales(@RequestParam(name = "grupoHorario", required = false) Long grupoHorarioId,
+    public JsonResponse horariosEspeciales(
+            @RequestParam(name = "grupoHorario", required = false) Long grupoHorarioId,
+            @RequestParam(name = "aula", required = false) Long aulaId,
             @RequestParam(name = "seccion", required = false) Long seccionId, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -1717,8 +1736,13 @@ public class GpoSeccionController {
             List<Dia> dias = service.allDia();
 
             List<HorarioAula> horariosAulas = null;
-            if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
-                horariosAulas = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
+            if (aulaId == null) {
+                if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
+                    horariosAulas = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
+                }
+            } else {
+                Aula aula = service.findAula(aulaId);
+                horariosAulas = service.allHorariosAula(aula, ds.getCicloAcademico());
             }
 
             List<Hora> horasEncontradas = new ArrayList<>();
