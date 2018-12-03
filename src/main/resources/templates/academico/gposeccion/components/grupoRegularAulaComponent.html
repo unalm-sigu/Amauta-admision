@@ -1,0 +1,184 @@
+<template id="modalGrupoRegularAulaComp"> 
+    <div>
+        <div id="tab-grupos" class="tabbable-line m-b-xs" style="margin-top: 3px !important;">	
+            <ul class="nav nav-tabs">
+                <li v-bind:class="{active : tabGrupos.grupoHorarioSel.tabGrupo=='regulares'}">
+                    <a  href="#grupo4" data-toggle="tab" >Regulares</a>
+                </li>
+                <li v-bind:class="{active : tabGrupos.grupoHorarioSel.tabGrupo=='especiales'}">
+                    <a href="#grupo5" data-toggle="tab" >Especiales</a>
+                </li>
+                <li v-bind:class="{active : tabGrupos.grupoHorarioSel.tabGrupo=='zetas'}">
+                    <a href="#grupo6" data-toggle="tab">Zetas</a>
+                </li>
+            </ul>
+            <section class="panel m-b-xs">
+                <div class="tab-content">
+                    <div class="tab-pane" id="grupo4"
+                         v-bind:class="{active : tabGrupos.grupoHorarioSel.tabGrupo=='regulares'}">
+                        <section class="panel-body" style="margin-bottom: 0;">
+
+                            <!--<section class="panel-body">-->
+                            <div class="table-responsive" >
+                                <table class="table table-bordered m-b-xs"
+                                       v-if="tabGrupos['regulares'].tblHorarios!=null">
+
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 12.5%" class="text-center">Hora</th>
+                                            <th style="width: 12.5%" class="text-center" 
+                                                v-for="dia in tabGrupos['regulares'].tblHorarios.dias">
+                                                {{dia.nombre}}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="hora in tabGrupos['regulares'].tblHorarios.horas">
+                                            <td class="v-middle">
+                                                <span 
+                                                    >
+                                                    {{hora.descripcion}}
+                                                </span>
+
+                                            </td>
+                                            <td  v-for="dia in tabGrupos['regulares'].tblHorarios.dias"> 
+                                                <template v-if="tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
+                                                    <span v-if="tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
+                                                          v-on:click="selectDiaHoraGrupo(tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
+                                                          class="form-control pointer"
+                                                          v-bind:class="getClassGpoHorario(tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
+                                                        {{tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}}
+                                                    </span>
+                                                </template>
+
+
+                                                <span v-if="tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
+                                                      class="form-control btn-danger"
+                                                      >
+                                                    {{tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!--</section>-->
+
+                        </section>
+                    </div>
+                    <div class="tab-pane" id="grupo5" 
+                         v-bind:class="{active : tabGrupos.grupoHorarioSel.tabGrupo=='especiales'}">
+                        <section class="block">
+
+                            <dynatable-especial-generico v-bind:onclick="seleccionarGrupoEsp"
+                                                         v-bind:gruposeleccionado="tabGrupos.grupoHorarioSel"
+                                                         ></dynatable-especial-generico>
+                        </section>
+
+                        <section class="panel-body block m-t-lg">
+                            <table id="tblHorarioEsp" 
+                                   class="table table-bordered m-t-lg"
+                                   v-if="tabGrupos['especial'].tblHorarios!=null">
+
+                                <thead>
+                                    <tr>
+                                        <th style="width: 12.5%" class="text-center">Hora</th>
+                                        <th style="width: 12.5%" class="text-center" 
+                                            v-for="dia in tabGrupos['especial'].tblHorarios.dias">
+                                            {{dia.nombre}}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="hora in tabGrupos['especial'].tblHorarios.horas">
+                                        <td class="v-middle">
+                                            <span>{{hora.descripcion}}</span>
+                                        </td>
+                                        <td  v-for="dia in tabGrupos['especial'].tblHorarios.dias"> 
+                                            <template v-if="tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
+                                                <span v-if="tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
+                                                      v-on:click="selectDiaHoraGrupo(tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
+                                                      class="form-control pointer"
+                                                      v-bind:class="getClassGpoHorario(tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
+
+                                                    {{tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}}
+
+                                                </span>
+                                            </template>
+
+
+                                            <span v-if="tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
+                                                  class="form-control btn-danger"
+                                                  >
+                                                {{tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
+                                            </span>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    </div>
+                    <div class="tab-pane" id="grupo6" 
+                         v-bind:class="{active : tabGrupos.grupoHorarioSel.tabGrupo=='zetas'}">
+                        <section class="panel-body block">
+
+                            <dynatable-zeta-generico v-bind:onclick="seleccionarGrupoZ"
+                                                     v-bind:gruposeleccionado="tabGrupos.grupoHorarioSel"
+                                                     ></dynatable-zeta-generico>
+                        </section>
+
+                        <section class="block">
+                            <div class="table-responsive" >
+                                <table class="table table-bordered"
+                                       v-if="tabGrupos['zetas'].tblHorarios!=null">
+
+                                    <thead  style="width: 100%; display: block;">
+                                        <tr>
+                                            <th style="width: 100px !important;" class="text-center">Hora</th>
+                                            <th style="width: 15%" class="text-center" 
+                                                v-for="dia in tabGrupos['zetas'].tblHorarios.dias">
+                                                {{dia.nombre}}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="width: 100%; height: 200px; display: block; overflow-y:auto;">
+                                        <tr v-for="hora in tabGrupos['zetas'].tblHorarios.horas">
+                                            <td class="v-middle">
+                                                <span>{{hora.descripcion}}</span>
+                                            </td>
+                                            <td  v-for="dia in tabGrupos['zetas'].tblHorarios.dias"
+                                                 style="width: 15%"> 
+                                                <template v-if="tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
+                                                    <span v-if="tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
+                                                          v-on:click="selectDiaHoraGrupo(tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
+                                                          class="form-control pointer"
+                                                          v-bind:class="getClassGpoHorario(tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
+
+                                                        {{tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}}
+
+                                                    </span>
+                                                </template>
+
+
+                                                <span v-if="tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
+                                                      class="form-control btn-danger"
+                                                      >
+                                                    {{tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </section>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</template>

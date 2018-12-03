@@ -183,7 +183,10 @@ var app = new Vue({
         changeAulaGpo: {
             oficina: {},
             aulaInicio: {},
-            grupoInicio: {}
+            grupoInicio: {},
+            grupoHorasFin: {},
+            aulaFin: {},
+            diahoragruposelects: []
         },
         aceptarCambioAulaGrupoModal: {
             id: 'aceptarCambioAulaGrupoModal',
@@ -283,6 +286,10 @@ var app = new Vue({
         $global.$on("afterSaveTipoRepRestriccion", function (response) {
             $vue.afterSaveTipoRepRestriccion(response, $vue);
         });
+        $global.$on("selectGrupoHorarioChange", function (grupoHorario) {
+            $vue.selectGrupoHorarioChange(grupoHorario, $vue);
+        });
+
     },
     methods: {
         getClassTab(tabBuscar) {
@@ -1559,10 +1566,22 @@ var app = new Vue({
             let $vue = this;
 
             $vue.changeAulaGpo = {
-                oficina: {}
+                oficina: {},
+                grupoHorasFin: {},
+                aulaFin: {}
             };
 
+            $vue.seccionModal = $vue.seccionSeleccionada;
 
+
+            $vue.changeAulaGpo.aulaFin = $vue.seccionSeleccionada.aula;
+            $vue.changeAulaGpo.grupoHorasFin = $vue.seccionSeleccionada.grupoHoras;
+
+            //   $vue.$refs.grupoRegularComponent.aula=$vue.seccionSeleccionada.aula;
+            //   $vue.$refs.grupoRegularComponent.grupohoras=$vue.seccionSeleccionada.grupoHoras;;
+            //   $global.$emit("loadGrupoRegularAulaComponent", $vue.seccionSeleccionada.id);
+            $vue.$refs.grupoRegularComponent.seccion = $vue.seccionSeleccionada;
+            $vue.$refs.grupoRegularComponent.loadGrupoRegularAulaComponent();
             $vue.$refs.modalEnviarCambioAulaGrupo.open();
 
         },
@@ -1572,10 +1591,27 @@ var app = new Vue({
             $vue.changeAulaGpo.seccion = {};
             $vue.changeAulaGpo.seccion.id = $vue.seccionSeleccionada.id;
 
+            $global.$emit('preSaveGrupoHorario');
+
             if ($('#formAulaGrupo').parsley().validate() !== true) {
                 return;
             }
+            if (!$vue.changeAulaGpo.grupoHorasFin.diaHoraGrupo) {
+                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
+                return;
+            }
+            if (!$vue.changeAulaGpo.grupoHorasFin.diaHoraGrupo.length) {
+                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
+                return;
+            }
+            if ($vue.changeAulaGpo.grupoHorasFin.diaHoraGrupo.length < 1) {
+                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
+                return;
+            }
+
             console.log($vue.changeAulaGpo);
+            console.log("=====cantidad========");
+            console.log($vue.changeAulaGpo.grupoHorasFin.diaHoraGrupo.length);
             $.ajax({
                 url: APP.url('academico/gposeccion/savecambioaulagrupo'),
                 dataType: "json",
@@ -1781,6 +1817,25 @@ var app = new Vue({
 
 
         },
+        selectGrupoHorarioChange(grupoHorario, $vue) {
+            $vue.changeAulaGpo.grupoHorasFin = grupoHorario;
+        },
+        cambioAula() {
+
+            let $vue = this;
+
+            if ($vue.changeAulaGpo.aulaFin.id == $vue.seccionSeleccionada.aula.id) {
+
+                $vue.changeAulaGpo.grupoHorasFin = $vue.seccionSeleccionada.grupoHoras;
+
+            } else {
+
+                $vue.changeAulaGpo.grupoHorasFin = {};
+
+            }
+
+            $vue.$refs.grupoRegularComponent.loadGrupoRegularAulaComponent();
+        }
     }
 });
 

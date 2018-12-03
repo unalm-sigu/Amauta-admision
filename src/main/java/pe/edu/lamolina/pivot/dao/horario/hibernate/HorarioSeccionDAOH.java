@@ -144,5 +144,5 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
         query.setLong("CICLO", ciclo.getId());
         query.executeUpdate();
     }
-
+    
 }
