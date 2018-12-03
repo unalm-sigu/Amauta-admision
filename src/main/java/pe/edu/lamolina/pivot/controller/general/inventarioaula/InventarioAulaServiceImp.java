@@ -13,10 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.aws.S3Service;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.ConvenioBeca;
 import pe.edu.lamolina.model.almacen.Almacen;
 import pe.edu.lamolina.model.almacen.Inventario;
 import pe.edu.lamolina.model.almacen.Producto;
@@ -228,11 +226,6 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             inventarioNew.setProveedor(inventario.getProveedor());
             inventarioNew.setFechaVencimientoGarantia(inventario.getFechaVencimientoGarantia());
             inventarioNew.setVidaUtil(inventario.getVidaUtil());
-            inventarioNew.setSaldoInicialBien(inventario.getSaldoInicialBien());
-            inventarioNew.setDepreciacionAnual(inventario.getDepreciacionAnual());
-            inventarioNew.setDepreciacionPeriodo(inventario.getDepreciacionPeriodo());
-            inventarioNew.setDepreciacionAcumulada(inventario.getDepreciacionAcumulada());
-            inventarioNew.setValorActualLibros(inventario.getValorActualLibros());
             inventarioNew.setComentario(inventario.getComentario());
 
             inventarioDAO.save(inventarioNew);
