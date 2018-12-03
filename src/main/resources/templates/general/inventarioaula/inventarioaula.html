@@ -100,7 +100,6 @@
                                                 </div>
                                             </div>
 
-                                            <!--<div class=""  v-bind:class="{ 'col-sm-12': (inventario.id!=null),'col-sm-10': (inventario.id==null) }" >-->
                                             <div class="col-sm-12" >
                                                 <div class="form-group">
                                                     <label>Artículo</label>
@@ -130,52 +129,63 @@
                                             </div>
 
 
-                                            <div class="col-sm-2"  v-if="inventario.id==null" >
-                                                <label class="switch">
-                                                    <input type="checkbox" v-on:click="changeEstadoVisible()" value="1" v-model="isindividual"/>
-                                                    <span></span>
-                                                </label>
-                                            </div>
+                                            <div class="row" >
+                                                <div class="col-sm-12" >
+                                                    <div class="col-sm-2"  v-if="inventario.id==null" >
+
+                                                        <div class="form-group">
+                                                            <label>Ingreso Grupal</label>
+
+                                                            <label class="switch">
+                                                                <input name="individual" type="checkbox" value="1" v-model="isindividual"/>
+                                                                <span></span>
+                                                            </label>
+
+                                                        </div>
+
+                                                    </div>
 
 
-                                            <div v-show="isindividual" class="col-sm-4"  v-if="inventario.id==null" >
-                                                <div class="form-group">
-                                                    <label>Cantidad {{inventario.times}}</label>
-                                                    <input type="text" 
-                                                           class="form-control" 
-                                                           name="times" 
-                                                           required="true"
-                                                           v-bind:value="inventario.times" 
-                                                           v-model="inventario.times" 
-                                                           />
-                                                </div>
-                                            </div>
+                                                    <div class="col-sm-4"  v-if="inventario.id==null &amp;&amp;  isindividual " >
+                                                        <div class="form-group">
+                                                            <label>Cantidad</label>
+                                                            <input type="text" 
+                                                                   class="form-control" 
+                                                                   name="times" 
+                                                                   required="true"
+                                                                   v-bind:value="inventario.times" 
+                                                                   v-model="inventario.times" 
+                                                                   />
+                                                        </div>
+                                                    </div>
 
 
-                                            <div v-show="!isindividual" class="col-sm-4">
-                                                <div class="form-group">
-                                                    <label>Código</label>
-                                                    <input type="text" 
-                                                           class="form-control" 
-                                                           name="codigo" 
-                                                           required="true"
-                                                           v-bind:value="inventario.codigo" 
-                                                           v-model="inventario.codigo" 
-                                                           />
-                                                </div>
-                                            </div>
+                                                    <div v-if="!isindividual" class="col-sm-4">
+                                                        <div class="form-group">
+                                                            <label>Código</label>
+                                                            <input type="text" 
+                                                                   class="form-control" 
+                                                                   name="codigo" 
+                                                                   required="true"
+                                                                   v-bind:value="inventario.codigo" 
+                                                                   v-model="inventario.codigo" 
+                                                                   />
+                                                        </div>
+                                                    </div>
 
 
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label>Marca</label>
-                                                    <input type="text" 
-                                                           class="form-control" 
-                                                           name='marca' 
-                                                           v-bind:value="inventario.marca"  
-                                                           v-model="inventario.marca"  
-                                                           />
-                                                </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <label>Marca</label>
+                                                            <input type="text" 
+                                                                   class="form-control" 
+                                                                   name='marca' 
+                                                                   v-bind:value="inventario.marca"  
+                                                                   v-model="inventario.marca"  
+                                                                   />
+                                                        </div>
+                                                    </div> 
+                                                </div> 
                                             </div> 
 
 
@@ -355,7 +365,7 @@
                                                             name="fechaBaja" 
                                                             class='form-control' 
                                                             id="fechaBaja"
-                                                            required="true"
+
                                                             v-bind:wrap="true" 
                                                             v-model="inventario.fechaBaja"></date-picker>
 
@@ -471,22 +481,40 @@
                             <raptor-table 
                                 v-bind:url="inventarioURL" 
                                 v-bind:preload="true" ref="load">
-                                <div slot="header"></div>
+
+                                <div slot="header">
+
+                                    <div class="form-inline">
+                                        <div class="form-group">
+                                            <label class="text-sm">Editar Número de Inventario</label>
+                                            <label class="switch">
+                                                <input type="checkbox" 
+                                                       v-model="verTablaEditable"/>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                        <div class="form-group"  v-if="verTablaEditable">
+                                            <label></label>
+                                            <a href="#" class="btn btn-success btn-xs" v-on:click.prevent="confirmUpdateCodigoInventario()" >Actualizar Número de Inventario</a>                            
+                                        </div>
+                                    </div>
+
+                                </div>
 
 
                                 <template scope="props" >
                                     <table class="table table-striped table-hover">
                                         <thead> 
                                             <tr>
-                                                <th class="col-sm-5 text-center v-middle">Artículo</th>
-                                                <th class="col-sm-3 text-center v-middle">Número</th>
-                                                <th class="col-sm-3 text-center v-middle">Característica</th>
+                                                <th class="col-sm-5 v-middle">Artículo</th>
+                                                <th class="col-sm-3 v-middle">Número</th>
+                                                <th class="col-sm-3 v-middle">Característica</th>
                                                 <th class="col-sm-1 text-center v-middle">Condicíon</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr v-for="item in props.data">
+                                            <tr v-for="(item,indexxx) in props.data">
 
                                                 <td class="v-middle">
                                                     <p class="bold">{{item.producto.nombre}}</p>
@@ -494,11 +522,19 @@
                                                 </td>
 
                                                 <td class="v-middle">
+                                                    <input v-bind:ref="'fild-editable-'+indexxx" v-on:keyup.enter="nextEditable($event,indexxx)" v-if="verTablaEditable &amp;&amp; item.codeEdit " type="text"
+                                                           class="form-control" v-model="item.codigo"/>
                                                     {{item.codigo}}
                                                 </td>
 
-                                                <td class="v-middle text-center">
-                                                    {{item.caracteristica}}
+                                                <td class="v-middle">
+                                                    <p v-if="item.marca" class="block text-sm"><b>Marca : </b>{{item.marca}}</p>
+                                                    <p v-if="item.modelo" class="block text-sm"><b>Modelo : </b>{{item.modelo}}</p>
+                                                    <p v-if="item.serie" class="block text-sm"><b>Serie : </b>{{item.serie}}</p>
+                                                    <p v-if="item.anoFabricacion" class="block text-sm"><b>Fabricación : </b>{{item.anoFabricacion}}</p>
+                                                    <p v-if="item.color" class="block text-sm"><b>Color : </b>{{item.color}}</p>
+                                                    <p v-if="item.material" class="block text-sm"><b>Material : </b>{{item.material}}</p>
+                                                    <p v-if="item.largo &amp;&amp; item.alto  &amp;&amp;  item.ancho" class="block text-sm"><b>Medida : </b>{{item.largo}}x{{item.alto}}x{{item.ancho}}</p>
                                                 </td>
 
                                                 <td class="v-middle text-center">

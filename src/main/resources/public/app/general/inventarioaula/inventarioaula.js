@@ -28,7 +28,8 @@ new Vue({
             useCurrent: false
         },
         activonuevo: false,
-        isindividual:false
+        isindividual: false,
+        verTablaEditable: false
     },
     mounted: function () {
         let $vue = this;
@@ -156,6 +157,7 @@ new Vue({
                         vue.categoria = response.data.producto.productoSuperior;
                         vue.producto = response.data.producto;
                         vue.micomentario = response.data.comentario;
+                        vue.activonuevo = true;
                     } else {
                         notify(response.message, 'error');
                     }
@@ -243,6 +245,65 @@ new Vue({
             vue.producto = null;
             vue.imagentemporal = '';
             vue.inventario = {imagen: APP.url('phobos/images/img.svg')};
+        },
+        confirmUpdateCodigoInventario() {
+
+            var vue = this;
+
+            swal('¿Está seguro que desea actualizar el número  de inventario ?', {
+                icon: "warning",
+                closeOnClickOutside: false,
+                closeOnEsc: false,
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "No", closeModal: true, visible: true},
+                    confirm: {text: "Si, guardar", closeModal: false}
+                }
+            }).then((value) => {
+
+                if (value != true) {
+                    return;
+                }
+
+                $.ajax({
+                    method: 'POST',
+                    async: false,
+                    url: APP.url('general/aula/inventario/updateCode'),
+                    data: {id: item.id},
+                    success: function (response) {
+                        if (response.success) {
+                            vue.$refs.load.loadRemoteData();
+                            vue.verTablaEditable = false;
+                            return  swal({text: response.message, icon: "success", button: false, timer: 1000});
+                        } else {
+                            return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        }
+                    },
+                    error: function () {
+                        return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                    }
+                });
+
+            }).catch(err => {
+                if (err) {
+                    swal(APP.errorComunicacion, "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
+            });
+
+        },
+        nextEditable($event, indexxx) {
+            let $vue = this;
+            let idx = indexxx;
+            console.log(idx)
+            let index = idx + 1;
+            let namee = "fild-editable-" + index+"";
+            console.log(index)
+            console.log(namee)
+            eval("$vue.$refs["+namee+"].$el.focus()");
+            
         }
     }
 });      
