@@ -136,10 +136,16 @@
 
                         <div class="col-xs-12">
                             <div class="form-group">
-                                <label>Seleccione el ciclo acádemico de origen</label>
+                                <label>Seleccione el ciclo académico de origen</label>
                                 <vuelect 
-                                    v-bind:nombre="'ciclo.id'"  
-                                    v-bind:ciclo="ciclo"/>
+                                    required="true"
+                                    v-bind:objetogenerico="ciclo"
+                                    v-bind:initobject="ciclo"
+                                    formatselection="descripcion2"
+                                    formatresult="descripcion2"
+                                    nameinput="ciclo.id"
+                                    remoteurl="comun/buscar/allCicloDescendent"
+                                    v-model="ciclo"/>
                             </div>
                         </div>
                     </form>
@@ -161,7 +167,7 @@
             /*]]>*/
         </script>
         <div th:substituteby="_modules/vue-raptor-table"></div>
-        <script type="text/javascript" th:src="@{/phobos/modules/vuelect2}"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <div th:substituteby="_layout/includes :: bootstrap-colorpicker"/>
         <script th:src="@{/app/academico/horario/grupo/grupo.js}" charset="utf-8"></script>

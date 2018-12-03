@@ -103,4 +103,6 @@ public interface Constantine {
     //folder of inventario 
     String S3_DIR_INVENTARIO = "inventario/";
 
+    Long ID_PERU = 178l;
+
 }

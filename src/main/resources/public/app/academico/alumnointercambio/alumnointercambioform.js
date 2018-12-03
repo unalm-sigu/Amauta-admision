@@ -1,3 +1,4 @@
+Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     mixins: [VueLoader],
@@ -17,24 +18,34 @@ new Vue({
             cicloIntercambio: {},
             paisDestino: {id: null},
             universidadDestino: {id: null},
-            becaEstudio: {id: null}
+            becaEstudio: {id: null, institucion: {id: null, razonSocial: null}}
         },
         dataNuevaUniversidadExtranjera: {
             id: 'modalNuevaUniversidadExtranjera',
             header: false,
         },
+        modalNuevaBeca: {
+            id: 'modalNuevaBeca',
+            header: true,
+            title:'Nueva Beca de Estudio'
+        },
         nuevauniversidad: {},
         isprocess: false,
+        instituciones: JSON.parse(institucionesJson),
+        becaEstudio: {id: null, institucion: {id: null, razonSocial: null}}
     },
     created() {
         let $vue = this;
+//        
     },
     mounted: function () {
         var vue = this;
+        $('[name="monto"]').numeric({negative:false});
         console.log(idalumno)
         if (idalumno) {
             vue.editar(idalumno)
         }
+
     },
     methods: {
         editar(id) {
@@ -104,6 +115,11 @@ new Vue({
             }
             $('#formNuevaUniversidadExtranjera').find('[name=gestion]').select2({minimumResultsForSearch: -1});
         },
+        addBeca() {
+            let vue = this;
+            vue.becaEstudio = {id: null, institucion: {id: null, razonSocial: null}};
+            vue.$refs.modalNuevaBeca.open();
+        },
         saveNuevaUniversidadExtranjera() {
             var vue = this;
             if ($('#formNuevaUniversidadExtranjera').parsley().validate() != true) {
@@ -135,9 +151,44 @@ new Vue({
         changePaisDestino() {
             var vue = this;
             console.log('changePaisDestino');
-            if (vue.becado.universidadDestino.pais.id != vue.becado.paisDestino.id) {
-                vue.becado.universidadDestino = {id: null};
+            console.dir(vue.becado.universidadDestino);
+            if (vue.becado.universidadDestino.id != null) {
+                if (vue.becado.universidadDestino.pais.id != vue.becado.paisDestino.id) {
+                    vue.becado.universidadDestino = {id: null};
+                }
             }
+        },
+        saveBeca() {
+            var vue = this;
+            var valid = $('#formNuevaBeca').parsley().validate();
+//            vue.isprocess = true;
+            console.log("save Beca")
+            console.dir(vue.becaEstudio)
+            if (valid != true) {
+                return;
+            }
+
+            $.ajax({
+                method: "POST",
+                contentType: "application/json",
+                url: APP.url('academico/becado/alumno/saveBeca'),
+                data: JSON.stringify(vue.becaEstudio),
+                success: function (response) {
+                    if (response.success) {
+                        vue.becado.becaEstudio = response.data;
+                        notify(response.message, 'info');
+                        vue.$refs.modalNuevaBeca.close();
+                    } else {
+//                        vue.isprocess = false;
+                        notify(response.message, 'error');
+                    }
+                }, error: function () {
+//                    vue.isprocess = false;
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+
         }
     }
 });

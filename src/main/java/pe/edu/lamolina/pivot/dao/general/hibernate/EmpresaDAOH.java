@@ -20,9 +20,13 @@ public class EmpresaDAOH extends AbstractEasyDAO<Empresa> implements EmpresaDAO 
     public List<Empresa> allEmpresaByName(Pais pais, String nombre) {
         Octavia sql = Octavia.query()
                 .from(Empresa.class, "cia")
-                .left("paisUbicacion pu")
-                .filter("pu.id", pais)
-                .beginBlock()
+                .left("paisUbicacion pu");
+
+        if (pais.getId() != null) {
+            sql.filter("pu.id", pais);
+        }
+
+        sql.beginBlock()
                 .__().filter("cia.razonSocial", "like", nombre)
                 .endBlock()
                 .limit(15);
