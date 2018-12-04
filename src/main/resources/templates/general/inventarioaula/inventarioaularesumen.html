@@ -9,7 +9,9 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <h2 th:inline="text" >Ambiente: [[${aula.tipoAula.nombre}]]   [[${aula.tipoAula.codigo}]] -  [[${aula.nombre}]]  </h2>
+                    <h2 th:inline="text" >
+                        [[${aula.tipoAula.nombre}]]:  [[${aula.codigo}]]  [[${aula.nombre}]]  
+                    </h2>
                     <a th:href="@{/general/aula}" class="btn btn-default btn-sm pull-right">Regresar</a>
                 </header>
 

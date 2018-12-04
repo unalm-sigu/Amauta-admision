@@ -30,7 +30,6 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.NotaLetra;
 import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
