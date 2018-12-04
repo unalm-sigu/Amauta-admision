@@ -29,6 +29,8 @@ public interface GrupoRegularConnector {
             List<Seccion> seccionesByLetra,
             DataSessionPivot ds);
 
+    boolean validarCursosMasivos(RolExamenes rolExamenes, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos, GrupoHorasExamen grupoHorasExamen);
+
     boolean validarCursosMasivos(RolExamenes rolExamenes, List<CursoMasivoExamen> cursosMasivosByRolExamen,
             List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnosBySeccion,
             GrupoHorasExamen grupoHorasExamen);

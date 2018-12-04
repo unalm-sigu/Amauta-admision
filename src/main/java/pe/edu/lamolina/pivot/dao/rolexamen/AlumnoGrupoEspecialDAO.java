@@ -14,5 +14,7 @@ public interface AlumnoGrupoEspecialDAO extends EasyDAO<AlumnoGrupoEspecial> {
 
     List<AlumnoGrupoEspecial> allBySeccionGrupoEspecialAndEstados(SeccionGrupoEspecial seccionGrupoEspecial, AlumnoRolExamenEstadoEnum... estados);
 
+    List<AlumnoGrupoEspecial> allBySeccionGrupoEspecialAndEstados(List<SeccionGrupoEspecial> seccionesGrupoEspecial, AlumnoRolExamenEstadoEnum... estados);
+
     void deleteByRolExamenes(RolExamenes rolExamenes);
 }

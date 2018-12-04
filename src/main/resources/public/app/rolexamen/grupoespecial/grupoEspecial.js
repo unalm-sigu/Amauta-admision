@@ -19,6 +19,19 @@ new Vue({
         }, changeRolExamen() {
             this.$refs.raptor.ajaxdata = {rolexamenes: this.rolExamen.id};
             this.$refs.raptor.loadRemoteData();
+        }, calcularGrupoEspecial() {
+            let vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            AXIOS.post(`${vue.URL}/calcularGrupoEspecial`, vue.rolExamen)
+                    .then(response => {
+                        if (response.data.success) {
+                            // notify(response.data.message, 'info');
+                           
+                        } else {
+                            //   notify(response.data.message, 'error');
+                        }
+                        MODAL.hideWait();
+                    });
         }
     }
 });

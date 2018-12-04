@@ -406,7 +406,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         cursoMasivoExamen.setDocentesCursosMasivos(docenteCursoMasivo);
 
         //validar cruce horario docentes !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        this.rolExamenesLogger = new RolExamenesLogger(TipoRolExamenesLoggerEnum.CUR_MAS);
+        this.rolExamenesLogger.iniciarCursoMasivo();
 
         this.validateCruceCursosMasivos(cursoMasivoExamen);
         this.validarGruposRegulares(cursoMasivoExamen);
@@ -415,12 +415,14 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
                         .stream()
                         .map(x -> x.getAlumno())
                         .collect(Collectors.toList()));
-
-        CursoMasivoExamen cursoMasivoUpd = new CursoMasivoExamen();
-        cursoMasivoUpd.setId(cursoMasivoExamen.getId());
-        cursoMasivoUpd.setGrupoHorasExamen(grupoHorasExamen);
-        cursoMasivoExamenDAO.updateFechaExamen(cursoMasivoExamen);
-        this.rolExamenesLogger.finalize();
+        if (rolExamenesLogger.getLogDetails().isEmpty()) {
+            CursoMasivoExamen cursoMasivoUpd = new CursoMasivoExamen();
+            cursoMasivoUpd.setId(cursoMasivoExamen.getId());
+            cursoMasivoUpd.setGrupoHorasExamen(grupoHorasExamen);
+            cursoMasivoExamenDAO.updateFechaExamen(cursoMasivoExamen);
+        } else {
+            throw new PhobosException("Conflictos encontrados.");
+        }
     }
 
     public void validateCruceCursosMasivos(CursoMasivoExamen cursoMasivoExamen) {
@@ -441,7 +443,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         boolean validacionCursoMasivo = grupoRegularConnector.validarCursosMasivos(cursoMasivoExamen.getRolExamenes(), cursosMasivosOthers,
                 docentes, aulas, alumnos, cursoMasivoExamen.getGrupoHorasExamen());
-        Assert.isTrue(validacionCursoMasivo, "Tiene confictos en otros cursos masivos.");
+        //   Assert.isTrue(validacionCursoMasivo, "Tiene confictos en otros cursos masivos.");
     }
 
     public void validarGruposRegulares(CursoMasivoExamen cursoMasivoExamen) {
@@ -463,7 +465,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         List<Docente> docentes = cursoMasivoExamen.getDocentesCursosMasivos().stream().map(x -> x.getDocente()).collect(Collectors.toList());
 
         boolean validarGruposRegulares = grupoRegularConnector.validarGrupoRegular(letraGrupoRegular, alumnos, docentes, aulas);
-        Assert.isTrue(validarGruposRegulares, "Tiene confictos en otros grupos regulares.");
+        //  Assert.isTrue(validarGruposRegulares, "Tiene confictos en otros grupos regulares.");
 
     }
 
@@ -492,7 +494,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
                 }
             }
         }
-        Assert.isFalse(conflicts, "Tiene alumnos con confictos en los grupos especiales.");
+        //  Assert.isFalse(conflicts, "Tiene alumnos con confictos en los grupos especiales.");
     }
 
     @Override

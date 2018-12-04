@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.rolexamen.gruporegular;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +31,7 @@ import pe.edu.lamolina.model.enums.GrupoHorasRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.AulaCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
@@ -38,6 +40,7 @@ import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoRegularExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
@@ -48,6 +51,7 @@ import pe.edu.lamolina.pivot.dao.rolexamen.AulaCursoMasivoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoMasivoExamenDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.DocenteCursoMasivoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.LetraGrupoRegularDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoEspecialDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -78,6 +82,9 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
     @Autowired
     RolExamenesLogger rolExamenesLogger;
+
+    @Autowired
+    SeccionGrupoEspecialDAO seccionGrupoEspecialDAO;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -137,10 +144,8 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 letraGrupoRegular.getContadorSecciones() + " de " + seccionesByLetraOnlyInformative.size());
 
         List<Alumno> alumnos = matriculadosPorSeccion.stream().map(x -> x.getMatriculaResumen().getAlumno()).collect(Collectors.toList());
-        List<Aula> aulas = new ArrayList<>();
-        aulas.add(seccion.getAula());
-        List<Docente> docentes = new ArrayList<>();
-        docentes.add(seccion.getDocenteSeccion().get(0).getDocente());
+        List<Aula> aulas = Arrays.asList(seccion.getAula());
+        List<Docente> docentes = Arrays.asList(seccion.getDocenteSeccion().get(0).getDocente());
 
         boolean validacionCursosMasivos = this.validarCursosMasivos(letraGrupoRegular.getRolExamenes(), docentes, aulas, alumnos, letraGrupoRegular.getGrupoHorasExamen());
         boolean validacionGrupoRegular = this.validarGrupoRegular(letraGrupoRegular, alumnos, docentes, aulas);
@@ -213,6 +218,45 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         return true;
     }
 
+    public boolean validarGrupoEspecial(List<SeccionGrupoEspecial> seccionesGrupoEspecial,
+            List<Alumno> alumnos, List<Docente> docentes, List<Aula> aulas) {
+        //validar conflicto alumno
+        boolean alumnoConflicto = false;
+        //  MATRICULAS_BY_SEC:
+        for (Alumno alumno : alumnos) {
+            for (SeccionGrupoEspecial seccionGrupoEspecial : seccionesGrupoEspecial) {
+                AlumnoGrupoEspecial alumnoSeccionEspecialFound = seccionGrupoEspecial.getAlumnosGrupoEspecial()
+                        .stream().filter(x -> x.getAlumno().equals(alumno)).findFirst().orElse(null);
+                if (alumnoSeccionEspecialFound != null) {
+                    alumnoConflicto = true;
+                    logger.debug("conflicto alumno {}, con la seccion especial {}",
+                            alumnoSeccionEspecialFound.getAlumno().getId(),
+                            seccionGrupoEspecial.getSeccion().getId());
+                    rolExamenesLogger.cruceAlumno(alumno, seccionGrupoEspecial);
+                    // break MATRICULAS_BY_SEC;
+                }
+            }
+        }
+        
+                //validar conflicto docentes
+        boolean docenteConflicto = false;
+        for (Docente docente : docentes) {
+            SeccionGrupoEspecial seccionGrupoEspecialWithDocente = seccionesGrupoEspecial.stream()
+                    .filter(x -> x.getDocente().equals(docente)).findFirst().orElse(null);
+            if (seccionGrupoEspecialWithDocente != null) {
+                docenteConflicto = true;
+                logger.debug("conflicto docente {}, con la seccion especial {}",
+                        docente.getId(),
+                        seccionGrupoEspecialWithDocente.getSeccion().getId());
+                rolExamenesLogger.cruceDocente(docente, seccionGrupoEspecialWithDocente);
+                // break;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
     public boolean validarCursosMasivos(RolExamenes rolExamenes, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos, GrupoHorasExamen grupoHorasExamen) {
         List<CursoMasivoExamen> cursosMasivosByRolExamen = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
         cursosMasivosByRolExamen.removeIf(x -> x.getGrupoHorasExamen() == null || !x.getGrupoHorasExamen().equals(grupoHorasExamen));

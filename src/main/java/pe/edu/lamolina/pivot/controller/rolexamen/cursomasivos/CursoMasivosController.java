@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
+import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -45,6 +46,9 @@ public class CursoMasivosController {
 
     @Autowired
     CursoMasivosService service;
+
+    @Autowired
+    RolExamenesLogger rolExamenesLogger;
 
     private enum TipoAccion {
         CURSO,
@@ -380,9 +384,20 @@ public class CursoMasivosController {
             response.setMessage("Horario guardado correctamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
+            if (rolExamenesLogger.getLogDetails() != null && !rolExamenesLogger.getLogDetails().isEmpty()) {
+                JsonNodeFactory jc = JsonNodeFactory.instance;
+                ObjectNode jLog = JsonHelper.createJson(rolExamenesLogger, jc, false,
+                        new String[]{
+                            "*",
+                            "logDetails.*"
+                        });
+                response.setData(jLog);
+            }
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
+        } finally {
+            rolExamenesLogger.finalizeLog();
         }
         return response;
     }

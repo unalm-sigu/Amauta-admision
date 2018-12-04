@@ -10,7 +10,6 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
-import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoEspecialDAO;
@@ -48,6 +47,17 @@ public class AlumnoGrupoEspecialDAOH extends AbstractEasyDAO<AlumnoGrupoEspecial
                 .join("alumno alu", "seccionGrupoEspecial sge")
                 .join("userRegistro ureg", "ureg.persona pureg")
                 .filter("sge.id", seccionGrupoEspecial)
+                .in("age.estado", estados);
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoGrupoEspecial> allBySeccionGrupoEspecialAndEstados(List<SeccionGrupoEspecial> seccionesGrupoEspecial, AlumnoRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoGrupoEspecial.class, "age")
+                .join("alumno alu", "seccionGrupoEspecial sge")
+                .join("userRegistro ureg", "ureg.persona pureg")
+                .in("sge.id", seccionesGrupoEspecial)
                 .in("age.estado", estados);
         return all(sql);
     }

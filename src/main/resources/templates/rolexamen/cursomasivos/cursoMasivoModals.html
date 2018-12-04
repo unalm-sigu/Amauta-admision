@@ -383,3 +383,53 @@
     </div>
 </modal-vik>
 
+
+<modal-vik ref="infoModal"
+           id="modaLinfo"
+           header="true"
+           title="Revisar"
+           modalsize="modal-md"
+           v-bind:showaccept="false">
+    <div slot="body">
+        <div class="row">
+            <div class="form-group">
+                <label class="col-md-2">Curso Masivo</label>
+
+                <div class="col-md-4"
+                     v-if="cursoMasivoExamen.curso">
+                    <span class=" text-primary bold h5 m-b-xs m-t-xs"
+                          v-text="cursoMasivoExamen.curso.nombre"
+                          v-if="cursoMasivoExamen"></span>
+                    <span class="">
+                        {{cursoMasivoExamen.curso.codigo}}&nbsp;
+                        <i class="fa fa-bookmark text-primary"></i>
+                        {{cursoMasivoExamen.curso.tpc}}
+                    </span>
+                </div>
+                <div class="col-md-2">
+                    Rol Examenes
+                </div>
+                <span class="col-md-4" 
+                      v-text="rolExamenes.nombre"
+                      v-if="rolExamenes">
+                </span>    
+            </div>
+
+        </div>
+        <table class="table table-striped" v-if="rolExamenesLogger">
+            <thead>
+                <tr>
+                    <th class="col-md-3 text-center">Tipo</th>
+                    <th class="col-md-5 text-center">Error</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in rolExamenesLogger.logDetails">
+                    <td v-text="item.tipoEnum.value"></td>
+                    <td v-text="item.message"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</modal-vik>
+

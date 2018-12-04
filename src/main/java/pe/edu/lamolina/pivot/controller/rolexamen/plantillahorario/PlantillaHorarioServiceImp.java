@@ -208,7 +208,6 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                 rolExamenes.getHorasExamen());
         List<Long> gruposIdsFiltered = groupsAndDays.entrySet().stream()
                 .map(x -> x.getKey()).collect(Collectors.toList());
-        //   .filter(x -> x.getValue() >= Constantine.CANTIDAD_HORAS_POR_EXAMEN)
 
         List<GrupoHoras> gruposHoras = grupoHorasDAO.allGrupoHoras(gruposIdsFiltered);
         for (GrupoHoras gruposHora : gruposHoras) {

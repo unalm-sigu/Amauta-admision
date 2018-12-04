@@ -6,7 +6,7 @@ import java.util.Map;
 public enum TipoRolExamenesLoggerEnum {
 
     CUR_MAS("Cursos Masivos"), GPO_REG("Grupos Regulares"), GPO_ESP("Grupos Especiales"), //PARENTS
-    CRU_DOC("Cruce Docente"), CRU_ALU("Cruce Alumno"), CRU_AUL("Cruce Alumno"); //HIJOS
+    CRU_DOC("Cruce Docente"), CRU_ALU("Cruce Alumno"), CRU_AUL("Cruce Aula"); //HIJOS
 
     private final String value;
     private static final Map<String, TipoRolExamenesLoggerEnum> lookup = new HashMap<>();

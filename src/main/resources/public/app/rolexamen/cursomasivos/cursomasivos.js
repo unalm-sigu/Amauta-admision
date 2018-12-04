@@ -46,7 +46,8 @@ new Vue({
         },
         semanasExamen: [],
         semanaExamenActiva: null,
-        grupoActivo: null
+        grupoActivo: null,
+        rolExamenesLogger: null
     },
     mounted() {
         let $vue = this;
@@ -363,6 +364,12 @@ new Vue({
                     .then(response => {
                         if (response.data.success) {
                             this.loadCursosMasivosByRoleExamen();
+                        } else {
+                            if (response.data.data != null) {
+                                this.rolExamenesLogger = response.data.data;
+                                this.$refs.infoModal.title = this.rolExamenesLogger.message;
+                                this.$refs.infoModal.open();
+                            }
                         }
                         // MODAL.hideWait();
                     });
