@@ -28,7 +28,9 @@ new Vue({
             useCurrent: false
         },
         activonuevo: false,
-        isindividual:false
+        isindividual: false,
+        verTablaEditable: false,
+        updatable: [],
     },
     mounted: function () {
         let $vue = this;
@@ -156,6 +158,7 @@ new Vue({
                         vue.categoria = response.data.producto.productoSuperior;
                         vue.producto = response.data.producto;
                         vue.micomentario = response.data.comentario;
+                        vue.activonuevo = true;
                     } else {
                         notify(response.message, 'error');
                     }
@@ -243,6 +246,72 @@ new Vue({
             vue.producto = null;
             vue.imagentemporal = '';
             vue.inventario = {imagen: APP.url('phobos/images/img.svg')};
+        },
+        confirmUpdateCodigoInventario() {
+
+            var vue = this;
+
+            swal('¿Está seguro que desea actualizar el número  de inventario ?', {
+                icon: "warning",
+                closeOnClickOutside: false,
+                closeOnEsc: false,
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "No", closeModal: true, visible: true},
+                    confirm: {text: "Si, guardar", closeModal: false}
+                }
+            }).then((value) => {
+
+                console.log(value);
+
+                if (value != true) {
+                    return;
+                }
+
+                console.log('post to backen');
+                vue.updatable = [];
+
+                vue.$refs.load.data.map((v, i) => {
+                    vue.updatable.push({id: v.id, codigo: v.codigo, codeEdit: v.codeEdit});
+                });
+
+                $.ajax({
+                    method: 'POST',
+                    contentType: "application/json",
+                    url: APP.url('general/aula/inventario/updateCode'),
+                    data: JSON.stringify(vue.updatable),
+                    success: function (response) {
+                        if (response.success) {
+                            vue.$refs.load.loadRemoteData();
+                            vue.verTablaEditable = false;
+                            return  swal({text: response.message, icon: "success", button: false, timer: 1000});
+                        } else {
+                            return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        }
+                    },
+                    error: function () {
+                        return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                    }
+                });
+
+            }).catch(err => {
+                if (err) {
+                    swal(APP.errorComunicacion, "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
+            });
+        },
+        nextEditable($event) {
+            let vue = this;
+            var inx = vue.$refs.editable.indexOf($event.target);
+            var idx = inx + 1;
+            if (vue.$refs.editable.length > idx) {
+                vue.$refs.editable[idx].focus()
+            } else {
+                swal({text: "Ya llegó al último registro", icon: "warning",  button: {text: "Aceptar"}});
+            }
         }
     }
 });      

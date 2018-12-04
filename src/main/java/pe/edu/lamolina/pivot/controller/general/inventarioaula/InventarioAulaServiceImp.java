@@ -286,10 +286,10 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         if (last == null) {
             producto.setCodigo("INV000001");
         } else {
-            int i=Integer.parseInt(last.getCodigo().substring(3, 9));
+            int i = Integer.parseInt(last.getCodigo().substring(3, 9));
             i++;
             String full = String.format("%06d", i);
-            producto.setCodigo("INV"+full);
+            producto.setCodigo("INV" + full);
         }
         Producto productoRegistrado = productoDAO.findByCodigo(producto.getCodigo());
         if (productoRegistrado != null) {
@@ -325,6 +325,24 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
 
     private void deleteArchivoS3(String nombreArchivo) {
         s3Service.deleteFile(Constantine.S3_DIR, Constantine.S3_DIR_INVENTARIO, nombreArchivo);
+    }
+
+    @Override
+    @Transactional
+    public void updateInventarioCode(List<Inventario> inventarios, Usuario user) {
+        if(inventarios.isEmpty()){
+            return;
+        }
+        List<Inventario> inventariosFilter=inventarios.stream()
+                .filter(x->x.getCodeEdit()==true)
+                .collect(Collectors.toList());
+        List<Inventario> inventariosDb = inventarioDAO.allById(inventariosFilter);
+        Map<Long,Inventario> inventariosDbMap = TypesUtil.convertListToMap("id", inventariosDb);
+        for (Inventario inventario : inventariosFilter) {
+            Inventario inventarioDb= inventariosDbMap.get(inventario.getId());
+            inventarioDb.setCodigo(inventario.getCodigo());
+            inventarioDAO.update(inventarioDb);
+        }
     }
 
 }

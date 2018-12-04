@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.general.inventarioaula;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -19,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -142,6 +144,7 @@ public class InventarioAulaController {
                     "producto.productoSuperior.*",
                     "producto.unidadPrincipal.*"
                 });
+                jInventario.put("codeEdit", Strings.isNullOrEmpty(inventario.getCodigo()));
                 array.add(jInventario);
             }
 
@@ -290,6 +293,24 @@ public class InventarioAulaController {
                 });
                 response.setData(jProducto);
             }
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("updateCode")
+    public JsonResponse updateInventarioCode(@RequestBody List<Inventario> inventarios, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Usuario user = ds.getUsuario();
+            service.updateInventarioCode(inventarios, user);
+            response.setMessage(Messages.UPDATED);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

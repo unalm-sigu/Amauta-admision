@@ -30,4 +30,6 @@ public interface InventarioAulaService {
 
     void updateResumen(ResumenInventario resumen);
 
+    void updateInventarioCode(List<Inventario> inventarios, Usuario user);
+
 }
