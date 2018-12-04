@@ -206,9 +206,9 @@ public class OficinaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
 
-            ObjectUtil.printAttr(colaboradorBean);
+//            ObjectUtil.printAttr(colaboradorBean);
             Colaborador colaborador = colaboradorBean.getColaborador();
-            ObjectUtil.printAttr(colaborador);
+//            ObjectUtil.printAttr(colaborador);
             List<PerfilCompania> perfilCompanias = colaboradorBean.getPerfilCompanias();
             List<FuncionColaborador> funciones = new ArrayList();
             if (perfilCompanias != null) {

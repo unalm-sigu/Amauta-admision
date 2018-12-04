@@ -55,7 +55,7 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
     @Transactional
     public void updateTipoGpo(TipoGrupoHoras tipoGrupo) {
         TipoGrupoHoras tipoGrupoBD = tipoGrupoHorasDAO.find(tipoGrupo.getId());
-        tipoGrupoBD.setTipoCiclo(tipoGrupo.getTipoCiclo());
+//        tipoGrupoBD.setTipoCiclo(tipoGrupo.getTipoCiclo());
         tipoGrupoBD.setDescripcion(tipoGrupo.getDescripcion());
         tipoGrupoHorasDAO.update(tipoGrupoBD);
     }
