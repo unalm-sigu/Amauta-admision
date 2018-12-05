@@ -1,0 +1,600 @@
+Vue.component("grupo-regular-aula-component", {
+    template: "#modalGrupoRegularAulaComp",
+    props: {
+        aula: {
+            required: false,
+            type: Object,
+            default: null
+        },
+        grupohoras: {
+            required: false,
+            type: Object,
+            default: null
+        }, seccion: {
+            required: true,
+            type: Object,
+            default: null
+        },
+        diahoragruposelects: {
+            required: true,
+            type: Array,
+            default: []
+        },
+    },
+    data: function () {
+        return {
+            seccionModal: null,
+            errorsMessage: null,
+            tabGrupos: {
+                grupoHorarioSel: {},
+                regulares: {
+                    tipoGrupoHorasSeleccionado: null,
+                    tblHorarios: null,
+                    tipoGrupoHorasOpts: null
+                }, zetas: {
+                    tblHorarios: null
+                }, especial: {
+                    tblHorarios: null
+                }
+            }
+        }
+    },
+    mounted: function () {
+
+        let $vue = this;
+
+        var activos = $($vue.$el).find('.nav li.active');
+        if (activos.length > 1) {
+            $($vue.$el).find('.nav li.active:last').removeClass('active');
+            $($vue.$el).find('.tab-pane.active:last').removeClass('active');
+        }
+
+        $global.$on("preSaveGrupoHorario", function () {
+            $vue.preSaveGrupoHorario();
+        });
+
+    },
+    updated: function () {
+
+        let $vue = this;
+
+        var activos = $($vue.$el).find('.nav li.active');
+        if (activos.length > 1) {
+            $($vue.$el).find('.nav li.active:last').removeClass('active');
+            $($vue.$el).find('.tab-pane.active:last').removeClass('active');
+        }
+
+    },
+    methods: {
+        loadGrupoRegularAulaComponent() {
+            let $vue = this;
+            $vue.tabGrupos = {
+                grupoHorarioSel: {},
+                regulares: {
+                    tipoGrupoHorasSeleccionado: null,
+                    tblHorarios: null,
+                    tipoGrupoHorasOpts: null
+                }, zetas: {
+                    grupoHorarioSel: null,
+                    tblHorarios: null
+                }, especial: {
+                    grupoHorarioSel: null,
+                    tblHorarios: null
+                }
+            }
+
+            $vue.tabGrupos['regulares'].tipoGrupoHorasSeleccionado = null;
+            $vue.tabGrupos['regulares'].tblHorarios = null;
+            $vue.tabGrupos['regulares'].tipoGrupoHorasOpts = null;
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/loadModalGrupo'),
+                data: {
+                    seccion: $vue.seccion.id,
+                    grupoHoras: $vue.grupohoras.ids
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $vue.seccionModal = response.data.seccion;
+
+                        $global.$emit("reloadDynaZetaGenerico", $vue.seccionModal.id);
+                        $global.$emit("reloadDynaEspecialGenerico", $vue.seccionModal.id);
+                        $vue.tabGrupos['regulares'].tipoGrupoHorasOpts = response.data.tiposGruposHorasOpt;
+
+                        console.log($vue.tabGrupos.grupoHorarioSel)
+                        if (response.data.grupoHorarioSel != null) {
+                            $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorarioSel;
+                            console.log(response.data.grupoHorarioSel.tipoGrupoHoras)
+
+                            if (response.data.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoRegular) {
+                                console.log("isTipoGrupoRegular");
+                                $vue.tabGrupos['regulares'].tipoGrupoHorasSeleccionado = response.data.grupoHorarioSel.tipoGrupoHoras;
+                                $vue.tabGrupos.grupoHorarioSel["tabGrupo"] = "regulares";
+                                $vue.cambiarCboTipoGrupoHorReg();
+                            } else if (response.data.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoZeta) {
+                                console.log("isTipoGrupoZeta");
+                                $vue.seleccionarGrupoZ($vue.tabGrupos.grupoHorarioSel.id);
+                                $vue.tabGrupos.grupoHorarioSel["tabGrupo"] = "zetas";
+                            } else if (response.data.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoEspecial) {
+                                console.log("isTipoGrupoEspecial");
+                                $vue.seleccionarGrupoEsp($vue.tabGrupos.grupoHorarioSel.id);
+                                $vue.tabGrupos.grupoHorarioSel["tabGrupo"] = "especiales";
+                            }
+
+                        } else {
+                            $vue.tabGrupos.grupoHorarioSel["tabGrupo"] = "regulares";
+                            $vue.tabGrupos['zetas'].tblHorarios = null;
+                        }
+
+                        console.log($vue.tabGrupos.grupoHorarioSel)
+                    }
+                }
+            });
+
+        },
+        cambiarCboTipoGrupoHorReg() {
+
+
+            let $vue = this;
+            $.ajax({
+                url: APP.url('academico/gposeccion/horariosRegulares'),
+                type: 'POST',
+                async: false,
+                data: {
+                    tipoGrupoHorasId: $vue.tabGrupos['regulares'].tipoGrupoHorasSeleccionado.id,
+                    seccionId: $vue.seccionModal.id,
+                    aulaId: $vue.aula.id
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $vue.tabGrupos['regulares'].tblHorarios = response.data;
+                    } else {
+                        notify(response.message, "error");
+                        $vue.tabGrupos['regulares'].tblHorarios = null;
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $("#tablaHorario").html('');
+                }
+            });
+
+        },
+        getClassGpoHorario(gpoHorario) {
+            if (gpoHorario.seleccionado) {
+                return "btn-primary";
+            }
+            return "btn-default";
+        },
+        seleccionarGrupoZ(grupo) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url('academico/gposeccion/horariosZeta'),
+                type: 'POST',
+                async: false,
+                data: {
+                    grupoHorario: grupo,
+                    seccion: $vue.seccionModal.id
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $vue.tabGrupos['zetas'].tblHorarios = response.data;
+                        $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorasSeleccionado;
+
+                        $global.$emit("seleccionarGrupoZetaGenerico", $vue.tabGrupos.grupoHorarioSel);
+                        $global.$emit("clearAndSelectEspGenerico");
+                        $vue.tabGrupos['especial'].tblHorarios = null;
+                        $vue.cleanDiasHorasGrupoDiferentGpoHorario($vue.tabGrupos.grupoHorarioSel);
+                    } else {
+                        notify(response.message, "error");
+                        $vue.tabGrupos['zetas'].tblHorarios = null;
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $("#tablaHorario").html('');
+                }
+            });
+
+        },
+        seleccionarGrupoEsp(grupo) {
+
+
+
+            let $vue = this;
+            $.ajax({
+                url: APP.url('academico/gposeccion/horariosEspeciales'),
+                type: 'POST',
+                async: false,
+                data: {
+                    grupoHorario: grupo,
+                    seccion: $vue.seccionModal.id
+                },
+                success: function (response) {
+
+                    if (response.success) {
+
+                        $vue.tabGrupos['especial'].tblHorarios = response.data;
+                        $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorasSeleccionado;
+                        $global.$emit("seleccionarGrupoEspecialGenerico", $vue.tabGrupos.grupoHorarioSel);
+                        $global.$emit("clearAndSelectZetaGenerico");
+                        $vue.tabGrupos['zetas'].tblHorarios = null;
+
+                    } else {
+                        notify(response.message, "error");
+                        $vue.tabGrupos['especial'].tblHorarios = null;
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $("#tblHorarioEsp").html('');
+                }
+            });
+
+        },
+        cambiarCboTipoGrupoHorZeta() {
+            let $vue = this;
+            $.ajax({
+                url: APP.url('academico/gposeccion/horario'),
+                type: 'POST',
+                async: false,
+                data: {
+                    tipoGrupoHorasId: $vue.tabGrupos['zetas'].grupoHorarioSel.id,
+                    seccionId: $vue.seccionModal.id
+                },
+                success: function (response) {
+                    if (response.success) {
+
+                        $vue.tabGrupos['zetas'].tblHorarios = response.data;
+                    } else {
+                        notify(response.message, "error");
+                        $vue.tabGrupos['zetas'].tblHorarios = null;
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $("#tablaHorario").html('');
+                }
+            });
+
+        },
+        selectDiaHoraGrupo(diaHoraGrupo) {
+            var seleccionado = !diaHoraGrupo.seleccionado;
+            this.errorsMessage = null;
+            console.log(seleccionado);
+            console.log(diaHoraGrupo.id);
+            console.log(diaHoraGrupo.grupoHorario.id);
+            console.log(diaHoraGrupo.grupoHorario.codigo);
+            if (seleccionado) {
+                $global.$emit("selectGrupoHorarioChange", diaHoraGrupo.grupoHorario);
+            } else {
+                $global.$emit("selectGrupoHorarioChange", {});
+            }
+
+
+            if (seleccionado) {
+                let tabGrupo = this.tabGrupos.grupoHorarioSel["tabGrupo"]
+                this.tabGrupos.grupoHorarioSel = diaHoraGrupo.grupoHorario;
+                this.tabGrupos.grupoHorarioSel["tabGrupo"] = tabGrupo;
+
+                if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoRegular) {
+                    for (let key in this.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo) {
+                        let diaHoraAulaEach = this.tabGrupos['regulares'].tblHorarios.jsonHorarioAula[key];
+                        let diaHoraGrupoEach = this.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[key];
+                        if (diaHoraGrupoEach.grupoHorario.id == this.tabGrupos.grupoHorarioSel.id
+                                && diaHoraGrupo.dia.id == diaHoraGrupoEach.dia.id
+                                && diaHoraAulaEach == undefined) {
+                            diaHoraGrupoEach.seleccionado = seleccionado;
+                        } else {
+                            if (diaHoraGrupoEach.grupoHorario.id != diaHoraGrupo.grupoHorario.id) {
+                                diaHoraGrupoEach.seleccionado = false;
+                            }
+                        }
+                    }
+                    this.cleanDiasHorasGrupoDiferentGpoHorario(this.tabGrupos.grupoHorarioSel);
+
+                } else if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoEspecial) {
+
+                    for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
+                        let diaHoraAulaEach = this.tabGrupos['especial'].tblHorarios.jsonHorarioAula[key];
+                        let diaHoraGrupoEach = this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key];
+                        if (diaHoraGrupoEach.grupoHorario.id == this.tabGrupos.grupoHorarioSel.id
+                                && diaHoraGrupo.dia.id == diaHoraGrupoEach.dia.id
+                                && diaHoraAulaEach == undefined) {
+                            diaHoraGrupoEach.seleccionado = seleccionado;
+                        } else {
+                            if (diaHoraGrupoEach.grupoHorario.id != diaHoraGrupo.grupoHorario.id) {
+                                diaHoraGrupoEach.seleccionado = false;
+                            }
+                        }
+                    }
+                    this.cleanDiasHorasGrupoDiferentGpoHorario(this.tabGrupos.grupoHorarioSel);
+                } else if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoZeta) {
+
+                    if (!this.seleccionarGrupoValidate(this, diaHoraGrupo, this.tabGrupos['zetas'])) {
+                        return;
+                    }
+
+                    diaHoraGrupo.seleccionado = seleccionado;
+                    this.cleanDiasHorasGrupoDiferentGpoHorario(this.tabGrupos.grupoHorarioSel);
+                }
+
+//                $global.$emit("selectGrupoHorarioChange", this.tabGrupos);
+
+            } else {
+                if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoZeta) {
+                    if (this.deseleccionarGrupoValidate(this, diaHoraGrupo, this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo)) {
+                        diaHoraGrupo.seleccionado = seleccionado;
+                    }
+                } else if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoEspecial) {
+                    diaHoraGrupo.seleccionado = seleccionado;
+
+                    if (this.tabGrupos['especial'].tblHorarios != null) {
+                        let cantSelecteds = 0;
+                        for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
+                            let diaHoraGrupoEach = this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key];
+                            if (diaHoraGrupo.dia.id == diaHoraGrupoEach.dia.id) {
+                                diaHoraGrupoEach.seleccionado = false;
+                            }
+                            if (diaHoraGrupoEach.seleccionado) {
+                                cantSelecteds++;
+                            }
+                        }
+                        if (cantSelecteds == 0) {
+                            this.tabGrupos.grupoHorarioSel = {tabGrupo: this.tabGrupos.grupoHorarioSel.tabGrupo};
+                        }
+                    }
+                } else if (diaHoraGrupo.grupoHorario.tipoGrupoHoras.isTipoGrupoRegular) {
+                    diaHoraGrupo.seleccionado = seleccionado;
+
+                    if (this.tabGrupos['regulares'].tblHorarios != null) {
+                        let cantSelecteds = 0;
+                        for (let key in this.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo) {
+                            let diaHoraGrupoEach = this.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[key];
+                            if (diaHoraGrupo.dia.id == diaHoraGrupoEach.dia.id) {
+                                diaHoraGrupoEach.seleccionado = false;
+                            }
+                            if (diaHoraGrupoEach.seleccionado) {
+                                cantSelecteds++;
+                            }
+                        }
+                        if (cantSelecteds == 0) {
+                            this.tabGrupos.grupoHorarioSel = {tabGrupo: this.tabGrupos.grupoHorarioSel.tabGrupo};
+                        }
+                    }
+                }
+
+                //$global.$emit("selectGrupoHorarioChange", {});
+                //$global.$emit("selectGrupoHorarioChange", this.tabGrupos);
+            }
+        },
+        seleccionarGrupoValidate($vue, diaHoraGrupo, tabGrupo) {
+
+            let cantGruposSelec = 1;
+            if (tabGrupo.tblHorarios != null) {
+                for (let key in tabGrupo.tblHorarios.jsonDiaHoraGrupo) {
+                    if (tabGrupo.tblHorarios.jsonDiaHoraGrupo[key].seleccionado) {
+                        cantGruposSelec++;
+                    }
+                }
+            }
+            if (parseInt(cantGruposSelec) > parseInt(this.seccionModal.horasSemanales)) {
+                notify("No se puede asignar mas horas, verifique.", "error");
+                return;
+            }
+
+            let horaAfter = diaHoraGrupo.hora.numero + 1;
+            let horaBefore = diaHoraGrupo.hora.numero - 1;
+
+
+            for (let keyDia in tabGrupo.tblHorarios.dias) {
+                let diaEach = tabGrupo.tblHorarios.dias[keyDia];
+
+                let diaHoraGrupoAfter = null;
+                let diaHoraGrupoBefore = null;
+                let cantGruposSelDia = 1;
+                for (let key in tabGrupo.tblHorarios.jsonDiaHoraGrupo) {
+                    let diaHoraGrupoEach = tabGrupo.tblHorarios.jsonDiaHoraGrupo[key];
+                    if (diaHoraGrupo.dia.numeroDia != diaHoraGrupoEach.dia.numeroDia) {
+                        continue;
+                    }
+                    if (diaHoraGrupoEach.seleccionado) {
+                        cantGruposSelDia++;
+                    }
+                }
+                if (cantGruposSelDia > 1) {
+                    for (let key in tabGrupo.tblHorarios.jsonDiaHoraGrupo) {
+                        var diaHoraGrupoEach = tabGrupo.tblHorarios.jsonDiaHoraGrupo[key];
+                        if (diaHoraGrupo.dia.numeroDia != diaEach.numeroDia) {
+                            continue;
+                        }
+
+                        if (diaHoraGrupoEach.dia.numeroDia == diaHoraGrupo.dia.numeroDia) {
+                            if (diaHoraGrupoEach.hora.numero == horaAfter) {
+                                diaHoraGrupoAfter = diaHoraGrupoEach;
+                            }
+                            if (diaHoraGrupoEach.hora.numero == horaBefore) {
+                                diaHoraGrupoBefore = diaHoraGrupoEach;
+                            }
+                        }
+
+                    }
+
+                    let stop = false;
+                    if ((diaHoraGrupoAfter != null && !diaHoraGrupoAfter.seleccionado) &&
+                            (diaHoraGrupoBefore != null && !diaHoraGrupoBefore.seleccionado)) {
+                        stop = true;
+                    }
+                    if (diaHoraGrupoBefore == null &&
+                            (diaHoraGrupoAfter != null && !diaHoraGrupoAfter.seleccionado)) {
+                        stop = true;
+                    }
+                    if (diaHoraGrupoAfter == null &&
+                            (diaHoraGrupoBefore != null && !diaHoraGrupoBefore.seleccionado)) {
+                        stop = true;
+                    }
+                    if (stop) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        },
+        deseleccionarGrupoValidate($vue, diaHoraGrupo, arg) {
+            let diaHoraGrupoAfter = null;
+            let diaHoraGrupoBefore = null;
+            let horaAfter = diaHoraGrupo.hora.numero + 1;
+            let horaBefore = diaHoraGrupo.hora.numero - 1;
+            for (let key in arg) {
+                var diaHoraGrupoEach = arg[key];
+                if (diaHoraGrupoEach.dia.numeroDia == diaHoraGrupo.dia.numeroDia) {
+                    if (diaHoraGrupoEach.hora.numero == horaAfter) {
+                        diaHoraGrupoAfter = diaHoraGrupoEach;
+                    }
+                    if (diaHoraGrupoEach.hora.numero == horaBefore) {
+                        diaHoraGrupoBefore = diaHoraGrupoEach;
+                    }
+                }
+
+            }
+            if ((diaHoraGrupoBefore != null && diaHoraGrupoBefore.seleccionado)
+                    && (diaHoraGrupoAfter != null && diaHoraGrupoAfter.seleccionado)) {
+                return false;
+            }
+            return true;
+        },
+        preSaveGrupoHorario() {
+            let $vue = this;
+
+            console.log("preSaveGrupoHorario");
+
+            if ($vue.tabGrupos.grupoHorarioSel == null) {
+                notify("Seleccione un grupo horario.", "error");
+                return;
+            }
+
+            $vue.diahoragruposelects = [];
+
+            let diasHorasGrupo = [];
+
+            if ($vue.tabGrupos.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoRegular) {
+                for (let key in this.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo) {
+                    let diaHoraGrupoEach = this.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[key];
+                    if (diaHoraGrupoEach.seleccionado) {
+                        console.dir(diaHoraGrupoEach);
+                        let diaHoraGrupo = diaHoraGrupoEach.id;
+                        let grupoHorario = diaHoraGrupoEach.grupoHorario.id;
+                        let dia = diaHoraGrupoEach.dia;
+                        let hora = diaHoraGrupoEach.hora;
+                        let diaHoraGrupoJson = {}
+                        diaHoraGrupoJson["id"] = parseInt(diaHoraGrupo);
+                        diaHoraGrupoJson["grupoHorario"] = {id: parseInt(grupoHorario)};
+                        diaHoraGrupoJson["dia"] = {id: parseInt(dia.id)};
+                        diaHoraGrupoJson["hora"] = {id: parseInt(hora.id)};
+                        diasHorasGrupo.push(diaHoraGrupoJson);
+                        console.log(diaHoraGrupoJson)
+                    }
+                }
+            } else if (this.tabGrupos.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoZeta) {
+                for (let key in this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo) {
+                    let diaHoraGrupoEach = this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[key];
+                    if (diaHoraGrupoEach.seleccionado) {
+
+                        let diaHoraGrupo = diaHoraGrupoEach.id;
+                        let grupoHorario = diaHoraGrupoEach.grupoHorario
+                        let dia = diaHoraGrupoEach.dia;
+                        let hora = diaHoraGrupoEach.hora;
+                        let diaHoraGrupoJson = {}
+
+                        diaHoraGrupoJson["id"] = parseInt(diaHoraGrupo);
+                        diaHoraGrupoJson["grupoHorario"] = {id: parseInt(grupoHorario.id)};
+                        diaHoraGrupoJson["dia"] = {id: parseInt(dia.id)};
+                        diaHoraGrupoJson["hora"] = {id: parseInt(hora.id)};
+                        diasHorasGrupo.push(diaHoraGrupoJson);
+                    }
+                }
+            } else if (this.tabGrupos.grupoHorarioSel.tipoGrupoHoras.isTipoGrupoEspecial) {
+
+                for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
+                    let diaHoraGrupoEach = this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key];
+                    if (diaHoraGrupoEach.seleccionado) {
+
+                        let diaHoraGrupo = diaHoraGrupoEach.id;
+                        let grupoHorario = diaHoraGrupoEach.grupoHorario
+                        let dia = diaHoraGrupoEach.dia;
+                        let hora = diaHoraGrupoEach.hora;
+                        let diaHoraGrupoJson = {}
+
+                        diaHoraGrupoJson["id"] = parseInt(diaHoraGrupo);
+                        diaHoraGrupoJson["grupoHorario"] = {id: parseInt(grupoHorario.id)};
+                        diaHoraGrupoJson["dia"] = {id: parseInt(dia.id)};
+                        diaHoraGrupoJson["hora"] = {id: parseInt(hora.id)};
+                        diasHorasGrupo.push(diaHoraGrupoJson);
+                    }
+                }
+            }
+
+            let errorCantHoras = false;
+            console.log($vue.seccionModal.horasSemanales)
+            console.log(diasHorasGrupo.length)
+            if ($vue.seccionModal.horasSemanales != diasHorasGrupo.length) {
+                errorCantHoras = true;
+            }
+            if ($vue.tabGrupos.grupoHorarioSel.permiteCeroHoras) {
+                if (diasHorasGrupo.length == 0) {
+                    errorCantHoras = false;
+                }
+            }
+
+
+            if (errorCantHoras) {
+                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
+                return
+            }
+
+            $vue.tabGrupos.grupoHorarioSel.diaHoraGrupo = diasHorasGrupo;
+
+            $vue.diahoragruposelects = diasHorasGrupo;
+
+            console.log("==================diahoragruposelects===================");
+            console.log($vue.diahoragruposelects.length);
+
+
+        },
+        cleanDiasHorasGrupoDiferentGpoHorario(grupoHorario) {
+
+            if (!grupoHorario.tipoGrupoHoras.isTipoGrupoZeta) {
+                if (this.tabGrupos['zetas'].tblHorarios != null) {
+                    console.log("isTipoGrupoZeta isTipoGrupoZeta isTipoGrupoZeta")
+                    for (let key in this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo) {
+                        this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado = false;
+                    }
+                }
+            }
+            if (!grupoHorario.tipoGrupoHoras.isTipoGrupoRegular) {
+                if (this.tabGrupos['regulares'].tblHorarios != null) {
+                    console.log("isTipoGrupoRegular isTipoGrupoRegular isTipoGrupoRegular")
+                    for (let key in this.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo) {
+                        this.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado = false;
+                    }
+                }
+            }
+            if (!grupoHorario.tipoGrupoHoras.isTipoGrupoEspecial) {
+                if (this.tabGrupos['especial'].tblHorarios != null) {
+                    console.log("isTipoGrupoEspecial isTipoGrupoEspecial isTipoGrupoEspecial")
+                    for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
+                        this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado = false;
+                    }
+                }
+            }
+        }
+    }
+});
+
+
+
+
+
+
+

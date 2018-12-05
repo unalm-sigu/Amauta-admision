@@ -1,0 +1,37 @@
+<modal-vik  ref="modalasignar" v-bind="dataModalAsigar"  >
+
+    <div slot="body">
+
+        <form method="POST"  class="text-center" id="formAddColaboradorTicket" >
+
+            <div class="panel-body">
+
+                <p class="block">El ticket de ayuda aun no ha sido asignado.</p>
+
+                <button class="btn btn-primary btn-block" v-on:click.prevent="asignarme()">Asignarme</button>
+
+                <p class="block m-t-md">ó</p>
+
+                <p class="block">Asignar a colaborador</p>
+                
+                <vueselect   required="true" v-bind:valor="colaboradorAsignado" >
+                    <option></option>
+                    <option 
+                        v-for="item in ticket.colaboradores"
+                        v-bind:value="item.id"
+                        v-text="item.persona.nombreCompleto"></option>
+                </vueselect>
+
+                <button 
+                    
+                    v-if="colaboradorAsignado.id"
+                    class="btn btn-primary btn-block m-t-md" 
+                    v-on:click.prevent="asignarColaboradorSelect()">Asignar</button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</modal-vik>

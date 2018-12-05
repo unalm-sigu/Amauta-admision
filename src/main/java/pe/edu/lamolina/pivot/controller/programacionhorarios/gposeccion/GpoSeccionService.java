@@ -135,6 +135,8 @@ public interface GpoSeccionService {
     //List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos, CicloAcademico ciclo);
     GrupoHoras findGrupoHorasWithHorario(Seccion seccion, CicloAcademico ciclo);
 
+    GrupoHoras findGrupoHorasWithHorario(Seccion seccion, GrupoHoras grupoHoras, CicloAcademico ciclo);
+
     GrupoHoras findGrupoHoras(GrupoHoras grupoHoras, CicloAcademico ciclo);
 
     GrupoHoras findGrupoHorasFull(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
@@ -193,7 +195,5 @@ public interface GpoSeccionService {
     void actualizarBoletin();
 
     List<DiaHoraGrupo> searchDiasHorasByHorasSemanales(List<DiaHoraGrupo> diasHoras, Integer horasSemanales, List<Dia> dias);
-
-    
 
 }

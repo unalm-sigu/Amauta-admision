@@ -47,7 +47,7 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
     public GrupoHoras findByCodeTipoCiclo(String codigo, TipoCicloEnum tipoCicloEnum) {
         List<String> tiposCiclos = new ArrayList<>();
         tiposCiclos.add(tipoCicloEnum.name());
-        tiposCiclos.add(TipoCicloEnum.AMB.name());
+        //tiposCiclos.add(TipoCicloEnum.AMB.name());
         Octavia sql = Octavia.query()
                 .from(GrupoHoras.class, "grup")
                 .join("tipoGrupoHoras tgh")

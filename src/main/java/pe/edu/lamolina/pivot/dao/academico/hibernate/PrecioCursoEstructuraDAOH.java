@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
@@ -27,15 +26,16 @@ public class PrecioCursoEstructuraDAOH extends AbstractEasyDAO<PrecioCursoEstruc
         sql.append(" select new PrecioCursoEstructura ( ");
         sql.append(" pce.id, ");
         sql.append(" pce.tpc, ");
+        sql.append(" pce.creditos, ");
         sql.append(" pce.precio, ");
         sql.append(" pce.estado, ");
         sql.append(" count(*) )");
 
         sql.append(" from GrupoSeccion as gs ");
-        sql.append("    inner join gs.curso cur ");
-        sql.append("    inner join gs.cicloAcademico ca, ");
-        sql.append("       PrecioCursoEstructura as pce ");
-        sql.append("    inner join pce.cicloAcademico ca2 ");
+        sql.append("        inner join gs.curso cur ");
+        sql.append("        inner join gs.cicloAcademico ca, ");
+        sql.append("      PrecioCursoEstructura as pce ");
+        sql.append("        inner join pce.cicloAcademico ca2 ");
 
         sql.append(" where ca.id = :CICLO and ");
         sql.append("       ca2.id =  :CICLO and ");

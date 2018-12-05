@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoIntercambio;
 import pe.edu.lamolina.model.academico.BecaEstudio;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
@@ -28,5 +29,9 @@ public interface AlumnoIntercambioService {
     List<BecaEstudio> allBeca(String nombre);
 
     void save(AlumnoIntercambio alumnoBecado, Usuario user);
+
+    BecaEstudio saveBeca(BecaEstudio becaEstudio);
+
+    List<Empresa> allInstituciones();
 
 }

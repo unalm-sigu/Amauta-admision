@@ -836,6 +836,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccion = seccionDAO.find(seccion.getId());
         GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
 
+        List<HorarioSeccion> horarioSecc = horarioSeccionDAO.allBySeccion(seccion);
+        for (HorarioSeccion hSecc : horarioSecc) {
+            horarioSeccionDAO.delete(hSecc);
+        }
+
+        List<HorarioAula> horarioAula = horarioAulaDAO.allBySeccion(seccion);
+        for (HorarioAula hSecc : horarioAula) {
+            horarioAulaDAO.delete(hSecc);
+        }
+
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
         if (matriculasSeccion.isEmpty()) {
             List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccion);
@@ -846,17 +856,36 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             for (VacanteAlumno vacanteAlumno : vacantesAlumnos) {
                 vacanteAlumnoDAO.delete(vacanteAlumno);
             }
+            List<RestriccionCarrera> restriccionesCarr = restriccionCarreraDAO.allBySeccion(seccion);
+            for (RestriccionCarrera restricc : restriccionesCarr) {
+                restriccionCarreraDAO.delete(restricc);
+            }
+            List<RestriccionFacultad> restriccionesFac = restriccionFacultadDAO.allBySeccion(seccion);
+            for (RestriccionFacultad restricc : restriccionesFac) {
+                restriccionFacultadDAO.delete(restricc);
+            }
+            List<RestriccionModalidad> restriccionesMod = restriccionModalidadDAO.allBySeccion(seccion);
+            for (RestriccionModalidad restricc : restriccionesMod) {
+                restriccionModalidadDAO.delete(restricc);
+            }
+            List<RestriccionRepitencia> restriccionRep = restriccionRepitenciaDAO.allBySeccion(seccion);
+            for (RestriccionRepitencia restricc : restriccionRep) {
+                restriccionRepitenciaDAO.delete(restricc);
+            }
+
             seccionDAO.delete(seccion);
 
             List<Seccion> seccionesActivas = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
-            Collections.sort(seccionesActivas, (Seccion va1, Seccion va2) -> va1.getCodigo().compareTo(va2.getCodigo()));
+            Collections.sort(seccionesActivas, (Seccion va1, Seccion va2) -> va1.getCodigo2().compareTo(va2.getCodigo2()));
             int i = 0;
             for (Seccion seccionEach : seccionesActivas) {
-                seccionEach.setCodigo(grupoSeccion.getCodigo() + i);
-                seccionEach.setCodigo2(seccionEach.getCodigo());
-                seccionEach.setUsuarioModificacion(usuario);
-                seccionEach.setFechaModificacion(today.toDate());
-                seccionDAO.updateEstadoFechaModUsuarioMod(seccionEach);
+                String cod2 = grupoSeccion.getCodigo2() + i;
+                if (!seccionEach.getCodigo2().equals(cod2)) {
+                    seccionEach.setCodigo2(cod2);
+                    seccionEach.setUsuarioModificacion(usuario);
+                    seccionEach.setFechaModificacion(today.toDate());
+                    seccionDAO.updateEstadoFechaModUsuarioMod(seccionEach);
+                }
                 i++;
             }
 
@@ -866,6 +895,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccion.setEstadoEnum(SeccionEstadoEnum.ANU);
             seccionDAO.updateEstadoFechaModUsuarioMod(seccion);
         }
+
         this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), usuario, today);
         this.actualizarBoletin();
     }
@@ -1939,6 +1969,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public GrupoHoras findGrupoHorasWithHorario(Seccion seccion, CicloAcademico ciclo) {
         GrupoHoras grupoHoras = seccion.getGrupoHoras();
+        return this.findGrupoHorasWithHorario(seccion, grupoHoras, ciclo);
+    }
+
+    @Override
+    public GrupoHoras findGrupoHorasWithHorario(Seccion seccion, GrupoHoras grupoHoras, CicloAcademico ciclo) {
         Map<String, HorarioSeccion> mapHorarioSecc = TypesUtil.convertListToMap("horaDia", horarioSeccionDAO.allBySeccion(seccion));
 
         GrupoHoras gpoBD = grupoHorasDAO.find(grupoHoras);

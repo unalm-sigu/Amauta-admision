@@ -12,7 +12,7 @@ new Vue({
             title: 'Nuevo Tipo Grupo',
             modalsize: 'modal-md'
         },
-        tipoGrupoHoras: {tipoCicloEnum: null},
+        tipoGrupoHoras: {},
         tiposCiclo: [],
     },
     created() {
@@ -92,7 +92,7 @@ new Vue({
         },
         verNuevo() {
             let $vue = this;
-            $vue.tipoGrupoHoras = {tipoCicloEnum: null};
+            $vue.tipoGrupoHoras = {};
             $vue.$refs.refTipoGrupo.open();
         },
         saveTipoGrupo() {
@@ -102,7 +102,7 @@ new Vue({
                 return;
             }
 
-            $vue.tipoGrupoHoras.tipoCiclo = $vue.tipoGrupoHoras.tipoCicloEnum.name;
+//            $vue.tipoGrupoHoras.tipoCiclo = $vue.tipoGrupoHoras.tipoCicloEnum.name;
 
             $.ajax({
                 url: APP.url('academico/horario/save'),

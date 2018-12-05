@@ -19,7 +19,6 @@
                     <section class="panel">
                         <section class="panel-body">
                             <raptor-table v-bind:url="becaestudioURL" ref="raptorBecasEstudios" v-bind:timesleep="1000">
-
                                 <template  scope="props" >
                                     <table class="table table-striped">
                                         <thead> 
@@ -37,7 +36,7 @@
                                                     <span class="block"></span>
                                                 </td>
                                                 <td class="v-middle">
-                                                    <span class="block text-primary">{{item.institucionOtorga}}</span>
+                                                    <span class="block text-primary">{{item.institucion.razonSocial}}</span>
                                                     <span class="block"></span>
                                                 </td>                                                                                       
                                                 <td class="v-middle">
@@ -46,6 +45,7 @@
 
                                                         <ul class="dropdown-menu pull-right" >
                                                             <li role="presentation"><a class="btn-link" v-on:click="editar(item)">Cambiar Institución</a></li>
+                                                            <li role="presentation"><a class="btn-link" v-on:click="eliminar(item)">Eliminar Beca</a></li>
                                                         </ul>
 
                                                     </div>
@@ -63,20 +63,47 @@
                            v-bind="confirmarModal"
                            v-bind:okaction="guardar">
                     <div slot="body">
-
                         <div class="form-group">
                             <label>Nombre</label>
                             <input class="form-control" type="text" v-model="becaestudioEdit.nombre"/>
                         </div>
-
                         <div class="form-group">
                             <label>Institución Otorga</label>
-                            <input class="form-control" type="text" v-model="becaestudioEdit.institucionOtorga"/>
-                        </div>
+                            <div class="input-group">
+                                <multiselect                                                   
+                                    v-model='becaestudioEdit.institucion'
+                                    v-bind:internal-search='true'
+                                    v-bind:limit='15'
+                                    v-bind:options='instituciones'
+                                    placeholder="Seleccione una beca"
+                                    label="razonSocial"
+                                    v-bind:show-labels="false"
+                                    v-bind:allow-empty="false"
+                                    track-by="id">
+                                </multiselect>
+                                <div class="input-group-addon">
+                                    <i class="fa fa-plus pointer" v-on:click.prevent="addInstitucion()" aria-hidden="true"></i>
+                                </div>
+                            </div>
 
+                        </div>
                     </div>
                 </modal-vik>
 
+                <modal-vik ref="modalInstitucion"
+                           v-bind="modalInstitucion"
+                           v-bind:okaction="saveInstitucion">
+                    <div slot="body">
+                        <div class="form-group">
+                            <label>RUC</label>
+                            <input class="form-control" type="text" v-model="institucion.numeroDocIdentidad" required="true"/>
+                        </div>
+                        <div class="form-group">
+                            <label>Razon Social</label>
+                            <input class="form-control" type="text" v-model="institucion.razonSocial" required="true"/>
+                        </div>
+                    </div>
+                </modal-vik>
             </div>
 
             <div th:substituteby="_modules/vue-modal"/>
@@ -84,6 +111,14 @@
         ​
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"/>
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var institucionesJson = /*[[${instituciones.toString()}]]*/ 'json';
+                /*]]>*/
+            </script>
+
+            <script th:src="@{/phobos/modules/vuelect2.js}" charset="utf-8"></script>
+            <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
             <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/becaestudio/becaestudio.js}" charset="utf-8"></script>
 
