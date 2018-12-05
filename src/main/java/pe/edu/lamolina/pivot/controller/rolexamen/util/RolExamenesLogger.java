@@ -47,17 +47,7 @@ public class RolExamenesLogger {
         Seccion seccion = seccionGrupoEspecial.getSeccion();
 
         String msg = "Conflicto del docente %s - %s, con el curso masivo %s - %s";
-        //  String complexMsg = String.format(msg, docente.getCodigo(), docente.getPersona().getApellidosNombres(), seccion.getCodigo2(), curso.getNombre());
-        rolExamenesLogger.setMessage(complexMsg);
-        this.logDetails.add(rolExamenesLogger);
-    }
-
-    public void cruceAula(Aula aula, Curso curso) {
-        RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
-        rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_AUL);
-
-        String msg = "Conflicto del Aula %s, con el curso masivo %s - %s";
-        String complexMsg = String.format(msg, aula.getCodigo(), curso.getCodigo(), curso.getNombre());
+        String complexMsg = String.format(msg, docente.getCodigo(), docente.getPersona().getApellidosNombres(), seccion.getCodigo2());
         rolExamenesLogger.setMessage(complexMsg);
         this.logDetails.add(rolExamenesLogger);
     }
@@ -112,6 +102,16 @@ public class RolExamenesLogger {
         this.logDetails.add(rolExamenesLogger);
     }
 
+    public void cruceAula(Aula aula, Curso curso) {
+        RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
+        rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_AUL);
+
+        String msg = "Conflicto del Aula %s, con el curso masivo %s - %s";
+        String complexMsg = String.format(msg, aula.getCodigo(), curso.getCodigo(), curso.getNombre());
+        rolExamenesLogger.setMessage(complexMsg);
+        this.logDetails.add(rolExamenesLogger);
+    }
+
     public void cruceAula(Aula aula, LetraGrupoRegular letraGrupoRegular, Seccion seccion) {
         RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
         rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_AUL);
@@ -120,6 +120,21 @@ public class RolExamenesLogger {
         String complexMsg = String.format(
                 msg, aula.getCodigo(),
                 letraGrupoRegular.getLetra(),
+                seccion.getCodigo2()
+        );
+        rolExamenesLogger.setMessage(complexMsg);
+        this.logDetails.add(rolExamenesLogger);
+    }
+
+    public void cruceAula(Aula aula, SeccionGrupoEspecial seccionGrupoEspecial) {
+        RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
+        rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_AUL);
+
+        Seccion seccion = seccionGrupoEspecial.getSeccion();
+
+        String msg = "Conflicto del aula %s, con la seccion especial %s";
+        String complexMsg = String.format(
+                msg, aula.getCodigo(),
                 seccion.getCodigo2()
         );
         rolExamenesLogger.setMessage(complexMsg);

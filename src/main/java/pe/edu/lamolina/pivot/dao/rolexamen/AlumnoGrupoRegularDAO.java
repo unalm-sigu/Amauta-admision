@@ -22,6 +22,9 @@ public interface AlumnoGrupoRegularDAO extends EasyDAO<AlumnoGrupoRegular> {
     List<AlumnoGrupoRegular> allBySeccionGrupoRegularAndEstados(SeccionGrupoRegular seccionGrupoRegular,
             AlumnoRolExamenEstadoEnum... estados);
 
+    List<AlumnoGrupoRegular> allBySeccionGrupoRegularAndEstados(List<SeccionGrupoRegular> seccionGrupoRegular,
+            AlumnoRolExamenEstadoEnum... estados);
+
     void updateEstado(AlumnoGrupoRegular alumnoGrupoRegular);
 
     void updateEstado(List<Alumno> alumnos, AlumnoRolExamenEstadoEnum estadoEnum, Usuario usuario, Date fecha);

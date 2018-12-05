@@ -38,7 +38,7 @@ public class MailerConnectorImp implements MailerConnector {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendMail(MailMessage mail) {
         try {
-            
+
             logger.info("Enviando email {}", mail.getSubject());
             MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
@@ -92,6 +92,52 @@ public class MailerConnectorImp implements MailerConnector {
                 logger.debug("File Exists: {}", file.getPath());
                 message.addAttachment(file.getFilename(), file);
             }
+        }
+    }
+
+    @Async
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void sendMailHelpDesk(MailMessage mail) {
+        try {
+
+            logger.info("Enviando email {}", mail.getSubject());
+            MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
+            MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            InternetAddress ie = new InternetAddress();
+            ie.setPersonal("UNALM - Sistema de ayuda de alumno");
+            ie.setAddress("no-responder@carrerasqueapasionan.pe");
+            message.setFrom(ie);
+
+            message.setSubject(mail.getSubject());
+            message.setTo(mail.getDestinatarios());
+
+            String[] copias = despliegueConfig.getCopias().split(" ");
+            String[] emails = despliegueConfig.getEmails().split(" ");
+
+            String[] destinatarios = despliegueConfig.getMailer() ? mail.getDestinatarios() : emails;
+            for (String destinatario : destinatarios) {
+                logger.info("\temail to {}", destinatario);
+            }
+            message.setTo(destinatarios);
+            if (despliegueConfig.getMailer()) {
+                for (String copia : copias) {
+                    logger.info("\temail bcc {}", copia);
+                }
+                message.setBcc(copias);
+            }
+
+            this.attachFiles(message, mail.getFiles());
+
+            String htmlContent = this.templateEngine.process(mail.getTemplate(), mail.getContext());
+            message.setText(htmlContent, true);
+
+            this.javaMailSender.send(mimeMessage);
+
+        } catch (MessagingException | UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

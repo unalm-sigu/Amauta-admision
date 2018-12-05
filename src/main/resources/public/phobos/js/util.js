@@ -497,6 +497,13 @@ APP = {
                 $(this).removeAttr("required");
             }
         });
+    },
+    wait(ms) {
+        var start = new Date().getTime();
+        var end = start;
+        while (end < start + ms) {
+            end = new Date().getTime();
+        }
     }
 };
 
@@ -625,7 +632,7 @@ AXIOS.interceptors.response.use(function (response) {
 });
 
 Vue.filter('currency', function (value) {
-    if(Number.isNaN(parseFloat(value))){
+    if (Number.isNaN(parseFloat(value))) {
         return '';
     }
     return parseFloat(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");

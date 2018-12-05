@@ -413,7 +413,7 @@
                                            v-bind:value="nuevauniversidad.nombre"
                                            required="true"/>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" v-if='alumnoVisitante.paisUniversidad.id == 178'>
                                     <label>Código</label>
                                     <input type="text"
                                            class="form-control input-sm"
@@ -431,7 +431,7 @@
                                            v-bind:value="nuevauniversidad.siglas"
                                            required="true"/>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" v-if='alumnoVisitante.paisUniversidad.id == 178'>
                                     <label>Gestion</label>
                                     <select name="gestion"
                                             v-bind:valor="nuevauniversidad.gestion"

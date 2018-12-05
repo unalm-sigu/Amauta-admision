@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -32,10 +33,17 @@ public interface GrupoRegularConnector {
     boolean validarCursosMasivos(RolExamenes rolExamenes, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos, GrupoHorasExamen grupoHorasExamen);
 
     boolean validarCursosMasivos(RolExamenes rolExamenes, List<CursoMasivoExamen> cursosMasivosByRolExamen,
-            List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnosBySeccion,
-            GrupoHorasExamen grupoHorasExamen);
+            List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnosBySeccion);
+
+    boolean validarGrupoRegular(GrupoHorasExamen grupoHorasExamen,
+            List<Alumno> alumnos, List<Docente> docentes, List<Aula> aulas);
 
     boolean validarGrupoRegular(LetraGrupoRegular letraGrupoRegular,
+            List<Alumno> alumnos, List<Docente> docentes, List<Aula> aulas);
+
+    boolean validarGrupoEspecial(RolExamenes rolExamenes, GrupoHorasExamen grupoHorasExamen, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos);
+
+    boolean validarGrupoEspecial(List<SeccionGrupoEspecial> seccionesGrupoEspecial,
             List<Alumno> alumnos, List<Docente> docentes, List<Aula> aulas);
 
 }

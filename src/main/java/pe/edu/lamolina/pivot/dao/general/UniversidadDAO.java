@@ -13,4 +13,6 @@ public interface UniversidadDAO extends EasyDAO<Universidad> {
 
     Universidad findNombrePais(String nombre, Pais pais);
 
+    Universidad findLastCodigoEntranjero();
+
 }

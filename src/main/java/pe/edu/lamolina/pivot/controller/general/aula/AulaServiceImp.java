@@ -15,6 +15,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -24,6 +25,7 @@ import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.dao.almacen.ResumenInventarioDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
@@ -54,17 +56,23 @@ public class AulaServiceImp implements AulaService {
     @Autowired
     DiaDAO diaDAO;
 
+    @Autowired
+    ResumenInventarioDAO resumenInventarioDAO;
+
     @Override
     public List<Aula> allByDynatable(DynatableFilter filter) {
         List<Aula> aulas = aulaDAO.allByDynatable(filter);
         List<Aula> aulasHijas = aulaDAO.allByAulasSuperiores(aulas);
+        List<ResumenInventario> resumenAulas = resumenInventarioDAO.allVisiblesByAulas(aulas);
+        Map<Long, List<ResumenInventario>> resumenAulasMap = TypesUtil.convertListToMapList("almacen.aula.id", resumenAulas);
         Map<Long, List<Aula>> mapAulas = TypesUtil.convertListToMapList("aulaSuperior.id", aulasHijas);
         for (Aula aula : aulas) {
             List<Aula> hijas = mapAulas.get(aula.getId());
             hijas = hijas == null ? new ArrayList() : hijas;
             aula.setAulasContenido(hijas);
+            List<ResumenInventario> inventarios = resumenAulasMap.get(aula.getId());
+            aula.setInventario(inventarios);
         }
-
         return aulas;
     }
 

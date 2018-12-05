@@ -370,6 +370,7 @@ new Vue({
         },
         getOrigenURL() {
             var url = window.location.href;
+            console.log(url)
             return "?origen=" + Base64.encode(url);
         },
         verAnexo(tipo) {

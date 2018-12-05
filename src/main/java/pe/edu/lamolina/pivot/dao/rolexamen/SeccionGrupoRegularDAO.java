@@ -13,6 +13,9 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
     List<SeccionGrupoRegular> allByLetraGrupoRegularAndEstados(
             LetraGrupoRegular letrasGruposRegular, SeccionRolExamenEstadoEnum... estados);
 
+    List<SeccionGrupoRegular> allByLetraGrupoRegularAndEstados(
+            List<LetraGrupoRegular> letrasGruposRegular, SeccionRolExamenEstadoEnum... estados);
+
     void updateEstado(SeccionGrupoRegular seccionGrupoRegularUpd);
 
     Map<Long, Integer> countByLetrasGruposRegulares(List<LetraGrupoRegular> letraGrupoRegulars, SeccionRolExamenEstadoEnum... estados);

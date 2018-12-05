@@ -16,4 +16,6 @@ public interface SeccionGrupoEspecialDAO extends EasyDAO<SeccionGrupoEspecial> {
     List<SeccionGrupoEspecial> allByRolExamenes(RolExamenes rolExamenes);
 
     void deleteByRolExamenes(RolExamenes rolExamenes);
+
+    void updateFechaExamen(SeccionGrupoEspecial SeccionGrupoEspecial);
 }

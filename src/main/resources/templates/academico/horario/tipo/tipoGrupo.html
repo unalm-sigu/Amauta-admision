@@ -73,7 +73,7 @@
                                                     <h4 class="list-group-item-heading" > GRUPO {{item.tipo}}  {{item.codigo}}  </h4>
                                                     <h6 class="list-group-item-heading" ><b>Descripción:</b> {{item.descripcion}}</h6>
                                                     <h6 class="list-group-item-heading" ><b>Grupo:</b> {{item.estadoGruposEnum.value}}</h6>
-                                                    <h6 class="list-group-item-heading" ><b>Tipo Ciclo:</b> {{item.tipoCicloEnum.value}}</h6>
+                                                    <!--<h6 class="list-group-item-heading" ><b>Tipo Ciclo:</b> {{item.tipoCicloEnum.value}}</h6>-->
 
                                                     <label class="label" v-bind:class="getLabelEstado(item)">{{item.estadoEnum.value}}</label>
 
@@ -115,7 +115,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
+<!--                            <div class="form-group">
 
                                 <label class="col-sm-3 control-label">Tipo Ciclo</label>
                                 <div class="col-sm-8">
@@ -131,7 +131,7 @@
                                     <input type="text" class="hide" v-model="tipoGrupoHoras.tipoCicloEnum" required=""/>
                                 </div>
 
-                            </div>
+                            </div>-->
 
                             <div class="form-group">
 

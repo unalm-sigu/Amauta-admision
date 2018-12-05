@@ -1,9 +1,9 @@
-$(function() {
+$(function () {
 
     var $global = new Vue({});
     var DynatableRowTemplate = Vue.component("dynatableRow", {
         template: "#dynatableRowTemplate",
-        data: function() {
+        data: function () {
             return {convenio: {}};
         },
         methods: {
@@ -13,6 +13,9 @@ $(function() {
             editar(id) {
                 $global.$emit("editar", id);
             },
+            changeEstado(id) {
+                $global.$emit("changeEstado", id);
+            },
         }
     });
 
@@ -20,12 +23,12 @@ $(function() {
 
     Vue.component("dynatable", {
         template: "#dynatableTemplate",
-        mounted: function() {
+        mounted: function () {
             var $vue = this;
             $vue.createDynatable();
         },
         methods: {
-            createDynatable: function() {
+            createDynatable: function () {
                 var $vue = this;
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
@@ -35,7 +38,7 @@ $(function() {
                     },
                     writers: {_rowWriter: $vue.writter},
                     table: {bodyRowSelector: "tbody tr"}
-                }).bind("dynatable:afterUpdate", function(e) {
+                }).bind("dynatable:afterUpdate", function (e) {
                     var records = dynatable.settings.dataset.records;
                     for (var i = 0, max = records.length; i < max; i++) {
                         var dynatableRowTemplate = new DynatableRowTemplate();
@@ -45,7 +48,7 @@ $(function() {
                     }
                 }).data('dynatable');
             },
-            writter: function(rowIndex, record, columns, cellWriter) {
+            writter: function (rowIndex, record, columns, cellWriter) {
                 return "";
             }
         }
@@ -57,13 +60,16 @@ $(function() {
         created() {
             let $vue = this;
         },
-        mounted: function() {
+        mounted: function () {
             let $vue = this;
-            $global.$on("eliminar", function(id) {
+            $global.$on("eliminar", function (id) {
                 $vue.eliminar(id);
             });
-            $global.$on("editar", function(id) {
+            $global.$on("editar", function (id) {
                 $vue.editar(id);
+            });
+            $global.$on("changeEstado", function (id) {
+                $vue.changeEstado(id);
             });
         },
         methods: {
@@ -79,13 +85,13 @@ $(function() {
                         confirm: {label: 'Si, eliminar', className: "btn-danger"},
                         cancel: {label: 'Cancelar', className: "btn-link"}
                     },
-                    callback: function(result) {
+                    callback: function (result) {
                         if (result) {
                             $.ajax({
                                 method: 'POST',
                                 url: APP.url('academico/convenio/delete'),
                                 data: {id: id},
-                                success: function(response) {
+                                success: function (response) {
                                     if (response.success) {
                                         notify(response.message, 'info');
                                         dynatable.process();
@@ -93,7 +99,37 @@ $(function() {
                                         notify(response.message, 'error');
                                     }
                                 },
-                                error: function() {
+                                error: function () {
+                                    notify(MESSAGES.errorComunicacion, "error");
+                                }
+                            });
+                        }
+                    }
+                });
+            },
+
+            changeEstado(id) {
+                bootbox.confirm({
+                    message: '¿Seguro que desea cambiar de estado?',
+                    buttons: {
+                        confirm: {label: 'Si, cambiar', className: "btn-danger"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                method: 'POST',
+                                url: APP.url('academico/convenio/changeEstado'),
+                                data: {id: id},
+                                success: function (response) {
+                                    if (response.success) {
+                                        notify(response.message, 'info');
+                                        dynatable.process();
+                                    } else {
+                                        notify(response.message, 'error');
+                                    }
+                                },
+                                error: function () {
                                     notify(MESSAGES.errorComunicacion, "error");
                                 }
                             });

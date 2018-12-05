@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Calificacion de Postulantes</title>
+        <title>Programación de Horarios</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
     <style type="text/css">
         .buscarDocClass {
@@ -420,16 +420,19 @@
                                                 <li v-bind:class="getClassTab('DOCENTES')" v-on:click="verTab('DOCENTES')">
                                                     <a href="#1Conte" data-toggle="tab">Docentes</a>
                                                 </li>
-                                                <li v-bind:class="getClassTab('AMPLIACIONES')" v-on:click="verTab('AMPLIACIONES')">
+                                                <li v-if="seccionSeleccionada.estado == 'ACT' "
+                                                    v-bind:class="getClassTab('AMPLIACIONES')" v-on:click="verTab('AMPLIACIONES')">
                                                     <a href="#2Conte" data-toggle="tab">Ampliación Vacantes</a>
                                                 </li>
-                                                <li v-bind:class="getClassTab('AULAGRUPO')" v-on:click="verTab('AULAGRUPO')">
+                                                <li v-if="seccionSeleccionada.estado == 'ACT' "
+                                                    v-bind:class="getClassTab('AULAGRUPO')" v-on:click="verTab('AULAGRUPO')">
                                                     <a href="#3Conte" data-toggle="tab">Cambio Aula / Grupo</a>
                                                 </li>
-                                                <li v-bind:class="getClassTab('FUSIONES')" v-on:click="verTab('FUSIONES')">
+                                                <li v-if="seccionSeleccionada.estado == 'ACT' "
+                                                    v-bind:class="getClassTab('FUSIONES')" v-on:click="verTab('FUSIONES')">
                                                     <a href="#4Conte" data-toggle="tab">Fusiones</a>
                                                 </li>
-                                                <li v-if="ciclo.tipo == 'NIV' " 
+                                                <li v-if="ciclo.tipo == 'NIV' &amp;&amp; seccionSeleccionada.estado == 'ACT' " 
                                                     v-bind:class="getClassTab('PRECIOS')" v-on:click="verTab('PRECIOS')">
                                                     <a href="#5Conte" data-toggle="tab">Precios</a>
                                                 </li>
@@ -477,6 +480,7 @@
         <div th:substituteby="academico/gposeccion/components/grupoHorarioComponent"/>
         <div th:substituteby="academico/gposeccion/components/restriccionComponent"/>
         <div th:substituteby="academico/gposeccion/components/repitenciaComponent"/>
+        <div th:substituteby="academico/gposeccion/components/grupoRegularAulaComponent"/>
 
     </section>
 
@@ -499,6 +503,7 @@
         <script th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
         <!--<script th:src="@{/app/gposeccion/gpoSolicitarIncremento.js}" charset="utf-8"></script>-->
         <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/grupoRegularAulaComponet.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
     </div>
 </body>

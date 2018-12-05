@@ -7,7 +7,6 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RestriccionModalidad;
-import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionModalidadDAO;
@@ -18,6 +17,15 @@ public class RestriccionModalidadDAOH extends AbstractEasyDAO<RestriccionModalid
     public RestriccionModalidadDAOH() {
         super();
         setClazz(RestriccionModalidad.class);
+    }
+
+    @Override
+    public List<RestriccionModalidad> allBySeccion(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(RestriccionModalidad.class, "rm")
+                .join("modalidadEstudio mod", "seccion sec")
+                .filter("sec.id", seccion);
+        return all(sql);
     }
 
     @Override
@@ -54,7 +62,7 @@ public class RestriccionModalidadDAOH extends AbstractEasyDAO<RestriccionModalid
     public void deleteAllByCiclo(CicloAcademico ciclo) {
 
         StringBuilder sql = new StringBuilder();
-        
+
         sql.append(" DELETE ").append(RestriccionModalidad.class.getName()).append(" rmo ")
                 .append(" WHERE EXISTS ")
                 .append(" ( ")

@@ -43,7 +43,7 @@ Vue.component("paissearh", {
     methods: {
         buscarPais: function (vue) {
             return {
-                minimumInputLength: 2,
+                minimumInputLength: -1,
                 ajax: {
                     url: APP.url("comun/buscar/allPaises"),
                     dataType: 'json',

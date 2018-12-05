@@ -135,7 +135,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
 
         return all(sql);
     }
-    
+
     @Override
     public List<HorarioAula> allByCambioAulasCiclo(List<Aula> aulas, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -180,6 +180,17 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
                 .in("sec.id", seccions)
                 .filter("ca.id", cicloOrigen);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allBySeccion(Seccion seccion) {
+
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia", "hora", "aula au", "seccion sec")
+                .filter("sec.id", seccion);
 
         return all(sql);
     }

@@ -169,6 +169,10 @@
 
 
             <div class="row">
+                <div class="col-md-12" >
+                    <label>Horas</label>
+                    <span>{{seccionSeleccionada.horasSemanales}}</span>
+                </div>
                 <div class="col-md-6" >
                     <div class="form-group">
                         <label> Solicitante</label>
@@ -196,12 +200,13 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>Aula Nueva</label>
-                        <multiselect  v-model="changeAulaGpo.aulaFin"  
+                        <multiselect  v-model="changeAulaGpo.aulaFin"
+                                      v-on:input="cambioAula()"
                                       v-on:search-change="asyncFindCambioAulas"
                                       v-bind:options="aulas"
                                       v-bind:internal-search="false"
                                       v-bind:limit="15"
-                                      placeholder="Escriba una aula"
+                                      placeholder=" "
                                       track-by="id"
                                       deselect-label=""
                                       select-label=""
@@ -214,19 +219,22 @@
                     </div>
                 </div>
                 <div class="col-md-3">
+
                     <div class="form-group">
                         <label>Grupo Nuevo</label>
-                        <multiselect  v-model="changeAulaGpo.grupoHorasFin"  
-                                      v-on:search-change="asyncFindCambioGrupos"
-                                      v-bind:options="grupos"
-                                      v-bind:internal-search="false"
-                                      v-bind:limit="15"
-                                      placeholder="Escriba un grupo"
-                                      track-by="id"
-                                      deselect-label=""
-                                      select-label=""
-                                      label="codigo">
-                        </multiselect>
+
+                        <pre>{{changeAulaGpo.grupoHorasFin.codigo}}</pre>
+                        <!--                        <multiselect  v-model="changeAulaGpo.grupoHorasFin"  
+                                                              v-on:search-change="asyncFindCambioGrupos"
+                                                              v-bind:options="grupos"
+                                                              v-bind:internal-search="false"
+                                                              v-bind:limit="15"
+                                                              placeholder=" "
+                                                              track-by="id"
+                                                              deselect-label=""
+                                                              select-label=""
+                                                              label="codigo">
+                                                </multiselect>-->
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -243,34 +251,15 @@
 
             <div class="tab-pane">
                 <section class="block">
-                    <label class="control-label">Horario Aula :</label>
+                    <label class="control-label">Horario Aula </label>
                     <div class="table-responsive" >
-                        <table class="table table-bordered">
 
-                            <thead  style="width: 100%; display: block;">
-                                <tr>
-                                    <!--<th style="width: 100px !important;" class="text-center">Hora</th>
-                                    <th style="width: 15%" class="text-center"></th>-->
-                                </tr>
-                            </thead>
-                            <tbody style="width: 100%; height: 200px; display: block; overflow-y:auto;">
-                                <tr>
-                                    <!--
-                                    <td class="v-middle">
-                                        <span></span>
-                                    </td>
-                                    <td 
-                                        style="width: 15%"> 
-                                        <template >
-                                            <span >
-                                            </span>
-                                        </template>
-                                        <span class="form-control btn-danger">
-                                        </span>
-                                    </td>-->
-                                </tr>
-                            </tbody>
-                        </table>
+                        <grupo-regular-aula-component ref="grupoRegularComponent"
+                                                      v-bind:aula="changeAulaGpo.aulaFin"
+                                                      v-bind:grupohoras="changeAulaGpo.grupoHorasFin"
+                                                      v-bind:diahoragruposelects="changeAulaGpo.diahoragruposelects"
+                                                      ></grupo-regular-aula-component>
+
                     </div>
                 </section>
             </div>

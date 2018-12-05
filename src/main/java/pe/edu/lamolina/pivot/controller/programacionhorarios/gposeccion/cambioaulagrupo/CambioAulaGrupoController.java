@@ -48,8 +48,17 @@ public class CambioAulaGrupoController {
 
             for (CambioAulaGrupo aulaGrupo : aulaGrupos) {
                 ObjectNode node = JsonHelper.createJson(aulaGrupo, jFactory, true,
-                        new String[]{
-                            "*",});
+                        new String[]{ 
+                            "*",
+                            "colaborador.*",
+                            "colaborador.persona.*",
+                            "colaborador.cargo.*",
+                            "oficina.*",
+                            "aulaInicio.*",
+                            "aulaFin.*",
+                            "grupoHorasInicio.*",
+                            "grupoHorasFin.*"
+                        });
                 array.add(node);
             }
 

@@ -210,7 +210,7 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
     public TipoGrupoHoras findTipoGpoRegular() {
         List<TipoGrupoHoras> tipos = tipoGrupoHorasDAO.all();
         for (TipoGrupoHoras tipo : tipos) {
-            if (tipo.getTipoCicloEnum() == TipoCicloEnum.REG && tipo.getEstadoEnum() == EstadoEnum.ACT && tipo.getTipoEnum() == TipoGrupoHorasEnum.REGULAR) {
+            if (tipo.getEstadoEnum() == EstadoEnum.ACT && tipo.getTipoEnum() == TipoGrupoHorasEnum.REGULAR) {
                 return tipo;
             }
         }
