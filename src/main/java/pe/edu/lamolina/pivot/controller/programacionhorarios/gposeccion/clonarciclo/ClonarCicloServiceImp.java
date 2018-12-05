@@ -194,23 +194,36 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         List<String> codigos = new ArrayList();
 
         Date today = new Date();
+        int factorHoras = 0;
+        if (cicloDestino.getTipoEnum() == TipoCicloEnum.REG) {
+            factorHoras = 1;
+        } else if (cicloDestino.getTipoEnum() == TipoCicloEnum.NIV) {
+            factorHoras = 3;
+        }
 
         for (GrupoSeccion ggss : gsOrigenes) {
-
-            if (!cursos.contains(ggss.getCurso())) {
-                cursos.add(ggss.getCurso());
+            Curso curso = ggss.getCurso();
+            int horasTeoria = curso.getHorasTeoria() * factorHoras;
+            int horasPractica = curso.getHorasPractica() * factorHoras;
+            
+            if (!cursos.contains(curso)) {
+                cursos.add(curso);
 
                 CursoCicloAcademico cca = new CursoCicloAcademico();
                 cca.setCicloAcademico(cicloDestino);
                 cca.setPrecio(BigDecimal.ZERO);
                 cca.setPrecioAdicional(BigDecimal.ZERO);
                 cca.setEstado(EstadoEnum.ACT.name());
-                cca.setCurso(ggss.getCurso());
+
+                cca.setHorasSemanalesTeoria(horasTeoria);
+                cca.setHorasSemanalesPractica(horasPractica);
+                cca.setCurso(curso);
                 cca.setMinimoAlumnos(BigDecimal.ZERO);
                 cursoCicloAcademicoDAO.save(cca);
             }
 
             String tpc = ggss.getCurso().getTpc();
+            Integer creditos = ggss.getCurso().getCreditos();
 
             if (cicloDestino.getNumeroCiclo().equals("0") && tpc != null && !tpcs.contains(tpc)) {
                 tpcs.add(tpc);
@@ -221,6 +234,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 pce.setFechaPrecio(new Date());
                 pce.setPrecio(BigDecimal.ZERO);
                 pce.setTpc(tpc);
+                pce.setCreditos(creditos);
                 pce.setUserPrecio(ds.getUsuario());
                 pce.setEstado(EstadoEnum.ACT.name());
 
@@ -241,8 +255,8 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             gs.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
             gs.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
 
-            gs.setHorasPractica(ggss.getHorasPractica());
-            gs.setHorasTeoria(ggss.getHorasTeoria());
+            gs.setHorasPractica(horasPractica);
+            gs.setHorasTeoria(horasTeoria);
             gs.setAnexoBoletin(ggss.getAnexoBoletin());
             gs.setEstado(ggss.getEstado());
 

@@ -279,7 +279,7 @@
                                     <div class="form-group">
                                         <label>Coordinador</label>
                                         <template v-if="dptoCurso.id !== '' ">
-                                            <multiselect v-model='curso.coordinador.id'
+                                            <multiselect v-model='curso.coordinador'
                                                          v-bind:internal-search='false'
                                                          v-bind:limit='15'
                                                          v-on:search-change="searchDocentes"
@@ -287,6 +287,7 @@
                                                          v-bind:allow-empty="true"
                                                          placeholder="Ingresa un caracter como mínimo"
                                                          deselect-label=""
+                                                         track-by="id"
                                                          select-label="Seleccione este docente"
                                                          v-bind:loading="isLoadingDocentes"
                                                          v-bind:custom-label='verDocente'>
