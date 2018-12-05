@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -23,6 +24,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.BecaEstudio;
 import pe.edu.lamolina.model.general.Empresa;
+import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -39,17 +41,6 @@ public class BecaEstudioController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        List<Empresa> instituciones = service.allInstituciones();
-        ArrayNode arrayInstitucion = new ArrayNode(JsonNodeFactory.instance);
-
-        for (Empresa institucion : instituciones) {
-            ObjectNode json = JsonHelper.createJson(institucion, JsonNodeFactory.instance, new String[]{
-                "id","numeroDocIdentidad","razonSocial"
-            });
-            arrayInstitucion.add(json);
-        }
-
-        model.addAttribute("instituciones", arrayInstitucion);
         return "academico/becaestudio/becaestudio";
     }
 
@@ -157,6 +148,34 @@ public class BecaEstudioController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allEmpresa")
+    public JsonResponse allEmpresa(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Empresa> instituciones = service.allInstituciones();
+            ArrayNode arrayInstitucion = new ArrayNode(JsonNodeFactory.instance);
+
+            for (Empresa institucion : instituciones) {
+                ObjectNode json = JsonHelper.createJson(institucion, JsonNodeFactory.instance, new String[]{
+                    "id", "numeroDocIdentidad", "razonSocial"
+                });
+                arrayInstitucion.add(json);
+            }
+
+            response.setData(arrayInstitucion);
+            response.setTotal(arrayInstitucion.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
         return response;
     }
 

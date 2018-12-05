@@ -25,7 +25,6 @@
                                             <tr> 
                                                 <th class="col-md-5">Nombre</th>
                                                 <th class="col-md-5">Institución Otorga</th>
-                                                <th class="col-md-2"></th>                                              
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -111,14 +110,7 @@
         ​
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"/>
-            <script th:inline="javascript">
-                /*<![CDATA[*/
-                var institucionesJson = /*[[${instituciones.toString()}]]*/ 'json';
-                /*]]>*/
-            </script>
-
-            <script th:src="@{/phobos/modules/vuelect2.js}" charset="utf-8"></script>
-            <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
+           
             <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/becaestudio/becaestudio.js}" charset="utf-8"></script>
 
