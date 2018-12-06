@@ -151,16 +151,6 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
-    public Colaborador findByPersona(Persona persona) {
-        Octavia sql = Octavia.query()
-                .from(Colaborador.class, "co")
-                .join("persona per")
-                .filter("per.id", persona)
-                .filter("co.estado", ACT);
-        return find(sql);
-    }
-
-    @Override
     public Colaborador findByPersonaAndEstado(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")

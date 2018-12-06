@@ -80,6 +80,7 @@ public class BolsaTrabajoController {
         DynatableResponse response = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
+            
             ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
             List<TramiteSubvencion> tramiteSubv = service.allTramiteSubvByColabo(ds.getPersona(), ds.getCicloAcademico());
             for (TramiteSubvencion tramiteSubvencion : tramiteSubv) {

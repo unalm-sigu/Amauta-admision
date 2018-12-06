@@ -21,14 +21,14 @@ public class TramiteSubvencionDAOH extends AbstractEasyDAO<TramiteSubvencion> im
     }
 
     @Override
-    public List<TramiteSubvencion> allSubvencionByColaboradorCicloAcademico(Colaborador colaborador, CicloAcademico cicloAcademico) {
+    public List<TramiteSubvencion> allSubvencionByColaboradorCicloAcademico(List<Colaborador> colaborador, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(TramiteSubvencion.class, "ts")
                 .join("tramite tra", "tra.alumno alu", "alu.persona per", "per.tipoDocumento", "tra.cicloAcademico ca", "tra.tipoTramite tt", "tipoSubvencion bb", "supervisor sup")
                 .join("alu.carrera car", "car.facultad")
                 .filter("ca.id", cicloAcademico)
                 .filter("tra.estado", TramiteEstadoEnum.SOL)
-                .filter("sup.id", colaborador)
+                .in("sup.id", colaborador)
                 .filter("tt.codigo", SUBV);
         return all(sql);
     }
