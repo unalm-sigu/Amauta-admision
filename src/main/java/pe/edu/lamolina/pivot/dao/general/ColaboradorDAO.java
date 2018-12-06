@@ -30,8 +30,6 @@ public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
     List<Colaborador> allByName(String nombre);
 
-    Colaborador findByPersona(Persona persona);
-
     public Colaborador findByPersonaAndEstado(Persona persona);
 
 }

@@ -9,7 +9,7 @@ import pe.edu.lamolina.model.tramite.TramiteSubvencion;
 
 public interface TramiteSubvencionDAO extends EasyDAO<TramiteSubvencion> {
 
-    List<TramiteSubvencion> allSubvencionByColaboradorCicloAcademico(Colaborador colaborador, CicloAcademico cicloAcademico);
+    List<TramiteSubvencion> allSubvencionByColaboradorCicloAcademico(List<Colaborador> colaborador, CicloAcademico cicloAcademico);
 
     public TramiteSubvencion findId(TramiteSubvencion tramiteSubvencion);
 
