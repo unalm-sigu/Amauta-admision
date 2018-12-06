@@ -83,7 +83,6 @@ public class CursoMasivoExamenDAOH extends AbstractEasyDAO<CursoMasivoExamen> im
         Octavia sql = Octavia.query()
                 .from(CursoMasivoExamen.class, "cme")
                 .join("rolExamenes re", "userRegistro ur", "curso cu")
-                //      .leftJoin("dia d", "hora h")
                 .left("ur.persona urPer", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras gh")
                 .filter("re.id", rolExamenes)
                 .in("cme.estado", estados)

@@ -49,7 +49,7 @@ new Vue({
             }
 
             if (this.letrasGruposRegulares.length > 0) {
-                let vue=this;
+                let vue = this;
                 bootbox.confirm({
                     message: "¿Si continua se perdera el avance de los grupos regulares?",
                     buttons: {

@@ -53,10 +53,11 @@
                                             <thead>
                                                 <tr>
                                                     <th class="col-md-1 text-center">Seccion</th>
-                                                    <th class="col-md-4 text-center">Docente</th>
+                                                    <th class="col-md-2 v-middle text-center">Fecha / Hora</th>
+                                                    <th class="col-md-2 text-center">Docente</th>
                                                     <th class="col-md-1 text-center">Aula</th>
                                                     <th class="col-md-1 text-center">Alumnos</th>
-                                                    <th class="col-md-3 text-center">Registro</th>
+                                                    <th class="col-md-2 text-center">Registro</th>
                                                     <th class="col-md-1 text-center">Estado</th>
                                                     <th  class="col-md-1 text-center"></th>
                                                 </tr>
@@ -66,11 +67,24 @@
                                                     <td>
                                                         <span v-text="item.seccion.codigo2"></span>
                                                     </td>
+                                                    <td class="v-middle text-center"> 
+                                                        <div v-if="item.grupoHorasExamen.fecha">
+                                                            {{item.grupoHorasExamen.fecha }}
+                                                            (Grupo {{item.grupoHorasExamen.grupoHoras.codigo}})
+                                                            <small class="block">Hora Inicio: {{item.grupoHorasExamen.horaInicio.descripcion}}</small>
+                                                            <small class="block">Hora Fin: {{item.grupoHorasExamen.horaFin.descripcion}}</small>
+                                                        </div>
+                                                        <div v-else="" >
+                                                            <label class="alert alert-info">
+                                                                Sin Asignar Horario
+                                                            </label>
+                                                        </div>
+                                                    </td>
                                                     <td>
                                                         <span v-text="item.docente.persona.apellidosNombres"></span>
                                                     </td>
                                                     <td>
-                                                        <span v-text="item.aula"></span>
+                                                        <span v-text="item.aula.codigo"></span>
                                                     </td>
                                                     <td>
                                                         <span v-text="item.alumnosEspecialesActivosCount"></span>

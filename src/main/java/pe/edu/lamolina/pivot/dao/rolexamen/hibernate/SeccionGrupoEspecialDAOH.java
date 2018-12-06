@@ -26,7 +26,7 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .from(SeccionGrupoEspecial.class, "sge")
                 .join("rolExamenes re", "seccion sec", "userRegistro ur")
                 .join("ur.persona per")
-                .left("docente doc", "doc.persona dper")
+                .left("docente doc", "doc.persona dper","grupoHorasExamen ghe","ghe.dia","ghe.horaInicio","ghe.horaFin","ghe.grupoHoras")
                 .left("aula au")
                 .searchFields("sec.codigo", "sec.codigo2");
 

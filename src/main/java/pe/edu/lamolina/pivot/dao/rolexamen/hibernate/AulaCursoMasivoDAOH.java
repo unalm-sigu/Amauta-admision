@@ -20,7 +20,7 @@ public class AulaCursoMasivoDAOH extends AbstractEasyDAO<AulaCursoMasivo> implem
     public List<AulaCursoMasivo> allByCursoMasivo(CursoMasivoExamen cursoMasivo) {
         Octavia sql = Octavia.query()
                 .from(AulaCursoMasivo.class, "acm")
-                .join("cursoMasivoExamen cme", "userRegistro ur")
+                .join("cursoMasivoExamen cme", "userRegistro ur", "aula au")
                 .filter("cme.id", cursoMasivo);
         return all(sql);
     }

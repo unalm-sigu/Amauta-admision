@@ -27,6 +27,20 @@ public class RolExamenesLogger {
         this.logDetails = new ArrayList<>();
     }
 
+    public void iniciarGrupoEspecial() {
+        this.tipo = TipoRolExamenesLoggerEnum.GPO_ESP.name();
+        this.message = "Calculo de " + this.getTipoEnum().getValue();
+        this.running = true;
+        this.logDetails = new ArrayList<>();
+    }
+
+    public void iniciarGrupoRegular() {
+        this.tipo = TipoRolExamenesLoggerEnum.GPO_REG.name();
+        this.message = "Calculo de " + this.getTipoEnum().getValue();
+        this.running = true;
+        this.logDetails = new ArrayList<>();
+    }
+
     public RolExamenesLogger() {
     }
 
@@ -46,7 +60,7 @@ public class RolExamenesLogger {
 
         Seccion seccion = seccionGrupoEspecial.getSeccion();
 
-        String msg = "Conflicto del docente %s - %s, con el curso masivo %s - %s";
+        String msg = "Conflicto del docente %s - %s, con la seccion especial %s";
         String complexMsg = String.format(msg, docente.getCodigo(), docente.getPersona().getApellidosNombres(), seccion.getCodigo2());
         rolExamenesLogger.setMessage(complexMsg);
         this.logDetails.add(rolExamenesLogger);
@@ -68,7 +82,7 @@ public class RolExamenesLogger {
 
         Seccion seccion = seccionGrupoEspecial.getSeccion();
 
-        String msg = "Conflicto del Alumno %s - %s, con la seccion especial %s - %s";
+        String msg = "Conflicto del Alumno %s - %s, con la seccion especial %s";
         String complexMsg = String.format(msg, alumno.getCodigo(), alumno.getPersona().getApellidosNombres(), seccion.getCodigo2());
         rolExamenesLogger.setMessage(complexMsg);
         this.logDetails.add(rolExamenesLogger);
@@ -155,6 +169,9 @@ public class RolExamenesLogger {
     }
 
     public TipoRolExamenesLoggerEnum getTipoEnum() {
+        if (this.tipo == null) {
+            return null;
+        }
         return TipoRolExamenesLoggerEnum.valueOf(this.tipo);
     }
 

@@ -28,6 +28,7 @@ import pe.edu.lamolina.model.rolexamen.GrupoRegularExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
+import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -39,6 +40,9 @@ public class GrupoRegularController {
 
     @Autowired
     GrupoRegularService grupoRegularService;
+
+    @Autowired
+    RolExamenesLogger rolExamenesLogger;
 
     private enum TipoAccion {
         LETRA,
@@ -83,6 +87,8 @@ public class GrupoRegularController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
+        } finally {
+            rolExamenesLogger.finalizeLog();
         }
         return response;
     }
@@ -103,7 +109,15 @@ public class GrupoRegularController {
                         new String[]{
                             "*",
                             "userRegistro.*",
-                            "userRegistro.persona.apellidosNombres"
+                            "userRegistro.persona.apellidosNombres",
+                            "grupoHorasExamen.*",
+                            "grupoHorasExamen.dia.*",
+                            "grupoHorasExamen.horaInicio.*",
+                            "grupoHorasExamen.horaFin.*",
+                            "grupoHorasExamen.semanaExamen.id",
+                            "grupoHorasExamen.semanaExamen.numeroSemana",
+                            "grupoHorasExamen.grupoHoras.letra",
+                            "grupoHorasExamen.grupoHoras.codigo"
                         }));
             }
             response.setData(jLetrasGruposRegulares);

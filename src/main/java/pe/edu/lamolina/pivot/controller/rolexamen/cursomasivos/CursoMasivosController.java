@@ -193,6 +193,7 @@ public class CursoMasivosController {
                             "grupoHorasExamen.semanaExamen.id",
                             "grupoHorasExamen.semanaExamen.numeroSemana",
                             "grupoHorasExamen.grupoHoras.letra",
+                            "grupoHorasExamen.grupoHoras.codigo",
                             "rolExamenes.id",
                             "docentesCursosMasivos.id",
                             "docentesCursosMasivos.docente.codigo",

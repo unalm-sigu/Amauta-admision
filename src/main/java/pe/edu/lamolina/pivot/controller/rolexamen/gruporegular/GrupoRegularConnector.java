@@ -21,18 +21,26 @@ public interface GrupoRegularConnector {
 
     void crearLetraGrupoRegularByLetra(
             LetraGrupoRegular letraGrupoRegular,
+            List<CursoMasivoExamen> cursosMasivosExamen,
+            List<SeccionGrupoEspecial> seccionesGrupoEspecial,
             Map<String, List<Seccion>> grupoHorasLetraMap,
             List<Seccion> seccionesEspeciales,
             DataSessionPivot ds);
 
     boolean procesarSeccionesByLetra(
-            LetraGrupoRegular letraGrupoRegular, Seccion seccion,
+            LetraGrupoRegular letraGrupoRegular,
+            List<CursoMasivoExamen> cursosMasivosExamen,
+            List<SeccionGrupoEspecial> seccionesGrupoEspecial,
+            Seccion seccion,
             List<Seccion> seccionesByLetra,
             DataSessionPivot ds);
 
     boolean validarCursosMasivos(RolExamenes rolExamenes, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos, GrupoHorasExamen grupoHorasExamen);
 
-    boolean validarCursosMasivos(RolExamenes rolExamenes, List<CursoMasivoExamen> cursosMasivosByRolExamen,
+    boolean validarCursosMasivos(RolExamenes rolExamenes,
+            List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos);
+
+    boolean validarCursosMasivos(List<CursoMasivoExamen> cursosMasivosByRolExamen,
             List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnosBySeccion);
 
     boolean validarGrupoRegular(GrupoHorasExamen grupoHorasExamen,
@@ -45,5 +53,11 @@ public interface GrupoRegularConnector {
 
     boolean validarGrupoEspecial(List<SeccionGrupoEspecial> seccionesGrupoEspecial,
             List<Alumno> alumnos, List<Docente> docentes, List<Aula> aulas);
+
+    void fillActiveInfoCursosMasivos(List<CursoMasivoExamen> cursosMasivoExamen);
+
+    void fillActiveInfoLetrasGruposRegulares(List<LetraGrupoRegular> letrasGrupoRegular);
+
+    void fillActiveInfoGrupoEspecial(List<SeccionGrupoEspecial> seccionesGrupoEspecial);
 
 }

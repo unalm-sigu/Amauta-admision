@@ -23,6 +23,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
+import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -32,6 +33,9 @@ public class GrupoEspecialController {
 
     @Autowired
     GrupoEspecialService grupoEspecialService;
+
+    @Autowired
+    RolExamenesLogger rolExamenesLogger;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -67,10 +71,19 @@ public class GrupoEspecialController {
             ObjectNode jItem = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "*",
                 "seccion.*",
+                "aula.*",
                 "rolExamenes.*",
                 "userRegistro.*",
                 "userRegistro.persona.*",
-                "docente.persona.apellidosNombres"
+                "docente.persona.apellidosNombres",
+                "grupoHorasExamen.*",
+                "grupoHorasExamen.dia.*",
+                "grupoHorasExamen.horaInicio.*",
+                "grupoHorasExamen.horaFin.*",
+                "grupoHorasExamen.semanaExamen.id",
+                "grupoHorasExamen.semanaExamen.numeroSemana",
+                "grupoHorasExamen.grupoHoras.letra",
+                "grupoHorasExamen.grupoHoras.codigo"
             });
             jItem.put("alumnosEspecialesActivosCount", item.getAlumnosEspecialesActivosCount());
             array.add(jItem);
@@ -91,13 +104,15 @@ public class GrupoEspecialController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
-
+            grupoEspecialService.calcularExamenesGrupoEspecial(rolExamenes, ds);
             response.setMessage("Grupo especial calculado corretamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
+        } finally {
+            rolExamenesLogger.finalizeLog();
         }
         return response;
     }

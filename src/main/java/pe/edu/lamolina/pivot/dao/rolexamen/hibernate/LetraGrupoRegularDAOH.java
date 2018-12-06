@@ -32,8 +32,7 @@ public class LetraGrupoRegularDAOH extends AbstractEasyDAO<LetraGrupoRegular> im
     public List<LetraGrupoRegular> allByRolExamenes(RolExamenes rolExamenes) {
         Octavia sql = Octavia.query()
                 .from(LetraGrupoRegular.class, "lgr")
-                .join("rolExamenes re", "userRegistro ur", "grupoHorasExamen gex")
-                //  .leftJoin("dia d", "hora h")
+                .join("rolExamenes re", "userRegistro ur", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras")
                 .left("ur.persona urPer")
                 .filter("re.id", rolExamenes);
         return all(sql);

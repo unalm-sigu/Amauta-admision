@@ -56,8 +56,7 @@
                                             <th class="col-md-2 text-center">Secciones</th>
                                             <th class="col-md-2 text-center">Alumnos</th>
                                             <th class="col-md-2 text-center">Fecha</th>
-                                            <th class="col-md-1 text-center">Hora</th>
-                                            <th class="col-md-2 text-center">Registro</th>
+                                            <th class="col-md-3 text-center">Registro</th>
                                             <th class="col-md-1 text-center"></th>
                                         </tr>
                                     </thead>
@@ -76,11 +75,18 @@
                                                 <a v-on:click.prevent="loadModalAlumnos(item)"
                                                    class="pointer">{{ item.alumnosRegularesActivosCount }}</a>
                                             </td>
-                                            <td>
-                                                <span v-text="item.fechaExamen"></span>
-                                            </td>
-                                            <td>
-                                                <span v-if="item.hora" v-text="item.hora.descripcion"></span>
+                                            <td class="v-middle text-center">
+                                                <div v-if="item.grupoHorasExamen.fecha">
+                                                    {{item.grupoHorasExamen.fecha }}
+                                                    (Grupo {{item.grupoHorasExamen.grupoHoras.codigo}})
+                                                    <small class="block">Hora Inicio: {{item.grupoHorasExamen.horaInicio.descripcion}}</small>
+                                                    <small class="block">Hora Fin: {{item.grupoHorasExamen.horaFin.descripcion}}</small>
+                                                </div>
+                                                <div v-else="" >
+                                                    <label class="alert alert-info">
+                                                        Sin Asignar Horario
+                                                    </label>
+                                                </div>
                                             </td>
                                             <td>
                                                 <span class="block" v-text="item.userRegistro.persona.apellidosNombres"></span>

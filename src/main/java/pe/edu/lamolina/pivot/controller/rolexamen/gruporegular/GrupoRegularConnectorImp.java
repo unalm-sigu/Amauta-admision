@@ -6,9 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +18,11 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
-import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.DocenteRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.GrupoHorasRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -42,7 +38,6 @@ import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
-import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
@@ -108,6 +103,8 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void crearLetraGrupoRegularByLetra(
             LetraGrupoRegular letraGrupoRegular,
+            List<CursoMasivoExamen> cursosMasivosExamen,
+            List<SeccionGrupoEspecial> seccionesGrupoEspecial,
             Map<String, List<Seccion>> grupoHorasLetraMap,
             List<Seccion> seccionesEspeciales,
             DataSessionPivot ds) {
@@ -128,7 +125,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             Assert.isTrue(docenteSecciones.size() == 1, String.format("La sección (%s) de código %s, tiene mas de un docente principal", seccionClone.getId(), seccionClone.getCodigo2()));
             seccionClone.setDocenteSeccion(docenteSecciones);
 
-            boolean result = this.procesarSeccionesByLetra(letraGrupoRegular, seccionClone, seccionesByLetra, ds);
+            boolean result = this.procesarSeccionesByLetra(letraGrupoRegular, cursosMasivosExamen, seccionesGrupoEspecial, seccionClone, seccionesByLetra, ds);
             if (!result) {
                 seccionesEspeciales.add(seccionClone);
             }
@@ -142,7 +139,10 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean procesarSeccionesByLetra(
-            LetraGrupoRegular letraGrupoRegular, Seccion seccion,
+            LetraGrupoRegular letraGrupoRegular,
+            List<CursoMasivoExamen> cursosMasivosExamen,
+            List<SeccionGrupoEspecial> seccionesGrupoEspecial,
+            Seccion seccion,
             List<Seccion> seccionesByLetraOnlyInformative,
             DataSessionPivot ds) {
         letraGrupoRegular.setContadorSecciones(letraGrupoRegular.getContadorSecciones() + 1);
@@ -159,9 +159,9 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         List<Aula> aulas = Arrays.asList(seccion.getAula());
         List<Docente> docentes = Arrays.asList(seccion.getDocenteSeccion().get(0).getDocente());
 
-        boolean validacionCursosMasivos = this.validarCursosMasivos(letraGrupoRegular.getRolExamenes(), docentes, aulas, alumnos, letraGrupoRegular.getGrupoHorasExamen());
+        boolean validacionCursosMasivos = this.validarCursosMasivos(cursosMasivosExamen, docentes, aulas, alumnos);
         boolean validacionGrupoRegular = this.validarGrupoRegular(letraGrupoRegular, alumnos, docentes, aulas);
-        boolean validacionGrupoEspecial = this.validarGrupoEspecial(letraGrupoRegular.getRolExamenes(), letraGrupoRegular.getGrupoHorasExamen(), docentes, aulas, alumnos);
+        boolean validacionGrupoEspecial = this.validarGrupoEspecial(seccionesGrupoEspecial, alumnos, docentes, aulas);
         if (!validacionGrupoRegular || !validacionCursosMasivos || !validacionGrupoEspecial) {
             return false;
         }
@@ -202,10 +202,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                         .stream().filter(x -> x.getAlumno().equals(alumno)).findFirst().orElse(null);
                 if (alumnoSeccionRegularFound != null) {
                     alumnoConflicto = true;
-                    logger.debug("conflicto alumno {}, con el grupo letra {} y la seccion {}",
-                            alumnoSeccionRegularFound.getAlumno().getId(),
-                            letraGrupoRegular.getId(),
-                            seccionGrupoRegular.getSeccion().getId());
                     rolExamenesLogger.cruceAlumno(alumno, letraGrupoRegular, seccionGrupoRegular.getSeccion());
                     // break MATRICULAS_BY_SEC;
                 }
@@ -219,9 +215,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                     .filter(x -> x.getDocente().equals(docente)).findFirst().orElse(null);
             if (seccionGrupoRegularWithDocente != null) {
                 docenteConflicto = true;
-                logger.debug("conflicto docente {}, con el gruporegular de seccion {}",
-                        docente.getId(),
-                        seccionGrupoRegularWithDocente.getSeccion().getId());
                 rolExamenesLogger.cruceDocente(docente, letraGrupoRegular, seccionGrupoRegularWithDocente.getSeccion());
                 // break;
             }
@@ -234,9 +227,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                     .filter(x -> x.getAula().equals(aula)).findFirst().orElse(null);
             if (seccionGrupoRegularWithAula != null) {
                 aulaConConflicto = true;
-                logger.debug("Conflicto Aula {}, con el gruporegular seccion {}",
-                        aula.getId(),
-                        seccionGrupoRegularWithAula.getSeccion().getId());
                 rolExamenesLogger.cruceAula(aula, letraGrupoRegular, seccionGrupoRegularWithAula.getSeccion());
                 //  break;
             }
@@ -251,7 +241,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
     @Override
     public boolean validarGrupoEspecial(RolExamenes rolExamenes, GrupoHorasExamen grupoHorasExamen, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos) {
         List<SeccionGrupoEspecial> seccionesGrupoEspecial = seccionGrupoEspecialDAO.allByRolExamenesAndEstados(rolExamenes, SeccionRolExamenEstadoEnum.ACT);
-        seccionesGrupoEspecial.removeIf(x -> !x.getGrupoHorasExamen().equals(grupoHorasExamen));
+        seccionesGrupoEspecial.removeIf(x -> x.getGrupoHorasExamen() == null || !x.getGrupoHorasExamen().equals(grupoHorasExamen));
         List<AlumnoGrupoEspecial> alumnosGrupoEspecial = alumnoGrupoEspecialDAO.allBySeccionGrupoEspecialAndEstados(seccionesGrupoEspecial, AlumnoRolExamenEstadoEnum.ACT);
         Map<Long, List<AlumnoGrupoEspecial>> mapAlumnosBySeccionEspecial = TypesUtil.convertListToMapList("seccionGrupoEspecial.id", alumnosGrupoEspecial);
         for (SeccionGrupoEspecial seccionGrupoEspecial : seccionesGrupoEspecial) {
@@ -273,9 +263,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                         .stream().filter(x -> x.getAlumno().equals(alumno)).findFirst().orElse(null);
                 if (alumnoSeccionEspecialFound != null) {
                     alumnoConflicto = true;
-                    logger.debug("conflicto alumno {}, con la seccion especial {}",
-                            alumnoSeccionEspecialFound.getAlumno().getId(),
-                            seccionGrupoEspecial.getSeccion().getId());
                     rolExamenesLogger.cruceAlumno(alumno, seccionGrupoEspecial);
                     // break MATRICULAS_BY_SEC;
                 }
@@ -289,9 +276,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                     .filter(x -> x.getDocente().equals(docente)).findFirst().orElse(null);
             if (seccionGrupoEspecialWithDocente != null) {
                 docenteConflicto = true;
-                logger.debug("conflicto docente {}, con la seccion especial {}",
-                        docente.getId(),
-                        seccionGrupoEspecialWithDocente.getSeccion().getId());
                 rolExamenesLogger.cruceDocente(docente, seccionGrupoEspecialWithDocente);
                 // break;
             }
@@ -304,9 +288,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                     .filter(x -> x.getAula().equals(aula)).findFirst().orElse(null);
             if (seccionGrupoEspecialWithAula != null) {
                 aulaConConflicto = true;
-                logger.debug("Conflicto Aula {}, con la seccion especial {}",
-                        aula.getId(),
-                        seccionGrupoEspecialWithAula.getSeccion().getId());
                 rolExamenesLogger.cruceAula(aula, seccionGrupoEspecialWithAula);
                 //  break;
             }
@@ -319,36 +300,84 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
     }
 
     @Override
-    public boolean validarCursosMasivos(RolExamenes rolExamenes, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos, GrupoHorasExamen grupoHorasExamen) {
-        List<CursoMasivoExamen> cursosMasivosByRolExamen = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
-        cursosMasivosByRolExamen.removeIf(x -> x.getGrupoHorasExamen() == null || !x.getGrupoHorasExamen().equals(grupoHorasExamen));
-        return validarCursosMasivos(rolExamenes, cursosMasivosByRolExamen, docentes, aulas, alumnos);
-    }
-
-    @Override
-    public boolean validarCursosMasivos(RolExamenes rolExamenes,
-            List<CursoMasivoExamen> cursosMasivosByRolExamen,
-            List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos) {
-        ////,GrupoHorasExamen grupoHorasExamen
-        if (cursosMasivosByRolExamen.isEmpty()) {
-            return true;
-        }
-        List<AulaCursoMasivo> aulasCursosMasivos = aulaCursoMasivoDAO.allByCursosMasivos(cursosMasivosByRolExamen);
-        List<DocenteCursoMasivo> docentesCursoMasivo = docenteCursoMasivoDAO.allByCursosMasivos(cursosMasivosByRolExamen, DocenteRolExamenEstadoEnum.ACT);
-        List<AlumnoCursoMasivo> alumnosCursosMasivos = alumnoCursoMasivoDAO.allByCursosMasivos(cursosMasivosByRolExamen, AlumnoRolExamenEstadoEnum.ACT);
+    public void fillActiveInfoCursosMasivos(List<CursoMasivoExamen> cursosMasivoExamen) {
+        List<AulaCursoMasivo> aulasCursosMasivos = aulaCursoMasivoDAO.allByCursosMasivos(cursosMasivoExamen);
+        List<DocenteCursoMasivo> docentesCursoMasivo = docenteCursoMasivoDAO.allByCursosMasivos(cursosMasivoExamen, DocenteRolExamenEstadoEnum.ACT);
+        List<AlumnoCursoMasivo> alumnosCursosMasivos = alumnoCursoMasivoDAO.allByCursosMasivos(cursosMasivoExamen, AlumnoRolExamenEstadoEnum.ACT);
 
         Map<Long, List<AulaCursoMasivo>> mapAulaCursoMasivoByCursoMasivo = TypesUtil.convertListToMapList("cursoMasivoExamen.id", aulasCursosMasivos);
         Map<Long, List<DocenteCursoMasivo>> mapDocenteCursoMasivoByCursoMasivo = TypesUtil.convertListToMapList("cursoMasivoExamen.id", docentesCursoMasivo);
         Map<Long, List<AlumnoCursoMasivo>> mapAlumnosCursoMasivoByCursoMasivo = TypesUtil.convertListToMapList("cursoMasivoExamen.id", alumnosCursosMasivos);
 
+        for (CursoMasivoExamen cursoMasivoByRolExamen : cursosMasivoExamen) {
+            cursoMasivoByRolExamen.setAulasCursosMasivos(mapAulaCursoMasivoByCursoMasivo.get(cursoMasivoByRolExamen.getId()));
+            cursoMasivoByRolExamen.setDocentesCursosMasivos(mapDocenteCursoMasivoByCursoMasivo.get(cursoMasivoByRolExamen.getId()));
+            cursoMasivoByRolExamen.setAlumnosCursosMasivos(mapAlumnosCursoMasivoByCursoMasivo.get(cursoMasivoByRolExamen.getId()));
+        }
+    }
+
+    @Override
+    public void fillActiveInfoGrupoEspecial(List<SeccionGrupoEspecial> seccionesGrupoEspecial) {
+        List<AlumnoGrupoEspecial> alumnosGruposEspeciales = alumnoGrupoEspecialDAO.allBySeccionGrupoEspecialAndEstados(seccionesGrupoEspecial, AlumnoRolExamenEstadoEnum.ACT);
+        Map<Long, List<AlumnoGrupoEspecial>> mapAlumnosGruposEspecialesBySecGpoEspecial = TypesUtil.convertListToMapList("seccionGrupoEspecial.id", alumnosGruposEspeciales);
+        for (SeccionGrupoEspecial seccionGrupoEspecial : seccionesGrupoEspecial) {
+            List<AlumnoGrupoEspecial> alumnosGrupoEspecial = mapAlumnosGruposEspecialesBySecGpoEspecial.get(seccionGrupoEspecial.getId());
+            seccionGrupoEspecial.setAlumnosGrupoEspecial(alumnosGrupoEspecial);
+        }
+    }
+
+    @Override
+    public void fillActiveInfoLetrasGruposRegulares(List<LetraGrupoRegular> letrasGruposRegulares) {
+        //  List<FechaHoraGrupoExamen> fechasHorasExamens = fechaHoraGrupoExamenDAO.allByGrupoHorasExamenOrderByDiaHora(gruposHorasExamen);
+        List<SeccionGrupoRegular> seccionesGrupoRegular = seccionGrupoRegularDAO.allByLetraGrupoRegularAndEstados(letrasGruposRegulares, SeccionRolExamenEstadoEnum.ACT);
+        List<AlumnoGrupoRegular> alumnosGrupoRegular = alumnoGrupoRegularDAO.allBySeccionGrupoRegularAndEstados(seccionesGrupoRegular, AlumnoRolExamenEstadoEnum.ACT);
+
+        Map<Long, List<SeccionGrupoRegular>> mapSeccionesGpoRegular = TypesUtil.convertListToMapList("letraGrupoRegular.id", seccionesGrupoRegular);
+        Map<Long, List<AlumnoGrupoRegular>> mapAlumnosGrupoRegular = TypesUtil.convertListToMapList("seccionGrupoRegular.id", alumnosGrupoRegular);
+        //    Map< Long, List<FechaHoraGrupoExamen>> mapFechasHorasExamenes = TypesUtil.convertListToMapList("grupoHorasExamen.id", fechasHorasExamens);
+
+        for (LetraGrupoRegular letraGruposRegular : letrasGruposRegulares) {
+            //  List<FechaHoraGrupoExamen> fechasHorasGruposByGrupoHoraExamen = mapFechasHorasExamenes.get(letraGruposRegular.getGrupoHorasExamen().getId());
+            //    letraGruposRegular.getGrupoHorasExamen().setFechasHorasGruposExamen(fechasHorasGruposByGrupoHoraExamen);
+            //    letraGruposRegular.getGrupoHorasExamen().setSemanaExamen(fechasHorasGruposByGrupoHoraExamen.get(0).getSemanaExamen());
+
+            List<SeccionGrupoRegular> seccionGrupoRegularByLetra = mapSeccionesGpoRegular.get(letraGruposRegular.getId());
+            for (SeccionGrupoRegular seccionGrupoRegular : seccionGrupoRegularByLetra) {
+                List<AlumnoGrupoRegular> alumnosGrupoRegularBySeccionGpoReg = mapAlumnosGrupoRegular.get(seccionGrupoRegular.getId());
+                seccionGrupoRegular.setAlumnosGruposRegulares(alumnosGrupoRegularBySeccionGpoReg);
+            }
+            letraGruposRegular.setSeccionesGruposRegulares(seccionesGrupoRegular);
+        }
+    }
+
+    @Override
+    public boolean validarCursosMasivos(RolExamenes rolExamenes, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos, GrupoHorasExamen grupoHorasExamen) {
+        List<CursoMasivoExamen> cursosMasivosByRolExamen = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
+        cursosMasivosByRolExamen.removeIf(x -> x.getGrupoHorasExamen() == null || !x.getGrupoHorasExamen().equals(grupoHorasExamen));
+        this.fillActiveInfoCursosMasivos(cursosMasivosByRolExamen);
+        return validarCursosMasivos(cursosMasivosByRolExamen, docentes, aulas, alumnos);
+    }
+
+    @Override
+    public boolean validarCursosMasivos(RolExamenes rolExamenes,
+            List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos) {
+        List<CursoMasivoExamen> cursosMasivosByRolExamen = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
+        this.fillActiveInfoCursosMasivos(cursosMasivosByRolExamen);
+        return validarCursosMasivos(cursosMasivosByRolExamen, docentes, aulas, alumnos);
+    }
+
+    @Override
+    public boolean validarCursosMasivos(List<CursoMasivoExamen> cursosMasivosByRolExamen,
+            List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos) {
+        ////,GrupoHorasExamen grupoHorasExamen
+        if (cursosMasivosByRolExamen.isEmpty()) {
+            return true;
+        }
+
         boolean docenteConflicto = false;
         boolean aulaConConflicto = false;
         boolean alumnoConflicto = false;
         for (CursoMasivoExamen cursoMasivoByRolExamen : cursosMasivosByRolExamen) {
-            //  cursoMasivoByRolExamen = cursoMasivoByRolExamen.clone();
-            cursoMasivoByRolExamen.setAulasCursosMasivos(mapAulaCursoMasivoByCursoMasivo.get(cursoMasivoByRolExamen.getId()));
-            cursoMasivoByRolExamen.setDocentesCursosMasivos(mapDocenteCursoMasivoByCursoMasivo.get(cursoMasivoByRolExamen.getId()));
-            cursoMasivoByRolExamen.setAlumnosCursosMasivos(mapAlumnosCursoMasivoByCursoMasivo.get(cursoMasivoByRolExamen.getId()));
 
             //validar conflicto docentes
             for (Docente docente : docentes) {
@@ -357,9 +386,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                         .findFirst().orElse(null);
                 if (docenteCursoMasivo != null) {
                     docenteConflicto = true;
-                    logger.debug("conflicto docente {} , con el curso masivo  {}",
-                            docente.getId(),
-                            cursoMasivoByRolExamen.getId());
                     rolExamenesLogger.cruceDocente(docente, cursoMasivoByRolExamen.getCurso());
                     //  break;
                 }
@@ -372,9 +398,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                             filter(x -> x.getAula().equals(aula)).findFirst().orElse(null);
                     if (aulaCursoMasivo != null) {
                         aulaConConflicto = true;
-                        logger.debug("Conflicto Aula {} con el curso masivo {}",
-                                aula.getId(),
-                                cursoMasivoByRolExamen.getId());
                         rolExamenesLogger.cruceAula(aula, cursoMasivoByRolExamen.getCurso());
                         // break;
                     }
@@ -387,9 +410,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                         .findFirst().orElse(null);
                 if (alumnoCursoMasivo != null) {
                     alumnoConflicto = true;
-                    logger.debug("conflicto alumno {}, con el curso masivo {}",
-                            alumno.getId(),
-                            cursoMasivoByRolExamen.getId());
                     rolExamenesLogger.cruceAlumno(alumno, cursoMasivoByRolExamen.getCurso());
                     //  break;
                 }

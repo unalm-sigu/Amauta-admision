@@ -26,7 +26,7 @@ new Vue({
                     .then(response => {
                         if (response.data.success) {
                             // notify(response.data.message, 'info');
-                           
+                            this.$refs.raptor.loadRemoteData();
                         } else {
                             //   notify(response.data.message, 'error');
                         }

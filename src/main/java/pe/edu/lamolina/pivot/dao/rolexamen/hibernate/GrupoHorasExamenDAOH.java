@@ -67,4 +67,11 @@ public class GrupoHorasExamenDAOH extends AbstractEasyDAO<GrupoHorasExamen> impl
         octavia.set(grupoHorasExamen, "horaFin");
         this.update(octavia);
     }
+
+    @Override
+    public void updateVerificado(GrupoHorasExamen grupoHorasExamen) {
+        Octavia octavia = Octavia.update(GrupoHorasExamen.class);
+        octavia.set(grupoHorasExamen, "verificado");
+        this.update(octavia);
+    }
 }

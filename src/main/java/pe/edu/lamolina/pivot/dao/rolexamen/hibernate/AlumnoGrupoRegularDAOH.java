@@ -70,8 +70,7 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
             AlumnoRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
                 .from(AlumnoGrupoRegular.class, "agr")
-                .join("agr.seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr", "userRegistro cur", "agr.alumno alu")
-                .join("alu.persona per")
+                .join("agr.seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr", "userRegistro cur", "agr.alumno alu", "alu.persona per")
                 .in("agr.estado", estados)
                 .in("sgr.id", seccionGrupoRegular);
         return all(sql);
