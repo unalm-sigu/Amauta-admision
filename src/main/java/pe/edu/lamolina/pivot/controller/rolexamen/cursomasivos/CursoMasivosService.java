@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
@@ -42,5 +43,11 @@ public interface CursoMasivosService {
 
     void excluirDocenteCursoMasivo(DocenteCursoMasivo docenteCursoMasivo, DataSessionPivot ds);
 
+    void excluirAlumnoCursoMasivo(AlumnoCursoMasivo alumnoCursoMasivo, DataSessionPivot ds);
+
     List<DocenteCursoMasivo> allDocentesCursosMasivosDynaByCursoMasivo(DynatableFilter filter, CursoMasivoExamen cursoMasivoExamen);
+
+    List<AlumnoCursoMasivo> allAlumnosCursoMasivosDynaByCursoMasivo(DynatableFilter filter, CursoMasivoExamen cursoMasivoExamen);
+
+    List<SeccionCursoMasivo> allSeccionesCursoMasivosDynaByCursoMasivo(DynatableFilter filter, CursoMasivoExamen cursoMasivoExamen);
 }

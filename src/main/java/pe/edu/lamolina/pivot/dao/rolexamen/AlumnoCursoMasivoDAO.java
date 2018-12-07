@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.dao.rolexamen;
 
 import java.util.List;
+import java.util.Map;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
@@ -16,5 +18,11 @@ public interface AlumnoCursoMasivoDAO extends EasyDAO<AlumnoCursoMasivo> {
     List<AlumnoCursoMasivo> allAlumnoByRolExamenes(RolExamenes rolExamenes, AlumnoRolExamenEstadoEnum... estados);
 
     List<AlumnoCursoMasivo> allByCursosMasivos(List<CursoMasivoExamen> cursosMasivoExamenes, AlumnoRolExamenEstadoEnum... estados);
+
+    List<AlumnoCursoMasivo> allByDynatableAndCursoMasivo(DynatableFilter filter, CursoMasivoExamen cursoMasivoExamen);
+
+    void updateEstadoExclusion(AlumnoCursoMasivo alumnoCursoMasivo);
+
+    Map<Long, Integer> countByCursosMasivos(List<CursoMasivoExamen> cursosMasivosExamen, AlumnoRolExamenEstadoEnum... estados);
 
 }

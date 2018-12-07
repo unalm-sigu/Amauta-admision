@@ -137,7 +137,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
     public void calcularExamenesGrupoEspecial(RolExamenes rolExamenes, DataSessionPivot ds) {
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
-        Assert.isTrue(rolExamenes.isSituacionConfigurarHorarioCursosMasivos(), "Debe asignar horario de examen a los cursos masivos.");
+        Assert.isTrue(rolExamenes.isSituacionAsignarHorarioCursosMasivos(), "Debe asignar horario de examen a los cursos masivos.");
 
         this.rolExamenesLogger.iniciarCursoMasivo();
 

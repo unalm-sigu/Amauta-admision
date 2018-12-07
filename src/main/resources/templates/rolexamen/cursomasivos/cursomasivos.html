@@ -120,7 +120,7 @@
                                         </td>
                                         <td class="v-middle text-center"> 
                                             <span class="badge pointer"
-                                                  v-on:click="verSeccionesAsignadas(item)">{{ item.secciones }}</span>
+                                                  v-on:click="verSeccionesAsignadas(item)">{{ item.seccionesCount }}</span>
                                         </td>
                                         <td class="v-middle text-center">
                                             <span class="badge pointer" 
@@ -129,8 +129,9 @@
                                             </span>
                                         </td>
                                         <td class="v-middle text-center"> 
-                                            <span class="badge pointer">
-                                                {{ item.alumnos }}
+                                            <span class="badge pointer"
+                                                  v-on:click="verAlumnos(item)">
+                                                {{ item.alumnosCount }}
                                             </span>
                                         </td>
                                         <td class="v-middle text-center"> 

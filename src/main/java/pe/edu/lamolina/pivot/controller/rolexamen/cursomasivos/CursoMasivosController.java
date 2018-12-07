@@ -29,6 +29,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
@@ -53,7 +54,8 @@ public class CursoMasivosController {
     private enum TipoAccion {
         CURSO,
         SECCION,
-        DOCENTE
+        DOCENTE,
+        ALUMNO
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -360,6 +362,9 @@ public class CursoMasivosController {
             } else if (CursoMasivosController.TipoAccion.DOCENTE.name().equals(tipoAccion)) {
                 DocenteCursoMasivo docenteCursoMasivo = (DocenteCursoMasivo) mapper.readValue(objeto.toString(), DocenteCursoMasivo.class);
                 service.excluirDocenteCursoMasivo(docenteCursoMasivo, ds);
+            } else if (CursoMasivosController.TipoAccion.ALUMNO.name().equals(tipoAccion)) {
+                AlumnoCursoMasivo alumnoCursoMasivo = (AlumnoCursoMasivo) mapper.readValue(objeto.toString(), AlumnoCursoMasivo.class);
+                service.excluirAlumnoCursoMasivo(alumnoCursoMasivo, ds);
             }
             response.setMessage("Excluido corretamente.");
             response.setSuccess(Boolean.TRUE);
@@ -417,6 +422,53 @@ public class CursoMasivosController {
                 "*",
                 "docente.codigo",
                 "docente.persona.apellidosNombres"
+            }));
+        }
+
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "listAlumnosCursosMasivos", method = RequestMethod.GET)
+    public DynatableResponse listAlumnosCursosMasivos(DynatableFilter filter, @RequestParam("cursoMasivo") Long idCursoMasivo, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DynatableResponse json = new DynatableResponse();
+
+        List<AlumnoCursoMasivo> list = service.allAlumnosCursoMasivosDynaByCursoMasivo(filter, new CursoMasivoExamen(idCursoMasivo));
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+        for (AlumnoCursoMasivo item : list) {
+            array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                "*",
+                "alumno.codigo",
+                "alumno.persona.apellidosNombres"
+            }));
+        }
+
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "listSeccionesCursosMasivos", method = RequestMethod.GET)
+    public DynatableResponse listSeccionesCursosMasivos(DynatableFilter filter, @RequestParam("cursoMasivo") Long idCursoMasivo, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DynatableResponse json = new DynatableResponse();
+
+        List<SeccionCursoMasivo> list = service.allSeccionesCursoMasivosDynaByCursoMasivo(filter, new CursoMasivoExamen(idCursoMasivo));
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+        for (SeccionCursoMasivo item : list) {
+            array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                "*",
+                "seccion.*"
             }));
         }
 

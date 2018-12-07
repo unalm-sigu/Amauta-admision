@@ -24,8 +24,7 @@ new Vue({
             id: 'modalSecciones',
             header: true,
             title: 'Secciones Asignadas',
-            showaccept: "false",
-            modalsize: 'modal-lg'
+            showaccept: "false"
         },
         rolExamenes: null,
         rolesExamenes: JSON.parse(jRolexamenes),
@@ -42,7 +41,8 @@ new Vue({
         tipoAccion: {
             CURSO: "CURSO",
             SECCION: "SECCION",
-            DOCENTE: "DOCENTE"
+            DOCENTE: "DOCENTE",
+            ALUMNO: "ALUMNO"
         },
         semanasExamen: [],
         semanaExamenActiva: null,
@@ -169,6 +169,8 @@ new Vue({
             let $vue = this;
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
             $vue.secciones = $vue.cursoMasivoExamen.seccionesCursosMasivos;
+            $vue.$refs.tblSeccionesCursosMasivos.ajaxdata = {cursoMasivo: this.cursoMasivoExamen.id};
+            $vue.$refs.tblSeccionesCursosMasivos.loadRemoteData();
             $vue.$refs.modalSecciones.open();
         },
         saveAulas() {
@@ -268,7 +270,7 @@ new Vue({
                                             case vue.tipoAccion.SECCION:
                                                 vue.$refs.seccionModal.close();
                                             case vue.tipoAccion.ALUMNO:
-                                                vue.$refs.alumnosModal.close();
+                                                vue.$refs.tblAlumnoCursosMasivos.loadRemoteData();
                                                 break;
                                             case vue.tipoAccion.DOCENTE:
                                                 vue.$refs.tblDocentesCursosMasivos.loadRemoteData();
@@ -415,10 +417,14 @@ new Vue({
             this.grupoActivo = fechaHoraGrupoExamen.grupoHorasExamen;
         }, verDocentes(cursoMasivo) {
             this.cursoMasivoExamen = cursoMasivo;
-            console.dir(this.cursoMasivoExamen)
             this.$refs.tblDocentesCursosMasivos.ajaxdata = {cursoMasivo: this.cursoMasivoExamen.id};
             this.$refs.tblDocentesCursosMasivos.loadRemoteData();
             this.$refs.docenteModal.open();
+        }, verAlumnos(cursoMasivo) {
+            this.cursoMasivoExamen = cursoMasivo;
+            this.$refs.tblAlumnoCursosMasivos.ajaxdata = {cursoMasivo: this.cursoMasivoExamen.id};
+            this.$refs.tblAlumnoCursosMasivos.loadRemoteData();
+            this.$refs.alumnoModal.open();
         }
     }
 });
