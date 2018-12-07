@@ -403,7 +403,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Transactional(readOnly = false)
     public void excluirAlumnoCursoMasivo(AlumnoCursoMasivo alumnoCursoMasivo, DataSessionPivot ds) {
         AlumnoCursoMasivo alumnoCursoMasivoUpd = new AlumnoCursoMasivo(alumnoCursoMasivo.getId());
-        alumnoCursoMasivoDAO.updateEstadoExclusion(alumnoCursoMasivo);
+        alumnoCursoMasivoDAO.updateEstadoExclusion(alumnoCursoMasivoUpd);
     }
 
     @Override

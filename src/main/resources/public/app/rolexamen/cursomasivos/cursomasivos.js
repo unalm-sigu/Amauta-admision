@@ -268,7 +268,8 @@ new Vue({
 
                                         switch (tipoAccion) {
                                             case vue.tipoAccion.SECCION:
-                                                vue.$refs.seccionModal.close();
+                                                vue.$refs.tblSeccionesCursosMasivos.loadRemoteData();
+                                                break;
                                             case vue.tipoAccion.ALUMNO:
                                                 vue.$refs.tblAlumnoCursosMasivos.loadRemoteData();
                                                 break;
