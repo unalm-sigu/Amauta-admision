@@ -16,6 +16,7 @@
                         <section class="panel-body" th:unless="${ciclo.tipo == 'NIV' }">
                             No se configura precios en este ciclo
                         </section>
+                        
                         <section class="panel-body" th:if="${ciclo.tipo == 'NIV' }">
 
                             <raptor-table v-bind:url="preciocursocicloURL" ref="raptorPrecioCursoCiclo">

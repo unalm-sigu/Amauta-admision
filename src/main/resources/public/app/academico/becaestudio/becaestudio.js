@@ -7,7 +7,7 @@ new Vue({
         confirmarModal: {
             id: 'modalConfirmar',
             header: true,
-            title: 'Nueva Beca de Estudio',
+            title: '',
             okbtn: 'Guardar',
             modalsize: 'modal-md'
         },
@@ -22,14 +22,31 @@ new Vue({
         instituciones: []
     },
     mounted() {
+        let vue = this;
         $(".numerico").numeric({negative: false});
+        vue.loadInstituciones();
 
     },
     methods: {
+        loadInstituciones() {
+            let $vue = this;
+            $.ajax({
+                method: "POST",
+                url: APP.url("academico/becaestudio/allEmpresa")
+            }).then(response => {
+                if (response.success) {
+                    $vue.instituciones = response.data;
+                } else {
+                    notify("Error al obtener la data", 'error');
+                }
+            }, error => {
+                notify(MESSAGES.errorComunicacion, 'error');
+            });
+
+        },
         guardar() {
             let $vue = this;
-            console.log("asdasdsa")
-            console.log($vue.becaestudioEdit.nombre)
+
             if ($vue.becaestudioEdit.nombre == undefined) {
                 notify("Ingresar el nombre de la beca", "error")
                 return;
@@ -57,27 +74,17 @@ new Vue({
             let $vue = this;
             $vue.becaestudioSelect = item;
             $vue.becaestudioEdit = Object.assign({}, item);
-            $vue.$refs.modalConfirmar.title = 'Actualizar Beca';
+
+            $vue.confirmarModal.title = 'Actualizar Beca de Estudio';
             $vue.$refs.modalConfirmar.open();
-            /*
-             console.log(item.id)
-             bootbox.confirm({
-             message: "¿Estas seguor de jshdfsjh?",
-             buttons: {
-             confirm: {label: "Aceptar"},
-             cancel: {label: "Cancelar"}
-             },
-             callback(result) {
-             console.log(result)
-             }
-             
-             });
-             //*/
+            $vue.loadInstituciones();
+
         },
         nuevo() {
             let $vue = this;
             $vue.becaestudioEdit = {id: '', institucion: {id: '', numeroDocIdentidad: '', razonSocial: ''}};
-            $vue.instituciones = JSON.parse(institucionesJson);
+            $vue.loadInstituciones();
+            $vue.confirmarModal.title = 'Nueva Beca de Estudio';
             $vue.$refs.modalConfirmar.open();
         },
         addInstitucion() {
@@ -103,6 +110,7 @@ new Vue({
                 if (response.success) {
                     $vue.$refs.modalInstitucion.close();
                     $vue.becaestudioEdit.institucion = response.data;
+                    $vue.loadInstituciones();
 
                     notify(response.message, "info");
                 } else {

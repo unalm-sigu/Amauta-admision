@@ -47,17 +47,18 @@ public class PrecioCursoEstructuraController {
 
         try {
             List<PrecioCursoEstructura> list = service.allByCicloAcademico(ds.getCicloAcademico());
-            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (PrecioCursoEstructura precioCursoEstructura : list) {
-                arr.add(JsonHelper.createJson(precioCursoEstructura, JsonNodeFactory.instance, new String[] {
+                array.add(JsonHelper.createJson(precioCursoEstructura, JsonNodeFactory.instance, new String[]{
                     "id",
                     "precio",
                     "tpc",
+                    "creditos",
                     "estado",
                     "cantidadGrupos"
                 }));
             }
-            response.setData(arr);
+            response.setData(array);
         } catch (PhobosException pex) {
             ExceptionHandler.handlePhobosEx(pex, response);
         } catch (Exception ex) {

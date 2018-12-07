@@ -38,7 +38,7 @@
                                         <input name="nombre" class="form-control" required="true" th:value="${carrera} != null ? ${carrera.nombre} : ''" 
                                                th:if="${carrera.id == null or carrera.estado == 'CRE'}"/>
                                         <input name="nombre" class="form-control" required="true" th:value="${carrera} != null ? ${carrera.nombre} : ''" disabled='disabled'
-                                               th:if="${carrera.id != null and carrera.estado == 'INA'}"/>
+                                               th:if="${carrera.id != null and carrera.estado != 'CRE'}"/>
                                     </div>
                                     <div class="form-group">
                                         <label>Código</label>

@@ -452,7 +452,7 @@ new Vue({
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/clonarciclo'),
-                async: false,
+//                async: false,
                 data: {id: $vue.ciclo.id},
                 success: function (response) {
                     if (response.success) {
@@ -547,7 +547,7 @@ new Vue({
                         $vue.showLoader();
                         $.ajax({
                             method: 'POST',
-                            async: false,
+//                            async: false,
                             url: APP.url('academico/gposeccion/limpiarciclo'),
                             success: function (response) {
                                 if (response.success) {
