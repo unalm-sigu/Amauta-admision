@@ -56,6 +56,7 @@ import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCursoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
@@ -1160,6 +1161,11 @@ public class ProgDataServiceImp implements ProgDataService {
             GrupoHoras gpoHoras = findGrupoHoras(seccion, mapGpoHoraBD);
             Aula aula = findAula(seccion, mapAulaBD, ciclo);
 
+            Integer horasTeoria = curso.getHorasTeoria() == null ? 0
+                    : (ciclo.getTipoEnum() == TipoCicloEnum.REG ? curso.getHorasTeoria() : curso.getHorasTeoriaVerano());
+            Integer horasPractica = curso.getHorasPractica() == null ? 0
+                    : (ciclo.getTipoEnum() == TipoCicloEnum.REG ? curso.getHorasPractica() : curso.getHorasPracticaVerano());
+
             if (seccionBD == null) {
                 seccionBD = new Seccion();
                 seccionBD.setCodigo(seccion.getCodigo());
@@ -1175,9 +1181,6 @@ public class ProgDataServiceImp implements ProgDataService {
                 seccionBD.setTipoSeccionEnum(TipoSeccionEnum.valueOf(seccion.getCodigoTipoSeccion()));
                 seccionBD.setGrupoHoras(gpoHoras);
                 seccionBD.setAula(aula);
-
-                Integer horasTeoria = curso.getHorasTeoria() == null ? 0 : curso.getHorasTeoria();
-                Integer horasPractica = curso.getHorasPractica() == null ? 0 : curso.getHorasPractica();
 
                 if (seccionBD.isTipoSeccionPRA()) {
                     seccionBD.setHorasSemanales(horasPractica);
@@ -1198,6 +1201,20 @@ public class ProgDataServiceImp implements ProgDataService {
                 visor.agregarLog("secc", "saveSecc", "Seccion " + seccionBD.getCodigo() + " nuevo", false, "info");
 
             } else {
+                if (seccionBD.isTipoSeccionPRA()) {
+                    seccionBD.setHorasSemanales(horasPractica);
+                    gpoSecc.setHorasPractica(horasPractica);
+                } else if (seccionBD.isTipoSeccionTEO()) {
+                    seccionBD.setHorasSemanales(horasTeoria);
+                    gpoSecc.setHorasTeoria(horasTeoria);
+                } else if (seccionBD.isTipoSeccionTCUR()) {
+                    seccionBD.setHorasSemanales(horasTeoria);
+                    gpoSecc.setHorasTeoria(horasTeoria);
+                } else if (seccionBD.isTipoSeccionPCUR()) {
+                    seccionBD.setHorasSemanales(horasPractica);
+                    gpoSecc.setHorasPractica(horasPractica);
+                }
+
                 seccionBD.setGrupoHoras(gpoHoras);
                 seccionBD.setAula(aula);
                 seccionBD.setCodigo2(seccion.getCodigo2());
