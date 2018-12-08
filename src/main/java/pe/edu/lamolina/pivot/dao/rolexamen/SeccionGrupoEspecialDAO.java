@@ -18,4 +18,8 @@ public interface SeccionGrupoEspecialDAO extends EasyDAO<SeccionGrupoEspecial> {
     void deleteByRolExamenes(RolExamenes rolExamenes);
 
     void updateFechaExamen(SeccionGrupoEspecial SeccionGrupoEspecial);
+
+    void updateEstadoExclusion(SeccionGrupoEspecial seccionGrupoEspecialUpd);
+
+    void updateEstado(SeccionGrupoEspecial seccionGrupoEspecialUpd);
 }

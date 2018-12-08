@@ -419,7 +419,7 @@
                             </a> 
                             <ul class="dropdown-menu pull-right">
                                 <li><a class=" pointer bold" v-on:click.prevent="excluir(item,tipoAccion.ALUMNO)">Excluir</a></li>
-                                <li><a >Incluir</a></li>
+                                <li><a class=" pointer bold" v-on:click.prevent="incluir(item,tipoAccion.ALUMNO)">Incluir</a></li>
                             </ul>
                         </div>
                     </td>
@@ -534,7 +534,7 @@
                                 <span v-text="item.seccion.codigo2"></span>
                             </td>
                             <td class="text-center">
-                                <span v-text="item.seccion.matriculados"></span>
+                                <span v-text="item.alumnosCount"></span>
                             </td>
                             <td class="text-center">
                     <v-estado v-bind:codigo="item.estado" v-bind:valor="item.estadoEnum.value"/> 
@@ -546,7 +546,7 @@
                             </a> 
                             <ul class="dropdown-menu pull-right">
                                 <li><a class=" pointer bold" v-on:click.prevent="excluir(item,tipoAccion.SECCION)">Excluir</a></li>
-                                <li><a >Incluir</a></li>
+                                <li><a class=" pointer bold" v-on:click.prevent="incluir(item,tipoAccion.SECCION)">Incluir</a></li>
                             </ul>
                         </div>
                     </td>

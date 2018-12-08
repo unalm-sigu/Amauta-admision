@@ -1,13 +1,13 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.gruporegular;
 
 import java.util.List;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.GrupoRegularExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
-import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface GrupoRegularService {
@@ -29,5 +29,11 @@ public interface GrupoRegularService {
     void excluirGrupoRegular(GrupoRegularExamen grupoRegularExamen, DataSessionPivot ds);
 
     void excluirGrupoRegular(AlumnoGrupoRegular seccionGrupoRegular, DataSessionPivot ds);
+
+    void activarGrupoRegular(SeccionGrupoRegular seccionGrupoRegular, DataSessionPivot ds);
+
+    List<SeccionGrupoRegular> allSeccionesGrupoRegularDynaByLetraGrupoReg(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
+
+    List<AlumnoGrupoRegular> allAlumnosGrupoRegularDynaByLetraGrupoReg(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
 
 }

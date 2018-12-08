@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.rolexamen.cursomasivos;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -186,6 +187,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             seccionCursoMasivo.setUserRegistro(ds.getUsuario());
 
             seccionCursoMasivoDAO.save(seccionCursoMasivo);
+
             List<MatriculaSeccion> matriculadosPorSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
             alus += matriculadosPorSeccion.size();
             for (MatriculaSeccion matriculaSeccion : matriculadosPorSeccion) {
@@ -193,6 +195,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
                 AlumnoCursoMasivo alumnoCursoMasivo = new AlumnoCursoMasivo();
                 alumnoCursoMasivo.setAlumno(alumno);
                 alumnoCursoMasivo.setCursoMasivoExamen(cursoMasivosExamen);
+                alumnoCursoMasivo.setSeccionCursoMasivo(seccionCursoMasivo);
                 alumnoCursoMasivo.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
                 alumnoCursoMasivo.setFechaRegistro(new Date());
                 alumnoCursoMasivo.setUserRegistro(ds.getUsuario());
@@ -241,9 +244,9 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         for (CursoMasivoExamen cursoMasivo : cursosMasivos) {
 
-            cursoMasivo.setDocentesCount(mapDocentesCursosMasivos.get(cursoMasivo.getId()));
-            cursoMasivo.setAlumnosCount(mapAlumnosCursosMasivos.get(cursoMasivo.getId()));
-            cursoMasivo.setSeccionesCount(mapSeccionesCursosMasivos.get(cursoMasivo.getId()));
+            cursoMasivo.setDocentesCount(mapDocentesCursosMasivos.get(cursoMasivo.getId()) != null ? mapDocentesCursosMasivos.get(cursoMasivo.getId()) : BigDecimal.ZERO.intValue());
+            cursoMasivo.setAlumnosCount(mapAlumnosCursosMasivos.get(cursoMasivo.getId()) != null ? mapAlumnosCursosMasivos.get(cursoMasivo.getId()) : BigDecimal.ZERO.intValue());
+            cursoMasivo.setSeccionesCount(mapSeccionesCursosMasivos.get(cursoMasivo.getId()) != null ? mapSeccionesCursosMasivos.get(cursoMasivo.getId()) : BigDecimal.ZERO.intValue());
 
             List<AulaCursoMasivo> aulasByCurso = mapAulasCursos.get(cursoMasivo.getId());
             aulasByCurso = (aulasByCurso == null) ? new ArrayList() : aulasByCurso;
@@ -287,6 +290,10 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Transactional
     public void eliminarCursoMasivoExamen(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds) {
         CursoMasivoExamen cursoMasivoExamenBD = cursoMasivoExamenDAO.find(cursoMasivoExamen.getId());
+        RolExamenes rolExamenes = cursoMasivoExamenBD.getRolExamenes();
+
+        grupoRegularConnector.validarSituacionBeforeOr("eliminar", "los grupos regulares", rolExamenes.isSituacionConfigurarRol(), rolExamenes.isSituacionConfigurarCursoMasivo());
+
         List<SeccionCursoMasivo> seccionCursoMasivos = seccionCursoMasivoDAO.allSeccionByCursoMasivo(cursoMasivoExamenBD);
 
         seccionExcluidoDAO.deleteBySecciones(seccionCursoMasivos.stream().map(x -> x.getSeccion()).collect(Collectors.toList()));
@@ -350,31 +357,50 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Override
     @Transactional
     public void excluirCursoMasivo(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds) {
-        CursoMasivoExamen cursoMasivoExamenUpd = new CursoMasivoExamen();
         cursoMasivoExamen = cursoMasivoExamenDAO.find(cursoMasivoExamen.getId());
+        RolExamenes rolExamenes = cursoMasivoExamen.getRolExamenes();
+
+        grupoRegularConnector.validarSituacionBeforeOr("excluir", "los grupos regulares", rolExamenes.isSituacionConfigurarRol(), rolExamenes.isSituacionConfigurarCursoMasivo());
+        Assert.isTrue(cursoMasivoExamen.isEstadoActivo(), "Solo se puede excluir los cursos masivos activos");
+
+        CursoMasivoExamen cursoMasivoExamenUpd = new CursoMasivoExamen();
         cursoMasivoExamenUpd.setId(cursoMasivoExamen.getId());
         cursoMasivoExamenUpd.setUsuarioExclusion(ds.getUsuario());
         cursoMasivoExamenUpd.setFechaExclusion(ds.getFechaAccionAudit());
         cursoMasivoExamenDAO.updateEstadoExcluido(cursoMasivoExamen);
 
-        List<SeccionCursoMasivo> seccionesCursoMasivo = seccionCursoMasivoDAO.allSeccionByCursoMasivo(cursoMasivoExamen);
+        List<SeccionCursoMasivo> seccionesCursoMasivo = seccionCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamen, SeccionRolExamenEstadoEnum.ACT);
         for (SeccionCursoMasivo seccionCursoMasivo : seccionesCursoMasivo) {
-            SeccionExcluido seccionExcluido = new SeccionExcluido();
-            seccionExcluido.setEstadoEnum(EstadoEnum.ACT);
-            seccionExcluido.setFechaRegistro(ds.getFechaAccionAudit());
-            seccionExcluido.setRolExamenes(cursoMasivoExamen.getRolExamenes());
-            seccionExcluido.setSeccion(seccionCursoMasivo.getSeccion());
-            seccionExcluido.setUserRegistro(ds.getUsuario());
-            seccionExcluidoDAO.save(seccionExcluido);
-            this.excluirCursoMasivo(cursoMasivoExamen, ds);
+            this.excluirSeccionCursoMasivo(seccionCursoMasivo, ds);
         }
-        throw new PhobosException("no pasaras");
+    }
+
+    @Override
+    @Transactional
+    public void activarCursoMasivo(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds) {
+        cursoMasivoExamen = cursoMasivoExamenDAO.find(cursoMasivoExamen.getId());
+        RolExamenes rolExamenes = cursoMasivoExamen.getRolExamenes();
+
+        grupoRegularConnector.validarSituacionBeforeOr("incluir", "los grupos regulares", rolExamenes.isSituacionConfigurarRol(), rolExamenes.isSituacionConfigurarCursoMasivo());
+        Assert.isTrue(cursoMasivoExamen.isEstadoExcluido(), "Solo se puede incluir los cursos masivos excluidos");
+
+        CursoMasivoExamen cursoMasivoExamenUpd = new CursoMasivoExamen(cursoMasivoExamen.getId());
+        cursoMasivoExamenUpd.setEstadoEnum(EstadoCursoMasivoEnum.ACT);
+        cursoMasivoExamenDAO.updateEstado(cursoMasivoExamenUpd);
+
+        List<SeccionCursoMasivo> seccionesCursoMasivo = seccionCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamen, SeccionRolExamenEstadoEnum.EXC);
+        for (SeccionCursoMasivo seccionCursoMasivo : seccionesCursoMasivo) {
+            this.activarSeccionCursoMasivo(seccionCursoMasivo, ds);
+        }
     }
 
     @Override
     @Transactional(readOnly = false)
     public void excluirSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivo, DataSessionPivot ds) {
         seccionCursoMasivo = seccionCursoMasivoDAO.find(seccionCursoMasivo.getId());
+        RolExamenes rolExamenes = seccionCursoMasivo.getCursoMasivoExamen().getRolExamenes();
+        grupoRegularConnector.validarSituacionBeforeOr("excluir", "los grupos regulares", rolExamenes.isSituacionConfigurarRol(), rolExamenes.isSituacionConfigurarCursoMasivo());
+        Assert.isTrue(seccionCursoMasivo.isEstadoActivo(), "Solo se puede excluir las secciones masivas activas");
 
         SeccionCursoMasivo seccionCursoMasivoUpd = new SeccionCursoMasivo();
         seccionCursoMasivoUpd.setId(seccionCursoMasivo.getId());
@@ -389,6 +415,46 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         seccionExcluido.setSeccion(seccionCursoMasivo.getSeccion());
         seccionExcluido.setUserRegistro(ds.getUsuario());
         seccionExcluidoDAO.save(seccionExcluido);
+
+        List<AlumnoCursoMasivo> alumnosCursoMasivoBySeccion = alumnoCursoMasivoDAO.allBySeccionCursosMasivos(seccionCursoMasivo, AlumnoRolExamenEstadoEnum.ACT);
+        for (AlumnoCursoMasivo alumnoCursoMasivo : alumnosCursoMasivoBySeccion) {
+            this.excluirAlumnoCursoMasivo(alumnoCursoMasivo, ds);
+        }
+    }
+
+    @Override
+    public void activarSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivo, DataSessionPivot ds) {
+        seccionCursoMasivo = seccionCursoMasivoDAO.find(seccionCursoMasivo.getId());
+        RolExamenes rolExamenes = seccionCursoMasivo.getCursoMasivoExamen().getRolExamenes();
+        grupoRegularConnector.validarSituacionBeforeOr("incluir", "los grupos regulares", rolExamenes.isSituacionConfigurarRol(), rolExamenes.isSituacionConfigurarCursoMasivo());
+        Assert.isTrue(seccionCursoMasivo.isEstadoExcluido(), "Solo se puede incluir las secciones masivas excluidss");
+
+        SeccionCursoMasivo seccionCursoMasivoUpd = new SeccionCursoMasivo(seccionCursoMasivo.getId());
+        seccionCursoMasivoUpd.setEstadoEnum(SeccionRolExamenEstadoEnum.ACT);
+        seccionCursoMasivoDAO.updateEstado(seccionCursoMasivoUpd);
+
+        SeccionExcluido seccionExcluido = seccionExcluidoDAO.findBySeccion(seccionCursoMasivo.getSeccion(), EstadoEnum.ACT);
+        seccionExcluido.setEstadoEnum(EstadoEnum.ANU);
+        seccionExcluidoDAO.update(seccionExcluido);
+
+        List<AlumnoCursoMasivo> alumnosCursoMasivoBySeccion = alumnoCursoMasivoDAO.allBySeccionCursosMasivos(seccionCursoMasivo, AlumnoRolExamenEstadoEnum.EXC);
+        for (AlumnoCursoMasivo alumnoCursoMasivo : alumnosCursoMasivoBySeccion) {
+            this.activarAlumnoCursoMasivo(alumnoCursoMasivo, ds);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void excluirAlumnoCursoMasivo(AlumnoCursoMasivo alumnoCursoMasivo, DataSessionPivot ds) {
+        AlumnoCursoMasivo alumnoCursoMasivoUpd = new AlumnoCursoMasivo(alumnoCursoMasivo.getId());
+        alumnoCursoMasivoDAO.updateEstadoExclusion(alumnoCursoMasivoUpd);
+    }
+
+    @Override
+    public void activarAlumnoCursoMasivo(AlumnoCursoMasivo alumnoCursoMasivo, DataSessionPivot ds) {
+        AlumnoCursoMasivo alumnoCursoMasivoUpd = new AlumnoCursoMasivo(alumnoCursoMasivo.getId());
+        alumnoCursoMasivoUpd.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
+        alumnoCursoMasivoDAO.updateEstado(alumnoCursoMasivoUpd);
     }
 
     @Override
@@ -401,9 +467,11 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
     @Override
     @Transactional(readOnly = false)
-    public void excluirAlumnoCursoMasivo(AlumnoCursoMasivo alumnoCursoMasivo, DataSessionPivot ds) {
-        AlumnoCursoMasivo alumnoCursoMasivoUpd = new AlumnoCursoMasivo(alumnoCursoMasivo.getId());
-        alumnoCursoMasivoDAO.updateEstadoExclusion(alumnoCursoMasivoUpd);
+    public void activarDocenteCursoMasivo(DocenteCursoMasivo docenteCursoMasivo, DataSessionPivot ds) {
+        DocenteCursoMasivo docenteCursoMasivoUpd = new DocenteCursoMasivo();
+        docenteCursoMasivoUpd.setId(docenteCursoMasivo.getId());
+        docenteCursoMasivoUpd.setEstadoEnum(DocenteRolExamenEstadoEnum.ACT);
+        docenteCursoMasivoDAO.updateEstado(docenteCursoMasivoUpd);
     }
 
     @Override
@@ -495,7 +563,12 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
     @Override
     public List<SeccionCursoMasivo> allSeccionesCursoMasivosDynaByCursoMasivo(DynatableFilter filter, CursoMasivoExamen cursoMasivoExamen) {
-        return seccionCursoMasivoDAO.allByDynatableAndCursoMasivo(filter, cursoMasivoExamen);
+        List<SeccionCursoMasivo> seccionesCursoMasivos = seccionCursoMasivoDAO.allByDynatableAndCursoMasivo(filter, cursoMasivoExamen);
+        Map<Long, Integer> countAlumnosSeccionCursosMasivos = alumnoCursoMasivoDAO.countBySeccionCursosMasivos(seccionesCursoMasivos, AlumnoRolExamenEstadoEnum.ACT, AlumnoRolExamenEstadoEnum.EXC);
+        for (SeccionCursoMasivo seccionesCursoMasivo : seccionesCursoMasivos) {
+            seccionesCursoMasivo.setAlumnosCount(countAlumnosSeccionCursosMasivos.get(seccionesCursoMasivo.getId()) != null ? countAlumnosSeccionCursosMasivos.get(seccionesCursoMasivo.getId()) : BigDecimal.ZERO.intValue());
+        }
+        return seccionesCursoMasivos;
     }
 
 }

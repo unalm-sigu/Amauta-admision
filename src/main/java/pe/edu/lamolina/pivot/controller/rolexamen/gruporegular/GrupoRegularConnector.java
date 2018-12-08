@@ -60,4 +60,8 @@ public interface GrupoRegularConnector {
 
     void fillActiveInfoGrupoEspecial(List<SeccionGrupoEspecial> seccionesGrupoEspecial);
 
+    void validarSituacionBeforeOr(String accion, String situacion, Boolean... or);
+
+    void validarSituacion(String accion, String situacion, Boolean... or);
+
 }

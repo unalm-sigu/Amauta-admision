@@ -284,6 +284,44 @@ new Vue({
                     }
                 }
             });
+        }, incluir(item, tipoAccion) {
+            let vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea incluir?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/${tipoAccion}/incluir`, item)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        /* obj.estadoEnum = {
+                                         "name": "EXC",
+                                         "value": "Excluido"
+                                         };
+                                         obj.estado = obj.estadoEnum.name;*/
+
+                                        switch (tipoAccion) {
+                                            case vue.tipoAccion.SECCION:
+                                                vue.$refs.tblSeccionesCursosMasivos.loadRemoteData();
+                                                break;
+                                            case vue.tipoAccion.ALUMNO:
+                                                vue.$refs.tblAlumnoCursosMasivos.loadRemoteData();
+                                                break;
+                                            case vue.tipoAccion.DOCENTE:
+                                                vue.$refs.tblDocentesCursosMasivos.loadRemoteData();
+                                                break;
+                                        }
+                                        vue.loadCursosMasivosByRoleExamen();
+                                    }
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
         },
         noExiste(aula) {
             let $vue = this;

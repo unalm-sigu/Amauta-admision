@@ -6,12 +6,13 @@ import java.util.Map;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
-import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 
@@ -68,11 +69,19 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
     }
 
     @Override
-    public void updateEstado(SeccionGrupoRegular seccionGrupoRegularUpd) {
+    public void updateEstadoExclusion(SeccionGrupoRegular seccionGrupoRegularUpd) {
+        seccionGrupoRegularUpd.setEstadoEnum(SeccionRolExamenEstadoEnum.EXC);
         Octavia octavia = Octavia.update(SeccionGrupoRegular.class);
         octavia.set(seccionGrupoRegularUpd, "estado");
         octavia.set(seccionGrupoRegularUpd, "usuarioExclusion");
         octavia.set(seccionGrupoRegularUpd, "fechaExclusion");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateEstado(SeccionGrupoRegular seccionGrupoRegularUpd) {
+        Octavia octavia = Octavia.update(SeccionGrupoRegular.class);
+        octavia.set(seccionGrupoRegularUpd, "estado");
         this.update(octavia);
     }
 
@@ -102,6 +111,17 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("LETRA_ID", letraGrupoRegular.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public List<SeccionGrupoRegular> allByDynatableAndLetraGrupoRegular(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("letraGrupoRegular lgr", "seccion sec", "docente doc", "doc.persona dper")
+                .filter("lgr.id", letraGrupoRegular)
+                .searchFields("sec.codigo");
+
+        return all(sql);
     }
 
 }

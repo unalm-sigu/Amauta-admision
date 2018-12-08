@@ -100,6 +100,15 @@ public class DocenteCursoMasivoDAOH extends AbstractEasyDAO<DocenteCursoMasivo> 
     }
 
     @Override
+    public void updateEstado(DocenteCursoMasivo docenteCursoMasivo) {
+        Octavia octavia = Octavia.update(DocenteCursoMasivo.class);
+        octavia.set(docenteCursoMasivo, "estado");
+        // octavia.set(docenteCursoMasivo, "usuarioExclusion");
+        // octavia.set(docenteCursoMasivo, "fechaExclusion");
+        this.update(octavia);
+    }
+
+    @Override
     public List<DocenteCursoMasivo> allByDynatableAndCursoMasivo(DynatableFilter filter, CursoMasivoExamen cursoMasivoExamen) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(DocenteCursoMasivo.class, "sge")

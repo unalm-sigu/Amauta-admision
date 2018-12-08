@@ -465,4 +465,16 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         });
     }
 
+    @Override
+    public void validarSituacionBeforeOr(String accion, String situacion, Boolean... or) {
+        String msg = String.format("Solo se puede %s antes de generar %s", accion, situacion);
+        Assert.isTrue(Arrays.asList(or).contains(true), msg);
+    }
+
+    @Override
+    public void validarSituacion(String accion, String situacion, Boolean... or) {
+        String msg = String.format("Solo se puede %s al configurar %s", accion, situacion);
+        Assert.isTrue(Arrays.asList(or).contains(true), msg);
+    }
+
 }

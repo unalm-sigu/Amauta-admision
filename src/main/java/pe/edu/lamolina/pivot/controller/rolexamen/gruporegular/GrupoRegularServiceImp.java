@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -14,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -463,13 +463,14 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     public void excluirGrupoRegular(SeccionGrupoRegular seccionGrupoRegular, DataSessionPivot ds) {
         seccionGrupoRegular = seccionGrupoRegularDAO.find(seccionGrupoRegular.getId());
 
-        DateTime today = new DateTime();
-        SeccionGrupoRegular seccionGrupoRegularUpd = new SeccionGrupoRegular();
-        seccionGrupoRegularUpd.setId(seccionGrupoRegular.getId());
+        RolExamenes rolExamenes = seccionGrupoRegular.getLetraGrupoRegular().getRolExamenes();
+        grupoRegularConnector.validarSituacion("excluir", "los grupos regulares", rolExamenes.isSituacionConfiguraGrupoRegular());
+        Assert.isTrue(seccionGrupoRegular.isEstadoActivo(), "Solo se puede excluir las secciones regulares activas");
+
+        SeccionGrupoRegular seccionGrupoRegularUpd = new SeccionGrupoRegular(seccionGrupoRegular.getId());
         seccionGrupoRegularUpd.setUsuarioExclusion(ds.getUsuario());
         seccionGrupoRegularUpd.setFechaExclusion(ds.getFechaAccionAudit());
-        seccionGrupoRegularUpd.setEstadoEnum(SeccionRolExamenEstadoEnum.EXC);
-        seccionGrupoRegularDAO.updateEstado(seccionGrupoRegularUpd);
+        seccionGrupoRegularDAO.updateEstadoExclusion(seccionGrupoRegularUpd);
 
         SeccionExcluido seccionExcluido = new SeccionExcluido();
         seccionExcluido.setEstadoEnum(EstadoEnum.ACT);
@@ -479,18 +480,66 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         seccionExcluido.setUserRegistro(ds.getUsuario());
         seccionExcluidoDAO.save(seccionExcluido);
 
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccionGrupoRegular.getSeccion());
-        List<Alumno> alumnos = matriculasSeccion.stream().map(x -> x.getMatriculaResumen().getAlumno()).collect(Collectors.toList());
-        alumnoGrupoRegularDAO.updateEstado(alumnos, AlumnoRolExamenEstadoEnum.EXC, ds.getUsuario(), ds.getFechaAccionAudit());
+        List<AlumnoGrupoRegular> alumnosGrupoRegularBySeccion = alumnoGrupoRegularDAO.allBySeccionGrupoRegularAndEstados(seccionGrupoRegular, AlumnoRolExamenEstadoEnum.ACT);
+        for (AlumnoGrupoRegular alumnoGrupoRegular : alumnosGrupoRegularBySeccion) {
+            this.excluirGrupoRegular(alumnoGrupoRegular, ds);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void activarGrupoRegular(SeccionGrupoRegular seccionGrupoRegular, DataSessionPivot ds) {
+        seccionGrupoRegular = seccionGrupoRegularDAO.find(seccionGrupoRegular.getId());
+
+        RolExamenes rolExamenes = seccionGrupoRegular.getLetraGrupoRegular().getRolExamenes();
+        grupoRegularConnector.validarSituacion("incluir", "los grupos regulares", rolExamenes.isSituacionConfiguraGrupoRegular());
+        Assert.isTrue(seccionGrupoRegular.isEstadoExcluido(), "Solo se puede incluir las secciones regulares excluidas");
+
+        SeccionGrupoRegular seccionGrupoRegularUpd = new SeccionGrupoRegular(seccionGrupoRegular.getId());
+        seccionGrupoRegularUpd.setEstadoEnum(SeccionRolExamenEstadoEnum.ACT);
+        seccionGrupoRegularDAO.updateEstado(seccionGrupoRegularUpd);
+
+        SeccionExcluido seccionExcluido = seccionExcluidoDAO.findBySeccion(seccionGrupoRegular.getSeccion(), EstadoEnum.ACT);
+        if (seccionExcluido != null) {
+            seccionExcluido.setEstadoEnum(EstadoEnum.ANU);
+            seccionExcluidoDAO.update(seccionExcluido);
+        }
+        List<AlumnoGrupoRegular> alumnosGrupoRegularBySeccion = alumnoGrupoRegularDAO.allBySeccionGrupoRegularAndEstados(seccionGrupoRegular, AlumnoRolExamenEstadoEnum.EXC);
+        for (AlumnoGrupoRegular alumnoGrupoRegular : alumnosGrupoRegularBySeccion) {
+            this.activarGrupoRegular(alumnoGrupoRegular, ds);
+        }
     }
 
     @Override
     @Transactional(readOnly = false)
     public void excluirGrupoRegular(AlumnoGrupoRegular alumnoGrupoRegular, DataSessionPivot ds) {
-        alumnoGrupoRegular.setUsuarioExclusion(ds.getUsuario());
-        alumnoGrupoRegular.setFechaExclusion(ds.getFechaAccionAudit());
-        alumnoGrupoRegular.setEstadoEnum(AlumnoRolExamenEstadoEnum.EXC);
-        alumnoGrupoRegularDAO.updateEstado(alumnoGrupoRegular);
+        alumnoGrupoRegular = alumnoGrupoRegularDAO.find(alumnoGrupoRegular.getId());
+        RolExamenes rolExamenes = alumnoGrupoRegular.getSeccionGrupoRegular().getLetraGrupoRegular().getRolExamenes();
+        grupoRegularConnector.validarSituacion("incluir", "los grupos regulares", rolExamenes.isSituacionConfiguraGrupoRegular());
+        Assert.isTrue(alumnoGrupoRegular.isEstadoExcluido(), "Solo se puede incluir las alumnos regulares excluidos");
+
+        AlumnoGrupoRegular alumnoGrupoRegularUpd = new AlumnoGrupoRegular(alumnoGrupoRegular.getId());
+        alumnoGrupoRegularUpd.setUsuarioExclusion(ds.getUsuario());
+        alumnoGrupoRegularUpd.setFechaExclusion(ds.getFechaAccionAudit());
+        alumnoGrupoRegularDAO.updateEstadoExclusion(alumnoGrupoRegularUpd);
+    }
+
+    public void activarGrupoRegular(AlumnoGrupoRegular alumnoGrupoRegular, DataSessionPivot ds) {
+        AlumnoGrupoRegular alumnoGrupoRegularUpd = new AlumnoGrupoRegular(alumnoGrupoRegular.getId());
+        alumnoGrupoRegularUpd.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
+        alumnoGrupoRegularDAO.updateEstado(alumnoGrupoRegularUpd);
+    }
+
+    @Override
+    public List<SeccionGrupoRegular> allSeccionesGrupoRegularDynaByLetraGrupoReg(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular) {
+        List<SeccionGrupoRegular> seccionesLetraGrupoRegular = seccionGrupoRegularDAO.allByDynatableAndLetraGrupoRegular(filter, letraGrupoRegular);
+        return seccionesLetraGrupoRegular;
+    }
+
+    @Override
+    public List<AlumnoGrupoRegular> allAlumnosGrupoRegularDynaByLetraGrupoReg(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular) {
+        List<AlumnoGrupoRegular> alumnosLetraGrupoRegular = alumnoGrupoRegularDAO.allByDynatableAndLetraGrupoRegular(filter, letraGrupoRegular);
+        return alumnosLetraGrupoRegular;
     }
 
 }

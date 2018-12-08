@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoCursoMasivoDAO;
 
 @Repository
@@ -64,6 +65,26 @@ public class AlumnoCursoMasivoDAOH extends AbstractEasyDAO<AlumnoCursoMasivo> im
     }
 
     @Override
+    public List<AlumnoCursoMasivo> allBySeccionCursosMasivos(List<SeccionCursoMasivo> seccionesCursoMasivo, AlumnoRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoMasivo.class, "acm")
+                .join("cursoMasivoExamen cme", "seccionCursoMasivo scm", "userRegistro ur", "alumno alu", "alu.persona aluper", "cme.rolExamenes rex")
+                .in("scm.id", seccionesCursoMasivo)
+                .in("acm.estado", estados);
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCursoMasivo> allBySeccionCursosMasivos(SeccionCursoMasivo seccionCursoMasivo, AlumnoRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoMasivo.class, "acm")
+                .join("cursoMasivoExamen cme", "seccionCursoMasivo scm", "userRegistro ur", "alumno alu", "alu.persona aluper", "cme.rolExamenes rex")
+                .filter("scm.id", seccionCursoMasivo)
+                .in("acm.estado", estados);
+        return all(sql);
+    }
+
+    @Override
     public List<AlumnoCursoMasivo> allByDynatableAndCursoMasivo(DynatableFilter filter, CursoMasivoExamen cursoMasivoExamen) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoCursoMasivo.class, "acm")
@@ -87,6 +108,13 @@ public class AlumnoCursoMasivoDAOH extends AbstractEasyDAO<AlumnoCursoMasivo> im
         // octavia.set(docenteCursoMasivo, "fechaExclusion");
         this.update(octavia);
     }
+    
+    @Override
+    public void updateEstado(AlumnoCursoMasivo alumnoCursoMasivo) {
+        Octavia octavia = Octavia.update(AlumnoCursoMasivo.class);
+        octavia.set(alumnoCursoMasivo, "estado");
+        this.update(octavia);
+    }
 
     @Override
     public Map<Long, Integer> countByCursosMasivos(List<CursoMasivoExamen> cursosMasivosExamen, AlumnoRolExamenEstadoEnum... estados) {
@@ -105,4 +133,23 @@ public class AlumnoCursoMasivoDAOH extends AbstractEasyDAO<AlumnoCursoMasivo> im
         }
         return result;
     }
+
+    @Override
+    public Map<Long, Integer> countBySeccionCursosMasivos(List<SeccionCursoMasivo> seccionesCursoMasivo, AlumnoRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .select("scm.id", "count(acm)")
+                .from(AlumnoCursoMasivo.class, "acm")
+                .join("cursoMasivoExamen cme", "seccionCursoMasivo scm")
+                .in("acm.estado", estados)
+                .in("scm.id", seccionesCursoMasivo)
+                .groupBy("scm.id");
+
+        List<Object[]> resultado = sql.all(getCurrentSession());
+        Map<Long, Integer> result = new HashMap<>();
+        for (Object[] objects : resultado) {
+            result.put(TypesUtil.getLong(objects[0]), TypesUtil.getInt(objects[1]));
+        }
+        return result;
+    }
+
 }

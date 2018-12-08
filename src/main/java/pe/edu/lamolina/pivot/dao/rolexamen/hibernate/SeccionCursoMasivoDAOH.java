@@ -17,12 +17,12 @@ import pe.edu.lamolina.pivot.dao.rolexamen.*;
 
 @Repository
 public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> implements SeccionCursoMasivoDAO {
-
+    
     public SeccionCursoMasivoDAOH() {
         super();
         setClazz(SeccionCursoMasivo.class);
     }
-
+    
     @Override
     public SeccionCursoMasivo find(long id) {
         Octavia sql = Octavia.query()
@@ -31,7 +31,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .filter("scm.id", id);
         return find(sql);
     }
-
+    
     @Override
     public List<SeccionCursoMasivo> allByCursosMasivos(List<CursoMasivoExamen> cursosMasivosExamenes) {
         Octavia sql = Octavia.query()
@@ -40,7 +40,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .in("cme.id", cursosMasivosExamenes);
         return all(sql);
     }
-
+    
     @Override
     public List<SeccionCursoMasivo> allByCursosMasivos(List<CursoMasivoExamen> cursosMasivosExamenes, SeccionRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
@@ -50,7 +50,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .in("scm.estado", estados);
         return all(sql);
     }
-
+    
     @Override
     public List<SeccionCursoMasivo> allSeccionByCursoMasivo(CursoMasivoExamen cursoMasivo) {
         Octavia sql = Octavia.query()
@@ -61,7 +61,19 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .filter("cme.id", cursoMasivo);
         return all(sql);
     }
-
+    
+    @Override
+    public List<SeccionCursoMasivo> allByCursoMasivo(CursoMasivoExamen cursoMasivo, SeccionRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme")
+                .join("userRegistro ureg", "ureg.persona pureg")
+                .left("usuarioExclusion uexl", "uexl.persona puexl")
+                .in("scm.estado", estados)
+                .filter("cme.id", cursoMasivo);
+        return all(sql);
+    }
+    
     @Override
     public void updateEstadoExcluido(SeccionCursoMasivo seccionCursoMasivo) {
         StringBuilder strBuilder = new StringBuilder();
@@ -73,9 +85,15 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
         query.setParameter("USUARIO", seccionCursoMasivo.getUsuarioExclusion().getId());
         query.setParameter("FECHA_EXC", seccionCursoMasivo.getFechaExclusion());
         query.executeUpdate();
-
     }
-
+    
+    @Override
+    public void updateEstado(SeccionCursoMasivo cursoMasivoExamen) {
+        Octavia octavia = Octavia.update(SeccionCursoMasivo.class);
+        octavia.set(cursoMasivoExamen, "estado");
+        this.update(octavia);
+    }
+    
     @Override
     public Map<Long, Integer> countByCursosMasivos(List<CursoMasivoExamen> cursosMasivosExamen, SeccionRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
@@ -85,7 +103,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .in("scm.estado", estados)
                 .in("cme.id", cursosMasivosExamen)
                 .groupBy("cme.id");
-
+        
         List<Object[]> resultado = sql.all(getCurrentSession());
         Map<Long, Integer> result = new HashMap<>();
         for (Object[] objects : resultado) {
@@ -93,16 +111,17 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
         }
         return result;
     }
-
+    
     @Override
     public List<SeccionCursoMasivo> allByDynatableAndCursoMasivo(DynatableFilter filter, CursoMasivoExamen cursoMasivoExamen) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionCursoMasivo.class, "scm")
                 .join("seccion sec", "cursoMasivoExamen cm", "cm.rolExamenes re", "userRegistro ur", "ur.persona urPer")
+                .join("usuarioExclusion uex", "uex.persona uexPer")
                 .filter("cm.id", cursoMasivoExamen.getId())
                 .searchFields("sec.codigo");
-
+        
         return all(sql);
     }
-
+    
 }

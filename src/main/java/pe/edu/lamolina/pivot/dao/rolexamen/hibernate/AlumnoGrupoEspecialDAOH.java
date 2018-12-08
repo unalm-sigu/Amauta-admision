@@ -6,6 +6,8 @@ import java.util.Map;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
@@ -20,6 +22,18 @@ public class AlumnoGrupoEspecialDAOH extends AbstractEasyDAO<AlumnoGrupoEspecial
     public AlumnoGrupoEspecialDAOH() {
         super();
         setClazz(AlumnoGrupoEspecial.class);
+    }
+
+    //userRegistro alumno seccionGrupoEspecial rolExamenes
+    @Override
+    public AlumnoGrupoEspecial find(long id) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoGrupoEspecial.class, "age")
+                .join("userRegistro ur", "seccionGrupoEspecial sge", "alumno alu")
+                .join("sge.rolExamenes rex", "alu.persona per", "ur.persona uregper")
+                .filter("age.id", id);
+
+        return find(sql);
     }
 
     @Override
@@ -71,6 +85,36 @@ public class AlumnoGrupoEspecialDAOH extends AbstractEasyDAO<AlumnoGrupoEspecial
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("ROL_EXAMENES", rolExamenes.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public List<AlumnoGrupoEspecial> allByDynatableAndSeccionGrupoEsp(DynatableFilter filter, SeccionGrupoEspecial seccionGrupoEspecial) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoGrupoEspecial.class, "age")
+                .join("alumno alu", "alu.persona per", "seccionGrupoEspecial sge")
+                .join("userRegistro ur", "ur.persona urPer")
+                .filter("sge.id", seccionGrupoEspecial)
+                .searchFields("alu.codigo");
+
+        sql.searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
+
+        return all(sql);
+    }
+
+    @Override
+    public void updateEstadoExclusion(AlumnoGrupoEspecial alumnoGrupoEspecial) {
+        alumnoGrupoEspecial.setEstadoEnum(AlumnoRolExamenEstadoEnum.EXC);
+        Octavia octavia = Octavia.update(AlumnoGrupoEspecial.class);
+        octavia.set(alumnoGrupoEspecial, "estado");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateEstado(AlumnoGrupoEspecial alumnoGrupoEspecial) {
+        Octavia octavia = Octavia.update(AlumnoGrupoEspecial.class);
+        octavia.set(alumnoGrupoEspecial, "estado");
+        this.update(octavia);
     }
 
 }

@@ -24,10 +24,9 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
     public List<SeccionGrupoEspecial> allByDynatableAndRolExamenes(DynatableFilter filter, RolExamenes rolExamenes) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionGrupoEspecial.class, "sge")
-                .join("rolExamenes re", "seccion sec", "userRegistro ur")
+                .join("rolExamenes re", "seccion sec", "userRegistro ur", "aula au")
                 .join("ur.persona per")
-                .left("docente doc", "doc.persona dper","grupoHorasExamen ghe","ghe.dia","ghe.horaInicio","ghe.horaFin","ghe.grupoHoras")
-                .left("aula au")
+                .left("docente doc", "doc.persona dper", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras")
                 .searchFields("sec.codigo", "sec.codigo2");
 
         return all(sql);
@@ -67,9 +66,24 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
     }
 
     @Override
-    public void updateFechaExamen(SeccionGrupoEspecial SeccionGrupoEspecial) {
+    public void updateFechaExamen(SeccionGrupoEspecial seccionGrupoEspecial) {
         Octavia octavia = Octavia.update(SeccionGrupoEspecial.class);
-        octavia.set(SeccionGrupoEspecial, "grupoHorasExamen");
+        octavia.set(seccionGrupoEspecial, "grupoHorasExamen");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateEstadoExclusion(SeccionGrupoEspecial seccionGrupoEspecialUpd) {
+        seccionGrupoEspecialUpd.setEstadoEnum(SeccionRolExamenEstadoEnum.EXC);
+        Octavia octavia = Octavia.update(SeccionGrupoEspecial.class);
+        octavia.set(seccionGrupoEspecialUpd, "estado");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateEstado(SeccionGrupoEspecial seccionGrupoEspecialUpd) {
+        Octavia octavia = Octavia.update(SeccionGrupoEspecial.class);
+        octavia.set(seccionGrupoEspecialUpd, "estado");
         this.update(octavia);
     }
 

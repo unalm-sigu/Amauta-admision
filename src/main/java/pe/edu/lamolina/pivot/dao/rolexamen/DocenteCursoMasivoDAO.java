@@ -25,4 +25,6 @@ public interface DocenteCursoMasivoDAO extends EasyDAO<DocenteCursoMasivo> {
 
     List<DocenteCursoMasivo> allByCursosMasivos(List<CursoMasivoExamen> cursosMasivos, DocenteRolExamenEstadoEnum... estados);
 
+    void updateEstado(DocenteCursoMasivo docenteCursoMasivo);
+
 }

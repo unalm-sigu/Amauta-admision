@@ -26,7 +26,7 @@
                                                 v-on:input="changeRolExamen"
                                                 track-by="id"
                                                 v-bind:options="rolesExamenes"
-                                                v-bind:custom-label="rolExamenCustomLabel" 
+                                                label="nombre"
                                                 required="true"
                                                 >
                                             </multiselect>
@@ -83,11 +83,14 @@
                                                     <td>
                                                         <span v-text="item.docente.persona.apellidosNombres"></span>
                                                     </td>
-                                                    <td>
+                                                    <td class="text-center">
                                                         <span v-text="item.aula.codigo"></span>
+
                                                     </td>
-                                                    <td>
-                                                        <span v-text="item.alumnosEspecialesActivosCount"></span>
+                                                    <td class="text-center">
+                                                        <span class="badge pointer" 
+                                                              v-on:click.prevent="loadModalAlumnos(item)"
+                                                              v-text="item.alumnosEspecialesActivosCount"></span>
                                                     </td>
                                                     <td>    
                                                         <span class="block" v-text="item.userRegistro.persona.apellidosNombres"></span>
@@ -102,8 +105,8 @@
                                                         <i class="glyphicon glyphicon-option-vertical"></i>
                                                     </a> 
                                                     <ul class="dropdown-menu pull-right">
-                                                        <li><a >Editar</a></li>
-                                                        <li><a >Clonar</a></li>
+                                                        <li><a v-on:click.prevent="excluir(item,tipoAccion.SECCION)">Excluir</a></li>
+                                                        <li><a v-on:click.prevent="incluir(item,tipoAccion.SECCION)">Incluir</a></li>
                                                     </ul>
                                                 </div>
                                             </td>
@@ -120,12 +123,64 @@
                 </section>
 
 
+                <modal-vik ref="alumnosModal"
+                           id="modalAlumnos"
+                           header="true"
+                           modalsize="modal-lg"
+                           v-bind:showaccept="false">
+                    <div slot="body">
+
+                        <raptor-table v-bind:url="`${URL}/listAlumnosGrupoEspecial`" v-bind:preload="false" ref="tblAlumnosGrupoEspecial">
+                            <template scope="props">
+
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-3 text-center">Codigo</th>
+                                            <th class="col-md-5 text-center">Alumno</th>
+                                            <th class="col-md-3 text-center">Estado</th>
+                                            <th class="col-md-1 text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="height:200px;overflow-y:auto;">
+                                        <tr v-for="alu in props.data">
+                                            <td>
+                                                <span v-text="alu.alumno.codigo"></span>
+                                            </td>
+                                            <td v-text="alu.alumno.persona.apellidosNombres">
+
+                                            </td>
+                                            <td class="text-center">
+                                    <v-estado v-bind:codigo="alu.estado" v-bind:valor="alu.estadoEnum.value"/> 
+                                    </td>
+                                    <td>
+                                        <!-- 
+                                        <div class="dropdown actions pointer">
+                                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                                <i class="glyphicon glyphicon-option-vertical"></i>
+                                            </a> 
+                                            <ul class="dropdown-menu pull-right">
+                                                <li><a v-if="alu.isEstadoActivo" v-on:click.prevent="excluir(alu,tipoAccion.ALUMNO)">Excluir</a></li>
+                                                <li><a >Mover</a></li>
+                                            </ul>
+                                        </div>
+                                        -->
+                                    </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                            </template>
+                        </raptor-table>
+                    </div>
+                </modal-vik>
             </div>
 
         </section>
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_modules/vue-modal2"></div>
             <script th:src="@{/phobos/modules/vue-generalComponents.js}" charset="utf-8"></script>
             <script th:inline="javascript">
                 var jRolesExamenes = /*[[${jRolesExamenes}]]*/ {};

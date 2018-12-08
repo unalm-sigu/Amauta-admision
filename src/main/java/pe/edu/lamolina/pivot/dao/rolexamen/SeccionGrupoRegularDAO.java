@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.rolexamen;
 
 import java.util.List;
 import java.util.Map;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
@@ -16,6 +17,8 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
     List<SeccionGrupoRegular> allByLetraGrupoRegularAndEstados(
             List<LetraGrupoRegular> letrasGruposRegular, SeccionRolExamenEstadoEnum... estados);
 
+    void updateEstadoExclusion(SeccionGrupoRegular seccionGrupoRegularUpd);
+
     void updateEstado(SeccionGrupoRegular seccionGrupoRegularUpd);
 
     Map<Long, Integer> countByLetrasGruposRegulares(List<LetraGrupoRegular> letraGrupoRegulars, SeccionRolExamenEstadoEnum... estados);
@@ -24,5 +27,7 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
             LetraGrupoRegular letrasGruposRegular, List<Seccion> secciones);
 
     void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
+
+    List<SeccionGrupoRegular> allByDynatableAndLetraGrupoRegular(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
 
 }

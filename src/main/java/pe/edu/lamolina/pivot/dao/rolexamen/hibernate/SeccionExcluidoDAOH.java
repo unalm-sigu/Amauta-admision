@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionExcluidoDAO;
@@ -27,6 +28,16 @@ public class SeccionExcluidoDAOH extends AbstractEasyDAO<SeccionExcluido> implem
                 .join("rolExamenes re", "seccion sec")
                 .filter("re.id", rolExamenes);
         return all(sql);
+    }
+
+    @Override
+    public SeccionExcluido findBySeccion(Seccion seccion, EstadoEnum... estadoEnum) {
+        Octavia sql = Octavia.query()
+                .from(SeccionExcluido.class, "se")
+                .join("rolExamenes re", "seccion sec")
+                .filter("sec.id", seccion)
+                .in("se.estado", estadoEnum);
+        return find(sql);
     }
 
     @Override

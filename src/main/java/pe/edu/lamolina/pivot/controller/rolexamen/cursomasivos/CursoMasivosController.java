@@ -377,6 +377,42 @@ public class CursoMasivosController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "{tipoAccion}/incluir", method = RequestMethod.POST)
+    public JsonResponse incluir(
+            @PathVariable("tipoAccion") String tipoAccion,
+            @RequestBody ObjectNode objeto,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            if (CursoMasivosController.TipoAccion.CURSO.name().equals(tipoAccion)) {
+                CursoMasivoExamen cursoMasivoExamen = (CursoMasivoExamen) mapper.readValue(objeto.toString(), CursoMasivoExamen.class);
+                service.activarCursoMasivo(cursoMasivoExamen, ds);
+            } else if (CursoMasivosController.TipoAccion.SECCION.name().equals(tipoAccion)) {
+                SeccionCursoMasivo seccionCursoMasivo = (SeccionCursoMasivo) mapper.readValue(objeto.toString(), SeccionCursoMasivo.class);
+                service.activarSeccionCursoMasivo(seccionCursoMasivo, ds);
+            } else if (CursoMasivosController.TipoAccion.DOCENTE.name().equals(tipoAccion)) {
+                DocenteCursoMasivo docenteCursoMasivo = (DocenteCursoMasivo) mapper.readValue(objeto.toString(), DocenteCursoMasivo.class);
+                service.activarDocenteCursoMasivo(docenteCursoMasivo, ds);
+            } else if (CursoMasivosController.TipoAccion.ALUMNO.name().equals(tipoAccion)) {
+                AlumnoCursoMasivo alumnoCursoMasivo = (AlumnoCursoMasivo) mapper.readValue(objeto.toString(), AlumnoCursoMasivo.class);
+                service.activarAlumnoCursoMasivo(alumnoCursoMasivo, ds);
+            }
+            response.setMessage("Incluido corretamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "saveHorarioExamen", method = RequestMethod.POST)
     public JsonResponse saveHorarioExamen(
             @RequestBody CursoMasivoExamen cursoMasivoExamen,
@@ -468,7 +504,11 @@ public class CursoMasivosController {
         for (SeccionCursoMasivo item : list) {
             array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "*",
-                "seccion.*"
+                "seccion.*",
+                "userRegistro.*",
+                "userRegistro.persona.*",
+                "usuarioExclusion.*",
+                "usuarioExclusion.persona.*"
             }));
         }
 

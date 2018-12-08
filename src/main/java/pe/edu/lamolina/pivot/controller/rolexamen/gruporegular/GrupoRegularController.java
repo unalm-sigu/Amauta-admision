@@ -18,7 +18,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -131,6 +134,56 @@ public class GrupoRegularController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "listSeccionesLetraGrupoRegular", method = RequestMethod.GET)
+    public DynatableResponse listSeccionesLetraGrupoRegular(DynatableFilter filter, @RequestParam("letraGrupoRegular") Long isLetraGrupoRegular, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DynatableResponse json = new DynatableResponse();
+
+        List<SeccionGrupoRegular> list = grupoRegularService.allSeccionesGrupoRegularDynaByLetraGrupoReg(filter, new LetraGrupoRegular(isLetraGrupoRegular));
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+        for (SeccionGrupoRegular item : list) {
+            array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                "*",
+                "seccion.*",
+                "docente.*",
+                "docente.persona.*",
+                "aula.*"
+            }));
+        }
+
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "listAlumnoLetraGrupoRegular", method = RequestMethod.GET)
+    public DynatableResponse listAlumnoLetraGrupoRegular(DynatableFilter filter, @RequestParam("letraGrupoRegular") Long letraGrupoRegular, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DynatableResponse json = new DynatableResponse();
+
+        List<AlumnoGrupoRegular> list = grupoRegularService.allAlumnosGrupoRegularDynaByLetraGrupoReg(filter, new LetraGrupoRegular(letraGrupoRegular));
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+        for (AlumnoGrupoRegular item : list) {
+            array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                "*",
+                "alumno.*",
+                "alumno.persona.*"
+            }));
+        }
+
+        json.setData(array);
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
+
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "{tipoAccion}/loadLetraGrupoRegularInfo", method = RequestMethod.POST)
     public JsonResponse loadLetraGrupoRegularInfo(
             @PathVariable("tipoAccion") String tipoAccion,
@@ -212,6 +265,40 @@ public class GrupoRegularController {
             }
 
             response.setMessage("Excluido corretamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{tipoAccion}/incluir", method = RequestMethod.POST)
+    public JsonResponse incluir(
+            @PathVariable("tipoAccion") String tipoAccion,
+            @RequestBody ObjectNode objeto,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
+                GrupoRegularExamen grupoRegularExamen = (GrupoRegularExamen) mapper.readValue(objeto.toString(), GrupoRegularExamen.class);
+                // grupoRegularService.excluirGrupoRegular(grupoRegularExamen, ds);
+            } else if (TipoAccion.SECCION.name().equals(tipoAccion)) {
+                SeccionGrupoRegular seccionGrupoRegular = (SeccionGrupoRegular) mapper.readValue(objeto.toString(), SeccionGrupoRegular.class);
+                grupoRegularService.activarGrupoRegular(seccionGrupoRegular, ds);
+            } else if (TipoAccion.ALUMNO.name().equals(tipoAccion)) {
+                AlumnoGrupoRegular alumnoRegularExamen = (AlumnoGrupoRegular) mapper.readValue(objeto.toString(), AlumnoGrupoRegular.class);
+                // grupoRegularService.excluirGrupoRegular(alumnoRegularExamen, ds);
+            }
+
+            response.setMessage("Incluido corretamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
