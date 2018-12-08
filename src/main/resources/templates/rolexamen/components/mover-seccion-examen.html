@@ -1,0 +1,27 @@
+<modal-vik ref="moverSeccionModal"
+           id="modalMoverSeccion"
+           header="true"
+           modalsize="modal-lg"
+           title="Mover Seccion">
+    <div slot="body">
+
+        <mover-seccion-examen ref="moverseccionexamen"
+                              > 
+        </mover-seccion-examen> 
+
+    </div>
+</modal-vik>
+
+
+<div>
+    <template id="mainMoverSeccion">
+        <div v-if="seccion">
+            <div>
+                
+            </div>
+            
+
+        </div>
+    </template>
+</div> 
+<script type="text/javascript" th:src="@{/app/rolexamen/components/mover-seccion-examen.js}"></script>

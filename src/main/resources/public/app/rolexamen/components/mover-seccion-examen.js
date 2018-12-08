@@ -1,9 +1,9 @@
-Vue.component("grupohorario-component", {
+Vue.component("mover-seccion-examen", {
     template: "#mainMoverSeccion",
     props: {
-        parentinfo: {type: Object, default: null, required: true},
-        seccion: {type: Object, default: null, required: true},
-        tipo: {type: String, default: null, required: true}
+        parentinfo: {type: Object, default: null, required: false},
+        seccion: {type: Object, default: null, required: false},
+        tipo: {type: String, default: null, required: false}
     },
     data: function () {
         return {
