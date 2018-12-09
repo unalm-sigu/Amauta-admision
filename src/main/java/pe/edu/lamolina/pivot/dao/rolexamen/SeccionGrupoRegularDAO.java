@@ -30,4 +30,6 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
 
     List<SeccionGrupoRegular> allByDynatableAndLetraGrupoRegular(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
 
+    SeccionGrupoRegular findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... seccionRolExamenEstadosEnum);
+
 }

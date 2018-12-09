@@ -55,13 +55,11 @@ new Vue({
                     }
                 }
             });
-        }, findCursoMasivoExamen() {
-            AXIOS.post(`${this.URL}/findCursoMasivo`, this.cursoMasivoExamen)
-                    .then(response => {
-                        if (response.data.success) {
-                            this.cursoMasivoExamen = response.data.data;
-                        }
-                    });
+        }, mover(item) {
+            this.$refs.moverSeccionComp.seccion = item.seccion;
+            this.$refs.moverSeccionComp.tipoorigen = "CUR_MAS";
+            this.$refs.moverSeccionComp.loadComponent();
+            this.$refs.moverSeccionModal.open();
         }
     }
 });

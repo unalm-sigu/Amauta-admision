@@ -2,17 +2,17 @@ package pe.edu.lamolina.pivot.controller.rolexamen.gruporegular;
 
 import java.util.List;
 import java.util.Map;
-import org.joda.time.DateTime;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
-import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface GrupoRegularConnector {
@@ -35,7 +35,7 @@ public interface GrupoRegularConnector {
             List<Seccion> seccionesByLetra,
             DataSessionPivot ds);
 
-    boolean validarCursosMasivos(RolExamenes rolExamenes, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos, GrupoHorasExamen grupoHorasExamen);
+    boolean validarCursosMasivos(GrupoHorasExamen grupoHorasExamen, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos);
 
     boolean validarCursosMasivos(RolExamenes rolExamenes,
             List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos);
@@ -49,7 +49,7 @@ public interface GrupoRegularConnector {
     boolean validarGrupoRegular(LetraGrupoRegular letraGrupoRegular,
             List<Alumno> alumnos, List<Docente> docentes, List<Aula> aulas);
 
-    boolean validarGrupoEspecial(RolExamenes rolExamenes, GrupoHorasExamen grupoHorasExamen, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos);
+    boolean validarGrupoEspecial(GrupoHorasExamen grupoHorasExamen, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos);
 
     boolean validarGrupoEspecial(List<SeccionGrupoEspecial> seccionesGrupoEspecial,
             List<Alumno> alumnos, List<Docente> docentes, List<Aula> aulas);
@@ -63,5 +63,9 @@ public interface GrupoRegularConnector {
     void validarSituacionBeforeOr(String accion, String situacion, Boolean... or);
 
     void validarSituacion(String accion, String situacion, Boolean... or);
+
+    SeccionGrupoRegular crearObjectSeccionGrupoRegular(Seccion seccion, LetraGrupoRegular letraGrupoRegular, DataSessionPivot ds);
+
+    AlumnoGrupoRegular crearObjectAlumnoGrupoRegular(Alumno alumno, SeccionGrupoRegular seccionGrupoRegular, DataSessionPivot ds);
 
 }

@@ -7,7 +7,9 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoEspecialDAO;
@@ -18,6 +20,17 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
     public SeccionGrupoEspecialDAOH() {
         super();
         setClazz(SeccionGrupoEspecial.class);
+    }
+
+    @Override
+    public SeccionGrupoEspecial findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnum) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoEspecial.class, "sce")
+                .join("seccion sec", "rolExamenes re", "aula au", "grupoHorasExamen ghe", "ghe.grupoHoras hg", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .join("userRegistro ureg", "ureg.persona pureg")
+                .filter("sec.id", seccion)
+                .in("sce.estado", seccionRolExamenEstadoEnum);
+        return find(sql);
     }
 
     @Override
@@ -40,6 +53,18 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .join("userRegistro ureg", "ureg.persona pureg")
                 .left("aula au", "grupoHorasExamen ghe")
                 .filter("re.id", rolExamenes)
+                .in("sce.estado", estados);
+        return all(sql);
+    }
+
+    @Override
+    public List<SeccionGrupoEspecial> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, SeccionRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoEspecial.class, "sce")
+                .join("seccion sec", "rolExamenes re")
+                .join("userRegistro ureg", "ureg.persona pureg")
+                .left("aula au", "grupoHorasExamen ghe")
+                .filter("ghe.id", grupoHorasExamen)
                 .in("sce.estado", estados);
         return all(sql);
     }

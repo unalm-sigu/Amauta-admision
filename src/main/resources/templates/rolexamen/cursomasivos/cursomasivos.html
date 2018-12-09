@@ -141,9 +141,9 @@
                                         <td class="v-middle text-center"> 
                                             {{ item.capacidadAulas }}
                                         </td>
-                                    <td class="v-middle text-center">
-                                     <v-estado v-bind:codigo="item.estado" v-bind:valor="item.estadoEnum.value"/>
-                                    </td>
+                                        <td class="v-middle text-center">
+                                <v-estado v-bind:codigo="item.estado" v-bind:valor="item.estadoEnum.value"/>
+                                </td>
                                 <td class="v-middle">
                                     <div class="actions">
                                         <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="glyphicon glyphicon-cog"> </i></a>
@@ -172,7 +172,6 @@
             </div>
             <div th:substituteby="_modules/vue-modal"/>
         </section>
-
         <div layout:fragment="js">
             <script  th:inline="javascript" >
                 /*<![CDATA[*/

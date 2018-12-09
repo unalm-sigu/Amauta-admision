@@ -10,6 +10,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
@@ -17,12 +18,12 @@ import pe.edu.lamolina.pivot.dao.rolexamen.*;
 
 @Repository
 public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> implements SeccionCursoMasivoDAO {
-    
+
     public SeccionCursoMasivoDAOH() {
         super();
         setClazz(SeccionCursoMasivo.class);
     }
-    
+
     @Override
     public SeccionCursoMasivo find(long id) {
         Octavia sql = Octavia.query()
@@ -31,7 +32,18 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .filter("scm.id", id);
         return find(sql);
     }
-    
+
+    @Override
+    public SeccionCursoMasivo findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... estado) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "userRegistro ur", "seccion se", "cme.curso cur")
+                .join("cme.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .filter("se.id", seccion)
+                .in("scm.estado", estado);
+        return find(sql);
+    }
+
     @Override
     public List<SeccionCursoMasivo> allByCursosMasivos(List<CursoMasivoExamen> cursosMasivosExamenes) {
         Octavia sql = Octavia.query()
@@ -40,7 +52,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .in("cme.id", cursosMasivosExamenes);
         return all(sql);
     }
-    
+
     @Override
     public List<SeccionCursoMasivo> allByCursosMasivos(List<CursoMasivoExamen> cursosMasivosExamenes, SeccionRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
@@ -50,7 +62,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .in("scm.estado", estados);
         return all(sql);
     }
-    
+
     @Override
     public List<SeccionCursoMasivo> allSeccionByCursoMasivo(CursoMasivoExamen cursoMasivo) {
         Octavia sql = Octavia.query()
@@ -61,7 +73,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .filter("cme.id", cursoMasivo);
         return all(sql);
     }
-    
+
     @Override
     public List<SeccionCursoMasivo> allByCursoMasivo(CursoMasivoExamen cursoMasivo, SeccionRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
@@ -73,7 +85,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .filter("cme.id", cursoMasivo);
         return all(sql);
     }
-    
+
     @Override
     public void updateEstadoExcluido(SeccionCursoMasivo seccionCursoMasivo) {
         StringBuilder strBuilder = new StringBuilder();
@@ -86,14 +98,14 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
         query.setParameter("FECHA_EXC", seccionCursoMasivo.getFechaExclusion());
         query.executeUpdate();
     }
-    
+
     @Override
     public void updateEstado(SeccionCursoMasivo cursoMasivoExamen) {
         Octavia octavia = Octavia.update(SeccionCursoMasivo.class);
         octavia.set(cursoMasivoExamen, "estado");
         this.update(octavia);
     }
-    
+
     @Override
     public Map<Long, Integer> countByCursosMasivos(List<CursoMasivoExamen> cursosMasivosExamen, SeccionRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
@@ -103,7 +115,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .in("scm.estado", estados)
                 .in("cme.id", cursosMasivosExamen)
                 .groupBy("cme.id");
-        
+
         List<Object[]> resultado = sql.all(getCurrentSession());
         Map<Long, Integer> result = new HashMap<>();
         for (Object[] objects : resultado) {
@@ -111,7 +123,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
         }
         return result;
     }
-    
+
     @Override
     public List<SeccionCursoMasivo> allByDynatableAndCursoMasivo(DynatableFilter filter, CursoMasivoExamen cursoMasivoExamen) {
         DynatableSql sql = new DynatableSql(filter)
@@ -120,8 +132,8 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .join("usuarioExclusion uex", "uex.persona uexPer")
                 .filter("cm.id", cursoMasivoExamen.getId())
                 .searchFields("sec.codigo");
-        
+
         return all(sql);
     }
-    
+
 }

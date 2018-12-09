@@ -6,6 +6,7 @@ import java.util.Map;
 public enum TipoRolExamenesLoggerEnum {
 
     CUR_MAS("Cursos Masivos"), GPO_REG("Grupos Regulares"), GPO_ESP("Grupos Especiales"), //PARENTS
+    TRAS_TO_CUR_MAS("Traslado a Cursos Masivos"), TRAS_TO_GPO_REG("Traslado a Grupo Regular"), //Traslados
     CRU_DOC("Cruce Docente"), CRU_ALU("Cruce Alumno"), CRU_AUL("Cruce Aula"); //HIJOS
 
     private final String value;

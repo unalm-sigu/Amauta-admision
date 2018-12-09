@@ -511,7 +511,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         //validar cruce horario docentes !!!!!!!!!!!!!!!!!!!!!!!!!!!!
         boolean validacionCursosMasivos = this.validateCruceCursosMasivos(cursoMasivoExamen, alumnos, docentes, aulas);
         boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(grupoHorasExamen, alumnos, docentes, aulas);
-        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(cursoMasivoExamen.getRolExamenes(), cursoMasivoExamen.getGrupoHorasExamen(), docentes, aulas, alumnos);
+        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(cursoMasivoExamen.getGrupoHorasExamen(), docentes, aulas, alumnos);
 
         if (validacionCursosMasivos && validacionGruposRegulares && validacionSeccionesEspeciales) {
             CursoMasivoExamen cursoMasivoUpd = new CursoMasivoExamen();
@@ -535,6 +535,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         }
     }
 
+    @Override
     public boolean validateCruceCursosMasivos(CursoMasivoExamen cursoMasivoExamen, List<Alumno> alumnos, List<Docente> docentes, List<Aula> aulas) {
         List<CursoMasivoExamen> cursosMasivosOthers = cursoMasivoExamenDAO.allByRolExamenes(cursoMasivoExamen.getRolExamenes(), EstadoCursoMasivoEnum.ACT);
         cursosMasivosOthers.removeIf(
@@ -547,8 +548,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             return true;
         }
         grupoRegularConnector.fillActiveInfoCursosMasivos(cursosMasivosOthers);
-        return grupoRegularConnector.validarCursosMasivos(cursosMasivosOthers,
-                docentes, aulas, alumnos);
+        return grupoRegularConnector.validarCursosMasivos(cursosMasivosOthers, docentes, aulas, alumnos);
     }
 
     @Override

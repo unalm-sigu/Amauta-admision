@@ -108,7 +108,7 @@ public class AlumnoCursoMasivoDAOH extends AbstractEasyDAO<AlumnoCursoMasivo> im
         // octavia.set(docenteCursoMasivo, "fechaExclusion");
         this.update(octavia);
     }
-    
+
     @Override
     public void updateEstado(AlumnoCursoMasivo alumnoCursoMasivo) {
         Octavia octavia = Octavia.update(AlumnoCursoMasivo.class);

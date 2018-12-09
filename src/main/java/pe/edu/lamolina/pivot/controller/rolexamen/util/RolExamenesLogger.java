@@ -27,6 +27,20 @@ public class RolExamenesLogger {
         this.logDetails = new ArrayList<>();
     }
 
+    public void iniciarTrasladoToCursoMasivo() {
+        this.tipo = TipoRolExamenesLoggerEnum.TRAS_TO_CUR_MAS.name();
+        this.message = "Proceso de " + this.getTipoEnum().getValue();
+        this.running = true;
+        this.logDetails = new ArrayList<>();
+    }
+
+    public void iniciarTrasladoToGrupoRegular() {
+        this.tipo = TipoRolExamenesLoggerEnum.TRAS_TO_GPO_REG.name();
+        this.message = "Proceso de " + this.getTipoEnum().getValue();
+        this.running = true;
+        this.logDetails = new ArrayList<>();
+    }
+
     public void iniciarGrupoEspecial() {
         this.tipo = TipoRolExamenesLoggerEnum.GPO_ESP.name();
         this.message = "Calculo de " + this.getTipoEnum().getValue();
