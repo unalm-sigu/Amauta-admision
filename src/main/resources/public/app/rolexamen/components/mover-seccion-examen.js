@@ -63,6 +63,9 @@ Vue.component("mover-seccion-examen", {
                 }
             });
         }, loadComponent() {
+            this.tipoDestinoGrupoExamenes = null;
+            this.gruposHorariosDestino = [];
+            this.grupoHorarioDestino = null;
             let vue = this;
             $.ajax({
                 url: `${vue.URL}/loadComponent`,
@@ -71,7 +74,7 @@ Vue.component("mover-seccion-examen", {
                     if (response.success) {
                         vue.seccionRolExamenes = response.data.seccionRolExamenes;
                         if (response.data.tipoGrupoRolExamenesEnumDefault) {
-                            vue.tipoDestinoGrupoExamenes = response.data.tipoGrupoRolExamenesEnumDefault;
+                            //  vue.tipoDestinoGrupoExamenes = response.data.tipoGrupoRolExamenesEnumDefault;
                         }
                     }
                 }

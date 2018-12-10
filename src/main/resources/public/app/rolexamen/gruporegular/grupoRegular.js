@@ -195,6 +195,8 @@ new Vue({
                     }
                 }
             });
+        }, letraRegularSecciones(item) {
+            location.href = `${this.URL}/secciones/${item.id}`;
         }
     }
 });

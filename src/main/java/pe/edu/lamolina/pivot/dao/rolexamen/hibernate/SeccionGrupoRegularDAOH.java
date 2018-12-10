@@ -129,6 +129,8 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionGrupoRegular.class, "sgr")
                 .join("letraGrupoRegular lgr", "seccion sec", "docente doc", "doc.persona dper")
+                .join("sgr.userRegistro ureg", "ureg.persona uregper")
+                .left("usuarioExclusion usexc", "usexc.persona usexcper")
                 .filter("lgr.id", letraGrupoRegular)
                 .searchFields("sec.codigo");
 

@@ -155,8 +155,7 @@ new Vue({
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
             $vue.aulas = $vue.cursoMasivoExamen.aulasCursosMasivos;
             $vue.$refs.addAulasModal.open();
-        }
-        , cursoMasivoSecciones(item) {
+        }, cursoMasivoSecciones(item) {
             location.href = `${this.URL}/secciones/${item.id}`;
         },
         verAulasAsignadas(item) {

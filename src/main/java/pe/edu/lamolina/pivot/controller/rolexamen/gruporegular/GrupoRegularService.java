@@ -14,6 +14,8 @@ public interface GrupoRegularService {
 
     List<RolExamenes> allRolExamenesActives(CicloAcademico cicloAcademico);
 
+    LetraGrupoRegular findLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
+
     void calcularExamenesGrupoRegular(RolExamenes rolExamenes, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     List<LetraGrupoRegular> listGruposRegulares(RolExamenes rolExamenes);

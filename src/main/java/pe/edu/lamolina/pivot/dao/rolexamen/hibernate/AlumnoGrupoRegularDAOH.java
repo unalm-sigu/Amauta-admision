@@ -144,6 +144,23 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
         return result;
     }
 
+    public Map<Long, Integer> countBySeccionesGruposRegulares(List<SeccionGrupoRegular> seccionesGrupoRegular, AlumnoRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .select("sgr.id", "count(agr)")
+                .from(AlumnoGrupoRegular.class, "agr")
+                .join("seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr")
+                .in("agr.estado", estados)
+                .in("sgr.id", seccionesGrupoRegular)
+                .groupBy("sgr.id");
+
+        List<Object[]> resultado = sql.all(getCurrentSession());
+        Map<Long, Integer> result = new HashMap<>();
+        for (Object[] objects : resultado) {
+            result.put(TypesUtil.getLong(objects[0]), TypesUtil.getInt(objects[1]));
+        }
+        return result;
+    }
+
     @Override
     public void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
         StringBuilder strb = new StringBuilder();

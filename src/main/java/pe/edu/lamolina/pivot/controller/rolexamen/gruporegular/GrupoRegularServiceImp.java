@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
@@ -129,6 +128,11 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     @Override
     public List<RolExamenes> allRolExamenesActives(CicloAcademico cicloAcademico) {
         return rolExamenesDAO.allActiveByCiclo(cicloAcademico);
+    }
+
+    @Override
+    public LetraGrupoRegular findLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
+        return letraGrupoRegularDAO.find(letraGrupoRegular.getId());
     }
 
     @Override
@@ -533,6 +537,10 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     @Override
     public List<SeccionGrupoRegular> allSeccionesGrupoRegularDynaByLetraGrupoReg(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular) {
         List<SeccionGrupoRegular> seccionesLetraGrupoRegular = seccionGrupoRegularDAO.allByDynatableAndLetraGrupoRegular(filter, letraGrupoRegular);
+        Map<Long, Integer> mapCountAlumnosBySeccion = alumnoGrupoRegularDAO.countBySeccionesGruposRegulares(seccionesLetraGrupoRegular, AlumnoRolExamenEstadoEnum.ACT);
+        for (SeccionGrupoRegular seccionGrupoRegular : seccionesLetraGrupoRegular) {
+            seccionGrupoRegular.setAlumnosCount(mapCountAlumnosBySeccion.get(seccionGrupoRegular.getId()) != null ? mapCountAlumnosBySeccion.get(seccionGrupoRegular.getId()) : 0);
+        }
         return seccionesLetraGrupoRegular;
     }
 

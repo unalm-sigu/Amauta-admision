@@ -33,6 +33,8 @@ public interface AlumnoGrupoRegularDAO extends EasyDAO<AlumnoGrupoRegular> {
 
     Map<Long, Integer> countByLetrasGruposRegulares(List<LetraGrupoRegular> letraGrupoRegulars, AlumnoRolExamenEstadoEnum... estados);
 
+    Map<Long, Integer> countBySeccionesGruposRegulares(List<SeccionGrupoRegular> seccionesGrupoRegular, AlumnoRolExamenEstadoEnum... estados);
+
     void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
 
     List<AlumnoGrupoRegular> allByDynatableAndLetraGrupoRegular(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);

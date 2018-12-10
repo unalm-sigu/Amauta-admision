@@ -1,6 +1,7 @@
 <div>
     <template id="mainMoverSeccion">
         <!-- override row class for this form in override.css -->
+
         <form id="frmMoverSeccion" v-if="seccionRolExamenes">
             <div class="row" v-if="isTipoMasivo() || isTipoRegular()">
                 <div class="form-group" v-if="isTipoMasivo()">
@@ -53,7 +54,6 @@
             <div class="row">
                 <div class="form-group">
                     <label class="col-md-4 bold">Tipo Grupo Examen Destino</label>
-
 
                     <div class="col-md-8">
                         <multiselect   

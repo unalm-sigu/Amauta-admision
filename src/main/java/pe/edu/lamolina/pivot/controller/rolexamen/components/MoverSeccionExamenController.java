@@ -35,7 +35,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public class MoverSeccionExamenController {
 
     @Autowired
-    MoverSeccionExamenServiceImp moverSeccionExamenService;
+    MoverSeccionExamenService moverSeccionExamenService;
 
     @Autowired
     RolExamenesLogger rolExamenesLogger;
@@ -106,16 +106,10 @@ public class MoverSeccionExamenController {
                     "*",
                     "seccion.*",
                     "grupoHorasExamen.*",
-                    "horaInicio.*",
-                    "horaFin.*"
+                    "grupoHorasExamen.grupoHoras.*",
+                    "grupoHorasExamen.horaInicio.*",
+                    "grupoHorasExamen.horaFin.*"
                 });
-                jSeccionRolExamenes.set("grupoHorasExamen", JsonHelper.createJson(seccionGrupoEspecial.getGrupoHorasExamen(), jc, false, new String[]{
-                    "*",
-                    "grupoHoras.*",
-                    "horaInicio.*",
-                    "horaFin.*"
-                }));
-
                 data.set("seccionRolExamenes", jSeccionRolExamenes);
             } else if (TipoGrupoRolExamenesEnum.GRU_REG.name().equals(tipoOrigen)) {
                 SeccionGrupoRegular seccionGrupoRegular = moverSeccionExamenService.findSeccionGrupoRegularBySeccion(seccion);

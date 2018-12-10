@@ -31,4 +31,6 @@ public interface CursoMasivoExamenDAO extends EasyDAO<CursoMasivoExamen> {
     void updateFechaExamen(CursoMasivoExamen cursoMasivoExamen);
 
     List<CursoMasivoExamen> allByRolExamenes(RolExamenes rolExamenes, EstadoCursoMasivoEnum... estados);
+
+    CursoMasivoExamen findByCursoAndRolExamenes(Curso curso, RolExamenes rolExamenes, EstadoCursoMasivoEnum... estados);
 }

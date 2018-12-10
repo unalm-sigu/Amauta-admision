@@ -68,8 +68,11 @@
                                                    >{{ item.letra }} ({{item.gruposRegularesActivosCount}})</a>
                                             </td>
                                             <td class="text-center">  
-                                                <span class="badge pointer"
+                                             <!--   <span class="badge pointer"
                                                       v-on:click.prevent="loadModalSecciones(item)"
+                                                      v-text="item.seccionesRegularesActivosCount"></span>--> 
+                                                <span class="badge pointer"
+                                                      v-on:click.prevent="letraRegularSecciones(item)"
                                                       v-text="item.seccionesRegularesActivosCount"></span>
                                             </td>
                                             <td class="text-center">

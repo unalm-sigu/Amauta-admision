@@ -55,7 +55,7 @@ new Vue({
                     }
                 }
             });
-        }, mover(item) {
+        }, trasladar(item) {
             this.$refs.moverSeccionComp.seccion = item.seccion;
             this.$refs.moverSeccionComp.tipoorigen = "CUR_MAS";
             this.$refs.moverSeccionComp.loadComponent();

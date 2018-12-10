@@ -107,6 +107,7 @@
                                                     <ul class="dropdown-menu pull-right">
                                                         <li><a v-on:click.prevent="excluir(item,tipoAccion.SECCION)">Excluir</a></li>
                                                         <li><a v-on:click.prevent="incluir(item,tipoAccion.SECCION)">Incluir</a></li>
+                                                        <li><a v-if="item.isEstadoActivo"  v-on:click.prevent="trasladar(item)">Mover</a></li>
                                                     </ul>
                                                 </div>
                                             </td>
@@ -174,6 +175,21 @@
                         </raptor-table>
                     </div>
                 </modal-vik>
+
+                <modal-vik ref="moverSeccionModal"
+                           id="modalMoverSeccion"
+                           header="true"
+                           modalsize="modal-lg"
+                           title="Mover Seccion"
+                           v-bind:showaccept="false">
+                    <div slot="body">
+
+                        <mover-seccion-examen ref="moverSeccionComp"
+                                              > 
+                        </mover-seccion-examen> 
+
+                    </div>
+                </modal-vik>
             </div>
 
         </section>
@@ -182,6 +198,7 @@
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_modules/vue-modal2"></div>
             <script th:src="@{/phobos/modules/vue-generalComponents.js}" charset="utf-8"></script>
+            <div th:substituteby="rolexamen/components/mover-seccion-examen"/>
             <script th:inline="javascript">
                 var jRolesExamenes = /*[[${jRolesExamenes}]]*/ {};
             </script>

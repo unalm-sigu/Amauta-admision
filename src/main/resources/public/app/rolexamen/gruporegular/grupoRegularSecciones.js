@@ -3,48 +3,17 @@ Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     data: {
-        URL: APP.url('rolexamen/grupoespecial'),
-        rolesExamenes: JSON.parse(jRolesExamenes),
-        rolExamen: null,
-        tipoAccion: {
-            LETRA: "LETRA",
-            GRUPO: "GRUPO",
-            SECCION: "SECCION",
-            ALUMNO: "ALUMNO"
-        },
+        URL: APP.url('rolexamen/gruporegular'),
+        letraGrupoRegular: JSON.parse(jLetraGrupoRegular)
     },
     mounted() {
-
+        this.loadModalSecciones(this.letraGrupoRegular);
     },
     methods: {
-        rolExamenCustomLabel( { eventoCicloAcademico }) {
-            if (eventoCicloAcademico == null || eventoCicloAcademico.eventoAcademico == null) {
-                return "";
-            }
-            return `${eventoCicloAcademico.eventoAcademico.nombre}`;
-        }, changeRolExamen() {
-            this.$refs.raptor.ajaxdata = {rolexamenes: this.rolExamen.id};
-            this.$refs.raptor.loadRemoteData();
-        }, calcularGrupoEspecial() {
-            let vue = this;
-            MODAL.showWait("Espere un momento por favor");
-            AXIOS.post(`${vue.URL}/calcularGrupoEspecial`, vue.rolExamen)
-                    .then(response => {
-                        if (response.data.success) {
-                            // notify(response.data.message, 'info');
-                            this.$refs.raptor.loadRemoteData();
-                        } else {
-                            //   notify(response.data.message, 'error');
-                        }
-                        MODAL.hideWait();
-                    });
-        }, loadModalAlumnos(seccionGrupoEspecial) {
-            //    this.letraSelected = letraGrupoRegular;
-            this.$refs.tblAlumnosGrupoEspecial.ajaxdata = {seccionGrupoEspecial: seccionGrupoEspecial.id};
-            this.$refs.tblAlumnosGrupoEspecial.loadRemoteData();
-            this.$refs.alumnosModal.title = "Seccion Grupo Especial " + seccionGrupoEspecial.seccion.codigo2 + " | Alumnos";
-            this.$refs.alumnosModal.open();
-
+        loadModalSecciones(letraGrupoRegular) {
+            this.letraSelected = letraGrupoRegular;
+            this.$refs.tblSeccionesGrupoRegular.ajaxdata = {letraGrupoRegular: letraGrupoRegular.id};
+            this.$refs.tblSeccionesGrupoRegular.loadRemoteData();
         }, excluir(obj, tipoAccion) {
             let vue = this;
             bootbox.confirm({
@@ -61,13 +30,17 @@ new Vue({
                                     if (response.data.success) {
 
                                         switch (tipoAccion) {
+                                            case vue.tipoAccion.GRUPO:
+                                                vue.$refs.gruposModal.close();
+                                                break;
                                             case vue.tipoAccion.SECCION:
+                                                vue.$refs.tblSeccionesGrupoRegular.loadRemoteData();
                                                 break;
                                             case vue.tipoAccion.ALUMNO:
-                                                vue.$refs.tblAlumnosGrupoEspecial.loadRemoteData();
+                                                vue.$refs.alumnosModal.close();
                                                 break;
                                         }
-                                        vue.$refs.raptor.loadRemoteData();
+                                        vue.listGruposRegulares(vue.rolExamen);
                                     }
                                     MODAL.hideWait();
                                 });
@@ -90,13 +63,17 @@ new Vue({
                                     if (response.data.success) {
 
                                         switch (tipoAccion) {
+                                            case vue.tipoAccion.GRUPO:
+                                                vue.$refs.gruposModal.close();
+                                                break;
                                             case vue.tipoAccion.SECCION:
+                                                vue.$refs.tblSeccionesGrupoRegular.loadRemoteData();
                                                 break;
                                             case vue.tipoAccion.ALUMNO:
-                                                vue.$refs.tblAlumnosGrupoEspecial.loadRemoteData();
+                                                vue.$refs.alumnosModal.close();
                                                 break;
                                         }
-                                        vue.$refs.raptor.loadRemoteData();
+                                        vue.listGruposRegulares(vue.rolExamen);
                                     }
                                     MODAL.hideWait();
                                 });
@@ -105,7 +82,7 @@ new Vue({
             });
         }, trasladar(item) {
             this.$refs.moverSeccionComp.seccion = item.seccion;
-            this.$refs.moverSeccionComp.tipoorigen = "GRU_ESP";
+            this.$refs.moverSeccionComp.tipoorigen = "GRU_REG";
             this.$refs.moverSeccionComp.loadComponent();
             this.$refs.moverSeccionModal.open();
         }
