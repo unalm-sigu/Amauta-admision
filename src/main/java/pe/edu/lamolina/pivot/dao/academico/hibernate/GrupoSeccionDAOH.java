@@ -174,7 +174,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("cu.nombre");
-        
+
         sql.beginRelativeFilters();
         setCondicionEstado(filter, sql);
         return all(sql);
@@ -224,6 +224,16 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
     @Override
     public List<GrupoSeccion> allByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("curso cur", "cicloAcademico ca")
+                .leftJoin("planCalificacion pc", "secciones s")
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
+    public List<GrupoSeccion> allCerradasByCiclo(List<CicloAcademico> ciclo) {
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
                 .join("curso cur", "cicloAcademico ca")

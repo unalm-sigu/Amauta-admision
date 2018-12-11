@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.tramite.AutorizacionRegistro;
 
 public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
@@ -38,6 +39,8 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
     Long countByCursoAlumno(Curso curso, Alumno alumno);
 
     List<AlumnoCicloCurso> allOperativesByAlumnoAnterioresCiclo(Alumno alumno, CicloAcademico cicloAcademico);
+
+    List<AlumnoCicloCurso> allOperativesByModalidadEstudio(ModalidadEstudioEnum modalidadEstudioEnum);
 
     List<AlumnoCicloCurso> allOperatives(ModalidadEstudio modalidadEstudio,
             Carrera carrera,
@@ -74,4 +77,5 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
     List<AlumnoCicloCurso> allByAutorizacionRegistro(AutorizacionRegistro autorizacionRegistro);
 
     void updateEstadoRegistroActivo(AlumnoCicloCurso alumnoCicloCurso);
+
 }

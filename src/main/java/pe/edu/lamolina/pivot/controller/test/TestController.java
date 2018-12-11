@@ -32,6 +32,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
@@ -303,9 +304,12 @@ public class TestController {
          */
         // visorCalculoNotas.setCantidadTotal(pregrados.size());
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
+    //    List<AlumnoCicloCurso> allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByModalidadEstudio(ModalidadEstudioEnum.PRE);
+      //  Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByAlu = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", allOperativesByModalidadEstudio);
         visorCalculoNotas.iniciar();
         visorCalculoNotas.setCantidadTotal(pregrados.size());
         for (Alumno alumno : pregrados) {
+        //    List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = mapAlumnoCicloCursoByAlu.get(alumno.getId());
             promedioService.promediarAllCicloAsync(alumno, cicloActivo, ds.getUsuario());
         }
         /*
@@ -325,17 +329,39 @@ public class TestController {
         visorCalculoNotas.iniciar();
         Alumno alumno = alumnoDAO.findAllInfo(alumnoId);
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio());
-        promedioService.promediarAllCicloAsync(alumno, cicloActivo, ds.getUsuario());
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+        promedioService.promediarAllCicloSync(alumno, cicloActivo, ds.getUsuario());
 
         return "yeah";
     }
 
     //Trasladar informacion de matricula curso a alumnociclocurso
     @ResponseBody
-    @RequestMapping("trasladarMatriculaCursoForPromedios")
+    @RequestMapping("trasladarInformcionForHistorial")
     public String trasladarMatriculaCursoForPromedios(HttpSession session) {
         //201700
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.ACT, CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
+        //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
+        for (CicloAcademico cicloAcademico : ciclos) {
+            List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCiclo(cicloAcademico);
+            List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCicloFull(cicloAcademico);
+            if (matriculasResumen.isEmpty()) {
+                continue;
+            }
+            List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allActivesByMatriculaResumen(matriculasResumen);
+            if (matriculasSeccion.isEmpty()) {
+                continue;
+            }
+
+            visorCalculoNotas.iniciar();
+            visorCalculoNotas.setCantidadTotal(matriculasResumen.size());
+            for (MatriculaResumen matriculaResumen : matriculasResumen) {
+                promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculasSeccion, ds.getUsuario());
+            }
+        }
+        /*
         CicloAcademico cicloAcademico = cicloAcademicoDAO.find(ds.getCicloAcademico().getId());
 
         List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCiclo(cicloAcademico);
@@ -346,21 +372,33 @@ public class TestController {
         for (MatriculaResumen matriculaResumen : matriculasResumen) {
             promedioService.procesarMatriculaResumen(matriculaResumen, matriculasCurso, ds.getUsuario());
         }
-
+         */
         return "yeah";
     }
 
     @ResponseBody
-    @RequestMapping("trasladarMatriculaCursoForPromedios/{alumno}")
+    @RequestMapping("trasladarInformcionForHistorial/{alumno}")
     public String trasladarMatriculaCursoForPromedios(HttpSession session, @PathVariable("alumno") Long alumnoId) {
         //201700
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico cicloAcademico = cicloAcademicoDAO.find(ds.getCicloAcademico().getId());
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(new Alumno(alumnoId), cicloAcademico);
 
-        visorCalculoNotas.iniciar();
-        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenFull(matriculaResumen);
-        promedioService.procesarMatriculaResumen(matriculaResumen, matriculasCurso, ds.getUsuario());
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.ACT, CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
+        for (CicloAcademico cicloAcademicoEach : ciclos) {
+            MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(new Alumno(alumnoId), cicloAcademicoEach);
+            if (matriculaResumen == null) {
+                continue;
+            }
+            List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenFull(matriculaResumen);
+            if (matriculasCurso == null || matriculasCurso.isEmpty()) {
+                continue;
+            }
+            List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allActivesByMatriculaResumen(Arrays.asList(matriculaResumen));
+            visorCalculoNotas.iniciar();
+            visorCalculoNotas.setCantidadTotal(1);
+            logger.debug("##################Ciclo padre {} {} {}", cicloAcademicoEach.getId(), cicloAcademicoEach.getYear(), cicloAcademicoEach.getNumeroCiclo());
+            promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds.getUsuario());
+
+        }
 
         return "yeah";
     }

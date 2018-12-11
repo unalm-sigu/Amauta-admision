@@ -2,20 +2,19 @@ package pe.edu.lamolina.pivot.controller.academico.promedio;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import org.joda.time.DateTime;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface PromedioService {
 
-    void procesarMatriculaResumen(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, Usuario usuario);
+    void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, Usuario usuario);
 
     void promedio(MatriculaCurso matriculaCurso, Usuario usuario, boolean calcularSituacionAcadFinal);
 
