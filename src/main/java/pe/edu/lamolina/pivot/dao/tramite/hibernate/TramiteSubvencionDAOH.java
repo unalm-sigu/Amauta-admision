@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.tramite.TramiteSubvencion;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteSubvencionDAO;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.BOLS_TRABAJO_ID;
 
 @Repository
 public class TramiteSubvencionDAOH extends AbstractEasyDAO<TramiteSubvencion> implements TramiteSubvencionDAO {
@@ -29,7 +30,8 @@ public class TramiteSubvencionDAOH extends AbstractEasyDAO<TramiteSubvencion> im
                 .filter("ca.id", cicloAcademico)
                 .filter("tra.estado", TramiteEstadoEnum.SOL)
                 .in("sup.id", colaborador)
-                .filter("tt.codigo", SUBV);
+                .filter("tt.codigo", SUBV)
+                .filter("bb.nombre", BOLS_TRABAJO_ID);
         return all(sql);
     }
 

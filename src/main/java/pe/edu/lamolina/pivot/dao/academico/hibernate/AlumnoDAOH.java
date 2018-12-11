@@ -454,14 +454,14 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allByNombreFacultad(String nombre, Facultad facultad) {
+    public List<Alumno> allByNombreFacultad(String nombre, List<Facultad> facultad) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa", "situacionAcademica sa")
                 .join("modalidadEstudio me")
                 .leftJoin("per.tipoDocumento td", "orientacionCarrera oc")
-                .filter("fa.id", facultad)
+                .in("fa.id", facultad)
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
@@ -530,7 +530,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia subQuery = new Octavia()
                 .from(MatriculaResumen.class, "mr")
-                .join("alumno alum");
+                .join("alumno alum")
+                .filter("cicloAcademico", cicloAcademico);
 
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")

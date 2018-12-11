@@ -18,7 +18,7 @@ public interface BolsaInvestigacionService {
 
     AlumnoBolsaInvestigacion findAlumnoBolsaInvestigacion(Long id);
 
-    List<Alumno> searchAlumnosByFacultadNombre(Facultad facultad, String nombre, CicloAcademico ciclo);
+    List<Alumno> searchAlumnosByFacultadNombre(List<Facultad> facultad, String nombre, CicloAcademico ciclo);
 
     List<Colaborador> searchColaboradoresByFacultadNombre(Facultad facultad, String nombre);
 
