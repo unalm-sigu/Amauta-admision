@@ -16,4 +16,8 @@ public interface GrupoHorasExamenDAO extends EasyDAO<GrupoHorasExamen> {
     GrupoHorasExamen findByRolExamenAndGrupoHoras(RolExamenes rolExamenes, GrupoHoras gruposHora);
 
     GrupoHorasExamen find(long id);
+
+    void updateFechaExamen(GrupoHorasExamen grupoHorasExamen);
+
+    void updateVerificado(GrupoHorasExamen grupoHorasExamen);
 }

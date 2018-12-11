@@ -56,8 +56,7 @@
                                             <th class="col-md-2 text-center">Secciones</th>
                                             <th class="col-md-2 text-center">Alumnos</th>
                                             <th class="col-md-2 text-center">Fecha</th>
-                                            <th class="col-md-1 text-center">Hora</th>
-                                            <th class="col-md-2 text-center">Registro</th>
+                                            <th class="col-md-3 text-center">Registro</th>
                                             <th class="col-md-1 text-center"></th>
                                         </tr>
                                     </thead>
@@ -68,19 +67,31 @@
                                                    class="pointer"
                                                    >{{ item.letra }} ({{item.gruposRegularesActivosCount}})</a>
                                             </td>
-                                            <td>  
-                                                <a v-on:click.prevent="loadModalSecciones(item)"
-                                                   class="pointer">{{ item.seccionesRegularesActivosCount}}</a>
+                                            <td class="text-center">  
+                                             <!--   <span class="badge pointer"
+                                                      v-on:click.prevent="loadModalSecciones(item)"
+                                                      v-text="item.seccionesRegularesActivosCount"></span>--> 
+                                                <span class="badge pointer"
+                                                      v-on:click.prevent="letraRegularSecciones(item)"
+                                                      v-text="item.seccionesRegularesActivosCount"></span>
                                             </td>
-                                            <td>
-                                                <a v-on:click.prevent="loadModalAlumnos(item)"
-                                                   class="pointer">{{ item.alumnosRegularesActivosCount }}</a>
+                                            <td class="text-center">
+                                                <span class="badge pointer"
+                                                      v-on:click.prevent="loadModalAlumnos(item)"
+                                                      v-text="item.alumnosRegularesActivosCount"></span>
                                             </td>
-                                            <td>
-                                                <span v-text="item.fechaExamen"></span>
-                                            </td>
-                                            <td>
-                                                <span v-if="item.hora" v-text="item.hora.descripcion"></span>
+                                            <td class="v-middle text-center">
+                                                <div v-if="item.grupoHorasExamen.fecha">
+                                                    {{item.grupoHorasExamen.fecha }}
+                                                    (Grupo {{item.grupoHorasExamen.grupoHoras.codigo}})
+                                                    <small class="block">Hora Inicio: {{item.grupoHorasExamen.horaInicio.descripcion}}</small>
+                                                    <small class="block">Hora Fin: {{item.grupoHorasExamen.horaFin.descripcion}}</small>
+                                                </div>
+                                                <div v-else="" >
+                                                    <label class="alert alert-info">
+                                                        Sin Asignar Horario
+                                                    </label>
+                                                </div>
                                             </td>
                                             <td>
                                                 <span class="block" v-text="item.userRegistro.persona.apellidosNombres"></span>
@@ -111,7 +122,6 @@
                 <modal-vik ref="gruposModal"
                            id="modalGrupos"
                            header="true"
-                           title="Grupos Horarios"
                            modalsize="modal-md"
                            v-bind:showaccept="false">
                     <div slot="body">
@@ -132,6 +142,7 @@
                             <v-estado v-bind:codigo="gHor.estado" v-bind:valor="gHor.estadoEnum.value"/> 
                             </td>
                             <td>
+                                <!-- 
                                 <div class="dropdown actions">
                                     <a class="dropdown-toggle" data-toggle="dropdown">
                                         <i class="glyphicon glyphicon-option-vertical"></i>
@@ -141,6 +152,7 @@
                                         <li><a >Mover</a></li>
                                     </ul>
                                 </div>
+                                -->
                             </td>
                             </tr>
                             </tbody>
@@ -152,84 +164,108 @@
                 <modal-vik ref="seccionModal"
                            id="modalSecciones"
                            header="true"
-                           title="Secciones"
-                           modalsize="modal-md"
+                           modalsize="modal-lg"
                            v-bind:showaccept="false">
                     <div slot="body">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th class="col-md-6 text-center">Codigo</th>
-                                    <th class="col-md-5 text-center">Estado</th>
-                                    <th class="col-md-1 text-center"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="sec in seccionesGrupoRegulares">
-                                    <td>
-                                        <span v-text="sec.seccion.codigo2"></span>
+
+                        <raptor-table v-bind:url="`${URL}/listSeccionesLetraGrupoRegular`" v-bind:preload="false" ref="tblSeccionesGrupoRegular">
+                            <template scope="props">
+
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-2 text-center">Codigo</th>
+                                            <th class="col-md-5 text-center">Docente</th>
+                                            <th class="col-md-2 text-center">Aula</th>
+                                            <th class="col-md-2 text-center">Estado</th>
+                                            <th class="col-md-1 text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="sec in props.data">
+                                            <td>
+                                                <span v-text="sec.seccion.codigo2"></span>
+                                            </td>
+                                            <td>
+                                                <span v-text="sec.docente.persona.apellidosNombres"></span>
+                                            </td>
+                                            <td>
+                                                <span v-text="sec.aula.codigo"></span>
+                                            </td>
+                                            <td class="text-center">
+                                    <v-estado v-bind:codigo="sec.estado" v-bind:valor="sec.estadoEnum.value"/> 
                                     </td>
-                                    <td >
-                            <v-estado v-bind:codigo="sec.estado" v-bind:valor="sec.estadoEnum.value"/> 
-                            </td>
-                            <td>
-                                <div class="dropdown actions pointer">
-                                    <a class="dropdown-toggle" data-toggle="dropdown">
-                                        <i class="glyphicon glyphicon-option-vertical"></i>
-                                    </a> 
-                                    <ul class="dropdown-menu pull-right">
-                                        <li><a v-if="sec.isEstadoActivo"  v-on:click.prevent="excluir(sec,tipoAccion.SECCION)">Excluir</a></li>
-                                        <li><a >Mover</a></li>
-                                    </ul>
-                                </div>
-                            </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                                    <td>
+                                        <div class="dropdown actions pointer">
+                                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                                <i class="glyphicon glyphicon-option-vertical"></i>
+                                            </a> 
+                                            <ul class="dropdown-menu pull-right">
+                                                <li><a   v-on:click.prevent="excluir(sec,tipoAccion.SECCION)">Excluir</a></li>
+                                                <li><a   v-on:click.prevent="incluir(sec,tipoAccion.SECCION)">Incluir</a></li>
+                                                <li><a >Mover</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                            </template>
+                        </raptor-table>
+
                     </div>
                 </modal-vik>
 
                 <modal-vik ref="alumnosModal"
                            id="modalAlumnos"
                            header="true"
-                           title="Alumnos"
-                           modalsize="modal-md"
+                           modalsize="modal-lg"
                            v-bind:showaccept="false">
                     <div slot="body">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th class="col-md-3 text-center">Codigo</th>
-                                    <th class="col-md-5 text-center">Alumno</th>
-                                    <th class="col-md-3 text-center">Estado</th>
-                                    <th class="col-md-1 text-center"></th>
-                                </tr>
-                            </thead>
-                            <tbody style="height:200px;overflow-y:auto;">
-                                <tr v-for="alu in alumnosGruposRegulares">
-                                    <td>
-                                        <span v-text="alu.alumno.codigo"></span>
-                                    </td>
-                                    <td v-text="alu.alumno.persona.apellidosNombres">
 
+                        <raptor-table v-bind:url="`${URL}/listAlumnoLetraGrupoRegular`" v-bind:preload="false" ref="tblAlumnosGrupoRegular">
+                            <template scope="props">
+
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-3 text-center">Codigo</th>
+                                            <th class="col-md-5 text-center">Alumno</th>
+                                            <th class="col-md-3 text-center">Estado</th>
+                                            <th class="col-md-1 text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="height:200px;overflow-y:auto;">
+                                        <tr v-for="alu in props.data">
+                                            <td>
+                                                <span v-text="alu.alumno.codigo"></span>
+                                            </td>
+                                            <td v-text="alu.alumno.persona.apellidosNombres">
+
+                                            </td>
+                                            <td class="text-center">
+                                    <v-estado v-bind:codigo="alu.estado" v-bind:valor="alu.estadoEnum.value"/> 
                                     </td>
-                                    <td >
-                            <v-estado v-bind:codigo="alu.estado" v-bind:valor="alu.estadoEnum.value"/> 
-                            </td>
-                            <td>
-                                <div class="dropdown actions pointer">
-                                    <a class="dropdown-toggle" data-toggle="dropdown">
-                                        <i class="glyphicon glyphicon-option-vertical"></i>
-                                    </a> 
-                                    <ul class="dropdown-menu pull-right">
-                                        <li><a v-if="alu.isEstadoActivo" v-on:click.prevent="excluir(alu,tipoAccion.ALUMNO)">Excluir</a></li>
-                                        <li><a >Mover</a></li>
-                                    </ul>
-                                </div>
-                            </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                                    <td>
+                                        <!-- 
+                                        <div class="dropdown actions pointer">
+                                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                                <i class="glyphicon glyphicon-option-vertical"></i>
+                                            </a> 
+                                            <ul class="dropdown-menu pull-right">
+                                                <li><a v-if="alu.isEstadoActivo" v-on:click.prevent="excluir(alu,tipoAccion.ALUMNO)">Excluir</a></li>
+                                                <li><a >Mover</a></li>
+                                            </ul>
+                                        </div>
+                                        -->
+                                    </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                            </template>
+                        </raptor-table>
                     </div>
                 </modal-vik>
             </div>

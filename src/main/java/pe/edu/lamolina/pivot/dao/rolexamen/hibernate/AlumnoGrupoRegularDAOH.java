@@ -8,12 +8,15 @@ import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoRegularDAO;
 
@@ -26,6 +29,17 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
     }
 
     @Override
+    public AlumnoGrupoRegular find(long id) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoGrupoRegular.class, "agr")
+                .join("userRegistro ur", "seccionGrupoRegular sgr", "alumno alu")
+                .join("sgr.letraGrupoRegular lgr", "alu.persona per")
+                .filter("agr.id", id);
+
+        return find(sql);
+    }
+
+    @Override
     public List<AlumnoGrupoRegular> allByLetraGrupoActives(LetraGrupoRegular letraGrupoRegular) {
         return this.allByLetraGrupoAndEstado(letraGrupoRegular, AlumnoRolExamenEstadoEnum.ACT);
     }
@@ -34,7 +48,7 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
     public List<AlumnoGrupoRegular> allByLetraGrupoAndEstado(LetraGrupoRegular letraGrupoRegular, AlumnoRolExamenEstadoEnum estadoEnum) {
         Octavia sql = Octavia.query()
                 .from(AlumnoGrupoRegular.class, "agr")
-                .join("letraGruposRegulares gs", "userRegistro cur")
+                .join("agr.seccionGrupoRegular sgr", "sgr.letraGruposRegulares gs", "userRegistro cur")
                 .filter("agr.estado", estadoEnum)
                 .filter("gs.id", letraGrupoRegular);
         return all(sql);
@@ -42,10 +56,10 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
 
     @Override
     public List<AlumnoGrupoRegular> allByLetraGrupoRegularAndEstados(LetraGrupoRegular letrasGruposRegular,
-            List<AlumnoRolExamenEstadoEnum> estados) {
+            AlumnoRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
                 .from(AlumnoGrupoRegular.class, "agr")
-                .join("letraGrupoRegular lgr", "userRegistro cur", "agr.alumno alu")
+                .join("agr.seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr", "userRegistro cur", "agr.alumno alu")
                 .join("alu.persona per")
                 .in("agr.estado", estados)
                 .filter("lgr.id", letrasGruposRegular);
@@ -53,11 +67,42 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
     }
 
     @Override
-    public void updateEstado(AlumnoGrupoRegular alumnoGrupoRegular) {
+    public List<AlumnoGrupoRegular> allBySeccionGrupoRegularAndEstados(SeccionGrupoRegular seccionGrupoRegular,
+            AlumnoRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoGrupoRegular.class, "agr")
+                .join("agr.seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr", "userRegistro cur", "agr.alumno alu")
+                .join("alu.persona per")
+                .in("agr.estado", estados)
+                .filter("sgr.id", seccionGrupoRegular);
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoGrupoRegular> allBySeccionGrupoRegularAndEstados(List<SeccionGrupoRegular> seccionGrupoRegular,
+            AlumnoRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoGrupoRegular.class, "agr")
+                .join("agr.seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr", "userRegistro cur", "agr.alumno alu", "alu.persona per")
+                .in("agr.estado", estados)
+                .in("sgr.id", seccionGrupoRegular);
+        return all(sql);
+    }
+
+    @Override
+    public void updateEstadoExclusion(AlumnoGrupoRegular alumnoGrupoRegular) {
+        alumnoGrupoRegular.setEstadoEnum(AlumnoRolExamenEstadoEnum.EXC);
         Octavia octavia = Octavia.update(AlumnoGrupoRegular.class);
         octavia.set(alumnoGrupoRegular, "estado");
         octavia.set(alumnoGrupoRegular, "usuarioExclusion");
         octavia.set(alumnoGrupoRegular, "fechaExclusion");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateEstado(AlumnoGrupoRegular alumnoGrupoRegular) {
+        Octavia octavia = Octavia.update(AlumnoGrupoRegular.class);
+        octavia.set(alumnoGrupoRegular, "estado");
         this.update(octavia);
     }
 
@@ -86,7 +131,7 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
         Octavia sql = Octavia.query()
                 .select("lgr.id", "count(agr)")
                 .from(AlumnoGrupoRegular.class, "agr")
-                .join("letraGrupoRegular lgr")
+                .join("seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr")
                 .in("agr.estado", estados)
                 .in("lgr.id", letraGrupoRegulars)
                 .groupBy("lgr.id");
@@ -99,14 +144,47 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
         return result;
     }
 
+    public Map<Long, Integer> countBySeccionesGruposRegulares(List<SeccionGrupoRegular> seccionesGrupoRegular, AlumnoRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .select("sgr.id", "count(agr)")
+                .from(AlumnoGrupoRegular.class, "agr")
+                .join("seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr")
+                .in("agr.estado", estados)
+                .in("sgr.id", seccionesGrupoRegular)
+                .groupBy("sgr.id");
+
+        List<Object[]> resultado = sql.all(getCurrentSession());
+        Map<Long, Integer> result = new HashMap<>();
+        for (Object[] objects : resultado) {
+            result.put(TypesUtil.getLong(objects[0]), TypesUtil.getInt(objects[1]));
+        }
+        return result;
+    }
+
     @Override
     public void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
         StringBuilder strb = new StringBuilder();
-        strb.append(" delete from  AlumnoGrupoRegular agr where agr.letraGrupoRegular.id=:LETRA_ID");
+        strb.append(" delete from  AlumnoGrupoRegular agr where agr.seccionGrupoRegular.id in ");
+        strb.append(" (Select ssgr.id from SeccionGrupoRegular ssgr where  ssgr.letraGrupoRegular.id=:LETRA_ID) ");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("LETRA_ID", letraGrupoRegular.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public List<AlumnoGrupoRegular> allByDynatableAndLetraGrupoRegular(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoGrupoRegular.class, "agr")
+                .join("alumno alu", "alu.persona per", "seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr")
+                .join("userRegistro ur", "ur.persona urPer")
+                .filter("lgr.id", letraGrupoRegular)
+                .searchFields("alu.codigo");
+
+        sql.searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
+
+        return all(sql);
     }
 
 }

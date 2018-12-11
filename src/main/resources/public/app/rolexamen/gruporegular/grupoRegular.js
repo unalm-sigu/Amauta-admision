@@ -49,7 +49,7 @@ new Vue({
             }
 
             if (this.letrasGruposRegulares.length > 0) {
-                let vue=this;
+                let vue = this;
                 bootbox.confirm({
                     message: "¿Si continua se perdera el avance de los grupos regulares?",
                     buttons: {
@@ -100,21 +100,16 @@ new Vue({
                     });
         }, loadModalSecciones(letraGrupoRegular) {
             this.letraSelected = letraGrupoRegular;
-            MODAL.showWait("Espere un momento por favor");
-            AXIOS.post(`${this.URL}/${this.tipoAccion.SECCION}/loadLetraGrupoRegularInfo`, letraGrupoRegular)
-                    .then(response => {
-                        if (response.data.success) {
-                            this.seccionesGrupoRegulares = response.data.data;
-                            this.$refs.seccionModal.open();
-                        } else {
-                            //   notify(response.data.message, 'error');
-                        }
-                        MODAL.hideWait();
-                    });
+            //  MODAL.showWait("Espere un momento por favor");
+            //   MODAL.hideWait();
+            this.$refs.seccionModal.title = "Letra Grupo Horario " + letraGrupoRegular.letra + " | Secciones";
+            this.$refs.tblSeccionesGrupoRegular.ajaxdata = {letraGrupoRegular: letraGrupoRegular.id};
+            this.$refs.tblSeccionesGrupoRegular.loadRemoteData();
+            this.$refs.seccionModal.open();
 
         }, loadModalGrupos(letraGrupoRegular) {
             this.letraSelected = letraGrupoRegular;
-
+            this.$refs.gruposModal.title = "Letra Grupo Horario " + letraGrupoRegular.letra + " | Grupo Horarios";
             MODAL.showWait("Espere un momento por favor");
             AXIOS.post(`${this.URL}/${this.tipoAccion.GRUPO}/loadLetraGrupoRegularInfo`, letraGrupoRegular)
                     .then(response => {
@@ -129,17 +124,11 @@ new Vue({
                     });
         }, loadModalAlumnos(letraGrupoRegular) {
             this.letraSelected = letraGrupoRegular;
-            MODAL.showWait("Espere un momento por favor");
-            AXIOS.post(`${this.URL}/${this.tipoAccion.ALUMNO}/loadLetraGrupoRegularInfo`, letraGrupoRegular)
-                    .then(response => {
-                        if (response.data.success) {
-                            this.alumnosGruposRegulares = response.data.data;
-                            this.$refs.alumnosModal.open();
-                        } else {
-                            //   notify(response.data.message, 'error');
-                        }
-                        MODAL.hideWait();
-                    });
+            this.$refs.tblAlumnosGrupoRegular.ajaxdata = {letraGrupoRegular: letraGrupoRegular.id};
+            this.$refs.tblAlumnosGrupoRegular.loadRemoteData();
+            this.$refs.alumnosModal.title = "Letra Grupo Horario " + letraGrupoRegular.letra + " | Alumnos";
+            this.$refs.alumnosModal.open();
+
         }, excluir(obj, tipoAccion) {
             let vue = this;
             bootbox.confirm({
@@ -154,19 +143,14 @@ new Vue({
                         AXIOS.post(`${vue.URL}/${tipoAccion}/excluir`, obj)
                                 .then(response => {
                                     if (response.data.success) {
-                                        obj.estadoEnum = {
-                                            "name": "EXC",
-                                            "value": "Excluido"
-                                        };
-                                        obj.estado = obj.estadoEnum.name;
 
                                         switch (tipoAccion) {
                                             case vue.tipoAccion.GRUPO:
                                                 vue.$refs.gruposModal.close();
                                                 break;
                                             case vue.tipoAccion.SECCION:
-                                                vue.$refs.seccionModal.close();
-                                                vue;
+                                                vue.$refs.tblSeccionesGrupoRegular.loadRemoteData();
+                                                break;
                                             case vue.tipoAccion.ALUMNO:
                                                 vue.$refs.alumnosModal.close();
                                                 break;
@@ -178,6 +162,41 @@ new Vue({
                     }
                 }
             });
+        }, incluir(obj, tipoAccion) {
+            let vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea incluir?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/${tipoAccion}/incluir`, obj)
+                                .then(response => {
+                                    if (response.data.success) {
+
+                                        switch (tipoAccion) {
+                                            case vue.tipoAccion.GRUPO:
+                                                vue.$refs.gruposModal.close();
+                                                break;
+                                            case vue.tipoAccion.SECCION:
+                                                vue.$refs.tblSeccionesGrupoRegular.loadRemoteData();
+                                                break;
+                                            case vue.tipoAccion.ALUMNO:
+                                                vue.$refs.alumnosModal.close();
+                                                break;
+                                        }
+                                        vue.listGruposRegulares(vue.rolExamen);
+                                    }
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
+        }, letraRegularSecciones(item) {
+            location.href = `${this.URL}/secciones/${item.id}`;
         }
     }
 });

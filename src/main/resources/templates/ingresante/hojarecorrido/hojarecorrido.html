@@ -1,0 +1,168 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Hoja Recorrido</title>
+        <style>
+            .circle-recorrido {
+                display: block;
+                position: relative;
+                float: left;
+                border-radius: 50%;
+                width: 60px;
+                height: 60px;
+                overflow: hidden;
+                line-height: 60px;
+                text-align: center;
+                font-size: 16px;
+                margin-right: 12px;
+                text-indent: 0;
+                vertical-align: middle;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
+            .circle-recorrido.bgr-warning {
+                background-color: #f0ad4e;
+                color: #737373;
+            }
+            .circle-recorrido.bgr-success {
+                background-color: #2ECC71;
+                color: #fff;
+            }
+            .circle-recorrido.bgr-default {
+                background-color: #3C4043;
+                color: #fff;
+            }
+            .nombre-actividad {
+                background-color: #F2B097;
+                color: #F11414;
+                padding: 3px;
+                padding-right: 10px;
+                padding-left: 10px;
+                border-radius: 3px;
+                border-color: #F11414;
+                border-style: solid;
+                border-width: 1px;
+            }
+            /* Enter and leave animations can use different */
+            /* durations and timing functions.              */
+            .slide-fade-enter-active {
+                transition: all .8s ease;
+            }
+            .slide-fade-leave-active {
+                transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+            }
+            .slide-fade-enter, .slide-fade-leave-to
+            /* .slide-fade-leave-active below version 2.1.8 */ {
+                transform: translateX(10px);
+                opacity: 0;
+            }
+        </style>
+    </head>
+
+    <body>
+        <section layout:fragment="main">
+
+            <div id="ingresantesVUE">
+                <div v-cloak="">
+
+                    <header class="header b-b padder-lg">
+                        <h2 th:inline="text"> Hoja Recorrido [[${ciclo.descripcion2}]] </h2>            
+                    </header>
+
+                    <section class="wrapper-lg">
+                        <section class="panel">
+                            <section class="panel-body">
+                                <raptor-table v-bind:url="ingresantesURL" ref="raptorIng">
+                                    <div slot="header">
+                                        <a v-on:click="actualizar" class="btn btn-primary">Actualizar</a>
+                                    </div>
+
+                                    <template scope="props" >
+                                        <div class="table-responsive">
+                                            <table id="dynaTable" class="table table-striped table-hover">
+
+                                                <thead>
+
+                                                    <tr>
+                                                        <th class="col-xs-4" colspan="2">Alumno</th>
+                                                        <th class="col-xs-8 v-middle"></th>
+                                                    </tr> 
+
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="item in props.data">
+
+                                                        <td class="v-middle">
+                                                            <div class="pull-left">
+                                                                <div v-if="item.alumno.persona.tipoFoto=='POSTUL' "
+                                                                     class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                                    <img class="img-foto-list" v-bind:src="item.alumno.persona.rutaFoto" />
+                                                                </div>
+
+                                                                <img v-else-if="item.alumno.persona.tipoFoto=='COMUN' " 
+                                                                     class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                                                     v-bind:src="item.alumno.persona.rutaFoto" />
+
+                                                                <img v-else="" 
+                                                                     class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                                                     v-bind:src="item.alumno.persona.rutaFoto" />
+                                                            </div>
+                                                        </td>
+
+                                                        <td class="v-middle">
+                                                            <a class="block text-primary bold h5 m-b-xs m-t-xs" >
+                                                                {{item.alumno.persona.apellidosNombres}}
+                                                            </a>
+                                                            <span class="block">
+                                                                <strong>Matrícula:</strong> {{item.alumno.codigo}} &nbsp;|&nbsp;
+                                                                <strong>{{item.alumno.persona.tipoDocumento.simbolo}}:</strong> {{item.alumno.persona.numeroDocIdentidad}}
+                                                            </span>
+                                                            <small class="block bold">
+                                                                Especialidad: {{item.alumno.carrera.nombre}}
+                                                            </small>
+                                                            <span class="block text-primary bold" v-if="item.turnoEntrevistaObuae.id != '' ">
+                                                                Turno: {{item.numeroAtencion}} &nbsp;|&nbsp; Fecha: {{item.turnoEntrevistaObuae.fecha}}
+                                                            </span>
+                                                        </td>
+
+                                                        <td  class="v-middle"> 
+                                                            <span class="block m-b-xs"  >
+                                                                <span style="color:#fff">.</span>
+                                                                <transition name="slide-fade">
+                                                                    <span v-if="!item.ocultar" class="nombre-actividad">{{item.descripcion}}</span>
+                                                                </transition>
+                                                            </span>
+
+                                                            <div class="block">
+                                                                <div v-for="actividad in item.actividadIngresante" 
+                                                                     class="circle-recorrido pointer"
+                                                                     v-on:mouseover="verDetalle(item,actividad)"
+                                                                     v-on:mouseout="noverDetalle(item)"
+                                                                     v-bind:class="{ 'bgr-default': actividad.estado=='PEND' , 'bgr-warning': actividad.estado=='INC' , 'bgr-success':  actividad.estado=='ACT'  }"
+                                                                     >
+                                                                    {{actividad.tipoActividadIngresante.codigoVisible}}
+                                                                </div>
+                                                            </div>
+                                                        </td>
+
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </template>
+                                </raptor-table>
+                            </section>
+                        </section>
+                    </section>
+
+                </div>
+            </div>
+
+        </section>
+
+        <div layout:fragment="js" th:remove="tag">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/ingresante/hojarecorrido/hojarecorrido.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.tramite.AutorizacionRegistro;
 
@@ -275,6 +276,21 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     }
 
     @Override
+    public List<AlumnoCicloCurso> allOperativesByModalidadEstudio(ModalidadEstudioEnum modalidadEstudioEnum) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio", "ca.modalidadEstudio mde")
+                .left("ac.situacionFinal", "ac.orientacionCarrera")
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("mde.codigo", modalidadEstudioEnum)
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+
+        return all(sql);
+    }
+
+    @Override
     public List<AlumnoCicloCurso> allByAlumnoOrderByCurso(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
@@ -353,7 +369,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .filter("acc.registroActivo", BigDecimal.ONE.intValue());
         return all(sql);
     }
-    
+
     @Override
     public List<AlumnoCicloCurso> allStateByAlumnoCiclo(AlumnoCiclo alumnoCiclo) {
         Octavia sql = Octavia.query()
