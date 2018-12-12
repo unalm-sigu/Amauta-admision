@@ -31,7 +31,7 @@ public interface HorarioCachimboGenerarService {
 
     List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Long horario);
 
-    List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio);
+    List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico);
 
     List<Curso> allCursoCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
 
@@ -61,7 +61,7 @@ public interface HorarioCachimboGenerarService {
             int ordenCurso, int ordenSeccion,
             List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
             Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera,
-            Map<Long, Seccion> mapSeccionesAlumno, Map<Long, Curso> mapCursosAlumno);
+            Map<Long, Seccion> mapSeccionesAlumno, Map<Long, Curso> mapCursosAlumno, Carrera carrera);
 
     void generarHorario(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds, List<AlumnoHorario> alumnos);
 

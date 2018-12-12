@@ -183,9 +183,9 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
     @Override
     public List<CarreraCursoCachimbo> allCarrera(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
 
-        List<CursoCachimbos> cursosCchimbos = cursoCachimbosDAO.allByCiclo(cicloAcademico);
+        List<CursoCachimbos> cursosCachimbos = cursoCachimbosDAO.allByCiclo(cicloAcademico);
         List<CarreraCursoCachimbo> carrerasCachimbos = new ArrayList();
-        Map<Long, List<CursoCachimbos>> cursosCachimbosMap = TypesUtil.convertListToMapList("carrera.id", cursosCchimbos);
+        Map<Long, List<CursoCachimbos>> cursosCachimbosMap = TypesUtil.convertListToMapList("carrera.id", cursosCachimbos);
         List<Carrera> carreras = carreraDAO.allByModalidad(modalidadEstudio);
         List<CarreraCachimbos> carreraCachimbos = carreraCachimbosDAO.allCarreraCachimbosByCarreras(carreras, cicloAcademico);
         Map<Long, CarreraCachimbos> carreraCachimbosMap = TypesUtil.convertListToMap("carrera.id", carreraCachimbos);

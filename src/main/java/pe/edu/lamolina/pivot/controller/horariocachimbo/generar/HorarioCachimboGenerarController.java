@@ -167,7 +167,7 @@ public class HorarioCachimboGenerarController {
 
         ModalidadEstudio modalidadEstudio = new ModalidadEstudio(1);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        List<Carrera> carreras = service.allCarrera(modalidadEstudio);
+        List<Carrera> carreras = service.allCarrera(modalidadEstudio, cicloAcademico);
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("carreras", carreras);
         return "academico/horariocachimbo/generador/horarioCachimboGenerador";

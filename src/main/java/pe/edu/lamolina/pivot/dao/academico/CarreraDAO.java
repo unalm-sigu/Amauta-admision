@@ -51,6 +51,6 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
 
     List<Carrera> allActivasByModalidadEnum(ModalidadEstudioEnum modalidadEstudioEnum);
 
-    public List<Carrera> allOficinaAndIds(List<Long> idEsp);
+    List<Carrera> allOficinaAndIds(List<Long> idEsp);
 
 }
