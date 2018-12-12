@@ -328,11 +328,12 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 nuevoCursoAlumno.setNota(null);
                 nuevoCursoAlumno.setValidado(false);
                 nuevoCursoAlumno.setVecesCursado(0);
-
+                nuevoCursoAlumno.setTipoCursoCurricula(entry.getValue().getTipoCursoCurricula());
                 cursosCurriculaByCurso.put(nuevoCursoAlumno.getCursoCurricula().getCurso().getId(), nuevoCursoAlumno);
                 cursosAlumno.put(nuevoCursoAlumno.getCursoCurricula().getId(), nuevoCursoAlumno);
             } else {
                 cursosAlumno.get(entry.getKey()).setNumeroCiclo(entry.getValue().getNumeroCiclo());
+                cursosAlumno.get(entry.getKey()).setTipoCursoCurricula(entry.getValue().getTipoCursoCurricula());
             }
         }
 
