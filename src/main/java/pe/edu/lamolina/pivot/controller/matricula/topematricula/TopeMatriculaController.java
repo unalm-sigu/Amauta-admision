@@ -39,7 +39,7 @@ public class TopeMatriculaController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
-        return "academico/topematricula/topematricula";
+        return "academico/topematricula/topeMatricula";
     }
 
     @ResponseBody
