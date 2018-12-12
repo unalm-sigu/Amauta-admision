@@ -380,7 +380,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 secc.setSeccionSuperior(superior);
             }
 
-            secc.setRestriccionesRepitencia(restriccRepSec);
+            
         }
 
         List<HorarioSeccion> horaDiaSecciones = horarioSeccionDAO.allBySecciones(secciones);
@@ -424,6 +424,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
             secc.setRestriccionesCarrera(restriccCarSec);
             secc.setRestriccionesFacultad(restriccFacSec);
             secc.setRestriccionesModalidad(restriccModSec);
+            secc.setRestriccionesRepitencia(restriccRepSec);
         }
 
         Map<Long, List<SeccionHorarioCachimbos>> mapSeccionHorario = TypesUtil.convertListToMapList("horarioCachimbos.id", seccionesHorariosBD);
