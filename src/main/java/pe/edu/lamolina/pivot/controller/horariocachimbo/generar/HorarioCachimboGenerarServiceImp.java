@@ -28,6 +28,10 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.RestriccionCarrera;
+import pe.edu.lamolina.model.academico.RestriccionFacultad;
+import pe.edu.lamolina.model.academico.RestriccionModalidad;
+import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
@@ -50,6 +54,10 @@ import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.academico.RestriccionCarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
+import pe.edu.lamolina.pivot.dao.academico.RestriccionModalidadDAO;
+import pe.edu.lamolina.pivot.dao.academico.RestriccionRepitenciaDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
@@ -120,6 +128,15 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
+
+    @Autowired
+    RestriccionCarreraDAO restriccionCarreraDAO;
+    @Autowired
+    RestriccionFacultadDAO restriccionFacultadDAO;
+    @Autowired
+    RestriccionModalidadDAO restriccionModalidadDAO;
+    @Autowired
+    RestriccionRepitenciaDAO restriccionRepitenciaDAO;
 
     @Override
     public ModalidadEstudio findModalidadPregrado() {
@@ -210,8 +227,13 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
     }
 
     @Override
-    public List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio) {
-        return carreraDAO.allByModalidad(modalidadEstudio);
+    public List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
+        List<Carrera> carreras = new ArrayList();
+        List<CarreraCachimbos> carrerasCachimbos = carreraCachimbosDAO.allByCicloAcademico(cicloAcademico);
+        for (CarreraCachimbos carrCach : carrerasCachimbos) {
+            carreras.add(carrCach.getCarrera());
+        }
+        return carreras;
     }
 
     @Override
@@ -323,6 +345,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         List<Curso> cursosTodos = allCursosCarrera(cursoCachimbosTodos);
 
         List<Seccion> secciones = seccionDAO.allActivosByCursosCiclo(cursosTodos, ciclo);
+
         List<SeccionCursoCachimbos> seccionesCachimbos = seccionCursoCachimbosDAO.allByCiclo(ciclo);
 
         List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allBySecciones(secciones);
@@ -356,6 +379,8 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 Seccion superior = mapSeccionMain.get(sup.getId());
                 secc.setSeccionSuperior(superior);
             }
+
+            secc.setRestriccionesRepitencia(restriccRepSec);
         }
 
         List<HorarioSeccion> horaDiaSecciones = horarioSeccionDAO.allBySecciones(secciones);
@@ -371,9 +396,34 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
         List<HorarioCachimbos> horariosBD = horarioCachimbosDAO.allByCiclo(ciclo);
         List<SeccionHorarioCachimbos> seccionesHorariosBD = seccionHorarioCachimbosDAO.allByHorarios(horariosBD);
+
+        List<RestriccionCarrera> restriccionCarr = restriccionCarreraDAO.allActivasBySecciones(secciones);
+        List<RestriccionFacultad> restriccionFac = restriccionFacultadDAO.allActivasBySecciones(secciones);
+        List<RestriccionModalidad> restriccionMod = restriccionModalidadDAO.allActivasBySecciones(secciones);
+        List<RestriccionRepitencia> restriccionRep = restriccionRepitenciaDAO.allActivasBySecciones(secciones);
+
+        Map<Long, List<RestriccionCarrera>> mapRestricCarr = TypesUtil.convertListToMapList("seccion.id", restriccionCarr);
+        Map<Long, List<RestriccionFacultad>> mapRestricFac = TypesUtil.convertListToMapList("seccion.id", restriccionFac);
+        Map<Long, List<RestriccionModalidad>> mapRestricMod = TypesUtil.convertListToMapList("seccion.id", restriccionMod);
+        Map<Long, List<RestriccionRepitencia>> mapRestricRep = TypesUtil.convertListToMapList("seccion.id", restriccionRep);
+
         for (SeccionHorarioCachimbos seccHorarioCachimbo : seccionesHorariosBD) {
             Seccion secc = mapSeccionMain.get(seccHorarioCachimbo.getSeccion().getId());
             seccHorarioCachimbo.setSeccion(secc);
+
+            List<RestriccionCarrera> restriccCarSec = mapRestricCarr.get(secc.getId());
+            List<RestriccionFacultad> restriccFacSec = mapRestricFac.get(secc.getId());
+            List<RestriccionModalidad> restriccModSec = mapRestricMod.get(secc.getId());
+            List<RestriccionRepitencia> restriccRepSec = mapRestricRep.get(secc.getId());
+
+            restriccCarSec = (restriccCarSec == null) ? new ArrayList() : restriccCarSec;
+            restriccFacSec = (restriccFacSec == null) ? new ArrayList() : restriccFacSec;
+            restriccModSec = (restriccModSec == null) ? new ArrayList() : restriccModSec;
+            restriccRepSec = (restriccRepSec == null) ? new ArrayList() : restriccRepSec;
+
+            secc.setRestriccionesCarrera(restriccCarSec);
+            secc.setRestriccionesFacultad(restriccFacSec);
+            secc.setRestriccionesModalidad(restriccModSec);
         }
 
         Map<Long, List<SeccionHorarioCachimbos>> mapSeccionHorario = TypesUtil.convertListToMapList("horarioCachimbos.id", seccionesHorariosBD);

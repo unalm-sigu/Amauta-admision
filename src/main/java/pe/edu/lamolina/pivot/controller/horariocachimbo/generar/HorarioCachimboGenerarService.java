@@ -31,7 +31,7 @@ public interface HorarioCachimboGenerarService {
 
     List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Long horario);
 
-    List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio);
+    List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico);
 
     List<Curso> allCursoCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
 

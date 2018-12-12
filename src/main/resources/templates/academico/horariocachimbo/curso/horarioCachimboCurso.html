@@ -18,7 +18,7 @@
 <body>
     <div layout:fragment="main">
 
-        <div  id="main">
+        <div  id="main" v-cloak="">
             <header class="header b-b padder-lg">
                 <div class="pull-right m-t-md">
                     <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"          href="#" >Agregar Curso</a>
@@ -35,11 +35,11 @@
                                     <a href="#" v-on:click.prevent="filtrarCurso" class="view-count " th:rel="${item.carrera.id}">
                                         <span class="h1 block bold text-success"  th:style="|color: ${item.getColor(counter.index)}|" th:text="${item.cantidad}">23</span>
                                         <small class="block m-b-xs bold text-muted"  th:text="${item.carrera.nombreCorto}"  >Pregrado</small>
-                                        <small class=" m-b-xs bold text-muted" th:if="${item.carreraCachimbos.sinHorario==0}" th:inline="text"> 
-                                           [[${item.carreraCachimbos.conHorario}]] / [[${item.carreraCachimbos.ingresantes}]]
+                                        <small class="m-b-xs bold text-muted" th:if="${item.carreraCachimbos.sinHorario==0}" th:inline="text"> 
+                                            [[${item.carreraCachimbos.conHorario}]] / [[${item.carreraCachimbos.ingresantes}]]
                                         </small>
                                         <small class=" m-b-xs bold text-danger" th:unless="${item.carreraCachimbos.sinHorario==0}" th:inline="text"> 
-                                           [[${item.carreraCachimbos.conHorario}]] / [[${item.carreraCachimbos.ingresantes}]]
+                                            [[${item.carreraCachimbos.conHorario}]] / [[${item.carreraCachimbos.ingresantes}]]
                                         </small>
                                     </a>
                                 </div>
