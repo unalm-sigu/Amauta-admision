@@ -57,4 +57,21 @@ public class GrupoHorasExamenDAOH extends AbstractEasyDAO<GrupoHorasExamen> impl
                 .filter("ghe.id", id);
         return find(sql);
     }
+
+    @Override
+    public void updateFechaExamen(GrupoHorasExamen grupoHorasExamen) {
+        Octavia octavia = Octavia.update(GrupoHorasExamen.class);
+        octavia.set(grupoHorasExamen, "fecha");
+        octavia.set(grupoHorasExamen, "dia");
+        octavia.set(grupoHorasExamen, "horaInicio");
+        octavia.set(grupoHorasExamen, "horaFin");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateVerificado(GrupoHorasExamen grupoHorasExamen) {
+        Octavia octavia = Octavia.update(GrupoHorasExamen.class);
+        octavia.set(grupoHorasExamen, "verificado");
+        this.update(octavia);
+    }
 }

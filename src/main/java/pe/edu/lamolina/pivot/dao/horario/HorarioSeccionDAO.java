@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.horario;
 
 import java.util.List;
+import java.util.Map;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -30,5 +31,7 @@ public interface HorarioSeccionDAO extends EasyDAO<HorarioSeccion> {
     List<HorarioSeccion> allByCiclo(CicloAcademico cicloAcademico);
 
     void deleteAllByCiclo(CicloAcademico ciclo);
+
+    Map<Long, Long> allSeccionDayWithQtyHours(List<Seccion> secciones, Integer horasForDay);
 
 }

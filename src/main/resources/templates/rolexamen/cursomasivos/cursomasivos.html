@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout"> 
-    <head>
-        <title> Cursos Masivos </title> 
+    <head> 
+        <title> Cursos Masivos </title>  
     </head>
     <body>
         <section layout:fragment="main">
@@ -85,8 +85,9 @@
                                 <thead> 
                                     <tr> 
                                         <th class="col-md-4 v-middle text-center">Curso</th>
-                                        <th class="col-md-3 v-middle text-center">Fecha / Hora</th>
+                                        <th class="col-md-2 v-middle text-center">Fecha / Hora</th>
                                         <th class="col-md-1 v-middle text-center">Secciones</th>
+                                        <th class="col-md-1 v-middle text-center">Docentes</th>
                                         <th class="col-md-1 v-middle text-center">Alumnos</th>
                                         <th class="col-md-1 v-middle text-center">Aulas</th>
                                         <th class="col-md-1 v-middle text-center">Capacidad de Aulas</th>
@@ -105,14 +106,33 @@
                                                 {{item.curso.tpc}}</span>
                                         </td>
                                         <td class="v-middle text-center"> 
-                                            {{ item.fechaExamen }}
+                                            <div v-if="item.grupoHorasExamen.fecha">
+                                                {{item.grupoHorasExamen.fecha }}
+                                                (Grupo {{item.grupoHorasExamen.grupoHoras.codigo}})
+                                                <small class="block">Hora Inicio: {{item.grupoHorasExamen.horaInicio.descripcion}}</small>
+                                                <small class="block">Hora Fin: {{item.grupoHorasExamen.horaFin.descripcion}}</small>
+                                            </div>
+                                            <div v-else="" >
+                                                <label class="alert alert-info">
+                                                    Sin Asignar Horario
+                                                </label>
+                                            </div>
                                         </td>
                                         <td class="v-middle text-center"> 
                                             <span class="badge pointer"
-                                                  v-on:click="verSeccionesAsignadas(item)">{{ item.secciones }}</span>
+                                                  v-on:click="verSeccionesAsignadas(item)">{{ item.seccionesCount }}</span>
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            <span class="badge pointer" 
+                                                  v-on:click="verDocentes(item)">
+                                                {{item.docentesCount}}
+                                            </span>
                                         </td>
                                         <td class="v-middle text-center"> 
-                                            {{ item.alumnos }}
+                                            <span class="badge pointer"
+                                                  v-on:click="verAlumnos(item)">
+                                                {{ item.alumnosCount }}
+                                            </span>
                                         </td>
                                         <td class="v-middle text-center"> 
                                             <span class="badge pointer"
@@ -122,21 +142,24 @@
                                             {{ item.capacidadAulas }}
                                         </td>
                                         <td class="v-middle text-center">
-                                            <v-estado v-bind:codigo="item.estado" v-bind:valor="item.estadoEnum.value"/>
-                                        </td>
-                                        <td class="v-middle">
-                                            <div class="actions">
-                                                <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="glyphicon glyphicon-cog"> </i></a>
+                                <v-estado v-bind:codigo="item.estado" v-bind:valor="item.estadoEnum.value"/>
+                                </td>
+                                <td class="v-middle">
+                                    <div class="actions">
+                                        <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="glyphicon glyphicon-cog"> </i></a>
 
-                                                <ul class="dropdown-menu pull-right" >
-                                                    <li><a class=" pointer btn-link bold" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>                                                        
-                                                    <li class="divider"></li>     
-                                                    <li><a class=" pointer bold" v-on:click="excluir(item,tipoAccion.CURSO)">Excluir</a></li>
-                                                    <li><a class=" pointer bold" v-on:click="eliminar(item)">Eliminar</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                        <ul class="dropdown-menu pull-right" >
+                                            <li><a class=" pointer btn-link bold" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>     
+                                            <li><a class=" pointer btn-link bold" v-on:click="verAsignarHorario(item)">Asignar Horario</a></li>  
+                                            <li><a class=" pointer btn-link bold" v-on:click="cursoMasivoSecciones(item)"  >Secciones</a></li>   
+                                            <li class="divider"></li>     
+                                            <li><a class=" pointer bold" v-on:click="excluir(item,tipoAccion.CURSO)"  >Excluir</a></li>
+                                            <li><a class=" pointer bold" v-on:click="incluir(item,tipoAccion.CURSO)"  >Incluir</a></li>
+                                            <li><a class=" pointer bold" v-on:click="eliminar(item)">Eliminar</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                                </tr>
                                 </tbody>
                             </table>
 
@@ -149,7 +172,6 @@
             </div>
             <div th:substituteby="_modules/vue-modal"/>
         </section>
-
         <div layout:fragment="js">
             <script  th:inline="javascript" >
                 /*<![CDATA[*/

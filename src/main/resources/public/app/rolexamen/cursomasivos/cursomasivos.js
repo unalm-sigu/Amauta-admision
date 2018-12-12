@@ -1,5 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default);
- 
+
 new Vue({
     el: '#main',
     data: {
@@ -24,8 +24,7 @@ new Vue({
             id: 'modalSecciones',
             header: true,
             title: 'Secciones Asignadas',
-            showaccept: "false",
-            modalsize: 'modal-lg'
+            showaccept: "false"
         },
         rolExamenes: null,
         rolesExamenes: JSON.parse(jRolexamenes),
@@ -41,8 +40,14 @@ new Vue({
         secciones: [],
         tipoAccion: {
             CURSO: "CURSO",
-            SECCION: "SECCION"
-        }
+            SECCION: "SECCION",
+            DOCENTE: "DOCENTE",
+            ALUMNO: "ALUMNO"
+        },
+        semanasExamen: [],
+        semanaExamenActiva: null,
+        grupoActivo: null,
+        rolExamenesLogger: null
     },
     mounted() {
         let $vue = this;
@@ -150,6 +155,8 @@ new Vue({
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
             $vue.aulas = $vue.cursoMasivoExamen.aulasCursosMasivos;
             $vue.$refs.addAulasModal.open();
+        }, cursoMasivoSecciones(item) {
+            location.href = `${this.URL}/secciones/${item.id}`;
         },
         verAulasAsignadas(item) {
             let $vue = this;
@@ -161,6 +168,8 @@ new Vue({
             let $vue = this;
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
             $vue.secciones = $vue.cursoMasivoExamen.seccionesCursosMasivos;
+            $vue.$refs.tblSeccionesCursosMasivos.ajaxdata = {cursoMasivo: this.cursoMasivoExamen.id};
+            $vue.$refs.tblSeccionesCursosMasivos.loadRemoteData();
             $vue.$refs.modalSecciones.open();
         },
         saveAulas() {
@@ -258,10 +267,51 @@ new Vue({
 
                                         switch (tipoAccion) {
                                             case vue.tipoAccion.SECCION:
-                                                vue.$refs.seccionModal.close();
-                                                vue;
+                                                vue.$refs.tblSeccionesCursosMasivos.loadRemoteData();
+                                                break;
                                             case vue.tipoAccion.ALUMNO:
-                                                vue.$refs.alumnosModal.close();
+                                                vue.$refs.tblAlumnoCursosMasivos.loadRemoteData();
+                                                break;
+                                            case vue.tipoAccion.DOCENTE:
+                                                vue.$refs.tblDocentesCursosMasivos.loadRemoteData();
+                                                break;
+                                        }
+                                        vue.loadCursosMasivosByRoleExamen();
+                                    }
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
+        }, incluir(item, tipoAccion) {
+            let vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea incluir?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/${tipoAccion}/incluir`, item)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        /* obj.estadoEnum = {
+                                         "name": "EXC",
+                                         "value": "Excluido"
+                                         };
+                                         obj.estado = obj.estadoEnum.name;*/
+
+                                        switch (tipoAccion) {
+                                            case vue.tipoAccion.SECCION:
+                                                vue.$refs.tblSeccionesCursosMasivos.loadRemoteData();
+                                                break;
+                                            case vue.tipoAccion.ALUMNO:
+                                                vue.$refs.tblAlumnoCursosMasivos.loadRemoteData();
+                                                break;
+                                            case vue.tipoAccion.DOCENTE:
+                                                vue.$refs.tblDocentesCursosMasivos.loadRemoteData();
                                                 break;
                                         }
                                         vue.loadCursosMasivosByRoleExamen();
@@ -331,6 +381,88 @@ new Vue({
         viewAulas() {
             let $vue = this;
             $vue.$refs.modalAulasAsignadas.close();
+        },
+        verAsignarHorario(item) {
+            let $vue = this;
+            $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
+            $vue.grupoActivo = $vue.cursoMasivoExamen.grupoHorasExamen;
+            this.semanaExamenActiva = null;
+            if ($vue.cursoMasivoExamen.hasOwnProperty("grupoHorasExamen.id")) {
+                this.semanaExamenActiva = $vue.cursoMasivoExamen.grupoHorasExamen.semanaExamen;
+
+                $("#semana" + $vue.semanaExamenActiva.numeroSemana).click();
+                $("#semana" + $vue.semanaExamenActiva.numeroSemana).tab('show');
+
+            }
+            this.listarHorarioSemanal();
+            $vue.$refs.modalHorarios.open();
+        }, saveHorarioExamen() {
+            let $vue = this;
+            //   $vue.grupoActivo.semanaExamen = this.semanaExamenActiva;
+            $vue.cursoMasivoExamen.grupoHorasExamen = {id: $vue.grupoActivo.id};
+            AXIOS.post(`${this.URL}/saveHorarioExamen`, $vue.cursoMasivoExamen)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.loadCursosMasivosByRoleExamen();
+                        } else {
+                            if (response.data.data != null) {
+                                this.rolExamenesLogger = response.data.data;
+                                this.$refs.infoModal.title = this.rolExamenesLogger.message;
+                                this.$refs.infoModal.open();
+                            }
+                        }
+                        // MODAL.hideWait();
+                    });
+            $vue.$refs.modalHorarios.close();
+        }, listarHorarioSemanal() {
+            AXIOS.post(`${APP.url('rolexamen/plantillahorario')}/listarHorarioSemanal`, this.rolExamenes)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.semanasExamen = response.data.data;
+                            if (this.semanaExamenActiva != null) {
+                                this.seleccionarSemana(this.semanaExamenActiva);
+                            } else {
+                                console.log("###############");
+                                console.dir(this.semanasExamen[0]);
+                                this.seleccionarSemana(this.semanasExamen[0]);
+                            }
+                        }
+                        // MODAL.hideWait();
+                    });
+        }, fechaGrupoHoraItem(fechaGrupoHora) {
+            if (this.grupoActivo != null && fechaGrupoHora.grupoHorasExamen.id == this.grupoActivo.id) {
+                return "border-color:#600D63; background-color:#DCDFE3;color:#000000;"
+            }
+
+            return "border-color:#DFE7EE; background-color:#FFFFFF;color:#E40DEB;"
+        }, seleccionarSemana(semana) {
+            console.dir(semana);
+            let vue = this;
+            this.semanasExamen.forEach(function (x) {
+                if (x.id == semana.id) {
+                    x.selected = true;
+                    vue.semanaExamenActiva = x;
+                } else {
+                    x.selected = false;
+                }
+            });
+        }, seleccionarGrupoHorasExamen(dia, hora, semExamen) {
+            let fechaHoraGrupoExamen = semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id + '_' + hora.id];
+            console.log("fecha hora grupo examen seleccionado");
+            console.dir(fechaHoraGrupoExamen);
+            console.log("semana examen");
+            console.dir(semExamen);
+            this.grupoActivo = fechaHoraGrupoExamen.grupoHorasExamen;
+        }, verDocentes(cursoMasivo) {
+            this.cursoMasivoExamen = cursoMasivo;
+            this.$refs.tblDocentesCursosMasivos.ajaxdata = {cursoMasivo: this.cursoMasivoExamen.id};
+            this.$refs.tblDocentesCursosMasivos.loadRemoteData();
+            this.$refs.docenteModal.open();
+        }, verAlumnos(cursoMasivo) {
+            this.cursoMasivoExamen = cursoMasivo;
+            this.$refs.tblAlumnoCursosMasivos.ajaxdata = {cursoMasivo: this.cursoMasivoExamen.id};
+            this.$refs.tblAlumnoCursosMasivos.loadRemoteData();
+            this.$refs.alumnoModal.open();
         }
     }
 });

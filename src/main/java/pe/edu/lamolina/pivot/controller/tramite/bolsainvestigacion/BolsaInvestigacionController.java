@@ -122,8 +122,8 @@ public class BolsaInvestigacionController {
         JsonResponse response = new JsonResponse();
         try {
             CicloAcademico ciclo = ds.getCicloAcademico();
-            Facultad facultad = new Facultad(6L);
-            List<Alumno> alumnos = service.searchAlumnosByFacultadNombre(facultad, nombre, ciclo);
+            List<Facultad> facultades = ds.getFacultades();
+            List<Alumno> alumnos = service.searchAlumnosByFacultadNombre(facultades, nombre, ciclo);
             ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
             for (Alumno alumno : alumnos) {
                 ObjectNode node = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true,

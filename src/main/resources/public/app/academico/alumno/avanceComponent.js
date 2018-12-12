@@ -132,10 +132,10 @@ Vue.component("avance-component", {
         },
         generarAvance() {
             let $vue = this;
-            if ($vue.planTemp.id == $vue.alumno.planCurricular.id && $vue.cursosCurricula.length > 0) {
-                notify('Debe cambiar antes el plan curricular', 'error');
-                return;
-            }
+//            if ($vue.planTemp.id == $vue.alumno.planCurricular.id && $vue.cursosCurricula.length > 0) {
+//                notify('Debe cambiar antes el plan curricular', 'error');
+//                return;
+//            }
 
             MODAL.showWait("Espere un momento por favor");
             $.ajax({

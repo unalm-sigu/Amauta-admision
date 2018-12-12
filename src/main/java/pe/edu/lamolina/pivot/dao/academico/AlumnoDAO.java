@@ -70,7 +70,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     void updateCicloActivoRegular(Alumno alumno);
 
-    List<Alumno> allByNombreFacultad(String name, Facultad facultad);
+    List<Alumno> allByNombreFacultad(String name, List<Facultad> facultad);
 
     List<Alumno> allByIds(Long[] idAlumnos);
 

@@ -1,6 +1,6 @@
 <modal-vik ref="addAulasModal"
            v-bind="configAddAulasModal"
-           v-bind:okaction="saveAulas">  
+           v-bind:okaction="saveAulas">   
     <div slot="body">
         <div class="panel m-b-n">
             <div class="panel-body">
@@ -104,7 +104,8 @@
 
 <modal-vik ref="modalAulasAsignadas"
            v-bind="aulasAsignadasModal"
-           v-bind:okaction="viewAulas">
+           v-bind:okaction="viewAulas"
+           v-bind:showaccept="false">
     <div slot="body">
         <div class="panel m-b-n">
             <div class="panel-body">
@@ -166,27 +167,395 @@
     </div>
 </modal-vik>
 
+<modal-vik ref="modalHorarios"
+           id="modalHorarios"
+           header="true"
+           title="Horarios"
+           modalsize="modal-lg"
+           v-bind:okaction="saveHorarioExamen">
+    <div slot="body">
+        <form id="frmHorarios">
+            <section class="panel-body">
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-md-2">Curso Masivo</label>
+
+                        <div class="col-md-4"
+                             v-if="cursoMasivoExamen.curso">
+                            <span class=" text-primary bold h5 m-b-xs m-t-xs"
+                                  v-text="cursoMasivoExamen.curso.nombre"
+                                  v-if="cursoMasivoExamen"></span>
+                            <span class="">
+                                {{cursoMasivoExamen.curso.codigo}}&nbsp;
+                                <i class="fa fa-bookmark text-primary"></i>
+                                {{cursoMasivoExamen.curso.tpc}}
+                            </span>
+                        </div>
+                        <div class="col-md-2">
+                            Rol Examenes
+                        </div>
+                        <span class="col-md-4" 
+                              v-text="rolExamenes.nombre"
+                              v-if="rolExamenes">
+                        </span>    
+                    </div>
+
+                </div>
+                <div class="row" >
+                    <header class="page-header m-t-xs m-b-xs" style="border-bottom: 1px solid white;">
+                        <div class="tabbable-line" style="margin-top: 8px;">	
+                            <ul class="nav nav-tabs">
+                                <li v-for="semExamen in semanasExamen"  v-bind:id="'lsemana'+semExamen.numeroSemana">
+                                    <a v-bind:href="'#'+semExamen.numeroSemana" 
+                                       v-bind:id="'semana'+semExamen.numeroSemana"
+                                       data-toggle="tab"
+                                       v-text="`Semana ${semExamen.numeroSemana}`"
+                                       v-bind:class="{active : semExamen.selected}"
+                                       v-bind:aria-expanded="semExamen.selected"
+                                       v-on:click="seleccionarSemana(semExamen)"
+                                       >xxx</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </header>
+                    <div class="tab-content">
+                        <div class="tab-pane"
+                             v-bind:id="semExamen.numeroSemana"
+                             v-bind:class="{active : semExamen.selected}"
+                             v-for="semExamen in semanasExamen">
+                            <section class="panel-body">
+                                <div class="table-responsive">
+
+                                    <table  class="table table-bordered m-b-xs">
+
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 12.5%" class="text-center">Hora</th>
+                                                <th style="width: 12.5%" class="text-center" 
+                                                    v-for="dia in semExamen.tblHorarioSeamanaExamen.dias" v-text="dia.nombre" >
+                                                </th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody >
+                                            <tr v-for="hora in semExamen.tblHorarioSeamanaExamen.horas">
+                                                <td style="width: 12.5%" class="v-middle">
+                                                    <span 
+                                                        class="form-control"
+                                                        th:style="'border-color:#fff;'">
+                                                        {{hora.descripcion}}
+                                                    </span>
+
+                                                </td>
+                                                <td v-for="dia in semExamen.tblHorarioSeamanaExamen.dias" style="width: 12.5%">
+                                                    <!-- v-bind:class="getClassGpoHorario(tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])" -->
+                                                    <!--   v-on:click="selectFechaHoraGrupo(dia,hora,semExamen)" -->
+                                                    <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id]" 
+                                                          v-on:click="seleccionarGrupoHorasExamen(dia,hora,semExamen)"
+                                                          class="form-control pointer"
+                                                          v-bind:style="fechaGrupoHoraItem(semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id])"
+                                                          >
+                                                        {{semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].grupoHorasExamen.grupoHoras.codigo}}
+                                                    </span>
+                                                    <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id]==null" 
+                                                          class="form-control"
+                                                          >
+
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                            </section>
+                        </div>
+                    </div>
+                </div>   
+            </section>
+        </form>
+    </div>
+</modal-vik>
+
+
+<modal-vik ref="docenteModal"
+           id="modalDocente"
+           header="true"
+           title="Docentes"
+           modalsize="modal-lg"
+           v-bind:showaccept="false">
+    <div slot="body">
+        <div class="row">
+            <div class="form-group">
+                <label class="col-md-2">Curso Masivo</label>
+
+                <div class="col-md-4"
+                     v-if="cursoMasivoExamen.curso">
+                    <span class=" text-primary bold h5 m-b-xs m-t-xs"
+                          v-text="cursoMasivoExamen.curso.nombre"
+                          v-if="cursoMasivoExamen"></span>
+                    <span class="">
+                        {{cursoMasivoExamen.curso.codigo}}&nbsp;
+                        <i class="fa fa-bookmark text-primary"></i>
+                        {{cursoMasivoExamen.curso.tpc}}
+                    </span>
+                </div>
+                <div class="col-md-2">
+                    Rol Examenes
+                </div>
+                <span class="col-md-4" 
+                      v-text="rolExamenes.nombre"
+                      v-if="rolExamenes">
+                </span>    
+            </div>
+
+        </div>
+
+        <raptor-table v-bind:url="`${URL}/listDocentesCursosMasivos`" v-bind:preload="false" ref="tblDocentesCursosMasivos">
+            <template scope="props">
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="col-md-3 text-center">Codigo</th>
+                            <th class="col-md-5 text-center">Docente</th>
+                            <th class="col-md-3 text-center">Estado</th>
+                            <th class="col-md-1 text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody style="height:200px;overflow-y:auto;">
+                        <tr v-for="item in props.data">
+                            <td class="text-left">
+                                <span v-text="item.docente.codigo"></span>
+                            </td>
+                            <td class="text-left">
+                                <span v-text="item.docente.persona.apellidosNombres"></span>
+                            </td>
+                            <td class="text-center">
+                    <v-estado v-bind:codigo="item.estado" v-bind:valor="item.estadoEnum.value"/> 
+                    </td>
+                    <td>
+                        <div class="dropdown actions pointer">
+                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="glyphicon glyphicon-option-vertical"></i>
+                            </a> 
+                            <ul class="dropdown-menu pull-right">
+                                <li><a class=" pointer bold" v-on:click.prevent="excluir(item,tipoAccion.DOCENTE)">Excluir</a></li>
+                                <li><a >Incluir</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </template>
+        </raptor-table>
+
+    </div>
+</modal-vik>
+
+<modal-vik ref="alumnoModal"
+           id="modalAlumno"
+           header="true"
+           title="Alumnos"
+           modalsize="modal-lg"
+           v-bind:showaccept="false">
+    <div slot="body">
+        <div class="row">
+            <div class="form-group">
+                <label class="col-md-2">Curso Masivo</label>
+
+                <div class="col-md-4"
+                     v-if="cursoMasivoExamen.curso">
+                    <span class=" text-primary bold h5 m-b-xs m-t-xs"
+                          v-text="cursoMasivoExamen.curso.nombre"
+                          v-if="cursoMasivoExamen"></span>
+                    <span class="">
+                        {{cursoMasivoExamen.curso.codigo}}&nbsp;
+                        <i class="fa fa-bookmark text-primary"></i>
+                        {{cursoMasivoExamen.curso.tpc}}
+                    </span>
+                </div>
+                <div class="col-md-2">
+                    Rol Examenes
+                </div>
+                <span class="col-md-4" 
+                      v-text="rolExamenes.nombre"
+                      v-if="rolExamenes">
+                </span>    
+            </div>
+
+        </div>
+
+        <raptor-table v-bind:url="`${URL}/listAlumnosCursosMasivos`" v-bind:preload="false" ref="tblAlumnoCursosMasivos">
+            <template scope="props">
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="col-md-3 text-center">Codigo</th>
+                            <th class="col-md-5 text-center">Alumno</th>
+                            <th class="col-md-3 text-center">Estado</th>
+                            <th class="col-md-1 text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody style="height:200px;overflow-y:auto;">
+                        <tr v-for="item in props.data">
+                            <td class="text-left">
+                                <span v-text="item.alumno.codigo"></span>
+                            </td>
+                            <td class="text-left">
+                                <span v-text="item.alumno.persona.apellidosNombres"></span>
+                            </td>
+                            <td class="text-center">
+                    <v-estado v-bind:codigo="item.estado" v-bind:valor="item.estadoEnum.value"/> 
+                    </td>
+                    <td>
+                        <div class="dropdown actions pointer">
+                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="glyphicon glyphicon-option-vertical"></i>
+                            </a> 
+                            <ul class="dropdown-menu pull-right">
+                                <li><a class=" pointer bold" v-on:click.prevent="excluir(item,tipoAccion.ALUMNO)">Excluir</a></li>
+                                <li><a class=" pointer bold" v-on:click.prevent="incluir(item,tipoAccion.ALUMNO)">Incluir</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </template>
+        </raptor-table>
+
+    </div>
+</modal-vik>
+
+
+<modal-vik ref="infoModal"
+           id="modaLinfo"
+           header="true"
+           title="Revisar"
+           modalsize="modal-md"
+           v-bind:showaccept="false">
+    <div slot="body">
+        <div class="row">
+            <div class="form-group">
+                <label class="col-md-2">Curso Masivo</label>
+
+                <div class="col-md-4"
+                     v-if="cursoMasivoExamen.curso">
+                    <span class=" text-primary bold h5 m-b-xs m-t-xs"
+                          v-text="cursoMasivoExamen.curso.nombre"
+                          v-if="cursoMasivoExamen"></span>
+                    <span class="">
+                        {{cursoMasivoExamen.curso.codigo}}&nbsp;
+                        <i class="fa fa-bookmark text-primary"></i>
+                        {{cursoMasivoExamen.curso.tpc}}
+                    </span>
+                </div>
+                <div class="col-md-2">
+                    Rol Examenes
+                </div>
+                <span class="col-md-4" 
+                      v-text="rolExamenes.nombre"
+                      v-if="rolExamenes">
+                </span>    
+            </div>
+
+        </div>
+        <table class="table table-striped" v-if="rolExamenesLogger">
+            <thead>
+                <tr>
+                    <th class="col-md-3 text-center">Tipo</th>
+                    <th class="col-md-5 text-center">Error</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in rolExamenesLogger.logDetails">
+                    <td v-text="item.tipoEnum.value"></td>
+                    <td v-text="item.message"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</modal-vik>
+
 <modal-vik ref="modalSecciones"
            v-bind="seccionesModal"
-           v-bind:okaction="viewSecciones">
+           v-bind:okaction="viewSecciones"
+           v-bind:showaccept="false"
+           modalsize="modal-md">
     <div slot="body">
 
-        <label class="bold" 
-               v-if="secciones.length > 0"></label>
-        <div class="tab-pane m-t-n-lg">
-            <div class="row">
-                <div v-for="(seccion,idx) in secciones" class="col-md-1 m-t-md">
-                    <div class="list-group-item item"
-                         style="min-height: 50px; min-width: 61px; border-width: 1px; color: white;"
-                         v-bind:style="styleBgColorSeccion(seccion)">
-                        <div>
-                            <span class="h6" v-text="seccion.seccion.codigo2"></span>
-                            <small>({{seccion.seccion.matriculados}})</small>
-                        </div>
+        <div class="row">
+            <div class="form-group">
+                <label class="col-md-2">Curso Masivo</label>
 
-                    </div>
+                <div class="col-md-4"
+                     v-if="cursoMasivoExamen.curso">
+                    <span class=" text-primary bold h5 m-b-xs m-t-xs"
+                          v-text="cursoMasivoExamen.curso.nombre"
+                          v-if="cursoMasivoExamen"></span>
+                    <span class="">
+                        {{cursoMasivoExamen.curso.codigo}}&nbsp;
+                        <i class="fa fa-bookmark text-primary"></i>
+                        {{cursoMasivoExamen.curso.tpc}}
+                    </span>
                 </div>
+                <div class="col-md-2">
+                    Rol Examenes
+                </div>
+                <span class="col-md-4" 
+                      v-text="rolExamenes.nombre"
+                      v-if="rolExamenes">
+                </span>    
             </div>
+
         </div>
+
+        <raptor-table v-bind:url="`${URL}/listSeccionesCursosMasivos`" v-bind:preload="false" ref="tblSeccionesCursosMasivos">
+            <template scope="props">
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="col-md-3 text-center">Seccion</th>
+                            <th class="col-md-5 text-center">Alumnos</th>
+                            <th class="col-md-3 text-center">Estado</th>
+                            <th class="col-md-1 text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody style="height:200px;overflow-y:auto;">
+                        <tr v-for="item in props.data">
+                            <td class="text-center">
+                                <span v-text="item.seccion.codigo2"></span>
+                            </td>
+                            <td class="text-center">
+                                <span v-text="item.alumnosCount"></span>
+                            </td>
+                            <td class="text-center">
+                    <v-estado v-bind:codigo="item.estado" v-bind:valor="item.estadoEnum.value"/> 
+                    </td>
+                    <td>
+                        <div class="dropdown actions pointer">
+                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="glyphicon glyphicon-option-vertical"></i>
+                            </a> 
+                            <ul class="dropdown-menu pull-right">
+                                <li><a class=" pointer bold" v-on:click.prevent="excluir(item,tipoAccion.SECCION)">Excluir</a></li>
+                                <li><a class=" pointer bold" v-on:click.prevent="incluir(item,tipoAccion.SECCION)">Incluir</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </template>
+        </raptor-table>
+
     </div>
 </modal-vik>
