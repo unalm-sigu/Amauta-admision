@@ -386,17 +386,6 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         List<HorarioSeccion> horaDiaSecciones = horarioSeccionDAO.allBySecciones(secciones);
         Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horaDiaSecciones);
 
-        for (Seccion seccion : secciones) {
-            List<HorarioSeccion> horariosSecc = mapHorarios.get(seccion.getId());
-            horariosSecc = (horariosSecc == null) ? new ArrayList() : horariosSecc;
-            seccion.setHorarioSeccion(horariosSecc);
-        }
-
-        Map<Long, List<AlumnoHorario>> mapAlumnos = TypesUtil.convertListToMapList("alumno.carrera.id", alumnosHoarios);
-
-        List<HorarioCachimbos> horariosBD = horarioCachimbosDAO.allByCiclo(ciclo);
-        List<SeccionHorarioCachimbos> seccionesHorariosBD = seccionHorarioCachimbosDAO.allByHorarios(horariosBD);
-
         List<RestriccionCarrera> restriccionCarr = restriccionCarreraDAO.allActivasBySecciones(secciones);
         List<RestriccionFacultad> restriccionFac = restriccionFacultadDAO.allActivasBySecciones(secciones);
         List<RestriccionModalidad> restriccionMod = restriccionModalidadDAO.allActivasBySecciones(secciones);
@@ -407,24 +396,36 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         Map<Long, List<RestriccionModalidad>> mapRestricMod = TypesUtil.convertListToMapList("seccion.id", restriccionMod);
         Map<Long, List<RestriccionRepitencia>> mapRestricRep = TypesUtil.convertListToMapList("seccion.id", restriccionRep);
 
-        for (SeccionHorarioCachimbos seccHorarioCachimbo : seccionesHorariosBD) {
-            Seccion secc = mapSeccionMain.get(seccHorarioCachimbo.getSeccion().getId());
-            seccHorarioCachimbo.setSeccion(secc);
+        for (Seccion seccion : secciones) {
+            List<HorarioSeccion> horariosSecc = mapHorarios.get(seccion.getId());
+            horariosSecc = (horariosSecc == null) ? new ArrayList() : horariosSecc;
+            seccion.setHorarioSeccion(horariosSecc);
 
-            List<RestriccionCarrera> restriccCarSec = mapRestricCarr.get(secc.getId());
-            List<RestriccionFacultad> restriccFacSec = mapRestricFac.get(secc.getId());
-            List<RestriccionModalidad> restriccModSec = mapRestricMod.get(secc.getId());
-            List<RestriccionRepitencia> restriccRepSec = mapRestricRep.get(secc.getId());
+            List<RestriccionCarrera> restriccCarSec = mapRestricCarr.get(seccion.getId());
+            List<RestriccionFacultad> restriccFacSec = mapRestricFac.get(seccion.getId());
+            List<RestriccionModalidad> restriccModSec = mapRestricMod.get(seccion.getId());
+            List<RestriccionRepitencia> restriccRepSec = mapRestricRep.get(seccion.getId());
 
             restriccCarSec = (restriccCarSec == null) ? new ArrayList() : restriccCarSec;
             restriccFacSec = (restriccFacSec == null) ? new ArrayList() : restriccFacSec;
             restriccModSec = (restriccModSec == null) ? new ArrayList() : restriccModSec;
             restriccRepSec = (restriccRepSec == null) ? new ArrayList() : restriccRepSec;
 
-            secc.setRestriccionesCarrera(restriccCarSec);
-            secc.setRestriccionesFacultad(restriccFacSec);
-            secc.setRestriccionesModalidad(restriccModSec);
-            secc.setRestriccionesRepitencia(restriccRepSec);
+            seccion.setRestriccionesCarrera(restriccCarSec);
+            seccion.setRestriccionesFacultad(restriccFacSec);
+            seccion.setRestriccionesModalidad(restriccModSec);
+            seccion.setRestriccionesRepitencia(restriccRepSec);
+        }
+
+        Map<Long, List<AlumnoHorario>> mapAlumnos = TypesUtil.convertListToMapList("alumno.carrera.id", alumnosHoarios);
+
+        List<HorarioCachimbos> horariosBD = horarioCachimbosDAO.allByCiclo(ciclo);
+        List<SeccionHorarioCachimbos> seccionesHorariosBD = seccionHorarioCachimbosDAO.allByHorarios(horariosBD);
+
+        for (SeccionHorarioCachimbos seccHorarioCachimbo : seccionesHorariosBD) {
+            Seccion seccion = mapSeccionMain.get(seccHorarioCachimbo.getSeccion().getId());
+            seccHorarioCachimbo.setSeccion(seccion);
+
         }
 
         Map<Long, List<SeccionHorarioCachimbos>> mapSeccionHorario = TypesUtil.convertListToMapList("horarioCachimbos.id", seccionesHorariosBD);
@@ -632,8 +633,9 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
         boolean sinCruceHorario = sinCruceHorario(mapHorasDias, seccionesOrden);
         boolean hayVacantes = hayVacantes(seccionesOrden);
+        boolean noTieneRestricc = noTieneRestricciones(seccionesOrden, carrera);
 
-        if (sinCruceHorario && hayVacantes) {
+        if (sinCruceHorario && hayVacantes && noTieneRestricc) {
             addHoraDiaSecciones(mapHorasDias, seccionesOrden);
             for (Seccion seccion : seccionesOrden) {
                 horarioTempo.add(seccion);
@@ -664,6 +666,64 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         if (ordenSeccion <= maxSecciones) {
             permutarUnico(ordenCurso, ordenSeccion, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosCarrera, mapSeccionesAlumno, mapCursosAlumno, carrera);
         }
+    }
+
+    private boolean noTieneRestricciones(List<Seccion> secciones, Carrera carrera) {
+        for (Seccion seccion : secciones) {
+            List<RestriccionCarrera> restriccCarr = seccion.getRestriccionesCarrera();
+            if (!restriccCarr.isEmpty()) {
+                boolean ok = false;
+                for (RestriccionCarrera rCarr : restriccCarr) {
+                    if (rCarr.getCarrera().getId().compareTo(carrera.getId()) == 0) {
+                        ok = true;
+                        break;
+                    }
+                }
+                if (!ok) {
+                    return false;
+                }
+            }
+            List<RestriccionFacultad> restriccFac = seccion.getRestriccionesFacultad();
+            if (!restriccFac.isEmpty()) {
+                boolean ok = false;
+                for (RestriccionFacultad rFacu : restriccFac) {
+                    if (rFacu.getFacultad().getId().compareTo(carrera.getFacultad().getId()) == 0) {
+                        ok = true;
+                        break;
+                    }
+                }
+                if (!ok) {
+                    return false;
+                }
+            }
+            List<RestriccionModalidad> restriccMod = seccion.getRestriccionesModalidad();
+            if (!restriccMod.isEmpty()) {
+                boolean ok = false;
+                for (RestriccionModalidad rMod : restriccMod) {
+                    if (rMod.getModalidadEstudio().getId().compareTo(carrera.getModalidadEstudio().getId()) == 0) {
+                        ok = true;
+                        break;
+                    }
+                }
+                if (!ok) {
+                    return false;
+                }
+            }
+            List<RestriccionRepitencia> restriccRep = seccion.getRestriccionesRepitencia();
+            if (!restriccRep.isEmpty()) {
+                boolean ok = false;
+                for (RestriccionRepitencia rRep : restriccRep) {
+                    if (rRep.getTipoRepitencia().getCodigo().equals("ING")) {
+                        ok = true;
+                        break;
+                    }
+                }
+                if (!ok) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private Integer getVacanteMinima(List<Seccion> horarioTempo) {

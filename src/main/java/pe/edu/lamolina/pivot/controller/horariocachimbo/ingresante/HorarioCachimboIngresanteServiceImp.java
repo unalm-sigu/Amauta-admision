@@ -20,12 +20,18 @@ import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CarreraCachimbos;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -38,6 +44,9 @@ import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.controller.horariocachimbo.generar.HorarioCachimboGenerarService;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 
 @Service
@@ -75,6 +84,12 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
     @Autowired
     VacanteAlumnoDAO vacanteAlumnoDAO;
+    @Autowired
+    MatriculaResumenDAO matriculaResumenDAO;
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
 
     @Override
     public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -339,6 +354,102 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             carreraCachimbosDAO.update(cachimbos);
         } else {
             throw new PhobosException("No se puede eliminar por que tiene un horario asignado.");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void matricular(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        List<HorarioCachimbos> horarios = horarioCachimbosDAO.allByCiclo(cicloAcademico);
+        for (HorarioCachimbos horario : horarios) {
+            if (horario.getMatriculados().intValue() >= horario.getSuscritos()) {
+                System.out.println("No hay matriculables en el " + horario.getCodigo());
+                continue;
+            }
+
+            List<SeccionHorarioCachimbos> seccionesHorario = seccionHorarioCachimbosDAO.allByHorario(horario);
+            Map<Long, Curso> mapCurso = TypesUtil.convertListToMap("seccion.grupoSeccion.curso.id", "seccion.grupoSeccion.curso", seccionesHorario);
+            Map<Long, List<Seccion>> mapSeccion = TypesUtil.convertListToMapList("seccion.grupoSeccion.curso.id", "seccion", seccionesHorario);
+            List<Curso> cursos = new ArrayList(mapCurso.values());
+
+            List<AlumnoHorario> alumnosHorario = alumnoHorarioDAO.allByHorario(horario);
+
+            for (AlumnoHorario aluHorario : alumnosHorario) {
+                Alumno alumno = aluHorario.getAlumno();
+                System.out.println("Alumno :::: " + alumno.getCodigo());
+                MatriculaResumen matResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+                List<MatriculaCurso> matCursos = matriculaCursoDAO.allByMatriculaResumen(matResumen);
+                List<MatriculaSeccion> matSecciones = matriculaSeccionDAO.allByMatriculaResumen(matResumen);
+                Map<Long, MatriculaCurso> mapMatriCursoAlu = TypesUtil.convertListToMap("curso.id", matCursos);
+                Map<Long, List<MatriculaSeccion>> mapMatriSeccAlu = TypesUtil.convertListToMapList("seccion.grupoSeccion.curso.id", matSecciones);
+
+                matResumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
+
+                for (Curso curso : cursos) {
+                    System.out.println("\tMatricula " + curso.getCodigo() + " :::: " + curso.getNombre());
+                    matResumen.setCreditosMatriculados(matResumen.getCreditosMatriculados() + curso.getCreditos());
+                    matResumen.setCursosMatriculados(matResumen.getCursosMatriculados() + 1);
+
+                    MatriculaCurso matCursoAlu = mapMatriCursoAlu.get(curso.getId());
+                    if (matCursoAlu == null) {
+                        matCursoAlu = new MatriculaCurso();
+                        matCursoAlu.setCreditos(curso.getCreditos());
+                        matCursoAlu.setCreditosAprobados(0);
+                        matCursoAlu.setCurso(curso);
+                        matCursoAlu.setEstadoEnum(EstadoMatriculaEnum.MAT);
+                        matCursoAlu.setMatriculaResumen(matResumen);
+                        matCursoAlu.setNotaAcumulada("0");
+                        matCursoAlu.setNotaAcumuladaFull("0");
+                        matCursoAlu.setNotaAvance("0");
+                        matCursoAlu.setNotaAvanceFull("0");
+                        matCursoAlu.setNotaFinal("0");
+                        matCursoAlu.setPorcentajeAvanceNota(0);
+                        matriculaCursoDAO.save(matCursoAlu);
+
+                    } else {
+                        matCursoAlu.setEstadoEnum(EstadoMatriculaEnum.MAT);
+                        matriculaCursoDAO.update(matCursoAlu);
+                    }
+
+                    List<MatriculaSeccion> matSeccionesAlu = mapMatriSeccAlu.get(curso.getId());
+                    matSeccionesAlu = (matSeccionesAlu == null) ? new ArrayList() : matSeccionesAlu;
+                    for (MatriculaSeccion matSeccAlu : matSeccionesAlu) {
+                        matSeccAlu.setEstadoEnum(EstadoMatriculaEnum.RET);
+                    }
+                    List<Seccion> seccionesCurso = mapSeccion.get(curso.getId());
+                    for (Seccion seccion : seccionesCurso) {
+                        MatriculaSeccion matSecCur = null;
+                        for (MatriculaSeccion matSeccAlu : matSeccionesAlu) {
+                            if (seccion.getId().compareTo(matSeccAlu.getSeccion().getId()) == 0) {
+                                matSecCur = matSeccAlu;
+                                break;
+                            }
+                        }
+                        if (matSecCur != null) {
+                            matSecCur.setEstadoEnum(EstadoMatriculaEnum.RET);
+                            matriculaSeccionDAO.update(matSecCur);
+
+                        } else {
+                            matSecCur = new MatriculaSeccion();
+                            matSecCur.setCreditos(curso.getCreditos());
+                            matSecCur.setEstadoEnum(EstadoMatriculaEnum.MAT);
+                            matSecCur.setMatriculaResumen(matResumen);
+                            matSecCur.setSeccion(seccion);
+                            matSecCur.setUserRegistro(ds.getUsuario());
+                            matSecCur.setFechaRegistro(new Date());
+                            matriculaSeccionDAO.save(matSecCur);
+                        }
+                        seccion.setMatriculados(seccion.getMatriculados() + 1);
+                        seccion.setReservados(seccion.getReservados() - 1);
+                        seccionDAO.update(seccion);
+                    }
+
+                }
+                aluHorario.setEstado(EstadoAlumnoHorarioEnum.MATR);
+                horario.setMatriculados(horario.getMatriculados() + 1);
+                matriculaResumenDAO.update(matResumen);
+            }
+            horarioCachimbosDAO.update(horario);
         }
     }
 
