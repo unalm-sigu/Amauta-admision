@@ -5,8 +5,8 @@ import org.joda.time.DateTime;
 public class Laboratory {
 
     public static void main666(String[] args) {
-        DateTime dt = new DateTime();
-        System.err.println(dt.toString("yyyy-MM-dd"));
+        String da = "002456";
+        System.err.println(da.substring(2));
     }
 
 }
