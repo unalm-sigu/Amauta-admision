@@ -304,12 +304,12 @@ public class TestController {
          */
         // visorCalculoNotas.setCantidadTotal(pregrados.size());
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
-    //    List<AlumnoCicloCurso> allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByModalidadEstudio(ModalidadEstudioEnum.PRE);
-      //  Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByAlu = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", allOperativesByModalidadEstudio);
+        //    List<AlumnoCicloCurso> allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByModalidadEstudio(ModalidadEstudioEnum.PRE);
+        //  Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByAlu = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", allOperativesByModalidadEstudio);
         visorCalculoNotas.iniciar();
         visorCalculoNotas.setCantidadTotal(pregrados.size());
         for (Alumno alumno : pregrados) {
-        //    List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = mapAlumnoCicloCursoByAlu.get(alumno.getId());
+            //    List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = mapAlumnoCicloCursoByAlu.get(alumno.getId());
             promedioService.promediarAllCicloAsync(alumno, cicloActivo, ds.getUsuario());
         }
         /*
@@ -324,7 +324,6 @@ public class TestController {
     @RequestMapping("promediarAll/{alumno}")
     public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
         //  List<CicloAcademico> allCiclosActivos = cicloAcademicoDAO.allActivesByModalidad(alumno.getModalidadEstudio(), new String[]{"ca.year asc", "ca.numeroCiclo asc"});
         visorCalculoNotas.iniciar();
         Alumno alumno = alumnoDAO.findAllInfo(alumnoId);

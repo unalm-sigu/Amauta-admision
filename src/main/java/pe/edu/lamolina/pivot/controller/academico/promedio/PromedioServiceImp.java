@@ -740,7 +740,8 @@ public class PromedioServiceImp implements PromedioService {
                     x -> x.getCurso().equals(alumnoCicloCursoEach.getCurso())
                     && x.getEstaActivo()
                     && x.getIsEstadoMatriculado()
-                    && x.getAlumnoCiclo().getCicloAcademico().isTipoRegular()).collect(Collectors.toList());
+                    && x.getAlumnoCiclo().getCicloAcademico().isTipoRegular()
+            ).collect(Collectors.toList());
 
             //    alumnoCicloCursoEach.setVecesCursadoRegular(alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCicloReg(alumnoCicloCursoEach.getCurso(), alumno, cicloAcademico).intValue());
             alumnoCicloCursoEach.setVecesCursadoRegular(vecesLlevadoRegular.size());

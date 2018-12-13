@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.Days;
 import org.joda.time.Weeks;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
@@ -31,21 +33,21 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class RolExamenesServiceImp implements RolExamenesService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     RolExamenesDAO rolexamenesDAO;
-    
+
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-    
+
     @Autowired
     HoraDAO horaDAO;
-    
+
     @Autowired
     SemanaExamenDAO semanaExamenDAO;
-    
+
     @Override
     public RolExamenes findRolExamenes(long rolExamenId) {
         RolExamenes rolExamenes = rolexamenesDAO.find(rolExamenId);
@@ -53,18 +55,18 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolExamenes.setSemanasExamen(semanaExamens);
         return rolExamenes;
     }
-    
+
     @Override
     public List<EventoCicloAcademico> allEventoCicloAcademicos(CicloAcademico cicloAcademico) {
         List<EventoCicloAcademico> eventoCicloAcademicos = eventoCicloAcademicoDAO.allEventoCicloAcademicos(cicloAcademico);
         return eventoCicloAcademicos;
     }
-    
+
     @Override
     public List<RolExamenes> allRolExamenes(DynatableFilter filter, CicloAcademico cicloAcademico) {
         return rolexamenesDAO.allByDynatable(filter, cicloAcademico);
     }
-    
+
     @Override
     public void save(RolExamenes rolExamenes, DataSessionPivot ds) {
         rolExamenes.setEstado(EstadoEnum.CRE.name());
@@ -72,66 +74,75 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolExamenes.setUserRegistro(ds.getUsuario());
         rolExamenes.setHorasExamen(Constantine.CANTIDAD_HORAS_POR_EXAMEN);
         rolExamenes.setSituacionEnum(SituacionRolExamenesEnum.CONF_ROL);
-        
-        rolExamenes.getSemanasExamen().forEach(x -> {
-            x.setRolExamenes(rolExamenes);
-        });
-        
+
+        List<String> errors = new ArrayList<>();
+        for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
+            if (semanaExamen.getHoraInicio().getNumero() >= semanaExamen.getHoraFin().getNumero()) {
+                String message = String.format("Semana %s, hora inicio debe ser menor que hora fin.", semanaExamen.getNumeroSemana());
+                errors.add(message);
+            }
+            semanaExamen.setRolExamenes(rolExamenes);
+        }
+        Assert.isTrue(errors.isEmpty(), String.join("<br/>", errors));
+
         rolexamenesDAO.save(rolExamenes);
     }
-    
+
     @Override
     public void update(RolExamenes rolExamenes, DataSessionPivot ds) {
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
         rolExamenes.setEventoCicloAcademico(rolExamenes.getEventoCicloAcademico());
         rolexamenesDAO.updateRolExamenes(rolExamenes);
-        
+
         semanaExamenDAO.allByRolExamenes(rolExamenes);
         for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
             semanaExamen.setRolExamenes(rolExamenes);
             semanaExamenDAO.save(semanaExamen);
         }
     }
-    
+
     @Override
     public List<Hora> allHoras() {
         return horaDAO.all();
     }
-    
+
     @Override
     public List<SemanaExamen> allSemanaExamenByEventoCiclo(EventoCicloAcademico eventoCicloAcademico) {
         eventoCicloAcademico = eventoCicloAcademicoDAO.findEventoCicloAcademico(eventoCicloAcademico);
-        DateTime dateTime1 = new DateTime(eventoCicloAcademico.getFechaInicio());
-        DateTime dateTime2 = new DateTime(eventoCicloAcademico.getFechaFin());
-        
-        int dias = Days.daysBetween(dateTime1.toLocalDate(), dateTime2.toLocalDate()).getDays();
-        int diasSemana = dateTime1.dayOfWeek().withMaximumValue().getDayOfWeek();
+        DateTime fechaInicio = new DateTime(eventoCicloAcademico.getFechaInicio());
+        DateTime fechaFin = new DateTime(eventoCicloAcademico.getFechaFin());
+
+        Assert.isTrue(fechaInicio.getDayOfWeek() == DateTimeConstants.MONDAY, "El dia inicial del evento debe ser lunes.");
+        Assert.isTrue(fechaFin.getDayOfWeek() == DateTimeConstants.SUNDAY, "El dia final del evento debe ser domingo.");
+
+        int dias = Days.daysBetween(fechaInicio.toLocalDate(), fechaFin.toLocalDate()).getDays();
+        int diasSemana = fechaInicio.dayOfWeek().withMaximumValue().getDayOfWeek();
         if (++dias % diasSemana != 0) {
             throw new PhobosException("La fecha inicio y fin programadas al evento, deben ser semanas contabilizables.");
         }
         //Weeks weeks = Weeks.weeksBetween(dateTime1.toLocalDate(), dateTime2.toLocalDate());
         int weeks = dias / diasSemana;
         List<SemanaExamen> semanasExamen = new ArrayList<>();
-        
+
         DateTime lastDateOfWeek = null;
         for (int i = 1; i <= weeks; i++) {
             SemanaExamen semanaExamen = new SemanaExamen();
-            
+
             semanaExamen.setNumeroSemana(i);
-            
-            DateTime fechaInicio = lastDateOfWeek == null ? new DateTime(dateTime1) : lastDateOfWeek.plusDays(BigDecimal.ONE.intValue());
-            semanaExamen.setFechaInicio(fechaInicio.toDate());
-            
-            lastDateOfWeek = fechaInicio.dayOfWeek().withMaximumValue();
+
+            DateTime fechaInicioEach = lastDateOfWeek == null ? new DateTime(fechaInicio) : lastDateOfWeek.plusDays(BigDecimal.ONE.intValue());
+            semanaExamen.setFechaInicio(fechaInicioEach.toDate());
+
+            lastDateOfWeek = fechaInicioEach.dayOfWeek().withMaximumValue();
             semanaExamen.setFechaFin(lastDateOfWeek.toDate());
-            
+
             semanaExamen.setHoraInicio(new Hora());
             semanaExamen.setHoraFin(new Hora());
             semanasExamen.add(semanaExamen);
         }
-        
+
         return semanasExamen;
     }
-    
+
 }
