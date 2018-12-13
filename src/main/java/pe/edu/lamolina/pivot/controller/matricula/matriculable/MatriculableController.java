@@ -134,7 +134,7 @@ public class MatriculableController {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
                             "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados",
-                            "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto",
+                            "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",
                             "alumno.id", "alumno.persona.apellidosNombres", "alumno.carrera.id", "alumno.carrera.codigo",
                             "alumno.carrera.nombre", "alumno.carrera.facultad.id", "alumno.carrera.facultad.nombre",
@@ -441,7 +441,6 @@ public class MatriculableController {
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             service.saveMatriculable(alumno, ds);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
-
 
             response.setMessage("Se agregó al alumno satisfactoriamente.");
             response.setSuccess(true);

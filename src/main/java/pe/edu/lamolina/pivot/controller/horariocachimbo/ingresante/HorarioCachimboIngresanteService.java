@@ -36,4 +36,6 @@ public interface HorarioCachimboIngresanteService {
 
     void deleteIngresante(AlumnoHorario alumnoHorario, CicloAcademico cicloAcademico);
 
+    void matricular(CicloAcademico cicloAcademico, DataSessionPivot ds);
+
 }

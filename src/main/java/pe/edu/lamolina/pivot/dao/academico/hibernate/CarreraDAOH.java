@@ -189,7 +189,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
-                .filter("ca.estado", EstadoCarreraEnum.ACT)
+                //.filter("ca.estado", EstadoCarreraEnum.ACT)
                 .filter("me.id", modalidadEstudio)
                 .orderBy("ca.codigo");
         

@@ -1025,6 +1025,7 @@ public class PromedioServiceImp implements PromedioService {
             alumnoCicloDAO.save(alumnoCiclo);
             alumno.getId();
         }
+
         if (alumnoCicloCurso == null) {
             alumnoCicloCurso = new AlumnoCicloCurso();
             alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
@@ -1047,6 +1048,7 @@ public class PromedioServiceImp implements PromedioService {
             alumnoCicloCurso.setVecesCursadoRegular(alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCicloReg(curso, alumno, cicloAcademico).intValue() + 1);
             alumnoCicloCursoDAO.save(alumnoCicloCurso);
             alumnoCicloCurso.getId();
+            
         } else {
             alumnoCicloCurso.setFechaModificacion(today.toDate());
             alumnoCicloCurso.setNota(matriculaCurso.getNotaFinal());

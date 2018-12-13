@@ -350,4 +350,24 @@ public class HorarioCachimboIngresanteController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("matricular")
+    public JsonResponse matricular(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            service.matricular(cicloAcademico,ds);
+            response.setMessage("Registro eliminado");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }

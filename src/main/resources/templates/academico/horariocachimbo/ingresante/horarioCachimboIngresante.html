@@ -13,7 +13,7 @@
 <body>
     <div layout:fragment="main">
 
-        <div  id="main">
+        <div  id="main" v-cloak="">
             <header class="header b-b padder-lg">
                 <div class="btn-group pull-right">
                     <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
@@ -23,6 +23,7 @@
                         <li><a href="#" v-on:click="nuevo" >Agregar Alumno</a></li>
                         <li><a href="#" v-on:click="cargarIngresantes" >Cargar Ingresantes</a></li>
                         <li><a href="#" v-on:click.prevent="eliminarHorarios" >Eliminar Horarios</a></li>
+                        <li><a href="#" v-on:click="matricularIngresantes" >Matricular Ingresantes</a></li>
                     </ul>
                 </div>
 
