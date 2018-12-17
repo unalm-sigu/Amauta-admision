@@ -212,10 +212,11 @@ public class PromedioServiceImp implements PromedioService {
             }
             alumno.setSituacionAcademica(situacionAcademicaEM);
             alumnoDAO.updateSituacionAcad(alumno);
-
-            AlumnoCiclo alumnoCicloActive = alumnoCicloDAO.findByAlumnoCiclo(alumno, alumno.getCicloActivo());
-            alumnoCicloActive.setSituacionFinal(situacionAcademicaEM);
-            alumnoCicloDAO.update(alumnoCicloActive);
+            if (!alumno.getCicloActivo().equals(egresado.getCicloAcademico())) {
+                AlumnoCiclo alumnoCicloActive = alumnoCicloDAO.findByAlumnoCiclo(alumno, alumno.getCicloActivo());
+                alumnoCicloActive.setSituacionFinal(situacionAcademicaEM);
+                alumnoCicloDAO.update(alumnoCicloActive);
+            }
         }
         //  }
     }
@@ -247,9 +248,9 @@ public class PromedioServiceImp implements PromedioService {
             List<AlumnoCicloCurso> alumnoCicloCursoByCiclo = allOperativesByModalidadEstudio.stream().
                     filter(x -> x.getAlumnoCiclo().equals(alumnoCicloEach)).collect(Collectors.toList());
 
-            List<AlumnoCicloCurso> alumnoCicloCursoAnteriores = allOperativesByModalidadEstudio.stream().
-                    filter(x -> x.getAlumnoCiclo().equals(alumnoCicloEach))
-                    .filter(x -> x.getAlumnoCiclo().getCicloAcademico().getCodigoInt() < ciclo.getCodigoInt()).collect(Collectors.toList());
+            List<AlumnoCicloCurso> alumnoCicloCursoAnteriores = allOperativesByModalidadEstudio.stream()
+                    .filter(x -> x.getAlumnoCiclo().getCicloAcademico().getCodigoInt() < ciclo.getCodigoInt())
+                    .collect(Collectors.toList());
 
             this.promediarHistorialNotasDiciembre(alumno, cicloActivo, ciclo, ds, null, alumnoCicloCursoByCiclo, alumnoCicloCursoAnteriores);
         }
