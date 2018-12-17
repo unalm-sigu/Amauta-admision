@@ -502,7 +502,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     public void calcularPromedio(Alumno alumnoForm, DataSessionPivot ds) {
         Alumno alumno = alumnoDAO.find(alumnoForm);
         visorCalculoNotas.setActivo(false);
-        promedioService.calulcarSituacionAcademica(alumno, ds.getUsuario());
+        promedioService.calulcarSituacionAcademica(alumno, ds);
     }
 
     @Override

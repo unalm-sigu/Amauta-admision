@@ -1928,9 +1928,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     @Override
     @Transactional
-    public void saveCerrarActa(GrupoSeccion grupoSeccion, Usuario usuario) {
+    public void saveCerrarActa(GrupoSeccion grupoSeccion, DataSessionPivot ds) {
         grupoSeccion = this.findGrupo(grupoSeccion.getId());
-        DateTime today = new DateTime();
+        DateTime today = new DateTime(ds.getFechaAccionAudit());
         if (grupoSeccion.isEstadoGrupoCerrado()) {
             throw new PhobosException("No se puede cerrar el acta debido a que el acta ya se encuentra cerrada.");
         }
@@ -1979,7 +1979,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
         }
          */
-        grupoSeccion.setUsuarioCierraActa(usuario);
+        grupoSeccion.setUsuarioCierraActa(ds.getUsuario());
         grupoSeccion.setFechaCierreActa(today.toDate());
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
         grupoSeccionDAO.update(grupoSeccion);
@@ -1994,7 +1994,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
             matriculaCurso.getMatriculaResumen().getCicloAcademico();
             Curso curso = matriculaCurso.getCurso();
-            promedioService.promedio(matriculaCurso, usuario, true);
+            promedioService.promedio(matriculaCurso, ds, true);
         }
 
     }

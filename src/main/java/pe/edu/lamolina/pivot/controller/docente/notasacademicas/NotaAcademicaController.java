@@ -1440,7 +1440,7 @@ public class NotaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        service.saveCerrarActa(new GrupoSeccion(grupoId), ds.getUsuario());
+        service.saveCerrarActa(new GrupoSeccion(grupoId), ds);
         String message = "Acta cerrada correctamente";
         response.setMessage(message);
         response.setSuccess(true);

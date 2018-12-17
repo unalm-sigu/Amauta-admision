@@ -355,7 +355,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
             }
 
             visorCalculoNotas.setActivo(false);
-            promedioService.calulcarSituacionAcademica(alumno, ds.getUsuario());
+            promedioService.calulcarSituacionAcademica(alumno, ds);
 
         }
     }
@@ -1340,7 +1340,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
         List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
         String html = plantilla.getContenido();
-        
+
         for (VariablePlantilla var : variable) {
             while (html.indexOf(var.getVariableGenerica().getCodigo()) > -1) {
                 switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
@@ -1354,7 +1354,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                         Egresado egresado = egresadoDAO.findByAlumno(alumno);
                         html = html.replace(var.getVariableGenerica().getCodigo(), egresado.getCicloAcademico().getDescripcion());
                         break;
-                    
+
                 }
             }
         }
