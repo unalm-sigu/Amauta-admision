@@ -192,29 +192,32 @@ public class PromedioServiceImp implements PromedioService {
         lastAlumnoCiclo.getCreditosAcumulados();
         lastAlumnoCiclo.getCreditosAprobadosAcumulados();*/
 
-        if (alumno.getSituacionAcademica().isCodigoEM()) {
-            Egresado egresado = egresadoDAO.findByAlumno(alumno);
-            if (egresado != null && egresado.getCicloAcademico() != null) {
+        //    if (alumno.getSituacionAcademica().isCodigoEM()) {
+        Egresado egresado = egresadoDAO.findByAlumno(alumno);
+        if (egresado != null && egresado.getCicloAcademico() != null) {
 
-                SituacionAcademica situacionAcademicaEM = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_EM.getValue());
-                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, egresado.getCicloAcademico());
-                if (alumnoCiclo != null) {
-                    alumnoCiclo.setSituacionFinal(situacionAcademicaEM);
-                    //alumnoCicloDAO.updateSituacionFinal(alumnoCiclo);
-                    alumnoCicloDAO.update(alumnoCiclo);
-                } else {
-                    AlumnoCiclo alumnoCicloAnterior = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, egresado.getCicloAcademico());
-                    alumnoCiclo = new AlumnoCiclo();
-                    alumnoCiclo.defaultValuesToCreate(alumno, egresado.getCicloAcademico(), ds.getUsuario(), new DateTime(ds.getFechaAccionAudit()));
-                    alumnoCiclo.setSituacionInicio(alumnoCicloAnterior.getSituacionInicio());
-                    alumnoCiclo.setSituacionFinal(situacionAcademicaEM);
-                    alumnoCicloDAO.save(alumnoCiclo);
-                }
-                alumno.setSituacionAcademica(situacionAcademicaEM);
-                alumnoDAO.updateSituacionAcad(alumno);
-
+            SituacionAcademica situacionAcademicaEM = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_EM.getValue());
+            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, egresado.getCicloAcademico());
+            if (alumnoCiclo != null) {
+                alumnoCiclo.setSituacionFinal(situacionAcademicaEM);
+                //alumnoCicloDAO.updateSituacionFinal(alumnoCiclo);
+                alumnoCicloDAO.update(alumnoCiclo);
+            } else {
+                AlumnoCiclo alumnoCicloAnterior = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, egresado.getCicloAcademico());
+                alumnoCiclo = new AlumnoCiclo();
+                alumnoCiclo.defaultValuesToCreate(alumno, egresado.getCicloAcademico(), ds.getUsuario(), new DateTime(ds.getFechaAccionAudit()));
+                alumnoCiclo.setSituacionInicio(alumnoCicloAnterior.getSituacionInicio());
+                alumnoCiclo.setSituacionFinal(situacionAcademicaEM);
+                alumnoCicloDAO.save(alumnoCiclo);
             }
+            alumno.setSituacionAcademica(situacionAcademicaEM);
+            alumnoDAO.updateSituacionAcad(alumno);
+
+            AlumnoCiclo alumnoCicloActive = alumnoCicloDAO.findByAlumnoCiclo(alumno, alumno.getCicloActivo());
+            alumnoCicloActive.setSituacionFinal(situacionAcademicaEM);
+            alumnoCicloDAO.update(alumnoCicloActive);
         }
+        //  }
     }
 
     @Override
