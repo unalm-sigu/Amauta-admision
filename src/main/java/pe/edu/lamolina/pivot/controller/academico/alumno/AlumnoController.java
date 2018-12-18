@@ -39,7 +39,9 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
@@ -335,12 +337,23 @@ public class AlumnoController {
 
     @RequestMapping("{idAlumno}/gomatricula")
     public String goMatricula(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
-
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        String codigo = service.goMatricula(idAlumno);
-
+        Usuario usuario = ds.getUsuario();
+        String codigo = service.goMatricula(idAlumno,usuario);
         session.invalidate();
-        return "redirect:http://localhost:9977/amauta/" + codigo;
+        Parametro paramRutaIntranet = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+        if (paramRutaIntranet != null) {
+            StringBuilder sb= new StringBuilder();
+            sb.append("redirect:");
+            sb.append(paramRutaIntranet.getValor());
+            sb.append("/amauta/");
+            sb.append(codigo);
+            sb.append("/");
+            sb.append(usuario.getId());
+            logger.debug("********************** goIntranet {} ", sb.toString());
+            return sb.toString();
+        }
+        return "redirect:/" ;
     }
 
 }

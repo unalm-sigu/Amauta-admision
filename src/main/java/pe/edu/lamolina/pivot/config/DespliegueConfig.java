@@ -33,6 +33,9 @@ public class DespliegueConfig {
 
     @Value("${sistema}")
     Long sistema;
+    
+    @Value("${ambiente}")
+    String ambiente;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -98,6 +101,14 @@ public class DespliegueConfig {
 
     public void setTawkto(Boolean tawkto) {
         this.tawkto = tawkto;
+    }
+
+    public String getAmbiente() {
+        return ambiente;
+    }
+
+    public void setAmbiente(String ambiente) {
+        this.ambiente = ambiente;
     }
 
 }
