@@ -13,6 +13,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 
 @Repository
 public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implements CursoCurriculaDAO {
@@ -111,6 +112,16 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .orderBy("cur.nombre")
                 .limit(limit);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<CursoCurricula> allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum tipoCursoCurriculaEnum) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
+                .left("cu.departamentoAcademico")
+                .filter("tcc.codigo", tipoCursoCurriculaEnum);
+        return all(sql);
     }
 
 }

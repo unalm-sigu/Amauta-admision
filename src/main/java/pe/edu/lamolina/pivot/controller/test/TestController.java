@@ -180,14 +180,16 @@ public class TestController {
     }
 
     @ResponseBody
-    @RequestMapping("/calcularAllResumenEvaluacion/{grupoSeccion}")
-    public String calcularAllResumenEvaluacion(@PathVariable("grupoSeccion") Long grupoSeccionId, HttpSession session) {
+    @RequestMapping("/calcularAllResumenEvaluacion/{seccion}")
+    public String calcularAllResumenEvaluacion(@PathVariable("seccion") Long seccionId, HttpSession session) {
         int loop = 1;
         visorCalculoNotas.iniciar();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
-        List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(new GrupoSeccion(grupoSeccionId), ciclo);
+        Seccion seccionPV = seccionDAO.find(seccionId);
+
+        List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(seccionPV.getGrupoSeccion(), ciclo);
         for (MatriculaSeccion ms : alumnosSeccion) {
             Seccion seccion = ms.getSeccion();
             GrupoSeccion gpoSecc = seccion.getGrupoSeccion();

@@ -44,7 +44,7 @@
                                 <inicio-component v-bind:alumno="alumno" v-on:reiniciar-planes-main="reiniciarPlanes()"></inicio-component>
                             </div>
                             <div v-show="2 == tabId" >
-                                <historial-component v-bind:alumno="alumno" ref="loadHistorial"></historial-component>
+                                <historial-component v-bind:alumno="alumno" ref="loadHistorial" v-bind:showactions="true"></historial-component>
                             </div>
                             <div v-show="3 == tabId" >
                                 <avance-component v-bind:alumno.sync="alumno" v-on:reload-plan-alumno="reloadPlanAlumno()" ref="loadAvance"></avance-component>
