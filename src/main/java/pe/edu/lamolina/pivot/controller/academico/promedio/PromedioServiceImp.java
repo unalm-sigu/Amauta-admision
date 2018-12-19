@@ -2,11 +2,9 @@ package pe.edu.lamolina.pivot.controller.academico.promedio;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -197,26 +195,27 @@ public class PromedioServiceImp implements PromedioService {
         if (egresado != null && egresado.getCicloAcademico() != null) {
 
             SituacionAcademica situacionAcademicaEM = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_EM.getValue());
-            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, egresado.getCicloAcademico());
-            if (alumnoCiclo != null) {
-                alumnoCiclo.setSituacionFinal(situacionAcademicaEM);
+
+            AlumnoCiclo alumnoCicloEgresado = alumnoCicloDAO.findByAlumnoCiclo(alumno, alumno.getCicloActivo());
+            alumnoCicloEgresado.setSituacionFinal(situacionAcademicaEM);
+            alumnoCicloDAO.update(alumnoCicloEgresado);
+
+            AlumnoCiclo alumnoCicloActiveAntrior = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, egresado.getCicloAcademico());
+            if (alumnoCicloActiveAntrior != null) {
+                alumnoCicloActiveAntrior.setSituacionFinal(situacionAcademicaEM);
                 //alumnoCicloDAO.updateSituacionFinal(alumnoCiclo);
-                alumnoCicloDAO.update(alumnoCiclo);
+                alumnoCicloDAO.update(alumnoCicloActiveAntrior);
             } else {
                 AlumnoCiclo alumnoCicloAnterior = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, egresado.getCicloAcademico());
-                alumnoCiclo = new AlumnoCiclo();
-                alumnoCiclo.defaultValuesToCreate(alumno, egresado.getCicloAcademico(), ds.getUsuario(), new DateTime(ds.getFechaAccionAudit()));
-                alumnoCiclo.setSituacionInicio(alumnoCicloAnterior.getSituacionInicio());
-                alumnoCiclo.setSituacionFinal(situacionAcademicaEM);
-                alumnoCicloDAO.save(alumnoCiclo);
+                alumnoCicloActiveAntrior = new AlumnoCiclo();
+                alumnoCicloActiveAntrior.defaultValuesToCreate(alumno, egresado.getCicloAcademico(), ds.getUsuario(), new DateTime(ds.getFechaAccionAudit()));
+                alumnoCicloActiveAntrior.setSituacionInicio(alumnoCicloAnterior.getSituacionInicio());
+                alumnoCicloActiveAntrior.setSituacionFinal(situacionAcademicaEM);
+                alumnoCicloDAO.save(alumnoCicloActiveAntrior);
             }
             alumno.setSituacionAcademica(situacionAcademicaEM);
             alumnoDAO.updateSituacionAcad(alumno);
-            if (!alumno.getCicloActivo().equals(egresado.getCicloAcademico())) {
-                AlumnoCiclo alumnoCicloActive = alumnoCicloDAO.findByAlumnoCiclo(alumno, alumno.getCicloActivo());
-                alumnoCicloActive.setSituacionFinal(situacionAcademicaEM);
-                alumnoCicloDAO.update(alumnoCicloActive);
-            }
+
         }
         //  }
     }
@@ -224,12 +223,12 @@ public class PromedioServiceImp implements PromedioService {
     @Override
     @Transactional
     public void calulcarSituacionAcademica(Alumno alumno, DataSessionPivot ds) {
-        DateTime today = new DateTime();
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
+        visorCalculoNotas.iniciar();
+        ds.setFechaAccionAudit(new Date());
+        alumno = alumnoDAO.findAllInfo(alumno.getId());
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio());
-        this.promediarHistorialNotas(alumno, cicloActivo, alumnoCiclo.getCicloAcademico(), ds);
-        alumno = alumnoDAO.find(alumno);
-        this.analizarEgresado(alumno, ds);
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+        this.promediarAllCicloSync(alumno, cicloActivo, alumnoCicloCursos, ds);
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)

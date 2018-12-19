@@ -3,7 +3,7 @@ Vue.component("historial-component", {
     props: {
         alumno: {},
         showTitle: true,
-        showActions: true
+        showactions: {required: false, default: false}
     },
     data: function () {
         return {
