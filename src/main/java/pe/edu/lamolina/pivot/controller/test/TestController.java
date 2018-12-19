@@ -2,9 +2,9 @@ package pe.edu.lamolina.pivot.controller.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
-import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Evaluacion;
 import pe.edu.lamolina.model.academico.EvaluacionExpandida;
@@ -33,7 +31,6 @@ import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
-import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
@@ -263,7 +260,7 @@ public class TestController {
             matriculaCurso.getMatriculaResumen().getAlumno();
             matriculaCurso.getMatriculaResumen().getCicloAcademico();
             matriculaCurso.getCurso();
-            promedioService.trasladoPromediosSource(matriculaCurso, ds.getUsuario());
+            promedioService.trasladoPromediosSource(matriculaCurso, ds);
 
             //  }
         }
@@ -304,13 +301,18 @@ public class TestController {
          */
         // visorCalculoNotas.setCantidadTotal(pregrados.size());
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
-    //    List<AlumnoCicloCurso> allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByModalidadEstudio(ModalidadEstudioEnum.PRE);
-      //  Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByAlu = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", allOperativesByModalidadEstudio);
+
+        List<AlumnoCicloCurso> allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByModalidadEstudio(ModalidadEstudioEnum.PRE);
+        logger.debug("alumno ciclo curso operatives {}", allOperativesByModalidadEstudio.size());
+        //   Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByAlu = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", allOperativesByModalidadEstudio);
         visorCalculoNotas.iniciar();
         visorCalculoNotas.setCantidadTotal(pregrados.size());
         for (Alumno alumno : pregrados) {
-        //    List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = mapAlumnoCicloCursoByAlu.get(alumno.getId());
-            promedioService.promediarAllCicloAsync(alumno, cicloActivo, ds.getUsuario());
+            if (!alumno.getCarrera().getId().equals(6L)) {
+                continue;
+            }
+            //    List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = mapAlumnoCicloCursoByAlu.get(alumno.getId());
+            promedioService.promediarAllCicloAsync(alumno, cicloActivo, allOperativesByModalidadEstudio, ds);
         }
         /*
         for (Alumno alumno : posgrados) {
@@ -324,13 +326,13 @@ public class TestController {
     @RequestMapping("promediarAll/{alumno}")
     public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
         //  List<CicloAcademico> allCiclosActivos = cicloAcademicoDAO.allActivesByModalidad(alumno.getModalidadEstudio(), new String[]{"ca.year asc", "ca.numeroCiclo asc"});
         visorCalculoNotas.iniciar();
+        ds.setFechaAccionAudit(new Date());
         Alumno alumno = alumnoDAO.findAllInfo(alumnoId);
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio());
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
-        promedioService.promediarAllCicloSync(alumno, cicloActivo, ds.getUsuario());
+        promedioService.promediarAllCicloSync(alumno, cicloActivo, alumnoCicloCursos, ds);
 
         return "yeah";
     }
@@ -358,6 +360,9 @@ public class TestController {
             visorCalculoNotas.iniciar();
             visorCalculoNotas.setCantidadTotal(matriculasResumen.size());
             for (MatriculaResumen matriculaResumen : matriculasResumen) {
+                if (!matriculaResumen.getAlumno().getCarrera().getId().equals(6L)) {
+                    continue;
+                }
                 promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculasSeccion, ds.getUsuario());
             }
         }

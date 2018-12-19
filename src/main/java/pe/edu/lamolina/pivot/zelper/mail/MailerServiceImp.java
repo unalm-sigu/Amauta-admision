@@ -81,6 +81,6 @@ public class MailerServiceImp implements MailerService {
         //mail.setDestinatarios(new String[]{ colaborador.getPersona().getEmail()});
         mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
         mailerConnector.sendMailHelpDesk(mail);
-        
+
     }
 }
