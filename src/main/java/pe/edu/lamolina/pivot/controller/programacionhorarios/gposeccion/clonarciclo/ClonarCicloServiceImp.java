@@ -23,6 +23,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
@@ -212,6 +213,8 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             factorHoras = 3;
         }
 
+        EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(cicloDestino);
+
         List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum.GEN);
         Map<Long, CursoCurricula> curCurriculaMap = TypesUtil.convertListToMap("curso.id", cursosCurricula);
         TipoCursoCurricula tipocursogeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
@@ -363,6 +366,8 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                         horarioSecc.setDia(diaHoraSecc.getDia());
                         horarioSecc.setHora(diaHoraSecc.getHora());
                         horarioSecc.setSeccion(seccClone);
+                        horarioSecc.setFechaInicio(eventoAcademico.getFechaInicio());
+                        horarioSecc.setFechaFin(eventoAcademico.getFechaFin());
                         horarioSeccionDAO.save(horarioSecc);
 
                         if (seccClone.getIsTipoSeccionTCUR()) { // is es TCUR
@@ -379,13 +384,18 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     DocenteSeccion dsClone = new DocenteSeccion();
                     dsClone.setDocente(dsOrigen.getDocente());
                     dsClone.setEstado(dsOrigen.getEstado());
-                    dsClone.setFechaInicio(null);
-                    dsClone.setFechaFin(null);
+                    dsClone.setFechaInicio(eventoAcademico.getFechaInicio());
+                    dsClone.setFechaFin(eventoAcademico.getFechaFin());
                     dsClone.setPrincipal(dsOrigen.getPrincipal());
                     dsClone.setSeccion(seccClone);
                     dsClone.setPorcentajeCarga(dsOrigen.getPorcentajeCarga());
 
                     docenteSeccionDAO.save(dsClone);
+                }
+
+                if (docenteSeccion.size() == 1) {
+                    seccClone.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
+                    seccionDAO.update(seccClone);
                 }
 
                 List<RestriccionCarrera> restriccionCarreras = seccOrigen.getRestriccionesCarrera();
@@ -606,6 +616,12 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         cicloProgDB.setVerBoletin(Boolean.TRUE);
         cicloProgDB.setActualizarBoletin(Boolean.TRUE);
         cicloAcademicoDAO.update(cicloProgDB);
+    }
+
+    private EventoCicloAcademico getEventoCicloAcademico(CicloAcademico cicloAcademico) {
+        EventoAcademicoEnum eventoEnum = cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
+        EventoCicloAcademico eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoEnum);
+        return eventoCiclo;
     }
 
 }

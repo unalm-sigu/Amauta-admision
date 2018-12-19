@@ -1640,12 +1640,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (!muertosHSecc.isEmpty()) {
             horarioSeccionDAO.deleteAllInList(muertosHSecc);
         }
+
+        EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(cicloAcademico);
+
         for (DiaHoraGrupo diaHoraGrupoEach : nuevosHSecc) {
             HorarioSeccion horarioSeccion = new HorarioSeccion();
             horarioSeccion.setDia(diaHoraGrupoEach.getDia());
             horarioSeccion.setHora(diaHoraGrupoEach.getHora());
             horarioSeccion.setSeccion(seccion);
             horarioSeccion.setAula(seccion.getAula());
+            if (eventoAcademico != null) {
+                horarioSeccion.setFechaInicio(eventoAcademico.getFechaInicio());
+                horarioSeccion.setFechaFin(eventoAcademico.getFechaFin());
+            }
             horarioSeccionDAO.save(horarioSeccion);
         }
 
@@ -1658,12 +1665,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         if (seccion.getAula() != null) {
+
             for (DiaHoraGrupo diaHoraGrupoEach : nuevosHAula) {
                 HorarioAula horarioAula = new HorarioAula();
                 horarioAula.setAula(seccion.getAula());
                 horarioAula.setDia(diaHoraGrupoEach.getDia());
                 horarioAula.setHora(diaHoraGrupoEach.getHora());
                 horarioAula.setSeccion(seccion);
+                if (eventoAcademico != null) {
+                    horarioAula.setFechaInicio(eventoAcademico.getFechaInicio());
+                    horarioAula.setFechaFin(eventoAcademico.getFechaFin());
+                }
                 horarioAulaDAO.save(horarioAula);
             }
         }
@@ -2409,5 +2421,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             return new ArrayList();
         }
         return lista;
+    }
+
+    private EventoCicloAcademico getEventoCicloAcademico(CicloAcademico cicloAcademico) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
