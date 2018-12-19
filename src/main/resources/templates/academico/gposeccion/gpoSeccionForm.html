@@ -204,9 +204,6 @@
                                                        v-on:keyup.enter="directEditAula(seccion,$event)"
                                                        v-bind:value="seccion.aula!=null ? seccion.aula.codigo : ''"
                                                        class="form-control"/>
-
-
-
                                             </td>
                                             <td class="text-center v-middle">
 
@@ -357,8 +354,8 @@
                                                 {{ seccion.matriculados }}
                                             </td>
                                             <td class="text-center v-middle">
-                                                <span v-if="seccion.situacionDocente=='COR'">
-                                                    {{ seccion.docentesCant }}
+                                                <span v-if="seccion.situacionDocente=='COR'"  class="label label-success" >
+                                                    {{ seccion.situacionDocenteEnum.value }}
                                                 </span>
                                                 <span v-if="seccion.situacionDocente=='ERR'" class="label label-danger" >
                                                     {{seccion.situacionDocenteEnum.value}}
@@ -413,7 +410,15 @@
 
                                     <header class="page-header m-t-xs m-b-xs" style="border-bottom: 1px solid white;">
 
-                                        <h4 class="text-primary">Configuración sección {{seccionSeleccionada.codigo2}}</h4>
+                                        <h4 class="text-primary">Configuración sección {{seccionSeleccionada.codigo2}}
+                                            <span class="pull-right"> Busqueda x departamento
+                                                <label class="switch">
+                                                    <input type="checkbox" v-model="habilDep" />
+                                                    <span></span>
+                                                </label>
+                                            </span>
+
+                                        </h4>
 
                                         <div class="tabbable-line" style="margin-top: 8px;">	
                                             <ul class="nav nav-tabs">

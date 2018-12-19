@@ -3,89 +3,7 @@ Vue.component("multiselect", window.VueMultiselect.default);
 $('#dynaTable').dynatable({});
 $('#dynaTableEspecial').dynatable({});
 
-Vue.component("autocomplete-doc", {
-    template: `<input class="input-s-full" v-bind:rel="rel" type="hidden"  />`,
-    props: {
-        rel: {
-            required: false
-        },
-        docseccion: {
-            required: true
-        }
-    },
-    mounted: function () {
-        var vm = this
 
-        $(this.$el).select2({
-            containerCss: "width:400px !important;",
-            containerCssClass: "buscarDocClass",
-            minimumInputLength: 1,
-            ajax: {
-                url: APP.url("academico/gposeccion/buscarDocentes"),
-                dataType: 'json',
-                type: 'post',
-                data: function (term, page) {
-                    return {
-                        nombre: term,
-                        page: page
-                    };
-                },
-                results: function (response, page) {
-                    return {results: response.data};
-                }
-            },
-            formatResult: function (info) {
-                var conte = '<span class="bold block">' + info.apellidosNombres + '</span>';
-                conte += '<small class="block">Dpto.Acad.: ' + info.departamento + '</small>';
-                conte += '<span class="bold block">' + info.codigo + '</span>';
-
-                return conte;
-            },
-            formatSelection: function (info) {
-                return info.personaNombre + " " + info.personaPaterno + " " + info.personaMaterno;
-            },
-            initSelection: function (element, callback) {
-                if (element.val() != "") {
-                    callback({id: element.val(), apellidosNombres: element.attr("rel")});
-                }
-            },
-            escapeMarkup: function (m) {
-                return m;
-            }
-
-        }).on('select2-selecting', function (e) {
-            vm.$emit('input', e.object.id);
-
-            let docSeccion = vm.$options.propsData.docseccion;
-            let docente = e.object.id;
-
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/gposeccion/cambiarDocenteSeccion'),
-                data: {
-                    docSeccion: docSeccion,
-                    docente: docente
-                },
-                success: function (response) {
-                    if (response.success) {
-                        notify(response.message, "info");
-                        vm.$emit('oncomplete');
-
-                    } else {
-                        notify(response.message, "error");
-                    }
-                }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        });
-    },
-    destroyed: function () {
-        $(this.$el).off().select2('destroy')
-    },
-    watch: function () {
-    }
-});
 
 Vue.component("seccion-det-component", {
     template: "#seccionDetComp",
@@ -97,7 +15,7 @@ Vue.component("seccion-det-component", {
         }
     }
 });
-
+Vue.component("multiselect", window.VueMultiselect.default);
 var app = new Vue({
     el: '#pageGpoSeccion',
     data: {
@@ -111,8 +29,11 @@ var app = new Vue({
         secciones: null,
         directEditSecciones: false,
         docentesSeccion: [],
+        docentes: [],
         seccionSeleccionada: null,
         verDocentes: false,
+        habilDep: false,
+        departamento: {},
         seccionModal: null,
         tabVisible: "DOCENTES",
         colorEstado: {CRE: "default", ACT: "success", ANU: "danger", INA: "danger", BLO: "warning", FUS: "warning"},
@@ -244,7 +165,8 @@ var app = new Vue({
         editaPrecio: false,
         guardaPrecio: false,
         aulas: [],
-        grupos: []
+        grupos: [],
+        docenteSelect: {},
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -270,7 +192,7 @@ var app = new Vue({
         this.ciclo = JSON.parse(cicloJson);
         this.oficinas = JSON.parse(oficinasJson);
         this.loadDataPantalla();
-
+        this.departamento = this.grupoSeccion.curso.departamentoAcademico;
     },
     mounted: function () {
         let $vue = this;
@@ -292,6 +214,57 @@ var app = new Vue({
 
     },
     methods: {
+        custom() {
+
+        },
+        buscarDocente(name) {
+            let $vue = this;
+            if ($vue.habilDep) {
+                var codigoDep = $vue.departamento.codigo;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url("academico/gposeccion/buscarDocentes"),
+                data: {nombre: name, codigoDep: codigoDep},
+                success(response) {
+                    if (response.success) {
+                        $vue.docentes = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $vue.liberarBtn(dir);
+                }
+            });
+        },
+        indexSelect(index) {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/cambiarDocenteSeccion'),
+                data: {
+                    docSeccion: $vue.docentesSeccion[index].id,
+                    docente: $vue.docenteSelect.id
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $vue.reloadProfes();
+                        notify(response.message, "info");
+
+                    } else {
+                        notify(response.message, "error");
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        docenteSelected(item) {
+            let $vue = this;
+            $vue.docenteSelect = item;
+        },
         getClassTab(tabBuscar) {
             let $vue = this;
             if ($vue.tabVisible == tabBuscar) {
@@ -337,6 +310,7 @@ var app = new Vue({
                     $vue.liberarBtn(dir);
                     if (response.success) {
                         $vue.grupoSeccion = response.data.grupoSeccion;
+                        $vue.departamento = $vue.grupoSeccion.curso.departamentoAcademico;
                         $vue.loadDataPantalla();
                     } else {
                         notify(response.message, "error");

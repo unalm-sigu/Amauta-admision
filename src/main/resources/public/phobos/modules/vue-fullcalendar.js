@@ -1,6 +1,6 @@
 Vue.component('fullcalendar', {
     template: '#vue-fullcalendar',
-    data: function() {
+    data: function () {
         return {events: []};
     },
     props: {
@@ -12,7 +12,7 @@ Vue.component('fullcalendar', {
             }},
     },
     methods: {
-        createFullcalendar: function() {
+        createFullcalendar: function () {
             var vue = this;
             $(vue.$el).fullCalendar({
                 header: {
@@ -24,24 +24,24 @@ Vue.component('fullcalendar', {
                 navLinks: true,
                 editable: true,
                 eventLimit: true,
-                eventClick: function(date, jsEvent, view) {
+                eventClick: function (date, jsEvent, view) {
                     var self = this;
                     vue.eventclick(self, date, jsEvent, view);
                 },
-                dayClick: function(date, jsEvent, view) {
+                dayClick: function (date, jsEvent, view) {
                     var self = this;
                     vue.dayclick(self, date, jsEvent, view);
                 },
-                dayRender: function(date, element) {
+                dayRender: function (date, element) {
                     var self = this;
                     var d = $(vue.$el).fullCalendar('getDate');
-                    element.bind('dblclick', function() {
+                    element.bind('dblclick', function () {
                         vue.daydbclick(self, date, element);
                     });
-                    element.bind('mouseover', function() {
+                    element.bind('mouseover', function () {
                         $(element).css('background-color', '#e3e3e3');
                     });
-                    element.bind('mouseout', function() {
+                    element.bind('mouseout', function () {
                         if (vue.compareDate(d, date)) {
                             $(element).css('background-color', '#FCF8E3');
                         } else {

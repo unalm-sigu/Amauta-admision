@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
+import javax.websocket.server.PathParam;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -688,7 +689,7 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             //service.addDocenteSeccion(new Seccion(seccionId), ds.getCicloAcademico());
-            service.updateDocenteSecFechaInicio(docenteSeccion);
+            service.updateDocenteSecFechaInicio(docenteSeccion, ds.getCicloAcademico());
             String message = "Fecha inicio actualizada.";
             response.setSuccess(true);
             response.setMessage(message);
@@ -713,7 +714,7 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             //service.addDocenteSeccion(new Seccion(seccionId), ds.getCicloAcademico());
-            service.updateDocenteSecFechaFin(docenteSeccion);
+            service.updateDocenteSecFechaFin(docenteSeccion, ds.getCicloAcademico());
             String message = "Fecha final actualizada.";
             response.setSuccess(true);
             response.setMessage(message);
@@ -830,7 +831,7 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            service.deleteDocSeccion(new DocenteSeccion(docSeccionId));
+            service.deleteDocSeccion(new DocenteSeccion(docSeccionId), ds.getCicloAcademico());
             logger.debug("Docente Seccion {}", docSeccionId);
 
             String message = "Docente eliminado.";
@@ -859,6 +860,7 @@ public class GpoSeccionController {
     @RequestMapping("buscarDocentes")
     public JsonResponse buscarDocentes(
             @RequestParam("nombre") String nombre,
+            @RequestParam(name = "codigoDep", required = false) String codigoDep,
             HttpSession session) {
 
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
@@ -869,7 +871,7 @@ public class GpoSeccionController {
 
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
-            List<Docente> docentes = service.allDocenterByNombre(nombre);
+            List<Docente> docentes = service.allDocenterByNombre(nombre, codigoDep);
 
             for (Docente doc : docentes) {
                 ObjectNode json = new ObjectNode(jsonFactory);
@@ -953,8 +955,9 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            service.actualizarDocente(docSeccion, docente);
+            service.actualizarDocente(docSeccion, docente, ds.getCicloAcademico());
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Docente actualizado");
         } catch (Exception e) {
@@ -1026,9 +1029,10 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             DocenteSeccion docenteSeccion = new DocenteSeccion(docSeccion);
             docenteSeccion.setPorcentajeCarga(porcentajeAvance);
-            service.updatePorcentajeAvance(docenteSeccion);
+            service.updatePorcentajeAvance(docenteSeccion, ds.getCicloAcademico());
 
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Porcentaje de avance actualizado");
@@ -1298,6 +1302,9 @@ public class GpoSeccionController {
             }
             ArrayNode tiposRestriccionesJson = new ArrayNode(jsonFactory);
             for (TipoRestriccionEnum tipo : TipoRestriccionEnum.values()) {
+                if (tipo == TipoRestriccionEnum.NREP) {
+                    continue;
+                }
                 ObjectNode tipoRestJson = new ObjectNode(jsonFactory);
                 tipoRestJson.put("codigo", tipo.name());
                 tipoRestJson.put("nombre", tipo.getValue());

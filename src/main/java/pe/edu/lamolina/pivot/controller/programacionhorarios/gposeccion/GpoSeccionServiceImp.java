@@ -620,28 +620,35 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional
     public void addDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico) {
         seccion = seccionDAO.find(seccion.getId());
+        EventoCicloAcademico academico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_VER);
 
         Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
-        DateTime today = new DateTime();
-        List<Date> fechas = this.allDatesEventoCicloAcademicoForPeriodo(cicloAcademico);
-        Date maxDate = null;
-        if (!fechas.isEmpty()) {
-            maxDate = fechas.get(fechas.size() - 1);
+        List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allActivosBySeccion(seccion);
+        BigDecimal porcentaj = BigDecimal.ZERO;
+
+        for (DocenteSeccion x : docenteSeccions) {
+            porcentaj = porcentaj.add(x.getPorcentajeCarga());
         }
 
+        BigDecimal rest = BigDecimal.valueOf(100).subtract(porcentaj);
         DocenteSeccion docenteSeccion = new DocenteSeccion();
         docenteSeccion.setDocente(docenteDefault);
         docenteSeccion.setCodigoSeccion(seccion.getCodigo());
         docenteSeccion.setEstado(EstadoEnum.ACT.name());
-        //   docenteSeccion.setFechaInicio(today.toDate());
+        docenteSeccion.setFechaInicio(academico.getFechaInicio());
+        docenteSeccion.setFechaFin(academico.getFechaFin());
         docenteSeccion.setPrincipal(BigDecimal.ZERO.intValue());
         docenteSeccion.setSeccion(seccion);
+        docenteSeccion.setPorcentajeCarga(rest);
         docenteSeccionDAO.save(docenteSeccion);
+
+        docenteSeccions.add(docenteSeccion);
+        this.analizedDocenteSeccion(seccion, docenteSeccions, cicloAcademico);
     }
 
     @Override
     @Transactional
-    public void updateDocenteSecFechaInicio(DocenteSeccion profeSeccForm) {
+    public void updateDocenteSecFechaInicio(DocenteSeccion profeSeccForm, CicloAcademico cicloAcademico) {
 
         DocenteSeccion profeSeccDB = docenteSeccionDAO.find(profeSeccForm.getId());
         List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccDB.getSeccion());
@@ -660,11 +667,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 continue;
             }
             if (profeSec.getFechaInicio() != null && profeSec.getFechaFin() != null) {
-                if (profeSeccForm.getFechaInicio().compareTo(profeSec.getFechaInicio()) >= 0 && profeSeccForm.getFechaInicio().compareTo(profeSec.getFechaFin()) <= 0) {
-                    throw new PhobosException("La fecha seleccionada se encuentra dentro de un rango fijado");
-                } else {
-                    continue;
-                }
+//                if (profeSeccForm.getFechaInicio().compareTo(profeSec.getFechaInicio()) >= 0 && profeSeccForm.getFechaInicio().compareTo(profeSec.getFechaFin()) <= 0) {
+//                    throw new PhobosException("La fecha seleccionada se encuentra dentro de un rango fijado");
+//                } else {
+//                    continue;
+//                }
             }
             if (profeSec.getFechaInicio() != null && profeSec.getFechaInicio().compareTo(profeSeccForm.getFechaInicio()) == 0) {
                 throw new PhobosException("La fecha seleccionada es igual a otra fecha de inicio.");
@@ -677,11 +684,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccionDAO.updateFechaInicio(profeSeccDB);
         evaluateSeccion(profeSeccDB.getSeccion());
         this.actualizarBoletin();
+
+        this.analizedDocenteSeccion(profeSeccDB.getSeccion(), profesSecc, cicloAcademico);
     }
 
     @Override
     @Transactional
-    public void updateDocenteSecFechaFin(DocenteSeccion profeSeccForm) {
+    public void updateDocenteSecFechaFin(DocenteSeccion profeSeccForm, CicloAcademico cicloAcademico) {
 
         DocenteSeccion profeSeccDB = docenteSeccionDAO.find(profeSeccForm.getId());
         List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccDB.getSeccion());
@@ -700,15 +709,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 continue;
             }
             if (profeSec.getFechaInicio() != null && profeSec.getFechaFin() != null) {
-                if (profeSeccForm.getFechaFin().compareTo(profeSec.getFechaInicio()) >= 0 && profeSeccForm.getFechaFin().compareTo(profeSec.getFechaFin()) <= 0) {
-                    throw new PhobosException("La fecha seleccionada se encuentra dentro de un rango fijado");
-                } else if (profeSeccDB.getFechaInicio() != null) {
-                    if (profeSec.getFechaFin().compareTo(profeSeccDB.getFechaInicio()) >= 0 && profeSec.getFechaFin().compareTo(profeSeccForm.getFechaFin()) <= 0) {
-                        throw new PhobosException("La fecha seleccionada abarca un rango establecido.");
-                    }
-                } else {
-                    continue;
-                }
+//                if (profeSeccForm.getFechaFin().compareTo(profeSec.getFechaInicio()) >= 0 && profeSeccForm.getFechaFin().compareTo(profeSec.getFechaFin()) <= 0) {
+//                    throw new PhobosException("La fecha seleccionada se encuentra dentro de un rango fijado");
+//                } else if (profeSeccDB.getFechaInicio() != null) {
+//                    if (profeSec.getFechaFin().compareTo(profeSeccDB.getFechaInicio()) >= 0 && profeSec.getFechaFin().compareTo(profeSeccForm.getFechaFin()) <= 0) {
+//                        throw new PhobosException("La fecha seleccionada abarca un rango establecido.");
+//                    }
+//                } else {
+//                    continue;
+//                }
             }
             if (profeSec.getFechaInicio() != null && profeSec.getFechaInicio().compareTo(profeSeccForm.getFechaFin()) == 0) {
                 throw new PhobosException("La fecha seleccionada es igual a una fecha de inicio.");
@@ -722,6 +731,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         evaluateSeccion(profeSeccDB.getSeccion());
 
         this.actualizarBoletin();
+        this.analizedDocenteSeccion(profeSeccDB.getSeccion(), profesSecc, cicloAcademico);
     }
 
     @Override
@@ -753,20 +763,24 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     private void fixEncuesta(List<DocenteSeccion> lstDocSec) {
         if (lstDocSec.size() == 1) {
             EncuestaDocente encuesta = encuestaDocenteDAO.findByDocenteSeccion(lstDocSec.get(0));
-            List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuesta.getEncuestaEstudiantil());
-            encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-            encuesta.setFechaEncuestaInicio(periodosEncuesta.get(0).getFechaInicio());
-            encuesta.setFechaEncuestaFin(periodosEncuesta.get(0).getFechaFin());
-            encuestaDocenteDAO.update(encuesta);
+            if (encuesta != null) {
+                List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuesta.getEncuestaEstudiantil());
+                encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
+                encuesta.setFechaEncuestaInicio(periodosEncuesta.get(0).getFechaInicio());
+                encuesta.setFechaEncuestaFin(periodosEncuesta.get(0).getFechaFin());
+                encuestaDocenteDAO.update(encuesta);
+            }
         } else {
             for (DocenteSeccion docenteSeccion : lstDocSec) {
                 EncuestaDocente encuesta = encuestaDocenteDAO.findByDocenteSeccion(docenteSeccion);
-                ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuesta.getEncuestaEstudiantil());
-                Date inicioEncuesta = new DateTime(docenteSeccion.getFechaFin()).minusDays(configuraEncuesta.getDiasEncuesta().intValue()).toDate();
-                encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-                encuesta.setFechaEncuestaInicio(inicioEncuesta);
-                encuesta.setFechaEncuestaFin(docenteSeccion.getFechaFin());
-                encuestaDocenteDAO.update(encuesta);
+                if (encuesta != null) {
+                    ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuesta.getEncuestaEstudiantil());
+                    Date inicioEncuesta = new DateTime(docenteSeccion.getFechaFin()).minusDays(configuraEncuesta.getDiasEncuesta().intValue()).toDate();
+                    encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
+                    encuesta.setFechaEncuestaInicio(inicioEncuesta);
+                    encuesta.setFechaEncuestaFin(docenteSeccion.getFechaFin());
+                    encuestaDocenteDAO.update(encuesta);
+                }
             }
         }
     }
@@ -910,9 +924,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void deleteDocSeccion(DocenteSeccion docenteSeccion) {
+    public void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico) {
         docenteSeccion = docenteSeccionDAO.find(docenteSeccion.getId());
         docenteSeccionDAO.delete(docenteSeccion);
+
+        List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
+
+        this.analizedDocenteSeccion(docenteSeccion.getSeccion(), docentesSec, cicloAcademico);
     }
 
     @Override
@@ -1011,8 +1029,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    public List<Docente> allDocenterByNombre(String nombre) {
-        return docenteDAO.allByNombreFilter(nombre, 10);
+    public List<Docente> allDocenterByNombre(String nombre, String codigoDep) {
+        return docenteDAO.allByNombreFilter(nombre, 10, codigoDep);
     }
 
     @Override
@@ -1060,10 +1078,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void actualizarDocente(Long docenteSeccionId, Long docenteId) {
-        DocenteSeccion docenteSeccion = new DocenteSeccion(docenteSeccionId);
+    public void actualizarDocente(Long docenteSeccionId, Long docenteId, CicloAcademico cicloAcademico) {
+        DocenteSeccion docenteSeccion = docenteSeccionDAO.find(docenteSeccionId);
         docenteSeccion.setDocente(new Docente(docenteId));
         docenteSeccionDAO.updateDocente(docenteSeccion);
+
+        List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
+
+        this.analizedDocenteSeccion(docenteSeccion.getSeccion(), docentesSeccion, cicloAcademico);
     }
 
     @Override
@@ -1239,7 +1261,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void updatePorcentajeAvance(DocenteSeccion profeSeccForm) {
+    public void updatePorcentajeAvance(DocenteSeccion profeSeccForm, CicloAcademico cicloAcademico) {
         DocenteSeccion profeSeccBDMain = docenteSeccionDAO.find(profeSeccForm.getId());
         List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccBDMain.getSeccion());
 
@@ -1268,6 +1290,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         evaluateSeccion(profeSeccBDMain.getSeccion());
         this.actualizarBoletin();
+
+        this.analizedDocenteSeccion(profeSeccBDMain.getSeccion(), profesSecc, cicloAcademico);
     }
 
     @Override
@@ -1367,6 +1391,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (errorPeriodoClases || errorPorcentajeCarga) {
             seccion.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
         } else {
+            fixEncuesta(docentesSeccion);
             seccion.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
         }
         seccionDAO.updateSituacionDocente(seccion);
@@ -2062,7 +2087,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<EventoCicloAcademico> allEventoCicloAcademicoForPeriodo(CicloAcademico cicloAcademico) {
-        List<EventoAcademicoEnum> eventos = Arrays.asList(EventoAcademicoEnum.CLASES_PRE, EventoAcademicoEnum.CLASES_PRE);
+        List<EventoAcademicoEnum> eventos = Arrays.asList(EventoAcademicoEnum.CLASES_PRE, EventoAcademicoEnum.CLASES_VER);
         List<EventoCicloAcademico> eventosCiclosAcademicos = eventoCicloAcademicoDAO.allActivosByCicloEventos(cicloAcademico, eventos);
         return eventosCiclosAcademicos;
     }
