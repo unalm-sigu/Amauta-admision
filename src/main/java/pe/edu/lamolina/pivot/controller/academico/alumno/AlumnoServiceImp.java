@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.groovy.util.StringUtil;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +21,14 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
+import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
@@ -36,14 +36,17 @@ import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -58,11 +61,13 @@ import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
+import pe.edu.lamolina.pivot.dao.general.ParametroDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.SistemaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
@@ -121,6 +126,12 @@ public class AlumnoServiceImp implements AlumnoService {
     OrientacionCarreraDAO orientacionCarreraDAO;
     @Autowired
     ColaboradorDAO colaboradorDAO;
+    @Autowired
+    SistemaDAO sistemaDAO;
+    @Autowired
+    DespliegueConfig despliegueConfig;
+    @Autowired
+    ParametroDAO parametroDAO;
 
     @Override
     public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras) {
@@ -347,7 +358,6 @@ public class AlumnoServiceImp implements AlumnoService {
         cicloAcademicoDAO.update(ciclo);
     }
 
-    
     private void enviarNotificacionUsuarioCreacion(Persona persona) {
         ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEUSERALUMNOVISITANTE.name());
         mailerService.enviarNotificacionUsuarioCreacion(persona, contenidoCarta);
@@ -571,7 +581,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
     @Override
     @Transactional
-    public String goMatricula(Long idAlumno) {
+    public String goMatricula(Long idAlumno, Usuario usuario) {
 
         Alumno alumno = alumnoDAO.find(new Alumno(idAlumno));
         String valor = RandomStringUtils.randomAlphanumeric(45);
@@ -581,11 +591,12 @@ public class AlumnoServiceImp implements AlumnoService {
         token.setFechaVencimiento(new DateTime().plusSeconds(5).toDate());
         token.setPersona(alumno.getPersona());
         token.setValor(valor);
+        token.setUserRegistro(usuario);
         tokenIngresanteDAO.save(token);
         return alumno.getCodigo();
     }
 
-   @Override
+    @Override
     public List<Carrera> allCarrerasByuser(Usuario usuario, Persona persona) {
 
         Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(new Oficina(OficinaEnum.OERA.getId()), persona);
@@ -616,6 +627,17 @@ public class AlumnoServiceImp implements AlumnoService {
         all.addAll(carrera2);
         return all;
 
+    }
+
+    @Override
+    public Parametro findParametroByEnum(ParametrosSistemasEnum parametrosSistemasEnum) {
+        Sistema sistema = sistemaDAO.find(despliegueConfig.getSistema());
+        logger.debug("********************** sistema {}", sistema.getId());
+        AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
+        logger.debug("********************** ambiente name {}", ambiente.name());
+        Parametro paramRutaIntranet = parametroDAO.findBySistemaAmbienteParametrosSistemas(sistema, ambiente, ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+        logger.debug("********************** paramRutaIntranet {} path {}", paramRutaIntranet.getId(), paramRutaIntranet.getValor());
+        return paramRutaIntranet;
     }
 
 }

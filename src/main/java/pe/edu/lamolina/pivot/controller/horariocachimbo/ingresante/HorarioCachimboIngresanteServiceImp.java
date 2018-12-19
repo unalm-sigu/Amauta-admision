@@ -15,21 +15,27 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.ActividadIngresante;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CarreraCachimbos;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ConfigRecorridoIngresante;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.TipoActividadIngresante;
+import pe.edu.lamolina.model.enums.ActividadIngresanteEnum;
 import pe.edu.lamolina.model.enums.AlumnoVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.RecorridoIngresanteEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -44,9 +50,12 @@ import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.controller.horariocachimbo.generar.HorarioCachimboGenerarService;
+import pe.edu.lamolina.pivot.dao.academico.ActividadIngresanteDAO;
+import pe.edu.lamolina.pivot.dao.academico.ConfigRecorridoIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.TipoActividadIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 
 @Service
@@ -90,6 +99,15 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     MatriculaCursoDAO matriculaCursoDAO;
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
+
+    @Autowired
+    ConfigRecorridoIngresanteDAO configRecorridoIngresanteDAO;
+
+    @Autowired
+    ActividadIngresanteDAO actividadIngresanteDAO;
+
+    @Autowired
+    TipoActividadIngresanteDAO tipoActividadIngresanteDAO;
 
     @Override
     public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -374,8 +392,22 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
             List<AlumnoHorario> alumnosHorario = alumnoHorarioDAO.allByHorario(horario);
 
+            List<ConfigRecorridoIngresante> configRecorridoIngresantes = configRecorridoIngresanteDAO.allByCicloAcademico(cicloAcademico);
+            List<ActividadIngresante> actividadIngresantes = actividadIngresanteDAO.allByCicloAcademico(cicloAcademico);
+            TipoActividadIngresante tipoActividadIngresante = tipoActividadIngresanteDAO.findCodigo(TipoActividadIngresanteEnum.MATRI);
+            Map<Long, List<ActividadIngresante>> mapsActividades = TypesUtil.convertListToMapList("recorridoIngresante.alumno.id", actividadIngresantes);
             for (AlumnoHorario aluHorario : alumnosHorario) {
+                if (aluHorario.getEstadoEnum() == EstadoAlumnoHorarioEnum.MATR) {
+                    continue;
+                }
+
+                // estados de recorrido tienen que estar activo. menos el de matricula. RecorridoAlumno - ActividadIngresante
                 Alumno alumno = aluHorario.getAlumno();
+                List<ActividadIngresante> actividadAlumno = mapsActividades.get(alumno.getId());
+                if (actividadAlumno.size() == (configRecorridoIngresantes.size() - 1)) {
+                    continue;
+                }
+
                 System.out.println("Alumno :::: " + alumno.getCodigo());
                 MatriculaResumen matResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
                 List<MatriculaCurso> matCursos = matriculaCursoDAO.allByMatriculaResumen(matResumen);
@@ -448,6 +480,15 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 aluHorario.setEstado(EstadoAlumnoHorarioEnum.MATR);
                 horario.setMatriculados(horario.getMatriculados() + 1);
                 matriculaResumenDAO.update(matResumen);
+
+                ActividadIngresante actividadIngresante = new ActividadIngresante();
+                actividadIngresante.setEstadoEnum(RecorridoIngresanteEstadoEnum.ACT);
+                actividadIngresante.setFechaRegistro(new Date());
+                actividadIngresante.setRecorridoIngresante(actividadAlumno.get(0).getRecorridoIngresante());
+                actividadIngresante.setTipoActividadIngresante(tipoActividadIngresante);
+                actividadIngresante.setUserEjecucion(ds.getUsuario());
+                actividadIngresanteDAO.save(actividadIngresante);
+
             }
             horarioCachimbosDAO.update(horario);
         }
