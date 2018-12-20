@@ -67,6 +67,7 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
         DynatableSql sql = new DynatableSql(filter)
                 .from(CursoCicloAcademico.class, "pcc")
                 .join("curso cu", "cicloAcademico ci")
+                .leftJoin("tipoCursoCurricula tipo")
                 .filter("ci.id", ciclo)
                 .searchFields("cu.nombre", "cu.codigo")
                 .orderBy("pcc.id desc");

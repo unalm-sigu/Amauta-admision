@@ -22,6 +22,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -57,9 +58,13 @@ public class PrecioCursoCicloController {
             for (CursoCicloAcademico cursoCiclo : cursosCiclo) {
                 ObjectNode node = JsonHelper.createJson(cursoCiclo, JsonNodeFactory.instance, true,
                         new String[]{
-                            "curso.id", "curso.estado", "curso.codigo", "curso.nombre", "curso.tpc", "curso.departamentoAcademico.nombre",
+                            "curso.id", "curso.estado", "curso.codigo", 
+                            "curso.nombre", "curso.tpc", "curso.departamentoAcademico.nombre",
                             "cicloAcademico.descripcion",
-                            "id", "cantidadGpoSecc", "estado", "precio", "precioPersonalizado", "precioFormato", "precioAdicional", "precioAdicionalFormato", "minimoAlumnos"
+                            "id", "cantidadGpoSecc", "estado", "precio",
+                            "precioPersonalizado", "precioFormato", "precioAdicional", "precioAdicionalFormato", "minimoAlumnos",
+                            "tipoCursoCurricula.id",
+                            "tipoCursoCurricula.nombre"
                         });
 
                 array.add(node);
@@ -84,6 +89,25 @@ public class PrecioCursoCicloController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.save(precioCursoCiclos, ds.getCicloAcademico(), ds);
             response.setMessage("Guardado satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("configurarcantidad")
+    public JsonResponse configurarcantidad(@RequestBody CantidadAlumno cantidadAlumno, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.configurarcantidad(cantidadAlumno, ds.getCicloAcademico());
+            response.setMessage(Messages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

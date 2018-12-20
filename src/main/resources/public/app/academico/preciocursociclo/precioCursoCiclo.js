@@ -3,9 +3,19 @@ new Vue({
     data: {
         preciocursocicloURL: APP.url('academico/preciocursociclo/list'),
         verTabla: false,
-        guardaPrecio: false
+        guardaPrecio: false,
+        cfgCantidadAlumno: {
+            id: 'idCfgCantidadAlumno',
+            header: true,
+            title: 'Configurar Cantidad de Minima de Alumnos Requerido por Curso'
+        },
+        cantidadalumno: {general: null, carrera: null}
     },
     mounted() {
+        let $vue = this;
+        $(".numerico").numeric({negative: false});
+    },
+    updated() {
         let $vue = this;
         $(".numerico").numeric({negative: false});
     },
@@ -25,8 +35,8 @@ new Vue({
                 callback: function (aceptar) {
                     if (aceptar) {
                         $vue.guardar();
-                    }else{
-                        $vue.guardaPrecio = false; 
+                    } else {
+                        $vue.guardaPrecio = false;
                     }
                 }
             });
@@ -55,6 +65,57 @@ new Vue({
                 $vue.verTabla = true;
                 $vue.guardaPrecio = false;
                 notify(MESSAGES.errorComunicacion, 'error');
+            });
+        },
+        configurarCantidadAlumno() {
+            let $vue = this;
+            $vue.$refs.cfgCantidadAlumnoModal.open();
+            $vue.cantidadalumno = {general: null, carrera: null}
+        },
+        saveCantidadAlumno() {
+            let $vue = this;
+            if($("#formcfgCantidadAlumno").parsley().validate()!=true){
+               return; 
+            }
+            swal('¿Seguro que desea registrar la cantidad mínima de alumnos requerido por curso?', {
+                icon: "warning",
+                closeOnClickOutside: false,
+                closeOnEsc: false,
+                dangerMode: true,
+                buttons: {
+                    cancel: {text: "Cancelar", closeModal: true, visible: true},
+                    confirm: {text: "Aceptar", closeModal: false}
+                }
+            }).then((value) => {
+                if (value != true) {
+                    return;
+                }
+                $.ajax({
+                    method: 'POST',
+                    async: false,
+                    url: APP.url('academico/preciocursociclo/configurarcantidad'),
+                    contentType: "application/json",
+                    data: JSON.stringify($vue.cantidadalumno),
+                    success: function (response) {
+                        if (response.success) {
+                            $vue.$refs.cfgCantidadAlumnoModal.close();
+                            $vue.$refs.raptorPrecioCursoCiclo.loadRemoteData();
+                            return  swal({text: response.message, icon: "success", button: false, timer: 1000});
+                        } else {
+                            return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        }
+                    },
+                    error: function () {
+                        return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                    }
+                });
+            }).catch(err => {
+                if (err) {
+                    swal(APP.errorComunicacion, "error");
+                } else {
+                    swal.stopLoading();
+                    swal.close();
+                }
             });
         }
     }

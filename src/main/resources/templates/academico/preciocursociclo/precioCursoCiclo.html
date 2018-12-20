@@ -16,7 +16,7 @@
                         <section class="panel-body" th:unless="${ciclo.tipo == 'NIV' }">
                             No se configura precios en este ciclo
                         </section>
-                        
+
                         <section class="panel-body" th:if="${ciclo.tipo == 'NIV' }">
 
                             <raptor-table v-bind:url="preciocursocicloURL" ref="raptorPrecioCursoCiclo">
@@ -34,12 +34,18 @@
                                             </label>
                                         </div>
                                     </div>
+
                                     <div class="col-md-2">
 
                                         <div class="btn-group" v-if="verTabla" >
                                             <a href="#" class="btn btn-success btn-sm" v-on:click.prevent="verGuardar()" v-if="!guardaPrecio">Guardar</a>                            
                                         </div>                                                              
                                     </div>
+
+                                    <div class="col-md-2">
+                                        <a href="#" class="btn btn-success btn-sm" v-on:click.prevent="configurarCantidadAlumno()" >Configurar Cantidad Alumno</a>                            
+                                    </div>
+
                                 </div>
 
                                 <template scope="props">
@@ -47,9 +53,10 @@
                                         <thead> 
                                             <tr> 
                                                 <th class="col-md-4 v-middle text-center">Curso</th>
+                                                <th class="col-md-1 v-middle text-center">Tipo Curricula</th>
                                                 <th class="col-md-2 v-middle text-center">Grupos</th>
                                                 <th class="v-middle text-center">Personalizado</th>
-                                                <th class="col-md-2 v-middle text-center">Precio</th>
+                                                <th class="col-md-1 v-middle text-center">Precio</th>
                                                 <th class="col-md-2 v-middle text-center">Precio Adicional</th>
                                                 <th class="col-md-2 v-middle text-center">Mínimo Requerido Alumnos por Curso</th>
 
@@ -64,6 +71,9 @@
                                                         {{item.curso.codigo}}&nbsp;
                                                         <i class="fa fa-bookmark text-primary"></i>
                                                         {{item.curso.tpc}}</span>
+                                                </td>
+                                                <td class="v-middle">
+                                                    {{item.tipoCursoCurricula.nombre}}
                                                 </td>
                                                 <td class="v-middle text-center"> 
                                                     {{item.cantidadGpoSecc}}
@@ -97,11 +107,47 @@
                         </section>
                     </section>
                 </section>
+
+                <modal-vik ref="cfgCantidadAlumnoModal"
+                           v-bind="cfgCantidadAlumno"
+                           v-bind:okaction="saveCantidadAlumno">
+                    <div slot="body">
+                        <form  id="formcfgCantidadAlumno"   data-parsley-validate="true">
+
+                            <div class="panel-body">
+
+                                <div class="col-sm-6">
+
+                                    <div class="form-group">
+                                        <span class="label-control">Alumnos Curso General</span>
+                                        <input type="text" class="form-control numerico" required="true" v-model="cantidadalumno.general" name="alumnoCursoGeneral"/>
+                                    </div>
+
+                                </div>
+                                <div class="col-sm-6">
+
+                                    <div class="form-group">
+                                        <span class="label-control">Alumnos Curso Carrera</span>
+                                        <input type="text" class="form-control numerico" required="true"  v-model="cantidadalumno.carrera"  name="alumnoCursoCarrera"/>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </modal-vik>
+
             </div>
+
+            <div th:substituteby="_modules/vue-modal"/>
+
         </div>
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_layout/includes :: sweetalert"/>
             <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/preciocursociclo/precioCursoCiclo.js}" charset="utf-8"></script>
         </div>

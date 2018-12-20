@@ -7,6 +7,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 
 public interface CursoCurriculaDAO extends EasyDAO<CursoCurricula> {
 
@@ -21,5 +22,7 @@ public interface CursoCurriculaDAO extends EasyDAO<CursoCurricula> {
     List<CursoCurricula> allByPlanCurricularNroCiclo(PlanCurricular plan, Integer nro);
     
     Map<Long, Integer> countByPlanesCurricular(List<PlanCurricular> curriculas);
+
+    List<CursoCurricula> allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum tipoCursoCurriculaEnum);
 
 }
