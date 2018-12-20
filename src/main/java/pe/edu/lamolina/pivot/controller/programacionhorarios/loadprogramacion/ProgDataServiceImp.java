@@ -37,6 +37,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -53,6 +54,9 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
@@ -81,6 +85,7 @@ import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
@@ -167,6 +172,9 @@ public class ProgDataServiceImp implements ProgDataService {
 
     @Autowired
     VisorLoadProgramacion visor;
+
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static boolean revisar = true;
@@ -1844,6 +1852,8 @@ public class ProgDataServiceImp implements ProgDataService {
             Map<Long, List<HorarioSeccion>> mapHorariosSecciones = TypesUtil.convertListToMapList("seccion.id", horarioSeccCicloBD);
             Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("seccion.id", horarioAulaCicloBD);
 
+            EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(cicloAcademico);
+
             for (Map.Entry<String, List<HorarioSeccion>> entry : mapSeccHorarios.entrySet()) {
                 String clave = entry.getKey();
                 logger.debug("clave {} de horarioSeccion", clave);
@@ -1863,6 +1873,10 @@ public class ProgDataServiceImp implements ProgDataService {
                 int contador = 0;
                 for (HorarioSeccion nuevo : nuevos) {
                     logger.debug("\t ( {} / {} ) Agregando horario-seccion {} {} {}", contador++, nuevos.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
+                    if (eventoAcademico != null) {
+                        nuevo.setFechaInicio(eventoAcademico.getFechaInicio());
+                        nuevo.setFechaFin(eventoAcademico.getFechaFin());
+                    }
                     horarioSeccionDAO.save(nuevo);
                     horarios.add(nuevo);
                 }
@@ -1904,6 +1918,10 @@ public class ProgDataServiceImp implements ProgDataService {
                 int contador = 0;
                 for (HorarioAula nuevo : nuevos) {
                     logger.debug("\t ( {} / {} ) Agregando horario-aula {} {} {}", contador++, nuevos.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
+                    if (eventoAcademico != null) {
+                        nuevo.setFechaInicio(eventoAcademico.getFechaInicio());
+                        nuevo.setFechaFin(eventoAcademico.getFechaFin());
+                    }
                     horarioAulaDAO.save(nuevo);
                 }
 
@@ -2096,5 +2114,11 @@ public class ProgDataServiceImp implements ProgDataService {
         }
 
         return Integer.valueOf(dato);
+    }
+
+    private EventoCicloAcademico getEventoCicloAcademico(CicloAcademico cicloAcademico) {
+        EventoAcademicoEnum eventoEnum = cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
+        EventoCicloAcademico eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoEnum);
+        return eventoCiclo;
     }
 }
