@@ -335,11 +335,11 @@ public class AlumnoController {
     }
 
     @RequestMapping("{idAlumno}/gomatricula")
-    public String goMatricula(@PathVariable("idAlumno") Long idAlumno, @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
+    public String goMatricula(@PathVariable("idAlumno") Long idAlumno, @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) throws InterruptedException {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Usuario usuario = ds.getUsuario();
         String codigo = service.goMatricula(idAlumno, usuario);
-        session.invalidate();
+//        session.invalidate();
         Parametro paramRutaMatricula = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
         if (paramRutaMatricula != null) {
             StringBuilder sb = new StringBuilder();
