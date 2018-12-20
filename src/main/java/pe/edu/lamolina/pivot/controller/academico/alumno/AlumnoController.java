@@ -108,7 +108,6 @@ public class AlumnoController {
 
             alumnos = service.allAlumnosbyDynatable(filter, carrera);
 
-
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Alumno alumn : alumnos) {
@@ -336,24 +335,25 @@ public class AlumnoController {
     }
 
     @RequestMapping("{idAlumno}/gomatricula")
-    public String goMatricula(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+    public String goMatricula(@PathVariable("idAlumno") Long idAlumno, @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Usuario usuario = ds.getUsuario();
-        String codigo = service.goMatricula(idAlumno,usuario);
-        session.invalidate();
-        Parametro paramRutaIntranet = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
-        if (paramRutaIntranet != null) {
-            StringBuilder sb= new StringBuilder();
+        String codigo = service.goMatricula(idAlumno, usuario);
+//        session.invalidate();
+        Parametro paramRutaMatricula = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+        if (paramRutaMatricula != null) {
+            StringBuilder sb = new StringBuilder();
             sb.append("redirect:");
-            sb.append(paramRutaIntranet.getValor());
+            sb.append(paramRutaMatricula.getValor());
             sb.append("/amauta/");
             sb.append(codigo);
             sb.append("/");
             sb.append(usuario.getId());
+            sb.append("?origen=" + getOrigen(origen));
             logger.debug("********************** goIntranet {} ", sb.toString());
             return sb.toString();
         }
-        return "redirect:/" ;
+        return "redirect:/";
     }
 
 }
