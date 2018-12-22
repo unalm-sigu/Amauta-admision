@@ -7,7 +7,7 @@ new Vue({
         cfgCantidadAlumno: {
             id: 'idCfgCantidadAlumno',
             header: true,
-            title: 'Configurar Cantidad de Minima de Alumnos Requerido por Curso'
+            title: 'Cantidad mínima de alumnos por Curso'
         },
         cantidadalumno: {general: null, carrera: null}
     },

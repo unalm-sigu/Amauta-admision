@@ -37,6 +37,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
@@ -44,6 +45,7 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -60,6 +62,8 @@ public class AlumnoController {
 
     @Autowired
     VerificadorService verificadorService;
+    @Autowired
+    DespliegueConfig despliegueConfig;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -349,8 +353,14 @@ public class AlumnoController {
             sb.append(codigo);
             sb.append("/");
             sb.append(usuario.getId());
-            sb.append("?origen=" + getOrigen(origen));
+            sb.append("?origen=" + origen);
             logger.debug("********************** goIntranet {} ", sb.toString());
+
+            AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
+            if (ambiente == AmbienteAplicacionEnum.DESA) {
+                session.invalidate();
+            }
+
             return sb.toString();
         }
         return "redirect:/";
