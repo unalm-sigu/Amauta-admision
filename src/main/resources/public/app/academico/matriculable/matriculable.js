@@ -296,9 +296,8 @@
 //    });
 //
 //});
-Vue.component("multiselect", window.VueMultiselect.default)
-console.log(JSON.parse(cicloJson));
 console.log(JSON.parse(resumenJson));
+Vue.component("multiselect", window.VueMultiselect.default)
 new Vue({
     el: '#matriculableVUE',
     data: {
