@@ -636,7 +636,7 @@ public class AlumnoServiceImp implements AlumnoService {
         AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
         logger.debug("********************** ambiente name {}", ambiente.name());
         Parametro paramRutaIntranet = parametroDAO.findBySistemaAmbienteParametrosSistemas(sistema, ambiente, ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
-        logger.debug("********************** paramRutaIntranet {} path {}", paramRutaIntranet.getId(), paramRutaIntranet.getValor());
+        logger.debug("********************** paramRutaMatricula {} path {}", paramRutaIntranet.getId(), paramRutaIntranet.getValor());
         return paramRutaIntranet;
     }
 

@@ -77,17 +77,17 @@ public interface GpoSeccionService {
 
     List<DocenteSeccion> allDocentesSeccionBySeccion(Seccion seccion);
 
-    void deleteDocSeccion(DocenteSeccion docenteSeccion);
+    void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico academico);
 
-    List<Docente> allDocenterByNombre(String nombre);
+    List<Docente> allDocenterByNombre(String nombre, String codigoDep);
 
     void cambiarDocentePrincipal(DocenteSeccion docenteSeccion);
 
-    void actualizarDocente(Long docenteSeccionId, Long docenteId);
+    void actualizarDocente(Long docenteSeccionId, Long docenteId, CicloAcademico cicloAcademico);
 
     void actualizarSeccionVacantes(Seccion seccion, Usuario usuario);
 
-    void updatePorcentajeAvance(DocenteSeccion docenteSeccion);
+    void updatePorcentajeAvance(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico);
 
     Seccion findSeccion(Long seccionId);
 
@@ -170,9 +170,9 @@ public interface GpoSeccionService {
 
     List<Date> allDatesEventoCicloAcademicoForPeriodo(CicloAcademico cicloAcademico);
 
-    void updateDocenteSecFechaInicio(DocenteSeccion docenteSeccion);
+    void updateDocenteSecFechaInicio(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico);
 
-    void updateDocenteSecFechaFin(DocenteSeccion docenteSeccion);
+    void updateDocenteSecFechaFin(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico);
 
     List<DocenteSeccion> analizedDocenteSeccion(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
 

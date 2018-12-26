@@ -272,7 +272,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .join("cicloAcademico ca", "anexoBoletin ab", "curso cu")
                 .leftJoin("ab.anexoSuperior abs", "planCalificacion pc")
                 .filter("ca.id", ciclo)
-                .searchFields("cu.nombre", "cu.codigo", "ab.nombre", "abs.nombre")
+                .searchFields("cu.nombre", "cu.codigo")
                 .searchSubquery(subQuery)
                 .subqueryLinkedBy("gs.id", "ggss.id")
                 .searchSubqueryFields("doc.codigo", "se.codigo2", "gh.codigo", "au.codigo")

@@ -538,7 +538,7 @@ new Vue({
                         $vue.$refs.modalMatriculable.close();
                         MODAL.hideWait();
                         notify(response.message, "success");
-                    }else{
+                    } else {
                         MODAL.hideWait();
                         notify(response.message, "error");
                     }
@@ -575,6 +575,14 @@ new Vue({
                 return  codigo + " - " + persona.nombreCompleto;
             }
             return "";
+        },
+        urlMatricula(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.alumno.id + '/gomatricula') + $vue.getOrigenURL();
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
         }
     }
 });

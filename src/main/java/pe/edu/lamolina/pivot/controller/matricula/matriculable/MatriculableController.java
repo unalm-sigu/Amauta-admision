@@ -141,7 +141,9 @@ public class MatriculableController {
                             "alumno.carrera.facultad.codigo", "situacionInicio.id", "situacionFinal.id", "situacionFinal.nombre",
                             "situacionInicio.nombre",
                             "turnoAtencion.fecha",
-                            "turnoAtencion.fechaHoraInicio"
+                            "turnoAtencion.fechaHoraInicio",
+                            "alumno.situacionAcademica.codigo",
+                            "alumno.situacionAcademica.nombre",
                         });
                 if (matriculable.getPuntajePrioridad() != null) {
                     node.put("puntajePrioridad", NumberFormat.notaDecimalXDecimals(matriculable.getPuntajePrioridad(), 6));

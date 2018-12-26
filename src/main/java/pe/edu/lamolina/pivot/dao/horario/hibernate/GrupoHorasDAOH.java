@@ -52,8 +52,7 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
         Octavia sql = Octavia.query()
                 .from(GrupoHoras.class, "grup")
                 .join("tipoGrupoHoras tgh")
-                .filter("codigo", codigo)
-                .in("tgh.tipoCiclo", tiposCiclos);
+                .filter("codigo", codigo);
         return find(sql);
     }
 
@@ -147,7 +146,6 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
         Octavia sql = Octavia.query()
                 .from(GrupoHoras.class, "gh")
                 .join("tipoGrupoHoras")
-                .filter("gh.tipoCiclo", "REGULAR")
                 .filter("gh.tipoSeccion", TipoSeccionEnum.TEO)
                 .orderBy("gh.codigo");
 

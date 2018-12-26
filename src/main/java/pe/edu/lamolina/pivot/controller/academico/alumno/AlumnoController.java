@@ -37,6 +37,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
@@ -44,6 +45,7 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -60,6 +62,8 @@ public class AlumnoController {
 
     @Autowired
     VerificadorService verificadorService;
+    @Autowired
+    DespliegueConfig despliegueConfig;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -107,7 +111,6 @@ public class AlumnoController {
             List<Alumno> alumnos = null;
 
             alumnos = service.allAlumnosbyDynatable(filter, carrera);
-
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -336,24 +339,31 @@ public class AlumnoController {
     }
 
     @RequestMapping("{idAlumno}/gomatricula")
-    public String goMatricula(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+    public String goMatricula(@PathVariable("idAlumno") Long idAlumno, @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) throws InterruptedException {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Usuario usuario = ds.getUsuario();
-        String codigo = service.goMatricula(idAlumno,usuario);
+        String codigo = service.goMatricula(idAlumno, usuario);
         session.invalidate();
-        Parametro paramRutaIntranet = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
-        if (paramRutaIntranet != null) {
-            StringBuilder sb= new StringBuilder();
+        Parametro paramRutaMatricula = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+        if (paramRutaMatricula != null) {
+            StringBuilder sb = new StringBuilder();
             sb.append("redirect:");
-            sb.append(paramRutaIntranet.getValor());
+            sb.append(paramRutaMatricula.getValor());
             sb.append("/amauta/");
             sb.append(codigo);
             sb.append("/");
             sb.append(usuario.getId());
+            sb.append("?origen=" + origen);
             logger.debug("********************** goIntranet {} ", sb.toString());
+
+            AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
+            if (ambiente == AmbienteAplicacionEnum.DESA) {
+                session.invalidate();
+            }
+
             return sb.toString();
         }
-        return "redirect:/" ;
+        return "redirect:/";
     }
 
 }
