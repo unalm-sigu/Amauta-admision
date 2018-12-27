@@ -91,10 +91,10 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         sql.append(" inner join al.persona per ");
         sql.append(" inner join al.carrera car ");
         sql.append(" inner join al.situacionAcademica sita ");
-        sql.append(" inner join ca.modalidadEstudio moe ");
+        sql.append(" inner join al.modalidadEstudio moe ");
         sql.append(" inner join car.facultad fac ");
-        sql.append(" where 1=1 ");
-        sql.append(" and ca.id=:prm_ciclo ");
+        sql.append(" where ");
+        sql.append(" ca.id=:prm_ciclo ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         //  query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
@@ -405,6 +405,102 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .limit(1);
 
         return find(sql);
+    }
+
+    @Override
+    public void savePosGradoVerano(List<String> situaciones, CicloAcademico cicloAcademicoAnterior, CicloAcademico academico) {
+        StringBuilder strb = new StringBuilder("");
+        strb.append("insert into ");
+        strb.append("MatriculaResumen ");
+        strb.append("(");
+        strb.append("alumno,");
+        strb.append("cicloAcademico,");
+        strb.append("situacionInicio,");
+        strb.append("creditosRetirados,");
+        strb.append("creditosMatriculados,");
+        strb.append("cursosMatriculados,");
+        strb.append("cursosRetirados,");
+        strb.append("porcentajeAvance,");
+        strb.append("notaAcumulada,");
+        strb.append("notaAvance,");
+        strb.append("notaFinal,");
+        strb.append("estado");
+        strb.append(")");
+        strb.append("select ");
+        strb.append("alum,");
+        strb.append(":cicloActual, ");
+        strb.append("sit, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("'0', ");
+        strb.append("'0', ");
+        strb.append("'0', ");
+        strb.append("'NMAT' ");
+        strb.append("from MatriculaResumen mat ");
+        strb.append("inner join mat.alumno alum ");
+        strb.append("inner join alum.modalidadEstudio me ");
+        strb.append("inner join alum.situacionAcademica sit ");
+        strb.append("inner join mat.cicloAcademico cic ");
+        strb.append("where sit.codigo in ( :codigos ) and me.codigo = 'EPG'");
+        strb.append("and cic.id = :cicloAnterior ");
+        strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("cicloAnterior", cicloAcademicoAnterior.getId());
+        query.setParameter("cicloActual", academico);
+        query.setParameterList("codigos", situaciones);
+        query.executeUpdate();
+    }
+
+    @Override
+    public void savePreGradoVerano(List<String> situacionesPregrado, CicloAcademico cicloAcademicoAnterior, CicloAcademico academico) {
+        StringBuilder strb = new StringBuilder("");
+        strb.append("insert into ");
+        strb.append("MatriculaResumen ");
+        strb.append("(");
+        strb.append("alumno,");
+        strb.append("cicloAcademico,");
+        strb.append("situacionInicio,");
+        strb.append("creditosRetirados,");
+        strb.append("creditosMatriculados,");
+        strb.append("cursosMatriculados,");
+        strb.append("cursosRetirados,");
+        strb.append("porcentajeAvance,");
+        strb.append("notaAcumulada,");
+        strb.append("notaAvance,");
+        strb.append("notaFinal,");
+        strb.append("estado");
+        strb.append(")");
+        strb.append("select ");
+        strb.append("alum,");
+        strb.append(":cicloActual, ");
+        strb.append("sit, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("0, ");
+        strb.append("'0', ");
+        strb.append("'0', ");
+        strb.append("'0', ");
+        strb.append("'NMAT' ");
+        strb.append("from MatriculaResumen mat ");
+        strb.append("inner join mat.alumno alum ");
+        strb.append("inner join alum.modalidadEstudio me ");
+        strb.append("inner join alum.situacionAcademica sit ");
+        strb.append("inner join mat.cicloAcademico cic ");
+        strb.append("where sit.codigo in ( :codigos ) and me.codigo = 'PRE'");
+        strb.append("and cic.id = :cicloAnterior ");
+        strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("cicloAnterior", cicloAcademicoAnterior.getId());
+        query.setParameter("cicloActual", academico);
+        query.setParameterList("codigos", situacionesPregrado);
+        query.executeUpdate();
     }
 
 }

@@ -52,4 +52,8 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     public MatriculaResumen findByDesPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
 
+    public void savePosGradoVerano(List<String> situacionesPregrado, CicloAcademico cicloAcademicoAnterior, CicloAcademico cicloAcademico);
+
+    public void savePreGradoVerano(List<String> situacionesPregrado, CicloAcademico cicloAcademicoAnterior, CicloAcademico cicloAcademico);
+
 }

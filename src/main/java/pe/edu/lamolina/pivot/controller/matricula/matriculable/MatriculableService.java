@@ -46,4 +46,6 @@ public interface MatriculableService {
 
     public void saveMatriculable(Alumno alumno, DataSessionPivot ds);
 
+    public void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds);
+
 }

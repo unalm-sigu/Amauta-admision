@@ -43,6 +43,7 @@ import pe.edu.lamolina.model.enums.RolEnum;
 import static pe.edu.lamolina.model.enums.RolEnum.FAC;
 import static pe.edu.lamolina.model.enums.RolEnum.MOD;
 import static pe.edu.lamolina.model.enums.RolEnum.TODO;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -143,8 +144,7 @@ public class MatriculableController {
                             "turnoAtencion.fecha",
                             "turnoAtencion.fechaHoraInicio",
                             "alumno.situacionAcademica.codigo",
-                            "alumno.situacionAcademica.nombre",
-                        });
+                            "alumno.situacionAcademica.nombre",});
                 if (matriculable.getPuntajePrioridad() != null) {
                     node.put("puntajePrioridad", NumberFormat.notaDecimalXDecimals(matriculable.getPuntajePrioridad(), 6));
                 }
@@ -170,7 +170,11 @@ public class MatriculableController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.generar(ds.getCicloAcademico(), ds);
+            if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.NIV) {
+                service.generarVerano(ds.getCicloAcademico(), ds);
+            } else {
+                service.generar(ds.getCicloAcademico(), ds);
+            }
             AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
             response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
             response.setMessage("Matriculables generados satisfactoriamente");
@@ -235,6 +239,8 @@ public class MatriculableController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.eliminarPrioridad(ds.getCicloAcademico());
+            AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
+            response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
             response.setMessage("Prioridad eliminada correctamente");
             response.setSuccess(true);
 
@@ -255,6 +261,8 @@ public class MatriculableController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.finalizarPrioridad(ds.getCicloAcademico());
+            AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
+            response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
             response.setMessage("Prioridad finalizada correctamente");
             response.setSuccess(true);
 
@@ -275,6 +283,8 @@ public class MatriculableController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.finalizarMatriculable(ds.getCicloAcademico());
+            AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
+            response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
             response.setMessage("Matriculable finalizada correctamente");
             response.setSuccess(true);
 
