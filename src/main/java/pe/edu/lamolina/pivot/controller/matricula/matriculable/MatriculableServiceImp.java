@@ -200,7 +200,7 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         List<MatriculaResumen> matriculablesConPuntaje = matriculables.stream()
-                .filter(x -> (x.getPuntajePrioridad() != null))
+                .filter(x -> (x.getPuntajePrioridad() != null && x.getPrioridad() == null))
                 .collect(Collectors.toList());
         Collections.sort(matriculablesConPuntaje, new MatriculaResumen.ComparePrioridadCapa());
 
