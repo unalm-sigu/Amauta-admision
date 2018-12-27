@@ -23,6 +23,7 @@ import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CAPA_ULTIMO_CICLO;
 
 @Service
 @Transactional(readOnly = true)
@@ -68,8 +69,15 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         BigDecimal factor2 = caps.divide(ccs, 12, RoundingMode.HALF_UP);
         BigDecimal puntajePrioridad = factor1.multiply(factor2);
         puntajePrioridad = puntajePrioridad.multiply(alumnoCiclo.getPromedioCiclo());
-        
-        matriculaResumen.setCreditosAprobadosAcumulados(capa);
+
+        matriculaResumen.setCreditosAprobadosAcumulados(Integer.parseInt(capa.toString()));
+        matriculaResumen.setCreditosAcumulados(Integer.parseInt(cca.toString()));
+        matriculaResumen.setCreditosAprobadosCiclo(Integer.parseInt(caps.toString()));
+        matriculaResumen.setCreditosCursadosCiclo(Integer.parseInt(ccs.toString()));
+        if (matriculaResumen.getCreditosAprobadosAcumulados() >= CAPA_ULTIMO_CICLO) {
+            matriculaResumen.setEsUltimoCiclo(Boolean.TRUE);
+        }
+        matriculaResumen.setCicloAcademicoInfo(alumnoCiclo.getCicloAcademico());
         matriculaResumen.setPuntajePrioridad(puntajePrioridad);
     }
 
