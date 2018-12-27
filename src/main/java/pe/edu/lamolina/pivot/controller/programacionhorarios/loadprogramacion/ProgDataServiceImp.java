@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -34,6 +35,8 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
+import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
@@ -43,11 +46,13 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
 import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -61,6 +66,7 @@ import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
@@ -82,6 +88,8 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -90,11 +98,13 @@ import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionRepitenciaDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
+import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
@@ -166,10 +176,16 @@ public class ProgDataServiceImp implements ProgDataService {
     RestriccionRepitenciaDAO restriccionRepitenciaDAO;
     @Autowired
     HorarioAulaDAO horarioAulaDAO;
-
+    @Autowired
+    CursoCurriculaDAO cursoCurriculaDAO;
+    @Autowired
+    PrecioCursoEstructuraDAO precioCursoEstructuraDAO;
+    @Autowired
+    CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
     @Autowired
     LoadDataMatriculadoService loadDataMatriculadoService;
-
+    @Autowired
+    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
     @Autowired
     VisorLoadProgramacion visor;
 
@@ -1006,7 +1022,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo) {
+    public Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo, DataSessionPivot ds) {
 
         List<GrupoSeccion> gpoSeccionesBD = grupoSeccionDAO.allByCiclo(ciclo);
         Map<String, GrupoSeccion> mapGpoSeccionBD = TypesUtil.convertListToMap("codigo", gpoSeccionesBD);
@@ -1084,6 +1100,55 @@ public class ProgDataServiceImp implements ProgDataService {
             gruposSecciones.set(loop, gpoSeccBD);
             mapGpoSecciones.put(gpoSeccBD.getCodigo(), gpoSeccBD);
             loop++;
+
+            if (ciclo.getTipoEnum() == TipoCicloEnum.NIV) {
+                List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum.GEN);
+                TipoCursoCurricula tipocursogeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
+                TipoCursoCurricula tipocursoobligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
+                Map<Long, CursoCurricula> curCurriculaMap = TypesUtil.convertListToMap("curso.id", cursosCurricula);
+                List<PrecioCursoEstructura> precioCursoEstructura = precioCursoEstructuraDAO.allByCiclo(ciclo);
+                List<CursoCicloAcademico> cursoCicloAcademico = cursoCicloAcademicoDAO.allByCiclo(ciclo);
+                Set<String> tpcs = precioCursoEstructura.stream().map(PrecioCursoEstructura::getTpc).collect(Collectors.toSet());
+                if (curso.getTpc() != null && !tpcs.contains(curso.getTpc())) {
+                    tpcs.add(curso.getTpc());
+
+                    PrecioCursoEstructura pce = new PrecioCursoEstructura();
+                    pce.setCicloAcademico(ciclo);
+                    pce.setFechaPrecio(new Date());
+                    pce.setPrecio(BigDecimal.ZERO);
+                    pce.setTpc(curso.getTpc());
+                    pce.setCreditos(curso.getCreditos());
+                    pce.setUserPrecio(ds.getUsuario());
+                    pce.setEstado(EstadoEnum.ACT.name());
+
+                    precioCursoEstructuraDAO.save(pce);
+                }
+                Set<Curso> cursos = cursoCicloAcademico.stream().map(CursoCicloAcademico::getCurso).collect(Collectors.toSet());
+                int factorHoras = 3;
+                int horasTeoria = curso.getHorasTeoria() * factorHoras;
+                int horasPractica = curso.getHorasPractica() * factorHoras;
+
+                if (!cursos.contains(curso)) {
+                    cursos.add(curso);
+
+                    CursoCicloAcademico cca = new CursoCicloAcademico();
+                    cca.setCicloAcademico(ciclo);
+                    cca.setPrecio(BigDecimal.ZERO);
+                    cca.setPrecioAdicional(BigDecimal.ZERO);
+                    cca.setEstado(EstadoEnum.ACT.name());
+
+                    cca.setHorasSemanalesTeoria(horasTeoria);
+                    cca.setHorasSemanalesPractica(horasPractica);
+                    cca.setCurso(curso);
+                    cca.setMinimoAlumnos(BigDecimal.ZERO);
+
+                    cca.setTipoCursoCurricula(tipocursoobligatorio);
+                    if (curCurriculaMap.get(curso.getId()) != null) {
+                        cca.setTipoCursoCurricula(tipocursogeneral);
+                    }
+                    cursoCicloAcademicoDAO.save(cca);
+                }
+            }
         }
 
         return mapGpoSecciones;
