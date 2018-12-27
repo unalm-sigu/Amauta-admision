@@ -14,7 +14,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PromedioService {
 
-    void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, Usuario usuario);
+    void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, boolean calcularSituacion);
 
     void promedio(MatriculaCurso matriculaCurso, DataSessionPivot ds, boolean calcularSituacionAcadFinal);
 

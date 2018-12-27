@@ -53,6 +53,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SistemaNotas;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
+import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
@@ -68,6 +69,7 @@ import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -89,6 +91,7 @@ import pe.edu.lamolina.pivot.dao.academico.NotaLetraDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ReclamoNotaDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
 @Service
@@ -174,6 +177,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     @Autowired
     AuditorService auditorService;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -1983,7 +1989,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         grupoSeccion.setFechaCierreActa(today.toDate());
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
         grupoSeccionDAO.update(grupoSeccion);
-
+        /*
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(grupoSeccion, grupoSeccion.getCicloAcademico());
         List<MatriculaResumen> matriculasResumen = matriculasSeccion.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
         List<String> idsMatsResumen = matriculasResumen.stream().map(x -> x.getId().toString()).collect(Collectors.toList());
@@ -1995,8 +2001,32 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             matriculaCurso.getMatriculaResumen().getCicloAcademico();
             Curso curso = matriculaCurso.getCurso();
             promedioService.promedio(matriculaCurso, ds, true);
+        }*/
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(grupoSeccion, grupoSeccion.getCicloAcademico());
+        List<MatriculaResumen> matriculasResumen = matriculasSeccion.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenCurso(matriculasResumen, grupoSeccion.getCurso());//falta enviar el curso
+        for (MatriculaCurso matriculaCurso : matriculasCurso) {
+            Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
+            this.trasladarMatriculaCursoForHistorial(alumno, grupoSeccion.getCicloAcademico(), ds);
         }
 
+    }
+
+    @Transactional
+    public void trasladarMatriculaCursoForHistorial(Alumno alumno, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+        if (matriculaResumen == null) {
+            return;
+        }
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenFull(matriculaResumen);
+        if (matriculasCurso == null || matriculasCurso.isEmpty()) {
+            return;
+        }
+        List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allActivesByMatriculaResumen(Arrays.asList(matriculaResumen));
+        visorCalculoNotas.iniciar();
+        visorCalculoNotas.setCantidadTotal(1);
+        logger.debug("##################Ciclo padre {} {} {}", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo());
+        promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, true);
     }
 
     @Override

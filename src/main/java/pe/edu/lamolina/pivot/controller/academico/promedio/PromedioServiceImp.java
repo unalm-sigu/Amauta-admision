@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.promedio;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +29,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
@@ -102,7 +104,7 @@ public class PromedioServiceImp implements PromedioService {
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    public void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, Usuario usuario) {
+    public void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, boolean calcularSituacion) {
         visorCalculoNotas.incrementarCantidad();
         List<MatriculaCurso> matriculasCursoByAlumno = matriculasCurso.stream()
                 .filter(x -> x.getMatriculaResumen().getAlumno().equals(matriculaResumen.getAlumno()))
@@ -111,9 +113,14 @@ public class PromedioServiceImp implements PromedioService {
         for (MatriculaCurso matriculaCurso : matriculasCursoByAlumno) {
             MatriculaSeccion matriculaSeccion = matriculasSeccionByAlumno
                     .stream().filter(x -> x.getSeccion().getGrupoSeccion().getCurso().equals(matriculaCurso.getCurso())).findFirst().orElse(null);
-            if (matriculaSeccion != null && matriculaSeccion.getSeccion().getGrupoSeccion().isEstadoCreado()) {
-                this.trasladoPromediosSource2(matriculaCurso, matriculasCursoByAlumno, usuario);
+            if (matriculaSeccion != null && matriculaSeccion.getSeccion().getGrupoSeccion().isEstadoCerrado()) {
+                this.trasladoPromediosSource2(matriculaCurso, matriculasCursoByAlumno, ds.getUsuario());
             }
+        }
+        if (calcularSituacion) {
+            CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(matriculaResumen.getAlumno().getModalidadEstudio());
+            List<AlumnoCicloCurso> allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByAlumno(matriculaResumen.getAlumno());
+            this.promediarAllCicloSync(matriculaResumen.getAlumno(), cicloActivo, allOperativesByModalidadEstudio, ds);
         }
         visorCalculoNotas.incrementarProcesados();
         visorCalculoNotas.reporte();
@@ -164,6 +171,8 @@ public class PromedioServiceImp implements PromedioService {
     public void promediarAllCicloSync(Alumno alumno, CicloAcademico cicloActivo, List<AlumnoCicloCurso> allOperativesByModalidadEstudio, DataSessionPivot ds) {
         visorCalculoNotas.incrementarCantidad();
         try {
+            this.analizeAlumnoCiclos(alumno, allOperativesByModalidadEstudio);
+
             this.promediarAlumno(alumno, cicloActivo, allOperativesByModalidadEstudio, ds);
 
             alumno = alumnoDAO.find(alumno);
@@ -183,6 +192,28 @@ public class PromedioServiceImp implements PromedioService {
         }
 
         visorCalculoNotas.reporte();
+    }
+
+    private void analizeAlumnoCiclos(Alumno alumno, List<AlumnoCicloCurso> alumnoCicloCursos) {
+        List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allByAlumno(alumno);
+        for (AlumnoCiclo alumnoCiclo : alumnosCiclosByAlumno) {
+            List<AlumnoCicloCurso> alumnosCiclosCursosByAluCic = alumnoCicloCursos.stream()
+                    .filter(x -> x.getAlumnoCiclo().equals(alumnoCiclo))
+                    .collect(Collectors.toList());
+            List<AlumnoCicloCurso> rci = alumnosCiclosCursosByAluCic.stream().filter(x -> x.getIsEstadoRCI()).collect(Collectors.toList());
+            List<AlumnoCicloCurso> rcu = alumnosCiclosCursosByAluCic.stream().filter(x -> x.getIsEstadoRCU()).collect(Collectors.toList());
+            List<AlumnoCicloCurso> mat = alumnosCiclosCursosByAluCic.stream().filter(x -> x.getIsEstadoMatriculado()).collect(Collectors.toList());
+            List<AlumnoCicloCurso> ret = alumnosCiclosCursosByAluCic.stream().filter(x -> x.getIsEstadoRET()).collect(Collectors.toList());
+            EstadoMatriculaEnum estadoMatriculaEnum = EstadoMatriculaEnum.MAT;
+            if (rcu.size() == alumnosCiclosCursosByAluCic.size() || ret.size() == alumnosCiclosCursosByAluCic.size()) {
+                estadoMatriculaEnum = EstadoMatriculaEnum.RCI;
+            }
+            if (!rci.isEmpty()) {
+                estadoMatriculaEnum = EstadoMatriculaEnum.RCI;
+            }
+            alumnoCiclo.setEstado(estadoMatriculaEnum);
+            alumnoCicloDAO.update(alumnoCiclo);
+        }
     }
 
     private void analizarEgresado(Alumno alumno, DataSessionPivot ds) {
