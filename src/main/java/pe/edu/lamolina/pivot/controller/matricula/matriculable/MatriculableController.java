@@ -239,6 +239,8 @@ public class MatriculableController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.eliminarPrioridad(ds.getCicloAcademico());
+            AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
+            response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
             response.setMessage("Prioridad eliminada correctamente");
             response.setSuccess(true);
 
@@ -259,6 +261,8 @@ public class MatriculableController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.finalizarPrioridad(ds.getCicloAcademico());
+            AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
+            response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
             response.setMessage("Prioridad finalizada correctamente");
             response.setSuccess(true);
 
@@ -279,6 +283,8 @@ public class MatriculableController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.finalizarMatriculable(ds.getCicloAcademico());
+            AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
+            response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
             response.setMessage("Matriculable finalizada correctamente");
             response.setSuccess(true);
 
