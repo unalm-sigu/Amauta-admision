@@ -343,7 +343,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
         t1 = System.currentTimeMillis();
         logger.debug("loadDataGpoSecciones");
-        Map<String, GrupoSeccion> mapGpoSecciones = progDataService.loadDataGpoSecciones(gruposSecciones, ciclo);
+        Map<String, GrupoSeccion> mapGpoSecciones = progDataService.loadDataGpoSecciones(gruposSecciones, ciclo, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataGpoSecciones ejecutado en {} mseg", (t2 - t1));
 

@@ -48,4 +48,6 @@ public interface MatriculableService {
 
     public void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
+    public void asignarPprioridad(Alumno alumno, CicloAcademico cicloActivo);
+
 }

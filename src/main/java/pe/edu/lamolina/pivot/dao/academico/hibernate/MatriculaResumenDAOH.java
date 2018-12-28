@@ -257,12 +257,13 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
 
     @Override
     public void updateList(List<Long> matriculables) {
-        StringBuilder strb = new StringBuilder("update MatriculaResumen mr set mr.prioridad=:prioridad , mr.puntajePrioridad = :puntaje");
+        StringBuilder strb = new StringBuilder("update MatriculaResumen mr set mr.prioridad = :nuleable , mr.puntajePrioridad = :nuleable , ");
+        strb.append(" mr.creditosCursadosCiclo = :nuleable , mr.creditosAcumulados = :nuleable , mr.creditosAprobadosCiclo = :nuleable , mr.creditosAprobadosAcumulados = :nuleable , ");
+        strb.append(" mr.cicloAcademicoInfo = :nuleable  ");
         strb.append(" where mr.id in ( :ids )");
 
         Query query = getCurrentSession().createQuery(strb.toString());
-        query.setParameter("prioridad", null);
-        query.setParameter("puntaje", null);
+        query.setParameter("nuleable", null);
         query.setParameterList("ids", matriculables);
         query.executeUpdate();
     }

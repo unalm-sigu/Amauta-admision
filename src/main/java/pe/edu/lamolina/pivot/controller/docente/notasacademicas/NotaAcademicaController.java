@@ -43,6 +43,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -68,6 +69,7 @@ import pe.edu.lamolina.model.enums.LoggerAccionEnum;
 import pe.edu.lamolina.model.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.reporte.view.ReporteActasView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -88,6 +90,9 @@ public class NotaAcademicaController {
 
     @Autowired
     ReporteActasView reporteActasView;
+
+    @Autowired
+    MatriculableService matriculableService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -1330,6 +1335,7 @@ public class NotaAcademicaController {
             logger.debug("nota inicial {}, nota final {}", reclamoNota.getNotaInicial(), reclamoNota.getNotaFinal());
 
             service.saveReclamoNota(reclamoNota, ds);
+
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             response.setData(node);
             response.setMessage("Modificación ingresada.");
@@ -1442,6 +1448,13 @@ public class NotaAcademicaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         service.saveCerrarActa(new GrupoSeccion(grupoId), ds);
+        List<Alumno> alumnos = service.saveCerrarActa(new GrupoSeccion(grupoId), ds);
+        CicloAcademico academico = service.findCicloConfOrAct(ds.getCicloAcademico());
+        if (academico.getFechaPrioridades() != null) {
+            for (Alumno alumno : alumnos) {
+                matriculableService.asignarPprioridad(alumno, academico);
+            }
+        }
         String message = "Acta cerrada correctamente";
         response.setMessage(message);
         response.setSuccess(true);

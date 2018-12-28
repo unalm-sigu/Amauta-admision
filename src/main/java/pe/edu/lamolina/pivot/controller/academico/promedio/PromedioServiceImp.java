@@ -707,9 +707,11 @@ public class PromedioServiceImp implements PromedioService {
         AlumnoCiclo alumnoCicloCorrespSgtRegular = alumnoCicloDAO.findByAlumnoCiclo(alumno, siguienteCicloReg);
 
         if (alumnoCiclo.isEstadoRetiradoCic() || alumnoCiclo.isNoMatriculado()) {
-            alumnoCiclo.setSituacionInicio(alumnoCicloAnterior.getSituacionFinal());
-            alumnoCiclo.setSituacionFinal(alumnoCicloAnterior.getSituacionFinal());
-            alumnoCicloDAO.update(alumnoCiclo);
+            if (alumnoCicloAnterior != null) {
+                alumnoCiclo.setSituacionInicio(alumnoCicloAnterior.getSituacionFinal());
+                alumnoCiclo.setSituacionFinal(alumnoCicloAnterior.getSituacionFinal());
+                alumnoCicloDAO.update(alumnoCiclo);
+            }
         }
 
         if (alumnoCiclo.getSituacionFinal().isCodigoD() || alumnoCiclo.getSituacionFinal().isCodigoS4()
@@ -728,8 +730,10 @@ public class PromedioServiceImp implements PromedioService {
                 if (alumnoCicloCorrespSgtRegular == null) {
                     alumnoCicloCorrespSgtRegular = new AlumnoCiclo();
                     alumnoCicloCorrespSgtRegular.defaultValuesToCreate(alumno, siguienteCicloReg, ds.getUsuario(), new DateTime(ds.getFechaAccionAudit()));
-                    alumnoCicloCorrespSgtRegular.setSituacionInicio(alumnoCicloAnterior.getSituacionFinal());
-                    alumnoCicloCorrespSgtRegular.setSituacionFinal(alumnoCicloAnterior.getSituacionFinal());
+                    if (alumnoCicloAnterior != null) {
+                        alumnoCicloCorrespSgtRegular.setSituacionInicio(alumnoCicloAnterior.getSituacionFinal());
+                        alumnoCicloCorrespSgtRegular.setSituacionFinal(alumnoCicloAnterior.getSituacionFinal());
+                    }
                     alumnoCicloCorrespSgtRegular.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                     alumnoCicloCorrespSgtRegular.setEstado(EstadoMatriculaEnum.NMAT);
                     alumnoCicloDAO.save(alumnoCicloCorrespSgtRegular);
