@@ -1,6 +1,8 @@
+var dynatable = null;
+
 $(function () {
 
-    var dynatable = $('#dynaTable').dynatable({
+    dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/planCurricular/list'),
             perPageDefault: 10

@@ -101,8 +101,11 @@ public class PlanCurricularController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public String index(Model model, HttpSession session) {
+    public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<Carrera> carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+        ArrayNode carrerasJson = this.createCarrerasJson(carreras);
+        model.addAttribute("carrerasJson", carrerasJson.toString());
         return "academico/plancurricular/planCurricular";
     }
 
@@ -1538,6 +1541,49 @@ public class PlanCurricularController {
             service.desvincularCursoCurricula(planCurricular, ds);
             response.setSuccess(true);
             response.setMessage("Plan curricular desvinculado satisfactoriamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    private ArrayNode createCarrerasJson(List<Carrera> carreras) {
+
+        JsonNodeFactory jFactory = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(jFactory);
+
+        for (Carrera carr : carreras) {
+            ObjectNode node = JsonHelper.createJson(carr, jFactory, true, new String[]{
+                "id", "codigo", "nombre", "tipoEnum",
+                "facultad.id",
+                "facultad.codigo",
+                "facultad.nombre",
+                "modalidadEstudio.nombre"
+            });
+            array.add(node);
+        }
+        return array;
+    }
+    
+    
+    @ResponseBody
+    @RequestMapping("asignacionmasiva")
+    public JsonResponse asignacionmasiva(Carrera carrera, HttpSession session) {
+        
+        JsonResponse response = new JsonResponse();
+        
+        try {
+            
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.desvincularMasivaCursoCurricula(carrera, ds);
+            service.asignacionMasivaCursoCurricula(carrera, ds);
+            
+            response.setSuccess(true);
+            response.setMessage("Avances curricular generados");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
