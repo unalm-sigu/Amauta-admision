@@ -121,4 +121,8 @@ public interface PlanCurricularService {
 
     List<Carrera> allCarrerasByuser(Usuario usuario, Persona persona);
 
+    void asignacionMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds);
+
+    void desvincularMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds);
+
 }

@@ -78,4 +78,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     public List<Alumno> allByNameSinMatriculaResumen(String nombre, CicloAcademico cicloAcademico);
 
+    List<Alumno> allByCarreraCicloMayores(Carrera carrera, String codigoCiclo);
+
 }

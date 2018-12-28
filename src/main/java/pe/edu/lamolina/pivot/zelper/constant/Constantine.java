@@ -94,12 +94,12 @@ public interface Constantine {
 
     String CICLO_ORDEN_MERITO = "CICLO_ORDEN_MERITO";
     String CICLO_ANEXO_BOLETIN = "CICLO_ANEXO_BOLETIN";
-    
+
     //folder of ticket helpdesk 
     String S3_DIR_ARCHIVO_ATENCION = "archivo/atencion/";
 
     final static Integer CANTIDAD_HORAS_POR_EXAMEN = 2;
-    
+
     //folder of inventario 
     String S3_DIR_INVENTARIO = "inventario/";
 

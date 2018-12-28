@@ -73,7 +73,7 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
                 .left("orientacionCarrera ocar", "cicloInicioVigencia cic")
                 .isNull("ocar.id")
-                .filter("estado", EstadoEnum.ACT)
+//                .filter("estado", EstadoEnum.ACT)
                 .filter("carrera", carrera);
 
         return all(sql);
@@ -85,10 +85,21 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .from(PlanCurricular.class, "pc")
                 .join("carrera car", "car.facultad fac", "car.modalidadEstudio me", "orientacionCarrera ocar")
                 .left("cicloInicioVigencia cic")
-                .filter("estado", EstadoEnum.ACT)
+//                .filter("estado", EstadoEnum.ACT)
                 .filter("ocar.id", orientacion)
                 .filter("carrera", carrera);
 
+        return all(sql);
+    }
+
+    @Override
+    public List<PlanCurricular> allActivosByCarrera(Carrera carrera) {
+        Octavia sql = Octavia.query()
+                .from(PlanCurricular.class, "pc")
+                .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
+                .left("cicloInicioVigencia cic", "orientacionCarrera ocar")
+//                .filter("estado", EstadoEnum.ACT)
+                .filter("carrera", carrera);
         return all(sql);
     }
 

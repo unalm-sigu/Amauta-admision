@@ -2,12 +2,9 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
-import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -17,12 +14,9 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.PlanCurricular;
-import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
@@ -547,6 +541,19 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .notExists(subQuery)
                 .linkedBy("alu.id", "alum.id")
                 .limit(15);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Alumno> allByCarreraCicloMayores(Carrera carrera, String codigoCiclo) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa")
+                .leftJoin("per.tipoDocumento td", "cicloActivo ci")
+                .leftJoin("modalidadEstudio me", "situacionAcademica situ")
+                .leftJoin("cicloIngreso cci")
+                .filter("car.id", carrera)
+                .filter("cci.codigo",">=", codigoCiclo);
         return sql.all(getCurrentSession());
     }
 

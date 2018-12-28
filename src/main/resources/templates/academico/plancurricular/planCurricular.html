@@ -6,40 +6,103 @@
 
 <body>
     <div layout:fragment="main">
-        <header class="header b-b padder-lg">
-            <div class="pull-right m-t-md" >
-                <a class="btn btn-primary btn-sm nuevo-plan-curricular" href="#" >Nuevo Plan de Estudios</a>
-            </div>
-            <h2>Planes de Estudios</h2>
-        </header>
-        
-        <section class="wrapper-lg">
-            <section class="panel">
-                <section class="panel-body">
-                    <table class="table table-striped" id="dynaTable">
-                        <thead> 
-                            <tr class=""> 
-                                <th class="col-md-5 v-middle">Especialidad </th>
-                                <th class="col-md-1 v-middle text-center">Fecha aprobación</th>
-                                <th class="col-md-1 v-middle text-center">Ciclos</th>
-                                <th class="col-md-1 v-middle text-center">Ciclo inicio vigencia</th>
-                                <th class="col-md-3 v-middle text-center">Resumen</th>
-                                <th class="col-md-1 v-middle text-center">Estado</th>
-                                <th class="1"></th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+
+
+        <div id="main">
+
+            <header class="header b-b padder-lg">
+
+                <div class="btn-group pull-right">
+                    <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                        <i class="fa fa-random fa-lg"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="btn-sm nuevo-plan-curricular" href="#" >Nuevo Plan de Estudios</a>
+                        </li>
+                        <li>
+                            <a class="btn-sm" href="#" v-on:click.prevent="asignacionMasiva()" >Asignación Masiva</a>
+                        </li>
+                    </ul>
+                </div>
+
+
+                <h2>Planes de Estudios</h2>
+            </header>
+
+            <section class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
+                        <table class="table table-striped" id="dynaTable">
+                            <thead> 
+                                <tr class=""> 
+                                    <th class="col-md-5 v-middle">Especialidad </th>
+                                    <th class="col-md-1 v-middle text-center">Fecha aprobación</th>
+                                    <th class="col-md-1 v-middle text-center">Ciclos</th>
+                                    <th class="col-md-1 v-middle text-center">Ciclo inicio vigencia</th>
+                                    <th class="col-md-3 v-middle text-center">Resumen</th>
+                                    <th class="col-md-1 v-middle text-center">Estado</th>
+                                    <th class="1"></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </section>
                 </section>
             </section>
-        </section>
+
+
+            <modal-vik ref="modalAsignacionMasiva"
+                       v-bind="modalAsignacionMasiva"
+                       v-bind:okaction="saveAsignacionMasiva">
+
+                <div slot="body">
+
+                    <form id="formAsignacionMasiva">
+                        <div class="row">
+
+                            <div class="form-group">
+
+                                <label class="col-xs-12 label-control"> Carrera </label>
+
+                                <div class="col-xs-12">
+
+                                    <multiselect 
+                                        v-model="carrera" 
+                                        v-bind:options='carreras'
+                                        label='nombre'
+                                        track-by='id'
+                                        placeholder=" "
+                                        >
+                                    </multiselect>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </modal-vik>
+        </div>
+
+        <div th:substituteby="_modules/vue-modal"/>
 
         <script id="templatePlanCurricular" type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/planCurricularTemplate"/></script>
+
     </div>
 
     <div layout:fragment="js">
+        <script th:inline="javascript">
+            var carrerasJson = /*[[${carrerasJson}]]*/ '';
+        </script>
+        <div th:substituteby="_layout/includes :: sweetalert"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script th:src="@{/app/academico/plancurricular/planCurricular.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/plancurricular/planCurricularVue.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>

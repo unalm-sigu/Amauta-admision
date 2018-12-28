@@ -1,9 +1,11 @@
 package pe.edu.lamolina.pivot.controller.academico.plancurricular;
 
+import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,7 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -52,6 +55,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
+import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularAsincronoService;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -71,6 +75,7 @@ import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -135,6 +140,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Autowired
     ColaboradorDAO colaboradorDAO;
+
+    @Autowired
+    AvanceCurricularAsincronoService avanceCurricularAsincronoService;
 
     @Override
     public List<Carrera> allCarreras(List<Carrera> carreras) {
@@ -1126,6 +1134,171 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         all.addAll(carrera1);
         all.addAll(carrera2);
         return all;
+
+    }
+
+    @Override
+    @Transactional
+    public void asignacionMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds) {
+
+        logger.debug("*********carrera {}", carrera.getId());
+        List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
+        logger.debug("*********planesCurricular {}", planesCurricular.size());
+        CicloAcademico cicloInicia = null;
+        for (PlanCurricular plan : planesCurricular) {
+            CicloAcademico cicloPlan = plan.getCicloInicioVigencia();
+            if (cicloInicia == null) {
+                cicloInicia = cicloPlan;
+                continue;
+            }
+            if (cicloInicia.getCodigo().compareTo(cicloPlan.getCodigo()) == -1) {
+                cicloInicia = cicloPlan;
+            }
+        }
+
+        Map<String, PlanCurricular> planCicloInicioVigencia = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", planesCurricular);
+
+        Map<String, CicloAcademico> ciclosInicioVigencia = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planesCurricular);
+
+        List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
+
+        List<String> codigoCicloStr = new ArrayList<String>(ciclosInicioVigencia.keySet());
+        List<Integer> codigosCicloInt = new ArrayList();
+
+        for (String string : codigoCicloStr) {
+            codigosCicloInt.add(new Integer(string));
+        }
+
+        Collections.sort(codigosCicloInt);
+
+        for (Integer intt : codigosCicloInt) {
+            logger.debug("===================={}", intt);
+        }
+
+        Map<Long, CursoCurricula> mapCursoCurricula = new HashMap<>();
+        Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula = new HashMap<>();
+        Map<Long, List<CursoEquivalente>> mapCursosEquivalentes = new HashMap<>();
+        int count = 0;
+
+        for (Alumno alumno : alumnos) {
+            String codigo = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
+            logger.debug("{} alumnooooooooooooo {} codigo {}", count, alumno.getId(), codigo);
+            count++;
+            if (!Strings.isNullOrEmpty(codigo)) {
+
+                Integer codigoBuscar = new Integer(codigo);
+                Integer codigoAsignar = this.getIndiceCicloAcademico(codigoBuscar, codigosCicloInt);
+                if (codigoAsignar != null) {
+
+                    String keycodigoplan = String.valueOf(codigoAsignar);
+
+                    if (Strings.isNullOrEmpty(keycodigoplan)) {
+                        continue;
+                    }
+                    PlanCurricular planBD = planCicloInicioVigencia.get(keycodigoplan);
+                    if (planBD == null) {
+                        logger.debug("no se encontroplan para este ciclo codigo {}", keycodigoplan);
+                        continue;
+                    }
+                    alumno.setPlanCurricular(planBD);
+                    alumnoDAO.update(alumno);
+
+                    this.obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
+                    logger.debug("Cantidad de alumnos: {}", alumnos.size());
+                    logger.debug("Cantidad de Cursos: {}", mapCursoCurricula.size());
+                    avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
+                    avanceCurricularAsincronoService.procesarAlumno(alumno, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, ds);
+                }
+            }
+        }
+
+    }
+
+    private Integer getIndiceCicloAcademico(Integer codigoBuscar, List<Integer> codigosCicloInt) {
+        for (Integer intt : codigosCicloInt) {
+            int inx = codigosCicloInt.indexOf(intt);
+            Integer limiteCodigoInferior = codigosCicloInt.get(inx);
+            int inxSup = inx + 1;
+            boolean sobrepasolimite = codigosCicloInt.size() <= inxSup;
+            if (sobrepasolimite) {
+                if (limiteCodigoInferior <= codigoBuscar) {
+                    return limiteCodigoInferior;
+                }
+                return null;
+            }
+            Integer limiteCodigoSuperior = codigosCicloInt.get(inxSup);
+            if (limiteCodigoInferior <= codigoBuscar && limiteCodigoSuperior >= codigoBuscar) {
+                return limiteCodigoInferior;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public void desvincularMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds) {
+        logger.debug("*********carrera {}", carrera.getId());
+        List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
+        logger.debug("*********planesCurricular {}", planesCurricular.size());
+        CicloAcademico cicloInicia = null;
+        for (PlanCurricular plan : planesCurricular) {
+            CicloAcademico cicloPlan = plan.getCicloInicioVigencia();
+            if (cicloInicia == null) {
+                cicloInicia = cicloPlan;
+                continue;
+            }
+            if (cicloInicia.getCodigo().compareTo(cicloPlan.getCodigo()) == -1) {
+                cicloInicia = cicloPlan;
+            }
+        }
+
+        List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
+
+        for (Alumno alumno : alumnos) {
+            avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
+            avanceCurricularAsincronoService.deleteAllAlumnoCursoCurriculaByAlumno(alumno);
+
+            alumno.setPlanCurricular(null);
+            alumnoDAO.update(alumno);
+        }
+
+    }
+
+    private void obtenerData(
+            PlanCurricular planCurricular,
+            Map<Long, CursoCurricula> mapCursoCurricula,
+            Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula,
+            Map<Long, List<CursoEquivalente>> mapCursosEquivalentes) {
+
+        List<CursoCurricula> cursos = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
+        for (CursoCurricula curso : cursos) {
+            if (curso.getNumeroCiclo() == 0) {
+                continue;
+            }
+            mapCursoCurricula.put(curso.getId(), curso);
+        }
+
+        List<RequisitoCursoCurricula> requisitoCursoCurriculas = requisitoCursoCurriculaDAO.allByPlanCurricular(planCurricular);
+        for (RequisitoCursoCurricula rcc : requisitoCursoCurriculas) {
+            Long key = rcc.getCursoCurricula().getId();
+            List<RequisitoCursoCurricula> lista = mapRequisitoCursoCurricula.get(key);
+            if (lista == null) {
+                lista = new ArrayList<>();
+                mapRequisitoCursoCurricula.put(key, lista);
+            }
+            lista.add(rcc);
+        }
+
+        List<CursoEquivalente> cursoEquivalentes = cursoEquivalenteDAO.allActivoByPlanCurricular(planCurricular);
+        for (CursoEquivalente ce : cursoEquivalentes) {
+            Long key = ce.getCursoCurricula().getId();
+            List<CursoEquivalente> lista = mapCursosEquivalentes.get(key);
+            if (lista == null) {
+                lista = new ArrayList<>();
+                mapCursosEquivalentes.put(key, lista);
+            }
+            lista.add(ce);
+        }
 
     }
 
