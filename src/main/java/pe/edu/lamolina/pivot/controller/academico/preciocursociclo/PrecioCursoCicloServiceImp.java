@@ -23,6 +23,7 @@ import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
@@ -152,29 +153,26 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
 
         TipoCursoCurricula tipocursogeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         TipoCursoCurricula tipocursoobligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
-        for (CursoCicloAcademico cursoCicloAcademico : cursosCiclo) {
-            cursoCicloAcademico.setMinimoAlumnos(BigDecimal.ZERO);
-            if (cursoCicloAcademico.getTipoCursoCurricula().getId() == tipocursogeneral.getId().longValue()) {
-                cursoCicloAcademico.setMinimoAlumnos(new BigDecimal(cantidad.getGeneral()));
-                List<Seccion> seccioness = seccionesXcurso.get(cursoCicloAcademico.getCurso().getId());
-                if (seccioness != null) {
-                    for (Seccion sex : seccioness) {
-                        sex.setPrecioBase(cursoCicloAcademico.getMinimoAlumnos().multiply(sex.getPrecio()));
-                        seccionDAO.update(sex);
-                    }
-                }
-            }
-            if (cursoCicloAcademico.getTipoCursoCurricula().getId() == tipocursoobligatorio.getId().longValue()) {
-                cursoCicloAcademico.setMinimoAlumnos(new BigDecimal(cantidad.getCarrera()));
 
-                List<Seccion> seccioness = seccionesXcurso.get(cursoCicloAcademico.getCurso().getId());
-                if (seccioness != null) {
-                    for (Seccion sex : seccioness) {
-                        sex.setPrecioBase(cursoCicloAcademico.getMinimoAlumnos().multiply(sex.getPrecio()));
-                        seccionDAO.update(sex);
-                    }
+        for (CursoCicloAcademico cursoCicloBD : cursosCiclo) {
+            boolean esGral = cursoCicloBD.getTipoCursoCurricula().getId() == tipocursogeneral.getId().longValue();
+            boolean esCarr = cursoCicloBD.getTipoCursoCurricula().getId() == tipocursoobligatorio.getId().longValue();
+            Long cantid = esGral ? cantidad.getGeneral() : (esCarr ? cantidad.getCarrera() : 0L);
+            cursoCicloBD.setMinimoAlumnos(new BigDecimal(cantid));
+
+            List<Seccion> seccioness = seccionesXcurso.get(cursoCicloBD.getCurso().getId());
+            if (seccioness == null) {
+                continue;
+            }
+
+            for (Seccion seccion : seccioness) {
+                if (seccion.getTipoSeccionEnum() != TipoSeccionEnum.TCUR) {
+                    seccion.setPrecioBase(cursoCicloBD.getMinimoAlumnos().multiply(seccion.getPrecio()));
+                    seccionDAO.update(seccion);
                 }
             }
+
+            cursoCicloAcademicoDAO.update(cursoCicloBD);
         }
     }
 }
