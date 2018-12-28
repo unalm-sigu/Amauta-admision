@@ -125,4 +125,6 @@ public interface PlanCurricularService {
 
     void desvincularMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds);
 
+    List<Carrera> filtrarByPlanes(List<Carrera> carreras);
+
 }

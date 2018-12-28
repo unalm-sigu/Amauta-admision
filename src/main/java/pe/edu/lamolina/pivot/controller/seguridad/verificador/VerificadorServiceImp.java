@@ -2,13 +2,14 @@ package pe.edu.lamolina.pivot.controller.seguridad.verificador;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -17,7 +18,6 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import static pe.edu.lamolina.model.enums.TipoOficinaEnum.DPTO;
 import static pe.edu.lamolina.model.enums.TipoOficinaEnum.ESP;
 import static pe.edu.lamolina.model.enums.TipoOficinaEnum.FAC;
-import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
@@ -91,15 +91,22 @@ public class VerificadorServiceImp implements VerificadorService {
 
         List<Oficina> oficinas = oficinaDAO.allOficinaByUserMenu(ds.getUsuario(), menu);
         System.out.println("cantidad Oficinas " + oficinas.size());
+        List<Carrera> carreras = carreraDAO.all();
+        Map<Long, Carrera> mapCarreras = TypesUtil.convertListToMap("id", carreras);
+
         for (Oficina oficina : oficinas) {
             if (tipoOficinaSolicitud == ESP && oficina.getTipoOficina().getCodigoEnum() == ESP) {
-                lista.add(new Carrera(oficina.getInstanciaOficina()));
+                lista.add(mapCarreras.get(oficina.getInstanciaOficina()));
+                
             } else if (tipoOficinaSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == ESP) {
                 lista.addAll(facultadDAO.all());
+                
             } else if (tipoOficinaSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == FAC) {
                 lista.add(new Facultad(oficina.getInstanciaOficina()));
+                
             } else if (tipoOficinaSolicitud == DPTO && oficina.getTipoOficina().getCodigoEnum() == DPTO) {
                 lista.add(new DepartamentoAcademico(oficina.getInstanciaOficina()));
+                
             } else if (tipoOficinaSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == DPTO) {
                 lista.addAll(facultadDAO.all());
             }

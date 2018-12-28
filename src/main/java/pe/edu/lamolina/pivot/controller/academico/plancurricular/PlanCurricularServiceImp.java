@@ -1156,81 +1156,86 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             }
         }
 
-        Map<String, PlanCurricular> planCicloInicioVigencia = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", planesCurricular);
+        Map<String, PlanCurricular> mapPlanesByCiclo = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", planesCurricular);
 
-        Map<String, CicloAcademico> ciclosInicioVigencia = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planesCurricular);
+        Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planesCurricular);
 
         List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
 
-        List<String> codigoCicloStr = new ArrayList<String>(ciclosInicioVigencia.keySet());
-        List<Integer> codigosCicloInt = new ArrayList();
+        List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
+//        List<Integer> codigosCicloInt = new ArrayList();
+//
+//        for (String string : codigoCicloStr) {
+//            codigosCicloInt.add(new Integer(string));
+//        }
 
-        for (String string : codigoCicloStr) {
-            codigosCicloInt.add(new Integer(string));
-        }
+        Collections.sort(codigosCiclosPlanes);
+        Collections.reverse(codigosCiclosPlanes);
 
-        Collections.sort(codigosCicloInt);
-
-        for (Integer intt : codigosCicloInt) {
+        for (String intt : codigosCiclosPlanes) {
             logger.debug("===================={}", intt);
         }
 
-        Map<Long, CursoCurricula> mapCursoCurricula = new HashMap<>();
-        Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula = new HashMap<>();
-        Map<Long, List<CursoEquivalente>> mapCursosEquivalentes = new HashMap<>();
+        Map<Long, CursoCurricula> mapCursoCurricula = new HashMap();
+        Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula = new HashMap();
+        Map<Long, List<CursoEquivalente>> mapCursosEquivalentes = new HashMap();
         int count = 0;
 
         for (Alumno alumno : alumnos) {
-            String codigo = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
-            logger.debug("{} alumnooooooooooooo {} codigo {}", count, alumno.getId(), codigo);
+            String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
+            logger.debug("{} de {} ::::: alumno {} cicloIngreso {}", count, alumnos.size(), alumno.getId(), codigoCicloAlumno);
             count++;
-            if (!Strings.isNullOrEmpty(codigo)) {
-
-                Integer codigoBuscar = new Integer(codigo);
-                Integer codigoAsignar = this.getIndiceCicloAcademico(codigoBuscar, codigosCicloInt);
-                if (codigoAsignar != null) {
-
-                    String keycodigoplan = String.valueOf(codigoAsignar);
-
-                    if (Strings.isNullOrEmpty(keycodigoplan)) {
-                        continue;
-                    }
-                    PlanCurricular planBD = planCicloInicioVigencia.get(keycodigoplan);
-                    if (planBD == null) {
-                        logger.debug("no se encontroplan para este ciclo codigo {}", keycodigoplan);
-                        continue;
-                    }
-                    alumno.setPlanCurricular(planBD);
-                    alumnoDAO.update(alumno);
-
-                    this.obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
-                    logger.debug("Cantidad de alumnos: {}", alumnos.size());
-                    logger.debug("Cantidad de Cursos: {}", mapCursoCurricula.size());
-                    avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
-                    avanceCurricularAsincronoService.procesarAlumno(alumno, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, ds);
-                }
+            if (Strings.isNullOrEmpty(codigoCicloAlumno)) {
+                continue;
             }
+
+            String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
+            if (codigoCicloPlan == null) {
+                logger.debug("no se encontro ciclo-plan para este ciclo {}", codigoCicloAlumno);
+                continue;
+            }
+            PlanCurricular planBD = mapPlanesByCiclo.get(codigoCicloPlan);
+            if (planBD == null) {
+                logger.debug("no se encontro plan para este ciclo {}", codigoCicloPlan);
+                continue;
+            }
+
+            alumno.setPlanCurricular(planBD);
+            alumnoDAO.update(alumno);
+
+            this.obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
+            logger.debug("Cantidad de alumnos: {}", alumnos.size());
+            logger.debug("Cantidad de Cursos: {}", mapCursoCurricula.size());
+            avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
+            avanceCurricularAsincronoService.procesarAlumno(alumno, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, ds);
+
         }
 
     }
 
-    private Integer getIndiceCicloAcademico(Integer codigoBuscar, List<Integer> codigosCicloInt) {
-        for (Integer intt : codigosCicloInt) {
-            int inx = codigosCicloInt.indexOf(intt);
-            Integer limiteCodigoInferior = codigosCicloInt.get(inx);
-            int inxSup = inx + 1;
-            boolean sobrepasolimite = codigosCicloInt.size() <= inxSup;
-            if (sobrepasolimite) {
-                if (limiteCodigoInferior <= codigoBuscar) {
-                    return limiteCodigoInferior;
-                }
-                return null;
-            }
-            Integer limiteCodigoSuperior = codigosCicloInt.get(inxSup);
-            if (limiteCodigoInferior <= codigoBuscar && limiteCodigoSuperior >= codigoBuscar) {
-                return limiteCodigoInferior;
+    private String getIndiceCicloAcademico(String codigoCicloAlumno, List<String> codigosCiclosPlanes) {
+        for (String codigoCicloPlan : codigosCiclosPlanes) {
+            if (codigoCicloAlumno.compareTo(codigoCicloPlan) >= 0) {
+                return codigoCicloPlan;
             }
         }
+
+//        for (Integer intt : codigosCicloInt) {
+//            int inx = codigosCicloInt.indexOf(intt);
+//            Integer limiteCodigoInferior = codigosCicloInt.get(inx);
+//            int inxSup = inx + 1;
+//            boolean sobrepasolimite = codigosCicloInt.size() <= inxSup;
+//            if (sobrepasolimite) {
+//                if (limiteCodigoInferior <= codigoBuscar) {
+//                    return limiteCodigoInferior;
+//                }
+//                return null;
+//            }
+//            Integer limiteCodigoSuperior = codigosCicloInt.get(inxSup);
+//            if (limiteCodigoInferior <= codigoBuscar && limiteCodigoSuperior >= codigoBuscar) {
+//                return limiteCodigoInferior;
+//            }
+//        }
         return null;
     }
 
@@ -1300,6 +1305,20 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             lista.add(ce);
         }
 
+    }
+
+    @Override
+    public List<Carrera> filtrarByPlanes(List<Carrera> carrerasTodas) {
+        List<Carrera> carreras = new ArrayList();
+        List<PlanCurricular> planes = planCurricularDAO.all();
+        Map<Long, List<PlanCurricular>> mapPlanes = TypesUtil.convertListToMapList("carrera.id", planes);
+        for (Carrera carrera : carrerasTodas) {
+            List<PlanCurricular> planesCarr = mapPlanes.get(carrera.getId());
+            if (planesCarr != null) {
+                carreras.add(carrera);
+            }
+        }
+        return carreras;
     }
 
 }

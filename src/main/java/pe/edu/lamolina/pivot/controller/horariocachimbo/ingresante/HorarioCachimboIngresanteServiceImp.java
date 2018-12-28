@@ -29,7 +29,6 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoActividadIngresante;
-import pe.edu.lamolina.model.enums.ActividadIngresanteEnum;
 import pe.edu.lamolina.model.enums.AlumnoVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -93,10 +92,13 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
     @Autowired
     VacanteAlumnoDAO vacanteAlumnoDAO;
+
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
+
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
 

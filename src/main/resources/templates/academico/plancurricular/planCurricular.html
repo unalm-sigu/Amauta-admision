@@ -57,31 +57,30 @@
                        v-bind:okaction="saveAsignacionMasiva">
 
                 <div slot="body">
-
-                    <form id="formAsignacionMasiva">
-                        <div class="row">
+                    <section class="panel-body">
+                        <h4 class="m-t-n">Asignación masiva de planes curricuales a estudiantes</h4>
+                        <form id="formAsignacionMasiva">
 
                             <div class="form-group">
 
-                                <label class="col-xs-12 label-control"> Carrera </label>
+                                <label> Indique la Especialidad </label>
+                                <multiselect v-model="carrera" 
+                                             v-bind:options='carreras'
+                                             label='nombre'
+                                             track-by='id'
+                                             placeholder=" ">
+                                    <template slot="option" slot-scope="props">
+                                        <span class="block bold" v-text="props.option.nombre"></span>
+                                        <small v-if="props.option.modalidadEstudio.codigo=='EPG' " class="block" v-text="props.option.tipoEnum.value"></small>
+                                        <small v-else="" class="block" >Facultad de {{props.option.facultad.nombre}}</small>
+                                    </template>
+                                </multiselect>
 
-                                <div class="col-xs-12">
-
-                                    <multiselect 
-                                        v-model="carrera" 
-                                        v-bind:options='carreras'
-                                        label='nombre'
-                                        track-by='id'
-                                        placeholder=" "
-                                        >
-                                    </multiselect>
-
-                                </div>
                             </div>
 
-                        </div>
 
-                    </form>
+                        </form>
+                    </section>
 
                 </div>
 

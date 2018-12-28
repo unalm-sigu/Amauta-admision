@@ -103,7 +103,7 @@ public class PlanCurricularController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        List<Carrera> carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+        List<Carrera> carreras = service.filtrarByPlanes(verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds));
         ArrayNode carrerasJson = this.createCarrerasJson(carreras);
         model.addAttribute("carrerasJson", carrerasJson.toString());
         return "academico/plancurricular/planCurricular";
@@ -1562,26 +1562,26 @@ public class PlanCurricularController {
                 "facultad.id",
                 "facultad.codigo",
                 "facultad.nombre",
+                "modalidadEstudio.codigo",
                 "modalidadEstudio.nombre"
             });
             array.add(node);
         }
         return array;
     }
-    
-    
+
     @ResponseBody
     @RequestMapping("asignacionmasiva")
     public JsonResponse asignacionmasiva(Carrera carrera, HttpSession session) {
-        
+
         JsonResponse response = new JsonResponse();
-        
+
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.desvincularMasivaCursoCurricula(carrera, ds);
             service.asignacionMasivaCursoCurricula(carrera, ds);
-            
+
             response.setSuccess(true);
             response.setMessage("Avances curricular generados");
 

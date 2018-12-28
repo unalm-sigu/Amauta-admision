@@ -53,7 +53,6 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SistemaNotas;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
-import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
@@ -91,7 +90,6 @@ import pe.edu.lamolina.pivot.dao.academico.NotaLetraDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ReclamoNotaDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
 @Service
@@ -161,9 +159,6 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     EvaluacionEliminadaDAO evaluacionEliminadaDAO;
 
     @Autowired
-    CalculoNotasService calculoNotasService;
-
-    @Autowired
     NotaLetraDAO notaLetraDAO;
 
     @Autowired
@@ -174,15 +169,12 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     @Autowired
     PromedioService promedioService;
-
     @Autowired
     InterceptorService interceptorService;
-
     @Autowired
     AuditorService auditorService;
-
     @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
+    CalculoNotasService calculoNotasService;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -2008,12 +2000,14 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             promedioService.promedio(matriculaCurso, ds, true);
             alumnos.add(alumno);
         }*/
+        List<Alumno> alumnos = new ArrayList();
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(grupoSeccion, grupoSeccion.getCicloAcademico());
         List<MatriculaResumen> matriculasResumen = matriculasSeccion.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenCurso(matriculasResumen, grupoSeccion.getCurso());//falta enviar el curso
         for (MatriculaCurso matriculaCurso : matriculasCurso) {
             Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
             this.trasladarMatriculaCursoForHistorial(alumno, grupoSeccion.getCicloAcademico(), ds);
+            alumnos.add(alumno);
         }
         return alumnos;
     }
