@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -144,15 +145,35 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
             throw new PhobosException("Debe especificar una cantidad Mayor a cero");
         }
         List<CursoCicloAcademico> cursosCiclo = cursoCicloAcademicoDAO.allByCiclo(cicloAcademico);
+
+        List<Curso> cursos = cursosCiclo.stream().map(x -> x.getCurso()).collect(Collectors.toList());
+        List<Seccion> secciones = seccionDAO.allActivosByCursosCiclo(cursos, cicloAcademico);
+        Map<Long, List<Seccion>> seccionesXcurso = TypesUtil.convertListToMapList("grupoSeccion.curso.id", secciones);
+
         TipoCursoCurricula tipocursogeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         TipoCursoCurricula tipocursoobligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
         for (CursoCicloAcademico cursoCicloAcademico : cursosCiclo) {
             cursoCicloAcademico.setMinimoAlumnos(BigDecimal.ZERO);
             if (cursoCicloAcademico.getTipoCursoCurricula().getId() == tipocursogeneral.getId().longValue()) {
                 cursoCicloAcademico.setMinimoAlumnos(new BigDecimal(cantidad.getGeneral()));
+                List<Seccion> seccioness = seccionesXcurso.get(cursoCicloAcademico.getCurso().getId());
+                if (seccioness != null) {
+                    for (Seccion sex : seccioness) {
+                        sex.setPrecioBase(cursoCicloAcademico.getMinimoAlumnos().multiply(sex.getPrecio()));
+                        seccionDAO.update(sex);
+                    }
+                }
             }
             if (cursoCicloAcademico.getTipoCursoCurricula().getId() == tipocursoobligatorio.getId().longValue()) {
                 cursoCicloAcademico.setMinimoAlumnos(new BigDecimal(cantidad.getCarrera()));
+
+                List<Seccion> seccioness = seccionesXcurso.get(cursoCicloAcademico.getCurso().getId());
+                if (seccioness != null) {
+                    for (Seccion sex : seccioness) {
+                        sex.setPrecioBase(cursoCicloAcademico.getMinimoAlumnos().multiply(sex.getPrecio()));
+                        seccionDAO.update(sex);
+                    }
+                }
             }
         }
     }
