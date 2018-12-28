@@ -21,6 +21,7 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraResumen;
 
@@ -188,7 +189,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
-                .filter("ca.estado", EstadoCarreraEnum.ACT)
+                //.filter("ca.estado", EstadoCarreraEnum.ACT)
                 .filter("me.id", modalidadEstudio)
                 .orderBy("ca.codigo");
         
@@ -271,6 +272,15 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .join("modalidadEstudio me", "facultad fa")
                 .filter("ca.estado", EstadoCarreraEnum.ACT.name())
                 .filter("me.codigo", modalidad);
+        return all(sql);
+    }
+
+    @Override
+    public List<Carrera> allOficinaAndIds(List<Long> idEsp) {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("facultad fa")
+                .in("fa.id", idEsp);
         return all(sql);
     }
     

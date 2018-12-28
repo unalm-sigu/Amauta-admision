@@ -1,0 +1,246 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Roles de Exámenes </title>
+    </head>
+    <body>
+        <section layout:fragment="main">
+            <div id="rolexamenesVUE" v-cloak=""> 
+
+                <header class="header b-b padder-lg">
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success" v-on:click="verNuevoRolExamen()">Nuevo Rol Examen</a>
+                        </div>
+                    </div> 
+                    <h2>Roles de Exámenes <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table v-bind:url="rolexamenesURL" ref="raptorRolExamenes">
+
+                                <template  scope="props" >
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-3 v-middle text-center">Nombre</th>
+                                                <th class="col-md-2 v-middle text-center">Fecha Inicio</th>
+                                                <th class="col-md-2 v-middle text-center">Fecha Fin</th>
+                                                <th class="col-md-2 v-middle text-center">Fecha Publicación</th>
+                                                <th class="col-md-2 v-middle text-center">Registro</th>
+                                                <th class="col-md-1 v-middle text-center">Estado</th>
+                                                <th>
+
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle text-center">
+                                                    {{item.nombre}}
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    {{item.eventoCicloAcademico.fechaInicio}}
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    {{item.eventoCicloAcademico.fechaFin}}
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    {{item.fechaPublicacion}}
+                                                </td>
+                                                <td>
+                                                    <span class="block" v-text="item.userRegistro.persona.apellidosNombres"></span>
+                                                    <smal class="block" v-text="item.fechaRegistro"></smal>
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    <span v-if="item.estado=='INA'" class="label label-danger" >Inactivo</span>
+                                                    <span v-if="item.estado=='ACT'" class="label label-primary" >Activo</span>
+                                                    <span v-if="item.estado=='CRE'" class="label label-default" >Creado</span>
+                                                </td>
+                                                <td>
+
+                                                    <div class="dropdown actions">
+
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="glyphicon glyphicon-option-vertical"></i>
+                                                        </a>
+
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li>
+                                                                <a href="#" 
+                                                                   v-on:click.prevent="editarRolExamen(item)"
+                                                                   >
+                                                                    Editar
+                                                                </a> 
+                                                            </li>
+                                                            <li>                                                            
+                                                                <a href="#" 
+                                                                   v-on:click.prevent="redireccionarWithRol('rolexamen/plantillahorario',item)"
+                                                                   v-if="item.isSituacionConfigurarRol || item.isSituacionConfigurarHorario">
+                                                                    Configurar Horarios
+                                                                </a> 
+                                                            </li>
+                                                            <li>
+                                                                <a  th:href="@{/rolexamen/cursomasivos}" 
+                                                                    v-if="item.isSituacionConfigurarCursoMasivo">
+                                                                    Configurar Cursos Masivos
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a th:href="@{/rolexamen/gruporegular}" 
+                                                                   v-if="item.isSituacionConfigurarCursoRegular">
+                                                                    Configurar Cursos Regulares
+                                                                </a> 
+                                                            </li>
+                                                            <li>
+                                                                <a th:href="@{/rolexamen/grupoespecial}" 
+                                                                   v-if="item.isSituacionConfigurarCursoEspecial">
+                                                                    Configurar Cursos Especiales
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+
+                                                    </div>
+
+                                                </td>
+                                            </tr> 
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+                        </section>
+                    </section>
+                </section>
+
+                <modal-vik ref="modalConfirmar"
+                           v-bind="confirmarModal"
+                           v-bind:okaction="guardarRol">
+                    <div slot="body">                                                
+                        <form  id="formEvento"  data-parsley-validate="true">
+                            <div class="form-group">
+                                <label> Evento Ciclo Académico </label>
+                                <multiselect v-model='rolExamenes.eventoCicloAcademico'                                                 
+                                             v-bind:custom-label="eventoAcademicoCustomLabel"
+                                             v-on:input="changeEventoCicloAcademico"
+                                             placeholder=""
+                                             track-by="id"
+                                             v-bind:allow-empty="false"
+                                             v-bind:options="eventosCiclos"
+                                             deselect-label=""
+                                             select-label="">
+                                </multiselect>
+                                <input type="text" class="hide" required="" v-model="rolExamenes.eventoCicloAcademico.id"/>
+                            </div>
+
+                            <div class="form-group" >
+                                <label  class="control-label">Nombre</label>
+                                <input class="form-control" required="true" v-model="rolExamenes.nombre"/>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <div class="col-md-3">
+                                        Fecha Inicio:
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="form-control">{{rolExamenes.eventoCicloAcademico.fechaInicio}}</span>  
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        Fecha Fin :
+                                    </div>
+                                    <div class="col-md-3 ">
+                                        <span class="form-control" 
+                                              v-text="rolExamenes.eventoCicloAcademico.fechaFin">
+
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <section class="panel-body">
+
+                                    <table class="table table-striped"
+                                           v-if="rolExamenes.semanasExamen.length>0">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-1 v-middle text-center"></th>
+                                                <th class="col-md-1 v-middle text-center">Fecha Inicio</th>
+                                                <th class="col-md-1 v-middle text-center">Fecha Fin</th>
+                                                <th class="col-md-3 v-middle text-center">Hora Inicio</th>
+                                                <th class="col-md-3 v-middle text-center">Hora Fin</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="semana in rolExamenes.semanasExamen">
+                                                <td class="v-middle text-center">
+                                                    <span v-text="semana.numeroSemana"></span>
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    <span v-text="semana.fechaInicio"></span>
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    <span v-text="semana.fechaFin"></span>
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                        <multiselect 
+                                            v-model="semana.horaInicio"
+                                            placeholder=""
+                                            v-bind:options="horas"
+                                            label="descripcion"
+                                            track-by="id" 
+                                            required="true"
+                                            v-bind:allow-empty="false"  
+                                            deselect-label=""
+                                            select-label=""
+                                            >
+                                        </multiselect>
+                                        <input v-model="semana.horaInicio.id" 
+                                               required="" 
+                                               class="hide"/>
+
+                                        </td>
+                                        <td class="v-middle text-center"> 
+                                        <multiselect 
+                                            v-model="semana.horaFin"
+                                            placeholder=""
+                                            v-bind:options="horas"
+                                            label="descripcion"
+                                            track-by="id" 
+                                            required="true"
+                                            v-bind:allow-empty="false"
+                                            deselect-label=""
+                                            select-label=""
+                                            >
+                                        </multiselect>
+                                        <input v-model="semana.horaFin.id" 
+                                               required=""
+                                               class="hide"/>
+                                        </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </section>
+                            </div>
+                        </form>
+                    </div>
+                </modal-vik>
+
+
+            </div>
+            <div th:substituteby="_modules/vue-modal"/>
+        </section>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                var jHoras = /*[[${jHoras}]]*/ {};
+                var jEventosCiclosAcademicos = /*[[${jEventosCiclosAcademicos}]]*/ {};
+            </script>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
+            <script th:src="@{/app/rolexamen/rolexamenes/rolexamenes.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

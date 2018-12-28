@@ -1,14 +1,16 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -30,6 +32,17 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
                 .leftJoin("sec.aula", "sec.grupoHoras")
                 .in("sec.id", secciones);
 
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioSeccion> allBySeccionesSortByDiaHora(List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(HorarioSeccion.class, "hs")
+                .join("dia di", "hora ho", "seccion sec", "sec.grupoSeccion gs", "gs.curso")
+                .leftJoin("sec.aula", "sec.grupoHoras")
+                .orderBy("di.numeroDia", "ho.numero")
+                .in("sec.id", secciones);
         return all(sql);
     }
 
@@ -133,6 +146,24 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", ciclo.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public Map<Long, Long> allSeccionDayWithQtyHours(List<Seccion> secciones, Integer horasForDay) {
+        Octavia sql = Octavia.query()
+                .select("sec.id", "d.id", "count(hsec)")
+                .from(HorarioSeccion.class, "hsec")
+                .join("seccion sec", "dia d", "hora h")
+                .in("sec.id", secciones)
+                .groupBy("sec.id", "d.id");
+        List<Object[]> resultado = sql.all(getCurrentSession());
+        Map<Long, Long> result = new HashMap();
+        for (Object[] objects : resultado) {
+            if (TypesUtil.getInt(objects[2]) >= horasForDay) {
+                result.put(TypesUtil.getLong(objects[0]), TypesUtil.getLong(objects[1]));
+            }
+        }
+        return result;
     }
 
 }

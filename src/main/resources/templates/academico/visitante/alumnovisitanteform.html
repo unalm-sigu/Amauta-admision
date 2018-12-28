@@ -311,6 +311,7 @@
 
                                             <paissearh 
                                                 v-bind:pais="alumnoVisitante.paisUniversidad"
+                                                v-bind:changevalue="changePaisUniversidad"
                                                 v-bind:nombre="'paisUniversidad.id'"/>
 
                                         </div>
@@ -318,30 +319,30 @@
 
 
 
-                                    <div    class="col-sm-6">
+                                    <div class="col-sm-6">
 
                                         <pre style="display: none">{{alumnoVisitante}}</pre>
 
-                                        <div v-if="alumnoVisitante.paisUniversidad.codigo=='PE'"  class="form-group">
+                                        <div  class="form-group" v-if="alumnoVisitante.paisUniversidad.id!=null " >
 
-                                            <label>Universidad Peruana</label>
+                                            <label v-if="alumnoVisitante.paisUniversidad.codigo=='PE'" >Universidad Peruana</label>
+                                            <label v-else="alumnoVisitante.paisUniversidad.codigo=='PE'" >Universidad Extranjera</label>
 
-                                            <universidadsearch 
-                                                v-bind:universidad="alumnoVisitante.universidad"
-                                                v-bind:nombre="'universidad.id'" />
+                                            <div class="input-group">
+                                                <universidadsearch 
+                                                    data-parsley-errors-container="#erroruniversidadvisitante"
+                                                    v-bind:universidad="alumnoVisitante.universidad"
+                                                    v-bind:pais="alumnoVisitante.paisUniversidad"
+                                                    v-bind:nombre="'universidad.id'" > </universidadsearch>
+                                                <div class="input-group-addon">
+                                                    <i class="fa fa-plus pointer" v-on:click.prevent="addUniversidad()" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
+
+                                            <span id="erroruniversidadvisitante"></span>
 
                                         </div>
 
-                                        <div v-if="alumnoVisitante.paisUniversidad.codigo!='PE'"  class="form-group">
-
-                                            <label>Nombre de la Universidad</label>
-
-                                            <input class="form-control"
-                                                   type="text" required="true"
-                                                   v-model="alumnoVisitante.universidadExtranjera"
-                                                   name="universidadExtranjera"    />
-
-                                        </div>
 
                                     </div>
 
@@ -350,54 +351,127 @@
                                         <div class="form-group">
 
                                             <label>Ciclo Académico </label>
-                                         
-                                            <select name="cicloEstudia.id"
-                                                    v-model="alumnoVisitante.cicloEstudia.id"
-                                                    class="form-control" 
-                                                    required="true">
+
+                                            <vueselect name="cicloEstudia.id"
+                                                       v-bind:valor="alumnoVisitante.cicloEstudia"
+                                                       class="form-control" 
+                                                       required="true">
                                                 <option></option>
 
                                                 <option th:each="ciclo : ${ciclos}"
                                                         th:value="${ciclo.id}"
                                                         th:text="${ciclo.descripcion}"></option>
 
-                                            </select>
+                                            </vueselect>
 
-</div>
-</div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <hr/>
+
+                                <div class="col-md-12 text-center">
+                                    <button type="button" 
+                                            class="btn btn-success" 
+                                            v-text="actualizar==true?'Actualizar':'Guardar'"  
+                                            v-on:click.prevent="submitForm">Guardar</button>
+                                </div>
+
+                            </form>
+
+                        </section>
+                    </section>
+                </section>
 
 
 
 
-</div>
 
-<hr/>
+                <modal-vik ref="nuevaUniversidadExtranjera"
+                           v-bind="dataNuevaUniversidadExtranjera"
+                           v-bind:okaction="saveNuevaUniversidadExtranjera" >
 
-<div class="col-md-12 text-center">
-    <button type="button" class="btn btn-success" v-text="actualizar==true?'Actualizar':'Guardar'"  v-on:click.prevent="submitForm">Guardar</button>
-</div>
+                    <div slot="body" vclass="panel">
 
-</form>
+                        <div class="text-center">
+                            <h4>Registrar Universidad en {{alumnoVisitante.paisUniversidad.nombre}}</h4>
+                        </div>
 
-</section>
-</section>
-</section>
+                        <div class="panel-body">
 
-</div>
+                            <form id='formNuevaUniversidadExtranjera' class="form-horizontal" data-parsley-validate="true">
 
-<th:block th:replace="academico/visitante/alumnovisitanteformtemp"/>
+                                <input type="hidden" name="pais.id" v-bind:value="alumnoVisitante.paisUniversidad.id" />
 
-<div th:substituteby="_modules/vue-modal"/>
+                                <div class="form-group">
+                                    <label>Nombre</label>
+                                    <input type="text"
+                                           class="form-control input-sm"
+                                           name="nombre"
+                                           v-model="nuevauniversidad.nombre"
+                                           v-bind:value="nuevauniversidad.nombre"
+                                           required="true"/>
+                                </div>
+                                <div class="form-group" v-if='alumnoVisitante.paisUniversidad.id == 178'>
+                                    <label>Código</label>
+                                    <input type="text"
+                                           class="form-control input-sm"
+                                           name="codigo"
+                                           v-model="nuevauniversidad.codigo"
+                                           v-bind:value="nuevauniversidad.codigo"
+                                           required="true"/>
+                                </div>
+                                <div class="form-group">
+                                    <label>Acrónimo</label>
+                                    <input type="text"
+                                           class="form-control input-sm"
+                                           name="siglas"
+                                           v-model="nuevauniversidad.siglas"
+                                           v-bind:value="nuevauniversidad.siglas"
+                                           required="true"/>
+                                </div>
+                                <div class="form-group" v-if='alumnoVisitante.paisUniversidad.id == 178'>
+                                    <label>Gestion</label>
+                                    <select name="gestion"
+                                            v-bind:valor="nuevauniversidad.gestion"
+                                            class="form-control" 
+                                            required="true">
+                                        <option></option>
 
-</div>
+                                        <option th:each="item : ${gestiones}"
+                                                th:value="${item.name()}"
+                                                th:text="${item.value}"></option>
 
-<div layout:fragment="js">
-    <div th:substituteby="_layout/includes :: vuemodal"/>
-    <script th:src="@{/app/academico/visitante/alumnoVisitantePais.js}" charset="utf-8"></script>
-    <script th:src="@{/app/academico/visitante/alumnoVisitanteUbicacion.js}" charset="utf-8"></script>
-    <script th:src="@{/app/academico/visitante/alumnoVisitanteUniversidad.js}" charset="utf-8"></script>
-    <script th:src="@{/app/academico/visitante/alumnoVisitanteForm.js}" charset="utf-8"></script>
-</div>
+                                    </select>               
+                                </div>
+                            </form>
 
-</body>
+                        </div>
+
+
+                    </div>
+                </modal-vik>
+
+
+            </div>
+
+            <th:block th:replace="academico/visitante/alumnovisitanteformtemp"/>
+
+            <div th:substituteby="_modules/vue-modal"/>
+
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_layout/includes :: vuemodal"/>
+            <div th:substituteby="_layout/includes :: vue-loader"/>
+            <script th:src="@{/phobos/modules/vuelect2.js}" charset="utf-8"></script>
+            <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/visitante/alumnoVisitantePais.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/visitante/alumnoVisitanteUbicacion.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/visitante/alumnoVisitanteUniversidad.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/visitante/alumnoVisitanteForm.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
 </html>

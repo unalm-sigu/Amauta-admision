@@ -255,7 +255,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
     }
 
     @Override
-    public List<Alumno> searchAlumnosByFacultadNombre(Facultad facultad, String nombre, CicloAcademico ciclo) {
+    public List<Alumno> searchAlumnosByFacultadNombre(List<Facultad> facultad, String nombre, CicloAcademico ciclo) {
         List<Alumno> alumnos = alumnoDAO.allByNombreFacultad(nombre, facultad);
         List<MatriculaResumen> resumenes = matriculaResumenDAO.allByAlumnosCiclo(alumnos, ciclo);
         Map<Long, MatriculaResumen> mapResumen = TypesUtil.convertListToMap("alumno.id", resumenes);

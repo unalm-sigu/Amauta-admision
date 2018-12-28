@@ -111,7 +111,7 @@
 
                                         </td>
                                         <td v-for="dia in dias" style="width: 12.5%" v-on:click="conterObjHdia(dia,hora) == null ? asignarHora(dia,hora) : desasignarHora(dia,hora)">
-                                            <span v-value="hora.id + '-' + dia.id" class="form-control pointer text-center"
+                                            <span v-bind:value="hora.id + '-' + dia.id" class="form-control pointer text-center"
                                                   v-bind:style="styleHdia(dia,hora)"
                                                   v-text="conteHdia(dia,hora)">
                                                 <!--span class="text-item-horario"
@@ -136,10 +136,16 @@
 
                         <div class="col-xs-12">
                             <div class="form-group">
-                                <label>Seleccione el ciclo acádemico de origen</label>
+                                <label>Seleccione el ciclo académico de origen</label>
                                 <vuelect 
-                                    v-bind:nombre="'ciclo.id'"  
-                                    v-bind:ciclo="ciclo"/>
+                                    required="true"
+                                    v-bind:objetogenerico="ciclo"
+                                    v-bind:initobject="ciclo"
+                                    formatselection="descripcion2"
+                                    formatresult="descripcion2"
+                                    nameinput="ciclo.id"
+                                    remoteurl="comun/buscar/allCicloDescendent"
+                                    v-model="ciclo"/>
                             </div>
                         </div>
                     </form>
@@ -161,7 +167,7 @@
             /*]]>*/
         </script>
         <div th:substituteby="_modules/vue-raptor-table"></div>
-        <div th:substituteby="academico/gposeccion/vuelect2"></div>
+        <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <div th:substituteby="_layout/includes :: bootstrap-colorpicker"/>
         <script th:src="@{/app/academico/horario/grupo/grupo.js}" charset="utf-8"></script>

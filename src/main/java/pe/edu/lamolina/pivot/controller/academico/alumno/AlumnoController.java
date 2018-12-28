@@ -34,15 +34,18 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoVisitante;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -59,6 +62,8 @@ public class AlumnoController {
 
     @Autowired
     VerificadorService verificadorService;
+    @Autowired
+    DespliegueConfig despliegueConfig;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -102,14 +107,10 @@ public class AlumnoController {
 
         try {
 
-            List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
+            List<Carrera> carrera = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
             List<Alumno> alumnos = null;
 
-            if (facultades.isEmpty()) {
-                alumnos = service.allAlumnosByCicloDynatable(filter, ds.getCarreras());
-            } else {
-                alumnos = service.allAlumnosByFacultadDynatable(filter, facultades);
-            }
+            alumnos = service.allAlumnosbyDynatable(filter, carrera);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -338,13 +339,31 @@ public class AlumnoController {
     }
 
     @RequestMapping("{idAlumno}/gomatricula")
-    public String goMatricula(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
-
+    public String goMatricula(@PathVariable("idAlumno") Long idAlumno, @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) throws InterruptedException {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        String codigo = service.goMatricula(idAlumno);
+        Usuario usuario = ds.getUsuario();
+        String codigo = service.goMatricula(idAlumno, usuario);
+//        session.invalidate();
+        Parametro paramRutaMatricula = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+        if (paramRutaMatricula != null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("redirect:");
+            sb.append(paramRutaMatricula.getValor());
+            sb.append("/amauta/");
+            sb.append(codigo);
+            sb.append("/");
+            sb.append(usuario.getId());
+            sb.append("?origen=" + origen);
+            logger.debug("********************** goIntranet {} ", sb.toString());
 
-        session.invalidate();
-        return "redirect:http://localhost:9977/amauta/" + codigo;
+            AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
+            if (ambiente == AmbienteAplicacionEnum.DESA) {
+                session.invalidate();
+            }
+
+            return sb.toString();
+        }
+        return "redirect:/";
     }
 
 }

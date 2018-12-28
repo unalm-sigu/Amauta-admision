@@ -1,5 +1,5 @@
 $(function () {
-    /*  */
+    /* 
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/horario/grupo/list'),
@@ -21,6 +21,7 @@ $(function () {
     $('#dynaTable').bind('dynatable:afterUpdate', function (e, dynatable) {
         Grupo.foccusActivo();
     });
+    
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
         var labelColor = {ACT: 'success', INA: 'danger'};
@@ -31,6 +32,7 @@ $(function () {
         var outerHTML = $(html).prop('outerHTML');
         return outerHTML;
     }
+    
 
     var Grupo = {
         form: null,

@@ -2,12 +2,9 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
-import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -29,7 +26,7 @@ import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
-import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableResumen;
 
 @Repository
 public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
@@ -199,12 +196,12 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades) {
+    public List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Carrera> carrera) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Alumno.class, "al")
                 .join("persona per", "carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac")
                 .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
-                //.in("fac.id", facultades)
+                .in("ca.id", carrera)
                 .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -451,14 +448,14 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allByNombreFacultad(String nombre, Facultad facultad) {
+    public List<Alumno> allByNombreFacultad(String nombre, List<Facultad> facultad) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa", "situacionAcademica sa")
                 .join("modalidadEstudio me")
                 .leftJoin("per.tipoDocumento td", "orientacionCarrera oc")
-                .filter("fa.id", facultad)
+                .in("fa.id", facultad)
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
@@ -526,9 +523,10 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allByNameSinMatriculaResumen(String nombre, CicloAcademico cicloAcademico) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia subQuery = new Octavia()
-                .from(MatriculaResumen.class,"mr")
-                .join("alumno alum");
-                
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alum")
+                .filter("cicloAcademico", cicloAcademico);
+
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa")
@@ -543,6 +541,19 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .notExists(subQuery)
                 .linkedBy("alu.id", "alum.id")
                 .limit(15);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Alumno> allByCarreraCicloMayores(Carrera carrera, String codigoCiclo) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa")
+                .leftJoin("per.tipoDocumento td", "cicloActivo ci")
+                .leftJoin("modalidadEstudio me", "situacionAcademica situ")
+                .leftJoin("cicloIngreso cci")
+                .filter("car.id", carrera)
+                .filter("cci.codigo",">=", codigoCiclo);
         return sql.all(getCurrentSession());
     }
 

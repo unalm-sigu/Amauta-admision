@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
 public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
@@ -78,4 +79,8 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
     List<CicloAcademico> allByLikeName(String nombre, ModalidadEstudio modalidad, List<CicloAcademico> notInt, Integer limit);
 
     CicloAcademico findVerBoletin();
+
+    List<CicloAcademico> allWithInitAndOrderBy(int yearIni, String orderBy, CicloAcademicoEstadoEnum... cicloAcademicoEstadoEnum);
+
+    public CicloAcademico findSiguienteConfOrAct(CicloAcademico cicloAcademico);
 }

@@ -35,7 +35,7 @@ new Vue({
         },
         nuevo() {
             let $vue = this;
-            $vue.mensajeria = {esObligatorio: 0};
+            $vue.mensajeria = {esObligatorio: 0, porFecha: false};
             $vue.addMensajeria.okbtn = "Guardar";
             $vue.addMensajeria.title = "Nuevo Mensaje Intranet";
             $("#formMensajeria").parsley().destroy();
@@ -111,7 +111,6 @@ new Vue({
                         method: 'POST',
                         url: APP.url('mensajeria/eliminar'),
                         data: JSON.stringify(item),
-                        contentType: "application/json",
                         success: function (response) {
                             if (response.success) {
                                 $vue.$refs.load.loadRemoteData();
@@ -145,6 +144,12 @@ new Vue({
             let $vue = this;
             if (!e.target.checked) {
                 $vue.mensajeria.preObligatorio = 0;
+            }
+        },
+        chkbIsFecha() {
+            let $vue = this;
+            if ($vue.mensajeria.porFecha) {
+                $vue.mensajeria.vecesVisible = 0;
             }
         }
     }

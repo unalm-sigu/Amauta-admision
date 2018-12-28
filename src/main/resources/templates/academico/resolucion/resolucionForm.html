@@ -231,7 +231,7 @@
                                                         {{ item.fechaRegistro}}
                                                     </td>
                                                     <td>
-                                                        <!-- v-bind:click="activacionTramite(item)" -->
+                                                        
                                                         <label class="switch">
                                                             <input type="checkbox" 
                                                                    v-bind:value="item.seleccionado" 
@@ -247,10 +247,6 @@
                                     </template>
 
                                 </raptor-table>
-                                <!--
-                                                                <a class="btn btn-info btn-sm pull-right m-t-xs">
-                                                                    <i aria-hidden="true" class="fa fa-plus add-seccion"></i> <strong> Agregar Sección</strong></a>
-                                -->
                                 <button type="button" v-on:click="saveResolucion($event)" 
                                         th:unless="${resolucion.isEstadoDocConf}"
                                         class="btn btn-success pull-right m-t-xs">Guardar</button>

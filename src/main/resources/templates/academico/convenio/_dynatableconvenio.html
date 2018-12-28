@@ -63,8 +63,11 @@
                     <i class="glyphicon glyphicon-option-vertical"></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
-                    <li><a v-on:click.prevent="editar(convenio.id)"  href="#">Editar</a></li>
+                    <li><a v-on:click.prevent="changeEstado(convenio.id)"  href="#" v-if="convenio.estado == 'DES' ">Activar</a></li>
+                    <li><a v-on:click.prevent="changeEstado(convenio.id)"  href="#" v-if="convenio.estado == 'PEN' ">Activar</a></li>
+                    <li><a v-on:click.prevent="changeEstado(convenio.id)"  href="#" v-if="convenio.estado == 'ACT' ">Desactivar</a></li>
                     <li role="presentation" class="divider"></li>
+                    <li><a v-on:click.prevent="editar(convenio.id)"  href="#">Editar</a></li>
                     <li><a v-on:click.prevent="eliminar(convenio.id)"  href="#">Eliminar</a></li>
                 </ul>
             </div>

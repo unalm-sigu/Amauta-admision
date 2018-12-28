@@ -247,7 +247,7 @@ $(function () {
                 callback: function (result) {
                     if (result) {
                         $.ajax({
-                            url: APP.url('docente/cargaacademica/validarEvaluacionesIngresadas'),
+                            url: APP.url('docente/notasacademica/validarEvaluacionesIngresadas'),
                             type: 'POST',
                             async: true,
                             data: {evalExp: $this.attr('rel')},

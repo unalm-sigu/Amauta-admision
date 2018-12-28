@@ -5,9 +5,11 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
+import pe.edu.lamolina.model.general.Parametro;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
@@ -15,7 +17,7 @@ public interface AlumnoService {
 
     List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras);
 
-    List<Alumno> allAlumnosByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades);
+    List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> facultades);
 
     AlumnoResumen findResumen();
 
@@ -41,5 +43,9 @@ public interface AlumnoService {
 
     void updateAlumnoEspecial(Alumno alumno, Usuario usuarioRegistra);
 
-    String goMatricula(Long idAlumno);
+    List<Carrera> allCarrerasByuser(Usuario usuario, Persona persona);
+
+    Parametro findParametroByEnum(ParametrosSistemasEnum parametrosSistemasEnum);
+
+    String goMatricula(Long idAlumno, Usuario usuario);
 }

@@ -19,8 +19,8 @@ public class FacultadServiceImp implements FacultadService {
     FacultadDAO facultadDAO;
 
     @Override
-    public List<Facultad> allFacultad(DynatableFilter filter) {
-        return facultadDAO.allDynatable(filter);
+    public List<Facultad> allFacultad(DynatableFilter filter, List<Facultad> facultads) {
+        return facultadDAO.allDynatable(filter, facultads);
     }
 
     @Override

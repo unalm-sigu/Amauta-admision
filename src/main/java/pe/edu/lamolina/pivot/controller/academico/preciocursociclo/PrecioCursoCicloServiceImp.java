@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.preciocursociclo;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -18,10 +20,13 @@ import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -41,6 +46,9 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
 
     @Autowired
     PrecioCursoEstructuraDAO precioCursoEstructuraDAO;
+
+    @Autowired
+    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
 
     @Override
     public List<CursoCicloAcademico> allCursoCiclo(DynatableFilter filter, CicloAcademico ciclo) {
@@ -125,4 +133,27 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
         }
     }
 
+    @Override
+    @Transactional
+    public void configurarcantidad(CantidadAlumno cantidad, CicloAcademico cicloAcademico) {
+        if (cantidad.getCarrera() == null || cantidad.getGeneral() == null) {
+            throw new PhobosException("Debe especificar una cantidad Mayor a cero");
+        }
+        boolean valid = cantidad.getCarrera() < 1 || cantidad.getGeneral() < 1;
+        if (valid) {
+            throw new PhobosException("Debe especificar una cantidad Mayor a cero");
+        }
+        List<CursoCicloAcademico> cursosCiclo = cursoCicloAcademicoDAO.allByCiclo(cicloAcademico);
+        TipoCursoCurricula tipocursogeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
+        TipoCursoCurricula tipocursoobligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
+        for (CursoCicloAcademico cursoCicloAcademico : cursosCiclo) {
+            cursoCicloAcademico.setMinimoAlumnos(BigDecimal.ZERO);
+            if (cursoCicloAcademico.getTipoCursoCurricula().getId() == tipocursogeneral.getId().longValue()) {
+                cursoCicloAcademico.setMinimoAlumnos(new BigDecimal(cantidad.getGeneral()));
+            }
+            if (cursoCicloAcademico.getTipoCursoCurricula().getId() == tipocursoobligatorio.getId().longValue()) {
+                cursoCicloAcademico.setMinimoAlumnos(new BigDecimal(cantidad.getCarrera()));
+            }
+        }
+    }
 }

@@ -93,8 +93,8 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     @Override
-    public List<Docente> allByFacultadesDynatable(DynatableFilter filter, List<Facultad> facultades) {
-        return docenteDAO.allByFacultadesDyantable(filter, facultades);
+    public List<Docente> allByDepartamentoDynatable(DynatableFilter filter, List<DepartamentoAcademico> departament) {
+        return docenteDAO.allByFacultadesDyantable(filter, departament);
     }
 
     @Override
@@ -278,7 +278,7 @@ public class ProfesorServiceImp implements ProfesorService {
         }
         logger.debug("***Resolviendo en Tabla Usuario_Rol***");
         Rol rol = rolDAO.findByCode(RolEnum.DOC);
-        UsuarioRol userRolDB = usuarioRolDAO.findByUsuarioAndRol(usuarioDb, rol);
+        UsuarioRol userRolDB = usuarioRolDAO.findByUsuarioAndRolAndEstadoUsuRol(usuarioDb, rol, UserEstadoEnum.ACT);
         logger.debug("Tiene Rol? {}", (userRolDB != null));
         if (userRolDB == null) {
             logger.debug("-> Asignando Rol de Docente");

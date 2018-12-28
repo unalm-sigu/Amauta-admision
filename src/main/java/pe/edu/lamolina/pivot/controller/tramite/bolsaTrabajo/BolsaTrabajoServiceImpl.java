@@ -24,55 +24,55 @@ import pe.edu.lamolina.pivot.dao.tramite.TramiteSubvencionDAO;
 @Service
 @Transactional(readOnly = true)
 public class BolsaTrabajoServiceImpl implements BolsaTrabajoService {
-    
+
     @Autowired
     TramiteSubvencionDAO subvencionDAO;
-    
+
     @Autowired
     ColaboradorDAO colaboradorDAO;
-    
+
     @Autowired
     TramiteDAO tramiteDAO;
-    
+
     @Autowired
     FlujoTramiteBienestarDAO flujoTramiteBienestarDAO;
-    
+
     @Autowired
     AccionTramiteBienestarDAO accionTramiteBienestarDAO;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Override
     public List<TramiteSubvencion> allTramiteSubvByColabo(Persona persona, CicloAcademico cicloAcademico) {
-        Colaborador colaborador = colaboradorDAO.findByPersona(persona);
+        List<Colaborador> colaborador = colaboradorDAO.allActivosByPersona(persona);
         return subvencionDAO.allSubvencionByColaboradorCicloAcademico(colaborador, cicloAcademico);
     }
-    
+
     @Override
     @Transactional
     public void updateTramiteSubvencion(TramiteSubvencion tramiteSubvencion, Usuario usuario) {
         Tramite tramite = tramiteSubvencion.getTramite();
         Tramite t = tramiteDAO.findById(tramiteSubvencion.getTramite());
         TramiteSubvencion subvencion = subvencionDAO.findId(tramiteSubvencion);
-        
+
         AccionTramiteBienestar accion = accionTramiteBienestarDAO.findByTipoSubvencion(subvencion.getTipoSubvencion(), t.getEstado(), tramiteSubvencion.getRespuesta());
-        
+
         if (tramiteSubvencion.getVoboSupervisor() == 1) {
             subvencion.setFechaVobo(new Date());
         }
-        
+
         subvencion.setHoras(tramiteSubvencion.getHoras());
         subvencion.setLaborRealizar(tramiteSubvencion.getLaborRealizar());
         subvencion.setLugar(tramiteSubvencion.getLugar());
-        
+
         subvencionDAO.update(subvencion);
-        
+
         t.setEstado(accion.getEstadoFinal());
         t.setFechaModificacion(new Date());
         t.setUserModificacion(usuario);
         t.setObservacion(tramiteSubvencion.getComentario());
         tramiteDAO.update(t);
-        
+
         FlujoTramiteBienestar flujoTramite = new FlujoTramiteBienestar();
         flujoTramite.setEstado(accion.getEstadoFinal());
         flujoTramite.setTramite(tramite);
@@ -81,5 +81,5 @@ public class BolsaTrabajoServiceImpl implements BolsaTrabajoService {
         flujoTramite.setUserRegistro(usuario);
         flujoTramiteBienestarDAO.save(flujoTramite);
     }
-    
+
 }

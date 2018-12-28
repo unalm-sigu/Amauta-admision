@@ -13,16 +13,27 @@
     <tbody>
         <tr v-for="(docSeccion, index) in docentesSeccion">
             <td class="v-middle">
+                <div class="col-md-12" v-if="docSeccion.docenteNN">
 
-                <autocomplete-doc v-model="docSeccion.docente.id"
-                                  v-bind:rel="docSeccion.docente.persona!=null? docSeccion.docente.persona.apellidosNombres:''"
-                                  v-bind:docseccion="docSeccion.id"
-                                  v-bind:readonly="docSeccion.estado != 'ACT'"
-                                  placeholder="Desconocido"
-                                  v-if="docSeccion.docenteNN"
-                                  v-on:oncomplete="reloadProfes">
-                </autocomplete-doc>
-
+                    <multiselect  
+                        v-bind:options='docentes'
+                        label="apellidosNombres"
+                        track-by='id'
+                        placeholder="Desconocido"
+                        :show-labels="true"
+                        v-on:search-change="buscarDocente"
+                        v-on:input="indexSelect(index)"
+                        v-on:select="docenteSelected"
+                        >
+                        <template slot="option" slot-scope="props">
+                            <div class="option__desc">
+                                <span class="option__title bold block">{{ props.option.apellidosNombres }}</span>
+                                <small class="option__small block">{{ props.option.departamento }}</small>
+                                <span class="option__small bold">{{ props.option.codigo }}</span>
+                            </div>
+                        </template>
+                    </multiselect>
+                </div>
                 <span v-if="docSeccion.docente.persona.id != ''">
                     <span class="block bold">{{docSeccion.docente.persona.apellidosNombres}}</span>
                     <span class="block">{{docSeccion.docente.codigo}}</span>
@@ -98,8 +109,8 @@
             </td>
 
             <td class="v-middle">
-                <template v-if="docSeccion.principal == 1 "></template>
-                <a v-else-if="docSeccion.estado != 'ACT' "
+                <template v-if="docSeccion.principal == 1 &amp;&amp; docSeccion.estado == 'ACT' "></template>
+                <a v-else=""
                    v-on:click="deleteDocSeccion(docSeccion)"
                    class="delete-tipo-evaluacion pointer"><i class="fa fa-trash-o fa-lg text-danger"></i></a>
             </td>

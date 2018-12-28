@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.edu.lamolina.model.enums.VariableContenidoEnum;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
@@ -62,5 +63,24 @@ public class MailerServiceImp implements MailerService {
         mail.setDestinatarios(new String[]{tramiteDocumentoAcademico.getEmail()});
 //        mail.setDestinatarios(new String[]{"davd.1491@gmail.com"});
         mailerConnector.sendMail(mail);
+    }
+
+    @Override
+    public void enviarNotificacionTicketHelpDesk(Persona persona, ContenidoCarta contenidoCarta) {
+
+        String contenido = contenidoCarta.getContenido();
+        contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), persona.getNombreCompleto());
+
+        Context ctx = new Context();
+        ctx.setVariable("contenido", contenido);
+
+        MailMessage mail = new MailMessage();
+        mail.setContext(ctx);
+        mail.setTemplate("mail/mailHelpDesk");
+        mail.setSubject(contenidoCarta.getNombre());
+        //mail.setDestinatarios(new String[]{ colaborador.getPersona().getEmail()});
+        mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
+        mailerConnector.sendMailHelpDesk(mail);
+
     }
 }

@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.AlumnoVisitante;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.general.Universidad;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AlumnosVisitanteService {
@@ -34,5 +35,7 @@ public interface AlumnosVisitanteService {
     ObjectNode validarAlumno(AlumnoVisitante alumnoVisitanteForm);
 
     AlumnoVisitante findAlumnoVisitante(AlumnoVisitante idAlumnoVisitante);
+
+    void saveUniversidad(Universidad universidad, DataSessionPivot ds);
 
 }

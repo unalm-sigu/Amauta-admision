@@ -15,55 +15,76 @@
                 <section class="panel-body" th:unless="${cicloAcademico.tipo == 'NIV' }">
                     No se configura precios en este ciclo
                 </section>
+
                 <section class="panel-body" th:if="${cicloAcademico.tipo == 'NIV' }">
-                <div class="col-md-offset-2 col-md-8">
-                    <div class="row m-b-sm">
-                        <div class="col-md-6">
-                            <label class="switch"> Editar
-                                <input  type="checkbox" 
-                                        v-model="editar"
-                                        v-on:change="list"/>
-                                <span></span>
-                            </label> 
+                    <div class="col-md-offset-2 col-md-8">
+                        <div class="row m-b-sm">
+                            <div class="col-md-1 v-middle">
+                                <label> Editar</label>
+                            </div>
+                            
+                            <div class="col-md-1">
+                                <label class="switch"> 
+                                    <input  type="checkbox" 
+                                            v-model="editar"
+                                            v-on:change="list"/>
+                                    <span></span>
+                                </label> 
+                            </div>
+                            
+                            <div class="col-md-4" v-if="editar">
+                                <a class="btn btn-success btn-sm" v-on:click.prevent="guardar"> Guardar </a>
+                            </div>
+                            
+                            <div class="col-md-2 text-right" v-if="editar">
+                                <label> Costo por crédito</label>
+                            </div>
+                            
+                            <div class="col-md-1" v-if="editar">
+                                <input  type="text" class="form-control"
+                                        v-model="precioCredito" />
+                            </div>
+                            <div class="col-md-1" v-if="editar">
+                                <a class="btn btn-success btn-sm" v-on:click="changePrecio"> Aplicar </a>
+                            </div>
                         </div>
-                        <div class="col-md-6 text-right" v-if="editar">
-                            <a href="#" class="btn btn-success btn-sm" v-on:click.prevent="guardar" v-if="!guardando"> Guardar </a>
-                            <a href="#" v-else="" class="btn btn-success btn-sm disabled"> <i class="fa fa-spinner"/> Guardando </a>
-                        </div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-3"> TPC </th>
+                                    <th class="col-md-3 text-center"> Créditos </th>
+                                    <th class="col-md-3 text-center"> Grupos </th>
+                                    <th class="col-md-3 text-right"> Precio </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="estructura in estructuras">
+                                    <td class="v-middle">
+                                        <span class="block m-t-sm m-b-sm"> {{ estructura.tpc }} </span>
+                                    </td>
+                                    <td class="v-middle text-center">
+                                        <span class="badge"> {{ estructura.creditos }} </span>
+                                    </td>
+                                    <td class="v-middle text-center">
+                                        <span class="badge"> {{ estructura.cantidadGrupos }} </span>
+                                    </td>
+                                    <td class="v-middle text-right">
+                                        <input v-if="editar" class="form-control text-right" v-bind:disabled="guardando" v-model="estructura.precio"/>
+                                        <span v-else="">S/.{{estructura.precio | currency }} </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th class="col-md-4"> TPC </th>
-                                <th class="col-md-4 text-center"> Grupos </th>
-                                <th class="col-md-4 text-right"> Precio </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="estructura in estructuras">
-                                <td class="v-middle">
-                                    <span class="block m-t-sm m-b-sm"> {{ estructura.tpc }} </span>
-                                </td>
-                                <td class="v-middle text-center">
-                                    <span class="badge"> {{ estructura.cantidadGrupos }} </span>
-                                </td>
-                                <td class="v-middle text-right">
-                                    <input v-if="editar" class="form-control text-right" v-bind:disabled="guardando" v-model="estructura.precio"/>
-                                    <span v-else="">S/.{{estructura.precio | currency }} </span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                </section>
             </section>
         </section>
-    </section>
 
-</div>
+    </div>
 
-<div layout:fragment="js">
-    <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-    <script th:src="@{/app/academico/preciocursoestructura/preciocursoestructura.js}" charset="utf-8"></script>
-</div>
+    <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/preciocursoestructura/preciocursoestructura.js}" charset="utf-8"></script>
+    </div>
 </body>
 </html>

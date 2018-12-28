@@ -11,5 +11,7 @@ public interface PrecioCursoCicloService {
     List<CursoCicloAcademico> allCursoCiclo(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     void save(List<CursoCicloAcademico> precioCursoCiclos, CicloAcademico cicloAcademico, DataSessionPivot ds);
+
+    void configurarcantidad(CantidadAlumno cantidadAlumno, CicloAcademico cicloAcademico);
     
 }

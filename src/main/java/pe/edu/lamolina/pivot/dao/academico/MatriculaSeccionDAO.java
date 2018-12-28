@@ -13,6 +13,8 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<MatriculaSeccion> allMatriculadosBySeccion(Seccion seccion);
 
+    List<MatriculaSeccion> allBySeccion(Seccion seccion);
+
 //    MatriculaSeccion findByAlumnoSeccion(Alumno alumno, Seccion seccion);
 //    List<MatriculaSeccion> allByMatriculaSeccion(MatriculaResumen aluResumen);
     List<MatriculaSeccion> allMatriculadosByGpoSeccion(GrupoSeccion grupoSeccion, CicloAcademico ciclo);
@@ -35,5 +37,9 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 //    MatriculaSeccion findByCicloSeccionAlumno(CicloAcademico cicloAcademico, Seccion seccion, Alumno alumno);
 //    MatriculaSeccion findByMatriculaResumenSeccion(MatriculaResumen matriculaResumen, Seccion seccion);
     List<MatriculaSeccion> allMatriculadosByAlumnosSecciones(List<Alumno> alumnos, List<Seccion> secciones);
+
+    List<MatriculaSeccion> allActivesByMatriculaResumen(List<MatriculaResumen> matriculaResumen);
+
+    List<MatriculaSeccion> allByMatriculaResumen(MatriculaResumen matResumen);
 
 }

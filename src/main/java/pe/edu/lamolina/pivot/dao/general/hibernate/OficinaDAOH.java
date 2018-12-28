@@ -14,12 +14,17 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.MenuRol;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
@@ -209,4 +214,76 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
         return resultado;
     }
 
+    @Override
+    public List<Oficina> allOficinaByUserMenu(Usuario usuario, Menu menu) {
+        Octavia subquery = Octavia.query()
+                .from(MenuRol.class, "mr")
+                .join("menu m", "rol r2")
+                .filter("m.id", menu);
+
+        Octavia sql = Octavia.query()
+                .selectDistinct("ofi")
+                .from(UsuarioRol.class, "ur")
+                .join("usuario u", "rol r1", "oficina ofi")
+                .filter("u.id", usuario)
+                .exists(subquery)
+                .linkedBy("r1.id", "r2.id");
+
+        return sql.all(getCurrentSession());
+
+    }
+
+    @Override
+    public List<Oficina> allByNivel(TipoOficinaEnum tipoOficinaEnum) {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "o")
+                .join("tipoOficina to")
+                .filter("to.nivel", tipoOficinaEnum.name());
+        return all(sql);
+    }
+
+    @Override
+    public List<Oficina> allByNombre(String nombre, Compania compania) {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .join("compania cia")
+                .filter("cia.id", compania)
+                .orderBy("ofi.nombre")
+                .limit(10);
+
+        if (!"".equalsIgnoreCase(nombre)) {
+            sql.beginBlock()
+                    .__().like("ofi.codigo", nombre)
+                    .__().like("ofi.nombre", nombre)
+                    .endBlock();
+        }
+
+        return all(sql);
+
+    }
+
+    @Override
+    public Oficina find(Oficina oficina) {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .join("tipoOficina")
+                .leftJoin("personaJefe pj", "jefeEncargado", "cargoJefe", "oficinaSuperior")
+                .filter("ofi.id", oficina);
+
+        return find(sql);
+    }
+    
+        @Override
+    public List<Oficina> allForResoluciones() {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "o")
+                .join("tipoOficina to")
+                .beginBlock()
+                .__().filter("to.codigo", TipoOficinaEnum.FAC)
+                .__().filter("o.codigo", OficinaEnum.UNA)
+                .__().filter("o.codigo", OficinaEnum.EPG)
+                .endBlock();
+
+        return all(sql);
+    }
 }

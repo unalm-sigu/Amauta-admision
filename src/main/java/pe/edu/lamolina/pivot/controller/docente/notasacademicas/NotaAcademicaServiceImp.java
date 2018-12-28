@@ -68,6 +68,7 @@ import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -158,22 +159,22 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     EvaluacionEliminadaDAO evaluacionEliminadaDAO;
 
     @Autowired
-    CalculoNotasService calculoNotasService;
-
-    @Autowired
     NotaLetraDAO notaLetraDAO;
 
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
 
     @Autowired
-    PromedioService promedioService;
+    CicloAcademicoDAO cicloAcademicoDAO;
 
+    @Autowired
+    PromedioService promedioService;
     @Autowired
     InterceptorService interceptorService;
-
     @Autowired
     AuditorService auditorService;
+    @Autowired
+    CalculoNotasService calculoNotasService;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -1685,6 +1686,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                 this.allAlumnoEvaluacionBySeccion(evaluacion.getSeccionResponsable().getId()),
                 this.getMapMatriculasCursoByCicloCurso(grupoSeccion.getCicloAcademico(), grupoSeccion.getCurso()),
                 ds);
+
     }
 
     @Override
@@ -1928,9 +1930,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     @Override
     @Transactional
-    public void saveCerrarActa(GrupoSeccion grupoSeccion, Usuario usuario) {
+    public List<Alumno> saveCerrarActa(GrupoSeccion grupoSeccion, DataSessionPivot ds) {
         grupoSeccion = this.findGrupo(grupoSeccion.getId());
-        DateTime today = new DateTime();
+        DateTime today = new DateTime(ds.getFechaAccionAudit());
         if (grupoSeccion.isEstadoGrupoCerrado()) {
             throw new PhobosException("No se puede cerrar el acta debido a que el acta ya se encuentra cerrada.");
         }
@@ -1979,24 +1981,52 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
         }
          */
-        grupoSeccion.setUsuarioCierraActa(usuario);
+        grupoSeccion.setUsuarioCierraActa(ds.getUsuario());
         grupoSeccion.setFechaCierreActa(today.toDate());
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
         grupoSeccionDAO.update(grupoSeccion);
-
+        /*
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(grupoSeccion, grupoSeccion.getCicloAcademico());
         List<MatriculaResumen> matriculasResumen = matriculasSeccion.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
         List<String> idsMatsResumen = matriculasResumen.stream().map(x -> x.getId().toString()).collect(Collectors.toList());
         logger.debug(String.join(",", idsMatsResumen));
 
+        List<Alumno> alumnos = new ArrayList();
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenCurso(matriculasResumen, grupoSeccion.getCurso());//falta enviar el curso
         for (MatriculaCurso matriculaCurso : matriculasCurso) {
             Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
             matriculaCurso.getMatriculaResumen().getCicloAcademico();
             Curso curso = matriculaCurso.getCurso();
-            promedioService.promedio(matriculaCurso, usuario, true);
+            promedioService.promedio(matriculaCurso, ds, true);
+            alumnos.add(alumno);
+        }*/
+        List<Alumno> alumnos = new ArrayList();
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(grupoSeccion, grupoSeccion.getCicloAcademico());
+        List<MatriculaResumen> matriculasResumen = matriculasSeccion.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenCurso(matriculasResumen, grupoSeccion.getCurso());//falta enviar el curso
+        for (MatriculaCurso matriculaCurso : matriculasCurso) {
+            Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
+            this.trasladarMatriculaCursoForHistorial(alumno, grupoSeccion.getCicloAcademico(), ds);
+            alumnos.add(alumno);
         }
+        return alumnos;
+    }
 
+    @Transactional
+    public void trasladarMatriculaCursoForHistorial(Alumno alumno, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+        if (matriculaResumen == null) {
+            return;
+        }
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenFull(matriculaResumen);
+        if (matriculasCurso == null || matriculasCurso.isEmpty()) {
+            return;
+        }
+        List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allActivesByMatriculaResumen(Arrays.asList(matriculaResumen));
+        visorCalculoNotas.iniciar();
+        visorCalculoNotas.setCantidadTotal(1);
+        logger.debug("##################Ciclo padre {} {} {}", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo());
+        promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, true);
     }
 
     @Override
@@ -2125,6 +2155,11 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     public List<MatriculaCurso> allMatriculaCursoCiclo(Curso curso, CicloAcademico cicloAcademico) {
         return matriculaCursoDAO.findByCursoCiclo(curso, cicloAcademico);
+    }
+
+    @Override
+    public CicloAcademico findCicloConfOrAct(CicloAcademico cicloAcademico) {
+        return cicloAcademicoDAO.findSiguienteConfOrAct(cicloAcademico);
     }
 
 }

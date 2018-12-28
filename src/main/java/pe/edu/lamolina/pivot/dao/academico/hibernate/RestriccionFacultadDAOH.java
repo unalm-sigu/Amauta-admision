@@ -7,7 +7,6 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
-import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
@@ -18,6 +17,15 @@ public class RestriccionFacultadDAOH extends AbstractEasyDAO<RestriccionFacultad
     public RestriccionFacultadDAOH() {
         super();
         setClazz(RestriccionFacultad.class);
+    }
+
+    @Override
+    public List<RestriccionFacultad> allBySeccion(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(RestriccionFacultad.class, "rf")
+                .join("facultad fac", "seccion sec")
+                .filter("sec.id", seccion);
+        return all(sql);
     }
 
     @Override

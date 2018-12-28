@@ -24,13 +24,14 @@ public class DeudaAlumnoDAOH extends AbstractEasyDAO<DeudaMaterialAlumno> implem
     public List<DeudaMaterialAlumno> allByDynatableTipoDeuda(DynatableFilter filter, TipoDeudaMaterial tipo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(DeudaMaterialAlumno.class, "da")
-                .filter("tipoDeuda", tipo)
-                .leftJoin("alumno alu", "alu.persona per", "tipoDeuda tipo", "tipo.responsable resp", "resp.persona resper")
+                .join("tipoDeudaMaterial tdm")
+                .leftJoin("alumno alu", "alu.persona per", "tdm.responsable resp", "resp.persona resper")
+                .filter("tdm.id", tipo)
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .searchComplexField("concat(coalesce(resper.paterno,''),' ',coalesce(resper.materno,''),' ',coalesce(resper.nombres,''))")
                 .searchComplexField("concat(coalesce(resper.nombres,''),' ',coalesce(resper.paterno,''),' ',coalesce(resper.materno,''))")
-                .searchFields("da.estado", "da.descripcion", "tipo.nombre", "tipo.codigo")
+                .searchFields("da.estado", "da.descripcion", "tdm.nombre", "tdm.codigo")
                 .orderBy("da.id desc");
 
         return sql.all(getCurrentSession());

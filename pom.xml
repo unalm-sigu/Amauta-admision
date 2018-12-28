@@ -342,9 +342,9 @@
 
         <dependency>
             <groupId>com.github.albatrosscloud</groupId>
-            <!--<groupId>pe.albatross</groupId>-->
+            <!-- <groupId>pe.albatross</groupId>-->
             <artifactId>octavia</artifactId>
-            <version>1.0.17</version>
+            <version>1.0.18</version>
         </dependency>
         
         <dependency>
@@ -353,19 +353,17 @@
             <version>3.0.0</version>
         </dependency>
 
-        
-
         <dependency>
             <groupId>com.github.albatrosscloud</groupId>
             <!--<groupId>pe.albatross</groupId>-->
             <artifactId>zelpers</artifactId>
-            <version>0.1.60</version>
+            <version>0.1.62</version>
         </dependency>
         
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-            <version>0.15.99</version>
+            <version>0.16.01</version>
         </dependency>
 
     </dependencies>

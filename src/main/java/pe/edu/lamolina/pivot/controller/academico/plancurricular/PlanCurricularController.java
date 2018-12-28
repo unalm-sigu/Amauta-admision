@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
@@ -46,6 +47,7 @@ import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.academico.CursoEquivalenteElectivo;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
@@ -54,6 +56,8 @@ import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -66,6 +70,9 @@ public class PlanCurricularController {
 
     @Autowired
     PlanCurricularService service;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -94,19 +101,23 @@ public class PlanCurricularController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public String index(Model model, HttpSession session) {
+    public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<Carrera> carreras = service.filtrarByPlanes(verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds));
+        ArrayNode carrerasJson = this.createCarrerasJson(carreras);
+        model.addAttribute("carrerasJson", carrerasJson.toString());
         return "academico/plancurricular/planCurricular";
     }
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<PlanCurricular> curriculas = service.allByDynatable(filter, ds.getCarreras());
+            List<Carrera> carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+            List<PlanCurricular> curriculas = service.allByDynatable(filter, carreras);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (PlanCurricular curricula : curriculas) {
@@ -1530,6 +1541,49 @@ public class PlanCurricularController {
             service.desvincularCursoCurricula(planCurricular, ds);
             response.setSuccess(true);
             response.setMessage("Plan curricular desvinculado satisfactoriamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    private ArrayNode createCarrerasJson(List<Carrera> carreras) {
+
+        JsonNodeFactory jFactory = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(jFactory);
+
+        for (Carrera carr : carreras) {
+            ObjectNode node = JsonHelper.createJson(carr, jFactory, true, new String[]{
+                "id", "codigo", "nombre", "tipoEnum",
+                "facultad.id",
+                "facultad.codigo",
+                "facultad.nombre",
+                "modalidadEstudio.codigo",
+                "modalidadEstudio.nombre"
+            });
+            array.add(node);
+        }
+        return array;
+    }
+
+    @ResponseBody
+    @RequestMapping("asignacionmasiva")
+    public JsonResponse asignacionmasiva(Carrera carrera, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.desvincularMasivaCursoCurricula(carrera, ds);
+            service.asignacionMasivaCursoCurricula(carrera, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Avances curricular generados");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

@@ -1,5 +1,6 @@
 new Vue({
     el: '#main',
+    mixins: [VueLoader],
     data: {
         actualizar: false,
         alumnoVisitante: {
@@ -14,7 +15,12 @@ new Vue({
             paisDomicilio: {id: null},
             ubicacionDomicilio: {id: null},
             ubicacionNacer: {id: null}
-        }
+        },
+        dataNuevaUniversidadExtranjera: {
+            id: 'modalNuevaUniversidadExtranjera',
+            header: false,
+        },
+        nuevauniversidad: {}
     },
     mounted: function () {
 
@@ -42,7 +48,7 @@ new Vue({
         let vue = this;
         this.$nextTick(function () {
             let self = $(vue.$el);
-           // self.find('[name="cicloEstudia.id"]').select2('val', vue.alumnoVisitante.cicloEstudia.id);
+            // self.find('[name="cicloEstudia.id"]').select2('val', vue.alumnoVisitante.cicloEstudia.id);
             self.find('[name="persona.tipoDocumento.id"]').select2('val', vue.persona.tipoDocumento.id);
         });
     },
@@ -140,6 +146,55 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        addUniversidad() {
+            var vue = this;
+            vue.alumnoVisitante.paisUniversidad;
+            vue.$refs.nuevaUniversidadExtranjera.open();
+            var keys = Object.keys(vue.nuevauniversidad);
+
+            console.dir("===")
+            console.dir(vue.alumnoVisitante.paisUniversidad.id)
+            console.dir("===")
+            for (var key in keys) {
+                vue.nuevauniversidad['' + keys[key]] = null;
+            }
+            $('#formNuevaUniversidadExtranjera').find('[name=gestion]').select2({minimumResultsForSearch: -1});
+        },
+        saveNuevaUniversidadExtranjera() {
+            var vue = this;
+            if ($('#formNuevaUniversidadExtranjera').parsley().validate() != true) {
+                return;
+            }
+            vue.showLoader();
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/visitante/alumno/saveuniversidad'),
+                data: $('#formNuevaUniversidadExtranjera').serialize(),
+                async: false,
+                success: function (response) {
+                    if (response.success) {
+                        vue.alumnoVisitante.universidad = response.data;
+                        vue.$refs.nuevaUniversidadExtranjera.close();
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                    vue.hideLoader();
+
+                }, error: function () {
+                    vue.hideLoader();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        changePaisUniversidad(alf) {
+            var vue = this;
+            console.log(alf.id);
+            var keys = Object.keys(vue.alumnoVisitante.universidad);
+            for (var key in keys) {
+                vue.alumnoVisitante.universidad['' + keys[key]] = null;
+            }
         }
     }
 });

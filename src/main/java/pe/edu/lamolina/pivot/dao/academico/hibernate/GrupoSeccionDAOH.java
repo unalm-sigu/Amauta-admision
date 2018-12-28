@@ -33,7 +33,7 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.acta.ActaResumen;
-import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.DocenteCursoPlan;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 
@@ -174,6 +174,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("cu.nombre");
+
         sql.beginRelativeFilters();
         setCondicionEstado(filter, sql);
         return all(sql);
@@ -232,6 +233,16 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         return all(sql);
     }
 
+    public List<GrupoSeccion> allCerradasByCiclo(List<CicloAcademico> ciclo) {
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("curso cur", "cicloAcademico ca")
+                .leftJoin("planCalificacion pc", "secciones s")
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
     @Override
     public List<DocenteCursoPlan> allDocenteCursoPlanByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
@@ -261,13 +272,12 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .join("cicloAcademico ca", "anexoBoletin ab", "curso cu")
                 .leftJoin("ab.anexoSuperior abs", "planCalificacion pc")
                 .filter("ca.id", ciclo)
-                .searchFields("cu.nombre", "cu.codigo", "ab.nombre", "abs.nombre")
+                .searchFields("cu.nombre", "cu.codigo")
                 .searchSubquery(subQuery)
                 .subqueryLinkedBy("gs.id", "ggss.id")
                 .searchSubqueryFields("doc.codigo", "se.codigo2", "gh.codigo", "au.codigo")
                 .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
-        //.orderBy("gs.id desc");
 
         sql.beginRelativeFilters();
         this.setGrupoAnexo(filter, sql);

@@ -82,16 +82,7 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
 
         return all(sql);
     }
-
-//    @Override
-//    public List<DiaHoraGrupo> allByGruposCiclo(List<GrupoHoras> grupos) {
-//        Octavia sql = Octavia.query()
-//                .from(DiaHoraGrupo.class, "dhg")
-//                .join("grupoHorario gh", "cicloAcademico ciclo", "dia dia", "hora hora")
-//                .in("gh.id", grupos);
-//
-//        return all(sql);
-//    }
+    
     @Override
     public List<DiaHoraGrupo> allByTipoGpoCiclo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -115,6 +106,16 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
         return all(sql);
     }
 
+    public void adad(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .select("pc.id", "count(cc)")
+                .from(DiaHoraGrupo.class, "dhg")
+                .join("grupoHorario gh", "cicloAcademico ca", "dia d", "hora h")
+                .filter("ca.id", cicloAcademico)
+                .groupBy("gh.id", "d.id");
+
+    }
+
 //    @Override
 //    public List<DiaHoraGrupo> allByGrupo(GrupoHoras grupo, CicloAcademico ciclo) {
 //        Octavia sql = Octavia.query()
@@ -131,7 +132,6 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
         Octavia sql = Octavia.query()
                 .from(DiaHoraGrupo.class, "dhg")
                 .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ciclo", "dia dia", "hora hora")
-                .filter("tgh.tipoCiclo", ciclo.getTipo())
                 .filter("ciclo.id", ciclo);
 
         return all(sql);
@@ -142,8 +142,17 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
         Octavia sql = Octavia.query()
                 .from(DiaHoraGrupo.class, "dhg")
                 .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ciclo", "dia dia", "hora hora")
-                .filter("ciclo.id", cicloDestino)
-                .filter("tgh.tipoCiclo", cicloDestino.getTipo());
+                .filter("ciclo.id", cicloDestino);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<DiaHoraGrupo> allByDiaHoraGrupo(List<DiaHoraGrupo> diaHoraGrupo) {
+        Octavia sql = Octavia.query()
+                .from(DiaHoraGrupo.class, "dhg")
+                .join("grupoHorario gh", "cicloAcademico ciclo", "dia dia", "hora hora")
+                .in("dhg.id", diaHoraGrupo);
 
         return all(sql);
     }

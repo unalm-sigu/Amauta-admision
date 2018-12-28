@@ -31,12 +31,15 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoGestionEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.general.Universidad;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.general.persona.PersonaService;
@@ -50,6 +53,7 @@ import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
+import pe.edu.lamolina.pivot.dao.general.UniversidadDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
@@ -85,6 +89,8 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     ContenidoCartaDAO contenidoCartaDAO;
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+    @Autowired
+    UniversidadDAO universidadDAO;
 
     @Autowired
     MailerService mailerService;
@@ -182,6 +188,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             alumno.setCursosCarreraAprobados(0);
             alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
             alumno.setCiclosEstudiados(0);
+            alumno.setEstadoEnum(AlumnoEstadoEnum.ACT);
 
             alumnoDAO.save(alumno);
 
@@ -268,9 +275,9 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     private String generateCodigo(CicloAcademico ciclo) {
 
         StringBuilder ssb = new StringBuilder();
-        ssb.append("Configuración del ciclo académico UNALM  ");
+        ssb.append("Configuración del ciclo académico UNALM ");
         ssb.append(ciclo.getDescripcion());
-        ssb.append("  no esta completa");
+        ssb.append(" no esta completa");
         if (ciclo.getMatriculaSiguiente() == null || ciclo.getMatriculaInicio() == null) {
             throw new PhobosException(ssb.toString());
         }
@@ -439,7 +446,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     public List<CicloAcademico> allCicloAcademico() {
         int year = new DateTime().getYear();
         int yearinit = year - 4;
-        int yearend = year + 3;
+        int yearend = year + 5;
         return cicloAcademicoDAO.allPregradoByRange(yearinit, yearend);
     }
 
@@ -604,6 +611,29 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             "paisDomicilio.codigo"
         });
         return node;
+    }
+
+    @Override
+    @Transactional
+    public void saveUniversidad(Universidad universidad, DataSessionPivot ds) {
+        Universidad universidadDb = universidadDAO.findNombrePais(universidad.getNombre(), universidad.getPais());
+        if (universidadDb != null) {
+            throw new PhobosException("Una universidad con el mismo nombre ya fue registrada");
+        }
+        Universidad universidadTmp = universidadDAO.findLastCodigoEntranjero();
+
+        String cod = NumberFormat.codigo((Integer.parseInt(universidadTmp.getCodigo().substring(3, 8)) + 1), 5);
+
+        universidad.setEstado(EstadoEnum.ACT.name());
+        universidad.setTipo("UNIV");
+        universidad.setFechaRegistro(new Date());
+        universidad.setUserRegistro(ds.getUsuario());
+        if (!universidad.getPais().esPeru()) {
+            universidad.setCodigo("EXT" + cod);
+            universidad.setGestion(TipoGestionEnum.AMB.name());
+        }
+
+        universidadDAO.save(universidad);
     }
 
 }
