@@ -24,6 +24,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -514,6 +515,8 @@ public class MatriculableServiceImp implements MatriculableService {
         turnosAtencion.setAlumnos(cantAlum);
         turnosAtencion.setPrioridadFin(numPrioridad);
         turnoAtencionDAO.update(turnosAtencion);
+        
+        configuracionMatriculaService.updateTurnos(turnosAtencion.getId(), cantAlum.toString());
 
         matri.setTurnoAtencion(turnosAtencion);
         matriculaResumenDAO.save(matri);
@@ -536,5 +539,42 @@ public class MatriculableServiceImp implements MatriculableService {
         cicloAcademicoUpd.setId(cicloAcademico.getId());
         cicloAcademicoUpd.setFechaMatriculables(today.toDate());
         cicloAcademicoDAO.updateFechaMatriculables(cicloAcademicoUpd);
+    }
+
+    @Async
+    @Override
+    @Transactional
+    public void asignarPprioridad(Alumno alumno, CicloAcademico cicloActivo) {
+        Alumno alum = alumnoDAO.find(alumno);
+        SituacionAcademica sit = alum.getSituacionAcademica();
+        ModalidadEstudio modalidad = alum.getModalidadEstudio();
+        List<SituacionAcademicaEnum> sitEnum = Arrays.asList(S_8, S_9);
+        Assert.isFalse(sitEnum.contains(sit.getCodigo()), "El alumno tiene una situación " + sit.getCodigoEnum().getNombre() + ". No se puede realizar su prioridad.");
+
+        List<ModalidadEstudioEnum> modEnum = Arrays.asList(EPG, ESP);
+        Assert.isFalse(modEnum.contains(modalidad.getCodigo()), "El alumno está en la modalidad " + modalidad.getCodigoEnum().name() + ". No se puede realizar su prioridad.");
+
+        Assert.isNotNull(alum.getCicloActivoRegular(), "El alumno no cuenta con un ciclo activo regular.");
+
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alum.getCicloActivoRegular(), alumno);
+        Assert.isNotNull(alumnoCiclo, "El alumno no cuenta con historial de ciclos");
+
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloActivo);
+        matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
+
+        MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matriculaResumen, cicloActivo, alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+        MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matriculaResumen, cicloActivo, alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+
+        BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
+        matriculaResumen.setPrioridad(prioridad);
+        if (cicloActivo.getFechaTurnosAsignados() != null) {
+            TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, cicloActivo);
+            BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
+            turnosAtencion.setPrioridadFin(numPrioridad);
+            turnoAtencionDAO.update(turnosAtencion);
+
+            matriculaResumen.setTurnoAtencion(turnosAtencion);
+        }
+        matriculaResumenDAO.update(matriculaResumen);
     }
 }

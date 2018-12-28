@@ -146,7 +146,7 @@ public interface NotaAcademicaService {
 
     List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion);
 
-    void saveCerrarActa(GrupoSeccion grupoSeccion, DataSessionPivot ds);
+    List<Alumno> saveCerrarActa(GrupoSeccion grupoSeccion, DataSessionPivot ds);
 
     void desvincularPlanCalificacion(GrupoSeccion grupo);
 
@@ -167,5 +167,7 @@ public interface NotaAcademicaService {
     void saveEstructuraEvaluacion(GrupoSeccion grupoSeccion, LoggerAccionEnum loggerAccionEnum, HttpSession session);
 
     void saveEstructuraEvaluacion(EvaluacionExpandida evaluacionExpandida, LoggerAccionEnum loggerAccionEnum, HttpSession session);
+
+    public CicloAcademico findCicloConfOrAct(CicloAcademico cicloAcademico);
 
 }
