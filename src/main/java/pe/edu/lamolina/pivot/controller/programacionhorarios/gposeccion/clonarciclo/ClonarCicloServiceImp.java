@@ -222,8 +222,16 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
         for (GrupoSeccion ggss : gsOrigenes) {
             Curso curso = ggss.getCurso();
-            int horasTeoria = curso.getHorasTeoria() * factorHoras;
-            int horasPractica = curso.getHorasPractica() * factorHoras;
+            System.out.println("Curso " + curso.getCodigo() + " ::: " + curso.getNombre());
+            int horasTeoria = 0;
+            int horasPractica = 0;
+            
+            try {
+                horasTeoria = curso.getHorasTeoria() * factorHoras;
+                horasPractica = curso.getHorasPractica() * factorHoras;
+            } catch (Exception e) {
+                throw new PhobosException("Error en la estructura del curso " + curso.getCodigo() + " " + curso.getNombre());
+            }
 
             if (!cursos.contains(curso)) {
                 cursos.add(curso);
@@ -469,9 +477,8 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
         if (eventoEnum == CLASES_PRE) {
             eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAnalisis, CLASES_EPG);
+            Assert.isNotNull(eventoCiclo, "No se configuró el evento " + CLASES_EPG.getValue() + " para el ciclo " + cicloAnalisis.getDescripcion());
         }
-
-        Assert.isNotNull(eventoCiclo, "No se configuró el evento " + eventoEnum.getValue() + " para el ciclo " + cicloAnalisis.getDescripcion());
 
         List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByCicloAndTipoCiclo(cicloAnalisis);
 
