@@ -38,7 +38,6 @@ new Vue({
                             $.ajax({
                                 url: APP.url('academico/planCurricular/asignacionmasiva'),
                                 type: 'POST',
-                                async: false,
                                 data: {id: $vue.carrera.id},
                                 success(response) {
                                     if (response.success) {
