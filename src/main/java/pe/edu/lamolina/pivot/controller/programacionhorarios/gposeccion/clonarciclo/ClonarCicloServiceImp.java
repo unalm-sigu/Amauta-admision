@@ -213,7 +213,9 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             factorHoras = 3;
         }
 
-        EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(cicloDestino);
+        EventoCicloAcademico eventoDictadoPregrado = this.getEventoCicloAcademico(cicloDestino);
+        EventoCicloAcademico eventoDictadoPosgrado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloDestino, CLASES_EPG);
+        EventoCicloAcademico eventoDictadoClases = null;
 
         List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum.GEN);
         Map<Long, CursoCurricula> curCurriculaMap = TypesUtil.convertListToMap("curso.id", cursosCurricula);
@@ -222,10 +224,14 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
         for (GrupoSeccion ggss : gsOrigenes) {
             Curso curso = ggss.getCurso();
-            System.out.println("Curso " + curso.getCodigo() + " ::: " + curso.getNombre());
+            eventoDictadoClases = eventoDictadoPregrado;
+            if (cicloDestino.getTipoEnum() == TipoCicloEnum.REG && curso.getModalidadEstudio().isPostgrado()) {
+                eventoDictadoClases = eventoDictadoPosgrado;
+            }
+
             int horasTeoria = 0;
             int horasPractica = 0;
-            
+
             try {
                 horasTeoria = curso.getHorasTeoria() * factorHoras;
                 horasPractica = curso.getHorasPractica() * factorHoras;
@@ -374,8 +380,8 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                         horarioSecc.setDia(diaHoraSecc.getDia());
                         horarioSecc.setHora(diaHoraSecc.getHora());
                         horarioSecc.setSeccion(seccClone);
-                        horarioSecc.setFechaInicio(eventoAcademico.getFechaInicio());
-                        horarioSecc.setFechaFin(eventoAcademico.getFechaFin());
+                        horarioSecc.setFechaInicio(eventoDictadoClases.getFechaInicio());
+                        horarioSecc.setFechaFin(eventoDictadoClases.getFechaFin());
                         horarioSeccionDAO.save(horarioSecc);
 
                         if (seccClone.getIsTipoSeccionTCUR()) { // is es TCUR
@@ -392,8 +398,8 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     DocenteSeccion dsClone = new DocenteSeccion();
                     dsClone.setDocente(dsOrigen.getDocente());
                     dsClone.setEstado(dsOrigen.getEstado());
-                    dsClone.setFechaInicio(eventoAcademico.getFechaInicio());
-                    dsClone.setFechaFin(eventoAcademico.getFechaFin());
+                    dsClone.setFechaInicio(eventoDictadoClases.getFechaInicio());
+                    dsClone.setFechaFin(eventoDictadoClases.getFechaFin());
                     dsClone.setPrincipal(dsOrigen.getPrincipal());
                     dsClone.setSeccion(seccClone);
                     dsClone.setPorcentajeCarga(dsOrigen.getPorcentajeCarga());

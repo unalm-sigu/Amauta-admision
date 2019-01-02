@@ -1441,21 +1441,15 @@ public class NotaAcademicaController {
     @ResponseBody
     @RequestMapping("cerrarActa")
     public JsonResponse cerrarActa(
-            @RequestParam(name = "grupo", required = true) Long grupoId,
+            @RequestParam(name = "grupo", required = true) Long gpoSeccionId,
             HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
-        service.saveCerrarActa(new GrupoSeccion(grupoId), ds);
-        List<Alumno> alumnos = service.saveCerrarActa(new GrupoSeccion(grupoId), ds);
-        CicloAcademico academico = service.findCicloConfOrAct(ds.getCicloAcademico());
-        if (academico.getFechaPrioridades() != null) {
-            for (Alumno alumno : alumnos) {
-                matriculableService.asignarPprioridad(alumno, academico);
-            }
-        }
+        service.saveCerrarActa(new GrupoSeccion(gpoSeccionId), ds);
         String message = "Acta cerrada correctamente";
+        
         response.setMessage(message);
         response.setSuccess(true);
 
