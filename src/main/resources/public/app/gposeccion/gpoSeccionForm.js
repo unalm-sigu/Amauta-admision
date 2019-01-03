@@ -213,6 +213,13 @@ var app = new Vue({
         });
 
     },
+    computed: {
+        precioBaseFormatoCalculado: function () {
+            let $vue = this;
+            let total=$vue.seccionSeleccionada.minimoAlumnos * $vue.seccionSeleccionada.precio;
+            return total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'); 
+        }
+    },
     methods: {
         custom() {
 
@@ -1538,8 +1545,7 @@ var app = new Vue({
             let precioSeccionSend = {};
             precioSeccionSend.id = seccionSeleccionada.id;
             precioSeccionSend.precio = seccionSeleccionada.precio;
-            precioSeccionSend.precioBase = seccionSeleccionada.precioBase;
-            precioSeccionSend.abonoVerano = seccionSeleccionada.abonoVerano;
+            precioSeccionSend.precioBase =  $vue.seccionSeleccionada.minimoAlumnos * $vue.seccionSeleccionada.precio;
 
             $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
             $(".btn-modal").prop('disabled', true);
@@ -1849,7 +1855,7 @@ var app = new Vue({
             }
 
             $vue.$refs.grupoRegularComponent.loadGrupoRegularAulaComponent();
-        }
+        },
     }
 });
 

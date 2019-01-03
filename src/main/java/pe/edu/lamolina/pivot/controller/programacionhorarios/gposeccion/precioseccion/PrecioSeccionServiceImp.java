@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
@@ -31,10 +30,6 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
 
     @Override
     public void savePrecioSeccion(Seccion seccionForm, DataSessionPivot ds) {
-
-        logger.debug("seccionForm {}", seccionForm.getId());
-        logger.debug("precio basse {}", seccionForm.getPrecioBase());
-        logger.debug("avono verano {}", seccionForm.getAbonoVerano());
 
         Seccion seccionBD = seccionDAO.find(seccionForm);
 
@@ -61,8 +56,6 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
                 return;
             }
         }
-        logger.debug("precio basse {}", seccionForm.getPrecioBase());
-        logger.debug("avono verano {}", seccionForm.getAbonoVerano());
         seccionDAO.updatePrecioBySeccion(seccionForm);
     }
 

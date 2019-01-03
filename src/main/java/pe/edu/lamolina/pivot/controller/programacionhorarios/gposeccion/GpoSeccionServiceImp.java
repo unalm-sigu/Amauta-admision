@@ -2436,4 +2436,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     private EventoCicloAcademico getEventoCicloAcademico(CicloAcademico cicloAcademico) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public CursoCicloAcademico findCursoCicloAcademico(Curso curso, CicloAcademico cicloAcademico) {
+        return cursoCicloAcademicoDAO.findByCursoCiclo(curso, cicloAcademico);
+    }
 }
