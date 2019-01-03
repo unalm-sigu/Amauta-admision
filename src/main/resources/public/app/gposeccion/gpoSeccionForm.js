@@ -1538,6 +1538,8 @@ var app = new Vue({
             let precioSeccionSend = {};
             precioSeccionSend.id = seccionSeleccionada.id;
             precioSeccionSend.precio = seccionSeleccionada.precio;
+            precioSeccionSend.precioBase = seccionSeleccionada.precioBase;
+            precioSeccionSend.abonoVerano = seccionSeleccionada.abonoVerano;
 
             $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
             $(".btn-modal").prop('disabled', true);

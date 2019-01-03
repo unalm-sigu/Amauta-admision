@@ -512,6 +512,8 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     public void updatePrecioBySeccion(Seccion seccion) {
         Octavia octavia = Octavia.update(Seccion.class);
         octavia.set(seccion, "precio");
+        octavia.set(seccion, "precioBase");
+        octavia.set(seccion, "abonoVerano");
         octavia.set(seccion, "userPrecio");
         octavia.set(seccion, "fechaPrecio");
         octavia.set(seccion, "precioPersonalizado");

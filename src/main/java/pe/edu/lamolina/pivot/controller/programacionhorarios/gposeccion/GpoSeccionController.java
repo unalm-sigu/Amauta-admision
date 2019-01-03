@@ -158,6 +158,8 @@ public class GpoSeccionController {
                     "secciones.codigo2",
                     "secciones.precio",
                     "secciones.precioFormato",
+                    "secciones.abonoVeranoFormato",
+                    "secciones.precioBaseFormato",
                     "secciones.precioPersonalizado",
                     "secciones.tipoSeccionEnum",
                     "secciones.vacantes",

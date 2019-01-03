@@ -61,6 +61,32 @@
                         <span v-else="">S/. {{seccionSeleccionada.precioFormato}} </span>
                     </td>
                 </tr>
+                <tr>
+                    <td class="v-middle text-center">
+                        <span class="block m-t-sm m-b-sm"> Precio Base: </span>
+                    </td>
+                    <td class="v-middle text-right">
+                        <i v-if="seccionSeleccionada.precioBase!=0 " class="fa fa-check text-success"></i>
+                        <i v-if="seccionSeleccionada.precioBase=='' "></i>
+                    </td>
+                    <td class="v-middle text-right">
+                        <input v-if="editaPrecio" class="form-control text-right" v-bind:disabled="guardaPrecio" v-model="seccionSeleccionada.precioBase"/>
+                        <span v-else="">S/. {{seccionSeleccionada.precioBaseFormato}} </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="v-middle text-center">
+                        <span class="block m-t-sm m-b-sm"> Monto Abonado: </span>
+                    </td>
+                    <td class="v-middle text-right">
+                        <i v-if="seccionSeleccionada.abonoVerano!=0 " class="fa fa-check text-success"></i>
+                        <i v-if="seccionSeleccionada.abonoVerano=='' "></i>
+                    </td>
+                    <td class="v-middle text-right">
+                        <input v-if="editaPrecio" class="form-control text-right" v-bind:disabled="guardaPrecio" v-model="seccionSeleccionada.abonoVerano"/>
+                        <span v-else="">S/. {{seccionSeleccionada.abonoVeranoFormato}} </span>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
