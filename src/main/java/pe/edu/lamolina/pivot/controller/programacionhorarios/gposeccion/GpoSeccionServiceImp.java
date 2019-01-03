@@ -2438,7 +2438,33 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    public CursoCicloAcademico findCursoCicloAcademico(Curso curso, CicloAcademico cicloAcademico) {
-        return cursoCicloAcademicoDAO.findByCursoCiclo(curso, cicloAcademico);
+    @Transactional
+    public CursoCicloAcademico findCursoCicloAcademico(Curso cursoForm, CicloAcademico cicloForm) {
+        CursoCicloAcademico cca = cursoCicloAcademicoDAO.findByCursoCiclo(cursoForm, cicloForm);
+
+        if (cca == null) {
+            Curso cursoBD = cursoDAO.find(cursoForm.getId());
+            CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloForm);
+
+            cca = new CursoCicloAcademico();
+            cca.setCurso(cursoBD);
+            cca.setCicloAcademico(cicloForm);
+            cca.setMinimoAlumnos(BigDecimal.ZERO);
+            cca.setPrecio(BigDecimal.ZERO);
+            cca.setPrecioAdicional(BigDecimal.ZERO);
+            cca.setPrecioPersonalizado(false);
+            cca.setEstado("ACT");
+
+            if (cicloBD.getTipoEnum() == TipoCicloEnum.REG) {
+                cca.setHorasSemanalesTeoria(cursoBD.getHorasTeoria());
+                cca.setHorasSemanalesPractica(cursoBD.getHorasPractica());
+
+            } else if (cicloBD.getTipoEnum() == TipoCicloEnum.NIV) {
+                cca.setHorasSemanalesTeoria(cursoBD.getHorasTeoriaVerano());
+                cca.setHorasSemanalesPractica(cursoBD.getHorasPracticaVerano());
+            }
+            cursoCicloAcademicoDAO.save(cca);
+        }
+        return cca;
     }
 }
