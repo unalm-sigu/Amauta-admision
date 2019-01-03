@@ -40,21 +40,22 @@ new Vue({
                                 type: 'POST',
                                 data: {id: $vue.carrera.id},
                                 success(response) {
+                                    mbb.modal("hide");
                                     if (response.success) {
                                         $vue.$refs.modalAsignacionMasiva.close();
-                                        mbb.modal("hide");
-                                        notify(response.message, "info");
+                                        bootbox.alert(response.message);
 
                                     } else {
                                         $(".btn-modal").prop('disabled', false);
                                         $(".btn-procesar").html('Si, reiniciar');
-                                        notify(response.message, "error");
+                                        bootbox.alert(response.message);
                                     }
                                 },
                                 error() {
+                                    mbb.modal("hide");
                                     $(".btn-modal").prop('disabled', false);
                                     $(".btn-procesar").html('Si, reiniciar');
-                                    notify(MESSAGES.errorComunicacion, "error");
+                                    bootbox.alert(MESSAGES.errorComunicacion);
                                 }
                             });
 
