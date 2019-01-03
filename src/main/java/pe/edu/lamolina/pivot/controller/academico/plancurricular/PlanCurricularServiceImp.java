@@ -1245,7 +1245,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional
     public void desvincularMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds) {
-        Assert.isTrue(1 == 2, "Es un error fabricado");
         logger.debug("*********carrera {}", carrera.getId());
         List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
         logger.debug("*********planesCurricular {}", planesCurricular.size());

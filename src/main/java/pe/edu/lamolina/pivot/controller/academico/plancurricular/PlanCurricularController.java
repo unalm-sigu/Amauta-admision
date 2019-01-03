@@ -1578,7 +1578,6 @@ public class PlanCurricularController {
 
         try {
 
-            TypesUtil.delay(2500);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.desvincularMasivaCursoCurricula(carrera, ds);
             service.asignacionMasivaCursoCurricula(carrera, ds);
