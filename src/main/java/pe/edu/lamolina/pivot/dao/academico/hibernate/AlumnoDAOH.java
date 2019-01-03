@@ -13,7 +13,9 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.PlanCurricular;
@@ -553,7 +555,19 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("modalidadEstudio me", "situacionAcademica situ")
                 .leftJoin("cicloIngreso cci")
                 .filter("car.id", carrera)
-                .filter("cci.codigo",">=", codigoCiclo);
+                .filter("cci.codigo", ">=", codigoCiclo);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Alumno> allByGpoSeccion(GrupoSeccion gpoSecc) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("alu")
+                .from(MatriculaSeccion.class, "ms")
+                .join("seccion s", "s.grupoSeccion gs", "matriculaResumen mr")
+                .join("mr.alumno alu", "alu.persona", "alu.modalidadEstudio", "alu.situacionAcademica")
+                .left("alu.cicloActivoRegular")
+                .filter("gs.id", gpoSecc);
         return sql.all(getCurrentSession());
     }
 

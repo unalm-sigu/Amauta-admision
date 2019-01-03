@@ -253,7 +253,7 @@ $(function () {
                                 $("input[title='" + response.data.evaId + "']").addClass("nota-alumno");
                                 $("input[title='" + response.data.evaId + "']").val("");
                             }
-                           
+
                         }
                         notify(response.message, "info");
                     } else {
@@ -379,7 +379,7 @@ $(function () {
 
                                     }
                                     notify(response.message, "info");
-  
+
                                     NotasAcademicas.reloadNotas();
                                 } else {
                                     notify(response.message, "error");
@@ -670,14 +670,14 @@ $(function () {
         },
         cerrarActa: function ($this, e) {
 
-            bootbox.prompt({
+            var mibox = bootbox.prompt({
                 title: "Entregar acta",
                 message: "adad",
                 inputType: 'checkbox',
                 className: 'cerrar-acta-cls',
                 buttons: {
-                    confirm: {label: 'Entregar', className: "btn-success"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
+                    confirm: {label: 'Entregar', className: "btn-success btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
                 },
                 closeButton: false,
                 inputOptions: [
@@ -690,6 +690,9 @@ $(function () {
 
                     if (result) {
                         if (result.toString() == "1") {
+                            $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                            $(".btn-modal").prop('disabled', true);
+
                             $.ajax({
                                 url: APP.url('docente/notasacademica/cerrarActa'),
                                 type: 'POST',
@@ -699,17 +702,25 @@ $(function () {
                                 },
                                 success: function (response) {
                                     if (response.success) {
+                                        mibox.modal("hide");
                                         notify(response.message, "info");
                                         $(".cerrar-acta").css("display", "none");
+
                                     } else {
+                                        $(".btn-modal").prop('disabled', false);
+                                        $(".btn-procesar").html('Entregar');
                                         notify(response.message, "error");
                                     }
                                 },
                                 error: function (response) {
+                                    $(".btn-modal").prop('disabled', false);
+                                    $(".btn-procesar").html('Entregar');
                                     notify(response.responseJSON.message, "error");
                                 }
 
                             });
+                            return false;
+
                         } else {
                             bootbox.alert({
                                 message: "El acta NO será entregada hasta que acepte la validación.",

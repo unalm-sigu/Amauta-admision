@@ -1201,6 +1201,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             }
 
             alumno.setPlanCurricular(planBD);
+            if (planBD.getOrientacionCarrera() != null) {
+                alumno.setOrientacionCarrera(planBD.getOrientacionCarrera());
+            }
             alumnoDAO.update(alumno);
 
             this.obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);

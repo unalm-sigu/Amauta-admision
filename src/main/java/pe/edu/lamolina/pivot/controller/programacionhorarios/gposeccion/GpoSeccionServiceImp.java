@@ -65,6 +65,9 @@ import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_EPG;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
@@ -620,7 +623,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional
     public void addDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico) {
         seccion = seccionDAO.find(seccion.getId());
-        EventoCicloAcademico academico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_VER);
+        Curso curso = seccion.getGrupoSeccion().getCurso();
+
+        EventoAcademicoEnum eventoEnum = cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
+        if (cicloAcademico.getTipoEnum() == TipoCicloEnum.REG && curso.getModalidadEstudio().isPostgrado()) {
+            eventoEnum = CLASES_EPG;
+        }
+
+        EventoCicloAcademico eventoDictadoClases = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoEnum);
 
         Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
         List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allActivosBySeccion(seccion);
@@ -635,8 +645,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccion.setDocente(docenteDefault);
         docenteSeccion.setCodigoSeccion(seccion.getCodigo());
         docenteSeccion.setEstado(EstadoEnum.ACT.name());
-        docenteSeccion.setFechaInicio(academico.getFechaInicio());
-        docenteSeccion.setFechaFin(academico.getFechaFin());
+        docenteSeccion.setFechaInicio(eventoDictadoClases.getFechaInicio());
+        docenteSeccion.setFechaFin(eventoDictadoClases.getFechaFin());
         docenteSeccion.setPrincipal(BigDecimal.ZERO.intValue());
         docenteSeccion.setSeccion(seccion);
         docenteSeccion.setPorcentajeCarga(rest);

@@ -1583,7 +1583,7 @@ public class PlanCurricularController {
             service.asignacionMasivaCursoCurricula(carrera, ds);
 
             response.setSuccess(true);
-            response.setMessage("Avances curricular generados");
+            response.setMessage("Asignación masiva satisfactoria");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

@@ -7,6 +7,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
@@ -32,22 +33,22 @@ public interface MatriculableService {
 
     void loadEgresados(MultipartFile file);
 
-    public CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico);
+    CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico);
 
-    public void eliminarPrioridad(CicloAcademico cicloAcademico);
+    void eliminarPrioridad(CicloAcademico cicloAcademico);
 
-    public void finalizarPrioridad(CicloAcademico cicloAcademico);
+    void finalizarPrioridad(CicloAcademico cicloAcademico);
 
-    public void finalizarMatriculable(CicloAcademico cicloAcademico);
+    void finalizarMatriculable(CicloAcademico cicloAcademico);
 
-    public void limpiarMatriculable(CicloAcademico cicloAcademico);
+    void limpiarMatriculable(CicloAcademico cicloAcademico);
 
-    public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
+    List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
-    public void saveMatriculable(Alumno alumno, DataSessionPivot ds);
+    void saveMatriculable(Alumno alumno, DataSessionPivot ds);
 
-    public void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds);
+    void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
-    public void asignarPprioridad(Alumno alumno, CicloAcademico cicloActivo);
+    void recalcularPrioridad(GrupoSeccion gpoSecc, CicloAcademico ciclo);
 
 }
