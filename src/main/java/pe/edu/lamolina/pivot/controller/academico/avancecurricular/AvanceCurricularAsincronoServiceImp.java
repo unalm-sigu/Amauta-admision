@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.avancecurricular;
 
-import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,14 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -27,6 +24,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.AlumnoCursoSimultaneoEstadoEnum;
@@ -547,6 +545,16 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 acc.setEstado(CursoCurriculaEstadoEnum.MAT.name());
             }
         }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void settingPlanCurricular(Alumno alumno, PlanCurricular planBD) {
+        alumno.setPlanCurricular(planBD);
+        if (planBD.getOrientacionCarrera() != null) {
+            alumno.setOrientacionCarrera(planBD.getOrientacionCarrera());
+        }
+        alumnoDAO.update(alumno);
     }
 
 }
