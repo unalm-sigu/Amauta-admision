@@ -1,4 +1,5 @@
-Vue.component("multiselect", window.VueMultiselect.default)
+Vue.component("multiselect", window.VueMultiselect.default);
+
 new Vue({
     el: '#matriculableVUE',
     data: {
@@ -22,6 +23,14 @@ new Vue({
             okbtn: "Guardar",
             showaccept: true
         },
+        modalInhabilitarMatriculable: {
+            id: 'modalInhabilitarMatriculable',
+            header: true,
+            title: 'Inhabilitar Matriculable',
+            okbtn: "Aceptar",
+            showaccept: true
+        },
+        matriculableSelected: {}
 
     },
     mounted: function () {
@@ -40,6 +49,35 @@ new Vue({
             if (tipoEnum != null) {
                 return tipoEnum.value - eventoCicloAcademico.eventoAcademico.nombre;
         }
+        },
+        inhabilitarModal(item) {
+            let $vue = this;
+            $vue.matriculableSelected = {};
+            $vue.matriculableSelected = item;
+            $vue.$refs.modalInhabilitarMatriculable.open();
+        },
+        inhabilitar() {
+            let $vue = this;
+            if (!$("#formInhabilitar").parsley().validate()) {
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/inhabilitar'),
+                data: JSON.stringify($vue.matriculableSelected),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                        $vue.$refs.modalInhabilitarMatriculable.close();
+                        notify(response.message, "success");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
         },
         modal() {
             let $vue = this;
@@ -226,6 +264,11 @@ new Vue({
         saveMatriculable() {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
+//            $('#formMatriculable').parsley().destroy();
+            if (!$("#formMatriculable").parsley().validate()) {
+                MODAL.hideWait();
+                return;
+            }
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/matriculable/saveMatriculable'),

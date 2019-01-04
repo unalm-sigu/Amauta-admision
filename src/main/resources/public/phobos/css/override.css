@@ -1952,3 +1952,7 @@ div.notas {
 #frmMoverSeccion .row{
     margin-bottom: 15px !important;
 }
+
+textarea {
+    resize: none;
+}

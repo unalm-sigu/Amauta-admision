@@ -213,6 +213,13 @@ var app = new Vue({
         });
 
     },
+    computed: {
+        precioBaseFormatoCalculado: function () {
+            let $vue = this;
+            let total = $vue.seccionSeleccionada.minimoAlumnos * $vue.seccionSeleccionada.precio;
+            return total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+    },
     methods: {
         custom() {
 
@@ -1538,8 +1545,7 @@ var app = new Vue({
             let precioSeccionSend = {};
             precioSeccionSend.id = seccionSeleccionada.id;
             precioSeccionSend.precio = seccionSeleccionada.precio;
-            precioSeccionSend.precioBase = seccionSeleccionada.precioBase;
-            precioSeccionSend.abonoVerano = seccionSeleccionada.abonoVerano;
+            precioSeccionSend.precioBase = $vue.seccionSeleccionada.minimoAlumnos * $vue.seccionSeleccionada.precio;
 
             $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
             $(".btn-modal").prop('disabled', true);
@@ -1849,6 +1855,48 @@ var app = new Vue({
             }
 
             $vue.$refs.grupoRegularComponent.loadGrupoRegularAulaComponent();
+        },
+        generarPagoDocente(docSeccion) {
+
+            let $vue = this;
+
+            let mm = bootbox.confirm({
+                message: "¿Está seguro que desea generar el pago docente ?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                        $(".btn-modal").prop('disabled', true);
+
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/gposeccion/generarpagodocente'),
+                            data: {id: docSeccion.id},
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    $vue.loadGpoSeccionFlash(mm);
+                                    $vue.allCambioAulaGrupo();
+
+                                } else {
+                                    $(".btn-modal").prop('disabled', false);
+                                    $(".btn-procesar").html('Si');
+                                    notify(response.message, "error");
+                                }
+                            }, error: function () {
+                                $(".btn-modal").prop('disabled', false);
+                                $(".btn-procesar").html('Si');
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                        return false;
+                    }
+                }
+            });
+
         }
     }
 });
