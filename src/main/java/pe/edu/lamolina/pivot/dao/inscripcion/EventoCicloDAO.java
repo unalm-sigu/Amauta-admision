@@ -27,4 +27,3 @@ public interface EventoCicloDAO extends EasyDAO<EventoCiclo> {
     EventoCiclo findExtemporaneoByFecha(CicloPostula ciclo, Date fecha);
 
 }
-

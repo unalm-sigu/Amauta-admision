@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.dao.inscripcion.hibernate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import pe.edu.lamolina.pivot.dao.inscripcion.EventoCicloDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -12,6 +11,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
 import pe.edu.lamolina.model.inscripcion.Evento;
 import pe.edu.lamolina.model.inscripcion.EventoCiclo;
+import pe.edu.lamolina.pivot.dao.inscripcion.EventoCicloDAO;
 
 @Repository
 public class EventoCicloDAOH extends AbstractEasyDAO<EventoCiclo> implements EventoCicloDAO {
@@ -123,4 +123,3 @@ public class EventoCicloDAOH extends AbstractEasyDAO<EventoCiclo> implements Eve
     }
 
 }
-

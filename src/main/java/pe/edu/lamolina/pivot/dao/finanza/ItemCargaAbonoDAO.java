@@ -28,7 +28,6 @@ public interface ItemCargaAbonoDAO extends EasyDAO<ItemCargaAbono> {
     List<ItemCargaAbono> allActivosByPostulante(Postulante postulante);
 
 //    List<ItemCargaAbono> allActivosByPostulante(Postulante postulante, CicloPostula ciclo);
-
     List<ItemCargaAbono> allPosiblesExtornados(ItemCargaAbono itemCarga);
 
     List<ItemCargaAbono> allPosiblesExtornados2(ItemCargaAbono itemCarga);
@@ -39,4 +38,3 @@ public interface ItemCargaAbonoDAO extends EasyDAO<ItemCargaAbono> {
 
     List<ItemCargaAbono> allActivosByCicloPostula(CicloPostula cicloPostula);
 }
-
