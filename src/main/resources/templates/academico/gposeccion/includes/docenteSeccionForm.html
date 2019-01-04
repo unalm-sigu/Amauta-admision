@@ -8,6 +8,7 @@
             <th class="col-md-2 text-center">Situación Laboral</th>
             <th class="col-md-1 text-center">Estado</th>
             <th class=""></th>
+            <th class=""></th>
         </tr>
     </thead>
     <tbody>
@@ -114,6 +115,21 @@
                    v-on:click="deleteDocSeccion(docSeccion)"
                    class="delete-tipo-evaluacion pointer"><i class="fa fa-trash-o fa-lg text-danger"></i></a>
             </td>
+
+            <td class="v-middle">
+                <div class="dropdown actions">
+                    <a class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="glyphicon glyphicon-option-vertical"></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right">
+                        <li>
+                            <a v-on:click.prevent="generarPagoDocente(docSeccion)" href="#">Generar Pago Docente</a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+
+
         </tr>
     </tbody>
 </table>

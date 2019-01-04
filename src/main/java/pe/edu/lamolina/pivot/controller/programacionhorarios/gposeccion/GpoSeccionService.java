@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
@@ -195,5 +196,9 @@ public interface GpoSeccionService {
     void actualizarBoletin();
 
     List<DiaHoraGrupo> searchDiasHorasByHorasSemanales(List<DiaHoraGrupo> diasHoras, Integer horasSemanales, List<Dia> dias);
+
+    CursoCicloAcademico findCursoCicloAcademico(Curso curso, CicloAcademico cicloAcademico);
+
+    void generarpagodocente(DocenteSeccion docenteSeccion, DataSessionPivot ds);
 
 }

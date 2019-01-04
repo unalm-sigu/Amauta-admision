@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF8" />
+        <title>Programacion Horarios</title>
+
+        <style>
+            .title1{
+                text-align:center;
+                font-size:18px !important;
+                font-weight: bold;
+            }
+
+            .subtitle1{
+                text-align:left;
+                font-size:14px;
+                font-weight: bold;
+                padding-bottom: 10px;
+                padding-top: 10px;
+            }
+
+            .subtitle2{
+                text-align:left;
+                font-size:12px;
+                font-weight: bold;
+                padding-bottom: 10px;
+                padding-top: 10px;
+            }
+
+            .subtitle3{
+                text-align:left;
+                font-size:10px;
+                font-weight: bold;
+                padding-bottom: 10px;
+                padding-top: 10px;
+            }
+
+            table {
+
+                font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+                border-collapse: collapse;
+                border-spacing: 0;
+                width: 100%;
+            }
+
+            table td{
+                padding: 4px !important;
+                font-size: 10px;
+            }
+
+            th {
+                padding-top: 11px;
+                padding-bottom: 11px;
+                background-color: #607d8b;
+                color: white;
+                text-align: center;
+                font-size: 11px;
+            } 
+
+            .centrado {
+                text-align: center;
+            } 
+            .even_css_class{
+                background-color: white;
+            }
+            .odd_css_class{
+                background-color: #f1f1f1;
+            }
+        </style>
+    </head>
+    <body>
+
+
+
+
+        <table>
+            <tr>
+                <td valign="top">
+                    <!--<img src="escudoUnalm.jpg" width="80"/>-->
+                </td>
+                <td style="text-align: center;font-size:18px !important;font-weight: bold;" class="title1">
+                    <span >UNIVERSIDAD NACIONAL AGRARIA LA MOLINA</span><br/>
+                    <span >PROGRAMACIÓN DE HORARIOS</span>
+                </td>
+            </tr>
+
+        </table>
+
+        <div th:each="anexoBoletin : ${listAB}">
+            <div class="subtitle1" ><span th:text="${anexoBoletin.nombre}"></span></div>
+            <div th:each="subAnexoBoletin : ${anexoBoletin.anexosBoletinHijos}">
+                <div class="subtitle2" th:if="${subAnexoBoletin.gruposSecciones.size() > 0}" ><span th:text="${subAnexoBoletin.nombre}"></span></div>
+                <div th:each="grupoSeccion : ${subAnexoBoletin.gruposSecciones}">
+                    <div th:if="${grupoSeccion.secciones.size() > 0}">
+                        <div class="subtitle3" >
+                            <span th:text="${grupoSeccion.curso.codigo}"></span>
+                            <span th:text="${grupoSeccion.curso.tpc}"></span>
+                            <span th:text="${grupoSeccion.curso.nombre}"></span>
+                            <!--                        <span th:if="${grupoSeccion.curso.codigo != ''}">Diferente de Vacío</span>
+                                                    <span th:if="${grupoSeccion.curso.codigo == ''}">Igual a Vacío</span>-->
+                        </div>
+                        <table >
+                            <tr>
+                                <td>
+
+                                    <table>
+                                        <tr>                            
+                                            <th>
+                                                Teoría 
+                                            </th>
+                                            <th>
+                                                Aula
+                                            </th>
+                                            <th width="60">
+                                                Clave
+                                            </th>
+                                            <th width="30">
+                                                Práctica
+                                            </th>
+                                            <th width="40">
+                                                Aula
+                                            </th>
+                                            <th width="100">
+                                                Docente/%Carga
+                                            </th>
+                                            <!--                                            <th width="40">
+                                                                                            %Carga
+                                                                                        </th>-->
+                                            <th width="40">
+                                                Restricción
+                                            </th>
+                                            <th width="40">
+                                                Vac/Mat
+                                            </th>
+
+                                        </tr>
+                                        <tr th:each="secc : ${grupoSeccion.secciones}" >
+
+                                            <td class="centrado">
+                                                <span th:if="${secc.isTipoSeccionEvaluacionTeoria and secc.grupoHoras.codigo != ''}" th:text="${secc.grupoHoras.codigo}"></span>                  
+                                            </td>
+                                            <td class="centrado">
+                                                <span th:if="${secc.aula.codigo != '' and secc.isTipoSeccionEvaluacionTeoria}" th:text="${secc.aula.codigo}"></span>
+                                            </td>
+
+                                            <td class="centrado">
+                                                <span  th:if="${secc.tipoSeccion != 'TCUR' }" th:text="${secc.codigo2}"></span>
+                                                <small  th:text="${secc.tipoSeccionEnum.value}"></small>
+                                            </td>
+
+                                            <td class="centrado"> 
+                                                <span th:if="${secc.grupoHoras.codigo != '' and secc.isTipoSeccionEvaluacionPractica}" th:text="${secc.grupoHoras.codigo}"></span>
+                                            </td>
+
+                                            <td class="centrado">
+                                                <span th:if="${secc.aula.codigo != '' and secc.isTipoSeccionEvaluacionPractica}" th:text="${secc.aula.codigo}"></span>
+                                            </td>
+
+                                            <td class="centrado">
+                                                <div th:each="profeSecc,idx : ${secc.docenteSeccion}">
+                                                    <span>
+                                                        <span>
+                                                            <span th:text="${profeSecc.docente.codigo}"></span>
+                                                            <span th:if="${profeSecc.docente.codigo != 'N.N.' }" th:text="${profeSecc.docente.persona.nombrePaternoMat}"></span>
+                                                            <span th:if="${profeSecc.docente.codigo == 'N.N.' }" th:text="DESCONOCIDO"></span>
+                                                        </span>
+                                                        <span th:if="${profeSecc.porcentajeCarga != '' }">
+                                                            <span> / </span>
+                                                            <span th:text="${profeSecc.porcentajeCarga}"></span>
+                                                            <span>%</span>
+                                                        </span>
+                                                    </span>
+
+                                                </div>
+                                            </td>
+
+<!--                                            <td>
+                                                <span th:each="profeSecc,idx : ${secc.docenteSeccion}">
+                                                    <span th:if="${profeSecc.porcentajeCarga != '' }">
+                                                        <span th:text="${profeSecc.porcentajeCarga}"></span>
+                                                        <span>%</span>
+                                                    </span>
+                                                </span>
+                                            </td>-->
+
+                                            <td class="centrado">
+                                                <span th:if="${secc.restriccionCapa != '' }" >
+                                                    <small th:text="${secc.restriccionCapa}"></small> 
+                                                    <!--<small>capa</small>-->     
+                                                </span>                                      
+                                            </td>
+
+                                            <td class="centrado">
+                                                <span th:text="${secc.vacantes}"></span>
+                                                <span>/</span>
+                                                <span th:text="${secc.matriculados}"></span>
+                                            </td>
+
+
+                                        </tr>
+                                    </table>
+
+                                </td>
+
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

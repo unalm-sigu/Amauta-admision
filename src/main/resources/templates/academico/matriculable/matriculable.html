@@ -97,7 +97,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="v-middle">
-                                                    <div class="v-middle">
+                                                    <div class="v-middle clear">
                                                         <a href="#"><span class="block text-primary bold detallePostulante" v-text="item.alumno.persona.apellidosNombres"></span></a>
                                                         <span class="block" >
                                                             Matrícula: {{item.alumno.codigo}} 
@@ -111,6 +111,9 @@
                                                         <small class="block">
                                                             {{item.alumno.persona.emailCompania}}
                                                         </small>
+                                                        <a v-if="item.motivoMatriculable != '' " class="text-danger " data-toggle="tooltip" v-bind:title="item.motivoMatriculable" href="#">
+                                                            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                                        </a>
                                                     </div>
                                                 </td>
 
@@ -140,7 +143,7 @@
 
                                                 <td class="text-center v-middle">
                                                     <span class="clear">
-                                                        <a  href="#" data-toggle="tooltip" data-html="true" data-placement="left" title='{{item.motivo}}'><span v-bind:class="style(item.estado)">{{item.estadoEnum.value}} </span></a><!--class="label label-{{:colorEstado}}-->
+                                                        <a  href="#" ><span v-bind:class="style(item.estado)">{{item.estadoEnum.value}} </span></a><!--class="label label-{{:colorEstado}}-->
                                                         <!--<span v-else="">{{item.estadoEnum.value}} </span>label-{{:colorEstado}}-->
                                                     </span>
                                                 </td>
@@ -149,6 +152,8 @@
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                                         <ul class="dropdown-menu pull-right">
                                                             <li><a class="ver-cursos pointer" >Ver Cursos</a></li><!--rel="{{:id}}"-->
+                                                            <li v-if="item.estado == 'NMAT'"><a v-on:click="inhabilitarModal(item)" href="#">Inhabilitar</a></li>
+                                                            <li v-if="item.estado == 'INH'"><a v-on:click="inhabilitarModal(item)" href="#">Habilitar</a></li>
                                                             <li><a class="modificar-datos" href="#">Modificar datos</a></li>
                                                             <li><a v-bind:href="urlMatricula(item)">Matricula</a></li>
                                                         </ul>
@@ -170,6 +175,8 @@
                 <div th:substituteby="academico/matriculable/modalAsignarTurno">
                 </div>
                 <div th:substituteby="academico/matriculable/matriculableModal">
+                </div>
+                <div th:substituteby="academico/matriculable/inhabilitarMatriculable">
                 </div>
             </div>
             <div th:substituteby="_modules/vue-modal">

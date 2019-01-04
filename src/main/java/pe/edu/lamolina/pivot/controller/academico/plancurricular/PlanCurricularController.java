@@ -74,6 +74,9 @@ public class PlanCurricularController {
     @Autowired
     VerificadorService verificadorService;
 
+    @Autowired
+    VisorAsignaCurricula visorAsignaCurricula;
+
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
 
@@ -1578,13 +1581,52 @@ public class PlanCurricularController {
 
         try {
 
-            TypesUtil.delay(2500);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.verificarAsignacion(carrera);
             service.desvincularMasivaCursoCurricula(carrera, ds);
             service.asignacionMasivaCursoCurricula(carrera, ds);
 
             response.setSuccess(true);
             response.setMessage("Asignación masiva satisfactoria");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("existeAsignacionMasiva")
+    public JsonResponse existeAsignacionMasiva(Carrera carrera, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            boolean existe = visorAsignaCurricula.existeCarrera(carrera);
+            response.setSuccess(existe);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("avanceAsignacionMasiva")
+    public JsonResponse avanceAsignacionMasiva(Carrera carrera, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            boolean existe = visorAsignaCurricula.existeCarrera(carrera);
+            response.setMessage(visorAsignaCurricula.reporte(carrera));
+            response.setTotal(visorAsignaCurricula.porcentajeAvance(carrera));
+            response.setSuccess(existe);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

@@ -1,0 +1,19 @@
+<modal-vik ref="modalInhabilitarMatriculable"
+           v-bind="modalInhabilitarMatriculable"
+           v-bind:okaction="inhabilitar">
+    <div slot="body">
+        <div class="modal-body">
+            <form id="formInhabilitar" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
+                <div class="row m-b-md">
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <label>Motivo</label>
+                            <textarea class="form-control textarea" v-model="matriculableSelected.motivoMatriculable" minlength="15" required=""></textarea>
+                        </div>
+                    </div>
+                    <hr/>
+                </div>
+            </form>
+        </div>
+    </div>
+</modal-vik>

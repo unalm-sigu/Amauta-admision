@@ -173,6 +173,17 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
+    public List<Seccion> allByGposSeccionOrderedByCodigo2(GrupoSeccion gruposSeccion) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "grupoHoras gh","aula au", "docenteSeccion ds")
+                .filter("gs.id", gruposSeccion)
+                .orderBy("sec.codigo2");
+
+        return all(sql);
+    }
+
+    @Override
     public void updateSeccionGrupoHora(Seccion seccion) {
         Octavia octavia = Octavia.update(Seccion.class);
         octavia.set(seccion, "grupoHoras");
@@ -512,6 +523,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     public void updatePrecioBySeccion(Seccion seccion) {
         Octavia octavia = Octavia.update(Seccion.class);
         octavia.set(seccion, "precio");
+        octavia.set(seccion, "precioBase");
         octavia.set(seccion, "userPrecio");
         octavia.set(seccion, "fechaPrecio");
         octavia.set(seccion, "precioPersonalizado");
