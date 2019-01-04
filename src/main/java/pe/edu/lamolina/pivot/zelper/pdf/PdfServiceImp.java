@@ -14,7 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -28,6 +31,8 @@ import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.inscripcion.Ingresante;
+import pe.edu.lamolina.model.inscripcion.ModalidadIngreso;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
@@ -40,6 +45,9 @@ import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
+import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -60,9 +68,6 @@ public class PdfServiceImp implements PdfService {
     DocenteSeccionDAO docenteSeccionDAO;
 
     @Autowired
-    GrupoSeccionDAO grupoSeccionDAO;
-
-    @Autowired
     PlanCalificacionDAO planCalificacionDAO;
 
     @Autowired
@@ -81,6 +86,15 @@ public class PdfServiceImp implements PdfService {
     MatriculaCursoDAO matriculaCursoDAO;
     @Autowired
     ResumenAlumnoEvaluacionDAO resumenAlumnoEvaluacionDAO;
+
+    @Autowired
+    AnexoBoletinDAO anexoBoletinDAO;
+
+    @Autowired
+    GrupoSeccionDAO grupoSeccionDAO;
+
+    @Autowired
+    SeccionDAO seccionDAO;
 
     @Override
     public List<String> reporteDeActaDeNotas(Long idGrupoSeccion, DataSessionPivot ds) {
@@ -191,4 +205,49 @@ public class PdfServiceImp implements PdfService {
         return mapNotas;
     }
 
+    
+    @Override
+    public List<String> reporteProgramacion(CicloAcademico ciclo) {
+        ObjectUtil.printAttr(ciclo);
+        List<String> pdfs = new ArrayList<>();
+        //buscar boletin anexo superiores ordenados por orden
+        List<AnexoBoletin> listaAB = anexoBoletinDAO.allAnexosSuperioresOrderedbyOrden();
+        //para cada boletin encontrado buscar los boletines inferiores ordenados por orden
+        for (AnexoBoletin ab : listaAB) {
+            List<AnexoBoletin> subListaAB = anexoBoletinDAO.allBySuperior(ab);
+            for (AnexoBoletin subAB : subListaAB) {
+//                ObjectUtil.printAttr(subAB);
+                List<GrupoSeccion> grupoSeccList = grupoSeccionDAO.allOrdenadoByCicloAndAnexoBoletin(ciclo, subAB);
+
+                for (GrupoSeccion gs : grupoSeccList) {
+                    List<Seccion> seccionList = seccionDAO.allByGposSeccionOrderedByCodigo2(gs);
+                    gs.setSecciones(seccionList);
+//                    logger.debug("secciones: {}",seccionList.size());
+                }
+                subAB.setGruposSecciones(grupoSeccList);
+            }
+            ab.setAnexosBoletinHijos(subListaAB);
+        }
+        String pdf = createPdfReporteProgramacion(listaAB);
+        pdfs.add(pdf);
+
+        return pdfs;
+    }
+
+    
+    public String createPdfReporteProgramacion(List<AnexoBoletin> listAB) {
+
+        Context ctx = new Context();
+        ctx.setVariable("listAB", listAB);
+
+        //   ctx.setVariable("page", (index + 1));
+        PdfContent pdfContent = new PdfContent();
+        pdfContent.setTipoPdfEnum(TipoPdfEnum.PROGRAMACION_HORARIOS);
+        pdfContent.setContext(ctx);
+//        String nombre = modalidad.getNombre().replace(' ', '_').replace('-', '_');
+//        String subFolder = nombre + "_" + index;
+//        String filePdf = pdfGenerator.generateDocument(pdfContent, subFolder);
+        String filePdf = pdfGenerator.generateDocument(pdfContent);
+        return filePdf;
+    }
 }

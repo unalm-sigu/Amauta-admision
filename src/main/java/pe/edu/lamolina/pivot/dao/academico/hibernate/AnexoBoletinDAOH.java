@@ -112,6 +112,16 @@ public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements A
     }
 
     @Override
+    public List<AnexoBoletin> allAnexosSuperioresOrderedbyOrden() {
+        Octavia sql = Octavia.query()
+                .from(AnexoBoletin.class, "ab")
+                .leftJoin("departamentoAcademico da", "carrera ca", "anexoSuperior abs")
+                .isNull("abs.id")
+                .orderBy("ab.orden");
+        return all(sql);
+    }
+
+    @Override
     public List<AnexoBoletin> allAnexosHijos() {
         Octavia sql = Octavia.query()
                 .from(AnexoBoletin.class, "ab")

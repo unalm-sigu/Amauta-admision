@@ -17,6 +17,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -31,6 +32,7 @@ import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.ABI;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.acta.ActaResumen;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
@@ -596,6 +598,22 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .join("ab.anexoSuperior asu")
                 .filter("ca.id", ciclo)
                 .orderBy("asu.orden", "ab.orden", "cur.nombre");
+
+        return all(sql);
+
+    }
+
+    @Override
+    public List<GrupoSeccion> allOrdenadoByCicloAndAnexoBoletin(CicloAcademico ciclo, AnexoBoletin anexoBol) {
+
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("curso cur", "cicloAcademico ca", "anexoBoletin ab")
+                .join("ab.anexoSuperior asu")
+                .filter("ca.id", ciclo)
+                .filter("ab.id", anexoBol)
+                .filter("gs.estado", SeccionEstadoEnum.ACT)
+                .orderBy("gs.codigo2");
 
         return all(sql);
 
