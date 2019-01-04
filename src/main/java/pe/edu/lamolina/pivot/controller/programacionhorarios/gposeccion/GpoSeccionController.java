@@ -216,7 +216,7 @@ public class GpoSeccionController {
         }
 
         GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId);
-        ObjectNode gpoSeccionJson = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax,ds);
+        ObjectNode gpoSeccionJson = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax, ds);
         String ruta = getOrigen(origen);
         Persona persona = ds.getPersona();
         List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(persona);
@@ -251,7 +251,7 @@ public class GpoSeccionController {
             }
 
             GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId);
-            ObjectNode nodeGpoSecc = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax,ds);
+            ObjectNode nodeGpoSecc = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax, ds);
 
             ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
             data.set("grupoSeccion", nodeGpoSecc);
@@ -2285,7 +2285,7 @@ public class GpoSeccionController {
         }
     }
 
-    private ObjectNode createGpoSeccionJson(GrupoSeccion gpoSeccion, String fechaMin, String fechaMax,DataSessionPivot ds) {
+    private ObjectNode createGpoSeccionJson(GrupoSeccion gpoSeccion, String fechaMin, String fechaMax, DataSessionPivot ds) {
         ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
             "id", "estado", "estadoEnum", "codigo2", "cursoDirigido",
             "curso.id",
@@ -2302,8 +2302,8 @@ public class GpoSeccionController {
             "anexoBoletin.anexoSuperior.codigo",
             "anexoBoletin.anexoSuperior.nombre"
         });
-        
-        CursoCicloAcademico cca=service.findCursoCicloAcademico(gpoSeccion.getCurso(),ds.getCicloAcademico());
+
+        CursoCicloAcademico cca = service.findCursoCicloAcademico(gpoSeccion.getCurso(), ds.getCicloAcademico());
 
         ArrayNode arraySecciones = new ArrayNode(JsonNodeFactory.instance);
         List<Seccion> secciones = gpoSeccion.getSecciones();
