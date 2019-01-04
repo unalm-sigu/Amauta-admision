@@ -75,6 +75,7 @@ import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.finanzas.PagoHoraDocente;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Dia;
@@ -111,6 +112,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.AmpliacionVacantesDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
+import pe.edu.lamolina.pivot.dao.finanza.PagoHoraDocenteDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -210,6 +212,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     PrecioCursoEstructuraDAO precioCursoEstructuraDAO;
+
+    @Autowired
+    PagoHoraDocenteDAO pagoHoraDocenteDAO;
 
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
@@ -2440,5 +2445,39 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public CursoCicloAcademico findCursoCicloAcademico(Curso curso, CicloAcademico cicloAcademico) {
         return cursoCicloAcademicoDAO.findByCursoCiclo(curso, cicloAcademico);
+    }
+
+    @Override
+    @Transactional
+    public void generarpagodocente(DocenteSeccion docenteSeccion, DataSessionPivot ds) {
+        logger.debug(" **** update docenteSeccion {} ", docenteSeccion.getId());
+        DocenteSeccion docenteSeccionDb = docenteSeccionDAO.find(docenteSeccion.getId());
+        Seccion seccion = docenteSeccionDb.getSeccion();
+        Integer matriculados = seccion.getMatriculados();
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        logger.debug(" ****  seccion {} ", seccion.getId());
+        logger.debug(" ****  matriculados {} ", matriculados);
+        logger.debug(" ****  cicloAcademico {} ", cicloAcademico.getId());
+        PagoHoraDocente pagoHoraDocente = pagoHoraDocenteDAO.findByCicloMatriculados(cicloAcademico, matriculados);
+        logger.debug(" ****  pagoHoraDocente not null {} ", pagoHoraDocente!=null);
+        if (pagoHoraDocente != null) {
+            Integer horasSemanales = seccion.getHorasSemanales();
+            BigDecimal porcentaje = docenteSeccionDb.getPorcentajeCarga();
+            if (porcentaje == null) {
+                porcentaje = new BigDecimal("100");
+            }
+            logger.debug(" ****  porcentaje carga {} ", porcentaje);
+            BigDecimal factor = new BigDecimal("0.01");
+            BigDecimal pago = pagoHoraDocente.getMontoHora();
+            BigDecimal horasSemanalesDecimal = new BigDecimal(horasSemanales);
+            BigDecimal matriculadosDecimal = new BigDecimal(matriculados);
+
+            BigDecimal montoPagar = factor.multiply(pago)
+                    .multiply(horasSemanalesDecimal)
+                    .multiply(matriculadosDecimal);
+            logger.debug("docenteSeccion {} monto generador a pagar es {}", docenteSeccion.getId(), montoPagar);
+            docenteSeccionDb.setPagoVerano(montoPagar);
+            docenteSeccionDAO.update(docenteSeccionDb);
+        }
     }
 }

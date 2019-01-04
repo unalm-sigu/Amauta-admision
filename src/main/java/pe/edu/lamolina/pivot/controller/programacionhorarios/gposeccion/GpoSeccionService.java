@@ -199,4 +199,6 @@ public interface GpoSeccionService {
 
     CursoCicloAcademico findCursoCicloAcademico(Curso curso, CicloAcademico cicloAcademico);
 
+    void generarpagodocente(DocenteSeccion docenteSeccion, DataSessionPivot ds);
+
 }
