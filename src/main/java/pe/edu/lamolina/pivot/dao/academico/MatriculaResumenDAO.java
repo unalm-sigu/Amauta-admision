@@ -56,4 +56,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     public void savePreGradoVerano(List<String> situacionesPregrado, CicloAcademico cicloAcademicoAnterior, CicloAcademico cicloAcademico);
 
+    List<MatriculaResumen> allByCicloFull(CicloAcademico ciclo);
+
 }
