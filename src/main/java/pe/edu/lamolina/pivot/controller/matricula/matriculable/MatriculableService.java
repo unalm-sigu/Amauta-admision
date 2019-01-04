@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -49,5 +50,7 @@ public interface MatriculableService {
     public void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     public void asignarPprioridad(Alumno alumno, CicloAcademico cicloActivo);
+
+    public void inhabilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
 }

@@ -295,7 +295,8 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("notaAcumulada,");
         strb.append("notaAvance,");
         strb.append("notaFinal,");
-        strb.append("estado");
+        strb.append("estado, ");
+        strb.append("creditosTrikaPagados ");
         strb.append(")");
         strb.append("select ");
         strb.append("alum,");
@@ -309,7 +310,8 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("'0', ");
         strb.append("'0', ");
         strb.append("'0', ");
-        strb.append("'NMAT' ");
+        strb.append("'NMAT', ");
+        strb.append("0, ");
         strb.append("from Alumno alum ");
         strb.append("inner join alum.modalidadEstudio me ");
         strb.append("inner join alum.situacionAcademica sit, ");
@@ -341,7 +343,8 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("notaAcumulada,");
         strb.append("notaAvance,");
         strb.append("notaFinal,");
-        strb.append("estado");
+        strb.append("estado, ");
+        strb.append("creditosTrikaPagados ");
         strb.append(")");
         strb.append("select ");
         strb.append("alum,");
@@ -355,7 +358,8 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("'0', ");
         strb.append("'0', ");
         strb.append("'0', ");
-        strb.append("'NMAT' ");
+        strb.append("'NMAT', ");
+        strb.append("0 ");
         strb.append("from Alumno alum ");
         strb.append("inner join alum.modalidadEstudio me ");
         strb.append("inner join alum.situacionAcademica sit, ");
@@ -425,7 +429,8 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("notaAcumulada,");
         strb.append("notaAvance,");
         strb.append("notaFinal,");
-        strb.append("estado");
+        strb.append("estado, ");
+        strb.append("creditosTrikaPagados ");
         strb.append(")");
         strb.append("select ");
         strb.append("alum,");
@@ -439,18 +444,19 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("'0', ");
         strb.append("'0', ");
         strb.append("'0', ");
-        strb.append("'NMAT' ");
+        strb.append("'NMAT', ");
+        strb.append("0 ");
         strb.append("from MatriculaResumen mat ");
         strb.append("inner join mat.alumno alum ");
+        strb.append("inner join alum.cicloActivoRegular car ");
         strb.append("inner join alum.modalidadEstudio me ");
         strb.append("inner join alum.situacionAcademica sit ");
         strb.append("inner join mat.cicloAcademico cic ");
         strb.append("where sit.codigo in ( :codigos ) and me.codigo = 'EPG'");
-        strb.append("and cic.id = :cicloAnterior ");
+        strb.append("and cic.id = car.id ");
         strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");
 
         Query query = getCurrentSession().createQuery(strb.toString());
-        query.setParameter("cicloAnterior", cicloAcademicoAnterior.getId());
         query.setParameter("cicloActual", academico);
         query.setParameterList("codigos", situaciones);
         query.executeUpdate();
@@ -463,6 +469,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("MatriculaResumen ");
         strb.append("(");
         strb.append("alumno,");
+        strb.append("creditosTrikaPagados,");
         strb.append("cicloAcademico,");
         strb.append("situacionInicio,");
         strb.append("creditosRetirados,");
@@ -477,6 +484,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append(")");
         strb.append("select ");
         strb.append("alum,");
+        strb.append("0,");
         strb.append(":cicloActual, ");
         strb.append("sit, ");
         strb.append("0, ");
@@ -490,15 +498,15 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("'NMAT' ");
         strb.append("from MatriculaResumen mat ");
         strb.append("inner join mat.alumno alum ");
+        strb.append("inner join alum.cicloActivoRegular car ");
         strb.append("inner join alum.modalidadEstudio me ");
         strb.append("inner join alum.situacionAcademica sit ");
         strb.append("inner join mat.cicloAcademico cic ");
         strb.append("where sit.codigo in ( :codigos ) and me.codigo = 'PRE'");
-        strb.append("and cic.id = :cicloAnterior ");
+        strb.append("and cic.id = car.id ");
         strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");
 
         Query query = getCurrentSession().createQuery(strb.toString());
-        query.setParameter("cicloAnterior", cicloAcademicoAnterior.getId());
         query.setParameter("cicloActual", academico);
         query.setParameterList("codigos", situacionesPregrado);
         query.executeUpdate();

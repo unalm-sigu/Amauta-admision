@@ -44,6 +44,7 @@ import static pe.edu.lamolina.model.enums.RolEnum.FAC;
 import static pe.edu.lamolina.model.enums.RolEnum.MOD;
 import static pe.edu.lamolina.model.enums.RolEnum.TODO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -134,7 +135,7 @@ public class MatriculableController {
             for (MatriculaResumen matriculable : matriculables) {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados",
+                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados","motivoMatriculable",
                             "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",
                             "alumno.id", "alumno.persona.apellidosNombres", "alumno.carrera.id", "alumno.carrera.codigo",
@@ -464,4 +465,24 @@ public class MatriculableController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("inhabilitar")
+    public JsonResponse inhabilitar(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.inhabilitarMatriculable(matriculaResumen, ds);
+            response.setMessage("Se registró el aporte satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
 }

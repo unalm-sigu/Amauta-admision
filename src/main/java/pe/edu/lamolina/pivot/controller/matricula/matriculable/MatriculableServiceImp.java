@@ -60,6 +60,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
+import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -471,26 +472,14 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     @Transactional
-    public void saveMatriculable(Alumno alumno, DataSessionPivot ds) {
-        Alumno alum = alumnoDAO.find(alumno);
+    public void saveMatriculable(Alumno alumnoForm, DataSessionPivot ds) {
+        MatriculaResumen matri = new MatriculaResumen();
+
+        Alumno alum = alumnoDAO.find(alumnoForm);
         SituacionAcademica sit = alum.getSituacionAcademica();
         ModalidadEstudio modalidad = alum.getModalidadEstudio();
         List<SituacionAcademicaEnum> sitEnum = Arrays.asList(S_8, S_9);
-        Assert.isFalse(sitEnum.contains(sit.getCodigo()), "El alumno tiene una situación " + sit.getCodigoEnum().getNombre() + ". No se puede realizar su prioridad.");
-
         List<ModalidadEstudioEnum> modEnum = Arrays.asList(EPG, ESP);
-        Assert.isFalse(modEnum.contains(modalidad.getCodigo()), "El alumno está en la modalidad " + modalidad.getCodigoEnum().name() + ". No se puede realizar su prioridad.");
-
-        Assert.isNotNull(alum.getCicloActivoRegular(), "El alumno no cuenta con un ciclo activo regular.");
-
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alum.getCicloActivoRegular(), alumno);
-        Assert.isNotNull(alumnoCiclo, "El alumno no cuenta con historial de ciclos");
-        MatriculaResumen matri = new MatriculaResumen();
-
-        matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
-
-        MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ds.getCicloAcademico(), alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
-        MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matri, ds.getCicloAcademico(), alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
 
         matri.setAlumno(alum);
         matri.setCicloAcademico(ds.getCicloAcademico());
@@ -500,25 +489,37 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setCreditosRetirados(0);
         matri.setCursosMatriculados(0);
         matri.setCursosRetirados(0);
+        matri.setCreditosTrikaPagados(0);
         matri.setPorcentajeAvance(0);
         matri.setNotaAcumulada("0");
         matri.setNotaAvance("0");
         matri.setNotaFinal("0");
         matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+        matri.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
 
-        BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
-        matri.setPrioridad(prioridad);
+        if (!sitEnum.contains(sit.getCodigo()) && !modEnum.contains(modalidad.getCodigo()) && ds.getCicloAcademico().getFechaPrioridades() != null) {
+            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alum.getCicloActivoRegular(), alumnoForm);
+            matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
 
-        TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
-        BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
-        Integer cantAlum = turnosAtencion.getAlumnos() + 1;
-        turnosAtencion.setAlumnos(cantAlum);
-        turnosAtencion.setPrioridadFin(numPrioridad);
-        turnoAtencionDAO.update(turnosAtencion);
-        
-        configuracionMatriculaService.updateTurnos(turnosAtencion.getId(), cantAlum.toString());
+            MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ds.getCicloAcademico(), alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+            MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matri, ds.getCicloAcademico(), alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+            if (matriculaAnt != null && matriculaDes != null) {
 
-        matri.setTurnoAtencion(turnosAtencion);
+                BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
+                matri.setPrioridad(prioridad);
+
+                TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
+                BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
+                Integer cantAlum = turnosAtencion.getAlumnos() + 1;
+                turnosAtencion.setAlumnos(cantAlum);
+                turnosAtencion.setPrioridadFin(numPrioridad);
+                turnoAtencionDAO.update(turnosAtencion);
+
+                configuracionMatriculaService.updateTurnos(turnosAtencion.getId(), cantAlum.toString());
+
+                matri.setTurnoAtencion(turnosAtencion);
+            }
+        }
         matriculaResumenDAO.save(matri);
     }
 
@@ -575,6 +576,15 @@ public class MatriculableServiceImp implements MatriculableService {
 
             matriculaResumen.setTurnoAtencion(turnosAtencion);
         }
+        matriculaResumenDAO.update(matriculaResumen);
+    }
+
+    @Override
+    @Transactional
+    public void inhabilitarMatriculable(MatriculaResumen matriculaResumenForm, DataSessionPivot ds) {
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.find(matriculaResumenForm.getId());
+        matriculaResumen.setEstadoEnum(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.NMAT ? EstadoMatriculaEnum.INH : EstadoMatriculaEnum.NMAT);
+        matriculaResumen.setMotivoMatriculable(matriculaResumenForm.getMotivoMatriculable());
         matriculaResumenDAO.update(matriculaResumen);
     }
 }
