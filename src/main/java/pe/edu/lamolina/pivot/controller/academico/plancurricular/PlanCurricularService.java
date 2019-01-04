@@ -127,4 +127,6 @@ public interface PlanCurricularService {
 
     List<Carrera> filtrarByPlanes(List<Carrera> carreras);
 
+    void verificarAsignacion(Carrera carrera);
+
 }

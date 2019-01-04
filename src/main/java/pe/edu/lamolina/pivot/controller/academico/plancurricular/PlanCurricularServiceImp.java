@@ -12,12 +12,14 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -75,7 +77,6 @@ import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -143,6 +144,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Autowired
     AvanceCurricularAsincronoService avanceCurricularAsincronoService;
+
+    @Autowired
+    VisorAsignaCurricula visorAsignaCurricula;
 
     @Override
     public List<Carrera> allCarreras(List<Carrera> carreras) {
@@ -1137,6 +1141,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     }
 
+    @Async
     @Override
     public void asignacionMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds) {
 
@@ -1160,6 +1165,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planesCurricular);
 
         List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
+        visorAsignaCurricula.putTope(carrera, alumnos.size());
 
         List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
 
@@ -1185,11 +1191,13 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
             String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
             if (codigoCicloPlan == null) {
+                visorAsignaCurricula.incrementar(carrera);
                 logger.debug("no se encontro ciclo-plan para este ciclo {}", codigoCicloAlumno);
                 continue;
             }
             PlanCurricular planBD = mapPlanesByCiclo.get(codigoCicloPlan);
             if (planBD == null) {
+                visorAsignaCurricula.incrementar(carrera);
                 logger.debug("no se encontro plan para este ciclo {}", codigoCicloPlan);
                 continue;
             }
@@ -1201,6 +1209,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             logger.debug("Cantidad de Cursos: {}", mapCursoCurricula.size());
             avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
             avanceCurricularAsincronoService.procesarAlumno(alumno, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, ds);
+            visorAsignaCurricula.incrementar(carrera);
 
         }
 
@@ -1312,6 +1321,14 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             }
         }
         return carreras;
+    }
+
+    @Override
+    public void verificarAsignacion(Carrera carrera) {
+        Carrera carr = carreraDAO.find(carrera.getId());
+        if (!visorAsignaCurricula.addCarrera(carr)) {
+            throw new PhobosException("Ya existe un proceso de asignación masiva de planes para esta carrera");
+        }
     }
 
 }
