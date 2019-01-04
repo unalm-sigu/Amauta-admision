@@ -665,23 +665,23 @@ public class AbonoServiceImp implements AbonoService {
             String codigo = getCodigoPago(item.getDescripcion());
 
             if (StringUtils.isNumeric(codigo)) {
-                postulante = postulanteDAO.findByDNICiclo(codigo, ciclo);
+//                postulante = postulanteDAO.findByDNICiclo(codigo, ciclo);
             } else {
                 TipoDocIdentidad tipoDoc = getTipoDoc(codigo, mapTipoDNI);
                 String nroDoc = codigo.substring(1);
                 if (tipoDoc != null) {
-                    postulante = postulanteDAO.findByDocIdentidadCiclo(tipoDoc, nroDoc, ciclo);
+//                    postulante = postulanteDAO.findByDocIdentidadCiclo(tipoDoc, nroDoc, ciclo);
                 } else {
-                    postulante = postulanteDAO.findByDNICiclo(codigo, ciclo);
+//                    postulante = postulanteDAO.findByDNICiclo(codigo, ciclo);
                 }
             }
 
             if (postulante == null) {
-                postulante = postulanteDAO.findByCodigoCiclo(codigo, ciclo);
+//                postulante = postulanteDAO.findByCodigoCiclo(codigo, ciclo);
             }
 
             if (postulante == null) {
-                postulante = postulanteDAO.findByCodigoCiclo(AdmisionConstantine.CODE_POSTULANTE_DUMMY, ciclo);
+//                postulante = postulanteDAO.findByCodigoCiclo(AdmisionConstantine.CODE_POSTULANTE_DUMMY, ciclo);
             }
 
             item.setPostulante(postulante);
@@ -929,7 +929,7 @@ public class AbonoServiceImp implements AbonoService {
     @Override
     @Transactional
     public void asignarPostulante(ItemCargaAbono itemForm, CicloPostula ciclo, DataSessionPivot ds) {
-        Postulante postulanteNew = postulanteDAO.findSinModalidad(itemForm.getPostulante().getId());
+        Postulante postulanteNew = null;//postulanteDAO.findSinModalidad(itemForm.getPostulante().getId());
         ItemCargaAbono itemBD = itemCargaAbonoDAO.find(itemForm.getId());
         Postulante postulanteOld = itemBD.getPostulante();
         itemBD.setPostulante(postulanteNew);
