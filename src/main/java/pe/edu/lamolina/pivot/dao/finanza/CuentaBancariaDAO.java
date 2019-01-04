@@ -8,4 +8,3 @@ public interface CuentaBancariaDAO extends EasyDAO<CuentaBancaria> {
     CuentaBancaria findByNumero(String numero);
 
 }
-

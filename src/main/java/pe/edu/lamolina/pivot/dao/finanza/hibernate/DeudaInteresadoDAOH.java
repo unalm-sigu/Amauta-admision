@@ -8,14 +8,13 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.constantines.AdmisionConstantine;
-import pe.edu.lamolina.pivot.dao.finanza.DeudaInteresadoDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
-import static pe.edu.lamolina.model.enums.PostulanteEstadoEnum.PRE;
 import pe.edu.lamolina.model.finanzas.DeudaInteresado;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
 import pe.edu.lamolina.model.inscripcion.Interesado;
 import pe.edu.lamolina.model.inscripcion.ModalidadIngreso;
 import pe.edu.lamolina.model.inscripcion.Postulante;
+import pe.edu.lamolina.pivot.dao.finanza.DeudaInteresadoDAO;
 
 @Repository
 public class DeudaInteresadoDAOH extends AbstractEasyDAO<DeudaInteresado> implements DeudaInteresadoDAO {
@@ -126,8 +125,6 @@ public class DeudaInteresadoDAOH extends AbstractEasyDAO<DeudaInteresado> implem
         return all(sql);
     }
 
- 
-
     @Override
     public List<LinkedHashMap> deudaInteresadoPagadosByCiclo(CicloPostula ciclo) {
         StringBuilder sql = new StringBuilder();
@@ -160,4 +157,3 @@ public class DeudaInteresadoDAOH extends AbstractEasyDAO<DeudaInteresado> implem
     }
 
 }
-

@@ -1,10 +1,10 @@
 package pe.edu.lamolina.pivot.dao.inscripcion.hibernate;
 
-import pe.edu.lamolina.pivot.dao.inscripcion.EventoDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.inscripcion.Evento;
+import pe.edu.lamolina.pivot.dao.inscripcion.EventoDAO;
 
 @Repository
 public class EventoDAOH extends AbstractEasyDAO<Evento> implements EventoDAO {
@@ -22,4 +22,3 @@ public class EventoDAOH extends AbstractEasyDAO<Evento> implements EventoDAO {
         return (Evento) sqlUtil.find(getCurrentSession());
     }
 }
-

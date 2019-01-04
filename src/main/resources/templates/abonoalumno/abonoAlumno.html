@@ -1,0 +1,106 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Inscripción de Postulantes</title>
+
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <header class="page-header">
+                <div class="dropdown pull-right" >
+                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-cloud-download"/> Cargar pagos <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <!--<li><a th:href="@{'/facturacion/abono/loadArchivoDiario'}" >Diario</a></li>-->
+                        <li><a th:href="@{'/facturacion/abono/loadArchivoHistorico'}" >Historico</a></li>
+                    </ul>
+                </div>
+                <h2>
+                    Depósitos Bancarios <span th:text="${cicloAcademico.descripcion}">2020-09</span>
+                </h2>
+            </header>
+
+            <section class="panel" id="abonoVUE">
+                <section class="panel-body">
+                    <raptor-table v-bind:url="abonosURL" ref="load">
+                        <div slot="header"></div>
+
+                        <template scope="props" >
+                            <table class="table table-striped table-hover">
+                                <thead> 
+                                    <tr>
+                                        <th class="col-md-3 text-center"></th>
+                                        <th class="col-md-1 text-center">Fecha</th>
+                                        <th class="col-md-1 text-center">Importe</th>
+                                        <th class="col-md-1 text-center">Operación</th>
+                                        <th class="col-md-3 text-center">Descripción</th>
+                                        <th class="col-md-2 text-center">Usuario / Sucursal</th>
+                                        <th class="col-md-1 text-center">Estado</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in props.data">
+                                        <td class="v-middle">
+                                            <span class="block text-primary bold">{{item.postulante.persona.nombreCompleto}}</span>
+                                            <span class="block">{{item.codigo}}</span>
+                                            <span class="block">{{item.modalidad}}</span>
+                                            <strong class="block">{{item.ciclo}}</strong>
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            {{item.fechaAbono}}
+                                        </td>
+                                        <td class="text-center v-middle">
+                                            {{item.importe}}
+                                        </td>
+                                        <td class="text-center v-middle">
+                                            {{item.numeroOperacion}}
+                                        </td>
+                                        <td class="v-middle"> 
+                                            <span class="block"><strong>Cta banco:</strong> <small>{{item.cuentaBancaria.nombre}}</small></span>
+                                            <span class="block"><strong>Nº cta:</strong> {{item.cuentaBancaria.numero}}</span>
+                                            <span class="block bold">{{item.descripcion}}</span>
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            <span class="block"><span class="bold">Usuario:</span> {{item.userBanco}}</span>
+                                            <span class="block"><span class="bold">Sucursal:</span> {{item.sucursal}}</span>
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            <span v-bind:class="item.extornado == 1 ? 'label label-danger' : 'label label-primary'">
+                                                {{item.extornado == 1 ? 'Extornado' : 'Correcto'}}</span>
+                                        </td>
+                                        <td class="v-middle">
+                                            <div class="actions">
+                                                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                                <ul class="dropdown-menu pull-right">
+                                                    <li v-if="item.extornado == 0 &amp;&amp; item.postulante.codigo == '00000000'">
+                                                        <a class="pointer" v-on:click="asignarPostulante(item)">Asignar postulante</a>
+                                                    </li>
+                                                    <li v-if="item.descripcion == 'EXTORNO'">
+                                                        <a class="pointer" v-on:click="verReasignarExtorno(item)">Reasignar Extorno</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </template>
+                    </raptor-table>
+                </section>
+                <div th:substituteby="abonoalumno/abonoModals"></div>
+            </section>
+            <div th:substituteby="_modules/vue-modal"></div>
+            <!--<div th:substituteby="templates/modal"/>-->
+            <!--<div th:substituteby="facturacion/abono/modalsAbono"/>-->
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/abonoalumno/abonoAlumno.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

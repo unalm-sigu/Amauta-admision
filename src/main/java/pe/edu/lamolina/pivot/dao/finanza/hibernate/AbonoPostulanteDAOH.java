@@ -1,13 +1,13 @@
 package pe.edu.lamolina.pivot.dao.finanza.hibernate;
 
 import java.util.List;
-import pe.edu.lamolina.pivot.dao.finanza.AbonoPostulanteDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.finanzas.AbonoPostulante;
 import pe.edu.lamolina.model.finanzas.ItemCargaAbono;
 import pe.edu.lamolina.model.inscripcion.Postulante;
+import pe.edu.lamolina.pivot.dao.finanza.AbonoPostulanteDAO;
 
 @Repository
 public class AbonoPostulanteDAOH extends AbstractEasyDAO<AbonoPostulante> implements AbonoPostulanteDAO {
@@ -47,4 +47,3 @@ public class AbonoPostulanteDAOH extends AbstractEasyDAO<AbonoPostulante> implem
         return find(sql);
     }
 }
-

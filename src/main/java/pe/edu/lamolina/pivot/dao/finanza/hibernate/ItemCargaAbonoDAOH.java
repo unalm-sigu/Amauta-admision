@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.dao.finanza.hibernate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import pe.edu.lamolina.pivot.dao.finanza.ItemCargaAbonoDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -13,6 +12,7 @@ import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.finanzas.ItemCargaAbono;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
 import pe.edu.lamolina.model.inscripcion.Postulante;
+import pe.edu.lamolina.pivot.dao.finanza.ItemCargaAbonoDAO;
 
 @Repository
 public class ItemCargaAbonoDAOH extends AbstractEasyDAO<ItemCargaAbono> implements ItemCargaAbonoDAO {
@@ -223,6 +223,4 @@ public class ItemCargaAbonoDAOH extends AbstractEasyDAO<ItemCargaAbono> implemen
         return find(sql);
     }
 
-
 }
-

@@ -1,0 +1,116 @@
+<html layout:decorator="_layout/layout3">
+    <head>
+        <title>Inscripción de Postulantes</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <header class="page-header">
+            </header>
+            <section class="panel" id="loadArchivoVUE">
+                <section class="panel-body">
+
+                    <div class="row">
+                        <div class="col-md-6 col-md-offset-3">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Carga de depósitos con archivos históricos</h3>
+                                </div>
+
+                                <div class="panel-body">
+                                    <form id="formLoadFiles" enctype="multipart/form-data" method="POST" th:action="@{/facturacion/abono/uploadArchivoHistorico}">
+                                        <div class="row m-b-md">
+                                            <div class="col-md-3 bold">Paso 1:</div>
+                                            <div class="col-md-9">
+                                                <span class="block underline">Descargar archivo de movimiento históricos </span>
+                                                <span class="block">Desde la página web del BCP bajar en formato EXCEL los movimientos históricos de una fecha.</span>
+                                            </div>
+                                        </div>
+                                        <div class="row m-b-md">
+                                            <div class="col-md-3 bold">Paso 2:</div>
+                                            <div class="col-md-9"> 
+                                                <span class="block underline">Cargar Pagos (archivo .xls) </span>
+                                                <span class="block">Seleccionar el archivo descargado y presione el botón <strong>Iniciar Carga</strong>.</span>
+
+                                                <div class="form-group">
+                                                    <br/>
+                                                    <file-upload
+                                                        name="file"
+                                                        class="btn btn-default"
+                                                        post-action="/abonoalumno/uploadArchivoHistorico"
+                                                        extensions="xls"
+                                                        accept=".xls"
+                                                        v-model="files"
+                                                        v-on:input-filter="inputFilter"
+                                                        v-on:input-file="inputFile"
+                                                        ref="upload">
+                                                        Seleccionar archivo
+                                                    </file-upload>
+                                                    <span v-if="files.length == 0">Ningún archivo seleccionado</span>
+                                                    <span v-for="(file, index) in files" v-bind:key="file.id">
+                                                        <span>{{file.name}}</span> -
+                                                        <span>{{file.size | formatSize}}</span> 
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="progress" id="progress">
+                                            <div class="progress-bar progress-bar-striped progress-bar-success active">{{progress}}%</div>
+                                        </div>
+                                        <div class="panel-body m-b-md" v-bind:class="clase" id="mensajeRespuesta">{{mensaje}}</div>
+                                        <span id="footerLoadAbonos" class="col-md-12 text-center">
+                                            <a class="btn btn-link" th:href="@{'/abonoalumno'}">Regresar</a>
+                                            <button type="button" class="btn btn-primary" v-if="!$refs.upload || !$refs.upload.active" v-on:click.prevent="startUpload">
+                                                {{btnText}}
+                                            </button>
+                                            <button type="button" class="btn btn-danger"  v-else="" v-on:click.prevent="stopUpload">
+                                                <i class="fa fa-stop" aria-hidden="true"></i>
+                                                Detener Carga
+                                            </button>
+                                        </span>
+                                    </form>
+                                </div>
+
+                            </div>
+                            <br/>
+
+                            <div id="pandelObservados" class="panel panel-success" v-if="datos.length > 0">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Registros observados</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div id="observados"> 
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Operacion</th><th>Descripcion</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item in datos">
+                                                    <td>{{item.operacion}}</td>
+                                                    <td>{{item.descripcion}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </section>
+
+
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
+
+            <script th:src="@{/app/abonoalumno/loadArchivoHistorico.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

@@ -15,4 +15,3 @@ public interface AbonoPostulanteDAO extends EasyDAO<AbonoPostulante> {
     AbonoPostulante findByPostulante(Postulante postulatenBD);
 
 }
-

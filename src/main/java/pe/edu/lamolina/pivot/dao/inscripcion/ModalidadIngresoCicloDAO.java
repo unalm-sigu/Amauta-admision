@@ -24,4 +24,3 @@ public interface ModalidadIngresoCicloDAO extends EasyDAO<ModalidadIngresoCiclo>
     List<ModalidadIngresoCiclo> allByModalidadesCiclo(List<ModalidadIngreso> modalidades, List<CicloPostula> ciclosPostula);
 
 }
-

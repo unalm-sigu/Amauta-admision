@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.dao.finanza.hibernate;
 
 import java.util.Date;
-import pe.edu.lamolina.pivot.dao.finanza.CargaAbonosDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -9,6 +8,7 @@ import pe.edu.lamolina.model.enums.TipoArchivoEnum;
 import pe.edu.lamolina.model.finanzas.CargaAbonos;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
+import pe.edu.lamolina.pivot.dao.finanza.CargaAbonosDAO;
 
 @Repository
 public class CargaAbonosDAOH extends AbstractEasyDAO<CargaAbonos> implements CargaAbonosDAO {
@@ -45,4 +45,3 @@ public class CargaAbonosDAOH extends AbstractEasyDAO<CargaAbonos> implements Car
     }
 
 }
-

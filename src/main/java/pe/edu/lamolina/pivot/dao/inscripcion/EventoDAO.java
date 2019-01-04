@@ -8,4 +8,3 @@ public interface EventoDAO extends EasyDAO<Evento> {
     Evento findByCode(String exam);
 
 }
-
