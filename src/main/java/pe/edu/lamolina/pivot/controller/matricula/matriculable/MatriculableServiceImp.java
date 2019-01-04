@@ -38,6 +38,7 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.Egresado;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
@@ -294,7 +295,7 @@ public class MatriculableServiceImp implements MatriculableService {
             String extension = FilenameUtils.getExtension(rutaFile);
 
             if (!extension.equals("xlsx")) {
-                throw new PhobosException("El archivo debe tener la extensión .xlsx");
+                throw new PhobosException("El archivo debe tener la extensiÃ³n .xlsx");
             }
 
             Workbook myWorkBook = new XSSFWorkbook(fis);
@@ -542,29 +543,26 @@ public class MatriculableServiceImp implements MatriculableService {
         cicloAcademicoDAO.updateFechaMatriculables(cicloAcademicoUpd);
     }
 
-    @Async
-    @Override
-    @Transactional
-    public void asignarPprioridad(Alumno alumno, CicloAcademico cicloActivo) {
-        Alumno alum = alumnoDAO.find(alumno);
-        SituacionAcademica sit = alum.getSituacionAcademica();
-        ModalidadEstudio modalidad = alum.getModalidadEstudio();
+    private void asignarPprioridad(Alumno alumno, CicloAcademico cicloActivo) {
+        //Alumno alum = alumnoDAO.find(alumno);
+        SituacionAcademica sit = alumno.getSituacionAcademica();
+        ModalidadEstudio modalidad = alumno.getModalidadEstudio();
         List<SituacionAcademicaEnum> sitEnum = Arrays.asList(S_8, S_9);
-        Assert.isFalse(sitEnum.contains(sit.getCodigo()), "El alumno tiene una situación " + sit.getCodigoEnum().getNombre() + ". No se puede realizar su prioridad.");
+        Assert.isFalse(sitEnum.contains(sit.getCodigo()), "El alumno tiene una situaciÃ³n " + sit.getCodigoEnum().getNombre() + ". No se puede realizar su prioridad.");
 
         List<ModalidadEstudioEnum> modEnum = Arrays.asList(EPG, ESP);
-        Assert.isFalse(modEnum.contains(modalidad.getCodigo()), "El alumno está en la modalidad " + modalidad.getCodigoEnum().name() + ". No se puede realizar su prioridad.");
+        Assert.isFalse(modEnum.contains(modalidad.getCodigo()), "El alumno estÃ¡ en la modalidad " + modalidad.getCodigoEnum().name() + ". No se puede realizar su prioridad.");
 
-        Assert.isNotNull(alum.getCicloActivoRegular(), "El alumno no cuenta con un ciclo activo regular.");
+        Assert.isNotNull(alumno.getCicloActivoRegular(), "El alumno no cuenta con un ciclo activo regular.");
 
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alum.getCicloActivoRegular(), alumno);
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumno);
         Assert.isNotNull(alumnoCiclo, "El alumno no cuenta con historial de ciclos");
 
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloActivo);
         matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
 
-        MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matriculaResumen, cicloActivo, alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
-        MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matriculaResumen, cicloActivo, alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+        MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matriculaResumen, cicloActivo, alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+        MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matriculaResumen, cicloActivo, alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
 
         BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
         matriculaResumen.setPrioridad(prioridad);
@@ -586,5 +584,18 @@ public class MatriculableServiceImp implements MatriculableService {
         matriculaResumen.setEstadoEnum(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.NMAT ? EstadoMatriculaEnum.INH : EstadoMatriculaEnum.NMAT);
         matriculaResumen.setMotivoMatriculable(matriculaResumenForm.getMotivoMatriculable());
         matriculaResumenDAO.update(matriculaResumen);
+    }
+
+    @Async
+    @Override
+    @Transactional
+    public void recalcularPrioridad(GrupoSeccion gpoSecc, CicloAcademico ciclo) {
+        List<Alumno> alumnos = alumnoDAO.allByGpoSeccion(gpoSecc);
+        CicloAcademico cicloSgte = cicloAcademicoDAO.findSiguienteConfOrAct(ciclo);
+        if (cicloSgte.getFechaPrioridades() != null) {
+            for (Alumno alumno : alumnos) {
+                asignarPprioridad(alumno, cicloSgte);
+            }
+        }
     }
 }

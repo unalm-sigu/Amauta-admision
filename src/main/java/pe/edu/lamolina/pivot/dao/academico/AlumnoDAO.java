@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
@@ -79,5 +80,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
     public List<Alumno> allByNameSinMatriculaResumen(String nombre, CicloAcademico cicloAcademico);
 
     List<Alumno> allByCarreraCicloMayores(Carrera carrera, String codigoCiclo);
+
+    List<Alumno> allByGpoSeccion(GrupoSeccion gpoSecc);
 
 }

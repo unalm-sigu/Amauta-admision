@@ -1138,7 +1138,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     }
 
     @Override
-    @Transactional
     public void asignacionMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds) {
 
         logger.debug("*********carrera {}", carrera.getId());
@@ -1163,11 +1162,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
 
         List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
-//        List<Integer> codigosCicloInt = new ArrayList();
-//
-//        for (String string : codigoCicloStr) {
-//            codigosCicloInt.add(new Integer(string));
-//        }
 
         Collections.sort(codigosCiclosPlanes);
         Collections.reverse(codigosCiclosPlanes);
@@ -1200,8 +1194,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 continue;
             }
 
-            alumno.setPlanCurricular(planBD);
-            alumnoDAO.update(alumno);
+            avanceCurricularAsincronoService.settingPlanCurricular(alumno, planBD);
 
             this.obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
             logger.debug("Cantidad de alumnos: {}", alumnos.size());

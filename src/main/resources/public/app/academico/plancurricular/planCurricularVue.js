@@ -24,50 +24,50 @@ new Vue({
 
             if ($vue.carrera.id) {
 
-                swal('¿Seguro que desea asignar en forma masiva el plan de estudios?', {
-                    icon: "warning",
-                    closeOnClickOutside: false,
-                    closeOnEsc: false,
-                    dangerMode: true,
+                var mbb = bootbox.confirm({
+                    message: '¿Seguro que desea asignar en forma masiva el plan de estudios?',
                     buttons: {
-                        cancel: {text: "Cancelar", closeModal: true, visible: true},
-                        confirm: {text: "Aceptar", closeModal: false}
-                    }
-                }).then((value) => {
-                    if (value != true) {
-                        return;
-                    }
+                        confirm: {label: 'Si, asignar', className: 'btn-warning btn-modal btn-procesar'},
+                        cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                            $(".btn-modal").prop('disabled', true);
 
-                    $.ajax({
-                        url: APP.url('academico/planCurricular/asignacionmasiva'),
-                        type: 'POST',
-                        async: false,
-                        data: {id: $vue.carrera.id},
-                        success(response) {
-                            if (response.success) {
-                                dynatable.process();
-                                $vue.$refs.modalAsignacionMasiva.close();
-                                return  swal({text: response.message, icon: "success", button: false, timer: 1000});
-                            } else {
-                                return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
-                            }
-                        },
-                        error() {
-                            return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                            $.ajax({
+                                url: APP.url('academico/planCurricular/asignacionmasiva'),
+                                type: 'POST',
+                                data: {id: $vue.carrera.id},
+                                success(response) {
+                                    mbb.modal("hide");
+                                    if (response.success) {
+                                        $vue.$refs.modalAsignacionMasiva.close();
+                                        bootbox.alert(response.message);
+
+                                    } else {
+                                        $(".btn-modal").prop('disabled', false);
+                                        $(".btn-procesar").html('Si, reiniciar');
+                                        bootbox.alert(response.message);
+                                    }
+                                },
+                                error() {
+                                    mbb.modal("hide");
+                                    $(".btn-modal").prop('disabled', false);
+                                    $(".btn-procesar").html('Si, reiniciar');
+                                    bootbox.alert(MESSAGES.errorComunicacion);
+                                }
+                            });
+
+                            return false;
                         }
-                    });
-
-                }).catch(err => {
-                    if (err) {
-                        swal(APP.errorComunicacion, "error");
-                    } else {
-                        swal.stopLoading();
-                        swal.close();
                     }
                 });
 
+
+
             } else {
-                return  swal({text: "Seleccione una carrera", icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                notify("Seleccione una especialidad", "error");
             }
         },
     }

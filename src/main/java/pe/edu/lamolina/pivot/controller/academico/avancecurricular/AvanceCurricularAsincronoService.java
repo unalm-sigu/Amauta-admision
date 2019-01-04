@@ -5,6 +5,7 @@ import java.util.Map;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -23,8 +24,10 @@ public interface AvanceCurricularAsincronoService {
             Map<Long, List<RequisitoCursoCurricula>> mapRequisitos,
             Map<Long, List<CursoEquivalente>> mapEquivalentes,
             DataSessionPivot ds);
-    
+
     void deleteAllAlumnoCursoSimultaneoByAlumno(Alumno alumno);
 
     void deleteAllAlumnoCursoCurriculaByAlumno(Alumno alumno);
+
+    void settingPlanCurricular(Alumno alumno, PlanCurricular planBD);
 }

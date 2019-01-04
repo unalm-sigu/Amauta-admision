@@ -16,11 +16,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
-import javax.websocket.server.PathParam;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +48,7 @@ import pe.edu.lamolina.model.academico.CambioAulaGrupo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -158,6 +156,8 @@ public class GpoSeccionController {
                     "secciones.codigo2",
                     "secciones.precio",
                     "secciones.precioFormato",
+                    "secciones.abonoVeranoFormato",
+                    "secciones.precioBaseFormato",
                     "secciones.precioPersonalizado",
                     "secciones.tipoSeccionEnum",
                     "secciones.vacantes",
@@ -216,7 +216,7 @@ public class GpoSeccionController {
         }
 
         GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId);
-        ObjectNode gpoSeccionJson = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax);
+        ObjectNode gpoSeccionJson = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax, ds);
         String ruta = getOrigen(origen);
         Persona persona = ds.getPersona();
         List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(persona);
@@ -251,7 +251,7 @@ public class GpoSeccionController {
             }
 
             GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId);
-            ObjectNode nodeGpoSecc = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax);
+            ObjectNode nodeGpoSecc = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax, ds);
 
             ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
             data.set("grupoSeccion", nodeGpoSecc);
@@ -2214,6 +2214,29 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
+    @RequestMapping("generarpagodocente")
+    public JsonResponse generarpagodocente(DocenteSeccion  docenteSeccion,
+            RedirectAttributes redirectAttr,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.generarpagodocente(docenteSeccion,ds);
+            response.setMessage(Messages.UPDATED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.ERROR_GENERAL);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("allAnexos")
     public JsonResponse allAnexos(@RequestParam("anexoSuperior") String anexoSuperior, HttpSession session) {
         JsonResponse jsonResponse = new JsonResponse();
@@ -2262,7 +2285,7 @@ public class GpoSeccionController {
         }
     }
 
-    private ObjectNode createGpoSeccionJson(GrupoSeccion gpoSeccion, String fechaMin, String fechaMax) {
+    private ObjectNode createGpoSeccionJson(GrupoSeccion gpoSeccion, String fechaMin, String fechaMax, DataSessionPivot ds) {
         ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
             "id", "estado", "estadoEnum", "codigo2", "cursoDirigido",
             "curso.id",
@@ -2279,6 +2302,8 @@ public class GpoSeccionController {
             "anexoBoletin.anexoSuperior.codigo",
             "anexoBoletin.anexoSuperior.nombre"
         });
+
+        CursoCicloAcademico cca = service.findCursoCicloAcademico(gpoSeccion.getCurso(), ds.getCicloAcademico());
 
         ArrayNode arraySecciones = new ArrayNode(JsonNodeFactory.instance);
         List<Seccion> secciones = gpoSeccion.getSecciones();
@@ -2359,6 +2384,7 @@ public class GpoSeccionController {
             }
 
             nodeSecc.set("docenteSeccion", arrayProfeSecc);
+            nodeSecc.put("minimoAlumnos", cca.getMinimoAlumnos());
             arraySecciones.add(nodeSecc);
         }
         nodeGpoSecc.set("secciones", arraySecciones);

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -22,6 +23,7 @@ import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
@@ -144,16 +146,33 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
             throw new PhobosException("Debe especificar una cantidad Mayor a cero");
         }
         List<CursoCicloAcademico> cursosCiclo = cursoCicloAcademicoDAO.allByCiclo(cicloAcademico);
+
+        List<Curso> cursos = cursosCiclo.stream().map(x -> x.getCurso()).collect(Collectors.toList());
+        List<Seccion> secciones = seccionDAO.allActivosByCursosCiclo(cursos, cicloAcademico);
+        Map<Long, List<Seccion>> seccionesXcurso = TypesUtil.convertListToMapList("grupoSeccion.curso.id", secciones);
+
         TipoCursoCurricula tipocursogeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         TipoCursoCurricula tipocursoobligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
-        for (CursoCicloAcademico cursoCicloAcademico : cursosCiclo) {
-            cursoCicloAcademico.setMinimoAlumnos(BigDecimal.ZERO);
-            if (cursoCicloAcademico.getTipoCursoCurricula().getId() == tipocursogeneral.getId().longValue()) {
-                cursoCicloAcademico.setMinimoAlumnos(new BigDecimal(cantidad.getGeneral()));
+
+        for (CursoCicloAcademico cursoCicloBD : cursosCiclo) {
+            boolean esGral = cursoCicloBD.getTipoCursoCurricula().getId() == tipocursogeneral.getId().longValue();
+            boolean esCarr = cursoCicloBD.getTipoCursoCurricula().getId() == tipocursoobligatorio.getId().longValue();
+            Long cantid = esGral ? cantidad.getGeneral() : (esCarr ? cantidad.getCarrera() : 0L);
+            cursoCicloBD.setMinimoAlumnos(new BigDecimal(cantid));
+
+            List<Seccion> seccioness = seccionesXcurso.get(cursoCicloBD.getCurso().getId());
+            if (seccioness == null) {
+                continue;
             }
-            if (cursoCicloAcademico.getTipoCursoCurricula().getId() == tipocursoobligatorio.getId().longValue()) {
-                cursoCicloAcademico.setMinimoAlumnos(new BigDecimal(cantidad.getCarrera()));
+
+            for (Seccion seccion : seccioness) {
+                if (seccion.getTipoSeccionEnum() != TipoSeccionEnum.TCUR) {
+                    seccion.setPrecioBase(cursoCicloBD.getMinimoAlumnos().multiply(seccion.getPrecio()));
+                    seccionDAO.update(seccion);
+                }
             }
+
+            cursoCicloAcademicoDAO.update(cursoCicloBD);
         }
     }
 }
