@@ -58,6 +58,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
@@ -531,7 +532,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         CicloAcademico academicoAnterior = cicloAcademicoDAO.findAnteriorActivo(cicloAcademico);
         List<String> situacionesPregrado
-                = Arrays.asList(S_X.getValue(), S_XD.getValue(), S_4U.getValue());
+                = Arrays.asList(S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue());
 
         matriculaResumenDAO.savePosGradoVerano(situacionesPregrado, academicoAnterior, cicloAcademico);
         matriculaResumenDAO.savePreGradoVerano(situacionesPregrado, academicoAnterior, cicloAcademico);

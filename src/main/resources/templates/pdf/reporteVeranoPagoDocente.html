@@ -1,0 +1,117 @@
+<html>
+    <head>
+        <meta charset="UTF8" />
+        <title>Reporte</title>
+        <style>
+            body{
+                font-size:8px !important;	
+            }
+            table{
+                border-collapse: collapse;
+                font-size:10px !important;
+            }
+            table td{
+                padding: 3px;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div>
+            <table width="100%">
+                <tr>
+                    <td width="70">
+                        <img 
+                            width="60px" 
+                            height= "58px" 
+                            src="logo-min.jpg" />
+                    </td>
+                    <td width="100%">
+                        <div  style="text-align: center;font-size: 10px;font-weight: bold;width: 100%;">UNIVERSIDAD NACIONAL AGRARIA LA MOLINA</div>
+                        <div style="text-align: center;font-size: 8px;width: 100%;">Oficina  de Estudios y Registros Academicos</div>
+                    </td>
+
+                </tr>
+            </table>
+        </div>
+
+        <p style="text-align: center;"><b><span >Relación de Profesor-Curso con Monto a Pagar</span></b></p>
+        <p style="text-align: center;"><b><span th:inline="text" >Matrícula [[${cicloAcademico.descripcion2}]] </span></b></p>
+
+        <p style="text-align: right;font-size: 10px" th:inline="text" >La Molina , [[${fecha}]]</p>
+
+        <div th:each="depa:${departamentoAcademicos}">
+
+            <p style="text-align: left;" th:text="${depa.nombreLargo}"></p>
+
+            <div  th:each="doc:${depa.docente}" style="margin-top: 125px">
+                <table width="100%">
+                    <tr>
+                        <td width="10%">
+                            <p th:text="${doc.codigo}"></p>
+                        </td>
+                        <td width="90%">
+                            <p th:text="${doc.persona.apellidosNombres}"></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" width="100%">
+                            <table width="100%">
+                                <tr>
+                                    <td width="10%">
+                                        clave
+                                    </td>
+                                    <td width="50%">
+                                        nombre del curso
+                                    </td>
+                                    <td width="10%">
+                                        matriculados
+                                    </td>
+                                    <td width="10%">
+                                        carga
+                                    </td>
+                                    <td width="10%">
+                                        horas
+                                    </td>
+                                    <td width="10%">
+                                        monto
+                                    </td>
+                                </tr>
+                                <tr  th:each="docsec:${doc.docenteSeccion}">
+                                    <td width="10%">
+                                        <p th:text="${docsec.seccion.codigo}"></p>
+                                    </td>
+                                    <td width="50%">
+                                        <p th:text="${docsec.seccion.grupoSeccion.curso.nombre}"></p>
+                                    </td>
+                                    <td width="10%">
+                                        <p th:text="${docsec.seccion.matriculados}"></p>
+                                    </td>
+                                    <td width="10%">
+                                        <p th:text="${docsec.porcentajeCarga+' %'}"></p>
+                                    </td>
+                                    <td width="10%">
+                                        <p th:text="${docsec.seccion.horasSemanales}"></p>
+                                    </td>
+                                    <td width="10%">
+                                        <p th:text="${docsec.pagoVeranoFormato}"></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5" width="90%">
+                                        <p style="text-align: right">Monto total del profesor</p>
+                                    </td>
+                                    <td width="10%">
+                                        <p th:text="${'S/.'+doc.montoTotalVeranoFormato}"></p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+
+    </body>
+</html>
