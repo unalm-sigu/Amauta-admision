@@ -8,7 +8,7 @@ public enum PDFFormatoEnum {
     BOLETA_PAGO_ING("BoletaPago", "pdf/boletaPago", "Boleta Pago", "Boleta Pago"),
     BOLETA_PAGO_SOL("BoletaPagoSolicitudConstancia", "pdf/boletaPagoSolicitudConstancia", "Boleta Pago Solicitud Constancia", "Boleta Pago Solicitud Constancia"),
     PLANTILLA_CERTIFICADO("Plantilla Genérica", "pdf/contenidobase", "Plantilla Genérica", "Plantilla Genérica"),
-    PROGRAMACION_HORARIOS("ProgramacionHorarios", "pdf/programacionHorarios", "Programacion de Horarios", "Programacion de Horarios");
+    PROGRAMACION_HORARIOS("ProgramacionHorarios", "pdf/programacionHorarios", "Programacion de Horarios", "Programacion de Horarios"),
     //REPORTE VERANO
     REPORTE_VERANO_PAGO_DOCENTE("Plantilla Genérica", "pdf/reporteVeranoPagoDocente", "Reporte Verano Pago Docente", "Reporte Verano Pago Docente"),
     REPORTE_VERANO_DOCENTE_DEPARTAMENTO("Plantilla Genérica", "pdf/reporteVeranoDocenteDepartamento", "reporteVeranoDocenteDepartamento", "reporteVeranoDocenteDepartamento"),
