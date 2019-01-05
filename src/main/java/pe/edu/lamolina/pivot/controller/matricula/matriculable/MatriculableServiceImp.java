@@ -530,7 +530,8 @@ public class MatriculableServiceImp implements MatriculableService {
     public void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
-        CicloAcademico academicoAnterior = cicloAcademicoDAO.findAnteriorActivo(cicloAcademico);
+        List<CicloAcademico> academicosAnterior = cicloAcademicoDAO.findAnteriorRegActivo(3, cicloAcademico);
+        CicloAcademico academicoAnterior =  academicosAnterior.get(2);
         List<String> situacionesPregrado
                 = Arrays.asList(S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue());
 

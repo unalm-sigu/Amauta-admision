@@ -50,6 +50,10 @@ new Vue({
                 return tipoEnum.value - eventoCicloAcademico.eventoAcademico.nombre;
         }
         },
+        urlAcademico(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.alumno.id + '/infoacademico') + $vue.getOrigenURL();
+        },
         inhabilitarModal(item) {
             let $vue = this;
             $vue.matriculableSelected = {};
