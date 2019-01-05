@@ -454,10 +454,12 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("inner join mat.cicloAcademico cic ");
         strb.append("where sit.codigo not in ( :codigos ) and me.codigo = 'EPG'");
         strb.append("and cic.id = car.id ");
+        strb.append("and car.codigo >= :ciclo ");
         strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("cicloActual", academico);
+        query.setParameter("ciclo", cicloAcademicoAnterior.getCodigo());
         query.setParameterList("codigos", situaciones);
         query.executeUpdate();
     }
@@ -504,10 +506,12 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("inner join mat.cicloAcademico cic ");
         strb.append("where sit.codigo not in  ( :codigos ) and me.codigo = 'PRE'");
         strb.append("and cic.id = car.id ");
+        strb.append("and car.codigo >= :ciclo ");
         strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("cicloActual", academico);
+        query.setParameter("ciclo", cicloAcademicoAnterior.getCodigo());
         query.setParameterList("codigos", situacionesPregrado);
         query.executeUpdate();
     }

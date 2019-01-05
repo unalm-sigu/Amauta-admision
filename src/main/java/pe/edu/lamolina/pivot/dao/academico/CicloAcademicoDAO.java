@@ -83,4 +83,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
     List<CicloAcademico> allWithInitAndOrderBy(int yearIni, String orderBy, CicloAcademicoEstadoEnum... cicloAcademicoEstadoEnum);
 
     public CicloAcademico findSiguienteConfOrAct(CicloAcademico cicloAcademico);
+
+    public List<CicloAcademico> findAnteriorRegActivo(int count, CicloAcademico cicloAcademico);
 }
