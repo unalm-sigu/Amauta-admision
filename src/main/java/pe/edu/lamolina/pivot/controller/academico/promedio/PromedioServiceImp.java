@@ -194,11 +194,14 @@ public class PromedioServiceImp implements PromedioService {
     }
 
     private void analizeAlumnoCiclos(Alumno alumno, List<AlumnoCicloCurso> alumnoCicloCursos) {
+        logger.debug("analizeAlumnoCiclos");
         List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allByAlumno(alumno);
         for (AlumnoCiclo alumnoCiclo : alumnosCiclosByAlumno) {
+
             List<AlumnoCicloCurso> alumnosCiclosCursosByAluCic = alumnoCicloCursos.stream()
                     .filter(x -> x.getAlumnoCiclo().equals(alumnoCiclo))
                     .collect(Collectors.toList());
+            logger.debug("Ciclo {}, Cursos {}", alumnoCiclo.getCicloAcademico().getCodigo(), alumnosCiclosCursosByAluCic.size());
             /*
             List<AlumnoCicloCurso> rci = alumnosCiclosCursosByAluCic.stream().filter(x -> x.getIsEstadoRCI()).collect(Collectors.toList());
             List<AlumnoCicloCurso> rcu = alumnosCiclosCursosByAluCic.stream().filter(x -> x.getIsEstadoRCU()).collect(Collectors.toList());
@@ -214,6 +217,10 @@ public class PromedioServiceImp implements PromedioService {
              */
             if (alumnosCiclosCursosByAluCic.isEmpty()) {
                 EstadoMatriculaEnum estadoMatriculaEnum = EstadoMatriculaEnum.RCI;
+                alumnoCiclo.setEstado(estadoMatriculaEnum);
+                alumnoCicloDAO.update(alumnoCiclo);
+            } else {
+                EstadoMatriculaEnum estadoMatriculaEnum = EstadoMatriculaEnum.MAT;
                 alumnoCiclo.setEstado(estadoMatriculaEnum);
                 alumnoCicloDAO.update(alumnoCiclo);
             }
