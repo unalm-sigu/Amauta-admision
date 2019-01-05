@@ -40,13 +40,23 @@
 
         <p style="text-align: right;font-size: 10px" th:inline="text" >La Molina , [[${fecha}]]</p>
 
-        <div th:each="depa:${departamentoAcademicos}">
+        <div  style="margin-top: 25px" th:each="depa:${departamentoAcademicos}">
 
             <p style="text-align: left;" th:text="${depa.nombreLargo}"></p>
 
-            <div  style="margin-top: 125px">
-                <table  width="100%">
-                    <tr  th:each="doc:${depa.docente}">
+            <div>
+                <table  style="margin-top: 25px" width="100%">
+                    <tr>
+                        <td width="10%">
+                        </td>
+                        <td width="80%">
+                            <p style="font-weight: bold;">Profesor</p>
+                        </td>
+                        <td width="10%">
+                            <p style="font-weight: bold;">Monto</p>
+                        </td>
+                    </tr>
+                    <tr th:each="doc:${depa.docente}">
                         <td width="10%">
                             <p th:text="${doc.codigo}"></p>
                         </td>
@@ -54,15 +64,17 @@
                             <p th:text="${doc.persona.apellidosNombres}"></p>
                         </td>
                         <td width="10%">
-                            <p th:text="${doc.montoTotalVeranoFormato}"></p>
+                            <p th:text="${'S/.'+doc.montoTotalVeranoFormato}"></p>
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="5" width="90%">
-                            <p style="text-align: right">Monto total</p>
+                        <td width="10%">
+                        </td>
+                        <td width="80%">
+                            <p style="font-weight: bold;">Monto total</p>
                         </td>
                         <td width="10%">
-                            <p th:text="${'S/.'+depa.montoTotalVeranoFormato}"></p>
+                            <p style="font-weight: bold;" th:text="${'S/.'+depa.montoTotalVeranoFormato}"></p>
                         </td>
                     </tr>
                 </table>

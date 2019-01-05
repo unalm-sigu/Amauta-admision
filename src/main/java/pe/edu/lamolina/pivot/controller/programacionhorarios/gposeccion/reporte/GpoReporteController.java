@@ -23,6 +23,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -141,7 +142,7 @@ public class GpoReporteController {
         StringBuilder sb = new StringBuilder();
         sb.append(TypesUtil.getStringDate(date, " dd 'de' MMMM 'de' yyyy ", "es"));
         
-        List<DepartamentoAcademico> departamentoAcademicos=service.allDepartamentoAcademicoXcurso(cicloAcademico);
+        List<DepartamentoAcademico> departamentoAcademicos=service.allDepartamentoAcademico(cicloAcademico);
 
         model.addAttribute("departamentoAcademicos", departamentoAcademicos);
         model.addAttribute("fecha", sb.toString());
@@ -155,8 +156,21 @@ public class GpoReporteController {
     @RequestMapping("reporteVeranoPagoPorDocenteFacultad")
     public ModelAndView reporteVeranoPagoPorDocenteFacultad(Model model, HttpSession session) {
 
-        model.addAttribute("formatoEnum", PDFFormatoEnum.REPORTE_VERANO_PAGO_DOCENTE);
-        model.addAttribute("nombrePdf", "BoletaPagoSolicitudConstancia001");
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        Date date = new Date();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(TypesUtil.getStringDate(date, " dd 'de' MMMM 'de' yyyy ", "es"));
+        
+        List<Facultad> falcultades=service.allDepartamentoAcademicoXfacultad(cicloAcademico);
+
+        model.addAttribute("falcultades", falcultades);
+        model.addAttribute("fecha", sb.toString());
+        model.addAttribute("formatoEnum", PDFFormatoEnum.REPORTE_VERANO_PAGO_DOCENTE_FACULTAD);
+        model.addAttribute("cicloAcademico", cicloAcademico);
+        model.addAttribute("nombrePdf", "pago_profesor_nivelacion");
 
         return new ModelAndView(pdfHtmlView);
     }
@@ -167,40 +181,4 @@ public class GpoReporteController {
         return nodeJson;
     }
 
-
-//        @RequestMapping("reporteVeranoPagoCurso")
-//    public ModelAndView reporteVeranoPagoCurso(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm, Model model, HttpSession session) {
-//
-//        TramiteDocumentoAcademico tramiteDocumentoAcademico = service.findTramite(tramiteDocumentoAcademicoForm);
-//        Persona persona = tramiteDocumentoAcademico.getTramite().getPersona();
-//        Idioma idioma = tramiteDocumentoAcademico.getIdioma();
-//        TipoDocumentoAcademico tipoDocumento = tramiteDocumentoAcademico.getTipoDocumentoAcademico();
-//
-//        String estimado = persona.esFemenino() ? "Estimada" : "Estimado";
-//
-//        ContenidoCarta headBoletaPdf = service.findContenidoBoletaByCodigoEnum(ContenidoCartaEnum.BOLETA001);
-//        ContenidoCarta footBoletaPdf = service.findContenidoBoletaByCodigoEnum(ContenidoCartaEnum.BOLETA002);
-//
-//        String cabecera = headBoletaPdf.getContenido();
-//        String pieBoleta = footBoletaPdf.getContenido();
-//        PrecioDocumento precioDocumento = service.findPrecioDocumentoByTipoIdioma(tipoDocumento, idioma);
-//        CuentaBancaria cuenta = precioDocumento.getCuentaBancaria();
-//        String montoString = precioDocumento.getPrecio().toString();
-//
-//        cabecera = cabecera.replaceAll(NOMBRE_PERSONA.getValue(), persona.getNombreCompleto());
-//        cabecera = cabecera.replaceAll(ESTIMADO.getValue(), estimado);
-//
-//        model.addAttribute("cabecera", cabecera);
-//        model.addAttribute("pieBoleta", pieBoleta);
-//        model.addAttribute("estimado", estimado);
-//        model.addAttribute("persona", persona);
-//        model.addAttribute("numero", tramiteDocumentoAcademico.getTramite().getSerie() + "-" + tramiteDocumentoAcademico.getTramite().getNumero());
-//        model.addAttribute("cuenta", cuenta);
-//        model.addAttribute("numeroDocIdentidad", persona.getNumeroDocIdentidad());
-//        model.addAttribute("montoString", montoString);
-//        model.addAttribute("formatoEnum", PDFFormatoEnum.BOLETA_PAGO_SOL);
-//        model.addAttribute("nombrePdf", "BoletaPagoSolicitudConstancia");
-//
-//        return new ModelAndView(pdfHtmlView);
-//    }
 }

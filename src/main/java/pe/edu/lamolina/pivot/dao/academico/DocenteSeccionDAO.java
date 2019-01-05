@@ -70,4 +70,6 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     void deleteAllByCiclo(CicloAcademico ciclo);
 
+    List<DocenteSeccion> allSinNNByCicloModalidadReporte(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio);
+
 }
