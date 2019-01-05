@@ -69,67 +69,67 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("test")
 public class TestController {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     SeccionDAO seccionDAO;
-
+    
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-
+    
     @Autowired
     EvaluacionExpandidaDAO evaluacionExpandidaDAO;
-
+    
     @Autowired
     EvaluacionDAO evaluacionDAO;
-
+    
     @Autowired
     AlumnoEvaluacionDAO alumnoEvaluacionDAO;
-
+    
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
-
+    
     @Autowired
     NotaAcademicaService notaAcademicaService;
-
+    
     @Autowired
     CalculoNotasService calculoNotasService;
-
+    
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
-
+    
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
-
+    
     @Autowired
     PromedioService promedioService;
-
+    
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
-
+    
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-
+    
     @Autowired
     AlumnoDAO alumnoDAO;
-
+    
     @Autowired
     SituacionAcademicaDAO situacionAcademicaDAO;
-
+    
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
-
+    
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
-
+    
     @Autowired
     CarreraDAO carreraDAO;
-
+    
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
     public String crearEvaluacionByExp(@RequestParam("idGrupoSeccion") Long idGpoSecc) {
-
+        
         GrupoSeccion grupoSeccion = notaAcademicaService.findGrupo(idGpoSecc);
         if (grupoSeccion.getEvaluacionSecciones().isEmpty()) {
             return "No tiene evaluacionSeccion";
@@ -137,10 +137,10 @@ public class TestController {
         if (grupoSeccion.getEvaluacionSecciones().size() > 1) {
             return "No tiene varias evaluacionSecciones";
         }
-
+        
         EvaluacionSeccion evaluacionSeccion = grupoSeccion.getEvaluacionSecciones().get(0);
         PlanCalificacion planCalificacion = grupoSeccion.getPlanCalificacion();
-
+        
         List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
         logger.debug("Cantidad de secciones para el grupo {}", secciones.size());
         List<EvaluacionExpandida> planEvaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null, null);
@@ -152,12 +152,12 @@ public class TestController {
                 logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEvalEnum().name());
                 if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
                         evaluacionExpandida.getTipoSeccionEvalEnum())) {
-
+                    
                     Evaluacion evaluacion = evaluacionDAO.findByEvalExpSeccion(evaluacionExpandida.getId(), seccionEach.getId());
                     if (evaluacion != null) {
                         continue;
                     }
-
+                    
                     evaluacion = new Evaluacion();
                     evaluacion.create(evaluacionSeccion, seccionEach, evaluacionExpandida);
                     if (evaluacionExpandida.getEvaluacionesExpandidas() != null && !evaluacionExpandida.getEvaluacionesExpandidas().isEmpty()) {
@@ -170,15 +170,15 @@ public class TestController {
                         }
                     }
                     notaAcademicaService.saveEvaluacion(evaluacion);
-
+                    
                 }
             }
         }
-
+        
         return "YEAH";
-
+        
     }
-
+    
     @ResponseBody
     @RequestMapping("/calcularAllResumenEvaluacion/{seccion}")
     public String calcularAllResumenEvaluacion(@PathVariable("seccion") Long seccionId, HttpSession session) {
@@ -186,31 +186,31 @@ public class TestController {
         visorCalculoNotas.iniciar();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-
+        
         Seccion seccionPV = seccionDAO.find(seccionId);
-
+        
         List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(seccionPV.getGrupoSeccion(), ciclo);
         for (MatriculaSeccion ms : alumnosSeccion) {
             Seccion seccion = ms.getSeccion();
             GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
             Alumno alumno = ms.getMatriculaResumen().getAlumno();
-
+            
             if (gpoSecc.getPlanCalificacion() == null) {
                 break;
             }
-
+            
             if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
                 continue;
             }
-
+            
             calculoNotasService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
             loop++;
-
+            
         }
-
+        
         return "yeah";
     }
-
+    
     @ResponseBody
     @RequestMapping("calcularAllResumenEvaluacion")
     public String calcularAllResumenEvaluacion(HttpSession session) {
@@ -218,42 +218,42 @@ public class TestController {
         visorCalculoNotas.iniciar();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivos();
-
+        
         for (CicloAcademico cicloActivo : ciclosActivos) {
             List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allMatriculadosByCiclo(cicloActivo);
             for (MatriculaSeccion ms : alumnosSeccion) {
                 Seccion seccion = ms.getSeccion();
                 GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
                 Alumno alumno = ms.getMatriculaResumen().getAlumno();
-
+                
                 if (gpoSecc.getPlanCalificacion() == null) {
                     continue;
                 }
-
+                
                 if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
                     continue;
                 }
-
+                
                 if (!cicloActivo.isActivo()) {
                     if (seccion.getGrupoSeccion().isEstadoGrupoCerrado()) {
                         continue;
                     }
                 }
-
+                
                 calculoNotasService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
                 loop++;
-
+                
             }
         }
         return "yeah";
     }
-
+    
     @ResponseBody
     @RequestMapping("calcularAllPromediosByCiclo")
     public String calcularAllPromediosByCiclo(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-
+        
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(ciclo);
         logger.debug("Catidad de registros a procesar {}", matriculasCurso.size());
         for (MatriculaCurso matriculaCurso : matriculasCurso) {
@@ -266,20 +266,20 @@ public class TestController {
 
             //  }
         }
-
+        
         return "yeah";
     }
-
+    
     @ResponseBody
     @RequestMapping("promediarCiclo/{ciclo}")
     public String promediarAll(@PathVariable("ciclo") Long cicloId, HttpSession session) {
         logger.info("promediarAll");
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        
         CicloAcademico cicloAcademico = cicloAcademicoDAO.find(new CicloAcademico(cicloId));
         List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
         logger.info("matriculas resumen encontradas {}", matriculasResumen.size());
-
+        
         visorCalculoNotas.iniciar();
         visorCalculoNotas.setCantidadTotal(matriculasResumen.size());
         for (MatriculaResumen mResumen : matriculasResumen) {
@@ -289,19 +289,15 @@ public class TestController {
         }
         return "yeah";
     }
-
+    
     @ResponseBody
     @RequestMapping("promediarAlumno/{alumno}")
     public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         //  List<CicloAcademico> allCiclosActivos = cicloAcademicoDAO.allActivesByModalidad(alumno.getModalidadEstudio(), new String[]{"ca.year asc", "ca.numeroCiclo asc"});
-        visorCalculoNotas.iniciar();
+        visorCalculoNotas.setActivo(false);
         ds.setFechaAccionAudit(new Date());
-        Alumno alumno = alumnoDAO.findAllInfo(alumnoId);
-        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio());
-        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
-        promedioService.promediarAllCicloSync(alumno, cicloActivo, alumnoCicloCursos, ds);
-
+        promedioService.calulcarSituacionAcademica(new Alumno(alumnoId), ds);
         return "yeah";
     }
 
@@ -311,7 +307,7 @@ public class TestController {
     public String trasladarMatriculaCursoForPromedios(HttpSession session) {
         //201700
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.ACT, CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
         //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
         for (CicloAcademico cicloAcademico : ciclos) {
@@ -324,7 +320,7 @@ public class TestController {
             if (matriculasSeccion.isEmpty()) {
                 continue;
             }
-
+            
             visorCalculoNotas.iniciar();
             visorCalculoNotas.setCantidadTotal(matriculasResumen.size());
             for (MatriculaResumen matriculaResumen : matriculasResumen) {
@@ -333,16 +329,16 @@ public class TestController {
         }
         return "yeah";
     }
-
+    
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorial/{alumno}")
     public String trasladarMatriculaCursoForPromedios(HttpSession session, @PathVariable("alumno") Long alumnoId) {
         //201700
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
-
+        
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.ACT, CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
-
+        
         for (CicloAcademico cicloAcademicoEach : ciclos) {
             MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(new Alumno(alumnoId), cicloAcademicoEach);
             if (matriculaResumen == null) {
@@ -360,5 +356,5 @@ public class TestController {
         }
         return "yeah";
     }
-
+    
 }
