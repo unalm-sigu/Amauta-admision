@@ -13,7 +13,6 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -450,6 +449,27 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", ciclo.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public List<DocenteSeccion> allSinNNByCicloModalidadReporte(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio) {
+
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .join("doc.modalidadEstudio me", "cur.modalidadEstudio")
+                .leftJoin("doc.departamentoAcademico daa","daa.facultad")
+                .leftJoin("gs.planCalificacion pc", "cur.planCalificacion pc2", "cur.planCalificacionRegular pcr", "sec.seccionSuperior")
+                .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
+                .filter("ca.id", cicloAcademico)
+                .filter("doc.estado", DocenteEstadoEnum.ACT)
+                .filter("doc.codigo", "<>", Constantine.DOCENTE_INDETERMINADO)
+                .filter("me.id", modalidadEstudio)
+                .filter("ds.estado", EstadoEnum.ACT)
+                .filter("sec.estado", EstadoEnum.ACT);
+
+        return all(sql);
     }
 
 }
