@@ -1,0 +1,67 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Grupo Sección Reporte</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg m-b-xs">
+                    <h2 v-text="'Programación de horarios ' + ciclo.descripcion">Grupo Sección</h2>
+                </header>
+
+                <section class="wrapper-md">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <div class="col-sm-12 m-t-sm">
+                                <button-download class="btn btn-primary"  urldownload="academico/gposeccion/reporte/reporteVeranoPagoPorDocente" >
+                                    Reporte verano pago por docente
+                                </button-download>
+                            </div>    
+
+                            <div class="col-sm-12 m-t-sm">
+                                <button-download class="btn btn-primary" urldownload="academico/gposeccion/reporte/reporteVeranoDocenteDepartamento" >
+                                    Reporte verano docente por departamento
+                                </button-download>
+                            </div>    
+
+                            <div class="col-sm-12 m-t-sm">
+                                <button-download class="btn btn-primary"  urldownload="academico/gposeccion/reporte/reporteVeranoPagoCurso" >
+                                    Reporte verano pago curso
+                                </button-download>
+                            </div>    
+
+                            <div class="col-sm-12 m-t-sm">
+                                <button-download class="btn btn-primary"  urldownload="academico/gposeccion/reporte/reporteVeranoPagoPorDocenteFacultad" >
+                                    Reporte verano pago por docente facultad
+                                </button-download>
+                            </div>    
+
+                        </section>
+                    </section>
+                </section>
+
+            </div>
+
+        </div>
+
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var cicloJson = /*[[${cicloJson}]]*/ '';
+                var resumenJson = /*[[${resumenJson}]]*/ '';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_layout/includes :: sweetalert"/>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_layout/includes :: vue-loader"/>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-btn-download.js}"></script>
+            <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/gposeccion/reporte/reporte.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

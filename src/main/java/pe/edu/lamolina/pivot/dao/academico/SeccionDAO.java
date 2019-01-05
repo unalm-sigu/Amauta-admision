@@ -35,6 +35,8 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allByGposSeccion(GrupoSeccion gruposSeccion);
 
+    List<Seccion> allByGposSeccionOrderedByCodigo2(GrupoSeccion gruposSeccion);
+
     List<Seccion> allByGposSeccion(List<GrupoSeccion> gruposSeccion);
 
     void updateSeccionGrupoHora(Seccion seccion);

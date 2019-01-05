@@ -171,7 +171,6 @@ public class PromedioServiceImp implements PromedioService {
         visorCalculoNotas.incrementarCantidad();
         try {
             this.analizeAlumnoCiclos(alumno, allOperativesByModalidadEstudio);
-
             this.promediarAlumno(alumno, cicloActivo, allOperativesByModalidadEstudio, ds);
 
             alumno = alumnoDAO.find(alumno);
@@ -194,11 +193,15 @@ public class PromedioServiceImp implements PromedioService {
     }
 
     private void analizeAlumnoCiclos(Alumno alumno, List<AlumnoCicloCurso> alumnoCicloCursos) {
+        logger.debug("analizeAlumnoCiclos");
         List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allByAlumno(alumno);
         for (AlumnoCiclo alumnoCiclo : alumnosCiclosByAlumno) {
+
             List<AlumnoCicloCurso> alumnosCiclosCursosByAluCic = alumnoCicloCursos.stream()
                     .filter(x -> x.getAlumnoCiclo().equals(alumnoCiclo))
                     .collect(Collectors.toList());
+            logger.debug("Ciclo {}, Cursos {}", alumnoCiclo.getCicloAcademico().getCodigo(), alumnosCiclosCursosByAluCic.size());
+            /*
             List<AlumnoCicloCurso> rci = alumnosCiclosCursosByAluCic.stream().filter(x -> x.getIsEstadoRCI()).collect(Collectors.toList());
             List<AlumnoCicloCurso> rcu = alumnosCiclosCursosByAluCic.stream().filter(x -> x.getIsEstadoRCU()).collect(Collectors.toList());
             List<AlumnoCicloCurso> mat = alumnosCiclosCursosByAluCic.stream().filter(x -> x.getIsEstadoMatriculado()).collect(Collectors.toList());
@@ -210,8 +213,16 @@ public class PromedioServiceImp implements PromedioService {
             if (!rci.isEmpty()) {
                 estadoMatriculaEnum = EstadoMatriculaEnum.RCI;
             }
-            alumnoCiclo.setEstado(estadoMatriculaEnum);
-            alumnoCicloDAO.update(alumnoCiclo);
+             */
+            if (alumnosCiclosCursosByAluCic.isEmpty()) {
+                EstadoMatriculaEnum estadoMatriculaEnum = EstadoMatriculaEnum.RCI;
+                alumnoCiclo.setEstado(estadoMatriculaEnum);
+                alumnoCicloDAO.update(alumnoCiclo);
+            } else {
+                EstadoMatriculaEnum estadoMatriculaEnum = EstadoMatriculaEnum.MAT;
+                alumnoCiclo.setEstado(estadoMatriculaEnum);
+                alumnoCicloDAO.update(alumnoCiclo);
+            }
         }
     }
 
@@ -698,10 +709,12 @@ public class PromedioServiceImp implements PromedioService {
     @Transactional(propagation = Propagation.SUPPORTS)
     private void analizarDesertorByCiclo(
             Alumno alumno, CicloAcademico cicloActivo, CicloAcademico cicloAcademico, DataSessionPivot ds) {
-        logger.debug("$$$$$$$$$$$$$$ analizar desertor Ciclo Academico {} {} {}",
+        logger.debug("$$$$$$$$$$$$$$ analizar desertor, Alumno {}, Ciclo Code {} Id {}, Ciclo Activo Code {} Id {}",
+                alumno.getId(),
+                cicloAcademico.getCodigo(),
                 cicloAcademico.getId(),
-                cicloAcademico.getYear(),
-                cicloAcademico.getNumeroCiclo());
+                cicloActivo.getCodigo(),
+                cicloActivo.getId());
 
         CicloAcademico siguienteCicloReg = cicloAcademicoDAO.findSiguienteRegularActivo(cicloAcademico);
 
@@ -712,11 +725,9 @@ public class PromedioServiceImp implements PromedioService {
         AlumnoCiclo alumnoCicloCorrespSgtRegular = alumnoCicloDAO.findByAlumnoCiclo(alumno, siguienteCicloReg);
 
         if (alumnoCiclo.isEstadoRetiradoCic() || alumnoCiclo.isNoMatriculado()) {
-            if (alumnoCicloAnterior != null) {
-                alumnoCiclo.setSituacionInicio(alumnoCicloAnterior.getSituacionFinal());
-                alumnoCiclo.setSituacionFinal(alumnoCicloAnterior.getSituacionFinal());
-                alumnoCicloDAO.update(alumnoCiclo);
-            }
+            alumnoCiclo.setSituacionInicio(alumnoCicloAnterior.getSituacionFinal());
+            alumnoCiclo.setSituacionFinal(alumnoCicloAnterior.getSituacionFinal());
+            alumnoCicloDAO.update(alumnoCiclo);
         }
 
         if (alumnoCiclo.getSituacionFinal().isCodigoD() || alumnoCiclo.getSituacionFinal().isCodigoS4()
@@ -735,10 +746,10 @@ public class PromedioServiceImp implements PromedioService {
                 if (alumnoCicloCorrespSgtRegular == null) {
                     alumnoCicloCorrespSgtRegular = new AlumnoCiclo();
                     alumnoCicloCorrespSgtRegular.defaultValuesToCreate(alumno, siguienteCicloReg, ds.getUsuario(), new DateTime(ds.getFechaAccionAudit()));
-                    if (alumnoCicloAnterior != null) {
-                        alumnoCicloCorrespSgtRegular.setSituacionInicio(alumnoCicloAnterior.getSituacionFinal());
-                        alumnoCicloCorrespSgtRegular.setSituacionFinal(alumnoCicloAnterior.getSituacionFinal());
-                    }
+                    //       alumnoCicloCorrespSgtRegular.setSituacionInicio(alumnoCicloAnterior.getSituacionFinal());
+                    //     alumnoCicloCorrespSgtRegular.setSituacionFinal(alumnoCicloAnterior.getSituacionFinal());
+                    alumnoCicloCorrespSgtRegular.setSituacionInicio(alumnoCiclo.getSituacionFinal());
+                    alumnoCicloCorrespSgtRegular.setSituacionFinal(alumnoCiclo.getSituacionFinal());
                     alumnoCicloCorrespSgtRegular.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                     alumnoCicloCorrespSgtRegular.setEstado(EstadoMatriculaEnum.NMAT);
                     alumnoCicloDAO.save(alumnoCicloCorrespSgtRegular);
@@ -812,6 +823,7 @@ public class PromedioServiceImp implements PromedioService {
             if (situacionAcademicaFinal != null) {
                 logger.debug("Nueva situacion academica id {}, codigo {} {}", situacionAcademicaFinal.getId(), situacionAcademicaFinal.getCodigo(), situacionAcademicaFinal.getNombre());
             } else {
+                situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
                 logger.debug("No se pudo hallar su situacion final, se le pondra la anterior");
             }
         }
@@ -1000,12 +1012,14 @@ public class PromedioServiceImp implements PromedioService {
 
         BigDecimal promedio = BigDecimal.ZERO;
         if (sumNotasCreditos.compareTo(BigDecimal.ZERO) != 0 && sumCreditos.compareTo(BigDecimal.ZERO) != 0) {
-            promedio = sumNotasCreditos.divide(sumCreditos, 2, RoundingMode.HALF_UP);
+            //    promedio = sumNotasCreditos.divide(sumCreditos, 2, RoundingMode.FLOOR);
+            promedio = sumNotasCreditos.divide(sumCreditos, 12, RoundingMode.FLOOR); //DOWN, 
         }
 
         BigDecimal promedioAcumulado = BigDecimal.ZERO;
         if (sumNotasCreditosTotal.compareTo(BigDecimal.ZERO) != 0 && sumCreditosTotal.compareTo(BigDecimal.ZERO) != 0) {
-            promedioAcumulado = sumNotasCreditosTotal.divide(sumCreditosTotal, 2, RoundingMode.HALF_UP);
+            //  promedioAcumulado = sumNotasCreditosTotal.divide(sumCreditosTotal, 2, RoundingMode.FLOOR);
+            promedioAcumulado = sumNotasCreditosTotal.divide(sumCreditosTotal, 12, RoundingMode.FLOOR);
         }
 
         alumnoCiclo.setPromedioCiclo(promedio);

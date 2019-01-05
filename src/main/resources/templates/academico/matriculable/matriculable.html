@@ -154,6 +154,7 @@
                                                             <li><a class="ver-cursos pointer" >Ver Cursos</a></li><!--rel="{{:id}}"-->
                                                             <li v-if="item.estado == 'NMAT'"><a v-on:click="inhabilitarModal(item)" href="#">Inhabilitar</a></li>
                                                             <li v-if="item.estado == 'INH'"><a v-on:click="inhabilitarModal(item)" href="#">Habilitar</a></li>
+                                                            <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li><a class="modificar-datos" href="#">Modificar datos</a></li>
                                                             <li><a v-bind:href="urlMatricula(item)">Matricula</a></li>
                                                         </ul>

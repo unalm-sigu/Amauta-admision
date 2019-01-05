@@ -1,0 +1,206 @@
+package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte;
+
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.beans.PropertyEditorSupport;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import javax.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
+import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
+
+@Controller
+@RequestMapping("academico/gposeccion/reporte")
+public class GpoReporteController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    GpoReporteService service;
+
+    @Autowired
+    PdfHtmlView pdfHtmlView;
+
+    @InitBinder
+    public void initBinder(WebDataBinder dataBinder) {
+
+        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String value) {
+                try {
+                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
+                } catch (ParseException e) {
+                    setValue(null);
+                }
+            }
+        });
+
+        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String value) {
+                try {
+                    setValue(new BigDecimal(value.replaceAll(",", "")));
+                } catch (Exception e) {
+                    setValue(null);
+                }
+            }
+        });
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public String index(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = service.findCiclo(ds.getCicloAcademico());
+        model.addAttribute("cicloJson", createCicloJson(ciclo).toString());
+        model.addAttribute("resumenJson", createResumenJson(service.resumenByCiclo(ciclo)));
+        return "academico/gposeccion/reporte/reporte";
+    }
+
+    private ObjectNode createCicloJson(CicloAcademico ciclo) {
+        ObjectNode nodeJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{
+            "id", "codigo", "descripcion", "descripcion2", "tipo",
+            "modalidadEstudio.codigo",
+            "modalidadEstudio.nombre"
+        });
+        return nodeJson;
+    }
+
+    @RequestMapping("reporteVeranoPagoPorDocente")
+    public ModelAndView reporteVeranoPagoPorDocente(Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        Date date = new Date();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(TypesUtil.getStringDate(date, " dd 'de' MMMM 'de' yyyy ", "es"));
+        
+        List<DepartamentoAcademico> departamentoAcademicos=service.allDepartamentoAcademico(cicloAcademico);
+
+        model.addAttribute("departamentoAcademicos", departamentoAcademicos);
+        model.addAttribute("fecha", sb.toString());
+        model.addAttribute("formatoEnum", PDFFormatoEnum.REPORTE_VERANO_PAGO_DOCENTE);
+        model.addAttribute("cicloAcademico", cicloAcademico);
+        model.addAttribute("nombrePdf", "pago_profesor_nivelacion");
+
+        return new ModelAndView(pdfHtmlView);
+    }
+
+    @RequestMapping("reporteVeranoDocenteDepartamento")
+    public ModelAndView reporteVeranoDocenteDepartamento(Model model, HttpSession session) {
+        
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        Date date = new Date();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(TypesUtil.getStringDate(date, " dd 'de' MMMM 'de' yyyy ", "es"));
+        
+        List<DepartamentoAcademico> departamentoAcademicos=service.allDepartamentoAcademico(cicloAcademico);
+
+        model.addAttribute("departamentoAcademicos", departamentoAcademicos);
+        model.addAttribute("fecha", sb.toString());
+        model.addAttribute("formatoEnum", PDFFormatoEnum.REPORTE_VERANO_DOCENTE_DEPARTAMENTO);
+        model.addAttribute("cicloAcademico", cicloAcademico);
+        model.addAttribute("nombrePdf", "pago_profesor_nivelacion");
+
+        return new ModelAndView(pdfHtmlView);
+    }
+
+    @RequestMapping("reporteVeranoPagoCurso")
+    public ModelAndView reporteVeranoPagoCurso(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm, Model model, HttpSession session) {
+        
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        Date date = new Date();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(TypesUtil.getStringDate(date, " dd 'de' MMMM 'de' yyyy ", "es"));
+        
+        List<DepartamentoAcademico> departamentoAcademicos=service.allDepartamentoAcademicoXcurso(cicloAcademico);
+
+        model.addAttribute("departamentoAcademicos", departamentoAcademicos);
+        model.addAttribute("fecha", sb.toString());
+        model.addAttribute("formatoEnum", PDFFormatoEnum.REPORTE_VERANO_CURSO);
+        model.addAttribute("cicloAcademico", cicloAcademico);
+        model.addAttribute("nombrePdf", "pago_profesor_nivelacion");
+
+        return new ModelAndView(pdfHtmlView);
+    }
+
+    @RequestMapping("reporteVeranoPagoPorDocenteFacultad")
+    public ModelAndView reporteVeranoPagoPorDocenteFacultad(Model model, HttpSession session) {
+
+        model.addAttribute("formatoEnum", PDFFormatoEnum.REPORTE_VERANO_PAGO_DOCENTE);
+        model.addAttribute("nombrePdf", "BoletaPagoSolicitudConstancia001");
+
+        return new ModelAndView(pdfHtmlView);
+    }
+    
+    
+    private ObjectNode createResumenJson(GpoSeccionResumen resumen) {
+        ObjectNode nodeJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
+        return nodeJson;
+    }
+
+
+//        @RequestMapping("reporteVeranoPagoCurso")
+//    public ModelAndView reporteVeranoPagoCurso(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm, Model model, HttpSession session) {
+//
+//        TramiteDocumentoAcademico tramiteDocumentoAcademico = service.findTramite(tramiteDocumentoAcademicoForm);
+//        Persona persona = tramiteDocumentoAcademico.getTramite().getPersona();
+//        Idioma idioma = tramiteDocumentoAcademico.getIdioma();
+//        TipoDocumentoAcademico tipoDocumento = tramiteDocumentoAcademico.getTipoDocumentoAcademico();
+//
+//        String estimado = persona.esFemenino() ? "Estimada" : "Estimado";
+//
+//        ContenidoCarta headBoletaPdf = service.findContenidoBoletaByCodigoEnum(ContenidoCartaEnum.BOLETA001);
+//        ContenidoCarta footBoletaPdf = service.findContenidoBoletaByCodigoEnum(ContenidoCartaEnum.BOLETA002);
+//
+//        String cabecera = headBoletaPdf.getContenido();
+//        String pieBoleta = footBoletaPdf.getContenido();
+//        PrecioDocumento precioDocumento = service.findPrecioDocumentoByTipoIdioma(tipoDocumento, idioma);
+//        CuentaBancaria cuenta = precioDocumento.getCuentaBancaria();
+//        String montoString = precioDocumento.getPrecio().toString();
+//
+//        cabecera = cabecera.replaceAll(NOMBRE_PERSONA.getValue(), persona.getNombreCompleto());
+//        cabecera = cabecera.replaceAll(ESTIMADO.getValue(), estimado);
+//
+//        model.addAttribute("cabecera", cabecera);
+//        model.addAttribute("pieBoleta", pieBoleta);
+//        model.addAttribute("estimado", estimado);
+//        model.addAttribute("persona", persona);
+//        model.addAttribute("numero", tramiteDocumentoAcademico.getTramite().getSerie() + "-" + tramiteDocumentoAcademico.getTramite().getNumero());
+//        model.addAttribute("cuenta", cuenta);
+//        model.addAttribute("numeroDocIdentidad", persona.getNumeroDocIdentidad());
+//        model.addAttribute("montoString", montoString);
+//        model.addAttribute("formatoEnum", PDFFormatoEnum.BOLETA_PAGO_SOL);
+//        model.addAttribute("nombrePdf", "BoletaPagoSolicitudConstancia");
+//
+//        return new ModelAndView(pdfHtmlView);
+//    }
+}

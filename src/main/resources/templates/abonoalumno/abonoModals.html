@@ -1,0 +1,81 @@
+<modal-vik ref="modalReasignar"
+           v-bind="modalReasignar"
+           v-bind:okaction="save">
+    <div slot="body">
+        <input type="hidden" name="rExItem.id" value="{{rExItem.id}}"/>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="m-t m-b m-l">
+                    <span class="block">Número operación: {{rExItem.numeroOperacion}}</span>
+                    <span class="block">Fecha: {{rExItem.fechaAbono}}</span>
+                    <span class="block">Importe: {{rExItem.importe}}</span>
+                    <span class="block">Decripción: {{rExItem.descripcion}}</span>
+                    <span class="block">Usuario: {{rExItem.usuarioBanco}}</span>
+                    <span class="block">Sucursal: {{rExItem.sucursal}}</span>
+                </div>
+            </div>
+        </div>
+        <div id="divDynatable">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th>User/banco</th>
+                        <th>Voucher</th>
+                        <th>Ext.</th>
+                        <th>Descripcion</th>
+                        <th>Postulante</th>
+                        <th>Importe acumulado</th>
+                        <th>Pagos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in extornos"
+                        v-bind:class="item.afectadoExtorno == 1 ? 'danger' : ''"
+                        >
+                        <td></td>
+                        <td><input type="radio" name="id" v-bind:value="item.id"/></td>
+                        <td>{{item.usuarioBanco}}</td>
+                        <td>{{item.numeroOperacion}}</td>
+                        <td>{{item.extornado}}</td>
+                        <td>{{item.descripcion}}</td>
+                        <td>{{item.postulante.persona.nombreCompleto}}</td>
+                        <td>{{item.postulante.importeTotal}}</td>
+                        <td>{{item.postulante.pagos}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalAsignarPostulante"
+           v-bind="modalAsignarPostulante"
+           v-bind:okaction="save">
+    <div slot="body">
+
+        <form name="formAbono" data-parsley-validate="true">
+            <input type="hidden" name="id" value="{{rExItem.id}}"/>
+            <div class="row">
+                <div class="col-sm-12">
+                    <p>Seleccione el postulante a quien va asignar este abono:</p>
+                    <div class="m-t m-b m-l">
+                        <span class="block">Número operación: {{rExItem.numeroOperacion}}</span>
+                        <span class="block">Fecha: {{rExItem.fechaAbono}}</span>
+                        <span class="block">Importe: {{rExItem.importe}}</span>
+                        <span class="block">Decripción: {{rExItem.descripcion}}</span>
+                        <span class="block">Usuario: {{rExItem.usuarioBanco}}</span>
+                        <span class="block">Sucursal: {{rExItem.sucursal}}</span>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control buscar-postulante" name="postulante.id" data-trigger="change"
+                               required="true"/>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</modal-vik>

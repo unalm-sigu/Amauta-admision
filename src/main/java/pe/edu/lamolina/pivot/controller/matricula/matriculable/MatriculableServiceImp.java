@@ -58,10 +58,11 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
@@ -547,10 +548,10 @@ public class MatriculableServiceImp implements MatriculableService {
     public void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
-        CicloAcademico academicoAnterior = cicloAcademicoDAO.findAnteriorActivo(cicloAcademico);
+        List<CicloAcademico> academicosAnterior = cicloAcademicoDAO.findAnteriorRegActivo(3, cicloAcademico);
+        CicloAcademico academicoAnterior =  academicosAnterior.get(2);
         List<String> situacionesPregrado
-                = Arrays.asList(S_N.getValue(), S_1.getValue(), S_2.getValue(), S_3.getValue(),
-                        S_5.getValue(), S_8.getValue(), S_9.getValue(), S_3U.getValue(), S_EM.getValue());
+                = Arrays.asList(S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue());
 
         matriculaResumenDAO.savePosGradoVerano(situacionesPregrado, academicoAnterior, cicloAcademico);
         matriculaResumenDAO.savePreGradoVerano(situacionesPregrado, academicoAnterior, cicloAcademico);
