@@ -57,6 +57,20 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
+    public List<MatriculaResumen> allByCicloFull(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .join("alu.persona aluPer", "alu.carrera alucar")
+                .join("alucar.facultad fac")
+                .leftJoin("aluPer.tipoDocumento td", "alu.cicloIngreso ci")
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
     public MatriculaResumen findByFilter(CicloAcademico ciclo, Alumno alumno, EstadoMatriculaEnum estadoMatriculaCursoEnum) {
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
@@ -452,7 +466,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("inner join alum.modalidadEstudio me ");
         strb.append("inner join alum.situacionAcademica sit ");
         strb.append("inner join mat.cicloAcademico cic ");
-        strb.append("where sit.codigo in ( :codigos ) and me.codigo = 'EPG'");
+        strb.append("where sit.codigo not in ( :codigos ) and me.codigo = 'EPG'");
         strb.append("and cic.id = car.id ");
         strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");
 
@@ -502,7 +516,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("inner join alum.modalidadEstudio me ");
         strb.append("inner join alum.situacionAcademica sit ");
         strb.append("inner join mat.cicloAcademico cic ");
-        strb.append("where sit.codigo in ( :codigos ) and me.codigo = 'PRE'");
+        strb.append("where sit.codigo not in  ( :codigos ) and me.codigo = 'PRE'");
         strb.append("and cic.id = car.id ");
         strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");
 

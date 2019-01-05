@@ -17,6 +17,8 @@ public interface AnexoBoletinDAO extends EasyDAO<AnexoBoletin> {
 
     List<AnexoBoletin> allAnexosSuperiores();
 
+    List<AnexoBoletin> allAnexosSuperioresOrderedbyOrden();
+
     List<AnexoBoletin> allAnexosHijos();
     
     List<AnexoBoletin> allActivosHijos();

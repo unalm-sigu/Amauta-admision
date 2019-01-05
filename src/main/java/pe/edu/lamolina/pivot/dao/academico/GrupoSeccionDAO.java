@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -72,6 +73,8 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
     List<GrupoSeccion> allWithDocenteSeccionActivosByCiclo(CicloAcademico cicloOrigen);
 
     List<GrupoSeccion> allOrdenadoByCiclo(CicloAcademico ciclo);
+
+    List<GrupoSeccion> allOrdenadoByCicloAndAnexoBoletin(CicloAcademico ciclo, AnexoBoletin anexoBol);
 
     void setCodigo2Null(CicloAcademico ciclo);
 

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.zelper.pdf;
 
 import org.thymeleaf.context.Context;
+import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
 
 public class PdfContent {
 

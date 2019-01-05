@@ -271,61 +271,27 @@ public class TestController {
     }
 
     @ResponseBody
-    @RequestMapping("promediarAll")
-    public String promediarAll(HttpSession session) {
+    @RequestMapping("promediarCiclo/{ciclo}")
+    public String promediarAll(@PathVariable("ciclo") Long cicloId, HttpSession session) {
         logger.info("promediarAll");
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
 
-        ModalidadEstudio pre = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
-        ModalidadEstudio epg = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.EPG);
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.find(new CicloAcademico(cicloId));
+        List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
+        logger.info("matriculas resumen encontradas {}", matriculasResumen.size());
 
-        List<SituacionAcademica> situacionesPregrado = situacionAcademicaDAO.allByCodes(
-                Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_EM, S_3U, S_2U, S_4U, S_6U, S_TU));
-        List<SituacionAcademica> situacionesPosgrado = situacionAcademicaDAO.allByCodes(
-                Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_EM));
-
-        List<String> situacionesPre = situacionesPregrado.stream().map(x -> x.getId().toString()).collect(Collectors.toList());
-        List<String> situacionesPos = situacionesPosgrado.stream().map(x -> x.getId().toString()).collect(Collectors.toList());
-        logger.debug("Situaciones pregrado {}", String.join(",", situacionesPre));
-        logger.debug("Situaciones posgrado {}", String.join(",", situacionesPos));
-
-        List<Alumno> pregrados = alumnoDAO.allBySituaciones(pre, situacionesPregrado);
-        List<Alumno> posgrados = alumnoDAO.allBySituaciones(epg, situacionesPosgrado);
-        List<Alumno> unionList = new ArrayList();
-        unionList.addAll(pregrados);
-        unionList.addAll(posgrados);
-
-
-        /*
-        List<CicloAcademico> allCiclosActivesPre = cicloAcademicoDAO.allActivesByModalidad(pre, new String[]{"ca.year asc", "ca.numeroCiclo asc"});
-        List<CicloAcademico> allCiclosActivesEpg = cicloAcademicoDAO.allActivesByModalidad(epg, new String[]{"ca.year asc", "ca.numeroCiclo asc"});
-         */
-        // visorCalculoNotas.setCantidadTotal(pregrados.size());
-        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
-
-        List<AlumnoCicloCurso> allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByModalidadEstudio(ModalidadEstudioEnum.PRE);
-        logger.debug("alumno ciclo curso operatives {}", allOperativesByModalidadEstudio.size());
-        //   Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByAlu = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", allOperativesByModalidadEstudio);
         visorCalculoNotas.iniciar();
-        visorCalculoNotas.setCantidadTotal(pregrados.size());
-        for (Alumno alumno : pregrados) {
-            if (!alumno.getCarrera().getId().equals(6L)) {
-                continue;
-            }
-            //    List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = mapAlumnoCicloCursoByAlu.get(alumno.getId());
-            promedioService.promediarAllCicloAsync(alumno, cicloActivo, allOperativesByModalidadEstudio, ds);
+        visorCalculoNotas.setCantidadTotal(matriculasResumen.size());
+        for (MatriculaResumen mResumen : matriculasResumen) {
+            Alumno alumno = mResumen.getAlumno();
+            List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+            promedioService.promediarAllCicloAsync(alumno, cicloAcademico, alumnosCicloCursoByAlumno, ds);
         }
-        /*
-        for (Alumno alumno : posgrados) {
-            promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
-        }
-         */
         return "yeah";
     }
 
     @ResponseBody
-    @RequestMapping("promediarAll/{alumno}")
+    @RequestMapping("promediarAlumno/{alumno}")
     public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         //  List<CicloAcademico> allCiclosActivos = cicloAcademicoDAO.allActivesByModalidad(alumno.getModalidadEstudio(), new String[]{"ca.year asc", "ca.numeroCiclo asc"});
