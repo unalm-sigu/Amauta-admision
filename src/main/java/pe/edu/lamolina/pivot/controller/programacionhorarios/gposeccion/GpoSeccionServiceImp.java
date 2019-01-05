@@ -2527,7 +2527,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
             List<VacanteAlumno> vacAluSecc = mapVacAlumnos.get(secc.getId());
             vacAluSecc = (vacAluSecc == null) ? new ArrayList() : vacAluSecc;
-            Map<Integer, VacanteAlumno> mapVacAluSecc = TypesUtil.convertListToMapList("numero", vacAluSecc);
+            Map<Integer, VacanteAlumno> mapVacAluSecc = TypesUtil.convertListToMap("numero", vacAluSecc);
             for (int i = 1; i < secc.getVacantes() + 1; i++) {
                 VacanteAlumno va = mapVacAluSecc.get(i);
                 if (va != null) {
