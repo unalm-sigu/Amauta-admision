@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -32,9 +31,9 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.model.constantines.AdmisionConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
 import static pe.edu.lamolina.model.enums.InteresadoEstadoEnum.POST;
@@ -47,7 +46,6 @@ import pe.edu.lamolina.model.finanzas.ConceptoPago;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.finanzas.DeudaInteresado;
 import pe.edu.lamolina.model.finanzas.ItemCargaAbono;
-import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
 import pe.edu.lamolina.model.inscripcion.Evento;
 import pe.edu.lamolina.model.inscripcion.EventoCiclo;
@@ -56,6 +54,7 @@ import pe.edu.lamolina.model.inscripcion.ModalidadIngreso;
 import pe.edu.lamolina.model.inscripcion.ModalidadIngresoCiclo;
 import pe.edu.lamolina.model.inscripcion.Postulante;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.CicloPostulaDAO;
 import pe.edu.lamolina.pivot.dao.finanza.AbonoPostulanteDAO;
@@ -63,7 +62,6 @@ import pe.edu.lamolina.pivot.dao.finanza.CargaAbonosDAO;
 import pe.edu.lamolina.pivot.dao.finanza.CuentaBancariaDAO;
 import pe.edu.lamolina.pivot.dao.finanza.DeudaInteresadoDAO;
 import pe.edu.lamolina.pivot.dao.finanza.ItemCargaAbonoDAO;
-import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.inscripcion.EventoCicloDAO;
 import pe.edu.lamolina.pivot.dao.inscripcion.EventoDAO;
 import pe.edu.lamolina.pivot.dao.inscripcion.ModalidadIngresoCicloDAO;
@@ -75,8 +73,6 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
 
     @Autowired
     PostulanteDAO postulanteDAO;
-    @Autowired
-    TipoDocIdentidadDAO tipoDocIdentidadDAO;
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
     @Autowired
@@ -97,6 +93,8 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
     EventoDAO eventoDAO;
     @Autowired
     EventoCicloDAO eventoCicloDAO;
+    @Autowired
+    AlumnoDAO alumnoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -119,7 +117,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
         carga.setCicloPostula(cicloPostula);
         Date fecha = buscarFechaArchivo(carga, hoy);
         verificarRedundanciaHistorica(carga, fecha);
-        verificarPostulantes(carga, cicloPostula);
+        verificarAlumnos(carga);
         List<Observado> observados = validarItemsCarga(carga, fecha);
 
         carga.setFechaCarga(fecha);
@@ -130,7 +128,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
 
         saveDatos(carga);
         verificarExtornosHistoricos(carga, usuario);
-        verificarAbonosPostulantes(carga, cicloPostula, usuario);
+        verificarAbonosAlumnos(carga, usuario);
 
         return observados;
     }
@@ -142,10 +140,9 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
                 continue;
             }
             if (!previo.isValidado()) {
-                Postulante postul = previo.getPostulante();
+                Alumno alumno = previo.getAlumno();
                 logger.debug("descripcion::::" + previo.getDescripcion());
-                logger.debug("postul::::" + (postul == null ? null : postul.getId() + ""));
-                decrementarAbono(postul, previo);
+                logger.debug("alumno::::" + (alumno == null ? null : alumno.getId() + ""));
                 previo.setExtornado(1);
                 previo.setFechaExtornado(new Date());
                 previo.setUsuarioExtornado(usuario);
@@ -185,7 +182,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
         }
     }
 
-    private void verificarAbonosPostulantes(CargaAbonos carga, CicloPostula ciclo, Usuario usuario) {
+    private void verificarAbonosAlumnos(CargaAbonos carga, Usuario usuario) {
         List<ItemCargaAbono> items = carga.getItemCargaAbono();
         for (ItemCargaAbono item : items) {
             if (item.getDescripcion().startsWith("EXTORNO")) {
@@ -194,8 +191,6 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
             if (item.getRedundante() == 1) {
                 ItemCargaAbono previo = item.getNoRedundante();
                 if (previo.getExtornado() == 1 && previo.getFechaExtornado() == null) {
-                    Postulante postul = previo.getPostulante();
-                    decrementarAbono(postul, previo);
                     previo.setExtornado(1);
                     previo.setFechaExtornado(new Date());
                     previo.setUsuarioExtornado(usuario);
@@ -203,48 +198,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
                 }
                 continue;
             }
-
-            if (item.getExtornado() == 1) {
-                continue;
-            }
-
-            Postulante postul = item.getPostulante();
-            incrementarAbono(postul, item, ciclo);
         }
-    }
-
-    private void incrementarAbono(Postulante postulante, ItemCargaAbono item, CicloPostula ciclo) {
-        List<DeudaInteresado> deudas = new ArrayList();
-        Interesado interesado = postulante.getInteresado();
-        if (interesado != null) {
-            deudas = deudaInteresadoDAO.allActivasByInteresado(interesado, ciclo);
-        }
-
-        postulante.setImporteAbonado(postulante.getImporteAbonado().add(item.getImporte()));
-        postulante.setImporteTotal(postulante.getImporteAbonado().add(postulante.getImporteDescuento()));
-        postulanteDAO.update(postulante);
-
-        AbonoPostulante abono = new AbonoPostulante();
-        abono.setAbono(item);
-        abono.setConcepto(item.getConceptoPago());
-        abono.setFechaDeposito(item.getFechaAbono());
-        abono.setImporte(item.getImporte());
-        abono.setImporteUtilizado(BigDecimal.ZERO);
-        abono.setNumeroOperacion(item.getNumeroOperacion());
-        abono.setPostulante(postulante);
-        abonoPostulanteDAO.save(abono);
-
-        DeudaInteresado deuda = findDeudaByMonto(deudas, item.getImporte(), postulante);
-        if (deuda != null) {
-            deuda.setFechaAbono(new Date());
-            deuda.setAbono(abono.getImporte());
-            deudaInteresadoDAO.update(deuda);
-
-            item.setConceptoPago(deuda.getConceptoPrecio().getConceptoPago());
-            itemCargaAbonoDAO.update(item);
-        }
-
-        revisarDeudasCompletas(deudas, postulante, postulante.getModalidadIngreso(), ciclo);
     }
 
     @Override
@@ -399,17 +353,6 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
         return null;
     }
 
-    private void decrementarAbono(Postulante postulante, ItemCargaAbono item) {
-        postulante.setImporteAbonado(postulante.getImporteAbonado().subtract(item.getImporte()));
-        postulante.setImporteTotal(postulante.getImporteAbonado().add(postulante.getImporteDescuento()));
-        postulanteDAO.update(postulante);
-
-        AbonoPostulante abono = abonoPostulanteDAO.findByItemCarga(item);
-        if (abono != null) {
-            abonoPostulanteDAO.delete(abono);
-        }
-    }
-
     private void verificarRedundanciaHistorica(CargaAbonos carga, Date fecha) {
         logger.debug("cta banco es {}", carga.getCuentaBancaria().getId());
         List<ItemCargaAbono> previos = itemCargaAbonoDAO.allActivosSinExtornosByFecha(carga.getCuentaBancaria(), TipoArchivoEnum.DI.name(), fecha);
@@ -466,21 +409,19 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
             }
 
             String codigo = StringUtils.substring(item.getDescripcion(), -8).trim();
-            Postulante postulante = item.getPostulante();
+            Alumno alumno = item.getAlumno();
 
-            if (postulante == null || postulante.getCodigo().equals(AdmisionConstantine.CODE_POSTULANTE_DUMMY)) {
+            if (alumno == null) {
                 Observado observado = new Observado();
                 observado.setOperacion(item.getNumeroOperacion());
-                observado.setDescripcion("Postulante con código " + codigo + " no pudo ser hallado en la línea " + (item.getLinea().intValue() + 1));
+                observado.setDescripcion("Alumno con código " + codigo + " no pudo ser hallado en la línea " + (item.getLinea().intValue() + 1));
                 observados.add(observado);
             }
         }
         return observados;
     }
 
-    private void verificarPostulantes(CargaAbonos carga, CicloPostula ciclo) {
-        List<TipoDocIdentidad> tipos = tipoDocIdentidadDAO.allForPersonaNatural();
-        Map<String, TipoDocIdentidad> mapTipoDNI = TypesUtil.convertListToMap("simbolo", tipos);
+    private void verificarAlumnos(CargaAbonos carga) {
         List<ItemCargaAbono> items = carga.getItemCargaAbono();
         for (ItemCargaAbono item : items) {
 
@@ -497,41 +438,15 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
                 continue;
             }
 
-            Postulante postulante = null;
             String codigo = getCodigoPago(item.getDescripcion());
-
-            if (StringUtils.isNumeric(codigo)) {
-                postulante = postulanteDAO.findByDNICiclo(codigo, ciclo);
-            } else {
-                TipoDocIdentidad tipoDoc = getTipoDoc(codigo, mapTipoDNI);
-                String nroDoc = codigo.substring(1);
-                if (tipoDoc != null) {
-                    postulante = postulanteDAO.findByDocIdentidadCiclo(tipoDoc, nroDoc, ciclo);
-                } else {
-                    postulante = postulanteDAO.findByDNICiclo(codigo, ciclo);
-                }
+            Alumno alumno = alumnoDAO.findByCodigo(codigo);
+            if (alumno == null) {
+                logger.debug("Alumno con código - {} - no encontrado", codigo);
+                logger.info("Alumno con código - {} - no encontrado", codigo);
             }
 
-            if (postulante == null) {
-                postulante = postulanteDAO.findByCodigoCiclo(codigo, ciclo);
-            }
-
-            if (postulante == null) {
-                postulante = postulanteDAO.findByCodigoCiclo(AdmisionConstantine.CODE_POSTULANTE_DUMMY, ciclo);
-            }
-
-            item.setPostulante(postulante);
+            item.setAlumno(alumno);
         }
-    }
-
-    private TipoDocIdentidad getTipoDoc(String codigo, Map<String, TipoDocIdentidad> mapTipoDNI) {
-        if (codigo.startsWith("P")) {
-            return mapTipoDNI.get("PAS");
-        }
-        if (codigo.startsWith("C")) {
-            return mapTipoDNI.get("CE");
-        }
-        return null;
     }
 
     private String getCodigoPago(String trama) {
@@ -595,7 +510,6 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
                 BigDecimal importe = new BigDecimal(columnaMonto.replaceAll(",", ""));
                 String sucursal = getCellValue(5, row);
                 String operacion = getCellValue(6, row);
-                String hora = getCellValue(7, row);
                 String userBanco = getCellValue(8, row);
 
                 ItemCargaAbono item = new ItemCargaAbono();
@@ -710,9 +624,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
 
         CicloPostula ciclo = findCicloActivo();
 
-        incrementarAbono(oldExtornado.getPostulante(), oldExtornado, ciclo);
-        decrementarAbono(newExtonado.getPostulante(), newExtonado);
-
+//        decrementarAbono(newExtonado.getPostulante(), newExtonado);
         oldExtornado.setExtornado(0);
         oldExtornado.setExtornador(null);
         oldExtornado.setFechaExtornado(null);
@@ -775,7 +687,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
 
         Date hoy = new LocalDate().toDate(); // new DateTime("2016-07-07").toDate(); // new LocalDate().toDate();
         verificarRedundanciaDiaria(carga, hoy);
-        verificarPostulantes(carga, cicloPostula);
+        verificarAlumnos(carga);
         verificarExtornosDiario(carga, usuario);
         List<Observado> observados = validarItemsCarga(carga, hoy);
 
@@ -797,7 +709,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
         carga.setUserRegistro(usuario);
 
         saveDatos(carga);
-        verificarAbonosPostulantes(carga, cicloPostula, usuario);
+        verificarAbonosAlumnos(carga, usuario);
 
         return observados;
     }
@@ -1003,15 +915,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
         if (posibles.isEmpty()) {
             throw new PhobosException("No se pudo hallar la operación a extornar que corresponde a la línea " + extornador.getLinea());
         }
-        for (ItemCargaAbono posible : posibles) {
-            if (posible.getPostulante().getCodigo().equals(AdmisionConstantine.CODE_POSTULANTE_DUMMY)) {
-                posible.setExtornado(1);
-                posible.setFechaExtornado(new Date());
-                posible.setUsuarioExtornado(usuario);
-                posible.setExtornador(extornador);
-                return;
-            }
-        }
+
         for (ItemCargaAbono posible : posibles) {
             posible.setExtornado(1);
             posible.setFechaExtornado(new Date());

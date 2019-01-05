@@ -2483,24 +2483,31 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         logger.debug(" ****  seccion {} ", seccion.getId());
         logger.debug(" ****  matriculados {} ", matriculados);
-        logger.debug(" ****  cicloAcademico {} ", cicloAcademico.getId());
+        logger.debug(" ****  cicloAcademico {} ", cicloAcademico.getId());//semanasClases
+        logger.debug(" ****  cicloAcademico getSemanasClases {} ", cicloAcademico.getSemanasClases());
         PagoHoraDocente pagoHoraDocente = pagoHoraDocenteDAO.findByCicloMatriculados(cicloAcademico, matriculados);
-        logger.debug(" ****  pagoHoraDocente not null {} ", pagoHoraDocente!=null);
+        logger.debug(" ****  pagoHoraDocente not null {} ", pagoHoraDocente != null);
         if (pagoHoraDocente != null) {
             Integer horasSemanales = seccion.getHorasSemanales();
             BigDecimal porcentaje = docenteSeccionDb.getPorcentajeCarga();
             if (porcentaje == null) {
                 porcentaje = new BigDecimal("100");
             }
+            Long semanasClases = cicloAcademico.getSemanasClases();
             logger.debug(" ****  porcentaje carga {} ", porcentaje);
             BigDecimal factor = new BigDecimal("0.01");
             BigDecimal pago = pagoHoraDocente.getMontoHora();
-            BigDecimal horasSemanalesDecimal = new BigDecimal(horasSemanales);
+            BigDecimal horasSemanalesDecimal = BigDecimal.ZERO;
+            if (horasSemanales != null) {
+                horasSemanalesDecimal = new BigDecimal(horasSemanales);
+            }
+            BigDecimal semanasClasesDecimal = new BigDecimal(semanasClases);
             BigDecimal matriculadosDecimal = new BigDecimal(matriculados);
 
             BigDecimal montoPagar = factor.multiply(pago)
                     .multiply(horasSemanalesDecimal)
-                    .multiply(matriculadosDecimal);
+                    .multiply(matriculadosDecimal)
+                    .multiply(semanasClasesDecimal);
             logger.debug("docenteSeccion {} monto generador a pagar es {}", docenteSeccion.getId(), montoPagar);
             docenteSeccionDb.setPagoVerano(montoPagar);
             docenteSeccionDAO.update(docenteSeccionDb);
