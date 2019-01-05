@@ -135,7 +135,7 @@ public class MatriculableController {
             for (MatriculaResumen matriculable : matriculables) {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados","motivoMatriculable",
+                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable",
                             "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",
                             "alumno.id", "alumno.persona.apellidosNombres", "alumno.carrera.id", "alumno.carrera.codigo",
@@ -219,6 +219,7 @@ public class MatriculableController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
+            service.revisarSituacionesAcademicas(ds.getCicloAcademico(), ds);
             service.generarPrioridad(ds.getCicloAcademico());
             response.setMessage("Prioridad generadas correctamente");
             response.setSuccess(true);
@@ -448,12 +449,10 @@ public class MatriculableController {
     @RequestMapping("saveMatriculable")
     public JsonResponse saveMatriculable(@RequestBody Alumno alumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-
-            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.revisarSituacionAcademica(alumno, ds);
             service.saveMatriculable(alumno, ds);
-            ArrayNode jsonList = new ArrayNode(jsonFactory);
 
             response.setMessage("Se agregó al alumno satisfactoriamente.");
             response.setSuccess(true);

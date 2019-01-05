@@ -2,7 +2,6 @@ package pe.edu.lamolina.pivot.controller.academico.promedio;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +28,6 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
@@ -98,6 +96,7 @@ public class PromedioServiceImp implements PromedioService {
 
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
+    
 
     private final Integer VECES_TRIKA = 3;
 
@@ -260,6 +259,12 @@ public class PromedioServiceImp implements PromedioService {
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio());
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
         this.promediarAllCicloSync(alumno, cicloActivo, alumnoCicloCursos, ds);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void calulcarSituacionAcademicaNewSession(Alumno alumno, DataSessionPivot ds) {
+        this.calulcarSituacionAcademica(alumno, ds);
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)

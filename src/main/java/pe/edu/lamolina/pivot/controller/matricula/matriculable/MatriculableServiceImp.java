@@ -63,6 +63,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -114,6 +115,9 @@ public class MatriculableServiceImp implements MatriculableService {
     @Autowired
     ConfiguracionMatriculaService configuracionMatriculaService;
 
+    @Autowired
+    PromedioService promedioService;
+
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
         return matriculaResumenDAO.findResumenByCicloRolDynateable(cicloAcademico, codigo, filtros);
@@ -155,6 +159,20 @@ public class MatriculableServiceImp implements MatriculableService {
         cicloAcademicoUpd.setId(ciclo.getId());
         cicloAcademicoUpd.setFechaMatriculables(today.toDate());
         cicloAcademicoDAO.updateFechaMatriculables(cicloAcademicoUpd);
+    }
+
+    @Override
+    public void revisarSituacionAcademica(Alumno alumno, DataSessionPivot ds) {
+        promedioService.calulcarSituacionAcademicaNewSession(alumno, ds);
+    }
+
+    @Override
+    public void revisarSituacionesAcademicas(CicloAcademico ciclo, DataSessionPivot ds) {
+        CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo.getId());
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloBD);
+        for (MatriculaResumen matriculable : matriculables) {
+            promedioService.calulcarSituacionAcademicaNewSession(matriculable.getAlumno(), ds);
+        }
     }
 
     @Override

@@ -32,6 +32,8 @@ public interface PromedioService {
 
     void calulcarSituacionAcademica(Alumno alumno, DataSessionPivot ds);
 
+    void calulcarSituacionAcademicaNewSession(Alumno alumno, DataSessionPivot ds);
+
     Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno);
 
     Integer evaluateEstaAprobado(MatriculaCurso matriculaCurso, Alumno alumno);
