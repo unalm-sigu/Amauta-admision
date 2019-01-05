@@ -111,6 +111,9 @@ public class MatriculableServiceImp implements MatriculableService {
     ConfiguracionTurnosAtencionDAO configuracionTurnosAtencionDAO;
 
     @Autowired
+    VisorCalculaSituacion visorCalculaSituacion;
+
+    @Autowired
     MatriculableConnector matriculableConector;
 
     @Autowired
@@ -171,14 +174,35 @@ public class MatriculableServiceImp implements MatriculableService {
     public void revisarSituacionesAcademicas(CicloAcademico ciclo, DataSessionPivot ds) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo.getId());
         List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloBD);
+        int loop = 0;
+        if (!visorCalculaSituacion.iniciar(matriculables.size())) {
+            throw new PhobosException("Ya se solicitó un procesamiento de situaciones académicas");
+        }
+
         for (MatriculaResumen matriculable : matriculables) {
             promedioService.calulcarSituacionAcademicaNewSession(matriculable.getAlumno(), ds);
+            loop++;
+            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
+            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
+            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
+            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
+            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
+            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
+            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
+            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
         }
     }
 
     @Override
     @Transactional(readOnly = false)
     public void generarPrioridad(CicloAcademico ciclo) {
+        for (;;) {
+            if (visorCalculaSituacion.finalizo()) {
+                break;
+            }
+            TypesUtil.delay(2000);
+        }
+
         DateTime today = new DateTime();
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo.getId());
 
@@ -549,7 +573,7 @@ public class MatriculableServiceImp implements MatriculableService {
         DateTime today = new DateTime();
 
         List<CicloAcademico> academicosAnterior = cicloAcademicoDAO.findAnteriorRegActivo(3, cicloAcademico);
-        CicloAcademico academicoAnterior =  academicosAnterior.get(2);
+        CicloAcademico academicoAnterior = academicosAnterior.get(2);
         List<String> situacionesPregrado
                 = Arrays.asList(S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue());
 

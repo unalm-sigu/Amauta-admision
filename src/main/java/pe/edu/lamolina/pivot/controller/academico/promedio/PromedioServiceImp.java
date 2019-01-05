@@ -38,6 +38,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.situacionacademica.SituacionAcademicaService;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.VisorCalculaSituacion;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -96,7 +97,9 @@ public class PromedioServiceImp implements PromedioService {
 
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
-    
+
+    @Autowired
+    VisorCalculaSituacion visorCalculaSituacion;
 
     private final Integer VECES_TRIKA = 3;
 
@@ -272,10 +275,24 @@ public class PromedioServiceImp implements PromedioService {
         this.promediarAllCicloSync(alumno, cicloActivo, alumnoCicloCursos, ds);
     }
 
+    @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void calulcarSituacionAcademicaNewSession(Alumno alumno, DataSessionPivot ds) {
+        long t1 = System.currentTimeMillis();
         this.calulcarSituacionAcademica(alumno, ds);
+        visorCalculaSituacion.incrementar();
+        long t2 = System.currentTimeMillis() - t1;
+
+        System.out.println(visorCalculaSituacion.reporte() + " en " + t2 + " mseg");
+        System.out.println(visorCalculaSituacion.reporte() + " en " + t2 + " mseg");
+        System.out.println(visorCalculaSituacion.reporte() + " en " + t2 + " mseg");
+        System.out.println(visorCalculaSituacion.reporte() + " en " + t2 + " mseg");
+        System.out.println(visorCalculaSituacion.reporte() + " en " + t2 + " mseg");
+        System.out.println(visorCalculaSituacion.reporte() + " en " + t2 + " mseg");
+        System.out.println(visorCalculaSituacion.reporte() + " en " + t2 + " mseg");
+        System.out.println(visorCalculaSituacion.reporte() + " en " + t2 + " mseg");
+        
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)

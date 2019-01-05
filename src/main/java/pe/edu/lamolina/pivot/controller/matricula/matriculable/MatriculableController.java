@@ -219,7 +219,7 @@ public class MatriculableController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            service.revisarSituacionesAcademicas(ds.getCicloAcademico(), ds);
+            //service.revisarSituacionesAcademicas(ds.getCicloAcademico(), ds);
             service.generarPrioridad(ds.getCicloAcademico());
             response.setMessage("Prioridad generadas correctamente");
             response.setSuccess(true);

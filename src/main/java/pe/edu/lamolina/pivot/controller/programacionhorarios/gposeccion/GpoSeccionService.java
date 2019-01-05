@@ -201,4 +201,6 @@ public interface GpoSeccionService {
 
     void generarpagodocente(DocenteSeccion docenteSeccion, DataSessionPivot ds);
 
+    void recrearVacanteAlumno(CicloAcademico ciclo, DataSessionPivot ds);
+
 }

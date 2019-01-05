@@ -29,8 +29,10 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
     public List<VacanteAlumno> allBySecciones(List<Seccion> secciones) {
         Octavia sql = Octavia.query()
                 .from(VacanteAlumno.class, "va")
-                .join("seccion se", "alumno alu")
-                .in("se.id", secciones);
+                .join("seccion se")
+                .leftJoin("alumno alu")
+                .in("se.id", secciones)
+                .orderBy("seccion.id", "va.numero");
         return sql.all(getCurrentSession());
     }
 
@@ -89,10 +91,11 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
     }
 
     @Override
-    public List<VacanteAlumno> allActivoBySeccion(List<Seccion> secciones) {
+    public List<VacanteAlumno> allActivoBySecciones(List<Seccion> secciones) {
         Octavia sql = Octavia.query()
                 .from(VacanteAlumno.class, "va")
-                .join("seccion se", "alumno alu")
+                .join("seccion se")
+                .leftJoin("alumno alu")
                 .filter("activo", 1)
                 .in("se.id", secciones);
         return sql.all(getCurrentSession());
