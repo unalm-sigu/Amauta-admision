@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -26,25 +23,9 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2U;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3U;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
@@ -271,7 +252,7 @@ public class TestController {
     }
 
     @ResponseBody
-    @RequestMapping("promediarCiclo/{ciclo}")
+    @RequestMapping("promediarciclo/{ciclo}")
     public String promediarAll(@PathVariable("ciclo") Long cicloId, HttpSession session) {
         logger.info("promediarAll");
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -291,7 +272,33 @@ public class TestController {
     }
 
     @ResponseBody
-    @RequestMapping("promediarAlumno/{alumno}")
+    @RequestMapping("promediarciclocod/{ciclo}")
+    public String promediarAll(@PathVariable("ciclo") String cicloCod, HttpSession session) {
+        logger.info("promediarAll");
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        visorCalculoNotas.iniciar();
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.allByCodigo(cicloCod);
+        for (CicloAcademico cicloAcademico : ciclos) {
+            if (!cicloAcademico.getModalidadEstudio().isPregrado()) {
+                continue;
+            }
+            List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
+            logger.info("matriculas resumen encontradas {}", matriculasResumen.size());
+
+            for (MatriculaResumen mResumen : matriculasResumen) {
+                Alumno alumno = mResumen.getAlumno();
+                if (!alumno.isPregrado()) {
+                    continue;
+                }
+                promedioService.promediarAllCicloAsync(alumno, cicloAcademico, null, ds);
+            }
+        }
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("promediaralumno/{alumno}")
     public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         //  List<CicloAcademico> allCiclosActivos = cicloAcademicoDAO.allActivesByModalidad(alumno.getModalidadEstudio(), new String[]{"ca.year asc", "ca.numeroCiclo asc"});
