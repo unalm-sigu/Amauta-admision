@@ -177,7 +177,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         List<AlumnoCursoCurricula> cursosPlanAlumno = alumnoCursoCurriculaDAO.allByAlumnoCursosCurricula(alumno, cursosCicloPlan);
         for (AlumnoCursoCurricula alumnoCursoCurricula : cursosPlanAlumno) {
             ObjectNode objNode = JsonHelper.createJson(alumnoCursoCurricula, JsonNodeFactory.instance, true, new String[]{
-                "numeroCiclo", "estado", "estadoEnum", "vecesCursado", "nota", "creditos",
+                "numeroCiclo", "estado", "estadoEnum", "vecesCursado", "nota", "creditos","estadoMatricula","estadoMatriculaEnum",
                 "curso.codigo",
                 "curso.codigoAnterior1",
                 "curso.nombre",
