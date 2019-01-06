@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
-import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
@@ -31,8 +30,6 @@ import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
-import pe.edu.lamolina.model.inscripcion.Ingresante;
-import pe.edu.lamolina.model.inscripcion.ModalidadIngreso;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
@@ -47,7 +44,6 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
-import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -205,13 +201,15 @@ public class PdfServiceImp implements PdfService {
         return mapNotas;
     }
 
-    
     @Override
     public List<String> reporteProgramacion(CicloAcademico ciclo) {
         ObjectUtil.printAttr(ciclo);
         List<String> pdfs = new ArrayList<>();
         //buscar boletin anexo superiores ordenados por orden
         List<AnexoBoletin> listaAB = anexoBoletinDAO.allAnexosSuperioresOrderedbyOrden();
+        for (AnexoBoletin anexoBoletin : listaAB) {
+            logger.debug("anexoboletin nombre {}", anexoBoletin.getNombre());
+        }
         //para cada boletin encontrado buscar los boletines inferiores ordenados por orden
         for (AnexoBoletin ab : listaAB) {
             List<AnexoBoletin> subListaAB = anexoBoletinDAO.allBySuperior(ab);
@@ -234,7 +232,6 @@ public class PdfServiceImp implements PdfService {
         return pdfs;
     }
 
-    
     public String createPdfReporteProgramacion(List<AnexoBoletin> listAB) {
 
         Context ctx = new Context();
