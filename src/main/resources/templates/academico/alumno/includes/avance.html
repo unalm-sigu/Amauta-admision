@@ -82,7 +82,7 @@
                             <span v-text="item.cicloAprobado.descripcion"></span>
                         </td>
                         <td class="v-middle text-center">
-                            <span v-if="item.estadoMatriculaEnum != null" v-bind:class="styleEstadoCurr(item.estadoMatriculaEnum.name)" v-text="item.estadoMatriculaEnum.value"></span>
+                            <span v-if="item.estadoMatriculaEnum != null &amp;&amp; (item.estado == 'SIM' || item.estado == 'HAB')" v-bind:class="styleEstadoCurr(item.estadoMatriculaEnum.name)" v-text="item.estadoMatriculaEnum.value"></span>
                             <span v-else="" v-bind:class="styleEstadoCurr(item.estadoEnum.name)" v-text="item.estadoEnum.value"></span>
                         </td>
                     </tr>
