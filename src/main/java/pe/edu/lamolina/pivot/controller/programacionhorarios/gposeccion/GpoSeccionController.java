@@ -2215,14 +2215,14 @@ public class GpoSeccionController {
 
     @ResponseBody
     @RequestMapping("generarpagodocente")
-    public JsonResponse generarpagodocente(DocenteSeccion  docenteSeccion,
+    public JsonResponse generarpagodocente(DocenteSeccion docenteSeccion,
             RedirectAttributes redirectAttr,
             HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.generarpagodocente(docenteSeccion,ds);
+            service.generarpagodocente(docenteSeccion, ds);
             response.setMessage(Messages.UPDATED);
             response.setSuccess(true);
 
@@ -2543,6 +2543,27 @@ public class GpoSeccionController {
             array.add(node);
         }
         return array;
+    }
+
+    @ResponseBody
+    @RequestMapping("recrearVacanteAlumno")
+    public JsonResponse recrearVacanteAlumno(Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+
+            service.recrearVacanteAlumno(ciclo, ds);
+
+            response.setMessage("Se recreo los VacanteAlumno satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
     }
 
 }

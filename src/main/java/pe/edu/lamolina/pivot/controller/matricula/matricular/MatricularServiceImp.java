@@ -117,7 +117,7 @@ public class MatricularServiceImp implements MatricularService {
         Map<Long, List<MatriculaSeccion>> matriculaSeccionsMap = TypesUtil.convertListToMapList("matriculaResumen.id", matriculaSeccions);
         List<Seccion> secciones = matriculaSeccions.stream().map(MatriculaSeccion::getSeccion).collect(Collectors.toList());
 
-        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allActivoBySeccion(secciones);
+        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allActivoBySecciones(secciones);
         Map<Long, List<VacanteAlumno>> vacanteAlumnosMap = TypesUtil.convertListToMapList("seccion.id", vacanteAlumnos);
 
         logger.debug("cantidad matricula resumen NMAT {} curso PMAT {} seccion PMAT {} vacantes alumnos  {} ",
