@@ -374,6 +374,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Map<String, List<AlumnoCicloCurso>> cursosAprobados = new HashMap();
         List<AlumnoCicloCurso> aprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumno);
         for (AlumnoCicloCurso aprobado : aprobados) {
+            if (aprobado.getCurso().getDepartamentoAcademico() == null) {
+                continue;
+            }
+
             String key = aprobado.getCurso().getDepartamentoAcademico().getCodigo();
             List<AlumnoCicloCurso> lista = cursosAprobados.get(key);
             if (lista == null) {
