@@ -242,7 +242,7 @@ public class MatricularServiceImp implements MatricularService {
 
                     if (mc.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
                         mc.setEstadoEnum(EstadoMatriculaEnum.MAT);
-                        this.actualizarAlumnoCursoCurricula(alumno, curso, CursoCurriculaEstadoEnum.MAT);
+                        this.actualizarAlumnoCursoCurricula(alumno, curso, EstadoMatriculaEnum.MAT);
                         matriculaCursoDAO.update(mc);
                         notify.setCurrentCurso(notify.getCurrentCurso() + 1);
                     }
@@ -344,7 +344,7 @@ public class MatricularServiceImp implements MatricularService {
                     // notify.setCurrentCurso(notify.getCurrentCurso() + 1);
                     if (matriculaCurso.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
                         matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
-                        this.actualizarAlumnoCursoCurricula(alumno, curso, CursoCurriculaEstadoEnum.MAT);
+                        this.actualizarAlumnoCursoCurricula(alumno, curso, EstadoMatriculaEnum.MAT);
                         matriculaCursoDAO.update(matriculaCurso);
 
                     }
@@ -404,6 +404,17 @@ public class MatricularServiceImp implements MatricularService {
         alumnoCursoCurriculaUpd.setId(alumnoCursoCurricula.getId());
         alumnoCursoCurriculaUpd.setEstadoEnum(cursoCurriculaEstadoEnum);
         if (alumnoCursoCurricula.getEsSimultaneo() && cursoCurriculaEstadoEnum.equals(CursoCurriculaEstadoEnum.HAB)) {
+            alumnoCursoCurriculaUpd.setEstadoEnum(CursoCurriculaEstadoEnum.SIM);
+        }
+        alumnoCursoCurriculaDAO.updateEstado(alumnoCursoCurriculaUpd);
+    }
+
+    public void actualizarAlumnoCursoCurricula(Alumno alumno, Curso curso, EstadoMatriculaEnum estadoMatriculaEnum) {
+        AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findByAlumnoCurso(alumno, curso);
+        AlumnoCursoCurricula alumnoCursoCurriculaUpd = new AlumnoCursoCurricula();
+        alumnoCursoCurriculaUpd.setId(alumnoCursoCurricula.getId());
+        alumnoCursoCurriculaUpd.setEstadoMatriculaEnum(estadoMatriculaEnum);
+        if (alumnoCursoCurricula.getEsSimultaneo() && estadoMatriculaEnum.equals(CursoCurriculaEstadoEnum.HAB)) {
             alumnoCursoCurriculaUpd.setEstadoEnum(CursoCurriculaEstadoEnum.SIM);
         }
         alumnoCursoCurriculaDAO.updateEstado(alumnoCursoCurriculaUpd);

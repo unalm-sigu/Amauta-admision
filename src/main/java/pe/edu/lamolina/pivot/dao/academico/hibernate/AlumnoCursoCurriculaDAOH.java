@@ -91,8 +91,8 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
     public void updateEstado(AlumnoCursoCurricula alumnoCursoCurricula) {
         Octavia octavia = Octavia.update(AlumnoCursoCurricula.class);
         octavia.set(alumnoCursoCurricula, "estado");
+        octavia.set(alumnoCursoCurricula, "estadoMatricula");
         this.update(octavia);
     }
 
- 
 }

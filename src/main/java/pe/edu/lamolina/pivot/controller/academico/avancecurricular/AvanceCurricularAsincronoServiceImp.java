@@ -35,6 +35,7 @@ import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.HAB;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.NREQ;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.SIM;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.CONV;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
@@ -542,7 +543,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (MatriculaCurso matriculaCurso : matriculaCursos) {
             AlumnoCursoCurricula acc = mapAlumnoCursoCurriculaByCurso.get(matriculaCurso.getCurso().getId());
             if (acc != null) {
-                acc.setEstado(CursoCurriculaEstadoEnum.MAT.name());
+                acc.setEstadoMatriculaEnum(EstadoMatriculaEnum.MAT);
             }
         }
     }
