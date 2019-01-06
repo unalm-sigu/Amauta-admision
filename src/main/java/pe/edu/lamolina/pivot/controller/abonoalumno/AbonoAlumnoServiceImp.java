@@ -41,6 +41,7 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PostulanteEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoArchivoEnum;
 import pe.edu.lamolina.model.finanzas.AbonoPostulante;
+import pe.edu.lamolina.model.finanzas.AlumnoPagoVerano;
 import pe.edu.lamolina.model.finanzas.CargaAbonos;
 import pe.edu.lamolina.model.finanzas.ConceptoPago;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
@@ -58,6 +59,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.CicloPostulaDAO;
 import pe.edu.lamolina.pivot.dao.finanza.AbonoPostulanteDAO;
+import pe.edu.lamolina.pivot.dao.finanza.AlumnoPagoVeranoDAO;
 import pe.edu.lamolina.pivot.dao.finanza.CargaAbonosDAO;
 import pe.edu.lamolina.pivot.dao.finanza.CuentaBancariaDAO;
 import pe.edu.lamolina.pivot.dao.finanza.DeudaInteresadoDAO;
@@ -95,6 +97,8 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
     EventoCicloDAO eventoCicloDAO;
     @Autowired
     AlumnoDAO alumnoDAO;
+    @Autowired
+    AlumnoPagoVeranoDAO alumnoPagoVeranoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -127,13 +131,13 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
         carga.setUserRegistro(usuario);
 
         saveDatos(carga);
-        verificarExtornosHistoricos(carga, usuario);
-        verificarAbonosAlumnos(carga, usuario);
+        verificarExtornosHistoricos(carga, usuario, ciclo);
+        verificarAbonosAlumnos(carga, usuario, ciclo);
 
         return observados;
     }
 
-    private void verificarExtornosHistoricos(CargaAbonos carga, Usuario usuario) {
+    private void verificarExtornosHistoricos(CargaAbonos carga, Usuario usuario, CicloAcademico ciclo) {
         List<ItemCargaAbono> previos = carga.getVerificados();
         for (ItemCargaAbono previo : previos) {
             if (previo.getDescripcion().startsWith("EXTORNO")) {
@@ -143,6 +147,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
                 Alumno alumno = previo.getAlumno();
                 logger.debug("descripcion::::" + previo.getDescripcion());
                 logger.debug("alumno::::" + (alumno == null ? null : alumno.getId() + ""));
+                decrementarAbono(previo, ciclo);
                 previo.setExtornado(1);
                 previo.setFechaExtornado(new Date());
                 previo.setUsuarioExtornado(usuario);
@@ -182,7 +187,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
         }
     }
 
-    private void verificarAbonosAlumnos(CargaAbonos carga, Usuario usuario) {
+    private void verificarAbonosAlumnos(CargaAbonos carga, Usuario usuario, CicloAcademico ciclo) {
         List<ItemCargaAbono> items = carga.getItemCargaAbono();
         for (ItemCargaAbono item : items) {
             if (item.getDescripcion().startsWith("EXTORNO")) {
@@ -191,6 +196,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
             if (item.getRedundante() == 1) {
                 ItemCargaAbono previo = item.getNoRedundante();
                 if (previo.getExtornado() == 1 && previo.getFechaExtornado() == null) {
+                    decrementarAbono(previo, ciclo);
                     previo.setExtornado(1);
                     previo.setFechaExtornado(new Date());
                     previo.setUsuarioExtornado(usuario);
@@ -198,6 +204,10 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
                 }
                 continue;
             }
+            if (item.getExtornado() == 1) {
+                continue;
+            }
+            incrementarAbono(item, ciclo);
         }
     }
 
@@ -709,7 +719,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
         carga.setUserRegistro(usuario);
 
         saveDatos(carga);
-        verificarAbonosAlumnos(carga, usuario);
+        verificarAbonosAlumnos(carga, usuario, ciclo);
 
         return observados;
     }
@@ -926,4 +936,51 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
         throw new PhobosException("No se pudo hallar la operación a extornar que corresponde a la línea " + extornador.getLinea());
     }
 
+    private void incrementarAbono(ItemCargaAbono item, CicloAcademico ciclo) {
+
+        AlumnoPagoVerano alumnoPVDB = alumnoPagoVeranoDAO.findAlumnoByCiclo(item.getAlumno(), ciclo);
+        if (alumnoPVDB == null) {
+            AlumnoPagoVerano alPagVer = new AlumnoPagoVerano();
+            alPagVer.setAbono(item.getImporte());
+            alPagVer.setSaldo(item.getImporte());
+            alPagVer.setConsumo(BigDecimal.ZERO);
+            alPagVer.setAlumno(item.getAlumno());
+            alPagVer.setCicloAcademico(ciclo);
+            alPagVer.setFechaRegistro(new Date());
+            alPagVer.setSaldo(BigDecimal.ZERO);
+            alumnoPagoVeranoDAO.save(alPagVer);
+        } else {
+            if (alumnoPVDB.getDeuda().compareTo(BigDecimal.ZERO) == 0) {
+                alumnoPVDB.setSaldo(alumnoPVDB.getSaldo().add(item.getImporte()));
+            } else {
+                BigDecimal diferencia = alumnoPVDB.getDeuda().subtract(item.getImporte());
+                if (diferencia.compareTo(BigDecimal.ZERO) > 0) {
+                    alumnoPVDB.setFechaSaldoNegativo(null);
+                    alumnoPVDB.setSaldo(alumnoPVDB.getSaldo().add(diferencia));
+                } else {
+//                    alumnoPVDB.setSaldo(BigDecimal.ZERO);
+                    alumnoPVDB.setDeuda(diferencia.abs());
+                    alumnoPVDB.setFechaSaldoNegativo(new Date());
+                }
+            }
+            alumnoPVDB.setAbono(alumnoPVDB.getAbono().add(item.getImporte()));
+            alumnoPagoVeranoDAO.update(alumnoPVDB);
+        }
+
+    }
+
+    private void decrementarAbono(ItemCargaAbono item, CicloAcademico ciclo) {
+
+        AlumnoPagoVerano alPagVer = alumnoPagoVeranoDAO.findAlumnoByCiclo(item.getAlumno(), ciclo);
+        alPagVer.setAbono(alPagVer.getAbono().subtract(item.getImporte()));
+        BigDecimal diferencia = alPagVer.getSaldo().subtract(item.getImporte());
+        if (diferencia.compareTo(BigDecimal.ZERO) > 0) {
+            alPagVer.setSaldo(diferencia);
+        } else {
+            alPagVer.setSaldo(BigDecimal.ZERO);
+            alPagVer.setDeuda(diferencia.abs());
+            alPagVer.setFechaSaldoNegativo(new Date());
+        }
+        alumnoPagoVeranoDAO.update(alPagVer);
+    }
 }

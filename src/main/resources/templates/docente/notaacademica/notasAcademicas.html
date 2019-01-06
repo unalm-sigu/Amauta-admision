@@ -130,7 +130,10 @@
                                 <tr th:each="matSeccion,itrStat : ${matriculasSeccion}" style="height: 50px;">
 
 
-                                    <td class="text-center v-middle" th:each="evaluacion : ${evaluacionesByTipoSeccion}" th:style="${sistemaNotas.letras} ? 'width:50%' : ''">
+                                    <td class="text-center v-middle" 
+                                        th:each="evaluacion : ${evaluacionesByTipoSeccion}" 
+                                        th:style="${sistemaNotas.letras} ? 'width:50%' : ''">
+                                        
                                         <span class="block form-inline">
                                             <span th:class="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" >
                                                 <span style="display: ''" 
@@ -176,12 +179,8 @@
                                                            size="3"/>
                                                 </div>
                                             </span>
-
-
-
-
-
                                         </span>
+                                        
                                     </td>
                                     <td th:if="${sistemaNotas.letras}">
                                         <span th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
@@ -216,9 +215,7 @@
                                     <td class="text-center v-middle" th:if="${sistemaNotas.numerico}">
 
                                         <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" >
-                                            <span class="nota-academica" th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaFinal}" 
-
-                                                  > 
+                                            <span class="nota-academica" th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaFinal}"> 
                                                 04.18 
                                             </span>
                                         </span>

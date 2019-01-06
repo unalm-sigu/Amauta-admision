@@ -45,7 +45,7 @@
             <p style="text-align: left;" th:text="${depa.nombreLargo}"></p>
 
             <div  th:each="doc:${depa.docente}" style="margin-top: 125px">
-                <table width="100%">
+                <table style="margin-top: 25px"  width="100%">
                     <tr>
                         <td width="10%">
                             <p th:text="${doc.codigo}"></p>
@@ -56,25 +56,25 @@
                     </tr>
                     <tr>
                         <td colspan="2" width="100%">
-                            <table width="100%">
+                            <table style="margin-top: 10px"  width="100%">
                                 <tr>
                                     <td width="10%">
-                                        clave
+                                        <p  style="font-weight: bold;">Clave</p> 
                                     </td>
                                     <td width="50%">
-                                        nombre del curso
+                                        <p  style="font-weight: bold;">Nombre del Curso</p> 
                                     </td>
                                     <td width="10%">
-                                        matriculados
+                                        <p  style="font-weight: bold;">Matriculados</p> 
                                     </td>
                                     <td width="10%">
-                                        carga
+                                        <p  style="font-weight: bold;">Carga</p> 
                                     </td>
                                     <td width="10%">
-                                        horas
+                                        <p  style="font-weight: bold;">Horas</p> 
                                     </td>
                                     <td width="10%">
-                                        monto
+                                        <p  style="font-weight: bold;">Monto</p> 
                                     </td>
                                 </tr>
                                 <tr  th:each="docsec:${doc.docenteSeccion}">
@@ -94,15 +94,23 @@
                                         <p th:text="${docsec.seccion.horasSemanales}"></p>
                                     </td>
                                     <td width="10%">
-                                        <p th:text="${docsec.pagoVeranoFormato}"></p>
+                                        <p th:text="${'S/.'+docsec.pagoVeranoFormato}"></p>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5" width="90%">
-                                        <p style="text-align: right">Monto total del profesor</p>
+                                    <td width="10%">
+                                    </td>
+                                    <td width="50%">
+                                        <p style="font-weight: bold;">Monto total del profesor</p>
                                     </td>
                                     <td width="10%">
-                                        <p th:text="${'S/.'+doc.montoTotalVeranoFormato}"></p>
+                                    </td>
+                                    <td width="10%">
+                                    </td>
+                                    <td width="10%">
+                                    </td>
+                                    <td width="10%">
+                                        <p  style="font-weight: bold;" th:text="${'S/.'+doc.montoTotalVeranoFormato}"></p>
                                     </td>
                                 </tr>
                             </table>

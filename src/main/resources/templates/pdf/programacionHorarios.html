@@ -21,18 +21,21 @@
 
             .subtitle2{
                 text-align:left;
-                font-size:12px;
+                font-size:13px;
                 font-weight: bold;
-                padding-bottom: 10px;
-                padding-top: 10px;
+                padding-bottom: 15px;
+                padding-top: 20px;
             }
 
             .subtitle3{
                 text-align:left;
-                font-size:10px;
+                font-size:12px;
                 font-weight: bold;
                 padding-bottom: 10px;
+                padding-left: 5px;
                 padding-top: 10px;
+                background-color: #51a4fd;
+                color: white;
             }
 
             table {
@@ -51,8 +54,8 @@
             th {
                 padding-top: 11px;
                 padding-bottom: 11px;
-                background-color: #607d8b;
-                color: white;
+                background-color: #e6e8e8;
+                color: #000003;
                 text-align: center;
                 font-size: 11px;
             } 
@@ -121,7 +124,10 @@
                                                 Aula
                                             </th>
                                             <th width="100">
-                                                Docente/%Carga
+                                                Docente
+                                            </th>
+                                            <th>
+                                                % Carga
                                             </th>
                                             <!--                                            <th width="40">
                                                                                             %Carga
@@ -132,7 +138,9 @@
                                             <th width="40">
                                                 Vac/Mat
                                             </th>
-
+                                            <th>
+                                                Precio
+                                            </th>
                                         </tr>
                                         <tr th:each="secc : ${grupoSeccion.secciones}" >
 
@@ -145,7 +153,7 @@
 
                                             <td class="centrado">
                                                 <span  th:if="${secc.tipoSeccion != 'TCUR' }" th:text="${secc.codigo2}"></span>
-                                                <small  th:text="${secc.tipoSeccionEnum.value}"></small>
+                                                <small  th:text="${#strings.replace(secc.tipoSeccionEnum.value, 'Curso', '')}"></small>
                                             </td>
 
                                             <td class="centrado"> 
@@ -161,27 +169,30 @@
                                                     <span>
                                                         <span>
                                                             <span th:text="${profeSecc.docente.codigo}"></span>
-                                                            <span th:if="${profeSecc.docente.codigo != 'N.N.' }" th:text="${profeSecc.docente.persona.nombrePaternoMat}"></span>
+                                                            <span th:if="${profeSecc.docente.codigo != 'N.N.' }" th:text="${profeSecc.docente.persona.nomPaternoMat}"></span>
                                                             <span th:if="${profeSecc.docente.codigo == 'N.N.' }" th:text="DESCONOCIDO"></span>
-                                                        </span>
-                                                        <span th:if="${profeSecc.porcentajeCarga != '' }">
-                                                            <span> / </span>
-                                                            <span th:text="${profeSecc.porcentajeCarga}"></span>
-                                                            <span>%</span>
                                                         </span>
                                                     </span>
 
                                                 </div>
                                             </td>
-
-<!--                                            <td>
-                                                <span th:each="profeSecc,idx : ${secc.docenteSeccion}">
+                                            <td class="centrado">
+                                                <div th:each="profeSecc,idx : ${secc.docenteSeccion}">
                                                     <span th:if="${profeSecc.porcentajeCarga != '' }">
                                                         <span th:text="${profeSecc.porcentajeCarga}"></span>
                                                         <span>%</span>
                                                     </span>
-                                                </span>
-                                            </td>-->
+                                                </div>
+                                            </td>
+
+                                            <!--                                            <td>
+                                                                                            <span th:each="profeSecc,idx : ${secc.docenteSeccion}">
+                                                                                                <span th:if="${profeSecc.porcentajeCarga != '' }">
+                                                                                                    <span th:text="${profeSecc.porcentajeCarga}"></span>
+                                                                                                    <span>%</span>
+                                                                                                </span>
+                                                                                            </span>
+                                                                                        </td>-->
 
                                             <td class="centrado">
                                                 <span th:if="${secc.restriccionCapa != '' }" >
@@ -195,7 +206,9 @@
                                                 <span>/</span>
                                                 <span th:text="${secc.matriculados}"></span>
                                             </td>
-
+                                            <td class="centrado">
+                                                <span th:if="${secc.precio != null &amp;&amp; secc.precio != ''}" class="block text-primary" th:text="|S/.${secc.precioFormato}|"></span>
+                                            </td>
 
                                         </tr>
                                     </table>

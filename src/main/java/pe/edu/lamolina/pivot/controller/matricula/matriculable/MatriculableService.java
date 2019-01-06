@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.controller.matricula.matriculable;
 
 import java.util.List;
-import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -10,7 +9,6 @@ import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -25,6 +23,10 @@ public interface MatriculableService {
     void generar(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros);
+
+    void revisarSituacionAcademica(Alumno alumno, DataSessionPivot ds);
+
+    void revisarSituacionesAcademicas(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     void generarPrioridad(CicloAcademico ciclo);
 
@@ -52,6 +54,6 @@ public interface MatriculableService {
 
     void recalcularPrioridad(GrupoSeccion gpoSecc, CicloAcademico ciclo);
 
-    public void inhabilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+    void inhabilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
 }

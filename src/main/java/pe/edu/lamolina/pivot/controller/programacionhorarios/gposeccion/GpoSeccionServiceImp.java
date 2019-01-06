@@ -2517,4 +2517,38 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccionDAO.update(docenteSeccionDb);
         }
     }
+
+    @Override
+    @Transactional
+    public void recrearVacanteAlumno(CicloAcademico ciclo, DataSessionPivot ds) {
+        List<Seccion> secciones = seccionDAO.allByCiclo(ciclo);
+        List<VacanteAlumno> vacAlumnos = vacanteAlumnoDAO.allActivoBySecciones(secciones);
+        Map<Long, List<VacanteAlumno>> mapVacAlumnos = TypesUtil.convertListToMapList("seccion.id", vacAlumnos);
+
+        for (Seccion secc : secciones) {
+            if (secc.getEstadoEnum() != SeccionEstadoEnum.ACT) {
+                continue;
+            }
+            List<VacanteAlumno> vacAluSecc = mapVacAlumnos.get(secc.getId());
+            vacAluSecc = (vacAluSecc == null) ? new ArrayList() : vacAluSecc;
+            Map<Integer, VacanteAlumno> mapVacAluSecc = TypesUtil.convertListToMap("numero", vacAluSecc);
+            for (int i = 1; i < secc.getVacantes() + 1; i++) {
+                VacanteAlumno va = mapVacAluSecc.get(i);
+                if (va != null) {
+                    continue;
+                }
+                va = new VacanteAlumno();
+                va.setNumero(i);
+                va.setSeccion(secc);
+                va.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
+                va.setFechaRegistro(new Date());
+                va.setUserRegistro(ds.getUsuario());
+                va.setActivo(1);
+                vacanteAlumnoDAO.save(va);
+            }
+
+        }
+
+    }
+
 }
