@@ -1142,6 +1142,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 vacanteAlumno.setFechaRegistro(today.toDate());
                 vacanteAlumno.setNumero(i);
                 vacanteAlumno.setSeccion(seccioDB);
+                vacanteAlumno.setActivo(1);
                 vacanteAlumno.setUserRegistro(usuario);
                 vacanteAlumnoDAO.save(vacanteAlumno);
             }
@@ -1157,6 +1158,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     vacanteAlumnoEach.setNumero(i + vacantesAlumnoBySeccion.size());
                     vacanteAlumnoEach.setSeccion(seccionForm);
                     vacanteAlumnoEach.setUserRegistro(usuario);
+                    vacanteAlumnoEach.setActivo(1);
                     vacanteAlumnoDAO.save(vacanteAlumnoEach);
                 }
             } else {
@@ -1231,6 +1233,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     vacanteAlumno.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
                     vacanteAlumno.setFechaRegistro(today.toDate());
                     vacanteAlumno.setNumero(i);
+                    vacanteAlumno.setActivo(1);
                     vacanteAlumno.setSeccion(seccionTCUR);
                     vacanteAlumno.setUserRegistro(usuario);
                     vacanteAlumnoDAO.save(vacanteAlumno);
@@ -1247,6 +1250,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                         vacanteAlumnoEach.setNumero(i + vacantesAlumnoBySeccion.size());
                         vacanteAlumnoEach.setSeccion(seccionTCUR);
                         vacanteAlumnoEach.setUserRegistro(usuario);
+                        vacanteAlumnoEach.setActivo(1);
                         vacanteAlumnoDAO.save(vacanteAlumnoEach);
                     }
                 } else {
