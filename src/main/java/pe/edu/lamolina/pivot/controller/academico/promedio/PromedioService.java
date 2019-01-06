@@ -9,7 +9,6 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PromedioService {
@@ -31,6 +30,8 @@ public interface PromedioService {
             DataSessionPivot ds);
 
     void calulcarSituacionAcademica(Alumno alumno, DataSessionPivot ds);
+
+    void calulcarSituacionAcademicaNewSession(Alumno alumno, DataSessionPivot ds);
 
     Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno);
 
