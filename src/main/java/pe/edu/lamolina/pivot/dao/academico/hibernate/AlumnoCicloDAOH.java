@@ -81,8 +81,8 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu", "cicloAcademico ca", "carrera car")
-                .leftJoin("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
-                .leftJoin("userModificacion um")
+                .left("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
+                .left("userModificacion um")
                 .filter("alu.id", alumno)
                 .filter("ca.id", cicloAcademico);
         return find(sql);
@@ -203,7 +203,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu", "cicloAcademico ca", "carrera car")
                 .left("situacionInicio si", "situacionFinal sf", "userRegistro ur")
-                .leftJoin("userModificacion um", "orientacionCarrera oc")
+                .left("userModificacion um", "orientacionCarrera oc")
                 .filter("alu.id", alumno)
                 .filter("ca.codigo", ">", cicloAcademico.getCodigo())
                 .filter("ac.estado", EstadoMatriculaEnum.INH.name())
@@ -218,7 +218,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu", "cicloAcademico ca", "carrera car")
                 .left("situacionInicio si", "situacionFinal sf", "userRegistro ur")
-                .leftJoin("userModificacion um", "orientacionCarrera oc")
+                .left("userModificacion um", "orientacionCarrera oc")
                 .filter("alu.id", alumno)
                 .filter("ca.codigo", "<", cicloAcademico.getCodigo())
                 .filter("ac.estado", EstadoMatriculaEnum.INH.name())

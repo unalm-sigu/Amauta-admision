@@ -164,11 +164,12 @@ public class PromedioServiceImp implements PromedioService {
         }
     }
 
-    @Async
+    //@Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     public void promediarAllCicloAsync(Alumno alumno, CicloAcademico cicloActivo, List<AlumnoCicloCurso> allOperativesByModalidadEstudio, DataSessionPivot ds) {
-        promediarAllCicloSync(alumno, cicloActivo, allOperativesByModalidadEstudio, ds);
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+        promediarAllCicloSync(alumno, cicloActivo, alumnoCicloCursos, ds);
     }
 
     @Override
@@ -922,14 +923,23 @@ public class PromedioServiceImp implements PromedioService {
             }
         } else if (situacionAcademicaFinal.isCodigoS6() && cicloAcademico.isTipoRegular()) {
             logger.debug("Generara registro fantasma prueba codigo situacion 3");
-            SituacionAcademica situacionAcademicaS3 = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_3.getValue());
+            SituacionAcademica situacionFinalForSuspension = null;
+            if (!alumnoCiclo.isAprobado()) {
+                if (alumnoCiclo.isUltimoCiclo()) {
+                    situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_3U.getId());
+                } else {
+                    situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_3.getId());
+                }
+            } else {
+                situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_N.getId());
+            }
 
             if (alumnoCicloCorrespSgtRegular == null) {
                 alumnoCicloCorrespSgtRegular = new AlumnoCiclo();
                 alumnoCicloCorrespSgtRegular.defaultValuesToCreate(alumno, siguienteCiclo, ds.getUsuario(), new DateTime(ds.getFechaAccionAudit()));
                 alumnoCicloCorrespSgtRegular.setEstado(EstadoMatriculaEnum.INH);
-                //      alumnoCicloCorrespSgtRegular.setSituacionInicio(situacionAcademicaFinal);
-                alumnoCicloCorrespSgtRegular.setSituacionFinal(situacionAcademicaS3);
+                alumnoCicloCorrespSgtRegular.setSituacionInicio(situacionAcademicaFinal);
+                alumnoCicloCorrespSgtRegular.setSituacionFinal(situacionFinalForSuspension);
                 alumnoCicloCorrespSgtRegular.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                 alumnoCicloDAO.save(alumnoCicloCorrespSgtRegular);
             } else {
@@ -937,7 +947,7 @@ public class PromedioServiceImp implements PromedioService {
                 if (alusCicloCursos.isEmpty()) {
                     alumnoCicloCorrespSgtRegular.setEstado(EstadoMatriculaEnum.INH);
                     alumnoCicloCorrespSgtRegular.setSituacionInicio(situacionAcademicaFinal);
-                    alumnoCicloCorrespSgtRegular.setSituacionFinal(situacionAcademicaS3);
+                    alumnoCicloCorrespSgtRegular.setSituacionFinal(situacionFinalForSuspension);
                     alumnoCicloDAO.update(alumnoCicloCorrespSgtRegular);
                 } else {
                     situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();

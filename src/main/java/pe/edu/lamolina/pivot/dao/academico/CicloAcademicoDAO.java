@@ -76,6 +76,8 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allByEstados(List<String> estados);
 
+    List<CicloAcademico> allByCodigo(String codigo);
+
     List<CicloAcademico> allByLikeName(String nombre, ModalidadEstudio modalidad, List<CicloAcademico> notInt, Integer limit);
 
     CicloAcademico findVerBoletin();
