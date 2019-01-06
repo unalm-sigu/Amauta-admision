@@ -28,6 +28,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
@@ -296,7 +297,7 @@ public class PromedioServiceImp implements PromedioService {
         System.out.println(visorCalculaSituacion.reporte() + " en " + t2 + " mseg");
         System.out.println(visorCalculaSituacion.reporte() + " en " + t2 + " mseg");
         System.out.println(visorCalculaSituacion.reporte() + " en " + t2 + " mseg");
-        
+
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
