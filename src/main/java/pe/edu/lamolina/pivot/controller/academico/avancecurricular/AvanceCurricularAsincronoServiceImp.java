@@ -186,7 +186,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaByCurso = new HashMap();
         Map<Long, AlumnoCursoCurricula> cursosAlumno = new HashMap();
-        List<AlumnoCursoCurricula> alumnoCursoCurriculas;
+//        List<AlumnoCursoCurricula> alumnoCursoCurriculas;
         List<AlumnoCursoSimultaneo> cursosSimultaneos = new ArrayList();
 
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findCicloAcademicoActivoByModalidad(alumno.getModalidadEstudio());
@@ -194,7 +194,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         int creditosAprobados = alumnoBD.getCreditosAprobados();
         int creditosCurriculaAprobados = alumnoBD.getCreditosCarreraAprobados();
 
-        alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allNoOpcionalByAlumno(alumnoBD);
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allNoOpcionalByAlumno(alumnoBD);
 
         for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
             alumnoCursoCurricula.setValidado(false);
@@ -556,7 +556,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void settingPlanCurricular(Alumno alumno, PlanCurricular planBD) {
         alumno.setPlanCurricular(planBD);
-        if (planBD.getOrientacionCarrera() != null) {
+        if (planBD != null && planBD.getOrientacionCarrera() != null) {
             alumno.setOrientacionCarrera(planBD.getOrientacionCarrera());
         }
         alumnoDAO.update(alumno);

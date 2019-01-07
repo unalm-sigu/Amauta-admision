@@ -14,14 +14,19 @@ public class VisorAsignaCurricula {
         LIBRE, INICIADO, OCUPADO, COMPLETO
     };
 
+    public enum AccionEnum {
+        DESVINCULA, GENERA
+    };
+
     private Map<Long, Carrera> mapCarreras = new LinkedHashMap();
     private Map<Long, Integer> mapContadorAlumnos = new LinkedHashMap();
     private Map<Long, Integer> mapTopeAlumnos = new LinkedHashMap();
     private Map<Long, EstadoEnum> mapEstados = new LinkedHashMap();
+    private Map<Long, AccionEnum> mapAcciones = new LinkedHashMap();
 
-    public synchronized boolean addCarrera(Carrera carr) {
+    public synchronized boolean addCarrera(Carrera carr, AccionEnum accion) {
         if (mapCarreras.isEmpty()) {
-            createDataCarrera(carr);
+            createDataCarrera(carr, accion);
             return true;
         }
 
@@ -29,14 +34,29 @@ public class VisorAsignaCurricula {
         if (carrera != null) {
             EstadoEnum estado = mapEstados.get(carr.getId());
             if (estado == EstadoEnum.COMPLETO || estado == EstadoEnum.LIBRE) {
-                createDataCarrera(carr);
+                createDataCarrera(carr, accion);
                 return true;
             }
             return false;
         }
 
-        createDataCarrera(carr);
+        createDataCarrera(carr, accion);
         return true;
+    }
+
+    public boolean procesoMitadCarrera(Carrera carr) {
+        if (mapCarreras.isEmpty()) {
+            return false;
+        }
+        Carrera carrera = mapCarreras.get(carr.getId());
+        if (carrera != null) {
+            int tope = mapTopeAlumnos.get(carr.getId());
+            int conta = mapContadorAlumnos.get(carr.getId());
+            if (tope == conta * 2) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean existeCarrera(Carrera carr) {
@@ -55,11 +75,13 @@ public class VisorAsignaCurricula {
         return false;
     }
 
-    private void createDataCarrera(Carrera carr) {
+    private void createDataCarrera(Carrera carr, AccionEnum accion) {
         mapCarreras.put(carr.getId(), carr);
         mapContadorAlumnos.put(carr.getId(), 0);
         mapTopeAlumnos.put(carr.getId(), 0);
         mapEstados.put(carr.getId(), VisorAsignaCurricula.EstadoEnum.INICIADO);
+        mapAcciones.put(carr.getId(), accion);
+
     }
 
     public synchronized void putTope(Carrera carr, int alumnos) {
@@ -118,7 +140,12 @@ public class VisorAsignaCurricula {
         int conta = mapContadorAlumnos.get(carr.getId());
         EstadoEnum estado = mapEstados.get(carr.getId());
         if (estado == EstadoEnum.OCUPADO) {
-            return "Procesando " + conta + " alumnos de un total de " + tope;
+            Integer mitad = new BigDecimal(tope).divide(new BigDecimal(2), 0, RoundingMode.HALF_DOWN).intValue();
+            if (conta * 2 < tope) {
+                return "Eliminaddo avance curricular previo a " + conta + " alumnos de un total de " + mitad;
+            } else {
+                return "Generando avance curricular a " + (conta - mitad) + " alumnos de un total de " + mitad;
+            }
         }
         if (estado == EstadoEnum.INICIADO) {
             return "Información está siendo preparada";
