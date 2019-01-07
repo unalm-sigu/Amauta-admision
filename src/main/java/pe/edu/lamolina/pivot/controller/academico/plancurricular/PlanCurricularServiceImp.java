@@ -1205,15 +1205,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 continue;
             }
 
-            avanceCurricularAsincronoService.settingPlanCurricular(alumno, planBD);
-
             this.obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
-            logger.debug("Cantidad de alumnos: {}", alumnos.size());
-            logger.debug("Cantidad de Cursos: {}", mapCursoCurricula.size());
-            avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
-            avanceCurricularAsincronoService.procesarAlumno(alumno, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, ds);
-            visorAsignaCurricula.incrementar(carrera);
-
+            avanceCurricularAsincronoService.crearAvanceCurricular(alumno, planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, ds);
         }
 
     }
@@ -1244,7 +1237,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         return null;
     }
 
-    @Async
     @Override
     public void desvincularMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds) {
         logger.debug("*********carrera {}", carrera.getId());
@@ -1266,14 +1258,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         visorAsignaCurricula.putTope(carrera, alumnos.size() * 2);
 
         for (Alumno alumno : alumnos) {
-            avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
-            avanceCurricularAsincronoService.deleteAllAlumnoCursoCurriculaByAlumno(alumno);
-            avanceCurricularAsincronoService.settingPlanCurricular(alumno, null);
-
-//            alumno.setPlanCurricular(null);
-//            alumnoDAO.update(alumno);
-            visorAsignaCurricula.incrementar(carrera);
+            logger.debug("Enviando al alumno " + alumno.getCodigo());
+            avanceCurricularAsincronoService.limpiarAlumno(alumno);
         }
+        logger.debug("total se enviaron " + alumnos.size() + " alumnos");
 
     }
 
