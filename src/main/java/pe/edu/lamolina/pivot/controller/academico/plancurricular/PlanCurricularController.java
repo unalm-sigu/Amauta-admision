@@ -307,24 +307,27 @@ public class PlanCurricularController {
         try {
             List<ResumenPlanCurricular> resumenes = service.allResPlanCurByDynatable(filter);
 
-            Integer totalCreditos = 0, totalCursos = 0;
+            Integer totalCreditos = 0, totalMinimo = 0, totalCursos = 0;
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (ResumenPlanCurricular resumen : resumenes) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("id", resumen.getId());
                 node.put("tipoCurso", resumen.getTipoCursoCurricula().getNombre());
                 node.put("creditos", resumen.getCreditos());
+                node.put("minimoCreditos", resumen.getMinimoCreditos());
                 node.put("cursos", resumen.getCursos());
 
                 array.add(node);
                 totalCreditos += resumen.getCreditos();
                 totalCursos += resumen.getCursos();
+                totalMinimo += resumen.getMinimoCreditos();
             }
 
             {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("tipoCurso", "TOTAL");
                 node.put("creditos", totalCreditos);
+                node.put("minimoCreditos", totalMinimo);
                 node.put("cursos", totalCursos);
                 array.add(node);
             }

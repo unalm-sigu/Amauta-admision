@@ -45,7 +45,6 @@ import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELE;
-import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELF;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.OBL;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.PROD;
@@ -292,11 +291,13 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             resumen.setPlanCurricular(cursoCurricula.getPlanCurricular());
             resumen.setTipoCursoCurricula(cursoCurricula.getTipoCursoCurricula());
             resumen.setCreditos(cursoCurricula.getCreditos());
+            resumen.setMinimoCreditos(cursoCurricula.getCreditos());
             resumen.setCursos(1);
             resumenPlanCurricularDAO.save(resumen);
 
         } else {
             resumen.setCreditos(resumen.getCreditos() + cursoCurricula.getCreditos());
+            resumen.setMinimoCreditos(resumen.getMinimoCreditos() + cursoCurricula.getCreditos());
             resumen.setCursos(resumen.getCursos() + 1);
             resumenPlanCurricularDAO.update(resumen);
         }
@@ -507,11 +508,13 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             resumen.setPlanCurricular(plan);
             resumen.setTipoCursoCurricula(cursoCurriculaForm.getTipoCursoCurricula());
             resumen.setCreditos(cursoCurriculaForm.getCreditos());
+            resumen.setMinimoCreditos(cursoCurriculaForm.getCreditos());
             resumen.setCursos(1);
             resumenPlanCurricularDAO.save(resumen);
 
         } else {
             resumen.setCreditos(resumen.getCreditos() + cursoCurricula.getCreditos());
+            resumen.setMinimoCreditos(resumen.getMinimoCreditos() + cursoCurricula.getCreditos());
             resumen.setCursos(resumen.getCursos() + 1);
             resumenPlanCurricularDAO.update(resumen);
         }
@@ -739,7 +742,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<TipoCursoCurricula> tiposTodos = tipoCursoCurriculaDAO.all();
 
         for (TipoCursoCurricula tipo : tiposTodos) {
-            if (Arrays.asList(ELE, ELF, ELC).contains(tipo.getCodigoEnum())) {
+            if (Arrays.asList(ELE, ELC).contains(tipo.getCodigoEnum())) {
                 tiposEnvio.add(tipo);
             }
             if (tipo.getCodigoEnum() == CULT) {
@@ -870,7 +873,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     private void verificarExistenciaCurso(Curso curso, PlanCurricular planCurricular) {
         CursoCurricula cursoCurricula = findCursoCurriculaByCursoPlan(curso, planCurricular);
-        if (cursoCurricula != null && Arrays.asList(ELE, ELF, ELC, PROD, TECIND).contains(cursoCurricula.getTipoCursoCurricula().getCodigoEnum())) {
+        if (cursoCurricula != null && Arrays.asList(ELE, ELC, PROD, TECIND).contains(cursoCurricula.getTipoCursoCurricula().getCodigoEnum())) {
         } else {
             Assert.isNull(cursoCurricula, "Este curso ya existe en el grupo de obligatorios o generales");
         }
@@ -1035,6 +1038,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (ResumenPlanCurricular resumen : resumenes) {
             ResumenPlanCurricular rpc = new ResumenPlanCurricular();
             rpc.setCreditos(resumen.getCreditos());
+            rpc.setMinimoCreditos(resumen.getCreditos());
             rpc.setCursos(resumen.getCursos());
             rpc.setTipoCursoCurricula(resumen.getTipoCursoCurricula());
             rpc.setPlanCurricular(planNew);
