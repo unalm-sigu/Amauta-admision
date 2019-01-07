@@ -556,7 +556,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void settingPlanCurricular(Alumno alumno, PlanCurricular planBD) {
         alumno.setPlanCurricular(planBD);
-        if (planBD.getOrientacionCarrera() != null) {
+        if (planBD != null && planBD.getOrientacionCarrera() != null) {
             alumno.setOrientacionCarrera(planBD.getOrientacionCarrera());
         }
         alumnoDAO.update(alumno);

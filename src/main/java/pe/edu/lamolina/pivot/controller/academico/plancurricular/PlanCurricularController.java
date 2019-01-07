@@ -1587,10 +1587,10 @@ public class PlanCurricularController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.verificarAsignacion(carrera);
             service.desvincularMasivaCursoCurricula(carrera, ds);
-            service.asignacionMasivaCursoCurricula(carrera, ds);
+//            service.asignacionMasivaCursoCurricula(carrera, ds);
 
             response.setSuccess(true);
-            response.setMessage("Asignación masiva satisfactoria");
+            response.setMessage("Asignación masiva en proceso");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -1626,6 +1626,11 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
+            if (visorAsignaCurricula.procesoMitadCarrera(carrera)) {
+                DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+                service.asignacionMasivaCursoCurricula(carrera, ds);
+            }
+
             boolean existe = visorAsignaCurricula.existeCarrera(carrera);
             response.setMessage(visorAsignaCurricula.reporte(carrera));
             response.setTotal(visorAsignaCurricula.porcentajeAvance(carrera));

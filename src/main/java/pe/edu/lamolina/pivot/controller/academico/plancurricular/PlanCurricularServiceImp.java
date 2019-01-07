@@ -1169,7 +1169,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planesCurricular);
 
         List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
-        visorAsignaCurricula.putTope(carrera, alumnos.size());
 
         List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
 
@@ -1245,8 +1244,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         return null;
     }
 
+    @Async
     @Override
-    @Transactional
     public void desvincularMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds) {
         logger.debug("*********carrera {}", carrera.getId());
         List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
@@ -1264,13 +1263,16 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         }
 
         List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
+        visorAsignaCurricula.putTope(carrera, alumnos.size() * 2);
 
         for (Alumno alumno : alumnos) {
             avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
             avanceCurricularAsincronoService.deleteAllAlumnoCursoCurriculaByAlumno(alumno);
+            avanceCurricularAsincronoService.settingPlanCurricular(alumno, null);
 
-            alumno.setPlanCurricular(null);
-            alumnoDAO.update(alumno);
+//            alumno.setPlanCurricular(null);
+//            alumnoDAO.update(alumno);
+            visorAsignaCurricula.incrementar(carrera);
         }
 
     }
@@ -1330,7 +1332,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     public void verificarAsignacion(Carrera carrera) {
         Carrera carr = carreraDAO.find(carrera.getId());
-        if (!visorAsignaCurricula.addCarrera(carr)) {
+        if (!visorAsignaCurricula.addCarrera(carr, VisorAsignaCurricula.AccionEnum.DESVINCULA)) {
             throw new PhobosException("Ya existe un proceso de asignación masiva de planes para esta carrera");
         }
     }
