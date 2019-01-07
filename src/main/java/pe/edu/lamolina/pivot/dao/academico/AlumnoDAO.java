@@ -69,6 +69,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     void updateSituacionCicloCapa(Alumno alumno);
 
+    void updateSituacionCicloCapaPPA(Alumno alumno);
+
     void updateCicloActivoRegular(Alumno alumno);
 
     List<Alumno> allByNombreFacultad(String name, List<Facultad> facultad);

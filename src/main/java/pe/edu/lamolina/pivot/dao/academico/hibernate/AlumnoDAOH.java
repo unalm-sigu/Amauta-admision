@@ -496,6 +496,17 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
+    public void updateSituacionCicloCapaPPA(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "situacionAcademica");
+        octavia.set(alumno, "creditosAprobados");
+        octavia.set(alumno, "cicloActivo");
+        octavia.set(alumno, "creditosCursados");
+        octavia.set(alumno, "promedioAcumulado");
+        this.update(octavia);
+    }
+
+    @Override
     public void updateSituacionCapaCredCur(Alumno alumno) {
         Octavia octavia = Octavia.update(Alumno.class);
         octavia.set(alumno, "situacionAcademica");

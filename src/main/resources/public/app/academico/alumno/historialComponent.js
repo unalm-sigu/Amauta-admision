@@ -262,7 +262,8 @@ Vue.component("historial-component", {
             if (nn.length == 4) {
                 nn = "0" + nn;
             }
-            return nn;
+            //return nn;
+            return nota.toString().match(/^-?\d+(?:\.\d{0,2})?/)[0];
         },
         classCiclo(item) {
             if (item.estadoEnum.name == 'NMAT') {
