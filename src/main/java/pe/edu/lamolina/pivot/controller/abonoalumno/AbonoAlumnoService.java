@@ -13,7 +13,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface AbonoAlumnoService {
 
-    List<ItemCargaAbono> allAbonosByPostulante(CicloAcademico ciclo, DynatableFilter filter);
+    List<ItemCargaAbono> allAbonosByAlumno(CicloAcademico ciclo, DynatableFilter filter);
 
     List<Observado> loadArchivoHistorico(MultipartFile file, CicloAcademico ciclo, Usuario usuario);
 

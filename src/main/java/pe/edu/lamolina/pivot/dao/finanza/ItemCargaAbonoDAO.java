@@ -37,4 +37,6 @@ public interface ItemCargaAbonoDAO extends EasyDAO<ItemCargaAbono> {
     List<ItemCargaAbono> allInscripcionByCicloPostula(CicloPostula cicloPostula);
 
     List<ItemCargaAbono> allActivosByCicloPostula(CicloPostula cicloPostula);
+
+    List<ItemCargaAbono> allByDynaTable2(DynatableFilter filter, CicloPostula cicloPostula);
 }

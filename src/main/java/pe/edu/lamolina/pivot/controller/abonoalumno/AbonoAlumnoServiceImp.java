@@ -103,10 +103,11 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<ItemCargaAbono> allAbonosByPostulante(CicloAcademico ciclo, DynatableFilter filter) {
+    public List<ItemCargaAbono> allAbonosByAlumno(CicloAcademico ciclo, DynatableFilter filter) {
 
         CicloPostula cicloPostula = findCicloActivo();
-        return itemCargaAbonoDAO.allByDynaTable(filter, cicloPostula, TipoArchivoEnum.DI.name());
+        logger.debug("CICLO POSTULA ID : {}", cicloPostula.getId());
+        return itemCargaAbonoDAO.allByDynaTable2(filter, cicloPostula);
     }
 
     @Override
@@ -207,7 +208,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
             if (item.getExtornado() == 1) {
                 continue;
             }
-            incrementarAbono(item, ciclo);
+            incrementarAbono(item, ciclo, usuario);
         }
     }
 
@@ -936,7 +937,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
         throw new PhobosException("No se pudo hallar la operación a extornar que corresponde a la línea " + extornador.getLinea());
     }
 
-    private void incrementarAbono(ItemCargaAbono item, CicloAcademico ciclo) {
+    private void incrementarAbono(ItemCargaAbono item, CicloAcademico ciclo, Usuario usuario) {
 
         AlumnoPagoVerano alumnoPVDB = alumnoPagoVeranoDAO.findAlumnoByCiclo(item.getAlumno(), ciclo);
         if (alumnoPVDB == null) {
@@ -947,7 +948,8 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
             alPagVer.setAlumno(item.getAlumno());
             alPagVer.setCicloAcademico(ciclo);
             alPagVer.setFechaRegistro(new Date());
-            alPagVer.setSaldo(BigDecimal.ZERO);
+            alPagVer.setDeuda(BigDecimal.ZERO);
+            alPagVer.setUserRegistro(usuario);
             alumnoPagoVeranoDAO.save(alPagVer);
         } else {
             if (alumnoPVDB.getDeuda().compareTo(BigDecimal.ZERO) == 0) {
