@@ -14,11 +14,13 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
@@ -40,6 +42,7 @@ import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.matricula.AlumnoCursoSimultaneo;
+import pe.edu.lamolina.pivot.controller.academico.plancurricular.VisorAsignaCurricula;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -97,6 +100,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
+
+    @Autowired
+    VisorAsignaCurricula visorAsignaCurricula;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -556,10 +562,34 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void settingPlanCurricular(Alumno alumno, PlanCurricular planBD) {
         alumno.setPlanCurricular(planBD);
+        alumno.setOrientacionCarrera(null);
         if (planBD != null && planBD.getOrientacionCarrera() != null) {
             alumno.setOrientacionCarrera(planBD.getOrientacionCarrera());
         }
-        alumnoDAO.update(alumno);
+        alumnoDAO.updatePlanCurricular(alumno);
+    }
+
+    @Async
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void limpiarAlumno(Alumno alumno) {
+        this.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
+        this.deleteAllAlumnoCursoCurriculaByAlumno(alumno);
+        this.settingPlanCurricular(alumno, null);
+        visorAsignaCurricula.incrementar(alumno.getCarrera());
+    }
+
+    @Async
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void crearAvanceCurricular(Alumno alumno, PlanCurricular planBD, Map<Long, CursoCurricula> mapCursoCurricula, Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula, Map<Long, List<CursoEquivalente>> mapCursosEquivalentes, DataSessionPivot ds) {
+        
+        Carrera carrera = alumno.getCarrera();
+        this.settingPlanCurricular(alumno, planBD);
+        logger.debug("Cantidad de Cursos: {}", mapCursoCurricula.size());
+        this.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
+        this.procesarAlumno(alumno, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, ds);
+        visorAsignaCurricula.incrementar(carrera);
     }
 
 }

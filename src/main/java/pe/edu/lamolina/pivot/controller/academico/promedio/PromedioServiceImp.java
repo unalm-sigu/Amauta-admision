@@ -978,11 +978,12 @@ public class PromedioServiceImp implements PromedioService {
         alumnoUpd.setCreditosAprobados(alumnoCiclo.getCreditosAprobadosAcumulados());
         alumnoUpd.setCreditosCursados(alumnoCiclo.getCreditosAcumulados());
         alumnoUpd.setSituacionAcademica(alumnoCiclo.getSituacionFinal());
+        alumnoUpd.setPromedioAcumulado(alumnoCiclo.getPromedioAcumulado());
         /*    alumnoUpd.setSituacionAcademica(situacionAcademicaFinal);
         if (generarTrika) {
             alumnoUpd.setSituacionAcademica(situacionTrika);
         }*/
-        alumnoDAO.updateSituacionCicloCapa(alumnoUpd);
+        alumnoDAO.updateSituacionCicloCapaPPA(alumnoUpd);
         if (alumnoCiclo.getCicloAcademico().isTipoRegular()) {
             alumnoUpd.setCicloActivoRegular(alumnoCiclo.getCicloAcademico());
             alumnoDAO.updateCicloActivoRegular(alumnoUpd);

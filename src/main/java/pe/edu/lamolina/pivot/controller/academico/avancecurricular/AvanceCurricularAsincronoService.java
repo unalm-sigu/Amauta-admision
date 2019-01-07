@@ -30,4 +30,14 @@ public interface AvanceCurricularAsincronoService {
     void deleteAllAlumnoCursoCurriculaByAlumno(Alumno alumno);
 
     void settingPlanCurricular(Alumno alumno, PlanCurricular planBD);
+
+    void limpiarAlumno(Alumno alumno);
+
+    void crearAvanceCurricular(
+            Alumno alumno,
+            PlanCurricular planBD,
+            Map<Long, CursoCurricula> mapCursoCurricula,
+            Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula,
+            Map<Long, List<CursoEquivalente>> mapCursosEquivalentes,
+            DataSessionPivot ds);
 }
