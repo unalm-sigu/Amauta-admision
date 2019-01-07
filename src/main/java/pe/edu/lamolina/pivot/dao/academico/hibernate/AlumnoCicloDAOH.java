@@ -228,17 +228,6 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
-    public List<AlumnoCiclo> allByAlumno(Alumno alumno) {
-        Octavia sql = Octavia.query()
-                .from(AlumnoCiclo.class, "ac")
-                .join("alumno alu")
-                .leftJoin("situacionInicio si", "situacionFinal sf", "userRegistro ur")
-                .leftJoin("userModificacion um")
-                .filter("alu.id", alumno);
-        return all(sql);
-    }
-
-    @Override
     public List<AlumnoCiclo> allActivesByAlumnoAsc(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
@@ -315,12 +304,23 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
+    public List<AlumnoCiclo> allByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca")
+                .leftJoin("situacionInicio si", "situacionFinal sf")
+                .leftJoin("userModificacion um", "userRegistro ur")
+                .filter("alu.id", alumno);
+        return all(sql);
+    }
+
+    @Override
     public List<AlumnoCiclo> allByAlumnoAsc(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu", "cicloAcademico ca")
-                .leftJoin("situacionInicio si", "situacionFinal sf", "userRegistro ur")
-                .leftJoin("userModificacion um")
+                .leftJoin("situacionInicio si", "situacionFinal sf")
+                .leftJoin("userModificacion um", "userRegistro ur")
                 .filter("alu.id", alumno)
                 .orderBy("ca.codigo asc");
         return all(sql);
@@ -355,6 +355,13 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         octavia.set(alumnoCiclo, "situacionFinal");
         octavia.set(alumnoCiclo, "fechaModificacion");
         octavia.set(alumnoCiclo, "userModificacion");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateSituacionFinalOnly(AlumnoCiclo alumnoCiclo) {
+        Octavia octavia = Octavia.update(AlumnoCiclo.class);
+        octavia.set(alumnoCiclo, "situacionFinal");
         this.update(octavia);
     }
 
