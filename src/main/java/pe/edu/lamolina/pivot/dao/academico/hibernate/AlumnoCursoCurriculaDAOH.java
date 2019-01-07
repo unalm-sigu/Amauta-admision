@@ -23,6 +23,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
     public List<AlumnoCursoCurricula> allByAlumnoCursosCurricula(Alumno alumno, List<CursoCurricula> cursosCurricula) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCursoCurricula.class, "acc")
+                .isNotNull("cursoCurricula")
                 .isNull("cursoOpcional")
                 .join("alumno alu", "curso cur", "cursoCurricula ccur")
                 .filter("alumno", alumno)
@@ -36,6 +37,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
     public List<AlumnoCursoCurricula> allNoOpcionalByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCursoCurricula.class, "acc")
+                .isNotNull("cursoCurricula")
                 .isNull("cursoOpcional")
                 .join("alumno alu", "curso cur")
                 .filter("alumno", alumno)

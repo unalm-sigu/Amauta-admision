@@ -202,6 +202,11 @@ public class PromedioServiceImp implements PromedioService {
     private void analizeAlumnoCiclos(Alumno alumno, List<AlumnoCicloCurso> alumnoCicloCursos) {
         logger.debug("analizeAlumnoCiclos");
         List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allByAlumno(alumno);
+        List<String> ciclosStr = alumnosCiclosByAlumno.stream()
+                .map(x -> x.getCicloAcademico().getCodigo())
+                .collect(Collectors.toList());
+        logger.debug(String.join(",", ciclosStr));
+
         for (AlumnoCiclo alumnoCiclo : alumnosCiclosByAlumno) {
 
             List<AlumnoCicloCurso> alumnosCiclosCursosByAluCic = alumnoCicloCursos.stream()
@@ -271,7 +276,7 @@ public class PromedioServiceImp implements PromedioService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = false)
     public void calulcarSituacionAcademica(Alumno alumno, DataSessionPivot ds) {
         visorCalculoNotas.iniciar();
         ds.setFechaAccionAudit(new Date());
@@ -327,14 +332,14 @@ public class PromedioServiceImp implements PromedioService {
                 SituacionAcademica situacion9 = new SituacionAcademica(11);
                 if (alumno.isPregrado()) {
                     if (alumnoCicloEach.getCicloAcademico().equals(alumno.getCicloIngreso())) {
-                        alumnoCicloEach.setSituacionInicio(situacion8);
+                        alumnoCicloEach.setSituacionFinal(situacion8);
                         alumnoCicloDAO.update(alumnoCicloEach);
                     } else {
-                        alumnoCicloEach.setSituacionInicio(situacion9);
+                        alumnoCicloEach.setSituacionFinal(situacion9);
                         alumnoCicloDAO.update(alumnoCicloEach);
                     }
                 } else {
-                    alumnoCicloEach.setSituacionInicio(situacionN);
+                    alumnoCicloEach.setSituacionFinal(situacionN);
                     alumnoCicloDAO.update(alumnoCicloEach);
                 }
             }
@@ -743,6 +748,9 @@ public class PromedioServiceImp implements PromedioService {
     public void analizarDesertor(Alumno alumno, CicloAcademico cicloActivo, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allByAlumnoAsc(alumno);
         logger.debug("Analizar desertor");
+        List<String> ciclosStr = alumnosCiclosByAlumno.stream().map(x -> x.getCicloAcademico().getCodigo()).collect(Collectors.toList());
+        logger.debug(String.join(",", ciclosStr));
+
         for (AlumnoCiclo alumnoCiclo : alumnosCiclosByAlumno) {
             this.analizarDesertorByCiclo(alumno, cicloActivo, alumnoCiclo.getCicloAcademico(), ds);
         }
@@ -768,8 +776,12 @@ public class PromedioServiceImp implements PromedioService {
         AlumnoCiclo alumnoCicloCorrespSgtRegular = alumnoCicloDAO.findByAlumnoCiclo(alumno, siguienteCicloReg);
 
         if (alumnoCiclo.isEstadoRetiradoCic() || alumnoCiclo.isNoMatriculado()) {
-            alumnoCiclo.setSituacionInicio(alumnoCicloAnterior.getSituacionFinal());
-            alumnoCiclo.setSituacionFinal(alumnoCicloAnterior.getSituacionFinal());
+            if (alumnoCicloAnterior != null) {
+                alumnoCiclo.setSituacionInicio(alumnoCicloAnterior.getSituacionFinal());
+                alumnoCiclo.setSituacionFinal(alumnoCicloAnterior.getSituacionFinal());
+            } else {
+                alumnoCiclo.setSituacionFinal(alumnoCiclo.getSituacionInicio());
+            }
             alumnoCicloDAO.update(alumnoCiclo);
         }
 
@@ -845,9 +857,10 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCiclo.getSituacionInicio().getCodigo(),
                 alumnoCiclo.getSituacionInicio().getNombre());
 
+        final AlumnoCiclo fAlumnoCiclo = (AlumnoCiclo) alumnoCiclo.clone();
         Long ciclosEstudiados = alumnoCiclos == null
                 ? alumnoCicloDAO.countCiclosEstudiados(alumno, cicloAcademico)
-                : alumnoCiclos.stream().filter(x -> x.getCicloAcademico().getCodigoInt() <= alumnoCiclo.getCicloAcademico().getCodigoInt()).collect(Collectors.toList()).size();
+                : alumnoCiclos.stream().filter(x -> x.getCicloAcademico().getCodigoInt() <= fAlumnoCiclo.getCicloAcademico().getCodigoInt()).collect(Collectors.toList()).size();
 
         /*Obtenemos la informacion del ciclo actual*/
         alumnosCiclosCursoActual = alumnosCiclosCursoActual == null ? alumnoCicloCursoDAO.allOperativesByAlumnoCiclo(alumno, cicloAcademico) : alumnosCiclosCursoActual;
@@ -873,6 +886,7 @@ public class PromedioServiceImp implements PromedioService {
         }
         alumnoCiclo.setSituacionFinal(situacionAcademicaFinal);
         alumnoCicloDAO.update(alumnoCiclo);
+
         if (situacionAcademicaFinal == null) {
             logger.debug(">>>>>>>>>>>>>>>>>> el alumno {}", alumnoCiclo.getAlumno().getId());
         }
@@ -964,11 +978,12 @@ public class PromedioServiceImp implements PromedioService {
         alumnoUpd.setCreditosAprobados(alumnoCiclo.getCreditosAprobadosAcumulados());
         alumnoUpd.setCreditosCursados(alumnoCiclo.getCreditosAcumulados());
         alumnoUpd.setSituacionAcademica(alumnoCiclo.getSituacionFinal());
+        alumnoUpd.setPromedioAcumulado(alumnoCiclo.getPromedioAcumulado());
         /*    alumnoUpd.setSituacionAcademica(situacionAcademicaFinal);
         if (generarTrika) {
             alumnoUpd.setSituacionAcademica(situacionTrika);
         }*/
-        alumnoDAO.updateSituacionCicloCapa(alumnoUpd);
+        alumnoDAO.updateSituacionCicloCapaPPA(alumnoUpd);
         if (alumnoCiclo.getCicloAcademico().isTipoRegular()) {
             alumnoUpd.setCicloActivoRegular(alumnoCiclo.getCicloAcademico());
             alumnoDAO.updateCicloActivoRegular(alumnoUpd);
@@ -1115,7 +1130,7 @@ public class PromedioServiceImp implements PromedioService {
 
         for (AlumnoCiclo alumnoCicloEach : alumnosCiclosAnteriores) {
             logger.debug("Ciclo a evaluar {}", alumnoCicloEach.getCicloAcademico().getDescripcion());
-            if (alumnoCicloEach.isNoMatriculado() || alumnoCicloEach.isEstadoRetiradoCic()) {
+            if (alumnoCicloEach.isNoMatriculado()) {
                 contadorIntercalado++;
                 contadorConsecutivo++;
 

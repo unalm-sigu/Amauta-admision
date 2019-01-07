@@ -45,7 +45,6 @@ import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELE;
-import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELF;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.OBL;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.PROD;
@@ -292,11 +291,13 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             resumen.setPlanCurricular(cursoCurricula.getPlanCurricular());
             resumen.setTipoCursoCurricula(cursoCurricula.getTipoCursoCurricula());
             resumen.setCreditos(cursoCurricula.getCreditos());
+            resumen.setMinimoCreditos(cursoCurricula.getCreditos());
             resumen.setCursos(1);
             resumenPlanCurricularDAO.save(resumen);
 
         } else {
             resumen.setCreditos(resumen.getCreditos() + cursoCurricula.getCreditos());
+            resumen.setMinimoCreditos(resumen.getMinimoCreditos() + cursoCurricula.getCreditos());
             resumen.setCursos(resumen.getCursos() + 1);
             resumenPlanCurricularDAO.update(resumen);
         }
@@ -507,11 +508,13 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             resumen.setPlanCurricular(plan);
             resumen.setTipoCursoCurricula(cursoCurriculaForm.getTipoCursoCurricula());
             resumen.setCreditos(cursoCurriculaForm.getCreditos());
+            resumen.setMinimoCreditos(cursoCurriculaForm.getCreditos());
             resumen.setCursos(1);
             resumenPlanCurricularDAO.save(resumen);
 
         } else {
             resumen.setCreditos(resumen.getCreditos() + cursoCurricula.getCreditos());
+            resumen.setMinimoCreditos(resumen.getMinimoCreditos() + cursoCurricula.getCreditos());
             resumen.setCursos(resumen.getCursos() + 1);
             resumenPlanCurricularDAO.update(resumen);
         }
@@ -739,7 +742,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<TipoCursoCurricula> tiposTodos = tipoCursoCurriculaDAO.all();
 
         for (TipoCursoCurricula tipo : tiposTodos) {
-            if (Arrays.asList(ELE, ELF, ELC).contains(tipo.getCodigoEnum())) {
+            if (Arrays.asList(ELE, ELC).contains(tipo.getCodigoEnum())) {
                 tiposEnvio.add(tipo);
             }
             if (tipo.getCodigoEnum() == CULT) {
@@ -870,7 +873,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     private void verificarExistenciaCurso(Curso curso, PlanCurricular planCurricular) {
         CursoCurricula cursoCurricula = findCursoCurriculaByCursoPlan(curso, planCurricular);
-        if (cursoCurricula != null && Arrays.asList(ELE, ELF, ELC, PROD, TECIND).contains(cursoCurricula.getTipoCursoCurricula().getCodigoEnum())) {
+        if (cursoCurricula != null && Arrays.asList(ELE, ELC, PROD, TECIND).contains(cursoCurricula.getTipoCursoCurricula().getCodigoEnum())) {
         } else {
             Assert.isNull(cursoCurricula, "Este curso ya existe en el grupo de obligatorios o generales");
         }
@@ -1035,6 +1038,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (ResumenPlanCurricular resumen : resumenes) {
             ResumenPlanCurricular rpc = new ResumenPlanCurricular();
             rpc.setCreditos(resumen.getCreditos());
+            rpc.setMinimoCreditos(resumen.getCreditos());
             rpc.setCursos(resumen.getCursos());
             rpc.setTipoCursoCurricula(resumen.getTipoCursoCurricula());
             rpc.setPlanCurricular(planNew);
@@ -1165,7 +1169,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planesCurricular);
 
         List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
-        visorAsignaCurricula.putTope(carrera, alumnos.size());
 
         List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
 
@@ -1202,15 +1205,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 continue;
             }
 
-            avanceCurricularAsincronoService.settingPlanCurricular(alumno, planBD);
-
             this.obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
-            logger.debug("Cantidad de alumnos: {}", alumnos.size());
-            logger.debug("Cantidad de Cursos: {}", mapCursoCurricula.size());
-            avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
-            avanceCurricularAsincronoService.procesarAlumno(alumno, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, ds);
-            visorAsignaCurricula.incrementar(carrera);
-
+            avanceCurricularAsincronoService.crearAvanceCurricular(alumno, planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, ds);
         }
 
     }
@@ -1242,7 +1238,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     }
 
     @Override
-    @Transactional
     public void desvincularMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds) {
         logger.debug("*********carrera {}", carrera.getId());
         List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
@@ -1260,14 +1255,13 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         }
 
         List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
+        visorAsignaCurricula.putTope(carrera, alumnos.size() * 2);
 
         for (Alumno alumno : alumnos) {
-            avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
-            avanceCurricularAsincronoService.deleteAllAlumnoCursoCurriculaByAlumno(alumno);
-
-            alumno.setPlanCurricular(null);
-            alumnoDAO.update(alumno);
+            logger.debug("Enviando al alumno " + alumno.getCodigo());
+            avanceCurricularAsincronoService.limpiarAlumno(alumno);
         }
+        logger.debug("total se enviaron " + alumnos.size() + " alumnos");
 
     }
 
@@ -1326,7 +1320,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     public void verificarAsignacion(Carrera carrera) {
         Carrera carr = carreraDAO.find(carrera.getId());
-        if (!visorAsignaCurricula.addCarrera(carr)) {
+        if (!visorAsignaCurricula.addCarrera(carr, VisorAsignaCurricula.AccionEnum.DESVINCULA)) {
             throw new PhobosException("Ya existe un proceso de asignación masiva de planes para esta carrera");
         }
     }

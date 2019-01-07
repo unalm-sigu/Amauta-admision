@@ -496,6 +496,17 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
+    public void updateSituacionCicloCapaPPA(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "situacionAcademica");
+        octavia.set(alumno, "creditosAprobados");
+        octavia.set(alumno, "cicloActivo");
+        octavia.set(alumno, "creditosCursados");
+        octavia.set(alumno, "promedioAcumulado");
+        this.update(octavia);
+    }
+
+    @Override
     public void updateSituacionCapaCredCur(Alumno alumno) {
         Octavia octavia = Octavia.update(Alumno.class);
         octavia.set(alumno, "situacionAcademica");
@@ -569,6 +580,14 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .left("alu.cicloActivoRegular")
                 .filter("gs.id", gpoSecc);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public void updatePlanCurricular(Alumno alumno) {
+        Octavia sql = Octavia.update(Alumno.class);
+        sql.set(alumno, "planCurricular");
+        sql.set(alumno, "orientacionCarrera");
+        this.update(sql);
     }
 
 }
