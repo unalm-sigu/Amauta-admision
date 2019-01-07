@@ -223,4 +223,27 @@ public class ItemCargaAbonoDAOH extends AbstractEasyDAO<ItemCargaAbono> implemen
         return find(sql);
     }
 
+    @Override
+    public List<ItemCargaAbono> allByDynaTable2(DynatableFilter filter, CicloPostula cicloPostula) {
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(ItemCargaAbono.class, "ica")
+                .join("cargaAbonos ca", "ca.cicloPostula cp", "ca.cuentaBancaria cta")
+                .join("alumno al", "al.persona per")
+                //                .leftJoin("postulante po", "po.persona per", "po.modalidadIngreso mod")
+                //                .leftJoin("po.cicloPostula cip", "cip.cicloAcademico")
+                //                .filter("cip.id", ciclo)
+                //                .in("cta.id", Arrays.asList(1L, 3L))
+                .filter("ica.redundante", 0)
+                .filter("cp.id", cicloPostula)
+                .searchFields("per.numeroDocIdentidad")
+                .searchFields("ica.descripcion", "ica.numeroOperacion", "ica.importe", "ica.sucursal", "ica.usuarioBanco", "ica.fechaAbono")
+                .searchFields("cta.numero", "cta.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("ica.id desc");
+
+        return all(sql);
+    }
+
 }
