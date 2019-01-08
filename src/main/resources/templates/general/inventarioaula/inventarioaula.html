@@ -12,7 +12,7 @@
                     <a href="#" v-on:click.prevent="nuevoInventario()" class="btn btn-primary btn-sm pull-right m-l-sm">Nuevo</a>
                     <a th:href="@{/general/aula}" class="btn btn-default btn-sm pull-right">Regresar</a>
                     <h2 th:inline="text" >
-                        [[${aula.tipoAula.nombre}]]:  [[${aula.codigo}]] - [[${aula.nombre}]]  
+                        [[${aula.tipoAula!=null?aula.tipoAula.nombre+' : ':''}]]  [[${aula.codigo}]] - [[${aula.nombre!=null?aula.nombre:''}]]  
                     </h2>
                 </header>
 
