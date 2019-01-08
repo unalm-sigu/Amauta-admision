@@ -85,4 +85,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByGpoSeccion(GrupoSeccion gpoSecc);
 
+    void updatePlanCurricular(Alumno alumno);
+
 }

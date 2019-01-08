@@ -90,9 +90,10 @@ public class AbonoAlumnoController {
         DynatableResponse json = new DynatableResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<ItemCargaAbono> abonosPostulante = service.allAbonosByPostulante(ds.getCicloAcademico(), filter);
+            List<ItemCargaAbono> abonosAlumno = service.allAbonosByAlumno(ds.getCicloAcademico(), filter);
+            logger.debug("abonos size {}", abonosAlumno.size());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            for (ItemCargaAbono abono : abonosPostulante) {
+            for (ItemCargaAbono abono : abonosAlumno) {
                 ObjectNode node = JsonHelper.createJson(abono, JsonNodeFactory.instance, true,
                         new String[]{
                             "id",
@@ -103,12 +104,12 @@ public class AbonoAlumnoController {
                             "importe",
                             "extornado",
                             "descripcion",
-                            "postulante.persona.nombreCompleto",
-                            "postulante.cicloPostula.cicloAcademico.descripcion",
-                            "postulante.codigo",
-                            "postulante.modalidadIngreso.nombre",
-                            "cuentaBancaria.numero",
-                            "cuentaBancaria.nombre"
+                            "alumno.persona.nombreCompleto",
+//                            "postulante.cicloPostula.cicloAcademico.descripcion",
+//                            "postulante.codigo",
+//                            "postulante.modalidadIngreso.nombre",
+                            "cargaAbonos.cuentaBancaria.numero",
+                            "cargaAbonos.cuentaBancaria.nombre"
                         });
                 array.add(node);
 

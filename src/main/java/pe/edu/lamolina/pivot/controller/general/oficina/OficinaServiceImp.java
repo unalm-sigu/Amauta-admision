@@ -1012,11 +1012,13 @@ public class OficinaServiceImp implements OficinaService {
             }
 
             PersonaCargo personaCargo = personaPerfilDAO.findCargoByPersona(oficinaAnterior, colaboradorForm.getPersona());
-            personaCargo.setEstadoEnum(PerfilEstadoEnum.INA);
-            personaCargo.setFechaFin(new Date());
-            personaCargo.setFechaModificacion(new Date());
-            personaCargo.setUserModificacion(ds.getUsuario());
-            personaPerfilDAO.update(personaCargo);
+            if (personaCargo != null) {
+                personaCargo.setEstadoEnum(PerfilEstadoEnum.INA);
+                personaCargo.setFechaFin(new Date());
+                personaCargo.setFechaModificacion(new Date());
+                personaCargo.setUserModificacion(ds.getUsuario());
+                personaPerfilDAO.update(personaCargo);
+            }
 
             personaCargo = new PersonaCargo();
             personaCargo.setCompania(ds.getCompania());
@@ -1030,10 +1032,23 @@ public class OficinaServiceImp implements OficinaService {
             personaPerfilDAO.save(personaCargo);
         } else {
             PersonaCargo personaCargo = personaPerfilDAO.findCargoByPersona(oficinaAnterior, colaboradorForm.getPersona());
-            personaCargo.setFechaModificacion(new Date());
-            personaCargo.setUserModificacion(ds.getUsuario());
-            personaCargo.setPerfilCompania(colaboradorForm.getCargo());
-            personaPerfilDAO.update(personaCargo);
+            if (personaCargo != null) {
+                personaCargo.setFechaModificacion(new Date());
+                personaCargo.setUserModificacion(ds.getUsuario());
+                personaCargo.setPerfilCompania(colaboradorForm.getCargo());
+                personaPerfilDAO.update(personaCargo);
+            } else {
+                personaCargo = new PersonaCargo();
+                personaCargo.setCompania(ds.getCompania());
+                personaCargo.setEstadoEnum(PerfilEstadoEnum.ACT);
+                personaCargo.setFechaInicio(colaboradorForm.getFechaInicio());
+                personaCargo.setFechaRegistro(new Date());
+                personaCargo.setOficina(colaboradorForm.getOficina());
+                personaCargo.setPerfilCompania(colaboradorForm.getCargo());
+                personaCargo.setPersona(colaboradorForm.getPersona());
+                personaCargo.setUserRegistro(ds.getUsuario());
+                personaPerfilDAO.save(personaCargo);
+            }
         }
 
         List<FuncionColaborador> funcionesEmp = funcionColaboradorDAO.findFuncionByColaborador(colaboradorForm);

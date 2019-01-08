@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Inscripción de Postulantes</title>
+        <title>Abono de Alumnos</title>
 
     </head>
 
@@ -43,7 +43,7 @@
                                 <tbody>
                                     <tr v-for="item in props.data">
                                         <td class="v-middle">
-                                            <span class="block text-primary bold">{{item.postulante.persona.nombreCompleto}}</span>
+                                            <span class="block text-primary bold">{{item.alumno.persona.nombreCompleto}}</span>
                                             <span class="block">{{item.codigo}}</span>
                                             <span class="block">{{item.modalidad}}</span>
                                             <strong class="block">{{item.ciclo}}</strong>
@@ -58,12 +58,12 @@
                                             {{item.numeroOperacion}}
                                         </td>
                                         <td class="v-middle"> 
-                                            <span class="block"><strong>Cta banco:</strong> <small>{{item.cuentaBancaria.nombre}}</small></span>
-                                            <span class="block"><strong>Nº cta:</strong> {{item.cuentaBancaria.numero}}</span>
+                                            <span class="block"><strong>Cta banco:</strong> <small>{{item.cargaAbonos.cuentaBancaria.nombre}}</small></span>
+                                            <span class="block"><strong>Nº cta:</strong> {{item.cargaAbonos.cuentaBancaria.numero}}</span>
                                             <span class="block bold">{{item.descripcion}}</span>
                                         </td>
                                         <td class="v-middle text-center">
-                                            <span class="block"><span class="bold">Usuario:</span> {{item.userBanco}}</span>
+                                            <span class="block"><span class="bold">Usuario:</span> {{item.usuarioBanco}}</span>
                                             <span class="block"><span class="bold">Sucursal:</span> {{item.sucursal}}</span>
                                         </td>
                                         <td class="v-middle text-center">
@@ -74,9 +74,9 @@
                                             <div class="actions">
                                                 <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                                 <ul class="dropdown-menu pull-right">
-                                                    <li v-if="item.extornado == 0 &amp;&amp; item.postulante.codigo == '00000000'">
+<!--                                                    <li v-if="item.extornado == 0 &amp;&amp; item.postulante.codigo == '00000000'">
                                                         <a class="pointer" v-on:click="asignarPostulante(item)">Asignar postulante</a>
-                                                    </li>
+                                                    </li>-->
                                                     <li v-if="item.descripcion == 'EXTORNO'">
                                                         <a class="pointer" v-on:click="verReasignarExtorno(item)">Reasignar Extorno</a>
                                                     </li>
