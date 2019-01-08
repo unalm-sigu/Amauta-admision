@@ -828,7 +828,7 @@ public class GpoSeccionController {
     }
 
     @RequestMapping("deleteGrupoSeccion")
-    public String deleteGrupoSeccion(RedirectAttributes redirectAttr, @RequestParam("curso") Long cursoId, HttpSession session) {
+    public String deleteGrupoSeccion(RedirectAttributes redirectAttr, Model model, @RequestParam("curso") Long cursoId, HttpSession session) {
         Curso curso = service.findCurso(cursoId);
         String message = String.format("Se eliminó el grupo seccion del curso %s", curso.getCodigo() + "-" + curso.getNombre());
         Notificaciones.crearMsg(message, redirectAttr);
@@ -2310,6 +2310,9 @@ public class GpoSeccionController {
             "curso.tipoCursoEnum",
             "curso.departamentoAcademico.codigo",
             "curso.departamentoAcademico.nombre",
+            "curso.tipoCursoTEO",
+            "curso.tipoCursoPRA",
+            "curso.tipoCursoTEOPRA",
             "anexoBoletin.codigo",
             "anexoBoletin.nombre",
             "anexoBoletin.anexoSuperior.codigo",
@@ -2453,7 +2456,7 @@ public class GpoSeccionController {
         nodeJson.put("current", idGpoSeccEdit);
         nodeJson.put("next", next);
         nodeJson.put("prev", prev);
-
+        nodeJson.put("origen", ruta);
         return nodeJson;
     }
 

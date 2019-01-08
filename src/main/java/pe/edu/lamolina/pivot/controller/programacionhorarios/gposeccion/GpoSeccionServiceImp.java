@@ -954,14 +954,22 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 Seccion seccionTCUR = secciones.stream().filter(x -> x.isTipoSeccionTCUR()).findFirst().orElse(null);
                 List<Seccion> seccionesPCUR = secciones.stream().filter(x -> x.isTipoSeccionPCUR()).collect(Collectors.toList());
                 if (seccionesPCUR == null || seccionesPCUR.isEmpty()) {
-                    return this.anularSeccion(seccionTCUR, usuario);
+                    this.anularSeccion(seccionTCUR, usuario);
                 }
-            } else if (seccion.isTipoSeccionTCUR()) {
+            }
+            /*else if (seccion.isTipoSeccionTCUR()) {
                 grupoSeccionDAO.deleteGrupoSeccion(grupoSeccion);
                 GrupoSeccion grupoSeccionReturn = new GrupoSeccion();
                 grupoSeccionReturn.setCurso(curso);
                 return grupoSeccionReturn;
-            }
+            }*/
+        }
+        List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
+        if (secciones.isEmpty()) {
+            grupoSeccionDAO.deleteGrupoSeccion(grupoSeccion);
+            GrupoSeccion grupoSeccionReturn = new GrupoSeccion();
+            grupoSeccionReturn.setCurso(curso);
+            return grupoSeccionReturn;
         }
         return grupoSeccion;
     }
