@@ -8,6 +8,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.TipoArchivoEnum;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.finanzas.ItemCargaAbono;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
@@ -224,16 +225,13 @@ public class ItemCargaAbonoDAOH extends AbstractEasyDAO<ItemCargaAbono> implemen
     }
 
     @Override
-    public List<ItemCargaAbono> allByDynaTable2(DynatableFilter filter, CicloPostula cicloPostula) {
+    public List<ItemCargaAbono> allByDynaTable2(DynatableFilter filter, CicloPostula cicloPostula, TipoArchivoEnum tipoArchivo) {
 
         DynatableSql sql = new DynatableSql(filter)
                 .from(ItemCargaAbono.class, "ica")
                 .join("cargaAbonos ca", "ca.cicloPostula cp", "ca.cuentaBancaria cta")
                 .join("alumno al", "al.persona per")
-                //                .leftJoin("postulante po", "po.persona per", "po.modalidadIngreso mod")
-                //                .leftJoin("po.cicloPostula cip", "cip.cicloAcademico")
-                //                .filter("cip.id", ciclo)
-                //                .in("cta.id", Arrays.asList(1L, 3L))
+                .filter("ca.tipoArchivo", tipoArchivo)
                 .filter("ica.redundante", 0)
                 .filter("cp.id", cicloPostula)
                 .searchFields("per.numeroDocIdentidad")

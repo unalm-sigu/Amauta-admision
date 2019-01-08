@@ -105,8 +105,8 @@ public class AbonoAlumnoController {
                             "extornado",
                             "descripcion",
                             "alumno.persona.nombreCompleto",
-//                            "postulante.cicloPostula.cicloAcademico.descripcion",
-//                            "postulante.codigo",
+                            "cargaAbonos.cicloPostula.cicloAcademico.descripcion",
+                            "alumno.codigo",
 //                            "postulante.modalidadIngreso.nombre",
                             "cargaAbonos.cuentaBancaria.numero",
                             "cargaAbonos.cuentaBancaria.nombre"

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.enums.TipoArchivoEnum;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.finanzas.ItemCargaAbono;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
@@ -38,5 +39,5 @@ public interface ItemCargaAbonoDAO extends EasyDAO<ItemCargaAbono> {
 
     List<ItemCargaAbono> allActivosByCicloPostula(CicloPostula cicloPostula);
 
-    List<ItemCargaAbono> allByDynaTable2(DynatableFilter filter, CicloPostula cicloPostula);
+    List<ItemCargaAbono> allByDynaTable2(DynatableFilter filter, CicloPostula cicloPostula, TipoArchivoEnum tipoArchivo);
 }

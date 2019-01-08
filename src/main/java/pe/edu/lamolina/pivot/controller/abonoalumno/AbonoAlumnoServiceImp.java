@@ -107,7 +107,7 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
 
         CicloPostula cicloPostula = findCicloActivo();
         logger.debug("CICLO POSTULA ID : {}", cicloPostula.getId());
-        return itemCargaAbonoDAO.allByDynaTable2(filter, cicloPostula);
+        return itemCargaAbonoDAO.allByDynaTable2(filter, cicloPostula, TipoArchivoEnum.DI);
     }
 
     @Override
@@ -972,7 +972,8 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
     }
 
     private void decrementarAbono(ItemCargaAbono item, CicloAcademico ciclo) {
-
+        logger.debug("DECREMENTAR ABONO {}", item.getId());
+        logger.debug("DECREMENTAR ABONO {}", item.getAlumno().getId());
         AlumnoPagoVerano alPagVer = alumnoPagoVeranoDAO.findAlumnoByCiclo(item.getAlumno(), ciclo);
         alPagVer.setAbono(alPagVer.getAbono().subtract(item.getImporte()));
         BigDecimal diferencia = alPagVer.getSaldo().subtract(item.getImporte());
