@@ -82,7 +82,8 @@
                                         </div>
 
                                         <div class="row m-b-xs">
-                                            <div class="col-md-1 text-curso">Curso</div>
+                                            <div class="col-md-1 text-curso">Curso 
+                                                    <input type="hidden" v-bind:value="grupoSeccion.curso.tipoCursoEnum.name"/></div>
                                             <div class="col-md-11">
                                                 <span class="block text-curso" v-text="grupoSeccion.curso.codigo + ' - ' + grupoSeccion.curso.nombre"></span>
                                                 <span class="block bold">
@@ -171,6 +172,7 @@
                                                 <div>
                                                     {{ seccion.tipoSeccionEvaluacionValue }}
                                                 </div>
+                                                <input type="hidden" v-bind:value="seccion.tipoSeccion"/>
                                             </td>
 
                                             <td class="text-center v-middle">
@@ -365,7 +367,7 @@
                                                 <span class="label" v-bind:class="getEstadoClass(seccion.estado)">{{ seccion.estadoEnum.value }}</span>
                                             </td>
                                             <td class="v-middle">
-
+                                                <input type="hidden" v-bind:value="seccion.id"/>
                                                 <div class="dropdown actions" 
                                                      v-if="index > 0">
 

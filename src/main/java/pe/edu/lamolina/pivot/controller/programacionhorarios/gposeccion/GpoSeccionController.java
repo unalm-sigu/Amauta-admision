@@ -806,9 +806,14 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.anularSeccion(new Seccion(seccionId), ds.getUsuario());
-            //TypesUtil.delay(5000);
-            String message = "Sección anulada.";
+
+            GrupoSeccion grupoSeccion = service.anularSeccion(new Seccion(seccionId), ds.getUsuario());
+            TypesUtil.delay(1000);
+            String message = "redirect";
+            response.setData(grupoSeccion.getCurso().getId());
+            if (grupoSeccion.getId() != null) {
+                message = "Sección anulada.";
+            }
             response.setSuccess(true);
             response.setMessage(message);
 
@@ -820,6 +825,14 @@ public class GpoSeccionController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @RequestMapping("deleteGrupoSeccion")
+    public String deleteGrupoSeccion(RedirectAttributes redirectAttr, @RequestParam("curso") Long cursoId, HttpSession session) {
+        Curso curso = service.findCurso(cursoId);
+        String message = String.format("Se eliminó el grupo seccion del curso %s", curso.getCodigo() + "-" + curso.getNombre());
+        Notificaciones.crearMsg(message, redirectAttr);
+        return "redirect:/academico/gposeccion";
     }
 
     @ResponseBody

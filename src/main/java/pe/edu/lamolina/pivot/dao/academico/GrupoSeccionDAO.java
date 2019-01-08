@@ -80,4 +80,6 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     void deleteAllByCiclo(CicloAcademico ciclo);
 
+    void deleteGrupoSeccion(GrupoSeccion gpoSeccion);
+
 }

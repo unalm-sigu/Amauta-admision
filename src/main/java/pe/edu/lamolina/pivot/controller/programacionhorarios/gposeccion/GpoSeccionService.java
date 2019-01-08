@@ -74,7 +74,7 @@ public interface GpoSeccionService {
 
     void bloquearSeccion(Seccion seccion, Usuario usuario);
 
-    void anularSeccion(Seccion seccion, Usuario usuario);
+    GrupoSeccion anularSeccion(Seccion seccion, Usuario usuario);
 
     List<DocenteSeccion> allDocentesSeccionBySeccion(Seccion seccion);
 

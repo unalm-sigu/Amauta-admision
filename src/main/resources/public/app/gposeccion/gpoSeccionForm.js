@@ -692,9 +692,12 @@ var app = new Vue({
                             data: {seccion: seccion.id},
                             success: function (response) {
                                 if (response.success) {
-                                    notify(response.message, "info");
-                                    $vue.loadGpoSeccionFlash(mm);
-
+                                    if (response.message == 'redirect') {
+                                        location.href = APP.url('academico/gposeccion/deleteGrupoSeccion?curso=' + response.data);
+                                    } else {
+                                        notify(response.message, "info");
+                                        $vue.loadGpoSeccionFlash(mm);
+                                    }
                                 } else {
                                     $(".btn-modal").prop('disabled', false);
                                     $(".btn-procesar").html('Si');

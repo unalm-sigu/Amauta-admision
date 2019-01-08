@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +33,12 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.Commutator;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -88,6 +91,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
@@ -194,6 +198,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     VacanteAlumnoDAO vacanteAlumnoDAO;
+
+    @Autowired
+    AlumnoEvaluacionDAO alumnoEvaluacionDAO;
 
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
@@ -850,6 +857,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccion.setEstadoEnum(SeccionEstadoEnum.ACT);
         seccionDAO.updateEstadoFechaModUsuarioMod(seccion);
         this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), usuario, today);
+        this.actualizarBoletin();
     }
 
     @Override
@@ -868,10 +876,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void anularSeccion(Seccion seccion, Usuario usuario) {
+    public GrupoSeccion anularSeccion(Seccion seccion, Usuario usuario) {
         DateTime today = new DateTime();
         seccion = seccionDAO.find(seccion.getId());
-        GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
+        GrupoSeccion grupoSeccion = seccion.getGrupoSeccion().clone();
+        Curso curso = grupoSeccion.getCurso().clone();
+
+        List<AlumnoEvaluacion> alumnoEvaluacion = alumnoEvaluacionDAO.allBySeccion(seccion.getId());
+        Assert.isTrue(alumnoEvaluacion.isEmpty(), "La sección tiene notas registradas");
 
         List<HorarioSeccion> horarioSecc = horarioSeccionDAO.allBySeccion(seccion);
         for (HorarioSeccion hSecc : horarioSecc) {
@@ -935,6 +947,23 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), usuario, today);
         this.actualizarBoletin();
+
+        if (grupoSeccion.getCurso().isTipoCursoTEOPRA()) {
+            if (seccion.isTipoSeccionPCUR()) {
+                List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
+                Seccion seccionTCUR = secciones.stream().filter(x -> x.isTipoSeccionTCUR()).findFirst().orElse(null);
+                List<Seccion> seccionesPCUR = secciones.stream().filter(x -> x.isTipoSeccionPCUR()).collect(Collectors.toList());
+                if (seccionesPCUR == null || seccionesPCUR.isEmpty()) {
+                    return this.anularSeccion(seccionTCUR, usuario);
+                }
+            } else if (seccion.isTipoSeccionTCUR()) {
+                grupoSeccionDAO.deleteGrupoSeccion(grupoSeccion);
+                GrupoSeccion grupoSeccionReturn = new GrupoSeccion();
+                grupoSeccionReturn.setCurso(curso);
+                return grupoSeccionReturn;
+            }
+        }
+        return grupoSeccion;
     }
 
     @Override
