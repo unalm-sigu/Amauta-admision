@@ -677,16 +677,19 @@ var app = new Vue({
             let $vue = this;
             let messageAlert = "¿Está seguro que desea anular la sección?";
             let classButton = "btn-warning btn-modal btn-procesar";
+            let classMessage="";
             let minSecciones = 1;
             if ($vue.grupoSeccion.curso.tipoCursoTEOPRA) {
                 minSecciones = 2;
             }
             if ($vue.grupoSeccion.secciones.length == minSecciones) {
                 classButton = "btn-danger btn-modal btn-procesar";
-                messageAlert = "¿Al anular esta sección, se elmiminara el grupo, desea continuar?";
+                messageAlert = "¿Al anular esta sección, se eliminara el grupo, desea continuar?";
+                classMessage="bold danger h3 text-danger";
             }
             let mm = bootbox.confirm({
                 message: messageAlert,
+                className: classMessage,
                 buttons: {
                     confirm: {label: 'Si', className: classButton},
                     cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
