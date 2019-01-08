@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EntidadOficinaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NivelOficinaEnum;
@@ -454,10 +455,17 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         if (rol.getCodigoEnum() == RolEnum.DOC) {
             List<Docente> docentes = docenteDAO.allByPersona(ds.getPersona());
-            if (!docentes.isEmpty()) {
-                ds.setDocente(docentes.get(0));
-                ds.setDepartamentoAcademico(docentes.get(0).getDepartamentoAcademico());
+            for (Docente docente : docentes) {
+                if (docente.getEstadoEnum() == DocenteEstadoEnum.ACT) {
+                    ds.setDocente(docente);
+                    ds.setDepartamentoAcademico(docente.getDepartamentoAcademico());
+                    break;
+                }
             }
+//            if (!docentes.isEmpty()) {
+//                ds.setDocente(docentes.get(0));
+//                ds.setDepartamentoAcademico(docentes.get(0).getDepartamentoAcademico());
+//            }
         }
 
         if (rol.getCodigoEnum() == RolEnum.ALU) {
