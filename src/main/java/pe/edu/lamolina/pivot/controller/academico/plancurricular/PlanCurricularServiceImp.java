@@ -1235,7 +1235,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             List<MatriculaCurso> cursosMatriculadosAlumno = fillList(mapCursosMatriculados.get(alumno.getId()));
             List<AlumnoCicloCurso> cursosAprobadosAlumno = fillList(mapCursosAprobados.get(alumno.getId()));
 
-            //this.obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
             avanceCurricularAsincronoService.crearAvanceCurricular(alumno, planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, cursosMatriculadosAlumno, cursosAprobadosAlumno, ds);
         }
 
@@ -1247,23 +1246,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 return codigoCicloPlan;
             }
         }
-
-//        for (Integer intt : codigosCicloInt) {
-//            int inx = codigosCicloInt.indexOf(intt);
-//            Integer limiteCodigoInferior = codigosCicloInt.get(inx);
-//            int inxSup = inx + 1;
-//            boolean sobrepasolimite = codigosCicloInt.size() <= inxSup;
-//            if (sobrepasolimite) {
-//                if (limiteCodigoInferior <= codigoBuscar) {
-//                    return limiteCodigoInferior;
-//                }
-//                return null;
-//            }
-//            Integer limiteCodigoSuperior = codigosCicloInt.get(inxSup);
-//            if (limiteCodigoInferior <= codigoBuscar && limiteCodigoSuperior >= codigoBuscar) {
-//                return limiteCodigoInferior;
-//            }
-//        }
         return null;
     }
 
@@ -1330,44 +1312,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             return new ArrayList();
         }
         return lista;
-    }
-
-    private void obtenerData(
-            PlanCurricular planCurricular,
-            Map<Long, CursoCurricula> mapCursoCurricula,
-            Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula,
-            Map<Long, List<CursoEquivalente>> mapCursosEquivalentes) {
-
-        List<CursoCurricula> cursos = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
-        for (CursoCurricula curso : cursos) {
-            if (curso.getNumeroCiclo() == 0) {
-                continue;
-            }
-            mapCursoCurricula.put(curso.getId(), curso);
-        }
-
-        List<RequisitoCursoCurricula> requisitoCursoCurriculas = requisitoCursoCurriculaDAO.allByPlanCurricular(planCurricular);
-        for (RequisitoCursoCurricula rcc : requisitoCursoCurriculas) {
-            Long key = rcc.getCursoCurricula().getId();
-            List<RequisitoCursoCurricula> lista = fillList(mapRequisitoCursoCurricula.get(key));
-            if (lista == null) {
-                lista = new ArrayList<>();
-                mapRequisitoCursoCurricula.put(key, lista);
-            }
-            lista.add(rcc);
-        }
-
-        List<CursoEquivalente> cursoEquivalentes = cursoEquivalenteDAO.allActivoByPlanCurricular(planCurricular);
-        for (CursoEquivalente ce : cursoEquivalentes) {
-            Long key = ce.getCursoCurricula().getId();
-            List<CursoEquivalente> lista = fillList(mapCursosEquivalentes.get(key));
-            if (lista == null) {
-                lista = new ArrayList<>();
-                mapCursosEquivalentes.put(key, lista);
-            }
-            lista.add(ce);
-        }
-
     }
 
     @Override
