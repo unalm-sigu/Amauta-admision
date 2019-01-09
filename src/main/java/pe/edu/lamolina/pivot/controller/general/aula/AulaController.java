@@ -388,7 +388,6 @@ public class AulaController {
         return response;
     }
 
-
     @ResponseBody
     @RequestMapping("loadModalAulaHorario")
     public JsonResponse loadModalAulaHorario(@RequestParam("aula") Long aulaId, HttpSession session, Model model) {
@@ -437,6 +436,19 @@ public class AulaController {
                     );
                 }
             }
+
+            data.putPOJO("aula", JsonHelper.createJson(aula, jsonFactory, true, new String[]{
+                "id",
+                "codigo",
+                "nombre",
+                "capacidadAula",
+                "tipoAmbienteEnum",
+                "tipoAula.id",
+                "tipoAula.nombre",
+                "oficinaSupervisora.id",
+                "oficinaSupervisora.nombre",
+                "aulaSuperior.id",
+                "aulaSuperior.nombre"}));
 
             data.set("dias", diasJson);
             data.set("horas", horasJson);
