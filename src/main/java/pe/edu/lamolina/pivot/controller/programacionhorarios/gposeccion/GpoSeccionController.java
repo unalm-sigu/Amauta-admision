@@ -1606,6 +1606,10 @@ public class GpoSeccionController {
                                     new String[]{
                                         "id",
                                         "seccion.codigo2",
+                                        "seccion.grupoSeccion.curso.codigo",
+                                        "seccion.grupoSeccion.curso.nombre",
+                                        "seccion.docenteSeccion.docente.codigo",
+                                        "seccion.docenteSeccion.docente.persona.letraNomPaterno",
                                         "seccion.grupoHoras.codigo"})
                     );
                 }

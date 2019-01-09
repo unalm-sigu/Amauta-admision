@@ -70,12 +70,41 @@
 
                             </td>
                             <td  v-for="dia in dias" class="text-center"> 
-                                <span v-if="jsonHorarioAula[dia.id+'_'+hora.id]"
+                                
+<!--                                <span v-if="jsonHorarioAula[dia.id+'_'+hora.id]"
                                       class="text-primary block">
-
                                     {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
+                                </span>-->
+                                
+                                <div v-if="jsonHorarioAula[dia.id+'_'+hora.id]" class="dropdown notas-cepre">
+                                    
+                                    <a class="dropdown-toggle" href="#" data-toggle="dropdown" >
+                                        <strong>{{jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}</strong>  <b class="caret"></b> 
+                                    </a>
+                                    
+                                    <ul class="dropdown-menu multi-column columns-3 dropdown-menu-right">
+                                        <div class="row">
 
-                                </span>
+                                            <div class="col-sm-4">
+                                                <ul class="multi-column-dropdown">
+                                                    <span class="disabled">
+                                                       <strong> {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoSeccion.curso.codigo}}</strong>
+                                                       {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoSeccion.curso.nombre}}
+                                                    </span>
+                                                    <span v-for="item  in jsonHorarioAula[dia.id+'_'+hora.id].seccion.docenteSeccion " class="nota-cepre">
+                                                        <strong> {{item.docente.codigo}}</strong>
+                                                        <strong> {{item.docente.persona.letraNomPaterno}}</strong>
+                                                    </span>
+                                                    <span class="nota-cepre">{{jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}</span>
+                                                    <span class="nota-cepre">{{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoHoras.codigo}}</span>
+                                                </ul>
+                                            </div>
+
+                                        </div>
+                                    </ul>
+                                    
+                                </div>
+                                
                                 <span v-if="jsonHorarioAula[dia.id+'_'+hora.id]"
                                       class="text-muted block">
                                     {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoHoras.codigo}}
