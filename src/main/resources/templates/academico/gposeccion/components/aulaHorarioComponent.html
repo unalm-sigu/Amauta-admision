@@ -82,27 +82,32 @@
                                         <strong>{{jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}</strong>  <b class="caret"></b> 
                                     </a>
 
-                                    <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-box">
                                         <div class="row m-l-xs m-r-xs">
 
-                                            <span class="disabled block">
+                                            <span class="disabled block docente-uno">
                                                 <strong> {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoSeccion.curso.codigo}}</strong>
                                                 {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoSeccion.curso.nombre}}
                                             </span>
 
-                                            <span class="block">
+                                            <span class="block" style="margin-top:5px;margin-bottom:5px;">
 
-                                                <strong> Docentes </strong> 
+                                                <strong  > Docentes </strong> 
+                                                
+                                                
+                                                <ul class="otros-docente">
+                                                    <li class="prof"><p><strong><i class="fa fa-shield" aria-hidden="true"></i> c234 </strong> j perez m</p></li>
+                                                    <li class="prof"><p><strong> c234 </strong> j perez m </p> </li>
+                                                    <li class="prof"><p><strong> c234 </strong> j perez m </p></li>
+                                                    <li class="prof"><span>Otros...</span></li>
+                                                </ul>
 
-                                                <span v-for="(item, index )  in jsonHorarioAula[dia.id+'_'+hora.id].seccion.docenteSeccion"  class="block">
+<!--                                                <span v-for="(item, index )  in jsonHorarioAula[dia.id+'_'+hora.id].seccion.docenteSeccion"  class="block docente-uno">
                                                     <strong> <i v-if="index==0" class="fa fa-shield" aria-hidden="true"></i>
                                                         {{item.docente.codigo}} </strong> {{item.docente.persona.letraNomPaterno}}
-                                                </span>
-
-                                                <span v-if="jsonHorarioAula[dia.id+'_'+hora.id].seccion.sizeDocente>2"  class="block">
-                                                    Otros
-                                                </span>
-
+                                                </span>-->
+                                                    <!--<span v-if="jsonHorarioAula[dia.id+'_'+hora.id].seccion.sizeDocente>2"  class="block docente-otro">-->
+                                               
                                             </span>
 
                                             <span class="block">
