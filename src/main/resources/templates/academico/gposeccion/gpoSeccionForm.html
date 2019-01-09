@@ -57,8 +57,8 @@
                 <a class="btn btn-default"   th:href="${origen}"  >Regresar</a>
             </div>
         </header>
-        <div id="pageGpoSeccion">
-            <div v-cloak="">
+        <div id="pageGpoSeccion" v-cloak="">
+            <div >
 
                 <section class="wrapper-lg">
                     <form id="frmEditGpoSeccion">
@@ -83,7 +83,7 @@
 
                                         <div class="row m-b-xs">
                                             <div class="col-md-1 text-curso">Curso 
-                                                    <input type="hidden" v-bind:value="grupoSeccion.curso.tipoCursoEnum.name"/></div>
+                                                <input type="hidden" v-bind:value="grupoSeccion.curso.tipoCursoEnum.name"/></div>
                                             <div class="col-md-11">
                                                 <span class="block text-curso" v-text="grupoSeccion.curso.codigo + ' - ' + grupoSeccion.curso.nombre"></span>
                                                 <span class="block bold">
@@ -368,8 +368,9 @@
                                             </td>
                                             <td class="v-middle">
                                                 <input type="hidden" v-bind:value="seccion.id"/>
+
                                                 <div class="dropdown actions" 
-                                                     v-if="index > 0">
+                                                     >
 
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-option-vertical"></i></a>
                                                     <ul class="dropdown-menu pull-right" >

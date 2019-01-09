@@ -882,6 +882,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         GrupoSeccion grupoSeccion = seccion.getGrupoSeccion().clone();
         Curso curso = grupoSeccion.getCurso().clone();
 
+        //validar matricula seccion, sin importar estado
         List<AlumnoEvaluacion> alumnoEvaluacion = alumnoEvaluacionDAO.allBySeccion(seccion.getId());
         Assert.isTrue(alumnoEvaluacion.isEmpty(), "La sección tiene notas registradas");
 
@@ -896,7 +897,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
-        if (matriculasSeccion.isEmpty()) {
+        List<MatriculaSeccion> matriculasSeccionAlState = matriculaSeccionDAO.allBySeccion(seccion);
+
+        if (matriculasSeccionAlState.isEmpty()) {
             List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccion);
             for (DocenteSeccion docenteSeccion : docentesSec) {
                 docenteSeccionDAO.delete(docenteSeccion);
@@ -954,13 +957,31 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 Seccion seccionTCUR = secciones.stream().filter(x -> x.isTipoSeccionTCUR()).findFirst().orElse(null);
                 List<Seccion> seccionesPCUR = secciones.stream().filter(x -> x.isTipoSeccionPCUR()).collect(Collectors.toList());
                 if (seccionesPCUR == null || seccionesPCUR.isEmpty()) {
-                    return this.anularSeccion(seccionTCUR, usuario);
+                    this.anularSeccion(seccionTCUR, usuario);
                 }
-            } else if (seccion.isTipoSeccionTCUR()) {
+            }
+            /*else if (seccion.isTipoSeccionTCUR()) {
                 grupoSeccionDAO.deleteGrupoSeccion(grupoSeccion);
                 GrupoSeccion grupoSeccionReturn = new GrupoSeccion();
                 grupoSeccionReturn.setCurso(curso);
                 return grupoSeccionReturn;
+            }*/
+        }
+        List<Seccion> seccionesOperativas = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
+        List<Seccion> allSecciones = seccionDAO.allByGpoSeccion(grupoSeccion);
+
+        if (allSecciones.isEmpty()) {
+            grupoSeccionDAO.deleteGrupoSeccion(grupoSeccion);
+            GrupoSeccion grupoSeccionReturn = new GrupoSeccion();
+            grupoSeccionReturn.setCurso(curso);
+            return grupoSeccionReturn;
+        } else {
+            if (seccionesOperativas.isEmpty()) {
+                GrupoSeccion grupoSeccionUpd = new GrupoSeccion(grupoSeccion.getId());
+                grupoSeccionUpd.setEstadoEnum(SeccionEstadoEnum.ANU);
+                grupoSeccionUpd.setUsuarioModificacion(usuario);
+                grupoSeccionUpd.setFechaModificacion(today.toDate());
+                grupoSeccionDAO.updateEstadoFechaModUsuarioMod(grupoSeccion);
             }
         }
         return grupoSeccion;
@@ -2045,6 +2066,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public Aula findAulaFull(Long aulaId, CicloAcademico cicloAcademico) {
         Aula aula = aulaDAO.find(aulaId);
         List<HorarioAula> horariosAulas = horarioAulaDAO.allByAula(aula, cicloAcademico);
+        this.completarDocentes(horariosAulas);
         aula.setHorariosAula(horariosAulas);
         return aula;
     }
@@ -2578,6 +2600,21 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         }
 
+    }
+
+    private void completarDocentes(List<HorarioAula> horariosAulas) {
+        List<Seccion> secciones = horariosAulas.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allActivosBySeccionesOrderPrincipalLimit(secciones);
+        Map<Long, List<DocenteSeccion>> docenteSeccionesMap = TypesUtil.convertListToMapList("seccion.id", docenteSecciones);
+        for (HorarioAula horariosAula : horariosAulas) {
+            Seccion seccion = horariosAula.getSeccion();
+            if (seccion != null) {
+                seccion.setDocenteSeccion(null);
+                List<DocenteSeccion> docenteSeccioness = docenteSeccionesMap.get(seccion.getId());
+                seccion.setSizeDocente(docenteSeccioness!=null?docenteSeccioness.size():0);
+                seccion.setDocenteSeccion(docenteSeccioness);
+            }
+        }
     }
 
 }

@@ -17,7 +17,7 @@
 
             <h2><span th:text='|${curso.nombre} - ${session["SESSION_USUARIO"].cicloAcademico.descripcion}: Registro de Notas|'>2016-II</span></h2>
 
-
+            <input type="hidden" th:value="${curso.id}"/>
             <input id="txtSistemaNotas" type="hidden" th:value="${sistemaNotas.id}"/>
             <div class="row">
                 <div class="form-group">
@@ -180,7 +180,7 @@
                                                 </div>
                                             </span>
                                         </span>
-                                        
+
                                     </td>
                                     <td th:if="${sistemaNotas.letras}">
                                         <span th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
