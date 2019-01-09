@@ -39,6 +39,41 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
+    public Alumno findLock(Long id) {
+        StringBuilder sql = new StringBuilder()
+                .append("select {a.*} from aca_alumno as a where a.id = :ID_ALUMNO for update ");
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addEntity("a", Alumno.class);
+
+        query.setParameter("ID_ALUMNO", id);
+
+        return (Alumno) query.uniqueResult();
+    }
+
+    @Override
+    public Alumno find(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa")
+                .leftJoin("per.tipoDocumento td", "cicloActivo cia", "cicloIngreso ci", "modalidadEstudio me", "situacionAcademica situ")
+                .filter("alu.id", alumno);
+        return (Alumno) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public Alumno findAllInfo(Long id) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("modalidadEstudio me", "carrera ca", "ca.facultad")
+                .left("planCurricular pc", "situacionAcademica sa", "pc.cicloInicioVigencia", "pc.carrera")
+                .left("cicloIngreso", "cicloActivo", "postulantePregrado pp", "pp.modalidadIngreso mi")
+                .left("orientacionCarrera")
+                .filter("alu.id", id);
+
+        return (Alumno) sql.find(getCurrentSession());
+    }
+
+    @Override
     public Alumno findByCodigo(String codigoAlumno) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
@@ -65,29 +100,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.id", persona)
                 .filter("ci.id", ciclo);
-        return (Alumno) sql.find(getCurrentSession());
-    }
-
-    @Override
-    public Alumno find(Alumno alumno) {
-        Octavia sql = Octavia.query()
-                .from(Alumno.class, "alu")
-                .join("persona per", "carrera car", "car.facultad fa")
-                .leftJoin("per.tipoDocumento td", "cicloActivo cia", "cicloIngreso ci", "modalidadEstudio me", "situacionAcademica situ")
-                .filter("alu.id", alumno);
-        return (Alumno) sql.find(getCurrentSession());
-    }
-
-    @Override
-    public Alumno findAllInfo(Long id) {
-        Octavia sql = Octavia.query()
-                .from(Alumno.class, "alu")
-                .join("modalidadEstudio me", "carrera ca", "ca.facultad")
-                .left("planCurricular pc", "situacionAcademica sa", "pc.cicloInicioVigencia", "pc.carrera")
-                .left("cicloIngreso", "cicloActivo", "postulantePregrado pp", "pp.modalidadIngreso mi")
-                .left("orientacionCarrera")
-                .filter("alu.id", id);
-
         return (Alumno) sql.find(getCurrentSession());
     }
 
@@ -119,71 +131,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td", "cicloActivo ci")
                 .filter("per.id", persona);
         return (Alumno) sql.find(getCurrentSession());
-    }
-
-    @Override
-    public Alumno findLock(Long id) {
-        StringBuilder sql = new StringBuilder()
-                .append("select {a.*} from aca_alumno as a where a.id = :ID_ALUMNO for update ");
-        Query query = getCurrentSession().createSQLQuery(sql.toString())
-                .addEntity("a", Alumno.class);
-
-        query.setParameter("ID_ALUMNO", id);
-
-        return (Alumno) query.uniqueResult();
-    }
-
-    @Override
-    public AlumnoResumen findResumen() {
-        StringBuilder sql = new StringBuilder();
-
-        sql.append("select new ").append(AlumnoResumen.class.getName());
-        sql.append(" (   ");
-        sql.append("   sum(case moe.codigo when :PRE then 1 else 0 end),   ");
-        sql.append("   sum(case moe.codigo when :EPG then 1 else 0 end),   ");
-        sql.append("   sum(case moe.codigo when :VIS  then 1 else 0 end),   ");
-        sql.append("   sum(case moe.codigo when :ESP  then 1 else 0 end)   ");
-        sql.append(" )   ");
-        sql.append("  from ").append(Alumno.class.getName()).append(" as al ");
-        sql.append(" inner join al.carrera ca ");
-        sql.append(" inner join al.cicloActivo cia ");
-        sql.append("  inner join ca.modalidadEstudio moe ");
-
-        Query query = getCurrentSession().createQuery(sql.toString());
-
-        query.setString("PRE", PRE.name());
-        query.setString("EPG", EPG.name());
-        query.setString("VIS", VIS.name());
-        query.setString("ESP", ESP.name());
-
-        return (AlumnoResumen) query.uniqueResult();
-    }
-
-    @Override
-    public MatriculableResumen findResumenByCiclo(CicloAcademico cicloAcademico) {
-        StringBuilder sql = new StringBuilder();
-
-        sql.append("select new ").append(MatriculableResumen.class.getName());
-        sql.append(" (   ");
-        sql.append("   COALESCE(sum(case moe.codigo when :PRE then 1 else 0 end),0),   ");
-        sql.append("   COALESCE(sum(case moe.codigo when :EPG then 1 else 0 end),0),   ");
-        sql.append("   COALESCE(sum(case moe.codigo when :VIS  then 1 else 0 end),0),   ");
-        sql.append("   COALESCE(sum(case moe.codigo when :ESP  then 1 else 0 end),0)   ");
-        sql.append(" )   ");
-        sql.append("  from ").append(Alumno.class.getName()).append(" as al ");
-        sql.append(" inner join al.carrera ca ");
-        sql.append(" inner join al.cicloActivo cia ");
-        sql.append(" inner join ca.modalidadEstudio moe ");
-        sql.append(" where cia.id = :CICLO ");
-
-        Query query = getCurrentSession().createQuery(sql.toString());
-        query.setString("PRE", PRE.name());
-        query.setString("EPG", EPG.name());
-        query.setString("VIS", VIS.name());
-        query.setString("ESP", ESP.name());
-        query.setLong("CICLO", cicloAcademico.getId());
-
-        return (MatriculableResumen) query.uniqueResult();
     }
 
     @Override
@@ -471,58 +418,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public void updateCicloActivoSituacionAcad(Alumno alumno) {
-        Octavia octavia = Octavia.update(Alumno.class);
-        octavia.set(alumno, "situacionAcademica");
-        octavia.set(alumno, "cicloActivo");
-        this.update(octavia);
-    }
-
-    @Override
-    public void updateSituacionAcad(Alumno alumno) {
-        Octavia octavia = Octavia.update(Alumno.class);
-        octavia.set(alumno, "situacionAcademica");
-        this.update(octavia);
-    }
-
-    @Override
-    public void updateSituacionCicloCapa(Alumno alumno) {
-        Octavia octavia = Octavia.update(Alumno.class);
-        octavia.set(alumno, "situacionAcademica");
-        octavia.set(alumno, "creditosAprobados");
-        octavia.set(alumno, "cicloActivo");
-        octavia.set(alumno, "creditosCursados");
-        this.update(octavia);
-    }
-
-    @Override
-    public void updateSituacionCicloCapaPPA(Alumno alumno) {
-        Octavia octavia = Octavia.update(Alumno.class);
-        octavia.set(alumno, "situacionAcademica");
-        octavia.set(alumno, "creditosAprobados");
-        octavia.set(alumno, "cicloActivo");
-        octavia.set(alumno, "creditosCursados");
-        octavia.set(alumno, "promedioAcumulado");
-        this.update(octavia);
-    }
-
-    @Override
-    public void updateSituacionCapaCredCur(Alumno alumno) {
-        Octavia octavia = Octavia.update(Alumno.class);
-        octavia.set(alumno, "situacionAcademica");
-        octavia.set(alumno, "creditosAprobados");
-        octavia.set(alumno, "creditosCursados");
-        this.update(octavia);
-    }
-
-    @Override
-    public void updateCicloActivoRegular(Alumno alumno) {
-        Octavia octavia = Octavia.update(Alumno.class);
-        octavia.set(alumno, "cicloActivoRegular");
-        this.update(octavia);
-    }
-
-    @Override
     public List<Alumno> allByIds(Long[] idAlumnos) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
@@ -583,11 +478,116 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
+    public void updateCicloActivoSituacionAcad(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "situacionAcademica");
+        octavia.set(alumno, "cicloActivo");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateSituacionAcad(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "situacionAcademica");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateSituacionCicloCapa(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "situacionAcademica");
+        octavia.set(alumno, "creditosAprobados");
+        octavia.set(alumno, "cicloActivo");
+        octavia.set(alumno, "creditosCursados");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateSituacionCicloCapaPPA(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "situacionAcademica");
+        octavia.set(alumno, "creditosAprobados");
+        octavia.set(alumno, "cicloActivo");
+        octavia.set(alumno, "creditosCursados");
+        octavia.set(alumno, "promedioAcumulado");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateSituacionCapaCredCur(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "situacionAcademica");
+        octavia.set(alumno, "creditosAprobados");
+        octavia.set(alumno, "creditosCursados");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateCicloActivoRegular(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "cicloActivoRegular");
+        this.update(octavia);
+    }
+
+    @Override
     public void updatePlanCurricular(Alumno alumno) {
         Octavia sql = Octavia.update(Alumno.class);
         sql.set(alumno, "planCurricular");
         sql.set(alumno, "orientacionCarrera");
         this.update(sql);
+    }
+
+    @Override
+    public AlumnoResumen findResumen() {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("select new ").append(AlumnoResumen.class.getName());
+        sql.append(" (   ");
+        sql.append("   sum(case moe.codigo when :PRE then 1 else 0 end),   ");
+        sql.append("   sum(case moe.codigo when :EPG then 1 else 0 end),   ");
+        sql.append("   sum(case moe.codigo when :VIS  then 1 else 0 end),   ");
+        sql.append("   sum(case moe.codigo when :ESP  then 1 else 0 end)   ");
+        sql.append(" )   ");
+        sql.append("  from ").append(Alumno.class.getName()).append(" as al ");
+        sql.append(" inner join al.carrera ca ");
+        sql.append(" inner join al.cicloActivo cia ");
+        sql.append("  inner join ca.modalidadEstudio moe ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+
+        query.setString("PRE", PRE.name());
+        query.setString("EPG", EPG.name());
+        query.setString("VIS", VIS.name());
+        query.setString("ESP", ESP.name());
+
+        return (AlumnoResumen) query.uniqueResult();
+    }
+
+    @Override
+    public MatriculableResumen findResumenByCiclo(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("select new ").append(MatriculableResumen.class.getName());
+        sql.append(" (   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :PRE then 1 else 0 end),0),   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :EPG then 1 else 0 end),0),   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :VIS  then 1 else 0 end),0),   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :ESP  then 1 else 0 end),0)   ");
+        sql.append(" )   ");
+        sql.append("  from ").append(Alumno.class.getName()).append(" as al ");
+        sql.append(" inner join al.carrera ca ");
+        sql.append(" inner join al.cicloActivo cia ");
+        sql.append(" inner join ca.modalidadEstudio moe ");
+        sql.append(" where cia.id = :CICLO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setString("PRE", PRE.name());
+        query.setString("EPG", EPG.name());
+        query.setString("VIS", VIS.name());
+        query.setString("ESP", ESP.name());
+        query.setLong("CICLO", cicloAcademico.getId());
+
+        return (MatriculableResumen) query.uniqueResult();
     }
 
 }

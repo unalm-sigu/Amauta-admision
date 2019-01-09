@@ -21,6 +21,7 @@ public class VisorAsignaCurricula {
     private Map<Long, Carrera> mapCarreras = new LinkedHashMap();
     private Map<Long, Integer> mapContadorAlumnos = new LinkedHashMap();
     private Map<Long, Integer> mapTopeAlumnos = new LinkedHashMap();
+    private Map<Long, Integer> mapPlanAsignado = new LinkedHashMap();
     private Map<Long, EstadoEnum> mapEstados = new LinkedHashMap();
     private Map<Long, AccionEnum> mapAcciones = new LinkedHashMap();
 
@@ -52,7 +53,9 @@ public class VisorAsignaCurricula {
         if (carrera != null) {
             int tope = mapTopeAlumnos.get(carr.getId());
             int conta = mapContadorAlumnos.get(carr.getId());
-            if (tope == conta * 2) {
+            int asignado = mapPlanAsignado.get(carr.getId());
+            if (tope == conta * 2 && asignado == 0) {
+                mapPlanAsignado.put(carr.getId(), 1);
                 return true;
             }
         }
@@ -81,6 +84,7 @@ public class VisorAsignaCurricula {
         mapTopeAlumnos.put(carr.getId(), 0);
         mapEstados.put(carr.getId(), VisorAsignaCurricula.EstadoEnum.INICIADO);
         mapAcciones.put(carr.getId(), accion);
+        mapPlanAsignado.put(carr.getId(), 0);
 
     }
 

@@ -67,7 +67,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .left("cu.departamentoAcademico")
                 .filter("pc.id", plan)
                 .orderBy("cc.numeroCiclo", "cc.numeroCurso");
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -121,6 +121,17 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
                 .left("cu.departamentoAcademico")
                 .filter("tcc.codigo", tipoCursoCurriculaEnum);
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoCurricula> allByPlanes(List<PlanCurricular> planes) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
+                .left("cu.departamentoAcademico")
+                .in("pc.id", planes)
+                .orderBy("cc.numeroCiclo", "cc.numeroCurso");
         return all(sql);
     }
 
