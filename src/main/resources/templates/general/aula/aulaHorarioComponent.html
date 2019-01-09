@@ -1,7 +1,7 @@
 <template id="modalAulaHorarioComp"> 
     <div> 
         <section class="panel-body">
-            <div class="table-responsive" >
+            <div class="" >
                 <table class="table table-bordered" v-if="aula!=null">
 
                     <thead>
@@ -30,10 +30,10 @@
                                         <strong>{{jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}</strong>  <b class="caret"></b> 
                                     </a>
 
-                                    <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-menu dropdown-box">
                                         <div class="row m-l-xs m-r-xs">
 
-                                            <span class="disabled block">
+                                            <span class="disabled block docente-uno">
                                                 <strong> {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoSeccion.curso.codigo}}</strong>
                                                 {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoSeccion.curso.nombre}}
                                             </span>
