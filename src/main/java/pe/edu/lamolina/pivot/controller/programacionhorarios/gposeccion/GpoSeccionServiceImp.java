@@ -2611,7 +2611,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             if (seccion != null) {
                 seccion.setDocenteSeccion(null);
                 List<DocenteSeccion> docenteSeccioness = docenteSeccionesMap.get(seccion.getId());
-                seccion.setSizeDocente(docenteSeccioness!=null?docenteSeccioness.size():0);
+                seccion.setSizeDocente(docenteSeccioness != null ? docenteSeccioness.size() : 0);
+                if (docenteSeccioness != null) {
+                    if (docenteSeccioness.size() > 2) {
+                        List<DocenteSeccion> misdocentes = new ArrayList();
+                        misdocentes.add(docenteSeccioness.get(0));
+                        misdocentes.add(docenteSeccioness.get(1));
+                        docenteSeccioness = misdocentes;
+                    }
+                }
                 seccion.setDocenteSeccion(docenteSeccioness);
             }
         }

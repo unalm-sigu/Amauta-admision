@@ -43,5 +43,19 @@ public class HelperHorarioAula {
         
         return null;
     }
+    
+    
+    public Seccion getSeccion(long idDia, long idHora, List<HorarioAula> horario) {
+        for (HorarioAula horarioAula : horario) {
+            Dia dia = horarioAula.getDia();
+            Hora hora = horarioAula.getHora();
+
+            if (!(idDia == dia.getId() && idHora == hora.getId())) {
+                continue;
+            }
+            return horarioAula.getSeccion();
+        }
+        return null;
+    }
 
 }

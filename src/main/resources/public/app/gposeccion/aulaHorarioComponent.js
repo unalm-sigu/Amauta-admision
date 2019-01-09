@@ -43,6 +43,12 @@ Vue.component("aula-horario-component", {
             });
 
 
+        },
+        onmousein(e) {
+            $(e.target).parents('.dropdown:first').find('.dropdown-menu').stop(true, true).delay(20).slideDown(500);
+        },
+        onmouseout(e) {
+            $(e.target).parents('.dropdown:first').find('.dropdown-menu').stop(true, true).delay(20).slideUp(500);
         }
     }
 });
