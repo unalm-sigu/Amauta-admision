@@ -39,4 +39,6 @@ public interface CicloAcademicoService {
 
     void configurar(CicloAcademico cicloAcademico);
 
+    public void changeVisiblelogin(CicloAcademico cicloAcademico);
+
 }
