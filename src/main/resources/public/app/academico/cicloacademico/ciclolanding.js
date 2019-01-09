@@ -1,7 +1,8 @@
 new Vue({
     el: '#main',
     data: {
-        ciclo: {id: idciclo,descripcion2:nameciclo},
+        ciclo: {id: idciclo, descripcion2: nameciclo},
+        ciclosVisibles: JSON.parse(cicloVisible)
     },
     mounted: function () {
         let vue = this;

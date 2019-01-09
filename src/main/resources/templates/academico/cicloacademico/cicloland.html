@@ -28,13 +28,15 @@
                             <div class="row">
 
                                 <div class="col-xs-10">
-
                                     <vueciclo v-bind:nombre="'ciclo.id'"  v-bind:ciclo="ciclo"/>
                                 </div>
 
                                 <div class="col-xs-2">
-
                                     <button v-on:click.prevent="activarCiclo(ciclo)" class="btn btn-default btn-rounded btn-sm pull-right"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                                </div>
+
+                                <div class="col-xs-2" v-for="ciclo in ciclosVisibles">
+                                    <button v-on:click.prevent="activarCiclo(ciclo)" class="btn btn-success m-b-md block"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
                                 </div>
 
                             </div>
@@ -70,6 +72,7 @@
             /*<![CDATA[*/
             var idciclo = /*[[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.id:''}]]*/ '';
             var nameciclo = /*[[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion2:''}]]*/ '';
+            var cicloVisible = /*[[${cicloAcademico.toString()}]]*/ '';
             /*]]>*/
         </script>
 
