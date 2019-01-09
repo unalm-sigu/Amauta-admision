@@ -2,6 +2,8 @@ package pe.edu.lamolina.pivot.security.oauth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
@@ -127,7 +130,6 @@ public class OAuthController {
             logger.debug("return security/rolland");
             return "security/rolland";
         }
-
         try {
             if (ds.getRolesMain().size() == 1) {
                 Rol rolActivo = ds.getRolesMain().get(0);
@@ -136,7 +138,15 @@ public class OAuthController {
         } catch (Exception e) {
             e.printStackTrace();;
         }
-
+        if (ds.getCicloAcademico() == null) {
+            List<CicloAcademico> cicloAcademicos = serviceProvider.findCiclosVisibles();
+            ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+            for (CicloAcademico cicloAcademico : cicloAcademicos) {
+                arrayNode.add(JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"}));
+            }
+            model.addAttribute("cicloAcademico", arrayNode);
+            return "academico/cicloacademico/cicloland";
+        }
         return this.getRedirect(ds, session);
     }
 
@@ -148,8 +158,9 @@ public class OAuthController {
             Rol asignar = ds.getMapRoles().get(rol);
             logger.debug("rolland");
             serviceProvider.asignarRolActivo(asignar, ds, session);
+
         } catch (Exception e) {
-            e.printStackTrace();;
+            e.printStackTrace();
         }
     }
 
@@ -210,6 +221,12 @@ public class OAuthController {
 
     @RequestMapping("changeciclo")
     public String changeciclo(HttpSession session, Model model) {
+        List<CicloAcademico> cicloAcademicos = serviceProvider.findCiclosVisibles();
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (CicloAcademico cicloAcademico : cicloAcademicos) {
+            arrayNode.add(JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"}));
+        }
+        model.addAttribute("cicloAcademico", arrayNode);
         return "academico/cicloacademico/cicloland";
     }
 
