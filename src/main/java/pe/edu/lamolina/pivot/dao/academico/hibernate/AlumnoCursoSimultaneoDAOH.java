@@ -37,7 +37,7 @@ public class AlumnoCursoSimultaneoDAOH extends AbstractEasyDAO<AlumnoCursoSimult
         sql.append(" where exists (select 1 ");
         sql.append("                 from AlumnoCursoCurricula acc ");
         sql.append("                 join acc.alumno a ");
-        sql.append("                where acs.alumnoCursoCurricula.id = acc.id ");
+        sql.append("                where acc.id = acs.alumnoCursoCurricula.id ");
         sql.append("                  and a.id =:ALUMNO ) ");
         
         Query query =   getCurrentSession().createQuery(sql.toString());

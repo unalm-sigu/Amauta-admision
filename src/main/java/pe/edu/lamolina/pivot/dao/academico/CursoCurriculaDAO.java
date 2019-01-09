@@ -20,9 +20,11 @@ public interface CursoCurriculaDAO extends EasyDAO<CursoCurricula> {
     List<CursoCurricula> allByPlanCurricular(PlanCurricular curricula);
 
     List<CursoCurricula> allByPlanCurricularNroCiclo(PlanCurricular plan, Integer nro);
-    
+
     Map<Long, Integer> countByPlanesCurricular(List<PlanCurricular> curriculas);
 
     List<CursoCurricula> allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum tipoCursoCurriculaEnum);
+
+    List<CursoCurricula> allByPlanes(List<PlanCurricular> planes);
 
 }

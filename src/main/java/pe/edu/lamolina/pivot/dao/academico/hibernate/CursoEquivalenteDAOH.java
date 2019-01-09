@@ -35,7 +35,7 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
                 .from(CursoEquivalente.class, "ce")
                 .join("cursoCurricula cc", "cursoEquivalente cee", "cc.curso", "cc.planCurricular")
                 .filter("cc.planCurricular", planCurricular)
-                .filter("estado", EstadoEnum.ACT.name());
+                .filter("estado", EstadoEnum.ACT);
 
         return sql.all(getCurrentSession());
     }
@@ -65,6 +65,18 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
         }
 
         return cursoEquivalente.getGrupo();
+    }
+
+    @Override
+    public List<CursoEquivalente> allActivoByPlanes(List<PlanCurricular> planes) {
+        Octavia sql = Octavia.query()
+                .from(CursoEquivalente.class, "ce")
+                .join("cursoCurricula cc", "cursoEquivalente cee", "cc.curso", "cc.planCurricular plan")
+                .in("plan.id", planes)
+                .filter("estado", EstadoEnum.ACT);
+
+        return all(sql);
+
     }
 
 }
