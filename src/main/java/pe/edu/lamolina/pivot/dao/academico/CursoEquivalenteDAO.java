@@ -9,11 +9,12 @@ import pe.edu.lamolina.model.academico.PlanCurricular;
 public interface CursoEquivalenteDAO extends EasyDAO<CursoEquivalente> {
 
     Integer findMaxGrupoByCursoCurricula(CursoCurricula curso);
-    
-    void deleteByGrupoCursoCurricula(Integer grupo, CursoCurricula curso);
-    
-    List<CursoEquivalente> allActivoByCursoCurricula(CursoCurricula cursoCurricula);
-    
-    List<CursoEquivalente> allActivoByPlanCurricular(PlanCurricular planCurricular);
-}
 
+    void deleteByGrupoCursoCurricula(Integer grupo, CursoCurricula curso);
+
+    List<CursoEquivalente> allActivoByCursoCurricula(CursoCurricula cursoCurricula);
+
+    List<CursoEquivalente> allActivoByPlanCurricular(PlanCurricular planCurricular);
+
+    List<CursoEquivalente> allActivoByPlanes(List<PlanCurricular> planes);
+}

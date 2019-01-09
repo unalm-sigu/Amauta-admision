@@ -1607,9 +1607,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-
-            boolean existe = visorAsignaCurricula.existeCarrera(carrera);
-            response.setSuccess(existe);
+            response.setSuccess(visorAsignaCurricula.existeCarrera(carrera));
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
