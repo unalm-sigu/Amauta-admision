@@ -279,8 +279,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, AlumnoCursoCurricula> mapCursoCurriculaAluByCurso,
             List<AlumnoCicloCurso> cursosAprobados) {
 
-        Map<Long, AlumnoCicloCurso> mapCursosAprobados = TypesUtil.convertListToMapList("curso.id", cursosAprobados);
-        Map<Long, AlumnoCicloCurso> mapCursosVeces = TypesUtil.convertListToMapList("alumnoCursoKey", cursosAprobados);
+        Map<Long, AlumnoCicloCurso> mapCursosAprobados = TypesUtil.convertListToMap("curso.id", cursosAprobados);
+        Map<Long, AlumnoCicloCurso> mapCursosVeces = TypesUtil.convertListToMap("alumnoCursoKey", cursosAprobados);
 
         for (AlumnoCicloCurso cursoAprobado : mapCursosAprobados.values()) {
             AlumnoCursoCurricula cursoCurriAlu = mapCursoCurriculaAluByCurso.get(cursoAprobado.getCurso().getId());
@@ -628,7 +628,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         visorAsignaCurricula.incrementar(alumno.getCarrera());
     }
 
-    @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void crearAvanceCurricular(

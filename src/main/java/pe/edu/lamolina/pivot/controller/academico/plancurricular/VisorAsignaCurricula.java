@@ -45,7 +45,7 @@ public class VisorAsignaCurricula {
         return true;
     }
 
-    public boolean procesoMitadCarrera(Carrera carr) {
+    public synchronized boolean procesoMitadCarrera(Carrera carr) {
         if (mapCarreras.isEmpty()) {
             return false;
         }
