@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -279,6 +280,9 @@ public class TestController {
 
         visorCalculoNotas.iniciar();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allByCodigo(cicloCod);
+        List<String> ciclosStr = ciclos.stream().map(x -> x.toString()).collect(Collectors.toList());
+        logger.info("ciclos encontrados {}", String.join(",", ciclosStr));
+
         for (CicloAcademico cicloAcademico : ciclos) {
             if (!cicloAcademico.getModalidadEstudio().isPregrado()) {
                 continue;
