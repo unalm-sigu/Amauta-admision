@@ -1,52 +1,5 @@
 <template id="modalAulaHorarioComp"> 
     <div> 
-        <section class="panel-body" v-if="aula">
-            <div class="row">
-                <div class="form-group">
-                    <label class="col-md-2 control-label">Aula</label>
-
-                    <div class="col-md-4">
-                        <span v-if="aula.nombre==''"> {{aula.codigo}}</span>
-                        <span v-if="aula.nombre!=''"> {{aula.nombre}}</span>
-                    </div>
-
-                    <label class="col-md-2 control-label">Capacidad</label>
-
-                    <div class="col-md-4">
-                        <span> {{aula.capacidadAula}} </span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label class="col-md-2 control-label">Tipo Aula</label>
-
-                    <div class="col-md-4">
-                        <span v-if="aula.tipoAula.id != '' "> {{aula.tipoAula.nombre}} </span>
-                    </div>
-                    <label class="col-md-2 control-label">Tipo Ambiente</label>
-
-                    <div class="col-md-4">
-                        <span v-if="aula.tipoAmbienteValue != '' "> {{aula.tipoAmbienteEnum.value}}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label class="col-md-2 control-label">Ubicación</label>
-
-                    <div class="col-md-4">
-                        <span v-if="aula.aulaSuperior.id != '' "> {{aula.aulaSuperior.nombre}}</span>
-                    </div>
-
-                    <label class="col-md-2 control-label">Gestionada por</label>
-
-                    <div class="col-md-4">
-                        <span v-if="aula.oficinaSupervisora.id != '' "> {{aula.oficinaSupervisora.nombre}} </span>
-                    </div>
-                </div>
-            </div>
-        </section>
         <section class="panel-body">
             <div class="" >
                 <table class="table table-bordered" v-if="aula!=null">
@@ -88,6 +41,7 @@
                                             <span class="block" style="margin-top:5px;margin-bottom:5px;">
 
                                                 <strong  > Docentes </strong> 
+
 
                                                 <ul class="otros-docente">
                                                     <li v-for="(item, index )  in jsonHorarioAula[dia.id+'_'+hora.id].seccion.docenteSeccion" class="prof">

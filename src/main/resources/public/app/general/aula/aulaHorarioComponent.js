@@ -1,4 +1,4 @@
-Vue.component("aula-horario-component", {
+var AulaHorarioVue = Vue.component("aula-horario-component", {
     template: "#modalAulaHorarioComp",
     props: {
 
@@ -12,18 +12,14 @@ Vue.component("aula-horario-component", {
         }
     },
     mounted: function () {
-
         let $vue = this;
-        $global.$on("loadAulaHorarioComponent", function (aula) {
-            $vue.loadComponent($vue, aula);
-        });
-
+        $vue.loadComponent($vue, $vue.aula);
     },
     methods: {
         loadComponent($vue, aula) {
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/gposeccion/loadModalAulaHorario'),
+                url: APP.url('general/aula/loadModalAulaHorario'),
                 data: {
                     aula: aula.id
                 },
@@ -52,4 +48,3 @@ Vue.component("aula-horario-component", {
         }
     }
 });
-

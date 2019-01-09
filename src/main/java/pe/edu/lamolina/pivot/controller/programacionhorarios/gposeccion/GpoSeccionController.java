@@ -1609,7 +1609,7 @@ public class GpoSeccionController {
                                         "seccion.grupoSeccion.curso.codigo",
                                         "seccion.grupoSeccion.curso.nombre",
                                         "seccion.docenteSeccion.docente.codigo",
-                                        "seccion.docenteSeccion.docente.persona.letraNomPaterno",
+                                        "seccion.docenteSeccion.docente.persona.nomPaternoMat",
                                         "seccion.grupoHoras.codigo"})
                     );
                 }
