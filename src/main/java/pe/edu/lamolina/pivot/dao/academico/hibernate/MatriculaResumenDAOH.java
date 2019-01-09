@@ -325,7 +325,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("'0', ");
         strb.append("'0', ");
         strb.append("'NMAT', ");
-        strb.append("0, ");
+        strb.append("0 ");
         strb.append("from Alumno alum ");
         strb.append("inner join alum.modalidadEstudio me ");
         strb.append("inner join alum.situacionAcademica sit, ");
