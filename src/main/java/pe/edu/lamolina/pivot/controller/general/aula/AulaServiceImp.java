@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,8 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
@@ -25,6 +28,7 @@ import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.almacen.ResumenInventarioDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
@@ -58,6 +62,9 @@ public class AulaServiceImp implements AulaService {
 
     @Autowired
     ResumenInventarioDAO resumenInventarioDAO;
+
+    @Autowired
+    DocenteSeccionDAO docenteSeccionDAO;
 
     @Override
     public List<Aula> allByDynatable(DynatableFilter filter) {
@@ -250,6 +257,7 @@ public class AulaServiceImp implements AulaService {
     public Aula findAulaFull(Long aulaId, CicloAcademico cicloAcademico) {
         Aula aula = aulaDAO.find(aulaId);
         List<HorarioAula> horariosAulas = horarioAulaDAO.allByAula(aula, cicloAcademico);
+        this.completarDocentes(horariosAulas);
         aula.setHorariosAula(horariosAulas);
         return aula;
     }
@@ -257,6 +265,29 @@ public class AulaServiceImp implements AulaService {
     @Override
     public List<Dia> allDia() {
         return diaDAO.allDia();
+    }
+
+    private void completarDocentes(List<HorarioAula> horariosAulas) {
+        List<Seccion> secciones = horariosAulas.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allActivosBySeccionesOrderPrincipalLimit(secciones);
+        Map<Long, List<DocenteSeccion>> docenteSeccionesMap = TypesUtil.convertListToMapList("seccion.id", docenteSecciones);
+        for (HorarioAula horariosAula : horariosAulas) {
+            Seccion seccion = horariosAula.getSeccion();
+            if (seccion != null) {
+                seccion.setDocenteSeccion(null);
+                List<DocenteSeccion> docenteSeccioness = docenteSeccionesMap.get(seccion.getId());
+                seccion.setSizeDocente(docenteSeccioness != null ? docenteSeccioness.size() : 0);
+                if (docenteSeccioness != null) {
+                    if (docenteSeccioness.size() > 2) {
+                        List<DocenteSeccion> misdocentes = new ArrayList();
+                        misdocentes.add(docenteSeccioness.get(0));
+                        misdocentes.add(docenteSeccioness.get(1));
+                        docenteSeccioness = misdocentes;
+                    }
+                }
+                seccion.setDocenteSeccion(docenteSeccioness);
+            }
+        }
     }
 
 }
