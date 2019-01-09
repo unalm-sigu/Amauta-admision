@@ -281,7 +281,7 @@ public class TestController {
         visorCalculoNotas.iniciar();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allByCodigo(cicloCod);
         List<String> ciclosStr = ciclos.stream().map(x -> x.toString()).collect(Collectors.toList());
-        logger.info("ciclos encontrados {}", String.join(",", ciclosStr));
+        logger.info("ciclos encontrados {}", String.join(",", String.join(",", ciclosStr)));
 
         for (CicloAcademico cicloAcademico : ciclos) {
             if (!cicloAcademico.getModalidadEstudio().isPregrado()) {
