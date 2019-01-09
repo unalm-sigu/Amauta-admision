@@ -284,7 +284,7 @@ public class TestController {
                 continue;
             }
             List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
-            logger.info("matriculas resumen encontradas {}", matriculasResumen.size());
+            logger.info("matriculas resumen encontradas {}, del ciclo {}", matriculasResumen.size(), cicloAcademico.toString());
 
             for (MatriculaResumen mResumen : matriculasResumen) {
                 Alumno alumno = mResumen.getAlumno();
