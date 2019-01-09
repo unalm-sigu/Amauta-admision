@@ -275,7 +275,7 @@ public class TestController {
     @ResponseBody
     @RequestMapping("promediarciclocod/{ciclo}")
     public String promediarAll(@PathVariable("ciclo") String cicloCod, HttpSession session) {
-        logger.info("promediarAll");
+        logger.info("promediarciclocod {}", cicloCod);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         visorCalculoNotas.iniciar();
