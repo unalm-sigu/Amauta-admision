@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -261,6 +262,22 @@ public class CicloAcademicoController {
         try {
             service.configurar(cicloAcademico);
             response.setMessage("Se ha iniciado la configuración del ciclo académico satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+  
+    @ResponseBody
+    @RequestMapping("changeVisiblelogin")
+    public JsonResponse changeVisiblelogin(@RequestBody CicloAcademico cicloAcademico) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.changeVisiblelogin(cicloAcademico);
+            response.setMessage("Se actualizó el ciclo satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

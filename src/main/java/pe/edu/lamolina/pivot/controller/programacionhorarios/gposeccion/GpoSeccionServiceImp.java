@@ -2604,40 +2604,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     private void completarDocentes(List<HorarioAula> horariosAulas) {
         List<Seccion> secciones = horariosAulas.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
-        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allActivosBySecciones(secciones);
+        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allActivosBySeccionesOrderPrincipalLimit(secciones);
         Map<Long, List<DocenteSeccion>> docenteSeccionesMap = TypesUtil.convertListToMapList("seccion.id", docenteSecciones);
-        for (Seccion seccione : secciones) {
-            seccione.setDocenteSeccion(null);
-            List<DocenteSeccion> docenteSeccioness = docenteSeccionesMap.get(seccione.getId());
-            logger.debug("===========size seccion {} ++++  {} ",seccione.getCodigo2() ,docenteSeccioness!=null?docenteSeccioness.size():0);
-            List<DocenteSeccion> misdocentes = new ArrayList();
-            if (docenteSeccioness != null && !docenteSeccioness.isEmpty()) {
-                DocenteSeccion ds = this.ginmePrincipal(docenteSeccioness);
-                if (ds == null) {
-                    misdocentes.add(docenteSeccioness.get(0));
-                    if (docenteSeccioness.size() > 1) {
-                        misdocentes.add(docenteSeccioness.get(1));
-                    }
-                } else {
-                    misdocentes.add(ds);
-                    docenteSeccioness.remove(ds);
-                    if (docenteSeccioness.size() > 1) {
-                        misdocentes.add(docenteSeccioness.get(0));
-                    }
-
-                }
-            }
-            seccione.setDocenteSeccion(misdocentes);
-        }
-    }
-
-    private DocenteSeccion ginmePrincipal(List<DocenteSeccion> docenteSeccioness) {
-        for (DocenteSeccion docenteSecciones : docenteSeccioness) {
-            if (docenteSecciones.getPrincipal() == 1) {
-                return docenteSecciones;
+        for (HorarioAula horariosAula : horariosAulas) {
+            Seccion seccion = horariosAula.getSeccion();
+            if (seccion != null) {
+                seccion.setDocenteSeccion(null);
+                List<DocenteSeccion> docenteSeccioness = docenteSeccionesMap.get(seccion.getId());
+                seccion.setSizeDocente(docenteSeccioness!=null?docenteSeccioness.size():0);
+                seccion.setDocenteSeccion(docenteSeccioness);
             }
         }
-        return null;
     }
 
 }

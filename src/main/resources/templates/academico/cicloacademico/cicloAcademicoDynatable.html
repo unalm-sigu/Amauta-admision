@@ -12,6 +12,7 @@
                         <th class="col-xs-2 v-middle">Descripción</th>
                         <th class="col-xs-2 v-middle">Descripción 2</th>
                         <th class="col-xs-2 v-middle">Descripción 3</th>
+                        <th class="col-xs-2 v-middle">Visible</th>
                         <th class="col-xs-1 v-middle">Estado</th>
                         <th class="v-middle"></th>
                     </tr>
@@ -49,6 +50,9 @@
 
         <td class="v-middle">
             <p class="text-sm"> {{ cicloAcademico.descripcion3}} </p>
+        </td>
+        <td class="v-middle">
+            <input type="checkbox" v-model="cicloAcademico.visibleLogin" v-on:click="visible(cicloAcademico)"/>
         </td>
 
         <td class="v-middle  text-center">
