@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import static javax.management.Query.attr;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -36,7 +32,6 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
@@ -56,9 +51,6 @@ public class AulaController {
 
     @Autowired
     AulaService service;
-
-    @Autowired
-    SpringTemplateEngine springHtml;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -388,34 +380,73 @@ public class AulaController {
         return response;
     }
 
-    //
     @ResponseBody
     @RequestMapping("loadModalAulaHorario")
     public JsonResponse loadModalAulaHorario(@RequestParam("aula") Long aulaId, HttpSession session, Model model) {
         JsonResponse response = new JsonResponse();
         try {
 
-            JsonNodeFactory factory = JsonNodeFactory.instance;
-            ObjectNode data = new ObjectNode(factory);
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Aula aula = service.findAulaFull(aulaId, ds.getCicloAcademico());
 
             List<Dia> dias = service.allDia();
-            List<HorarioAula> horarioAula = aula.getHorariosAula();
-            Map<Long, Hora> mapHoras = TypesUtil.convertListToMap("hora.id", "hora", horarioAula);
-            HelperHorarioAula helper = new HelperHorarioAula();
-            List<Hora> horas = new ArrayList(mapHoras.values());
-            Collections.sort(horas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
+            List<Hora> horasEncontradas = new ArrayList<>();
+            for (HorarioAula horarioAula : aula.getHorariosAula()) {
+                if (!horasEncontradas.contains(horarioAula.getHora())) {
+                    horasEncontradas.add(horarioAula.getHora());
+                }
+            }
+            Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
 
-            Context ctx = new Context();
-            ctx.setVariable("horas", horas);
-            ctx.setVariable("dias", dias);
-            ctx.setVariable("horario", horarioAula);
-            //ctx.setVariable("helper", helper);
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+            ObjectNode data = new ObjectNode(factory);
 
-//            String htmlContent = springHtml.process("general/aula/aulaHorarioTemplate", ctx);
-//            response.setData(htmlContent);
+            ArrayNode diasJson = new ArrayNode(factory);
+            for (Dia dia : dias) {
+                diasJson.add(JsonHelper.createJson(dia, factory));
+            }
+            ArrayNode horasJson = new ArrayNode(factory);
+            for (Hora horasEncontrada : horasEncontradas) {
+                horasJson.add(JsonHelper.createJson(horasEncontrada, factory));
+            }
+
+            ObjectNode jsonHorarioAula = new ObjectNode(factory);
+            if (aula.getHorariosAula() != null) {
+                for (HorarioAula horarioAulaEach : aula.getHorariosAula()) {
+                    jsonHorarioAula.putPOJO(horarioAulaEach.getIdDiaHora(),
+                            JsonHelper.createJson(horarioAulaEach, jsonFactory, true,
+                                    new String[]{
+                                        "id",
+                                        "seccion.codigo2",
+                                        "seccion.sizeDocente",
+                                        "seccion.grupoSeccion.curso.codigo",
+                                        "seccion.grupoSeccion.curso.nombre",
+                                        "seccion.docenteSeccion.docente.codigo",
+                                        "seccion.docenteSeccion.docente.persona.nomPaternoMat",
+                                        "seccion.grupoHoras.codigo"})
+                    );
+                }
+            }
+
+            data.putPOJO("aula", JsonHelper.createJson(aula, jsonFactory, true, new String[]{
+                "id",
+                "codigo",
+                "nombre",
+                "capacidadAula",
+                "tipoAmbienteEnum",
+                "tipoAula.id",
+                "tipoAula.nombre",
+                "oficinaSupervisora.id",
+                "oficinaSupervisora.nombre",
+                "aulaSuperior.id",
+                "aulaSuperior.nombre"}));
+
+            data.set("dias", diasJson);
+            data.set("horas", horasJson);
+            data.set("jsonHorarioAula", jsonHorarioAula);
+
             response.setData(data);
             response.setSuccess(true);
 
