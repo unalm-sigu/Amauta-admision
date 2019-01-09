@@ -149,9 +149,14 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
 
+                        var aulaHorarioVue = new AulaHorarioVue();
+                        aulaHorarioVue.carrera = records[i];
+                        var component = aulaHorarioVue.$mount();
+
                         MODAL.title("Horario del aula " + codigo);
                         MODAL.buttons('');
-                        MODAL.body(response.data);
+                        MODAL.body(component.$el);
+                        //MODAL.body(response.data);
                         MODAL.show();
                     } else {
                         notify(response.message, "error");
