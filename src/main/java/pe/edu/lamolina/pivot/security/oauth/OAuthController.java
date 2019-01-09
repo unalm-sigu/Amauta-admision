@@ -221,6 +221,12 @@ public class OAuthController {
 
     @RequestMapping("changeciclo")
     public String changeciclo(HttpSession session, Model model) {
+        List<CicloAcademico> cicloAcademicos = serviceProvider.findCiclosVisibles();
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (CicloAcademico cicloAcademico : cicloAcademicos) {
+            arrayNode.add(JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"}));
+        }
+        model.addAttribute("cicloAcademico", arrayNode);
         return "academico/cicloacademico/cicloland";
     }
 

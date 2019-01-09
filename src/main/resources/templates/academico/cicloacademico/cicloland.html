@@ -14,7 +14,7 @@
 
         <div class="row">
 
-            <div id="main" class="col-md-4  col-sm-4 col-sm-offset-4">
+            <div id="main" class="col-md-4  col-sm-4 col-sm-offset-4" v-cloak="">
                 <section class="login-wrapper text-center ">
                     <div class="box">
 
@@ -31,12 +31,12 @@
                                     <vueciclo v-bind:nombre="'ciclo.id'"  v-bind:ciclo="ciclo"/>
                                 </div>
 
-                                <div class="col-xs-2">
+                                <div class="col-xs-2 ">
                                     <button v-on:click.prevent="activarCiclo(ciclo)" class="btn btn-default btn-rounded btn-sm pull-right"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
                                 </div>
 
-                                <div class="col-xs-2" v-for="ciclo in ciclosVisibles">
-                                    <button v-on:click.prevent="activarCiclo(ciclo)" class="btn btn-success m-b-md block"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                                <div class="col-md-12 m-t-md" >
+                                    <button v-on:click.prevent="activarCiclo(ciclo)" v-for="ciclo in ciclosVisibles" class="col-md-12 btn btn-success m-b-md block" v-text="ciclo.descripcion2"></button>
                                 </div>
 
                             </div>
@@ -72,7 +72,7 @@
             /*<![CDATA[*/
             var idciclo = /*[[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.id:''}]]*/ '';
             var nameciclo = /*[[${session.SESSION_USUARIO.cicloAcademico!=null?session.SESSION_USUARIO.cicloAcademico.descripcion2:''}]]*/ '';
-            var cicloVisible = /*[[${cicloAcademico.toString()}]]*/ '';
+            var cicloVisible = /*[[${cicloAcademico != null ? cicloAcademico.toString(): ''}]]*/ '';
             /*]]>*/
         </script>
 

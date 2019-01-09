@@ -554,7 +554,8 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .from(CicloAcademico.class, "ca")
                 .join("ca.modalidadEstudio me")
                 .filter("me.codigo", modalidadEstudioEnum.name())
-                .filter("ca.visibleLogin", 1);
+                .filter("ca.visibleLogin", 1)
+                .orderBy("ca.year DESC", "ca.numeroCiclo DESC");
 
         return all(sql);
     }

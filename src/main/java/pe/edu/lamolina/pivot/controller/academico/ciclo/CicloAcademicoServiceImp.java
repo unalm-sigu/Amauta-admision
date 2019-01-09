@@ -242,4 +242,12 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         return margen;
     }
 
+    @Override
+    @Transactional
+    public void changeVisiblelogin(CicloAcademico cicloAcademico) {
+        CicloAcademico academico = cicloAcademicoDAO.find(cicloAcademico);
+        academico.setVisibleLogin(academico.getVisibleLogin() ? false : true);
+        cicloAcademicoDAO.update(academico);
+    }
+
 }
