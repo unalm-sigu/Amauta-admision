@@ -464,7 +464,7 @@ public class ResolucionController {
     @RequestMapping("succesSaveResVB")
     public String succesSaveResVB(RedirectAttributes redirectAttr, HttpSession session) {
         Notificaciones.crearMsg("Visto Bueno registrado correctamente.", redirectAttr);
-        return "redirect:/academico/resolucion";
+        return "redirect:/academico/deleteGrupoSeccion";
     }
 
     @ResponseBody

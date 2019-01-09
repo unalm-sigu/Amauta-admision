@@ -131,6 +131,17 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
+    public List<Seccion> allByGpoSeccion(GrupoSeccion gruposSeccion) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .leftJoin("aula", "grupoHoras")
+                .filter("gs.id", gruposSeccion);
+
+        return all(sql);
+    }
+
+    @Override
     public List<Seccion> allOperativesByGpoSeccion(GrupoSeccion grupoSeccion) {
         List<SeccionEstadoEnum> estados = Arrays.asList(SeccionEstadoEnum.ACT, SeccionEstadoEnum.BLO, SeccionEstadoEnum.CRE);
         return this.allByGpoSeccionEstados(grupoSeccion, estados);
@@ -176,7 +187,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     public List<Seccion> allByGposSeccionOrderedByCodigo2(GrupoSeccion gruposSeccion) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
-                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "grupoHoras gh","aula au", "docenteSeccion ds")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "grupoHoras gh", "aula au", "docenteSeccion ds")
                 .filter("gs.id", gruposSeccion)
                 .orderBy("sec.codigo2");
 

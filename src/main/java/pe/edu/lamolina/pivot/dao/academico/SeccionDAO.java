@@ -29,6 +29,8 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allActivosByGpoSeccion(GrupoSeccion gruposSeccion);
 
+    List<Seccion> allByGpoSeccion(GrupoSeccion gruposSeccion);
+
     List<Seccion> allWithMatriculadosByGposSeccion(List<GrupoSeccion> gsOrigenes);
 
     List<Seccion> allByGpoSeccionEstados(GrupoSeccion gruposSeccion, List<SeccionEstadoEnum> estadoEnums);

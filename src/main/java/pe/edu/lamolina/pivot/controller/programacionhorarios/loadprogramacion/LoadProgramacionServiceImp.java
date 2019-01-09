@@ -460,7 +460,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
             loop++;
         }
 
-        progDataService.anularDocentes(mapDocentes, modalidad, ds);
+        //progDataService.anularDocentes(mapDocentes, modalidad, ds);
 
         return mapDocentes;
     }

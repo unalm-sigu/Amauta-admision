@@ -366,6 +366,15 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     }
 
     @Override
+    public void deleteGrupoSeccion(GrupoSeccion gpoSeccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  GrupoSeccion where id=:prm_id");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_id", gpoSeccion.getId());
+        query.executeUpdate();
+    }
+
+    @Override
     @Transactional(readOnly = false, propagation = Propagation.MANDATORY)
     public GrupoSeccion findLock(Long id) {
         return (GrupoSeccion) getCurrentSession().load(GrupoSeccion.class, id, LockOptions.UPGRADE);

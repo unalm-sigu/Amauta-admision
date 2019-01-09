@@ -44,9 +44,9 @@
                                     <tr v-for="item in props.data">
                                         <td class="v-middle">
                                             <span class="block text-primary bold">{{item.alumno.persona.nombreCompleto}}</span>
-                                            <span class="block">{{item.codigo}}</span>
+                                            <span class="block">{{item.alumno.codigo}}</span>
                                             <span class="block">{{item.modalidad}}</span>
-                                            <strong class="block">{{item.ciclo}}</strong>
+                                            <strong class="block">{{item.cargaAbonos.cicloPostula.cicloAcademico.descripcion}}</strong>
                                         </td>
                                         <td class="v-middle text-center">
                                             {{item.fechaAbono}}

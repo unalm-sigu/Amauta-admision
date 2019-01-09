@@ -17,7 +17,7 @@
 
             <h2><span th:text='|${curso.nombre} - ${session["SESSION_USUARIO"].cicloAcademico.descripcion}: Registro de Notas|'>2016-II</span></h2>
 
-
+            <input type="hidden" th:value="${curso.id}"/>
             <input id="txtSistemaNotas" type="hidden" th:value="${sistemaNotas.id}"/>
             <div class="row">
                 <div class="form-group">
@@ -133,7 +133,7 @@
                                     <td class="text-center v-middle" 
                                         th:each="evaluacion : ${evaluacionesByTipoSeccion}" 
                                         th:style="${sistemaNotas.letras} ? 'width:50%' : ''">
-                                        
+
                                         <span class="block form-inline">
                                             <span th:class="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" >
                                                 <span style="display: ''" 
@@ -168,19 +168,11 @@
                                                 </div>
 
                                                 <div th:class="${sistemaNotas.letras} ? 'form-group col-md-6' : ''">
-                                                    <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
-                                                           th:unless="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id]}"
-                                                           th:rel="${matSeccion.matriculaResumen.alumno.id}"
-                                                           th:title="${evaluacion.id}" 
-                                                           th:alt="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
-                                                           type="text" 
-                                                           class="form-control"
-                                                           style="display: none; width:50px; padding: 3px !important;"
-                                                           size="3"/>
+
                                                 </div>
                                             </span>
                                         </span>
-                                        
+
                                     </td>
                                     <td th:if="${sistemaNotas.letras}">
                                         <span th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
