@@ -1,5 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.promedio;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
@@ -28,6 +30,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.LoggerAccionEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
@@ -39,6 +42,8 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.situacionacademica.SituacionAcademicaService;
+import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
+import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.VisorCalculaSituacion;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
@@ -102,6 +107,12 @@ public class PromedioServiceImp implements PromedioService {
     @Autowired
     VisorCalculaSituacion visorCalculaSituacion;
 
+    @Autowired
+    InterceptorService interceptorService;
+
+    @Autowired
+    AuditorService auditorService;
+
     private final Integer VECES_TRIKA = 3;
 
     private final Integer INI_TRIKA = 200320;
@@ -119,7 +130,7 @@ public class PromedioServiceImp implements PromedioService {
             MatriculaSeccion matriculaSeccion = matriculasSeccionByAlumno
                     .stream().filter(x -> x.getSeccion().getGrupoSeccion().getCurso().equals(matriculaCurso.getCurso())).findFirst().orElse(null);
             if (matriculaSeccion != null && matriculaSeccion.getSeccion().getGrupoSeccion().isEstadoCerrado()) {
-                this.trasladoPromediosSource2(matriculaCurso, matriculasCursoByAlumno, ds.getUsuario());
+                this.trasladoPromediosSource2(matriculaCurso, matriculasCursoByAlumno, ds);
             }
         }
         if (calcularSituacion) {
@@ -131,12 +142,11 @@ public class PromedioServiceImp implements PromedioService {
         visorCalculoNotas.reporte();
     }
 
-    public void trasladoPromediosSource2(MatriculaCurso matriculaCurso, List<MatriculaCurso> matriculaCursos, Usuario usuario) {
+    public void trasladoPromediosSource2(MatriculaCurso matriculaCurso, List<MatriculaCurso> matriculaCursos, DataSessionPivot ds) {
         Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
         CicloAcademico cicloAcademico = matriculaCurso.getMatriculaResumen().getCicloAcademico();
         Curso curso = matriculaCurso.getCurso();
-        DateTime today = new DateTime();
-        generarHistorialNotas2(alumno, curso, matriculaCurso, cicloAcademico, matriculaCursos, usuario, today);
+        generarHistorialNotas2(alumno, curso, matriculaCurso, cicloAcademico, matriculaCursos, ds);
     }
 
     @Override
@@ -193,6 +203,8 @@ public class PromedioServiceImp implements PromedioService {
             logger.error(error);
             e.printStackTrace();
             visorCalculoNotas.agregarError(error);
+
+            auditorService.auditPromediarAlumno(alumno, cicloActivo, ds, e);
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
 
@@ -476,17 +488,17 @@ public class PromedioServiceImp implements PromedioService {
             MatriculaCurso matriculaCurso,
             CicloAcademico cicloAcademico,
             List<MatriculaCurso> matriculasCursosByAlumno,
-            Usuario usuario,
-            DateTime today) {
+            DataSessionPivot ds) {
         try {
             //  logger.debug("generar historial notas, alumno {} ciclo {}", alumno.getId(), cicloAcademico.getId());
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cicloAcademico, curso);
+            DateTime today = new DateTime(ds.getFechaAccionAudit());
 
             if (alumnoCiclo == null) {
                 SituacionAcademica situacionAcademicaComodin = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_00.getValue());
                 alumnoCiclo = new AlumnoCiclo();
-                alumnoCiclo.defaultValuesToCreate(alumno, cicloAcademico, usuario, today);
+                alumnoCiclo.defaultValuesToCreate(alumno, cicloAcademico, ds.getUsuario(), today);
                 alumnoCiclo.setEstado(matriculaCurso.getMatriculaResumen().getEstadoEnum());
                 alumnoCiclo.setSituacionInicio(situacionAcademicaComodin);
                 alumnoCiclo.setEstaAprobado(BigDecimal.ZERO.intValue());
@@ -497,7 +509,7 @@ public class PromedioServiceImp implements PromedioService {
 
             if (alumnoCicloCurso == null) {
                 alumnoCicloCurso = new AlumnoCicloCurso();
-                alumnoCicloCurso.defaultValuesToCreate(alumnoCiclo, curso, matriculaCurso, usuario, today);
+                alumnoCicloCurso.defaultValuesToCreate(alumnoCiclo, curso, matriculaCurso, ds.getUsuario(), today);
                 Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
                 alumnoCicloCurso.setEstaAprobado(aprobado);
 
@@ -510,7 +522,7 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCicloCurso.setFechaModificacion(today.toDate());
                 alumnoCicloCurso.setNota(matriculaCurso.getNotaFinal());
                 alumnoCicloCurso.setEstado(matriculaCurso.getEstadoEnum());
-                alumnoCicloCurso.setUserModificacion(usuario);
+                alumnoCicloCurso.setUserModificacion(ds.getUsuario());
                 Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
                 alumnoCicloCurso.setEstaAprobado(aprobado);
                 alumnoCicloCurso.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
@@ -526,6 +538,9 @@ public class PromedioServiceImp implements PromedioService {
                     + " ciclo " + cicloAcademico.getId();
             logger.error(error);//, e 
             visorCalculoNotas.agregarError(error);
+            //LoggerAccionEnum.RECAUDA_DEUDA_HANDLE_MESSAGE;
+
+            auditorService.auditTrasladoNotasToHistorial(alumno, curso, cicloAcademico, matriculaCurso, ds, e);
             e.printStackTrace();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }

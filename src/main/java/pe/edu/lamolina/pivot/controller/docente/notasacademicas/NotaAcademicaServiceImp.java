@@ -2025,7 +2025,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allActivesByMatriculaResumen(Arrays.asList(matriculaResumen));
         visorCalculoNotas.iniciar();
         visorCalculoNotas.setCantidadTotal(1);
-        logger.debug("##################Ciclo padre {} {} {}", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo());
+        logger.debug("##################Ciclo padre {} ", cicloAcademico.getCodigo());
         promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, true);
     }
 

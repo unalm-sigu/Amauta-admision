@@ -33,9 +33,12 @@ public class DespliegueConfig {
 
     @Value("${sistema}")
     Long sistema;
-    
+
     @Value("${ambiente}")
     String ambiente;
+
+    @Value("${usuarioSistema}")
+    String usuarioSistema;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -109,6 +112,14 @@ public class DespliegueConfig {
 
     public void setAmbiente(String ambiente) {
         this.ambiente = ambiente;
+    }
+
+    public String getUsuarioSistema() {
+        return usuarioSistema;
+    }
+
+    public void setUsuarioSistema(String usuarioSistema) {
+        this.usuarioSistema = usuarioSistema;
     }
 
 }
