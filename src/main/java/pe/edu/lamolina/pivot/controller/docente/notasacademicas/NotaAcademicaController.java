@@ -156,6 +156,7 @@ public class NotaAcademicaController {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("id", grupoSeccion.getId());
                 node.put("idCurso", grupoSeccion.getCurso().getId());
+                node.put("curDepAcademico", grupoSeccion.getCurso().getDepartamentoAcademico().getNombre());
 
                 node.put("tipoCiclo", grupoSeccion.getCicloAcademico().getTipoEnum().getValue());
                 node.put("nombre", grupoSeccion.getCurso().getNombre());
@@ -1449,7 +1450,7 @@ public class NotaAcademicaController {
         ds.setFechaAccionAudit(new Date());
         service.saveCerrarActa(new GrupoSeccion(gpoSeccionId), ds);
         String message = "Acta cerrada correctamente";
-        
+
         response.setMessage(message);
         response.setSuccess(true);
 
