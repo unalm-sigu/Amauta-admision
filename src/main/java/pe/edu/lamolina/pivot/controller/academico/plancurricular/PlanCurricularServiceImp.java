@@ -1185,12 +1185,12 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             logger.debug("===================={}", intt);
         }
 
-        Map<Long, CursoCurricula> mapCursoCurricula = new LinkedHashMap();
-        Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula = new LinkedHashMap();
-        Map<Long, List<CursoEquivalente>> mapCursosEquivalentes = new LinkedHashMap();
+        Map<Long, List<CursoCurricula>> mapCursoCurriculaAll = new LinkedHashMap();
+        Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurriculaAll = new LinkedHashMap();
+        Map<Long, List<CursoEquivalente>> mapCursosEquivalentesAll = new LinkedHashMap();
         int count = 0;
 
-        this.obtenerDataVarios(planesCurricular, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
+        this.obtenerDataVarios(planesCurricular, mapCursoCurriculaAll, mapRequisitoCursoCurriculaAll, mapCursosEquivalentesAll);
 
         List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivoByAlumnosCicloActivo(alumnos);
         Map<Long, List<MatriculaCurso>> mapCursosMatriculados = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculados);
@@ -1234,9 +1234,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
             List<MatriculaCurso> cursosMatriculadosAlumno = fillList(mapCursosMatriculados.get(alumno.getId()));
             List<AlumnoCicloCurso> cursosAprobadosAlumno = fillList(mapCursosAprobados.get(alumno.getId()));
+            List<CursoCurricula> cursosCurriculaPLan = fillList(mapCursoCurriculaAll.get(planBD.getId()));
+            Map<Long, CursoCurricula> mapCursoCurriculaPlan = TypesUtil.convertListToMap("id", cursosCurriculaPLan);
 
-            //this.obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
-            avanceCurricularAsincronoService.crearAvanceCurricular(alumno, planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, cursosMatriculadosAlumno, cursosAprobadosAlumno, ds);
+            avanceCurricularAsincronoService.crearAvanceCurricular(alumno, planBD, mapCursoCurriculaPlan, mapRequisitoCursoCurriculaAll, mapCursosEquivalentesAll, cursosMatriculadosAlumno, cursosAprobadosAlumno, ds);
         }
 
     }
@@ -1247,23 +1248,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 return codigoCicloPlan;
             }
         }
-
-//        for (Integer intt : codigosCicloInt) {
-//            int inx = codigosCicloInt.indexOf(intt);
-//            Integer limiteCodigoInferior = codigosCicloInt.get(inx);
-//            int inxSup = inx + 1;
-//            boolean sobrepasolimite = codigosCicloInt.size() <= inxSup;
-//            if (sobrepasolimite) {
-//                if (limiteCodigoInferior <= codigoBuscar) {
-//                    return limiteCodigoInferior;
-//                }
-//                return null;
-//            }
-//            Integer limiteCodigoSuperior = codigosCicloInt.get(inxSup);
-//            if (limiteCodigoInferior <= codigoBuscar && limiteCodigoSuperior >= codigoBuscar) {
-//                return limiteCodigoInferior;
-//            }
-//        }
         return null;
     }
 
@@ -1297,7 +1281,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     private void obtenerDataVarios(
             List<PlanCurricular> planes,
-            Map<Long, CursoCurricula> mapCursoCurricula,
+            Map<Long, List<CursoCurricula>> mapCursoCurricula,
             Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula,
             Map<Long, List<CursoEquivalente>> mapCursosEquivalentes) {
 
@@ -1312,8 +1296,14 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             if (cursoCurr.getNumeroCiclo() == 0) {
                 continue;
             }
+            PlanCurricular plan = cursoCurr.getPlanCurricular();
 
-            mapCursoCurricula.put(cursoCurr.getId(), cursoCurr);
+            List<CursoCurricula> cursosCurriculaPlan = mapCursoCurricula.get(plan.getId());
+            if (cursosCurriculaPlan == null) {
+                cursosCurriculaPlan = new ArrayList();
+                mapCursoCurricula.put(plan.getId(), cursosCurriculaPlan);
+            }
+            cursosCurriculaPlan.add(cursoCurr);
 
             List<RequisitoCursoCurricula> requisitos = fillList(mapRequisitoTemp.get(cursoCurr.getId()));
             cursoCurr.setRequisitosCursoCurricula(requisitos);
@@ -1330,44 +1320,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             return new ArrayList();
         }
         return lista;
-    }
-
-    private void obtenerData(
-            PlanCurricular planCurricular,
-            Map<Long, CursoCurricula> mapCursoCurricula,
-            Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula,
-            Map<Long, List<CursoEquivalente>> mapCursosEquivalentes) {
-
-        List<CursoCurricula> cursos = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
-        for (CursoCurricula curso : cursos) {
-            if (curso.getNumeroCiclo() == 0) {
-                continue;
-            }
-            mapCursoCurricula.put(curso.getId(), curso);
-        }
-
-        List<RequisitoCursoCurricula> requisitoCursoCurriculas = requisitoCursoCurriculaDAO.allByPlanCurricular(planCurricular);
-        for (RequisitoCursoCurricula rcc : requisitoCursoCurriculas) {
-            Long key = rcc.getCursoCurricula().getId();
-            List<RequisitoCursoCurricula> lista = fillList(mapRequisitoCursoCurricula.get(key));
-            if (lista == null) {
-                lista = new ArrayList<>();
-                mapRequisitoCursoCurricula.put(key, lista);
-            }
-            lista.add(rcc);
-        }
-
-        List<CursoEquivalente> cursoEquivalentes = cursoEquivalenteDAO.allActivoByPlanCurricular(planCurricular);
-        for (CursoEquivalente ce : cursoEquivalentes) {
-            Long key = ce.getCursoCurricula().getId();
-            List<CursoEquivalente> lista = fillList(mapCursosEquivalentes.get(key));
-            if (lista == null) {
-                lista = new ArrayList<>();
-                mapCursosEquivalentes.put(key, lista);
-            }
-            lista.add(ce);
-        }
-
     }
 
     @Override

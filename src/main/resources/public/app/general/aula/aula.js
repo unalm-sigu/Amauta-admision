@@ -141,26 +141,41 @@ $(function () {
             var codigo = rec.codigo;
 
             MODAL.init("lg");
-            $.ajax({
-                url: APP.url('general/aula/loadModalAulaHorario'),
-                type: 'POST',
-                async: true,
-                data: {aula: idAula},
-                success: function (response) {
-                    if (response.success) {
 
-                        MODAL.title("Horario del aula " + codigo);
-                        MODAL.buttons('');
-                        MODAL.body(response.data);
-                        MODAL.show();
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
+            var aulaHorarioVue = new AulaHorarioVue();
+            aulaHorarioVue.aula = {id: idAula};
+            aulaHorarioVue.dias = [];
+            aulaHorarioVue.horas = [];
+            aulaHorarioVue.jsonHorarioAula = [];
+            var component = aulaHorarioVue.$mount();
+
+            MODAL.title("Horario del aula " + codigo);
+            MODAL.buttons('');
+            MODAL.body(component.$el);
+            MODAL.show();
+
+
+//            $.ajax({
+//                url: APP.url('general/aula/loadModalAulaHorario'),
+//                type: 'POST',
+//                async: true,
+//                data: {aula: idAula},
+//                success: function (response) {
+//                    if (response.success) {
+//
+//                        MODAL.title("Horario del aula " + codigo);
+//                        MODAL.buttons('');
+//                        MODAL.body(component.$el);
+//                        MODAL.body(response.data);
+//                        MODAL.show();
+//                    } else {
+//                        notify(response.message, "error");
+//                    }
+//                },
+//                error: function () {
+//                    notify(MESSAGES.errorComunicacion, "error");
+//                }
+//            });
 
         },
     };
