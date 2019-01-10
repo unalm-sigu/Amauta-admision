@@ -206,7 +206,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         int creditosCurriculaAprobados = alumno.getCreditosCarreraAprobados();
 
         List<AlumnoCursoCurricula> cursosCurriNoOpcionalesAlu = alumnoCursoCurriculaDAO.allNoOpcionalByAlumno(alumno);
-
         for (AlumnoCursoCurricula cursoCurriNoOpcional : cursosCurriNoOpcionalesAlu) {
             cursoCurriNoOpcional.setValidado(false);
             mapCursoCurriculaAluByCurso.put(cursoCurriNoOpcional.getCurso().getId(), cursoCurriNoOpcional);
@@ -405,8 +404,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             List<AlumnoCicloCurso> cursosAprobados,
             DataSessionPivot ds) {
 
+
         Map<String, List<AlumnoCicloCurso>> mapCursosAprobadosByDpto = new HashMap();
-//        List<AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumno);
         for (AlumnoCicloCurso aprobado : cursosAprobados) {
             if (aprobado.getCurso().getDepartamentoAcademico() == null) {
                 continue;
