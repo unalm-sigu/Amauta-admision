@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +32,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
+import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -193,8 +195,7 @@ public class TramiteAulaController {
                 ObjectNode json = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true,
                         new String[]{
                             "id", "codigo",
-                            "persona.nombreCompleto",
-                        });
+                            "persona.nombreCompleto",});
                 jsonList.add(json);
             }
             response.setData(jsonList);
@@ -240,6 +241,26 @@ public class TramiteAulaController {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("save")
+    public JsonResponse save(@RequestBody ReservaAula reservaAula, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            
+            service.save(reservaAula);
+            response.setSuccess(true);
+            response.setMessage(Messages.CREATED);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 

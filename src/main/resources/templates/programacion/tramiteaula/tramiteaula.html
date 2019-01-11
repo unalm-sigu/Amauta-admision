@@ -31,28 +31,6 @@
 
                                 <div slot="header">
 
-                                    <div class="col-sm-3">
-                                        <label class="col-sm-12 control-label">Todos</label>
-                                        <div class="col-sm-12">
-                                            <label class="switch">
-                                                <input type="checkbox"  v-on:change="changeSoloFecha()"/>
-                                                <span></span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="col-sm-3">
-                                        <label class="col-sm-12 control-label">Solo disponible</label>
-                                        <div class="col-sm-12">
-                                            <label class="switch">
-                                                <input type="checkbox"  v-on:change="changeSoloFecha()"/>
-                                                <span></span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-
                                 </div>
 
                                 <template scope="props" >
@@ -60,9 +38,11 @@
                                         <thead> 
                                             <tr>
                                                 <th class="col-xs-1" ></th>
-                                                <th class="col-xs-8 text-center">Ambiente</th>
-                                                <th class="col-xs-2 text-center v-middle">Situación</th>
-                                                <th class="col-xs-1 text-center v-middle">Aforo</th>
+                                                <th class="col-xs-3 text-center">Solicitud</th>
+                                                <th class="col-xs-4 text-center v-middle">Solicitante</th>
+                                                <th class="col-xs-4 text-center v-middle">Motivo</th>
+                                                <th class="col-xs-1 text-center v-middle">Comentario</th>
+                                                <th class="col-xs-1 text-center v-middle">Estado</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
