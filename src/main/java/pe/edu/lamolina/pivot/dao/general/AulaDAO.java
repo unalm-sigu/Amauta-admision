@@ -37,4 +37,6 @@ public interface AulaDAO extends EasyDAO<Aula> {
     
     List<Aula> allByOficinaModulo(Oficina oficina, Aula modulo);
 
+    public List<Aula> allByDynatableFilterTramite(DynatableFilter filter);
+
 }
