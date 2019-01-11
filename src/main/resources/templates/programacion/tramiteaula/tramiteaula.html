@@ -1,0 +1,129 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Trámite Aula</title>
+    </head>
+
+    <body>
+
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">                 
+                        <a class="btn btn-success" type="button" th:href="@{/tramite/aula/nuevo}" >Nuevo</a>
+                    </div>  
+
+                    <h2>Reserva de Ambiente</h2>
+
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+
+                            <raptor-table 
+                                v-bind:url="urlfilter" 
+                                v-bind:paginate="true"
+                                v-bind:preload="true" 
+                                ref="raptor">
+
+                                <div slot="header">
+
+                                    <div class="col-sm-3">
+                                        <label class="col-sm-12 control-label">Todos</label>
+                                        <div class="col-sm-12">
+                                            <label class="switch">
+                                                <input type="checkbox"  v-on:change="changeSoloFecha()"/>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-sm-3">
+                                        <label class="col-sm-12 control-label">Solo disponible</label>
+                                        <div class="col-sm-12">
+                                            <label class="switch">
+                                                <input type="checkbox"  v-on:change="changeSoloFecha()"/>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+                                <template scope="props" >
+                                    <table class="table table-striped table-hover">
+                                        <thead> 
+                                            <tr>
+                                                <th class="col-xs-1" ></th>
+                                                <th class="col-xs-8 text-center">Ambiente</th>
+                                                <th class="col-xs-2 text-center v-middle">Situación</th>
+                                                <th class="col-xs-1 text-center v-middle">Aforo</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+
+                                                <td class="v-middle">
+                                                    <i class="fa fa-calendar pointer" aria-hidden="true"></i>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <strong>{{item.nombre}}</strong>
+                                                    <p>{{item.codigo}}</p>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    situacion
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <p>{{item.aforo}}</p>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <div class="actions">
+                                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a href="#">Opción</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+
+
+
+                        </section>
+
+                    </section>
+
+                </section>
+
+
+
+
+
+            </div>
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_layout/includes :: sweetalert"/>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_layout/includes :: vue-loader"/>
+            <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/programacion/tramiteaula/tramiteaula.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

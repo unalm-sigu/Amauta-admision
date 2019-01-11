@@ -31,4 +31,6 @@ public interface DocenteDAO extends EasyDAO<Docente> {
 
     List<Docente> allByNombreDepartamento(String nombre, DepartamentoAcademico departamento, int limit);
 
+    public List<Docente> allByName(String nombre);
+
 }
