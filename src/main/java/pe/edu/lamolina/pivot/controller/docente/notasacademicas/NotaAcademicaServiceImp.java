@@ -359,6 +359,11 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Transactional
     public List<MatriculaSeccion> eliminarNotas(Evaluacion evaluacion, DataSessionPivot ds) {
         evaluacion = evaluacionDAO.find(evaluacion.getId());
+
+        if (evaluacion.getSeccionResponsable().getGrupoSeccion().isEstadoGrupoCerrado()) {
+            throw new PhobosException("No se puede eliminar la evaluación, el acta se encuentra cerrada.");
+        }
+
         logger.debug("evaluacion param {}, {}", evaluacion.getId(), evaluacion == null ? "no encontro evaluacion" : "si encontro evaluacion");
         if (evaluacion.getDocenteEvaluador() == null) {
             throw new PhobosException("La evaluación no cuenta con evaluador, verifique");
@@ -1356,6 +1361,10 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     public Evaluacion activarEvaluacion(Long evaluacionId, Date fechaRealizada, DataSessionPivot ds) {
         Evaluacion evaluacion = evaluacionDAO.find(evaluacionId);
         logger.debug("evaluacion param {}, {}", evaluacionId, evaluacion == null ? "no encontro" : "si encontro");
+
+        if (evaluacion.getSeccionResponsable().getGrupoSeccion().isEstadoGrupoCerrado()) {
+            throw new PhobosException("No se puede activar la evaluación, el acta se encuentra cerrada.");
+        }
 
         if (evaluacion.getDocenteEvaluador() == null) {
             throw new PhobosException("La evaluación no cuenta con evaluador, verifique");
