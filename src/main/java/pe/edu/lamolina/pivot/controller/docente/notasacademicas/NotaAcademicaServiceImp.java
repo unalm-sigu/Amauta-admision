@@ -358,8 +358,22 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     @Transactional
     public List<MatriculaSeccion> eliminarNotas(Evaluacion evaluacion, DataSessionPivot ds) {
-
         evaluacion = evaluacionDAO.find(evaluacion.getId());
+
+        if (evaluacion.getSeccionResponsable().getGrupoSeccion().isEstadoGrupoCerrado()) {
+            throw new PhobosException("No se puede eliminar la evaluación, el acta se encuentra cerrada.");
+        }
+
+        logger.debug("evaluacion param {}, {}", evaluacion.getId(), evaluacion == null ? "no encontro evaluacion" : "si encontro evaluacion");
+        if (evaluacion.getDocenteEvaluador() == null) {
+            throw new PhobosException("La evaluación no cuenta con evaluador, verifique");
+        }
+        logger.debug("Evaluacion {}, Docente Aignado {}, Docente Logueado {}", evaluacion.getId(), evaluacion.getDocenteEvaluador().getId(), ds.getDocente().getId());
+        if (!evaluacion.getDocenteEvaluador().getId().equals(ds.getDocente().getId())) {
+            logger.debug("info el docente asignado debe ser {}", evaluacion.getDocenteEvaluador().getId());
+            throw new PhobosException("Docente evaluador incorrecto, verifique");
+        }
+
         EvaluacionExpandida evalExp = new EvaluacionExpandida(evaluacion.getEvaluacionExpandida().getId());
         List<AlumnoEvaluacion> alumnoEvaluaciones = alumnoEvaluacionDAO.allByFilter(null, null, null, evaluacion.getId());
         DateTime today = new DateTime();
@@ -1348,11 +1362,16 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         Evaluacion evaluacion = evaluacionDAO.find(evaluacionId);
         logger.debug("evaluacion param {}, {}", evaluacionId, evaluacion == null ? "no encontro" : "si encontro");
 
+        if (evaluacion.getSeccionResponsable().getGrupoSeccion().isEstadoGrupoCerrado()) {
+            throw new PhobosException("No se puede activar la evaluación, el acta se encuentra cerrada.");
+        }
+
         if (evaluacion.getDocenteEvaluador() == null) {
             throw new PhobosException("La evaluación no cuenta con evaluador, verifique");
         }
         logger.debug("Evaluacion {}, Docente Aignado {}, Docente Logueado {}", evaluacion.getId(), evaluacion.getDocenteEvaluador().getId(), ds.getDocente().getId());
         if (!evaluacion.getDocenteEvaluador().getId().equals(ds.getDocente().getId())) {
+            logger.debug("info el docente asignado debe ser {}", evaluacion.getDocenteEvaluador().getId());
             throw new PhobosException("Docente evaluador incorrecto, verifique");
         }
 
@@ -2006,6 +2025,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenCurso(matriculasResumen, grupoSeccion.getCurso());//falta enviar el curso
         for (MatriculaCurso matriculaCurso : matriculasCurso) {
             Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
+            if (alumno.getId().equals(80803L)) {
+                logger.debug("");
+            }
             this.trasladarMatriculaCursoForHistorial(alumno, grupoSeccion.getCicloAcademico(), ds);
             alumnos.add(alumno);
         }
@@ -2025,7 +2047,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allActivesByMatriculaResumen(Arrays.asList(matriculaResumen));
         visorCalculoNotas.iniciar();
         visorCalculoNotas.setCantidadTotal(1);
-        logger.debug("##################Ciclo padre {} {} {}", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo());
+        logger.debug("##################Ciclo padre {} ", cicloAcademico.getCodigo());
         promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, true);
     }
 
