@@ -97,15 +97,13 @@
                                 <div class="col-sm-3">
                                     <div class="form-group">
                                         <label>Hora Inicio </label>
-                                        <div class='input-group'>
+                                        <div class='input-group bootstrap-timepicker timepicker'>
                                             <input 
-                                                v-bind:config="{format: 'DD/MM/YYYY',useCurrent: false}" 
                                                 name="horaInicio"
                                                 ref="horaInicio"
                                                 class='form-control' 
                                                 data-parsley-errors-container="#errorhorainicio"
                                                 required="true"
-                                                v-bind:wrap="true" 
                                                 v-model="tramite.horaInicio"></input>
                                             <span class="input-group-addon pointer">
                                                 <i class="fa fa-clock-o" aria-hidden="true"></i>
@@ -118,15 +116,13 @@
                                 <div class="col-sm-3">
                                     <div class="form-group">
                                         <label>Hora Fin </label>
-                                        <div class='input-group'>
+                                        <div class='input-group bootstrap-timepicker timepicker'>
                                             <input 
-                                                v-bind:config="{format: 'DD/MM/YYYY'}" 
                                                 name="horaFin"
                                                 ref="horaFin"
                                                 class='form-control' 
                                                 data-parsley-errors-container="#errorhorafin"
                                                 required="true"
-                                                v-bind:wrap="true" 
                                                 v-model="tramite.horaFin"></input>
                                             <span class="input-group-addon pointer">
                                                 <i class="fa fa-clock-o" aria-hidden="true"></i>
