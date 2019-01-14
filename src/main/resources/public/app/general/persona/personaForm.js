@@ -211,12 +211,12 @@ $(function () {
             var form = $("#formPersonaEdit");
             var error = "errorValidacionDocIdentidad";
 
-            if (user.val() != "" && perso.val() != "") {
-                tipo.select2("val", PersonaForm.tipoDNI);
-                dni.val(PersonaForm.numeroDNI);
-                notify("No puede modificar el número de documento de identidad por este formulario.", "error");
-                return;
-            }
+//            if (user.val() != "" && perso.val() != "") {
+//                tipo.select2("val", PersonaForm.tipoDNI);
+//                dni.val(PersonaForm.numeroDNI);
+//                notify("No puede modificar el número de documento de identidad por este formulario.", "error");
+//                return;
+//            }
 
             console.log("TIPO=" + tipo.val() + " :::: DNI=" + dni.val())
             if (!(tipo.val() != "" && dni.val() != "")) {

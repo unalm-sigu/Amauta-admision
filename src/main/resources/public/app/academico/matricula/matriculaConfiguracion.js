@@ -25,6 +25,10 @@ new Vue({
         configDate: {
             format: "DD/MM/YYYY",
             useCurrent: false
+        },
+        configTime:{
+            format: "HH:mm",
+            useCurrent: false
         }
     },
     created() {
@@ -52,7 +56,6 @@ new Vue({
 
         },
         save(e) {
-            console.log("LALALALA");
             var self = $(e.currentTarget);
             self.btnDisabled();
             $(".mx-input").attr("required", true);
@@ -64,7 +67,6 @@ new Vue({
             let $vue = this;
             let $cfg = $vue.config;
 
-            $vue.config.horaInicio = $('#timeHoraInicio').val();
             $vue.config.eventoCicloAcademico = {id: $vue.config.eventoCicloAcademico.id}
             $.ajax({
                 method: 'POST',
