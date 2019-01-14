@@ -23,13 +23,51 @@ new Vue({
     },
     mounted: function () {
         let $vue = this;
-        $($vue.$refs.horaInicio).timepicker({'timeFormat': 'H:i'});
-        $($vue.$refs.horaFin).timepicker({'timeFormat': 'H:i'});
+
+        $($vue.$refs.horaInicio).timepicker({
+            minuteStep: 15,
+            showSeconds: false,
+            showMeridian: false,
+            defaultTime: false,
+            maxHours: 24,
+            timeFormat: 'H:i'})
+                .on('change', function () {
+                    $vue.tramite.horaInicio = $(this).val();
+                });
+
+        $($vue.$refs.horaFin).timepicker({
+            minuteStep: 15,
+            showSeconds: false,
+            showMeridian: false,
+            defaultTime: false,
+            maxHours: 24, timeFormat: 'H:i'})
+                .on('change', function () {
+                    $vue.tramite.horaFin = $(this).val();
+                });
     },
     updated: function () {
         let $vue = this;
-        $($vue.$refs.horaInicio).timepicker({'timeFormat': 'H:i'});
-        $($vue.$refs.horaFin).timepicker({'timeFormat': 'H:i'});
+
+        $($vue.$refs.horaInicio).timepicker({
+            minuteStep: 15,
+            showSeconds: false,
+            showMeridian: false,
+            defaultTime: false,
+            maxHours: 24,
+            timeFormat: 'H:i'}).on('change', function () {
+            $vue.tramite.horaInicio = $(this).val();
+        });
+
+        $($vue.$refs.horaFin).timepicker({
+            minuteStep: 15,
+            showSeconds: false,
+            showMeridian: false,
+            defaultTime: false,
+            maxHours: 24,
+            timeFormat: 'H:i'}).on('change', function () {
+            $vue.tramite.horaFin = $(this).val();
+        });
+
     },
     methods: {
         changeSoloFecha() {
@@ -87,12 +125,12 @@ new Vue({
         },
         guardarTramite() {
             let $vue = this;
-            $vue.isactiveguardar = true;
             let miform = $($vue.$refs.formtramite);
             let valid = miform.parsley().validate();
             if (!valid) {
                 return;
             }
+            $vue.isactiveguardar = true;
             $.ajax({
                 method: 'POST',
                 async: true,
