@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -24,11 +25,13 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.ContadorComponent;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
@@ -107,6 +110,9 @@ public class TestController {
 
     @Autowired
     CarreraDAO carreraDAO;
+
+    @Autowired
+    ContadorComponent contadorComponent;
 
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
@@ -269,6 +275,35 @@ public class TestController {
             List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
             promedioService.promediarAllCicloAsync(alumno, cicloAcademico, alumnosCicloCursoByAlumno, ds);
         }
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("promediarfull")
+    public String promediarfull(HttpSession session) {
+        logger.info("promediarful");
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<String> allYears = alumnoDAO.allYearsCiclos();
+
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(new ModalidadEstudio(1));
+        for (String year : allYears) {
+            if (TypesUtil.getInt(year) != null && TypesUtil.getInt(year) < 1995) {
+                continue;
+            }
+            List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYear(year);
+            logger.info("Año {}, Alumnos {}", year, alumnos.size());
+            visorCalculoNotas.iniciar();
+            contadorComponent.iniciar(alumnos.size());
+            for (Alumno alumno : alumnos) {
+                if (!alumno.isPregrado()) {
+                    continue;
+                }
+                promedioService.promediarAllCicloAsync(alumno, cicloActivo, null, ds);
+            }
+        }
+
+        visorCalculoNotas.iniciar();
+
         return "yeah";
     }
 
