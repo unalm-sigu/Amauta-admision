@@ -180,8 +180,13 @@ public class PromedioServiceImp implements PromedioService {
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    public void promediarAllCicloAsync(Alumno alumno, CicloAcademico cicloActivo, List<AlumnoCicloCurso> allOperativesByModalidadEstudio, DataSessionPivot ds) {
-        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+    public void promediarAllCicloAsync(Alumno alumno, CicloAcademico cicloActivo, List<AlumnoCicloCurso> allOperativesCicloCurso, DataSessionPivot ds) {
+        List<AlumnoCicloCurso> alumnoCicloCursos = null;
+        if (allOperativesCicloCurso == null) {
+            alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+        } else {
+            alumnoCicloCursos = allOperativesCicloCurso.stream().filter(x -> x.getAlumnoCiclo().getAlumno().equals(alumno)).collect(Collectors.toList());
+        }
         promediarAllCicloSync(alumno, cicloActivo, alumnoCicloCursos, ds);
     }
 
@@ -201,7 +206,7 @@ public class PromedioServiceImp implements PromedioService {
 
             Alumno alumnoUpd = new Alumno(alumno.getId());
             alumnoUpd.setPromedioProcesado(Boolean.TRUE);
-            alumnoDAO.updateFields(alumno, new String[]{"promedioProcesado"});
+            alumnoDAO.updatePromedioProcesado(alumno);
 
             contadorComponent.incrementarProcesados();
         } catch (Exception e) {

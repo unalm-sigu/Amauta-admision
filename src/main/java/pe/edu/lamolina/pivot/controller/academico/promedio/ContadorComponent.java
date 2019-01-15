@@ -20,7 +20,7 @@ public class ContadorComponent {
     }
 
     public void iniciar(Integer cantidadTotal) {
-        this.contador = 0;
+        this.contador = 1;
         this.cantidadTotal = cantidadTotal;
         this.inicioTime = System.currentTimeMillis();
     }

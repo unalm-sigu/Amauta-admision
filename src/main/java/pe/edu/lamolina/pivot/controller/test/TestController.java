@@ -291,18 +291,17 @@ public class TestController {
                 continue;
             }
             List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYear(year);
+            alumnos = alumnos.stream().filter(x -> x.getModalidadEstudio().isPregrado()).collect(Collectors.toList());
             logger.info("Año {}, Alumnos {}", year, alumnos.size());
-            visorCalculoNotas.iniciar();
+            List<AlumnoCicloCurso> alumnosCiclosCursos = alumnoCicloCursoDAO.allOperativesPendingByYear(year);
             contadorComponent.iniciar(alumnos.size());
             for (Alumno alumno : alumnos) {
                 if (!alumno.isPregrado()) {
                     continue;
                 }
-                promedioService.promediarAllCicloAsync(alumno, cicloActivo, null, ds);
+                promedioService.promediarAllCicloAsync(alumno, cicloActivo, alumnosCiclosCursos, ds);
             }
         }
-
-        visorCalculoNotas.iniciar();
 
         return "yeah";
     }
