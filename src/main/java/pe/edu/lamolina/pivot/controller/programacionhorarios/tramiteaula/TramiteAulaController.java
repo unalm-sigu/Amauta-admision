@@ -7,6 +7,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -27,12 +28,12 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.Docente;
-import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
+import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -81,8 +82,50 @@ public class TramiteAulaController {
 
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
-        model.addAttribute("tiposSolicitante", TipoSolicitanteEnum.values());
+
+        List<TipoSolicitanteEnum> tiposSolicitante = new ArrayList<>();
+        for (TipoSolicitanteEnum value : TipoSolicitanteEnum.values()) {
+            if (!value.name().equals(TipoSolicitanteEnum.PER.name())) {
+                tiposSolicitante.add(value);
+            }
+        }
+        model.addAttribute("tiposSolicitante", tiposSolicitante);
         return "programacion/tramiteaula/tramiteaulaform";
+    }
+
+    @ResponseBody
+    @RequestMapping("list")
+    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<ReservaAula> reservaAulas = service.allDynatableFilter(filter);
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jFactory);
+            for (ReservaAula aula : reservaAulas) {
+                ObjectNode node = JsonHelper.createJson(aula, jFactory, true, new String[]{
+                    "*",
+                    "tramite.*",
+                    "tramite.alumno.*",
+                    "tramite.docente.*",
+                    "tramite.empresa.*",
+                    "tramite.alumno.persona.*",
+                    "tramite.docente.persona.*"
+                });
+                array.add(node);
+            }
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
     }
 
     @ResponseBody
@@ -99,47 +142,11 @@ public class TramiteAulaController {
             ArrayNode array = new ArrayNode(jFactory);
 
             for (Aula aula : aulas) {
-                ObjectNode node = new ObjectNode(jFactory);
 
-                node.put("id", aula.getId());
-                node.put("codigo", aula.getCodigo());
-                node.put("nombre", aula.getNombre());
-                node.put("tipoAmbienteEnum", aula.getTipoAmbienteEnum().getValue());
-                node.put("tipoAmbiente", aula.getTipoAmbiente());
-                node.put("piso", aula.getPiso());
-                node.put("pisos", aula.getPisos());
-                node.put("aforo", aula.getAforo());
-                node.put("pabellon", (String) ObjectUtil.getParentTree(aula, "aulaSuperior.nombre"));
-                node.put("capacidad", aula.getCapacidadAula());
-                node.put("sede", aula.getSede() != null ? aula.getSede().getNombre() : "");
-                node.put("tipoAula", aula.getTipoAula() != null ? aula.getTipoAula().getNombre() : "");
-                node.put("gestor", aula.getOficinaSupervisora() != null ? aula.getOficinaSupervisora().getNombre() : "");
-                node.put("estado", aula.getEstado());
-                node.put("estadoEnum", aula.getEstadoEnum().getValue());
-                node.put("motivo", aula.getMotivoAnulacion());
-                node.put("aulasContenido", aula.getAulasContenido().size());
-
-                ArrayNode arrayHijas = new ArrayNode(jFactory);
-                List<Aula> aulasHijas = aula.getAulasContenido();
-                for (Aula aulaHija : aulasHijas) {
-                    ObjectNode nodeHija = new ObjectNode(jFactory);
-                    nodeHija.put("codigo", aulaHija.getCodigo());
-                    nodeHija.put("nombre", aulaHija.getNombre());
-                    arrayHijas.add(nodeHija);
-                }
-                node.set("aulasHijas", arrayHijas);
-
-                ArrayNode inventariosHijas = new ArrayNode(jFactory);
-                List<ResumenInventario> inventarios = aula.getInventario();
-                logger.debug("aula {} items {}", aula.getId(), inventarios != null ? inventarios.size() : 0);
-                if (inventarios != null) {
-                    for (ResumenInventario inventario : inventarios) {
-                        ObjectNode jinventario = JsonHelper.createJson(inventario, jFactory, new String[]{"*", "producto.*"});
-                        inventariosHijas.add(jinventario);
-                    }
-                }
-                node.set("inventarios", inventariosHijas);
-                node.put("cantidadinventarios", inventariosHijas.size());
+                ObjectNode node = JsonHelper.createJson(aula, jFactory, true, new String[]{
+                    "*",
+                    "aulaSuperior.*",
+                    "tipoAula.*",});
 
                 array.add(node);
             }
@@ -251,8 +258,9 @@ public class TramiteAulaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            
-            service.save(reservaAula);
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.save(reservaAula, ds);
             response.setSuccess(true);
             response.setMessage(Messages.CREATED);
 
@@ -261,6 +269,50 @@ public class TramiteAulaController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("aceptartramite")
+    public JsonResponse aceptartramite(ReservaAula reservaAula, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.aceptartramite(reservaAula);
+            response.setMessage("Ampliación aceptada");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("rechazartramite")
+    public JsonResponse rechazartramite(ReservaAula reservaAula, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.rechazartramite(reservaAula);
+            response.setMessage("Ampliación rechazada");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
         return response;
     }
 

@@ -64,7 +64,7 @@
                                                 v-on:dp-change="changeFechaInicio()"
                                                 required="true"
                                                 v-bind:wrap="true" 
-                                                v-model="tramite.fechaInicio"></date-picker>
+                                                v-model="reservaaula.fechaInicio"></date-picker>
                                             <span class="input-group-addon pointer"><i class="fa fa-calendar"></i></span>
                                         </div>
                                         <span id="errorfechaInicio"></span>
@@ -83,7 +83,7 @@
                                                 class='form-control' 
                                                 required="true"
                                                 v-bind:wrap="true" 
-                                                v-model="tramite.fechaFin"></date-picker>
+                                                v-model="reservaaula.fechaFin"></date-picker>
                                             <span class="input-group-addon pointer">
                                                 <i class="fa fa-calendar"></i>
                                             </span>
@@ -104,7 +104,7 @@
                                                 class='form-control' 
                                                 data-parsley-errors-container="#errorhorainicio"
                                                 required="true"
-                                                v-model="tramite.horaInicio"></input>
+                                                v-model="reservaaula.horaInicio"></input>
                                             <span class="input-group-addon pointer">
                                                 <i class="fa fa-clock-o" aria-hidden="true"></i>
                                             </span>
@@ -123,7 +123,7 @@
                                                 class='form-control' 
                                                 data-parsley-errors-container="#errorhorafin"
                                                 required="true"
-                                                v-model="tramite.horaFin"></input>
+                                                v-model="reservaaula.horaFin"></input>
                                             <span class="input-group-addon pointer">
                                                 <i class="fa fa-clock-o" aria-hidden="true"></i>
                                             </span>
@@ -139,7 +139,7 @@
                                     <div class="form-group">
                                         <label>Capacidad </label>
 
-                                        <input type="text"  v-model="tramite.capacidad" class="form-control" />
+                                        <input type="text"  v-model="reservaaula.capacidad" class="form-control" />
 
                                     </div>
                                 </div>
@@ -148,7 +148,7 @@
                                     <div class="form-group">
                                         <label>Cantidad Ambiente </label>
 
-                                        <input type="text" v-model="tramite.cantidadAmbiente" class="form-control" />
+                                        <input type="text" v-model="reservaaula.cantidadAmbiente" class="form-control" />
 
                                     </div>
                                 </div>
@@ -185,7 +185,7 @@
                                     <div class="form-group">
                                         <label>Capacidad Mínima del Ambiente </label>
 
-                                        <input type="text" v-model="tramite.capacidadMinimaAmbiente" class="form-control" />
+                                        <input type="text" v-model="reservaaula.capacidadMinimaAmbiente" class="form-control" />
 
                                     </div>
                                 </div>
@@ -194,7 +194,7 @@
                                     <div class="form-group">
                                         <label>Capacidad Máxima del Ambiente </label>
 
-                                        <input type="text" v-model="tramite.capacidadMaximaAmbiente" class="form-control" />
+                                        <input type="text" v-model="reservaaula.capacidadMaximaAmbiente" class="form-control" />
 
                                     </div>
                                 </div>
@@ -207,16 +207,14 @@
                                     <div class="form-group">
                                         <label>Solicitante </label>
 
-                                        <select class="form-control"  v-model="tramite.tipoSolicitante" >
+                                        <select class="form-control"  v-model="reservaaula.tipoSolicitante" >
                                             <option th:each="item:${tiposSolicitante}" th:value="${item.name()}" th:text="${item.value}">Alumno</option>
                                         </select>
 
                                     </div>
                                 </div>
-
-
-
-                                <div v-show="tramite.tipoSolicitante=='ALUMNO'" class="col-xs-6">
+                                
+                                <div v-show="reservaaula.tipoSolicitante=='ALU'" class="col-xs-6">
                                     <div class="form-group">
                                         <label>Alumno </label>
 
@@ -225,16 +223,16 @@
                                             formatselection="persona.nombreCompleto"
                                             idtemplateresult="divBuscarAlumno"
                                             usetemplateresult="true"
-                                            v-bind:objetogenerico="tramite.alumno"
+                                            v-bind:objetogenerico="reservaaula.tramite.alumno"
                                             nameinput="alumno.id"
                                             remoteurl="tramite/aula/allAlumno"
-                                            v-model="tramite.alumno"
+                                            v-model="reservaaula.tramite.alumno"
                                             ></vuelect>
 
                                     </div>
                                 </div>
 
-                                <div v-show="tramite.tipoSolicitante=='DOCENTE'" class="col-xs-6">
+                                <div v-show="reservaaula.tipoSolicitante=='DOC'" class="col-xs-6">
                                     <div class="form-group">
                                         <label>Docente </label>
 
@@ -243,16 +241,16 @@
                                             idtemplateresult="divBuscarDocente"
                                             formatselection="persona.nombreCompleto"
                                             usetemplateresult="true"
-                                            v-bind:objetogenerico="tramite.docente"
+                                            v-bind:objetogenerico="reservaaula.tramite.docente"
                                             nameinput="docente.id"
                                             remoteurl="tramite/aula/allDocente"
-                                            v-model="tramite.docente"
+                                            v-model="reservaaula.tramite.docente"
                                             ></vuelect>
 
                                     </div>
                                 </div>
 
-                                <div v-show="tramite.tipoSolicitante=='INSTITUCION'" class="col-xs-6">
+                                <div v-show="reservaaula.tipoSolicitante=='EMP'" class="col-xs-6">
                                     <div class="form-group">
                                         <label>Institución </label>
 
@@ -262,10 +260,10 @@
                                                 required="true"
                                                 formatselection="razonSocial"
                                                 formatresult="razonSocial"
-                                                v-bind:objetogenerico="tramite.empresa"
+                                                v-bind:objetogenerico="reservaaula.tramite.empresa"
                                                 nameinput="institucion.id"
                                                 remoteurl="comun/buscar/allEmpresa"
-                                                v-model="tramite.empresa"
+                                                v-model="reservaaula.tramite.empresa"
                                                 ></vuelect>
 
                                             <span class="input-group-addon pointer" v-on:click.prevent="addInstitucion()"><i class="fa fa-plus"></i></span>
@@ -280,14 +278,41 @@
                                     <div class="form-group">
                                         <label>Motivo </label>
 
-                                        <textarea v-model="tramite.motivo" class="form-control" ></textarea>
+                                        <textarea v-model="reservaaula.motivo" class="form-control" ></textarea>
 
                                     </div>
                                 </div>
 
+                                <div class="line line-dashed b-b line-lg pull-in col-xs-12"></div>
+
+                                <div class="row">
+                                    <div v-for="reserva in reservados" class="col-sm-3 col-xs-4">
+
+                                        <div class="thumbnail" style="overflow-x: hidden">
+
+                                            <a class="text-danger m-l-sm" v-on:click.prevent="deleteReservado(reserva)" href="#">
+                                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                            </a>
+
+                                            <div class="caption m-t-n-md">
+                                                
+                                                <h4>{{reserva.codigo}}</h4>
+                                                <p class="text-sm">{{reserva.nombre}}</p>
+                                                <p>{{reserva.aforo}}</p>
+
+                                                <span class="label label-primary"  data-toggle="tooltip" v-bind:title="reserva.motivoAnulacion" v-if="reserva.estado=='ACT'"> {{reserva.estadoEnum.value}} </span>
+                                                <span class="label label-danger"  data-toggle="tooltip" v-bind:title="reserva.motivoAnulacion" v-if="reserva.estado=='INA'"> {{reserva.estadoEnum.value}} </span>
+                                                <span class="label label-default"  data-toggle="tooltip" v-bind:title="reserva.motivoAnulacion" v-if="reserva.estado=='CRE'"> {{reserva.estadoEnum.value}} </span>
+
+                                            </div>
 
 
-                                <div class="col-xs-12"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="line line-dashed b-b line-lg pull-in col-xs-12"></div>
+
 
                                 <div class="col-xs-12">
 
@@ -331,8 +356,8 @@
                                             <table class="table table-striped table-hover">
                                                 <thead> 
                                                     <tr>
-                                                        <th class="col-xs-1" ></th>
-                                                        <th class="col-xs-8 text-center">Ambiente</th>
+                                                        <th></th>
+                                                        <th class="col-xs-9 text-center">Ambiente</th>
                                                         <th class="col-xs-2 text-center v-middle">Situación</th>
                                                         <th class="col-xs-1 text-center v-middle">Aforo</th>
                                                         <th></th>
@@ -351,7 +376,9 @@
                                                         </td>
 
                                                         <td class="v-middle text-center">
-                                                            situacion
+                                                            <label class="label label-primary"  data-toggle="tooltip" v-bind:title="item.motivoAnulacion" v-if="item.estado=='ACT'"> {{item.estadoEnum.value}} </label>
+                                                            <label class="label label-danger"  data-toggle="tooltip" v-bind:title="item.motivoAnulacion" v-if="item.estado=='INA'"> {{item.estadoEnum.value}} </label>
+                                                            <label class="label label-default"  data-toggle="tooltip" v-bind:title="item.motivoAnulacion" v-if="item.estado=='CRE'"> {{item.estadoEnum.value}} </label>
                                                         </td>
 
                                                         <td class="v-middle text-center">
@@ -359,12 +386,12 @@
                                                         </td>
 
                                                         <td class="v-middle">
-                                                            <div class="actions">
-                                                                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
-                                                                <ul class="dropdown-menu pull-right">
-                                                                    <li><a href="#">Opción</a></li>
-                                                                </ul>
-                                                            </div>
+
+
+                                                            <a href="#" v-on:click.prevent="addAula(item)">
+                                                                <i class="fa fa-plus pointer text-primary" aria-hidden="true"></i>
+
+                                                            </a>
                                                         </td>
                                                     </tr>
                                                 </tbody>

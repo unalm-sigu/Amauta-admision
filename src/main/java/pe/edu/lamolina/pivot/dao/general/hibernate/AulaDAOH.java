@@ -1,7 +1,10 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
+import com.google.common.base.Strings;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -184,7 +187,33 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .searchFields("au.nombre", "aus.nombre", "ta.nombre", "au.codigo", "os.nombre")
                 .orderBy("au.id desc");
 
+        sql.beginRelativeFilters();
+        this.setCondicionAulaSeleccionada(filter, sql);
+
         return all(sql);
+    }
+
+    private void setCondicionAulaSeleccionada(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+        for (String key : queries.keySet()) {
+            if (!key.equals("aulas")) {
+                continue;
+            }
+            String value = (String) queries.get(key);
+            if (Strings.isNullOrEmpty(value)) {
+                continue;
+            }
+            String[] ids= value.split(",");
+            List<Long> idss= new ArrayList();
+            for (String id : ids) {
+                idss.add(new Long(id));
+            }
+            sql.notIn("au.id", idss);
+            
+        }
     }
 
 }
