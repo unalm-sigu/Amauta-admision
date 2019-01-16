@@ -130,11 +130,12 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, CursoCurricula> cursosCurricula,
             Map<Long, List<RequisitoCursoCurricula>> mapRequisitos,
             Map<Long, List<CursoEquivalente>> mapEquivalentes,
+            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
             List<MatriculaCurso> matriculaCursos,
             List<AlumnoCicloCurso> cursosAprobados,
             DataSessionPivot ds) {
 
-        procesarAlumnoSincrono(alumno, cursosCurricula, mapRequisitos, mapEquivalentes, matriculaCursos, cursosAprobados, ds);
+        procesarAlumnoSincrono(alumno, cursosCurricula, mapRequisitos, mapEquivalentes, mapCursosVecesLlevado, matriculaCursos, cursosAprobados, ds);
 
     }
 
@@ -195,6 +196,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, CursoCurricula> mapCursosCurricula,
             Map<Long, List<RequisitoCursoCurricula>> mapRequisitosCurricula,
             Map<Long, List<CursoEquivalente>> mapEquivalentesCurricula,
+            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
             List<MatriculaCurso> cursosMatriculados,
             List<AlumnoCicloCurso> cursosAprobados, DataSessionPivot ds) {
 
@@ -223,6 +225,14 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarCursosMatriculados(mapCursoCurriculaAluByCurso, cursosMatriculados, ds);
 
         for (AlumnoCursoCurricula alumnoCursoCurricula : mapCursoCurriculaAlu.values()) {
+            alumnoCursoCurricula.setVecesCursado(0);
+            Curso curso = alumnoCursoCurricula.getCurso();
+            AlumnoCicloCurso cursoVeces = mapCursosVecesLlevado.get(alumno.getId() + "-" + curso.getId());
+            System.out.println(alumno.getId() + "-" + curso.getId() + " cursoVeces = " + cursoVeces);
+            if (cursoVeces != null) {
+                System.out.println("Hay " + cursoVeces.getVecesCursado() + " veces cursado");
+                alumnoCursoCurricula.setVecesCursado(cursoVeces.getVecesCursado());
+            }
             alumnoCursoCurriculaDAO.save(alumnoCursoCurricula);
         }
         for (AlumnoCursoSimultaneo cursosSimultaneo : cursosSimultaneosAlu) {
@@ -403,7 +413,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, AlumnoCursoCurricula> mapCursosCurriculaAluByCurso,
             List<AlumnoCicloCurso> cursosAprobados,
             DataSessionPivot ds) {
-
 
         Map<String, List<AlumnoCicloCurso>> mapCursosAprobadosByDpto = new HashMap();
         for (AlumnoCicloCurso aprobado : cursosAprobados) {
@@ -628,6 +637,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, CursoCurricula> mapCursoCurricula,
             Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula,
             Map<Long, List<CursoEquivalente>> mapCursosEquivalentes,
+            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
             List<MatriculaCurso> cursosMatriculados,
             List<AlumnoCicloCurso> cursosAprobados, DataSessionPivot ds) {
 
@@ -635,7 +645,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         this.settingPlanCurricular(alumno, planBD);
         logger.debug("Cantidad de Cursos: {}", mapCursoCurricula.size());
         this.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
-        this.procesarAlumno(alumno, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, cursosMatriculados, cursosAprobados, ds);
+        this.procesarAlumno(alumno, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, mapCursosVecesLlevado, cursosMatriculados, cursosAprobados, ds);
         visorAsignaCurricula.incrementar(carrera);
     }
 

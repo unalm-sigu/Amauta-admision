@@ -18,6 +18,7 @@ public interface AvanceCurricularAsincronoService {
             Map<Long, CursoCurricula> cursosCurricula,
             Map<Long, List<RequisitoCursoCurricula>> mapRequisitos,
             Map<Long, List<CursoEquivalente>> mapEquivalentes,
+            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
             List<MatriculaCurso> cursosMatriculados,
             List<AlumnoCicloCurso> cursosAprobadosAlumno,
             DataSessionPivot ds);
@@ -27,6 +28,7 @@ public interface AvanceCurricularAsincronoService {
             Map<Long, CursoCurricula> cursosCurricula,
             Map<Long, List<RequisitoCursoCurricula>> mapRequisitos,
             Map<Long, List<CursoEquivalente>> mapEquivalentes,
+            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
             List<MatriculaCurso> cursosMatriculados,
             List<AlumnoCicloCurso> cursosAprobadosAlumno,
             DataSessionPivot ds);
@@ -45,6 +47,7 @@ public interface AvanceCurricularAsincronoService {
             Map<Long, CursoCurricula> mapCursoCurricula,
             Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula,
             Map<Long, List<CursoEquivalente>> mapCursosEquivalentes,
+            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
             List<MatriculaCurso> cursosMatriculados,
             List<AlumnoCicloCurso> cursosAprobadosAlumno,
             DataSessionPivot ds);
