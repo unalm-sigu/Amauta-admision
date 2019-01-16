@@ -530,6 +530,22 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
+    public void updateFields(Alumno alumno, String[] fields) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        for (String field : fields) {
+            octavia.set(alumno, field);
+        }
+        this.update(octavia);
+    }
+
+    @Override
+    public void updatePromedioProcesado(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "promedioProcesado");
+        this.update(octavia);
+    }
+
+    @Override
     public void updatePlanCurricular(Alumno alumno) {
         Octavia sql = Octavia.update(Alumno.class);
         sql.set(alumno, "planCurricular");
@@ -588,6 +604,29 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         query.setLong("CICLO", cicloAcademico.getId());
 
         return (MatriculableResumen) query.uniqueResult();
+    }
+
+    @Override
+    public List<String> allYearsCiclos() {
+        StringBuilder strb = new StringBuilder();
+        strb.append("select distinct SUBSTRING(a.codigo,1,4) from Alumno a order by SUBSTRING(a.codigo,1,4) asc");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        return query.list();
+    }
+
+    @Override
+    public List<Alumno> allPendingPromedioByCicloYear(String year) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("alu.modalidadEstudio me")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .join("alu.persona aluPer", "alu.carrera alucar")
+                .join("alucar.facultad fac")
+                .leftJoin("aluPer.tipoDocumento td", "alu.cicloIngreso ci")
+                .filter("alu.promedioProcesado", 0)
+                .complexFilter("SUBSTRING(alu.codigo,1,4)", year);
+
+        return all(sql);
     }
 
 }
