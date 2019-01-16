@@ -286,21 +286,28 @@ public class TestController {
         List<String> allYears = alumnoDAO.allYearsCiclos();
 
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(new ModalidadEstudio(1));
+        List<Alumno> alumnosAcumulados = new ArrayList<>();
         for (String year : allYears) {
             if (TypesUtil.getInt(year) != null && TypesUtil.getInt(year) < 1995) {
                 continue;
             }
             List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYear(year);
             alumnos = alumnos.stream().filter(x -> x.getModalidadEstudio().isPregrado()).collect(Collectors.toList());
-            logger.info("Año {}, Alumnos {}", year, alumnos.size());
+            alumnosAcumulados.addAll(alumnos);
+            logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
             //   List<AlumnoCicloCurso> alumnosCiclosCursos = alumnoCicloCursoDAO.allOperativesPendingByYear(year);
+            /*
             contadorComponent.iniciar(alumnos.size());
             for (Alumno alumno : alumnos) {
                 if (!alumno.isPregrado()) {
                     continue;
                 }
                 promedioService.promediarAllCicloAsync(alumno, cicloActivo, null, ds);
-            }
+            }*/
+        }
+        contadorComponent.iniciar(alumnosAcumulados.size());
+        for (Alumno alumno : alumnosAcumulados) {
+            promedioService.promediarAllCicloAsync(alumno, cicloActivo, null, ds);
         }
 
         return "yeah";
