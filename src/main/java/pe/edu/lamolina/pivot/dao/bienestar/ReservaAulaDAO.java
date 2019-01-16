@@ -9,4 +9,6 @@ public interface ReservaAulaDAO extends EasyDAO<ReservaAula> {
 
     public List<ReservaAula> allDynatableFilter(DynatableFilter filter);
 
+    public ReservaAula find(ReservaAula reservaAula);
+
 }

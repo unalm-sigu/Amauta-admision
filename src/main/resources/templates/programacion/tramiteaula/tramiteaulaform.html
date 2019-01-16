@@ -14,7 +14,8 @@
                         <a class="btn btn-default" type="button" th:href="@{/tramite/aula}"  >Regresar</a>
                     </div>  
 
-                    <h2>Nuevo tramite </h2>
+                    <h2 v-if="reservaaula.id==null">Nuevo Trámite </h2>
+                    <h2 v-else="reservaaula.id==null">Actualizando Trámite</h2>
 
                 </header>
 
@@ -139,7 +140,7 @@
                                     <div class="form-group">
                                         <label>Capacidad </label>
 
-                                        <input type="text"  v-model="reservaaula.capacidad" class="form-control" />
+                                        <input type="text"  v-model="reservaaula.aforo" class="form-control" />
 
                                     </div>
                                 </div>
@@ -199,22 +200,20 @@
                                     </div>
                                 </div>
 
-
                                 <div class="col-xs-12"></div>
-
 
                                 <div class="col-sm-3">
                                     <div class="form-group">
                                         <label>Solicitante </label>
 
-                                        <select class="form-control"  v-model="reservaaula.tipoSolicitante" >
+                                        <select class="form-control"  v-model="reservaaula.tramite.tipoSolicitante" >
                                             <option th:each="item:${tiposSolicitante}" th:value="${item.name()}" th:text="${item.value}">Alumno</option>
                                         </select>
 
                                     </div>
                                 </div>
-                                
-                                <div v-show="reservaaula.tipoSolicitante=='ALU'" class="col-xs-6">
+
+                                <div v-if="reservaaula.tramite.tipoSolicitante=='ALU'" class="col-xs-6">
                                     <div class="form-group">
                                         <label>Alumno </label>
 
@@ -223,6 +222,7 @@
                                             formatselection="persona.nombreCompleto"
                                             idtemplateresult="divBuscarAlumno"
                                             usetemplateresult="true"
+                                            v-bind:initobject="reservaaula.tramite.alumno"
                                             v-bind:objetogenerico="reservaaula.tramite.alumno"
                                             nameinput="alumno.id"
                                             remoteurl="tramite/aula/allAlumno"
@@ -232,7 +232,7 @@
                                     </div>
                                 </div>
 
-                                <div v-show="reservaaula.tipoSolicitante=='DOC'" class="col-xs-6">
+                                <div v-if="reservaaula.tramite.tipoSolicitante=='DOC'" class="col-xs-6">
                                     <div class="form-group">
                                         <label>Docente </label>
 
@@ -241,6 +241,7 @@
                                             idtemplateresult="divBuscarDocente"
                                             formatselection="persona.nombreCompleto"
                                             usetemplateresult="true"
+                                            v-bind:initobject="reservaaula.tramite.docente"
                                             v-bind:objetogenerico="reservaaula.tramite.docente"
                                             nameinput="docente.id"
                                             remoteurl="tramite/aula/allDocente"
@@ -250,7 +251,7 @@
                                     </div>
                                 </div>
 
-                                <div v-show="reservaaula.tipoSolicitante=='EMP'" class="col-xs-6">
+                                <div v-if="reservaaula.tramite.tipoSolicitante=='EMP'" class="col-xs-6">
                                     <div class="form-group">
                                         <label>Institución </label>
 
@@ -260,6 +261,8 @@
                                                 required="true"
                                                 formatselection="razonSocial"
                                                 formatresult="razonSocial"
+                                                data-parsley-errors-container="#errorempresao"
+                                                v-bind:initobject="reservaaula.tramite.empresa"
                                                 v-bind:objetogenerico="reservaaula.tramite.empresa"
                                                 nameinput="institucion.id"
                                                 remoteurl="comun/buscar/allEmpresa"
@@ -268,6 +271,8 @@
 
                                             <span class="input-group-addon pointer" v-on:click.prevent="addInstitucion()"><i class="fa fa-plus"></i></span>
                                         </div>
+
+                                        <span id="errorempresao"></span>
 
                                     </div>
                                 </div>
@@ -295,7 +300,7 @@
                                             </a>
 
                                             <div class="caption m-t-n-md">
-                                                
+
                                                 <h4>{{reserva.codigo}}</h4>
                                                 <p class="text-sm">{{reserva.nombre}}</p>
                                                 <p>{{reserva.aforo}}</p>
@@ -493,6 +498,12 @@
         </div>
 
         <div layout:fragment="js">
+
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var reservaAulaJson = /*[[${reservaAula}]]*/ '';
+                /*]]>*/
+            </script>
             <div th:substituteby="_layout/includes :: sweetalert"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vue-loader"/>

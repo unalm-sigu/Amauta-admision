@@ -121,5 +121,10 @@ Vue.component("vuelect", {
                 }
             };
         }
+    },
+    destroyed: function () {
+        let vue = this;
+        let self = $(vue.$el);
+        self.select2("destroy");
     }
 });
