@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.edu.lamolina.model.enums.VariableContenidoEnum;
-import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
@@ -82,5 +81,41 @@ public class MailerServiceImp implements MailerService {
         mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
         mailerConnector.sendMailHelpDesk(mail);
 
+    }
+
+    @Override
+    public void enviarNotificacionAulaReservaAceptado(String nombre,String email, ContenidoCarta contenidoCarta) {
+        
+        String contenido = contenidoCarta.getContenido();
+        contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), nombre);
+
+        Context ctx = new Context();
+        ctx.setVariable("contenido", contenido);
+
+        MailMessage mail = new MailMessage();
+        mail.setContext(ctx);
+        mail.setTemplate("mail/mailReservaAula");
+        mail.setSubject(contenidoCarta.getNombre());
+        //mail.setDestinatarios(new String[]{email});
+        mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
+        mailerConnector.sendMailHelpDesk(mail);
+    }
+
+    @Override
+    public void enviarNotificacionAulaReservaRechazado(String nombre,String email, ContenidoCarta contenidoCarta) {
+       
+        String contenido = contenidoCarta.getContenido();
+        contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), nombre);
+
+        Context ctx = new Context();
+        ctx.setVariable("contenido", contenido);
+
+        MailMessage mail = new MailMessage();
+        mail.setContext(ctx);
+        mail.setTemplate("mail/mailReservaAula");
+        mail.setSubject(contenidoCarta.getNombre());
+        //mail.setDestinatarios(new String[]{email});
+        mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
+        mailerConnector.sendMailHelpDesk(mail);
     }
 }
