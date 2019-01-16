@@ -206,7 +206,7 @@ public class PromedioServiceImp implements PromedioService {
 
             Alumno alumnoUpd = new Alumno(alumno.getId());
             alumnoUpd.setPromedioProcesado(Boolean.TRUE);
-            alumnoDAO.updatePromedioProcesado(alumno);
+            alumnoDAO.updatePromedioProcesado(alumnoUpd);
 
             contadorComponent.incrementarProcesados();
         } catch (Exception e) {
