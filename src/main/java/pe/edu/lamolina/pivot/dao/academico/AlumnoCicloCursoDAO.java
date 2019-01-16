@@ -34,7 +34,7 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     List<AlumnoCicloCurso> allAprobadoActivoByAlumnos(List<Alumno> alumnos);
 
-    List<AlumnoCicloCurso> allVecesAprobadoByAlumnos(List<Alumno> alumnos);
+    List<AlumnoCicloCurso> allVecesLlevadoByAlumnos(List<Alumno> alumnos);
 
     List<AlumnoCicloCurso> allDesaprobadoActivoByAlumno(Alumno alumno);
 

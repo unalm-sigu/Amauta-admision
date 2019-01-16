@@ -111,6 +111,9 @@
                                                         <small class="block">
                                                             {{item.alumno.persona.emailCompania}}
                                                         </small>
+                                                        <small class="block">
+                                                            <smal>DNI: </smal>{{item.alumno.persona.numeroDocIdentidad}}
+                                                        </small>
                                                         <a v-if="item.motivoMatriculable != '' " class="text-danger " data-toggle="tooltip" v-bind:title="item.motivoMatriculable" href="#">
                                                             <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                                                         </a>
