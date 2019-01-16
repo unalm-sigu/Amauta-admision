@@ -1200,7 +1200,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         List<AlumnoCicloCurso> cursosVecesLlevado = alumnoCicloCursoDAO.allVecesLlevadoByAlumnos(alumnos);
         Map<String, AlumnoCicloCurso> mapTodosCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", cursosVecesLlevado);
-        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCursosVecesLlevado = TypesUtil.convertListToMapList("alumno.id", cursosVecesLlevado);
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCursosVecesLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosVecesLlevado);
 
         for (AlumnoCicloCurso cursoAprobado : cursosAprobados) {
             cursoAprobado.setVecesCursadoTransient(0);
@@ -1226,6 +1226,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 logger.debug("no se encontro ciclo-plan para este ciclo {}", codigoCicloAlumno);
                 continue;
             }
+
             PlanCurricular planBD = mapPlanesByCiclo.get(codigoCicloPlan);
             if (planBD == null) {
                 visorAsignaCurricula.incrementar(carrera);
