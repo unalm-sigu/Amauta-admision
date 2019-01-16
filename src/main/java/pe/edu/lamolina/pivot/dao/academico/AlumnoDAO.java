@@ -95,4 +95,10 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     void updatePromedioProcesado(Alumno alumno);
 
+    List<Alumno> allIngresantesByCiclos(List<CicloAcademico> ciclosIngresantes);
+
+    List<Alumno> allMatriculadosByCiclos(List<CicloAcademico> ciclosPrevios);
+
+    List<Alumno> allEstudiaronByCiclos(List<CicloAcademico> ciclosPrevios);
+
 }

@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Query;
@@ -10,6 +11,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -19,6 +21,9 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
@@ -625,6 +630,49 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("aluPer.tipoDocumento td", "alu.cicloIngreso ci")
                 .filter("alu.promedioProcesado", 0)
                 .complexFilter("SUBSTRING(alu.codigo,1,4)", year);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allIngresantesByCiclos(List<CicloAcademico> ciclosIngresantes) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("alu.modalidadEstudio me", "cicloIngreso ci", "alu.situacionAcademica sa")
+                .join("alu.persona per", "alu.carrera car")
+                .join("car.facultad fac")
+                .leftJoin("per.tipoDocumento td")
+                .in("ci.id", ciclosIngresantes);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allMatriculadosByCiclos(List<CicloAcademico> ciclosPrevios) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("alu")
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "alu.modalidadEstudio me", "cicloAcademico ci", "alu.situacionAcademica sa")
+                .join("alu.persona per", "alu.carrera car")
+                .join("car.facultad fac")
+                .leftJoin("per.tipoDocumento td")
+                .in("mr.estado", Arrays.asList(NMAT, MAT, RCI))
+                .in("ci.id", ciclosPrevios);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allEstudiaronByCiclos(List<CicloAcademico> ciclosPrevios) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("alu")
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "alu.modalidadEstudio me", "cicloAcademico ci", "alu.situacionAcademica sa")
+                .join("alu.persona per", "alu.carrera car")
+                .join("car.facultad fac")
+                .leftJoin("per.tipoDocumento td")
+                .in("ac.estado", Arrays.asList(NMAT, MAT, RCI))
+                .in("ci.id", ciclosPrevios);
 
         return all(sql);
     }

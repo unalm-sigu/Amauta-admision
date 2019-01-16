@@ -112,9 +112,11 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     public CicloAcademico findAnteriorActivo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
                 .filter("tipo", "REG")
                 .filter("codigo", "<", ciclo.getCodigo())
                 .filter("estado", "!=", DES)
+                .filter("me.id", ciclo.getModalidadEstudio())
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(1);
         return find(sql);
@@ -559,4 +561,19 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
 
         return all(sql);
     }
+
+    @Override
+    public List<CicloAcademico> allActivosAnteriores(int ciclos, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("tipo", "REG")
+                .filter("ca.codigo", "<", ciclo.getCodigo())
+                .filter("estado", "<>", DES)
+                .filter("me.id", ciclo.getModalidadEstudio())
+                .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
+                .limit(ciclos);
+        return all(sql);
+    }
+
 }
