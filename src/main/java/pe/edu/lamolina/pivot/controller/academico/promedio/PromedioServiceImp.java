@@ -332,9 +332,7 @@ public class PromedioServiceImp implements PromedioService {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     private void promediarAlumno(Alumno alumno, CicloAcademico cicloActivo, List<AlumnoCicloCurso> allOperativesByModalidadEstudio, DataSessionPivot ds) {
-        if (alumno.getId().equals(80803L)) {
-            logger.debug("");
-        }
+
         List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
         List<String> ciclos = alumnosCiclosByAlumno.stream().map(x -> x.getCicloAcademico().getCodigo()).collect(Collectors.toList());
         logger.debug("Alumno Id {}, Codigo {}", alumno.getId(), alumno.getCodigo());
