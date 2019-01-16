@@ -7,9 +7,10 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,7 +32,6 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
@@ -82,14 +83,61 @@ public class TramiteAulaController {
 
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
-
-        List<TipoSolicitanteEnum> tiposSolicitante = new ArrayList<>();
-        for (TipoSolicitanteEnum value : TipoSolicitanteEnum.values()) {
-            if (!value.name().equals(TipoSolicitanteEnum.PER.name())) {
-                tiposSolicitante.add(value);
-            }
-        }
+        List<TipoSolicitanteEnum> tiposSolicitante = Arrays.stream(TipoSolicitanteEnum.values())
+                .filter(value -> !TipoSolicitanteEnum.PER.name().equals(value.name()))
+                .collect(Collectors.toList());
         model.addAttribute("tiposSolicitante", tiposSolicitante);
+        return "programacion/tramiteaula/tramiteaulaform";
+    }
+
+    @ResponseBody
+    @RequestMapping("save")
+    public JsonResponse save(@RequestBody ReservaAula reservaAula, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            if (reservaAula.getId() != null) {
+                service.update(reservaAula, ds);
+                response.setMessage(Messages.UPDATED);
+            } else {
+                service.save(reservaAula, ds);
+                response.setMessage(Messages.CREATED);
+            }
+
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @RequestMapping("{idtramite}/update")
+    public String update(@PathVariable Long idtramite, Model model, HttpSession session) {
+        List<TipoSolicitanteEnum> tiposSolicitante = Arrays.stream(TipoSolicitanteEnum.values())
+                .filter(value -> !TipoSolicitanteEnum.PER.name().equals(value.name()))
+                .collect(Collectors.toList());
+        model.addAttribute("tiposSolicitante", tiposSolicitante);
+        ReservaAula reservaAula = service.findReservaAula(idtramite);
+        JsonNodeFactory jFactory = JsonNodeFactory.instance;
+        ObjectNode reservaAulaNode = JsonHelper.createJson(reservaAula, jFactory, true, new String[]{
+            "*",
+            "tramite.id",
+            "tramite.tipoSolicitante",
+            "tramite.alumno.id",
+            "tramite.docente.id",
+            "tramite.empresa.id",
+            "tramite.empresa.razonSocial",
+            "tramite.alumno.persona.id",
+            "tramite.alumno.persona.nombreCompleto",
+            "tramite.docente.persona.nombreCompleto",
+            "reservados.*",});
+        model.addAttribute("reservaAula", reservaAulaNode.toString());
         return "programacion/tramiteaula/tramiteaulaform";
     }
 
@@ -113,7 +161,9 @@ public class TramiteAulaController {
                     "tramite.docente.*",
                     "tramite.empresa.*",
                     "tramite.alumno.persona.*",
-                    "tramite.docente.persona.*"
+                    "tramite.docente.persona.*",
+                    "reservados.id",
+                    "reservados.nombrePublico"
                 });
                 array.add(node);
             }
@@ -252,29 +302,8 @@ public class TramiteAulaController {
     }
 
     @ResponseBody
-    @RequestMapping("save")
-    public JsonResponse save(@RequestBody ReservaAula reservaAula, HttpSession session) {
-
-        JsonResponse response = new JsonResponse();
-
-        try {
-
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.save(reservaAula, ds);
-            response.setSuccess(true);
-            response.setMessage(Messages.CREATED);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
     @RequestMapping("aceptartramite")
-    public JsonResponse aceptartramite(ReservaAula reservaAula, HttpSession session) {
+    public JsonResponse aceptartramite(@RequestBody ReservaAula reservaAula, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
@@ -282,7 +311,7 @@ public class TramiteAulaController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.aceptartramite(reservaAula);
-            response.setMessage("Ampliación aceptada");
+            response.setMessage(Messages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -296,7 +325,7 @@ public class TramiteAulaController {
 
     @ResponseBody
     @RequestMapping("rechazartramite")
-    public JsonResponse rechazartramite(ReservaAula reservaAula, HttpSession session) {
+    public JsonResponse rechazartramite(@RequestBody ReservaAula reservaAula, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
@@ -304,7 +333,7 @@ public class TramiteAulaController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.rechazartramite(reservaAula);
-            response.setMessage("Ampliación rechazada");
+            response.setMessage(Messages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

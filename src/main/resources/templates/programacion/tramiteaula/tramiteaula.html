@@ -37,10 +37,11 @@
                                     <table class="table table-striped table-hover">
                                         <thead> 
                                             <tr>
-                                                <th class="col-xs-3 text-center">Solicitud</th>
-                                                <th class="col-xs-4 text-center v-middle">Solicitante</th>
-                                                <th class="col-xs-4 text-center v-middle">Motivo</th>
-                                                <th class="col-xs-1 text-center v-middle">Comentario</th>
+                                                <th class="col-xs-2 text-center">Solicitud</th>
+                                                <th class="col-xs-3 text-center v-middle">Solicitante</th>
+                                                <th class="col-xs-3 text-center v-middle">Motivo</th>
+                                                <th class="col-xs-3 text-center v-middle">Comentario</th>
+                                                <th></th>
                                                 <th class="col-xs-1 text-center v-middle">Estado</th>
                                                 <th></th>
                                             </tr>
@@ -60,24 +61,47 @@
                                                 </td>
 
                                                 <td class="v-middle text-center">
-                                                    <p>{{item.motivo}}</p>
+                                                    <p class="text-xs">{{item.motivo}}</p>
                                                 </td>
 
                                                 <td class="v-middle text-center">
-                                                    <p>{{item.comentario}}</p>
+                                                    <p class="text-xs">{{item.comentario}}</p>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+
+                                                    <button v-if="item.reservados.length>0" type="button" 
+                                                            class="btn btn-link"
+                                                            v-on:click="showMePop($event)"
+                                                            data-container="body"
+                                                            title="Aulas"
+                                                            data-toggle="popover"
+                                                            data-placement="left"
+                                                            v-bind:data-content="giveMeAulas(item)">
+                                                        <i class="fa fa-building-o" aria-hidden="true"></i>
+                                                    </button>
+
                                                 </td>
 
                                                 <td class="v-middle text-center">
                                                     <span class="label label-primary" v-if="item.estado=='ACT'"> Activo </span>
+                                                    <span class="label label-success" v-if="item.estado=='RES'"> Reservado </span>
                                                     <span class="label label-default" v-if="item.estado=='PEND'"> Pendiente </span>
                                                     <span class="label label-danger" v-if="item.estado=='ANU'"> Anulado </span>
                                                 </td>
 
                                                 <td class="v-middle">
-                                                    <div class="actions">
+                                                    <div v-if="item.estado == 'PEND'  || item.estado == 'RES'"  class="actions">
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li><a href="#">Opción</a></li>
+                                                            <li  v-if="item.estado == 'PEND' " ><a  v-bind:href="editarTramite(item)">Editar Aula Reservada</a></li>
+                                                            <li v-if="item.estado == 'PEND' || item.estado == 'RES'" class="divider"></li>
+                                                            <li v-if="item.estado == 'PEND'  || item.estado == 'RES'">
+                                                                <a v-on:click="aceptarTramite(item)" href="#">Aceptar</a>
+                                                            </li>
+                                                            <li v-if="item.estado == 'PEND' || item.estado == 'RES'">
+                                                                <a v-on:click="rechazarTramite(item)" href="#">Rechazar</a>
+                                                            </li>
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -97,10 +121,61 @@
                 </section>
 
 
+                <modal-vik ref="confirmModal"
+                           v-bind="dataConfirmModal"
+                           v-bind:okaction="saveConfirmModal">
+                    <div slot="body">
+
+                        <div class="panel-body">
+                            <div class="row">
+
+                                <form ref="formConfirmModal"  data-parsley-validate="true" >
+
+                                    <div class="form-group">
+                                        <label>Comentario</label>
+                                        <textarea class="form-control"
+                                                  v-model="tramiteactivo.comentario"
+                                                  required="true" ></textarea>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </modal-vik>
 
 
+                <modal-vik ref="rechazarModal"
+                           v-bind="dataRechazarModal"
+                           v-bind:okaction="saveRechazarModal">
+                    <div slot="body">
+
+                        <div class="panel-body">
+                            <div class="row">
+
+                                <form ref="formRechazarModal"  data-parsley-validate="true" >
+
+                                    <div class="form-group">
+                                        <label>Comentario</label>
+                                        <textarea class="form-control"
+                                                  v-model="tramiteactivo.comentario"
+                                                  required="true" ></textarea>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </modal-vik>
 
             </div>
+
+            <div th:substituteby="_modules/vue-modal"></div>
+
         </div>
 
         <div layout:fragment="js">
