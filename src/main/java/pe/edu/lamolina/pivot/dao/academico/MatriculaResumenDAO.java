@@ -8,8 +8,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 
 public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
