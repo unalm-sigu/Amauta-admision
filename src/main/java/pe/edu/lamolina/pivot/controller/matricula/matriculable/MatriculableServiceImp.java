@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -144,25 +146,148 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional
     public void generar(CicloAcademico ciclo, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
-        List<String> situacionesPregrado
-                = Arrays.asList(S_N.getValue(), S_1.getValue(), S_2.getValue(), S_3.getValue(),
-                        S_5.getValue(), S_8.getValue(), S_9.getValue(), S_3U.getValue(),
-                        S_2U.getValue(), S_4U.getValue(), S_6U.getValue(), S_TU.getValue());
-
-        List<String> situacionesPosgrado
-                = Arrays.asList(S_N.getValue(), S_1.getValue(), S_2.getValue(), S_3.getValue(), S_5.getValue());
-
-        matriculaResumenDAO.savePosGrado(situacionesPosgrado, ciclo);
-        matriculaResumenDAO.savePreGrado(situacionesPregrado, ciclo);
+        generarPregrado(ciclo);
+        generarPosgrado(ciclo);
 
         CicloAcademico cicloAcademicoUpd = new CicloAcademico();
         cicloAcademicoUpd.setId(ciclo.getId());
         cicloAcademicoUpd.setFechaMatriculables(today.toDate());
         cicloAcademicoDAO.updateFechaMatriculables(cicloAcademicoUpd);
+    }
+
+    private void generarPosgrado(CicloAcademico ciclo) {
+        List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5);
+
+        CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
+        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(EPG);
+        CicloAcademico cicloEpg = cicloAcademicoDAO.findByCodigoModalidadEstudio(cicloBD.getCodigo(), modalidad);
+
+        Map<Long, Alumno> mapMatriculable = new LinkedHashMap();
+
+        List<CicloAcademico> ciclosPreviosPregrado = cicloAcademicoDAO.allActivosAnteriores(2, cicloBD);
+        List<CicloAcademico> ciclosPreviosEpg = cicloAcademicoDAO.allActivosAnteriores(2, cicloEpg);
+        ciclosPreviosEpg.addAll(ciclosPreviosPregrado);
+
+        List<Alumno> matriculados = alumnoDAO.allMatriculadosByCiclos(ciclosPreviosEpg);
+        List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPreviosEpg);
+
+        for (Alumno matriculado : matriculados) {
+            Alumno alumno = mapMatriculable.get(matriculado.getId());
+            if (alumno != null) {
+                continue;
+            }
+            if (!situaciones.contains(matriculado.getSituacionAcademica().getCodigoEnum())) {
+                continue;
+            }
+            if (modalidad.getCodigoEnum() != matriculado.getModalidadEstudio().getCodigoEnum()) {
+                continue;
+            }
+            mapMatriculable.put(matriculado.getId(), matriculado);
+        }
+        for (Alumno estudiante : estudiantes) {
+            Alumno alumno = mapMatriculable.get(estudiante.getId());
+            if (alumno != null) {
+                continue;
+            }
+            if (!situaciones.contains(estudiante.getSituacionAcademica().getCodigoEnum())) {
+                continue;
+            }
+            if (modalidad.getCodigoEnum() != estudiante.getModalidadEstudio().getCodigoEnum()) {
+                continue;
+            }
+            mapMatriculable.put(estudiante.getId(), estudiante);
+        }
+
+        List<Alumno> alumnos = new ArrayList(mapMatriculable.values());
+        for (Alumno alumno : alumnos) {
+            MatriculaResumen matriculable = new MatriculaResumen();
+            matriculable.setAlumno(alumno);
+            matriculable.setCicloAcademico(cicloBD);
+            matriculable.setCreditosMatriculados(0);
+            matriculable.setCreditosRetirados(0);
+            matriculable.setCreditosTrikaPagados(0);
+            matriculable.setCursosMatriculados(0);
+            matriculable.setCursosRetirados(0);
+            matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+            matriculable.setSituacionInicio(alumno.getSituacionAcademica());
+            matriculable.setEsUltimoCiclo(false);
+            matriculaResumenDAO.save(matriculable);
+        }
+
+    }
+
+    private void generarPregrado(CicloAcademico ciclo) {
+        List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU);
+
+        CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
+        CicloAcademico cicloAntes = cicloAcademicoDAO.findAnteriorActivo(cicloBD);
+        List<CicloAcademico> ciclosIngresantes = Arrays.asList(cicloBD, cicloAntes);
+        ModalidadEstudio modalidad = cicloBD.getModalidadEstudio();
+
+        List<Alumno> ingresantes = alumnoDAO.allIngresantesByCiclos(ciclosIngresantes);
+        Map<Long, Alumno> mapMatriculable = TypesUtil.convertListToMap("id", ingresantes);
+
+        List<CicloAcademico> ciclosPrevios = cicloAcademicoDAO.allActivosAnteriores(3, cicloBD);
+        for (CicloAcademico ciclop : ciclosPrevios) {
+            System.out.println(ciclop.getCodigo());
+        }
+        List<Alumno> matriculados = alumnoDAO.allMatriculadosByCiclos(ciclosPrevios);
+        System.out.println("=== vienen " + matriculados.size() + " matriculados de esos ciclos");
+        List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPrevios);
+        System.out.println("=== vienen " + estudiantes.size() + " estudiantes de esos ciclos");
+
+        for (Alumno matriculado : matriculados) {
+            Alumno alumno = mapMatriculable.get(matriculado.getId());
+            if (alumno != null) {
+                System.out.println("Ya existe el " + matriculado.getCodigo());
+                continue;
+            }
+            if (!situaciones.contains(matriculado.getSituacionAcademica().getCodigoEnum())) {
+                System.out.println("Se bota porque su situacion es  " + matriculado.getSituacionAcademica().getCodigo());
+                continue;
+            }
+            if (modalidad.getCodigoEnum() != matriculado.getModalidadEstudio().getCodigoEnum()) {
+                System.out.println("Se bota porque su modalidad es " + matriculado.getModalidadEstudio().getCodigo());
+                continue;
+            }
+            mapMatriculable.put(matriculado.getId(), matriculado);
+        }
+        for (Alumno estudiante : estudiantes) {
+            Alumno alumno = mapMatriculable.get(estudiante.getId());
+            if (alumno != null) {
+                continue;
+            }
+            if (!situaciones.contains(estudiante.getSituacionAcademica().getCodigoEnum())) {
+                continue;
+            }
+            if (modalidad.getCodigoEnum() != estudiante.getModalidadEstudio().getCodigoEnum()) {
+                continue;
+            }
+            mapMatriculable.put(estudiante.getId(), estudiante);
+        }
+
+        List<Alumno> alumnos = new ArrayList(mapMatriculable.values());
+        System.out.println("Finalmente quedan " + alumnos.size() + " alumnos para ser matriculables");
+
+        for (Alumno alumno : alumnos) {
+            MatriculaResumen matriculable = new MatriculaResumen();
+            matriculable.setAlumno(alumno);
+            matriculable.setCicloAcademico(cicloBD);
+            matriculable.setCreditosMatriculados(0);
+            matriculable.setCreditosRetirados(0);
+            matriculable.setCreditosTrikaPagados(0);
+            matriculable.setCursosMatriculados(0);
+            matriculable.setCursosRetirados(0);
+            matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+            matriculable.setSituacionInicio(alumno.getSituacionAcademica());
+            matriculable.setEsUltimoCiclo(alumno.getCreditosAprobados() >= 172);
+            matriculaResumenDAO.save(matriculable);
+        }
+
     }
 
     @Override

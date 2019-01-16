@@ -4,7 +4,8 @@ Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 new Vue({
     el: '#main',
     data: {
-        reservaaula: {tramite: {alumno: {}, empresa: {}, docente: {}}},
+        reservaaula: {tipoSolicitante: null, tramite: {alumno: {}, empresa: {}, docente: {}}},
+        reservaaulaedit: JSON.parse(reservaAulaJson),
         urlfilter: APP.url("tramite/aula/filteraula"),
         institucion: {pais: {}},
         dataInstitucionModal: {
@@ -47,7 +48,12 @@ new Vue({
                     $vue.reservaaula.horaFin = $(this).val();
                 });
 
-        $vue.$refs.raptor.querie.push({name: 'otros', value: 'xxx'});
+        if ($vue.reservaaulaedit.id != null) {
+            $vue.reservaaula = $vue.reservaaulaedit;
+            $vue.reservados = $vue.reservaaulaedit.reservados;
+            $vue.reloadaulalist();
+        }
+
     },
     updated: function () {
         let $vue = this;
@@ -134,10 +140,6 @@ new Vue({
             if (!valid) {
                 return;
             }
-            if ($vue.reservados.length < 1) {
-                notify("Debe de seleccionar por lo menos un aula", "error");
-                return;
-            }
             $vue.reservaaula.reservados = $vue.reservados;
             $vue.isactiveguardar = true;
             $.ajax({
@@ -190,6 +192,18 @@ new Vue({
                 return v.id;
             });
             $vue.$refs.raptor.querie.push({name: 'aulas', value: aulass.toString()});
+            $vue.$refs.raptor.loadRemoteData();
+        },
+        reloadaulalist() {
+            let $vue = this;
+            var aulass = $vue.reservados.map(function (v, i) {
+                return v.id;
+            });
+            if ($vue.reservados.length > 0) {
+                $vue.$refs.raptor.querie.push({name: 'aulas', value: aulass.toString()});
+            } else {
+                $vue.$refs.raptor.querie.push({name: 'aulas', value: ''});
+            }
             $vue.$refs.raptor.loadRemoteData();
         }
     }
