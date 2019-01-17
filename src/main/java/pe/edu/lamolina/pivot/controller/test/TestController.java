@@ -290,9 +290,9 @@ public class TestController {
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(new ModalidadEstudio(1));
         List<Alumno> alumnosAcumulados = new ArrayList<>();
         for (String year : allYears) {
-            if (TypesUtil.getInt(year) != null && TypesUtil.getInt(year) < 1995) {
+            /* if (TypesUtil.getInt(year) != null && TypesUtil.getInt(year) < 1995) {
                 continue;
-            }
+            }*/
             List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYear(year);
             alumnos = alumnos.stream().filter(x -> x.getModalidadEstudio().isPregrado()).collect(Collectors.toList());
             alumnosAcumulados.addAll(alumnos);
