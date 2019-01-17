@@ -16,11 +16,11 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
-import pe.edu.lamolina.model.atencion.TicketAyuda;
 import pe.edu.lamolina.model.bienestar.AulaReservada;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.EstadoReservaAulaEnum;
+import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoDocIdentidadEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
@@ -115,7 +115,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
     @Override
     public List<Aula> allByDynatableFilterAula(DynatableFilter filter) {
-        return aulaDAO.allByDynatableFilterTramite(filter);
+        return aulaDAO.allByDynatableFilterTramite(filter, TipoAulaEnum.MOD);
     }
 
     @Override
@@ -335,5 +335,10 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
             email = empresa.getEmail();
         }
         mailerService.enviarNotificacionAulaReservaRechazado(nombre, email, contenido);
+    }
+
+    @Override
+    public List<Aula> allAulaModuloByName(String nombre) {
+        return aulaDAO.allAulaModuloByName(nombre, 10, TipoAulaEnum.MOD);
     }
 }

@@ -345,4 +345,31 @@ public class TramiteAulaController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("allAulaModulo")
+    public JsonResponse allAulaModulo(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Aula> aulas = service.allAulaModuloByName(nombre);
+
+            for (Aula aula : aulas) {
+                ObjectNode json = JsonHelper.createJson(aula, JsonNodeFactory.instance, true, new String[]{"*"});
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
 }

@@ -26,9 +26,11 @@ public interface TramiteAulaService {
     void aceptartramite(ReservaAula reservaAula);
 
     void rechazartramite(ReservaAula reservaAula);
-    
+
     ReservaAula findReservaAula(Long idReservaAula);
 
     void update(ReservaAula reservaAula, DataSessionPivot ds);
+
+    List<Aula> allAulaModuloByName(String nombre);
 
 }

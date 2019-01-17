@@ -1,6 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 Vue.component('date-picker', VueBootstrapDatetimePicker.default);
-
 new Vue({
     el: '#main',
     data: {
@@ -21,7 +20,8 @@ new Vue({
         isactiveguardar: false,
         todos: true,
         solodisponible: false,
-        reservados: []
+        reservados: [],
+        moduloselecto: {id: null}
     },
     mounted: function () {
 
@@ -36,7 +36,9 @@ new Vue({
             timeFormat: 'H:i'})
                 .on('change', function () {
                     $vue.reservaaula.horaInicio = $(this).val();
+                    $vue.alterFilterAula();
                 });
+
 
         $($vue.$refs.horaFin).timepicker({
             minuteStep: 15,
@@ -46,18 +48,21 @@ new Vue({
             maxHours: 24, timeFormat: 'H:i'})
                 .on('change', function () {
                     $vue.reservaaula.horaFin = $(this).val();
+                    $vue.alterFilterAula();
                 });
 
-        if ($vue.reservaaulaedit.id != null) {
-            $vue.reservaaula = $vue.reservaaulaedit;
-            $vue.reservados = $vue.reservaaulaedit.reservados;
-            $vue.reloadaulalist();
+
+        if ($vue.reservaaulaedit != null) {
+            if ($vue.reservaaulaedit.id != null) {
+                $vue.reservaaula = $vue.reservaaulaedit;
+                $vue.reservados = $vue.reservaaulaedit.reservados;
+                $vue.reloadaulalist();
+            }
         }
 
     },
     updated: function () {
         let $vue = this;
-
         $($vue.$refs.horaInicio).timepicker({
             minuteStep: 15,
             showSeconds: false,
@@ -67,7 +72,6 @@ new Vue({
             timeFormat: 'H:i'}).on('change', function () {
             $vue.reservaaula.horaInicio = $(this).val();
         });
-
         $($vue.$refs.horaFin).timepicker({
             minuteStep: 15,
             showSeconds: false,
@@ -77,7 +81,6 @@ new Vue({
             timeFormat: 'H:i'}).on('change', function () {
             $vue.reservaaula.horaFin = $(this).val();
         });
-
     },
     methods: {
         changeSoloFecha() {
@@ -132,6 +135,7 @@ new Vue({
             if ($vue.reservaaula.fechaFin == undefined) {
                 $vue.reservaaula.fechaFin = $vue.reservaaula.fechaInicio;
             }
+            $vue.alterFilterAula();
         },
         guardarTramite() {
             let $vue = this;
@@ -204,6 +208,24 @@ new Vue({
             } else {
                 $vue.$refs.raptor.querie.push({name: 'aulas', value: ''});
             }
+            $vue.$refs.raptor.loadRemoteData();
+        },
+        changemodulo() {
+            let $vue = this;
+            if ($vue.moduloselecto.id != null) {
+                $vue.$refs.raptor.querie.push({name: 'modulo', value: $vue.moduloselecto.id});
+            } else {
+                $vue.$refs.raptor.querie.push({name: 'modulo', value: ''});
+            }
+            $vue.$refs.raptor.loadRemoteData();
+        },
+        alterFilterAula() {
+            let $vue = this;
+            $vue.$refs.raptor.querie.push({name: 'fechainicio', value: $vue.reservaaula.fechaInicio});
+            $vue.$refs.raptor.querie.push({name: 'fechafin', value: $vue.reservaaula.fechaFin});
+            $vue.$refs.raptor.querie.push({name: 'horainicio', value: $vue.reservaaula.horaInicio});
+            $vue.$refs.raptor.querie.push({name: 'horafin', value: $vue.reservaaula.horaFin});
+            $vue.$refs.raptor.querie.push({name: 'rangofecha', value: $vue.rangofecha});
             $vue.$refs.raptor.loadRemoteData();
         }
     }
