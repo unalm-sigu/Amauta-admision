@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.horario;
 
+import java.util.Date;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -38,5 +39,7 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
     List<HorarioAula> allBySecciones(List<Seccion> seccions, CicloAcademico cicloOrigen);
 
     List<HorarioAula> allBySeccion(Seccion seccion);
+
+    List<HorarioAula> allByFilterAulaTramite(List<Aula> aulas);
 
 }

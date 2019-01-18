@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.tramiteaula;
 
 import com.google.common.base.Strings;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +29,13 @@ import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -42,8 +47,11 @@ import pe.edu.lamolina.pivot.dao.bienestar.AulaReservadaDAO;
 import pe.edu.lamolina.pivot.dao.bienestar.ReservaAulaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
+import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.EmpresaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
+import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
@@ -94,6 +102,15 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Autowired
     ContenidoCartaDAO contenidoCartaDAO;
 
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+
+    @Autowired
+    HoraDAO horaDAO;
+
+    @Autowired
+    DiaDAO diaDAO;
+
     @Override
     public List<ReservaAula> allDynatableFilter(DynatableFilter filter) {
 
@@ -115,7 +132,77 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
     @Override
     public List<Aula> allByDynatableFilterAula(DynatableFilter filter) {
-        return aulaDAO.allByDynatableFilterTramite(filter, TipoAulaEnum.MOD);
+
+        Map<String, Object> queries = filter.getQueries();
+
+        Date fechainicio = null;
+        Date fechafin = null;
+//        String horainicio = null;
+//        String horafin = null;
+        String diashoras = null;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        if (queries != null) {
+            for (String key : queries.keySet()) {
+                if (key.equals("fechainicio")) {
+                    String value = (String) queries.get(key);
+                    logger.debug("fechainicio {}", value);
+                    if (!Strings.isNullOrEmpty(value)) {
+                        LocalDate dateTime = LocalDate.parse(value, formatter);
+                        fechainicio = java.sql.Date.valueOf(dateTime);
+                        logger.debug("fechainicio {}", fechainicio);
+                    }
+                }
+
+                if (key.equals("fechafin")) {
+                    String value = (String) queries.get(key);
+                    logger.debug("fechafin {}", value);
+                    if (!Strings.isNullOrEmpty(value)) {
+                        LocalDate dateTime = LocalDate.parse(value, formatter);
+                        fechafin = java.sql.Date.valueOf(dateTime);
+                        logger.debug("fechafin {}", fechafin);
+                    }
+                }
+
+//                if (key.equals("horainicio")) {
+//                    horainicio = (String) queries.get(key);
+//                    logger.debug("horainicio {}", horainicio);
+//                }
+//
+//                if (key.equals("horafin")) {
+//                    horafin = (String) queries.get(key);
+//                    logger.debug("horafin {}", horafin);
+//                }
+                if (key.equals("diahora")) {
+                    diashoras = (String) queries.get(key);
+                    logger.debug("diashoras {}", diashoras);
+                }
+            }
+        }
+
+        List<Aula> aulas = aulaDAO.allByDynatableFilterTramite(filter, TipoAulaEnum.MOD);
+
+        if (!Strings.isNullOrEmpty(diashoras)) {
+            String[] diahoras = diashoras.split(",");
+            for (String diahora : diahoras) {
+                String[] iddiahoras = diahora.split("-");
+                
+                
+            }
+        }
+
+        List<HorarioAula> horarios = horarioAulaDAO.allByFilterAulaTramite(aulas);
+
+//        for (Aula aula : aulas) {
+//            aula.setDisponible(Boolean.FALSE);
+//            if (fechafin == null) {
+//                this.unSoloDia(aula, horarios, fechainicio, horainicio, horafin);
+//            } else {
+//                this.rangoDia(aula, horarios, fechainicio, fechafin, horainicio, horafin);
+//            }
+//        }
+        return aulas;
     }
 
     @Override
@@ -340,5 +427,139 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Override
     public List<Aula> allAulaModuloByName(String nombre) {
         return aulaDAO.allAulaModuloByName(nombre, 10, TipoAulaEnum.MOD);
+    }
+
+    private void unSoloDia(Aula aula, List<HorarioAula> horarios, Date fechainicio, String horainicio, String horafin) {
+        logger.debug("un solo dia disponibilidad para {}", aula.getNombrePublico());
+        if (Strings.isNullOrEmpty(horainicio)) {
+            logger.debug("insuficientes datos horainicio null");
+            return;
+        }
+        if (Strings.isNullOrEmpty(horafin)) {
+            logger.debug("insuficientes datos horafin null");
+            return;
+        }
+        if (fechainicio == null) {
+            logger.debug("insuficientes datos fechainicio null");
+            return;
+        }
+
+        horainicio = horainicio.replace(":", "");
+        horafin = horafin.replace(":", "");
+        logger.debug("un solo dia {}", fechainicio);
+
+        Integer inthorainicio = new Integer(horainicio);
+        Integer inthorafin = new Integer(horafin);
+
+        logger.debug("inthorainicio {}", inthorainicio);
+        logger.debug("inthorafin {}", inthorafin);
+
+        Map<Long, List<HorarioAula>> horariosMap = TypesUtil.convertListToMapList("aula.id", horarios);
+        List<HorarioAula> aulasHora = horariosMap.get(aula.getId());
+        logger.debug(" cantidad aula horario ************************* {} size {}", aula.getId(), aulasHora != null ? aulasHora.size() : 0);
+        if (aulasHora != null) {
+            for (HorarioAula horarioAula : aulasHora) {
+                Integer inferior = new Integer(horarioAula.getHora().getCodigo());
+                Integer superior = inferior + 59;
+                logger.debug(" disponibilidad para {} {}", inferior, superior);
+                Date ini = horarioAula.getFechaInicio(), fin = horarioAula.getFechaInicio();
+                boolean intoRange = false;
+                if (ini != null && fin != null) {
+                    intoRange = ini.compareTo(fechainicio) * fin.compareTo(fechainicio) > 0;
+                    logger.debug(" comparando  {} {} con {}  resul {} ", ini, fin, fechainicio, intoRange);
+                }
+                if (intoRange) {
+                    if (inthorainicio <= inferior && inferior < inthorafin) {
+                        aula.setDisponible(Boolean.FALSE);
+                    } else if (inthorainicio <= superior && superior < inthorafin) {
+                        aula.setDisponible(Boolean.FALSE);
+                    } else {
+                        aula.setDisponible(Boolean.TRUE);
+                    }
+                } else {
+                    aula.setDisponible(Boolean.TRUE);
+                }
+            }
+        } else {
+            logger.debug("sin registros en horarioaula");
+            aula.setDisponible(Boolean.TRUE);
+        }
+    }
+
+    private void rangoDia(Aula aula, List<HorarioAula> horarios, Date fechainicio, Date fechafin, String horainicio, String horafin) {
+        logger.debug("rango dias disponibilidad para {}", aula.getNombrePublico());
+        if (Strings.isNullOrEmpty(horainicio)) {
+            logger.debug("insuficientes datos horainicio null");
+            return;
+        }
+        if (Strings.isNullOrEmpty(horafin)) {
+            logger.debug("insuficientes datos horafin null");
+            return;
+        }
+        if (fechainicio == null) {
+            logger.debug("insuficientes datos fechainicio null");
+            return;
+        }
+        if (fechafin == null) {
+            logger.debug("insuficientes datos fechafin null");
+            return;
+        }
+        horainicio = horainicio.replace(":", "");
+        horafin = horafin.replace(":", "");
+
+        logger.debug("rango dias dia {} {}", fechainicio, fechafin);
+
+        Integer inthorainicio = new Integer(horainicio);
+        Integer inthorafin = new Integer(horafin);
+
+        logger.debug("inthorainicio {}", inthorainicio);
+        logger.debug("inthorafin {}", inthorafin);
+
+        Map<Long, List<HorarioAula>> horariosMap = TypesUtil.convertListToMapList("aula.id", horarios);
+        List<HorarioAula> aulasHora = horariosMap.get(aula.getId());
+        logger.debug(" cantidad aula horario ************************* {} size {}", aula.getId(), aulasHora != null ? aulasHora.size() : 0);
+        if (aulasHora != null) {
+            for (HorarioAula horarioAula : aulasHora) {
+
+                Integer inferior = new Integer(horarioAula.getHora().getCodigo());
+                Integer superior = inferior + 59;
+                logger.debug(" disponibilidad para {} {}", inferior, superior);
+                Date ini = horarioAula.getFechaInicio(), fin = horarioAula.getFechaInicio();
+                boolean intoRange = false;
+                boolean intoRange2 = false;
+                if (ini != null && fin != null) {
+                    intoRange = ini.compareTo(fechainicio) * fin.compareTo(fechainicio) > 0;
+                    logger.debug(" comparando  {} {} con {}  resul {} ", ini, fin, fechainicio, intoRange);
+
+                    intoRange2 = ini.compareTo(fechafin) * fin.compareTo(fechafin) > 0;
+                    logger.debug(" comparando  {} {} con {}  resul {} ", ini, fin, fechainicio, intoRange);
+
+                }
+                if (intoRange || intoRange2) {
+                    if (inthorainicio <= inferior && inferior < inthorafin) {
+                        aula.setDisponible(Boolean.FALSE);
+                    } else if (inthorainicio <= superior && superior < inthorafin) {
+                        aula.setDisponible(Boolean.FALSE);
+                    } else {
+                        aula.setDisponible(Boolean.TRUE);
+                    }
+                } else {
+                    aula.setDisponible(Boolean.TRUE);
+                }
+            }
+        } else {
+            logger.debug("sin registros en horarioaula");
+            aula.setDisponible(Boolean.TRUE);
+        }
+    }
+
+    @Override
+    public List<Dia> allDia() {
+        return diaDAO.all();
+    }
+
+    @Override
+    public List<Hora> allHora() {
+        return horaDAO.all();
     }
 }

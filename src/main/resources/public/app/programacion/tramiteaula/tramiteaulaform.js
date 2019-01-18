@@ -21,7 +21,10 @@ new Vue({
         todos: true,
         solodisponible: false,
         reservados: [],
-        moduloselecto: {id: null}
+        moduloselecto: {id: null},
+        dias: [],
+        horas: [],
+        jsonaulahorario: []
     },
     mounted: function () {
 
@@ -60,6 +63,10 @@ new Vue({
             }
         }
 
+        $global.$on("changeHorario", function () {
+            $vue.alterFilterAula();
+        });
+
     },
     updated: function () {
         let $vue = this;
@@ -90,6 +97,7 @@ new Vue({
         changeRangoFecha() {
             let $vue = this;
             $vue.solofecha = !$vue.solofecha;
+            $vue.alterFilterAula();
         },
         addInstitucion() {
             let $vue = this;
@@ -222,11 +230,22 @@ new Vue({
         alterFilterAula() {
             let $vue = this;
             $vue.$refs.raptor.querie.push({name: 'fechainicio', value: $vue.reservaaula.fechaInicio});
-            $vue.$refs.raptor.querie.push({name: 'fechafin', value: $vue.reservaaula.fechaFin});
             $vue.$refs.raptor.querie.push({name: 'horainicio', value: $vue.reservaaula.horaInicio});
             $vue.$refs.raptor.querie.push({name: 'horafin', value: $vue.reservaaula.horaFin});
-            $vue.$refs.raptor.querie.push({name: 'rangofecha', value: $vue.rangofecha});
+            if ($vue.rangofecha) {
+                $vue.$refs.raptor.querie.push({name: 'fechafin', value: $vue.reservaaula.fechaFin});
+            } else {
+                $vue.$refs.raptor.querie.push({name: 'fechafin', value: ''});
+            }
+
+            var diahora = $vue.jsonaulahorario.map(function (v, i) {
+                return v.id;
+            });
+
+            $vue.$refs.raptor.querie.push({name: 'diahora', value: diahora.toString()});
+
             $vue.$refs.raptor.loadRemoteData();
-        }
+
+        },
     }
 });
