@@ -82,6 +82,7 @@
                                                 ref="fechaFin"
                                                 data-parsley-errors-container="#errorfechafin"
                                                 class='form-control' 
+                                                v-on:dp-change="alterFilterAula()"
                                                 required="true"
                                                 v-bind:wrap="true" 
                                                 v-model="reservaaula.fechaFin"></date-picker>
@@ -92,6 +93,13 @@
                                         <span id="errorfechafin"></span>
                                     </div>
                                 </div>
+
+                                <div class="col-sm-12"></div>
+
+                                <aula-horario-component
+                                    v-bind:jsonaulahorario="jsonaulahorario"
+                                    ></aula-horario-component>
+
 
                                 <div class="col-sm-12"></div>
 
@@ -305,9 +313,8 @@
                                                 <p class="text-sm">{{reserva.nombre}}</p>
                                                 <p>{{reserva.aforo}}</p>
 
-                                                <span class="label label-primary"  data-toggle="tooltip" v-bind:title="reserva.motivoAnulacion" v-if="reserva.estado=='ACT'"> {{reserva.estadoEnum.value}} </span>
-                                                <span class="label label-danger"  data-toggle="tooltip" v-bind:title="reserva.motivoAnulacion" v-if="reserva.estado=='INA'"> {{reserva.estadoEnum.value}} </span>
-                                                <span class="label label-default"  data-toggle="tooltip" v-bind:title="reserva.motivoAnulacion" v-if="reserva.estado=='CRE'"> {{reserva.estadoEnum.value}} </span>
+                                                <label class="label label-primary"  v-if="reserva.isDisponible"> Disponible </label>
+                                                <label class="label label-danger"   v-else="reserva.isDisponible"> Ocupado </label>
 
                                             </div>
 
@@ -329,30 +336,53 @@
 
                                         <div slot="header">
 
-                                            <div class="col-sm-3">
-                                                <label class="col-sm-12 control-label">Todos</label>
-                                                <div class="col-sm-12">
-                                                    <label class="switch">
-                                                        <input type="checkbox" 
-                                                               v-model="todos"  
-                                                               v-on:change="changeTodos()"/>
-                                                        <span></span>
-                                                    </label>
+                                            <div class="form-group">
+                                                <vuelect  required="true"
+                                                          placeholder="Módulo"
+                                                          allowclear='true'
+                                                          v-bind:changevalue="changemodulo"
+                                                          formatselection="nombre"
+                                                          v-bind:objetogenerico="moduloselecto"
+                                                          remoteurl="tramite/aula/allAulaModulo"
+                                                          v-model="moduloselecto.id"
+                                                          ></vuelect>
+                                            </div>
+
+
+                                            <div class="col-sm-12"></div>
+
+                                            <div class="row">
+                                                <div class="col-sm-12 row">
+                                                    <div class="col-sm-3">
+                                                        <label class="col-sm-12 control-label">Todos</label>
+                                                        <div class="col-sm-12">
+                                                            <label class="switch">
+                                                                <input type="checkbox" 
+                                                                       v-model="todos"  
+                                                                       v-on:change="changeTodos()"/>
+                                                                <span></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="col-sm-3">
+                                                        <label class="col-sm-12 control-label">Solo disponible</label>
+                                                        <div class="col-sm-12">
+                                                            <label class="switch">
+                                                                <input type="checkbox"
+                                                                       v-model="solodisponible" 
+                                                                       v-on:change="changeSoloDisponible()"/>
+                                                                <span></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+
+
                                                 </div>
                                             </div>
 
 
-                                            <div class="col-sm-3">
-                                                <label class="col-sm-12 control-label">Solo disponible</label>
-                                                <div class="col-sm-12">
-                                                    <label class="switch">
-                                                        <input type="checkbox"
-                                                               v-model="solodisponible" 
-                                                               v-on:change="changeSoloDisponible()"/>
-                                                        <span></span>
-                                                    </label>
-                                                </div>
-                                            </div>
 
 
                                         </div>
@@ -381,9 +411,8 @@
                                                         </td>
 
                                                         <td class="v-middle text-center">
-                                                            <label class="label label-primary"  data-toggle="tooltip" v-bind:title="item.motivoAnulacion" v-if="item.estado=='ACT'"> {{item.estadoEnum.value}} </label>
-                                                            <label class="label label-danger"  data-toggle="tooltip" v-bind:title="item.motivoAnulacion" v-if="item.estado=='INA'"> {{item.estadoEnum.value}} </label>
-                                                            <label class="label label-default"  data-toggle="tooltip" v-bind:title="item.motivoAnulacion" v-if="item.estado=='CRE'"> {{item.estadoEnum.value}} </label>
+                                                            <label class="label label-primary"  v-if="item.isDisponible"> Disponible </label>
+                                                            <label class="label label-danger"   v-else="item.isDisponible"> Ocupado </label>
                                                         </td>
 
                                                         <td class="v-middle text-center">
@@ -477,6 +506,8 @@
 
             <div th:substituteby="_modules/vue-modal"></div>
 
+            <div th:substituteby="programacion/tramiteaula/tramiteaulahorario"></div>
+
             <template  type="text/x-template" id="divBuscarAlumno">
                 <div>
                     <p class="block">
@@ -511,6 +542,7 @@
             <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/programacion/tramiteaula/tramiteaulahorario.js}" charset="utf-8"></script>
             <script th:src="@{/app/programacion/tramiteaula/tramiteaulaform.js}" charset="utf-8"></script>
         </div>
 

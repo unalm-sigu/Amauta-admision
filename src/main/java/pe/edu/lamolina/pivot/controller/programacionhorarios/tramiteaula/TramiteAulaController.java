@@ -36,7 +36,9 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Empresa;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -342,6 +344,78 @@ public class TramiteAulaController {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allAulaModulo")
+    public JsonResponse allAulaModulo(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Aula> aulas = service.allAulaModuloByName(nombre);
+
+            for (Aula aula : aulas) {
+                ObjectNode json = JsonHelper.createJson(aula, JsonNodeFactory.instance, true, new String[]{"*"});
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("loadHorario")
+    public JsonResponse loadHorario(HttpSession session, Model model) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+
+            List<Dia> dias = service.allDia();
+
+            ObjectNode data = new ObjectNode(factory);
+
+            ArrayNode diasJson = new ArrayNode(factory);
+            for (Dia dia : dias) {
+                ObjectNode json = JsonHelper.createJson(dia, factory, true, new String[]{"*"});
+                diasJson.add(json);
+            }
+
+            List<Hora> horas = service.allHora();
+
+            for (Hora hora : horas) {
+                hora.setDias(dias);
+            }
+
+            ArrayNode horasJson = new ArrayNode(factory);
+            for (Hora hora : horas) {
+                ObjectNode json = JsonHelper.createJson(hora, factory, true, new String[]{ "*", "dias.*"});
+                horasJson.add(json);
+            }
+
+            data.set("dias", diasJson);
+
+            data.set("horas", horasJson);
+
+            response.setData(data);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 
