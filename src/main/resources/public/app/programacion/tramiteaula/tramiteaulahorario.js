@@ -42,7 +42,7 @@ Vue.component("aula-horario-component", {
             } else {
                 $vue.jsonaulahorario.push({id: idd, dia: {id: dia.id}, hora: {id: hora.id}});
             }
-            $global.$emit('changeHorario');
+            $global.$emit('changehorario');
         }
     }
 });

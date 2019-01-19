@@ -38,7 +38,7 @@ public interface AulaDAO extends EasyDAO<Aula> {
 
     List<Aula> allByOficinaModulo(Oficina oficina, Aula modulo);
 
-    List<Aula> allByDynatableFilterTramite(DynatableFilter filter, TipoAulaEnum tipoAulaEnum);
+    List<Aula> allByDynatableFilterTramite(DynatableFilter filter,List<Aula> aulasNoIncluidas, TipoAulaEnum tipoAulaEnum);
 
     List<Aula> allAulaModuloByName(String nombre, Integer limit, TipoAulaEnum tipoAulaEnum);
 

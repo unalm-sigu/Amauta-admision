@@ -185,7 +185,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     }
 
     @Override
-    public List<Aula> allByDynatableFilterTramite(DynatableFilter filter, TipoAulaEnum tipoAulaEnum) {
+    public List<Aula> allByDynatableFilterTramite(DynatableFilter filter, List<Aula> aulasNoIncluidas, TipoAulaEnum tipoAulaEnum) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Aula.class, "au")
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
@@ -194,6 +194,10 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .filter("tasu.codigo", tipoAulaEnum)
                 .filter("au.estado", EstadoEnum.ACT.name())
                 .orderBy("au.id desc");
+
+        if (aulasNoIncluidas != null && !aulasNoIncluidas.isEmpty()) {
+            sql.notIn("au.id", aulasNoIncluidas);
+        }
 
         sql.beginRelativeFilters();
         this.setCondicionAulaSeleccionada(filter, sql);
