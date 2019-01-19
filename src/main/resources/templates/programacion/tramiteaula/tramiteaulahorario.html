@@ -1,0 +1,33 @@
+<template id="aulaHorarioComp"> 
+    <div class="" >
+        <table class="table table-bordered" >
+
+            <thead>
+                <tr>
+                    <th style="width: 12.5%" class="text-center">Hora</th>
+                    <th style="width: 12.5%" class="text-center" 
+                        v-for="dia in dias">
+                        {{dia.nombre}}
+                    </th>
+                </tr>
+            </thead>
+            
+            <tbody>
+                <tr v-for="hora in horas">
+
+                    <td class="v-middle">
+                        <span class="bold" >
+                            {{hora.descripcion}}
+                        </span>
+                    </td>
+
+                    <td  v-for="dia in hora.dias" class="text-center pointer"
+                         v-on:click="selectHora( dia , hora)"
+                         v-bind:class="{ 'bg-primary' : dia.selecionado }"  > 
+                    </td>
+                    
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</template>

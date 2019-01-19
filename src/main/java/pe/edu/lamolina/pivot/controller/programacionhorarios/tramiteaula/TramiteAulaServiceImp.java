@@ -1,6 +1,9 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.tramiteaula;
 
 import com.google.common.base.Strings;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.bienestar.AulaReservada;
+import pe.edu.lamolina.model.bienestar.DiaHora;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.EstadoReservaAulaEnum;
@@ -27,10 +31,13 @@ import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -42,8 +49,11 @@ import pe.edu.lamolina.pivot.dao.bienestar.AulaReservadaDAO;
 import pe.edu.lamolina.pivot.dao.bienestar.ReservaAulaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
+import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.EmpresaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
+import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
@@ -94,6 +104,15 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Autowired
     ContenidoCartaDAO contenidoCartaDAO;
 
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+
+    @Autowired
+    HoraDAO horaDAO;
+
+    @Autowired
+    DiaDAO diaDAO;
+
     @Override
     public List<ReservaAula> allDynatableFilter(DynatableFilter filter) {
 
@@ -115,7 +134,105 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
     @Override
     public List<Aula> allByDynatableFilterAula(DynatableFilter filter) {
-        return aulaDAO.allByDynatableFilterTramite(filter, TipoAulaEnum.MOD);
+
+        Map<String, Object> queries = filter.getQueries();
+
+        Date fechainicio = null;
+        Date fechafin = null;
+
+        String diashoraslist = null;
+        boolean solodisponible = false;
+        boolean rangofecha = false;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        if (queries != null) {
+            for (String key : queries.keySet()) {
+                if (key.equals("fechainicio")) {
+                    String value = (String) queries.get(key);
+
+                    if (!Strings.isNullOrEmpty(value)) {
+                        LocalDate dateTime = LocalDate.parse(value, formatter);
+                        fechainicio = java.sql.Date.valueOf(dateTime);
+                    }
+                }
+
+                if (key.equals("fechafin")) {
+                    String value = (String) queries.get(key);
+                    if (!Strings.isNullOrEmpty(value)) {
+                        LocalDate dateTime = LocalDate.parse(value, formatter);
+                        fechafin = java.sql.Date.valueOf(dateTime);
+                    }
+                }
+
+                if (key.equals("diahora")) {
+                    diashoraslist = (String) queries.get(key);
+                }
+
+                if (key.equals("solodisponible")) {
+
+                    String solodisponiblestr = (String) queries.get(key);
+                    if (!Strings.isNullOrEmpty(solodisponiblestr)) {
+                        solodisponible = Boolean.parseBoolean(solodisponiblestr);
+                    }
+                }
+
+                if (key.equals("rangofecha")) {
+
+                    String rangofechastr = (String) queries.get(key);
+                    if (!Strings.isNullOrEmpty(rangofechastr)) {
+                        rangofecha = Boolean.parseBoolean(rangofechastr);
+                    }
+                }
+            }
+        }
+
+        List<String> diashoras = new ArrayList();
+        if (!Strings.isNullOrEmpty(diashoraslist)) {
+            String[] diahoras = diashoraslist.split(",");
+            for (String diahora : diahoras) {
+                diashoras.add(diahora);
+            }
+        }
+
+        List<HorarioAula> horarios = new ArrayList();
+        logger.debug("contiene dias hora {}", !diashoras.isEmpty());
+        if (!diashoras.isEmpty()) {
+            if (rangofecha) {
+                logger.debug("rangofecha {} {} ", fechainicio, fechafin);
+                horarios = horarioAulaDAO.allRangoDiaByDiasHoras(diashoras, fechainicio, fechafin);
+                logger.debug("horarios {} ", horarios.size());
+            } else {
+                logger.debug("solo fecha {} {} ");
+                horarios = horarioAulaDAO.allSoloDiaByDiasHoras(diashoras, fechainicio);
+                logger.debug("horarios {} ", horarios.size());
+            }
+        }
+
+        List<Aula> aulasNoIncluidas = horarios.stream().map(z -> z.getAula()).collect(Collectors.toList());
+        List<Aula> aulas = null;
+
+        if (solodisponible) {
+
+            aulas = aulaDAO.allByDynatableFilterTramite(filter, aulasNoIncluidas, TipoAulaEnum.MOD);
+            for (Aula aula : aulas) {
+                aula.setDisponible(Boolean.TRUE);
+            }
+
+        } else {
+
+            Map<Long, Aula> aulasMap = aulasNoIncluidas.stream().collect(Collectors.toMap(x -> x.getId(), x -> x, (f, s) -> s));
+            aulas = aulaDAO.allByDynatableFilterTramite(filter, null, TipoAulaEnum.MOD);
+            for (Aula aula : aulas) {
+                Aula a = aulasMap.get(aula.getId());
+                aula.setDisponible(Boolean.TRUE);
+                if (a != null) {
+                    aula.setDisponible(Boolean.FALSE);
+                }
+            }
+
+        }
+        return aulas;
     }
 
     @Override
@@ -193,11 +310,19 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         }
         reservaAulaDAO.save(reservaAula);
 
+        List<DiaHora> diaHoras = reservaAula.getDiahora();
+
         for (Aula aula : aulas) {
-            AulaReservada aulaReservada = new AulaReservada();
-            aulaReservada.setAula(aula);
-            aulaReservada.setReservaAula(reservaAula);
-            aulaReservadaDAO.save(aulaReservada);
+            if (diaHoras != null) {
+                for (DiaHora diaHora : diaHoras) {
+                    AulaReservada aulaReservada = new AulaReservada();
+                    aulaReservada.setAula(aula);
+                    aulaReservada.setDia(diaHora.getDia());
+                    aulaReservada.setHora(diaHora.getHora());
+                    aulaReservada.setReservaAula(reservaAula);
+                    aulaReservadaDAO.save(aulaReservada);
+                }
+            }
         }
     }
 
@@ -253,11 +378,18 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         reservaAulaDAO.update(reservaAulaForm);
         aulaReservadaDAO.deleteAllByReservaAula(reservaAulaForm);
 
+        List<DiaHora> diaHoras = reservaAula.getDiahora();
         for (Aula aula : aulas) {
-            AulaReservada aulaReservada = new AulaReservada();
-            aulaReservada.setAula(aula);
-            aulaReservada.setReservaAula(reservaAula);
-            aulaReservadaDAO.save(aulaReservada);
+            if (diaHoras != null) {
+                for (DiaHora diaHora : diaHoras) {
+                    AulaReservada aulaReservada = new AulaReservada();
+                    aulaReservada.setAula(aula);
+                    aulaReservada.setDia(diaHora.getDia());
+                    aulaReservada.setHora(diaHora.getHora());
+                    aulaReservada.setReservaAula(reservaAula);
+                    aulaReservadaDAO.save(aulaReservada);
+                }
+            }
         }
     }
 
@@ -340,5 +472,15 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Override
     public List<Aula> allAulaModuloByName(String nombre) {
         return aulaDAO.allAulaModuloByName(nombre, 10, TipoAulaEnum.MOD);
+    }
+
+    @Override
+    public List<Dia> allDia() {
+        return diaDAO.all();
+    }
+
+    @Override
+    public List<Hora> allHora() {
+        return horaDAO.all();
     }
 }

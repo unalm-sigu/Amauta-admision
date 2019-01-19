@@ -23,10 +23,10 @@
                 <section class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
-                            
+
                             <form  method="post" ref="formtramite"   data-parsley-validate="true">
 
-                                <div class="col-sm-3">
+<!--                                <div class="col-sm-3">
                                     <label class="col-sm-12 control-label">Solo Una Fecha</label>
                                     <div class="col-sm-12">
                                         <label class="switch">
@@ -36,7 +36,7 @@
                                             <span></span>
                                         </label>
                                     </div>
-                                </div>
+                                </div>-->
 
                                 <div class="col-sm-3">
                                     <label class="col-sm-12 control-label">Rango de Fecha</label>
@@ -53,7 +53,7 @@
 
                                 <div class="col-sm-3">
                                     <div class="form-group">
-                                        <label v-show="solofecha">Fecha </label>
+                                        <label v-show="solofecha">Unica Fecha </label>
                                         <label v-show="rangofecha">Fecha Inicio </label>
                                         <div class='input-group'>
                                             <date-picker 
@@ -82,7 +82,7 @@
                                                 ref="fechaFin"
                                                 data-parsley-errors-container="#errorfechafin"
                                                 class='form-control' 
-                                                v-on:dp-change="alterFilterAula()"
+                                                v-on:dp-change="changeFechaFin()"
                                                 required="true"
                                                 v-bind:wrap="true" 
                                                 v-model="reservaaula.fechaFin"></date-picker>
@@ -96,43 +96,9 @@
 
                                 <div class="col-sm-12"></div>
 
-                                <div class="col-sm-3">
-                                    <div class="form-group">
-                                        <label>Hora Inicio </label>
-                                        <div class='input-group bootstrap-timepicker timepicker'>
-                                            <input 
-                                                name="horaInicio"
-                                                ref="horaInicio"
-                                                class='form-control' 
-                                                data-parsley-errors-container="#errorhorainicio"
-                                                required="true"
-                                                v-model="reservaaula.horaInicio"></input>
-                                            <span class="input-group-addon pointer">
-                                                <i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            </span>
-                                        </div>
-                                        <span id="errorhorainicio"></span>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-3">
-                                    <div class="form-group">
-                                        <label>Hora Fin </label>
-                                        <div class='input-group bootstrap-timepicker timepicker'>
-                                            <input 
-                                                name="horaFin"
-                                                ref="horaFin"
-                                                class='form-control' 
-                                                data-parsley-errors-container="#errorhorafin"
-                                                required="true"
-                                                v-model="reservaaula.horaFin"></input>
-                                            <span class="input-group-addon pointer">
-                                                <i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            </span>
-                                        </div>
-                                        <span id="errorhorafin"></span>
-                                    </div>
-                                </div>
+                                <aula-horario-component
+                                    v-bind:jsonaulahorario="jsonaulahorario"
+                                    ></aula-horario-component>
 
 
                                 <div class="col-sm-12"></div>
@@ -294,21 +260,17 @@
                                 <div class="row">
                                     <div v-for="reserva in reservados" class="col-sm-3 col-xs-4">
 
-                                        <div class="thumbnail" style="overflow-x: hidden">
+                                        <div class="thumbnail" style="overflow-x: hidden;min-height: 130px">
 
-                                            <a class="text-danger m-l-sm" v-on:click.prevent="deleteReservado(reserva)" href="#">
+                                            <a class="text-danger m-l-sm pull-right m-r-xs" v-on:click.prevent="deleteReservado(reserva)" href="#">
                                                 <i class="fa fa-trash-o" aria-hidden="true"></i>
                                             </a>
 
                                             <div class="caption m-t-n-md">
 
                                                 <h4>{{reserva.codigo}}</h4>
-                                                <p class="text-sm">{{reserva.nombre}}</p>
-                                                <p>{{reserva.aforo}}</p>
-
-                                                <span class="label label-primary"  data-toggle="tooltip" v-bind:title="reserva.motivoAnulacion" v-if="reserva.estado=='ACT'"> {{reserva.estadoEnum.value}} </span>
-                                                <span class="label label-danger"  data-toggle="tooltip" v-bind:title="reserva.motivoAnulacion" v-if="reserva.estado=='INA'"> {{reserva.estadoEnum.value}} </span>
-                                                <span class="label label-default"  data-toggle="tooltip" v-bind:title="reserva.motivoAnulacion" v-if="reserva.estado=='CRE'"> {{reserva.estadoEnum.value}} </span>
+                                                <p class="text-xs">{{reserva.nombre}}</p>
+                                                <p class="text-xs"> <b>Aforo:</b> {{reserva.aforo}}</p>
 
                                             </div>
 
@@ -329,7 +291,7 @@
                                         ref="raptor">
 
                                         <div slot="header">
-                                            
+
                                             <div class="form-group">
                                                 <vuelect  required="true"
                                                           placeholder="Módulo"
@@ -347,7 +309,7 @@
 
                                             <div class="row">
                                                 <div class="col-sm-12 row">
-                                                    <div class="col-sm-3">
+<!--                                                    <div class="col-sm-3">
                                                         <label class="col-sm-12 control-label">Todos</label>
                                                         <div class="col-sm-12">
                                                             <label class="switch">
@@ -357,7 +319,7 @@
                                                                 <span></span>
                                                             </label>
                                                         </div>
-                                                    </div>
+                                                    </div>-->
 
 
                                                     <div class="col-sm-3">
@@ -371,8 +333,8 @@
                                                             </label>
                                                         </div>
                                                     </div>
-                                                    
-                                                    
+
+
                                                 </div>
                                             </div>
 
@@ -405,9 +367,8 @@
                                                         </td>
 
                                                         <td class="v-middle text-center">
-                                                            <label class="label label-primary"  data-toggle="tooltip" v-bind:title="item.motivoAnulacion" v-if="item.estado=='ACT'"> {{item.estadoEnum.value}} </label>
-                                                            <label class="label label-danger"  data-toggle="tooltip" v-bind:title="item.motivoAnulacion" v-if="item.estado=='INA'"> {{item.estadoEnum.value}} </label>
-                                                            <label class="label label-default"  data-toggle="tooltip" v-bind:title="item.motivoAnulacion" v-if="item.estado=='CRE'"> {{item.estadoEnum.value}} </label>
+                                                            <label class="label label-primary"  v-if="item.isDisponible"> Disponible </label>
+                                                            <label class="label label-danger"   v-else="item.isDisponible"> Ocupado </label>
                                                         </td>
 
                                                         <td class="v-middle text-center">
@@ -415,9 +376,7 @@
                                                         </td>
 
                                                         <td class="v-middle">
-
-
-                                                            <a href="#" v-on:click.prevent="addAula(item)">
+                                                            <a v-if="item.isDisponible" href="#" v-on:click.prevent="addAula(item)">
                                                                 <i class="fa fa-plus pointer text-primary" aria-hidden="true"></i>
 
                                                             </a>
@@ -501,6 +460,8 @@
 
             <div th:substituteby="_modules/vue-modal"></div>
 
+            <div th:substituteby="programacion/tramiteaula/tramiteaulahorario"></div>
+
             <template  type="text/x-template" id="divBuscarAlumno">
                 <div>
                     <p class="block">
@@ -535,6 +496,7 @@
             <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/programacion/tramiteaula/tramiteaulahorario.js}" charset="utf-8"></script>
             <script th:src="@{/app/programacion/tramiteaula/tramiteaulaform.js}" charset="utf-8"></script>
         </div>
 
