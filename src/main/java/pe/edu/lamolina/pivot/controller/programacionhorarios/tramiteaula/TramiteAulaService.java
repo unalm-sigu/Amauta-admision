@@ -6,7 +6,9 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Empresa;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface TramiteAulaService {
@@ -26,9 +28,15 @@ public interface TramiteAulaService {
     void aceptartramite(ReservaAula reservaAula);
 
     void rechazartramite(ReservaAula reservaAula);
-    
+
     ReservaAula findReservaAula(Long idReservaAula);
 
     void update(ReservaAula reservaAula, DataSessionPivot ds);
+
+    List<Aula> allAulaModuloByName(String nombre);
+
+    List<Dia> allDia();
+
+    List<Hora> allHora();
 
 }

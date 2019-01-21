@@ -264,6 +264,7 @@ public class TestController {
         logger.info("promediarAll");
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
         CicloAcademico cicloAcademico = cicloAcademicoDAO.find(new CicloAcademico(cicloId));
         List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
         logger.info("matriculas resumen encontradas {}", matriculasResumen.size());
@@ -273,7 +274,7 @@ public class TestController {
         for (MatriculaResumen mResumen : matriculasResumen) {
             Alumno alumno = mResumen.getAlumno();
             List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
-            promedioService.promediarAllCicloAsync(alumno, cicloAcademico, alumnosCicloCursoByAlumno, ds);
+            promedioService.promediarAllCicloAsync(alumno, cicloAcademico, ciclos, alumnosCicloCursoByAlumno, ds);
         }
         return "yeah";
     }
@@ -284,30 +285,24 @@ public class TestController {
         logger.info("promediarful");
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<String> allYears = alumnoDAO.allYearsCiclos();
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
 
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(new ModalidadEstudio(1));
         List<Alumno> alumnosAcumulados = new ArrayList<>();
         for (String year : allYears) {
-            if (TypesUtil.getInt(year) != null && TypesUtil.getInt(year) < 1995) {
+            /*
+            if (TypesUtil.getInt(year) != null && TypesUtil.getInt(year) < 2015) {
                 continue;
             }
+             */
             List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYear(year);
             alumnos = alumnos.stream().filter(x -> x.getModalidadEstudio().isPregrado()).collect(Collectors.toList());
             alumnosAcumulados.addAll(alumnos);
             logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
-            //   List<AlumnoCicloCurso> alumnosCiclosCursos = alumnoCicloCursoDAO.allOperativesPendingByYear(year);
-            /*
-            contadorComponent.iniciar(alumnos.size());
-            for (Alumno alumno : alumnos) {
-                if (!alumno.isPregrado()) {
-                    continue;
-                }
-                promedioService.promediarAllCicloAsync(alumno, cicloActivo, null, ds);
-            }*/
         }
         contadorComponent.iniciar(alumnosAcumulados.size());
         for (Alumno alumno : alumnosAcumulados) {
-            promedioService.promediarAllCicloAsync(alumno, cicloActivo, null, ds);
+            promedioService.promediarAllCicloAsync(alumno, cicloActivo, ciclos, null, ds);
         }
 
         return "yeah";
@@ -320,6 +315,7 @@ public class TestController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         visorCalculoNotas.iniciar();
+        List<CicloAcademico> ciclosAll = cicloAcademicoDAO.all();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allByCodigo(cicloCod);
         List<String> ciclosStr = ciclos.stream().map(x -> x.toString()).collect(Collectors.toList());
         logger.info("ciclos encontrados {}", String.join(",", String.join(",", ciclosStr)));
@@ -336,7 +332,7 @@ public class TestController {
                 if (!alumno.isPregrado()) {
                     continue;
                 }
-                promedioService.promediarAllCicloAsync(alumno, cicloAcademico, null, ds);
+                promedioService.promediarAllCicloAsync(alumno, cicloAcademico, ciclosAll, null, ds);
             }
         }
         return "yeah";

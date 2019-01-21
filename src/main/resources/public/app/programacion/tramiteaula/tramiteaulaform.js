@@ -1,6 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 Vue.component('date-picker', VueBootstrapDatetimePicker.default);
-
 new Vue({
     el: '#main',
     data: {
@@ -21,72 +20,43 @@ new Vue({
         isactiveguardar: false,
         todos: true,
         solodisponible: false,
-        reservados: []
+        reservados: [],
+        moduloselecto: {id: null},
+        dias: [],
+        horas: [],
+        jsonaulahorario: []
     },
     mounted: function () {
 
         let $vue = this;
 
-        $($vue.$refs.horaInicio).timepicker({
-            minuteStep: 15,
-            showSeconds: false,
-            showMeridian: false,
-            defaultTime: false,
-            maxHours: 24,
-            timeFormat: 'H:i'})
-                .on('change', function () {
-                    $vue.reservaaula.horaInicio = $(this).val();
-                });
-
-        $($vue.$refs.horaFin).timepicker({
-            minuteStep: 15,
-            showSeconds: false,
-            showMeridian: false,
-            defaultTime: false,
-            maxHours: 24, timeFormat: 'H:i'})
-                .on('change', function () {
-                    $vue.reservaaula.horaFin = $(this).val();
-                });
-
-        if ($vue.reservaaulaedit.id != null) {
-            $vue.reservaaula = $vue.reservaaulaedit;
-            $vue.reservados = $vue.reservaaulaedit.reservados;
-            $vue.reloadaulalist();
+        if ($vue.reservaaulaedit != null) {
+            if ($vue.reservaaulaedit.id != null) {
+                $vue.reservaaula = $vue.reservaaulaedit;
+                $vue.reservados = $vue.reservaaulaedit.reservados;
+                $vue.reloadaulalist();
+            }
         }
+
+        $global.$on("changehorario", function () {
+            $vue.changehorario();
+        });
 
     },
     updated: function () {
         let $vue = this;
-
-        $($vue.$refs.horaInicio).timepicker({
-            minuteStep: 15,
-            showSeconds: false,
-            showMeridian: false,
-            defaultTime: false,
-            maxHours: 24,
-            timeFormat: 'H:i'}).on('change', function () {
-            $vue.reservaaula.horaInicio = $(this).val();
-        });
-
-        $($vue.$refs.horaFin).timepicker({
-            minuteStep: 15,
-            showSeconds: false,
-            showMeridian: false,
-            defaultTime: false,
-            maxHours: 24,
-            timeFormat: 'H:i'}).on('change', function () {
-            $vue.reservaaula.horaFin = $(this).val();
-        });
-
     },
     methods: {
         changeSoloFecha() {
             let $vue = this;
+            $vue.reservados = [];
             $vue.rangofecha = !$vue.rangofecha;
         },
         changeRangoFecha() {
             let $vue = this;
+            $vue.reservados = [];
             $vue.solofecha = !$vue.solofecha;
+            $vue.changefilteraula();
         },
         addInstitucion() {
             let $vue = this;
@@ -132,6 +102,13 @@ new Vue({
             if ($vue.reservaaula.fechaFin == undefined) {
                 $vue.reservaaula.fechaFin = $vue.reservaaula.fechaInicio;
             }
+            $vue.reservados = [];
+            $vue.changefilteraula();
+        },
+        changeFechaFin() {
+            let $vue = this;
+            $vue.reservados = [];
+            $vue.changefilteraula();
         },
         guardarTramite() {
             let $vue = this;
@@ -141,6 +118,7 @@ new Vue({
                 return;
             }
             $vue.reservaaula.reservados = $vue.reservados;
+            $vue.reservaaula.diahora = $vue.jsonaulahorario;
             $vue.isactiveguardar = true;
             $.ajax({
                 method: 'POST',
@@ -164,47 +142,64 @@ new Vue({
             });
         },
         changeTodos() {
+
             let $vue = this;
             $vue.solodisponible = !$vue.solodisponible;
         },
         changeSoloDisponible() {
+
             let $vue = this;
             $vue.todos = !$vue.todos;
+            $vue.changefilteraula();
         },
         deleteReservado(reserva) {
+
             let $vue = this;
             let indx = $vue.reservados.indexOf(reserva);
             $vue.reservados.splice(indx, 1);
-            var aulass = $vue.reservados.map(function (v, i) {
-                return v.id;
-            });
-            if ($vue.reservados.length > 0) {
-                $vue.$refs.raptor.querie.push({name: 'aulas', value: aulass.toString()});
-            } else {
-                $vue.$refs.raptor.querie.push({name: 'aulas', value: ''});
-            }
-            $vue.$refs.raptor.loadRemoteData();
+            $vue.changefilteraula();
         },
         addAula(aula) {
+
             let $vue = this;
             $vue.reservados.push(aula);
+            $vue.changefilteraula();
+        },
+        changefilteraula() {
+
+            let $vue = this;
+
+            $vue.$refs.raptor.querie.push({name: 'solodisponible', value: $vue.solodisponible});
+            $vue.$refs.raptor.querie.push({name: 'fechainicio', value: $vue.reservaaula.fechaInicio});
+            $vue.$refs.raptor.querie.push({name: 'horainicio', value: $vue.reservaaula.horaInicio});
+            $vue.$refs.raptor.querie.push({name: 'horafin', value: $vue.reservaaula.horaFin});
+            $vue.$refs.raptor.querie.push({name: 'rangofecha', value: $vue.rangofecha});
+
+            $vue.$refs.raptor.querie.push({name: 'fechafin', value: $vue.rangofecha ? $vue.reservaaula.fechaFin : ''});
+            $vue.$refs.raptor.querie.push({name: 'modulo', value: $vue.moduloselecto.id != null ? $vue.moduloselecto.id : ''});
+
+            var diahora = $vue.jsonaulahorario.map(function (v, i) {
+                return v.id;
+            });
+
+            $vue.$refs.raptor.querie.push({name: 'diahora', value: diahora.toString()});
+
             var aulass = $vue.reservados.map(function (v, i) {
                 return v.id;
             });
-            $vue.$refs.raptor.querie.push({name: 'aulas', value: aulass.toString()});
+
+            $vue.$refs.raptor.querie.push({name: 'aulas', value: $vue.reservados.length > 0 ? aulass.toString() : ''});
+
             $vue.$refs.raptor.loadRemoteData();
         },
-        reloadaulalist() {
+        changehorario() {
             let $vue = this;
-            var aulass = $vue.reservados.map(function (v, i) {
-                return v.id;
-            });
-            if ($vue.reservados.length > 0) {
-                $vue.$refs.raptor.querie.push({name: 'aulas', value: aulass.toString()});
-            } else {
-                $vue.$refs.raptor.querie.push({name: 'aulas', value: ''});
-            }
-            $vue.$refs.raptor.loadRemoteData();
+            $vue.reservados = [];
+            $vue.changefilteraula();
+        },
+        changemodulo() {
+            let $vue = this;
+            $vue.changefilteraula();
         }
     }
 });
