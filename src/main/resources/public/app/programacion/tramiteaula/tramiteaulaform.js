@@ -39,6 +39,8 @@ new Vue({
         isSearchingPais: false,
         tiposolicitante: [],
         capacidadseleccinado: 0,
+        capacidadfaltante: 0,
+        totalaulas: 0,
     },
     mounted: function () {
 
@@ -189,7 +191,7 @@ new Vue({
             let $vue = this;
             if ($vue.reservaaula.aforo) {
                 if ($vue.capacidadseleccinado) {
-                    if (parseInt($vue.capacidadseleccinado) > parseInt($vue.reservaaula.aforo)) {
+                    if (parseInt($vue.capacidadseleccinado) >= parseInt($vue.reservaaula.aforo)) {
                         notify("a sobrepasado su requerimiento", "error");
                         return;
                     }
@@ -234,6 +236,7 @@ new Vue({
             let $vue = this;
             $vue.reservados = [];
             $vue.changefilteraula();
+            $vue.changeCapacidadSeleccionado();
         },
         changemodulo() {
             let $vue = this;
@@ -374,6 +377,8 @@ new Vue({
                 total += obj.capacidadAula;
             });
             $vue.capacidadseleccinado = total;
+            $vue.capacidadfaltante = $vue.reservaaula.aforo - $vue.capacidadseleccinado;
+            $vue.totalaulas = $vue.reservados.length;
         },
         validarrangofecha(dia, hora) {
             let $vue = this;
@@ -402,7 +407,12 @@ new Vue({
         },
         clearHorario() {
             let $vue = this;
+            $vue.changeCapacidadSeleccionado();
             $global.$emit('clearhorario');
+        },
+        changeTotalAforo() {
+            let $vue = this;
+            $vue.changeCapacidadSeleccionado();
         }
     }
 });

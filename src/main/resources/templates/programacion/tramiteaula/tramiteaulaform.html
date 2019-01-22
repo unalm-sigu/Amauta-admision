@@ -96,7 +96,7 @@
                                     <div class="form-group">
                                         <label>Capacidad Total</label>
 
-                                        <input type="text"  v-model="reservaaula.aforo" class="form-control" />
+                                        <input v-on:change="changeTotalAforo()" type="text"  v-model="reservaaula.aforo" class="form-control" />
 
                                     </div>
                                 </div>
@@ -150,8 +150,8 @@
 
                                     </div>
                                 </div>
-                                
-                                                     <div v-show="variosambiente" class="col-sm-3">
+
+                                <div v-show="variosambiente" class="col-sm-3">
                                     <div class="form-group">
                                         <label>Capacidad Máxima del Ambiente </label>
 
@@ -298,6 +298,13 @@
 
                                 <div class="line line-dashed b-b line-lg pull-in col-xs-12"></div>
 
+                                <p>Capacidad seleccionada: <b v-text="capacidadseleccinado"></b>  </p>
+                                <p  v-if="capacidadfaltante>0" class="text-danger">Capacidad faltante: <b v-text="capacidadfaltante"></b>  </p>
+                                <p  v-else="capacidadfaltante>0" class="text-primary">Capacidad Exceso: <b v-text="Math.abs(capacidadfaltante)"></b>  </p>
+                                <p>Total de Aulas: <b v-text="totalaulas"></b>  </p>
+                                
+                                <div class="col-sm-12"></div>
+
 
                                 <div class="col-xs-12">
 
@@ -328,8 +335,6 @@
 
                                             </div>
 
-                                            <div class="col-sm-12"></div>
-                                            <p>Capacidad seleccionada {{capacidadseleccinado}}</p>
                                             <div class="col-sm-12"></div>
 
                                             <div class="row">
