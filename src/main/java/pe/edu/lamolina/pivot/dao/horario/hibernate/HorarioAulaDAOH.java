@@ -233,6 +233,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .beginBlock()
                 .__().between("ha.fechaInicio", fechainicio, fechafin)
                 .__().between("ha.fechaFin", fechainicio, fechafin)
+                .__().filter("ha.fechaInicio", "<=", fechainicio).filter("ha.fechaFin", ">=", fechainicio)
                 .endBlock()
                 .complexFilter("concat(d.id,'-',h.id)", "in", diashoras);
         return all(sql);

@@ -57,6 +57,7 @@ import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
+import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
@@ -1955,6 +1956,7 @@ public class ProgDataServiceImp implements ProgDataService {
                         nuevo.setFechaInicio(eventoAcademico.getFechaInicio());
                         nuevo.setFechaFin(eventoAcademico.getFechaFin());
                     }
+                    nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
                     horarioSeccionDAO.save(nuevo);
                     horarios.add(nuevo);
                 }
@@ -2000,6 +2002,7 @@ public class ProgDataServiceImp implements ProgDataService {
                         nuevo.setFechaInicio(eventoAcademico.getFechaInicio());
                         nuevo.setFechaFin(eventoAcademico.getFechaFin());
                     }
+                    nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
                     horarioAulaDAO.save(nuevo);
                 }
 

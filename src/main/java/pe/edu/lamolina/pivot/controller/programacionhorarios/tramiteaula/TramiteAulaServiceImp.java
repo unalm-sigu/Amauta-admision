@@ -211,12 +211,16 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         }
 
         List<Aula> aulasNoIncluidas = horarios.stream().map(z -> z.getAula()).collect(Collectors.toList());
+        logger.debug("aulasNoIncluidas {}",aulasNoIncluidas.size());
+        for (Aula aulasNoIncluida : aulasNoIncluidas) {
+            logger.debug("aulasNoIncluidas {} {} ", aulasNoIncluida.getId(), aulasNoIncluida.getCodigo());
+        }
         List<Aula> aulas = null;
 
         if (solodisponible) {
 
             aulas = aulaDAO.allByDynatableFilterTramite(filter, aulasNoIncluidas, ds.getOficinaMain());
-            
+
             for (Aula aula : aulas) {
                 aula.setDisponible(Boolean.TRUE);
             }
