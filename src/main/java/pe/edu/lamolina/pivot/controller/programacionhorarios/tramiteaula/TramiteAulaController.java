@@ -85,10 +85,17 @@ public class TramiteAulaController {
 
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
-        List<TipoSolicitanteEnum> tiposSolicitante = Arrays.stream(TipoSolicitanteEnum.values())
-                .filter(value -> !TipoSolicitanteEnum.PER.name().equals(value.name()))
-                .collect(Collectors.toList());
-        model.addAttribute("tiposSolicitante", tiposSolicitante);
+        JsonNodeFactory jFactory = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(jFactory);
+        for (TipoSolicitanteEnum aula : TipoSolicitanteEnum.values()) {
+            if (!TipoSolicitanteEnum.PER.name().equals(aula.name())) {
+                ObjectNode node = new ObjectNode(jFactory);
+                node.put("id", aula.name());
+                node.put("nombre", aula.getValue());
+                array.add(node);
+            }
+        }
+        model.addAttribute("tiposSolicitante", array.toString());
         return "programacion/tramiteaula/tramiteaulaform";
     }
 
@@ -121,12 +128,19 @@ public class TramiteAulaController {
 
     @RequestMapping("{idtramite}/update")
     public String update(@PathVariable Long idtramite, Model model, HttpSession session) {
-        List<TipoSolicitanteEnum> tiposSolicitante = Arrays.stream(TipoSolicitanteEnum.values())
-                .filter(value -> !TipoSolicitanteEnum.PER.name().equals(value.name()))
-                .collect(Collectors.toList());
-        model.addAttribute("tiposSolicitante", tiposSolicitante);
-        ReservaAula reservaAula = service.findReservaAula(idtramite);
+
         JsonNodeFactory jFactory = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(jFactory);
+        for (TipoSolicitanteEnum aula : TipoSolicitanteEnum.values()) {
+            if (!TipoSolicitanteEnum.PER.name().equals(aula.name())) {
+                ObjectNode node = new ObjectNode(jFactory);
+                node.put("id", aula.name());
+                node.put("nombre", aula.getValue());
+                array.add(node);
+            }
+        }
+        model.addAttribute("tiposSolicitante", array.toString());
+        ReservaAula reservaAula = service.findReservaAula(idtramite);
         ObjectNode reservaAulaNode = JsonHelper.createJson(reservaAula, jFactory, true, new String[]{
             "*",
             "tramite.id",
@@ -188,7 +202,7 @@ public class TramiteAulaController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            List<Aula> aulas = service.allByDynatableFilterAula(filter);
+            List<Aula> aulas = service.allByDynatableFilterAula(filter,ds);
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
             ArrayNode array = new ArrayNode(jFactory);
@@ -224,7 +238,8 @@ public class TramiteAulaController {
             Empresa institucionBD = service.saveInstitucion(insticion);
             ObjectNode node = JsonHelper.createJson(institucionBD, JsonNodeFactory.instance, true,
                     new String[]{
-                        "*"
+                        "id",
+                        "razonSocial"
                     });
             response.setData(node);
             response.setSuccess(true);
@@ -355,9 +370,11 @@ public class TramiteAulaController {
 
         try {
 
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             ArrayNode jsonList = new ArrayNode(jsonFactory);
-            List<Aula> aulas = service.allAulaModuloByName(nombre);
+            List<Aula> aulas = service.allAulaModuloByName(nombre, ds);
 
             for (Aula aula : aulas) {
                 ObjectNode json = JsonHelper.createJson(aula, JsonNodeFactory.instance, true, new String[]{"*"});
@@ -400,7 +417,7 @@ public class TramiteAulaController {
 
             ArrayNode horasJson = new ArrayNode(factory);
             for (Hora hora : horas) {
-                ObjectNode json = JsonHelper.createJson(hora, factory, true, new String[]{ "*", "dias.*"});
+                ObjectNode json = JsonHelper.createJson(hora, factory, true, new String[]{"*", "dias.*"});
                 horasJson.add(json);
             }
 

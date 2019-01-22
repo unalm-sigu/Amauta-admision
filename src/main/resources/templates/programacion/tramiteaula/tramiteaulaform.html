@@ -26,18 +26,6 @@
 
                             <form  method="post" ref="formtramite"   data-parsley-validate="true">
 
-<!--                                <div class="col-sm-3">
-                                    <label class="col-sm-12 control-label">Solo Una Fecha</label>
-                                    <div class="col-sm-12">
-                                        <label class="switch">
-                                            <input type="checkbox" 
-                                                   v-model="solofecha" 
-                                                   v-on:change="changeSoloFecha()"/>
-                                            <span></span>
-                                        </label>
-                                    </div>
-                                </div>-->
-
                                 <div class="col-sm-3">
                                     <label class="col-sm-12 control-label">Rango de Fecha</label>
                                     <div class="col-sm-12">
@@ -57,7 +45,7 @@
                                         <label v-show="rangofecha">Fecha Inicio </label>
                                         <div class='input-group'>
                                             <date-picker 
-                                                v-bind:config="{format: 'DD/MM/YYYY'}" 
+                                                v-bind:config="{format: 'DD/MM/YYYY',useCurrent: false}" 
                                                 name="fechaInicio"
                                                 ref="fechaInicio"
                                                 class='form-control' 
@@ -98,6 +86,7 @@
 
                                 <aula-horario-component
                                     v-bind:jsonaulahorario="jsonaulahorario"
+                                    v-bind:validarrangofecha="validarrangofecha"
                                     ></aula-horario-component>
 
 
@@ -105,14 +94,14 @@
 
                                 <div class="col-sm-3">
                                     <div class="form-group">
-                                        <label>Capacidad </label>
+                                        <label>Capacidad Total</label>
 
                                         <input type="text"  v-model="reservaaula.aforo" class="form-control" />
 
                                     </div>
                                 </div>
 
-                                <div class="col-sm-3">
+                                <div v-show="variosambiente" class="col-sm-3">
                                     <div class="form-group">
                                         <label>Cantidad Ambiente </label>
 
@@ -153,16 +142,24 @@
                                     <div class="form-group">
                                         <label>Capacidad Mínima del Ambiente </label>
 
-                                        <input type="text" v-model="reservaaula.capacidadMinimaAmbiente" class="form-control" />
+                                        <input ref="capacidadMinimaAmbiente" 
+                                               type="text" 
+                                               v-on:change="changeCapacidadMinima" 
+                                               v-model="reservaaula.capacidadMinimaAmbiente" 
+                                               class="form-control" />
 
                                     </div>
                                 </div>
-
-                                <div v-show="variosambiente" class="col-sm-3">
+                                
+                                                     <div v-show="variosambiente" class="col-sm-3">
                                     <div class="form-group">
                                         <label>Capacidad Máxima del Ambiente </label>
 
-                                        <input type="text" v-model="reservaaula.capacidadMaximaAmbiente" class="form-control" />
+                                        <input ref="capacidadMaximaAmbiente" 
+                                               type="text" 
+                                               v-on:change="changeCapacidadMaxima" 
+                                               v-model="reservaaula.capacidadMaximaAmbiente" 
+                                               class="form-control" />
 
                                     </div>
                                 </div>
@@ -173,9 +170,20 @@
                                     <div class="form-group">
                                         <label>Solicitante </label>
 
-                                        <select class="form-control"  v-model="reservaaula.tramite.tipoSolicitante" >
-                                            <option th:each="item:${tiposSolicitante}" th:value="${item.name()}" th:text="${item.value}">Alumno</option>
-                                        </select>
+                                        <multiselect 
+                                            v-model='tiposolicitante'
+                                            v-bind:internal-search='false'
+                                            v-bind:limit='15'
+                                            v-bind:options='tiposSolicitante'
+                                            v-bind:allow-empty="false"
+                                            placeholder=" "
+                                            label="nombre"
+                                            select-label=" "
+                                            deselect-label=" "
+                                            v-on:input="changeSolicitante"
+                                            v-bind:loading="isSearchingTipos"
+                                            track-by="id">
+                                        </multiselect>
 
                                     </div>
                                 </div>
@@ -184,17 +192,20 @@
                                     <div class="form-group">
                                         <label>Alumno </label>
 
-                                        <vuelect 
-                                            required="true"
-                                            formatselection="persona.nombreCompleto"
-                                            idtemplateresult="divBuscarAlumno"
-                                            usetemplateresult="true"
-                                            v-bind:initobject="reservaaula.tramite.alumno"
-                                            v-bind:objetogenerico="reservaaula.tramite.alumno"
-                                            nameinput="alumno.id"
-                                            remoteurl="tramite/aula/allAlumno"
-                                            v-model="reservaaula.tramite.alumno"
-                                            ></vuelect>
+                                        <multiselect v-model='reservaaula.tramite.alumno'
+                                                     v-bind:internal-search='false'
+                                                     v-bind:limit='15'
+                                                     v-on:search-change="searchAlumnos"
+                                                     v-bind:options='alumnos'
+                                                     v-bind:allow-empty="false"
+                                                     v-bind:custom-label="getNombreCompleto"
+                                                     placeholder=" "
+                                                     deselect-label=""
+                                                     select-label=" "
+                                                     v-bind:loading="isSearchingAlumnos"
+                                                     >
+                                        </multiselect>
+
 
                                     </div>
                                 </div>
@@ -203,17 +214,21 @@
                                     <div class="form-group">
                                         <label>Docente </label>
 
-                                        <vuelect 
-                                            required="true"
-                                            idtemplateresult="divBuscarDocente"
-                                            formatselection="persona.nombreCompleto"
-                                            usetemplateresult="true"
-                                            v-bind:initobject="reservaaula.tramite.docente"
-                                            v-bind:objetogenerico="reservaaula.tramite.docente"
-                                            nameinput="docente.id"
-                                            remoteurl="tramite/aula/allDocente"
-                                            v-model="reservaaula.tramite.docente"
-                                            ></vuelect>
+
+                                        <multiselect v-model='reservaaula.tramite.docente'
+                                                     v-bind:internal-search='false'
+                                                     v-bind:limit='15'
+                                                     v-on:search-change="searchDocentes"
+                                                     v-bind:options='docentes'
+                                                     v-bind:allow-empty="false"
+                                                     v-bind:custom-label="getNombreCompleto"
+                                                     placeholder=" "
+                                                     deselect-label=""
+                                                     select-label=" "
+                                                     v-bind:loading="isSearchingDocentes"
+                                                     >
+                                        </multiselect>
+
 
                                     </div>
                                 </div>
@@ -224,17 +239,19 @@
 
                                         <div class='input-group'>
 
-                                            <vuelect 
-                                                required="true"
-                                                formatselection="razonSocial"
-                                                formatresult="razonSocial"
-                                                data-parsley-errors-container="#errorempresao"
-                                                v-bind:initobject="reservaaula.tramite.empresa"
-                                                v-bind:objetogenerico="reservaaula.tramite.empresa"
-                                                nameinput="institucion.id"
-                                                remoteurl="comun/buscar/allEmpresa"
-                                                v-model="reservaaula.tramite.empresa"
-                                                ></vuelect>
+                                            <multiselect v-model='reservaaula.tramite.empresa'
+                                                         v-bind:internal-search='false'
+                                                         v-bind:limit='15'
+                                                         v-on:search-change="searchEmpresas"
+                                                         v-bind:options='empresas'
+                                                         v-bind:allow-empty="false"
+                                                         placeholder=" "
+                                                         deselect-label=""
+                                                         select-label=""
+                                                         label="razonSocial"
+                                                         v-bind:loading="isSearchingEmpresas"
+                                                         >
+                                            </multiselect>
 
                                             <span class="input-group-addon pointer" v-on:click.prevent="addInstitucion()"><i class="fa fa-plus"></i></span>
                                         </div>
@@ -270,7 +287,7 @@
 
                                                 <h4>{{reserva.codigo}}</h4>
                                                 <p class="text-xs">{{reserva.nombre}}</p>
-                                                <p class="text-xs"> <b>Aforo:</b> {{reserva.aforo}}</p>
+                                                <p class="text-xs"> <b>Capacidad:</b> {{reserva.aforo}}</p>
 
                                             </div>
 
@@ -293,34 +310,30 @@
                                         <div slot="header">
 
                                             <div class="form-group">
-                                                <vuelect  required="true"
-                                                          placeholder="Módulo"
-                                                          allowclear='true'
-                                                          v-bind:changevalue="changemodulo"
-                                                          formatselection="nombre"
-                                                          v-bind:objetogenerico="moduloselecto"
-                                                          remoteurl="tramite/aula/allAulaModulo"
-                                                          v-model="moduloselecto.id"
-                                                          ></vuelect>
+
+                                                <multiselect v-model='moduloselecto'
+                                                             v-bind:internal-search='false'
+                                                             v-bind:limit='15'
+                                                             v-on:input="changemodulo"
+                                                             v-on:search-change="searchModulos"
+                                                             v-bind:options='modulos'
+                                                             v-bind:allow-empty="false"
+                                                             placeholder="Módulo"
+                                                             deselect-label=""
+                                                             select-label=""
+                                                             label="nombre"
+                                                             v-bind:loading="isSearchingModulos"
+                                                             >
+                                                </multiselect>
+
                                             </div>
 
-
+                                            <div class="col-sm-12"></div>
+                                            <p>Capacidad seleccionada {{capacidadseleccinado}}</p>
                                             <div class="col-sm-12"></div>
 
                                             <div class="row">
                                                 <div class="col-sm-12 row">
-<!--                                                    <div class="col-sm-3">
-                                                        <label class="col-sm-12 control-label">Todos</label>
-                                                        <div class="col-sm-12">
-                                                            <label class="switch">
-                                                                <input type="checkbox" 
-                                                                       v-model="todos"  
-                                                                       v-on:change="changeTodos()"/>
-                                                                <span></span>
-                                                            </label>
-                                                        </div>
-                                                    </div>-->
-
 
                                                     <div class="col-sm-3">
                                                         <label class="col-sm-12 control-label">Solo disponible</label>
@@ -350,7 +363,7 @@
                                                         <th></th>
                                                         <th class="col-xs-9 text-center">Ambiente</th>
                                                         <th class="col-xs-2 text-center v-middle">Situación</th>
-                                                        <th class="col-xs-1 text-center v-middle">Aforo</th>
+                                                        <th class="col-xs-1 text-center v-middle">Capacidad</th>
                                                         <th></th>
                                                     </tr>
                                                 </thead>
@@ -428,13 +441,19 @@
                                     <div class="form-group">
                                         <label>Pais</label>
 
-                                        <vuelect 
-                                            required="true"
-                                            v-bind:objetogenerico="institucion.pais"
-                                            nameinput="paisUbicacion.id"
-                                            remoteurl="comun/buscar/allPaises"
-                                            v-model="institucion.pais"
-                                            ></vuelect>
+                                        <multiselect v-model='institucion.paisUbicacion'
+                                                     v-bind:internal-search='false'
+                                                     v-bind:limit='15'
+                                                     v-on:search-change="searchPais"
+                                                     v-bind:options='paises'
+                                                     v-bind:allow-empty="false"
+                                                     placeholder=" "
+                                                     deselect-label=""
+                                                     select-label=""
+                                                     label="nombre"
+                                                     v-bind:loading="isSearchingPais"
+                                                     >
+                                        </multiselect>
 
                                     </div>
 
@@ -487,13 +506,16 @@
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var reservaAulaJson = /*[[${reservaAula}]]*/ '';
+                var tiposSolicitanteJson = /*[[${tiposSolicitante}]]*/ '';
                 /*]]>*/
             </script>
             <div th:substituteby="_layout/includes :: sweetalert"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vue-loader"/>
+
             <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
             <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
+
             <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/programacion/tramiteaula/tramiteaulahorario.js}" charset="utf-8"></script>

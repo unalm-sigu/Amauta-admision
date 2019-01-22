@@ -42,6 +42,7 @@ import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Dia;
@@ -231,10 +232,12 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
             int horasTeoria = 0;
             int horasPractica = 0;
-
+            
             try {
-                horasTeoria = curso.getHorasTeoria() * factorHoras;
-                horasPractica = curso.getHorasPractica() * factorHoras;
+                if (curso.getTipoCreditoEnum() == TipoCreditoEnum.FIJO) {                    
+                    horasTeoria = curso.getHorasTeoria() * factorHoras;
+                    horasPractica = curso.getHorasPractica() * factorHoras;
+                }
             } catch (Exception e) {
                 throw new PhobosException("Error en la estructura del curso " + curso.getCodigo() + " " + curso.getNombre());
             }
