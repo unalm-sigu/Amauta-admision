@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
@@ -20,9 +21,9 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allBySeccionCiclo(Seccion seccion, CicloAcademico cicloAcademico);
 
-    List<HorarioAula> allByPabellonCicloDiasHoras(Aula pabellon, CicloAcademico cicloAcademico, List<String> hdias);
+    List<HorarioAula> allByPabellonCicloDiasHoras(Aula pabellon, EventoCicloAcademico eventoAcademico, List<String> hdias);
 
-    List<HorarioAula> allByAulasCicloDiasHoras(List<Aula> aulas, CicloAcademico cicloAcademico, List<String> hdias);
+    List<HorarioAula> allByAulasCicloDiasHoras(List<Aula> aulas, EventoCicloAcademico eventoAcademico, List<String> hdias);
 
     List<HorarioAula> allByCambioAulasCiclo(List<Aula> aulas, CicloAcademico cicloAcademico);
 
