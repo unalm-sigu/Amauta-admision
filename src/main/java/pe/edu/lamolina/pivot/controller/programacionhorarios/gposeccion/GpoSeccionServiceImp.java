@@ -1109,21 +1109,23 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
-        
+
         List<Aula> aulas = aulaDAO.searchByNombreFilter(nombre, 15);
         Seccion seccionDb = seccionDAO.find(seccion);
-        
+
         ModalidadEstudio modalidadCurso = seccionDb.getGrupoSeccion().getCurso().getModalidadEstudio();
         EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(ciclo, modalidadCurso);
-        
+
         logger.debug("***eventoAcademico*** {}", eventoAcademico != null);
         if (eventoAcademico != null) {
             logger.debug("***eventoAcademico {}", eventoAcademico.getId());
             logger.debug("***inicio  {} fin {}", eventoAcademico.getFechaInicio(), eventoAcademico.getFechaFin());
         }
 
-        List<HorarioAula> horariosAula = horarioAulaDAO.allByAulasCicloDiasHoras(aulas, eventoAcademico, diaHoras);
-
+        List<HorarioAula> horariosAula = new ArrayList();
+        if (!aulas.isEmpty() && !diaHoras.isEmpty()) {
+            horariosAula = horarioAulaDAO.allByAulasCicloDiasHoras(aulas, eventoAcademico, diaHoras);
+        }
         for (Aula aulaEach : aulas) {
             aulaEach.setDisponible(Boolean.TRUE);
             if (horariosAula.isEmpty()) {
@@ -2667,10 +2669,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccion.setDocenteSeccion(docenteSeccioness);
             }
         }
-    }
-
-    private EventoCicloAcademico getEventoCicloAcademico(CicloAcademico cicloAcademico) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
