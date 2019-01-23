@@ -12,7 +12,6 @@ import org.springframework.web.servlet.resource.GzipResourceResolver;
 import org.springframework.web.servlet.resource.VersionResourceResolver;
 import pe.edu.lamolina.pivot.controller.seguridad.menu.MenuService;
 
-@EnableAsync
 @SpringBootApplication
 @ComponentScan(basePackages = {"pe.edu.lamolina.pivot", "pe.albatross.zelpers"})
 public class PivotApplication extends WebMvcConfigurerAdapter {
