@@ -53,8 +53,8 @@ Vue.component("aula-component", {
             if (tab == 3)
                 $vue.tabAulas.aulaSel.tabAula = "especifica";
         },
-        labelAula() {
-            return "lalala";
+        labelAula(aula) {
+            return aula.nombrePublico+' - '+aula.aulaSuperior.nombre;
         },
         loadAula(seccion) {
             let $vue = this;
@@ -125,7 +125,12 @@ Vue.component("aula-component", {
             let aulaSeleccionada = $vue.tabAulas.aulaSel;
 
             if (aulaSeleccionada == null) {
-                notify(MESSAGES.errorComunicacion, "Seleccione un aula");
+                notify("Seleccione un aula", "error");
+                return;
+            }
+            console.log(aulaSeleccionada.isDisponible);
+            if (!aulaSeleccionada.isDisponible) {
+                notify("El aula no esta disponible", "error");
                 return;
             }
             bootbox.confirm({

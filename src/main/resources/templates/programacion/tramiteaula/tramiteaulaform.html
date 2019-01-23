@@ -1,6 +1,21 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Trámite Aula</title>
+        <style>
+            .div-variable {
+                border-radius: 5px;
+                border: 1px solid #AEBDCD;
+                zoom: 1;
+            }
+            .close-btn {
+                position: absolute;
+                top: -13px;
+                right: -1px;
+                z-index: 100;
+                border-radius: 50px;
+                padding: 5px 10px;
+            }
+        </style>
     </head>
 
     <body>
@@ -96,7 +111,7 @@
                                     <div class="form-group">
                                         <label>Capacidad Total</label>
 
-                                        <input type="text"  v-model="reservaaula.aforo" class="form-control" />
+                                        <input v-on:change="changeTotalAforo()" type="text"  v-model="reservaaula.aforo" class="form-control" />
 
                                     </div>
                                 </div>
@@ -150,8 +165,8 @@
 
                                     </div>
                                 </div>
-                                
-                                                     <div v-show="variosambiente" class="col-sm-3">
+
+                                <div v-show="variosambiente" class="col-sm-3">
                                     <div class="form-group">
                                         <label>Capacidad Máxima del Ambiente </label>
 
@@ -275,28 +290,33 @@
                                 <div class="line line-dashed b-b line-lg pull-in col-xs-12"></div>
 
                                 <div class="row">
-                                    <div v-for="reserva in reservados" class="col-sm-3 col-xs-4">
 
-                                        <div class="thumbnail" style="overflow-x: hidden;min-height: 130px">
+                                    <div v-for="reserva in reservados" class="col-sm-3  col-xs-4 panel">
+                                        <button class="btn btn-danger btn-sm close-btn" v-on:click.prevent="deleteReservado(reserva)">
+                                            <i class="fa fa-times"></i>
+                                        </button>
 
-                                            <a class="text-danger m-l-sm pull-right m-r-xs" v-on:click.prevent="deleteReservado(reserva)" href="#">
-                                                <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                            </a>
+                                        <div class="div-variable panel-body">
 
-                                            <div class="caption m-t-n-md">
-
-                                                <h4>{{reserva.codigo}}</h4>
-                                                <p class="text-xs">{{reserva.nombre}}</p>
-                                                <p class="text-xs"> <b>Capacidad:</b> {{reserva.aforo}}</p>
-
-                                            </div>
-
+                                            <h4>{{reserva.codigo}}</h4>
+                                            <p class="text-xs">{{reserva.nombre}}</p>
+                                            <p class="text-xs"> <b>Capacidad:</b> {{reserva.aforo}}</p>
 
                                         </div>
                                     </div>
+                     
                                 </div>
 
                                 <div class="line line-dashed b-b line-lg pull-in col-xs-12"></div>
+
+                                <p class="block"> 
+                                    <span>Capacidad seleccionada: <b v-text="capacidadseleccinado"></b> .   </span>
+                                    <span  v-if="capacidadfaltante>0" class="text-danger">Capacidad faltante: <b v-text="capacidadfaltante"></b> .    </span>
+                                    <span  v-else="capacidadfaltante>0" class="text-primary">Capacidad Exceso: <b v-text="Math.abs(capacidadfaltante)"></b> .  </span>
+                                    <span>Total de Aulas Seleccionadas : <b v-text="totalaulas"></b>.    </span>
+                                </p>
+
+                                <div class="col-sm-12"></div>
 
 
                                 <div class="col-xs-12">
@@ -328,8 +348,6 @@
 
                                             </div>
 
-                                            <div class="col-sm-12"></div>
-                                            <p>Capacidad seleccionada {{capacidadseleccinado}}</p>
                                             <div class="col-sm-12"></div>
 
                                             <div class="row">
