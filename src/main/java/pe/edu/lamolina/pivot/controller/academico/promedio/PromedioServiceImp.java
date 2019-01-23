@@ -3,8 +3,10 @@ package pe.edu.lamolina.pivot.controller.academico.promedio;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -29,6 +31,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.croacia.HistoMy;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
@@ -198,6 +201,8 @@ public class PromedioServiceImp implements PromedioService {
         alumno = alumno.clone();
         try {
             this.analizeAlumnoCiclos(alumno, allOperativesByModalidadEstudio);
+            allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+
             this.promediarAlumno(alumno, cicloActivo, allOperativesByModalidadEstudio, ds);
             //  alumno = alumnoDAO.find(alumno);
             this.analizarEgresado(alumno, ds);
@@ -288,6 +293,8 @@ public class PromedioServiceImp implements PromedioService {
             List<AlumnoCicloCurso> alumnosCiclosCursosByAluCic = alumnoCicloCursos.stream()
                     .filter(x -> x.getAlumnoCiclo().equals(alumnoCiclo))
                     .collect(Collectors.toList());
+            alumnosCiclosCursosByAluCic = this.analizedAlumnoCicloCursosByCiclo(alumnosCiclosCursosByAluCic);
+
             logger.debug("Ciclo {}, Cursos {}", alumnoCiclo.getCicloAcademico().getCodigo(), alumnosCiclosCursosByAluCic.size());
 
             List<AlumnoCicloCurso> rci = alumnosCiclosCursosByAluCic.stream().filter(x -> x.getIsEstadoRCI()).collect(Collectors.toList());
@@ -1167,6 +1174,29 @@ public class PromedioServiceImp implements PromedioService {
             alumnoDAO.updateCicloActivoRegular(alumnoUpd);
         }
         //  alumno = alumnoDAO.find(alumno);
+    }
+
+    public List<AlumnoCicloCurso> analizedAlumnoCicloCursosByCiclo(List<AlumnoCicloCurso> alumnoCicloCursoByCiclo) {
+        Map<String, List<AlumnoCicloCurso>> mapHistoByCiclo = TypesUtil.convertListToMapList("curso.codigo", alumnoCicloCursoByCiclo);
+
+        for (Map.Entry<String, List<AlumnoCicloCurso>> entry : mapHistoByCiclo.entrySet()) {
+            String codigoCurso = entry.getKey();
+            List<AlumnoCicloCurso> histoByCicloAndCurso = entry.getValue();
+            Collections.sort(histoByCicloAndCurso, (p1, p2) -> p1.getFechaRegistro().compareTo(p2.getFechaRegistro()));
+            int idx = 0;
+            for (AlumnoCicloCurso histo : histoByCicloAndCurso) {
+                logger.debug("curso {}, fecha {}",
+                        codigoCurso,
+                        TypesUtil.getStringDate(histo.getFechaRegistro(), "dd/MM/yyyy H:mm:ss"));
+                boolean registroActivo2 = ((idx + 1) == histoByCicloAndCurso.size());
+                Integer registroActivo3 = histo.getRegistroActivo() == 1 && registroActivo2 ? 1 : 0;
+                histo.setRegistroActivo(registroActivo3);
+                alumnoCicloCursoDAO.update(histo);
+                idx++;
+            }
+        }
+        alumnoCicloCursoByCiclo = alumnoCicloCursoByCiclo.stream().filter(x -> x.getRegistroActivo() == 1).collect(Collectors.toList());
+        return alumnoCicloCursoByCiclo;
     }
 
     public void procesarInformacionAlumnoCiclo(
