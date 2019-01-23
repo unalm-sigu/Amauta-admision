@@ -1,5 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default);
-
+console.log(JSON.parse(cicloJson));
 new Vue({
     el: '#matriculableVUE',
     data: {

@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Empresa;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
@@ -133,7 +134,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     }
 
     @Override
-    public List<Aula> allByDynatableFilterAula(DynatableFilter filter) {
+    public List<Aula> allByDynatableFilterAula(DynatableFilter filter, DataSessionPivot ds) {
 
         Map<String, Object> queries = filter.getQueries();
 
@@ -210,11 +211,16 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         }
 
         List<Aula> aulasNoIncluidas = horarios.stream().map(z -> z.getAula()).collect(Collectors.toList());
+        logger.debug("aulasNoIncluidas {}",aulasNoIncluidas.size());
+        for (Aula aulasNoIncluida : aulasNoIncluidas) {
+            logger.debug("aulasNoIncluidas {} {} ", aulasNoIncluida.getId(), aulasNoIncluida.getCodigo());
+        }
         List<Aula> aulas = null;
 
         if (solodisponible) {
 
-            aulas = aulaDAO.allByDynatableFilterTramite(filter, aulasNoIncluidas, TipoAulaEnum.MOD);
+            aulas = aulaDAO.allByDynatableFilterTramite(filter, aulasNoIncluidas, ds.getOficinaMain());
+
             for (Aula aula : aulas) {
                 aula.setDisponible(Boolean.TRUE);
             }
@@ -222,7 +228,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         } else {
 
             Map<Long, Aula> aulasMap = aulasNoIncluidas.stream().collect(Collectors.toMap(x -> x.getId(), x -> x, (f, s) -> s));
-            aulas = aulaDAO.allByDynatableFilterTramite(filter, null, TipoAulaEnum.MOD);
+            aulas = aulaDAO.allByDynatableFilterTramite(filter, null, ds.getOficinaMain());
             for (Aula aula : aulas) {
                 Aula a = aulasMap.get(aula.getId());
                 aula.setDisponible(Boolean.TRUE);
@@ -470,8 +476,9 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     }
 
     @Override
-    public List<Aula> allAulaModuloByName(String nombre) {
-        return aulaDAO.allAulaModuloByName(nombre, 10, TipoAulaEnum.MOD);
+    public List<Aula> allAulaModuloByName(String nombre, DataSessionPivot ds) {
+        Oficina oficinaMain = ds.getOficinaMain();
+        return aulaDAO.allAulaModuloByName(nombre, 10, oficinaMain);
     }
 
     @Override

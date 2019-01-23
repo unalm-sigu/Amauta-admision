@@ -23,7 +23,6 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
-import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
@@ -35,6 +34,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
+import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_EPG;
@@ -232,9 +232,9 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
             int horasTeoria = 0;
             int horasPractica = 0;
-            
+
             try {
-                if (curso.getTipoCreditoEnum() == TipoCreditoEnum.FIJO) {                    
+                if (curso.getTipoCreditoEnum() == TipoCreditoEnum.FIJO) {
                     horasTeoria = curso.getHorasTeoria() * factorHoras;
                     horasPractica = curso.getHorasPractica() * factorHoras;
                 }
@@ -385,6 +385,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                         horarioSecc.setSeccion(seccClone);
                         horarioSecc.setFechaInicio(eventoDictadoClases.getFechaInicio());
                         horarioSecc.setFechaFin(eventoDictadoClases.getFechaFin());
+                        horarioSecc.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
                         horarioSeccionDAO.save(horarioSecc);
 
                         if (seccClone.getIsTipoSeccionTCUR()) { // is es TCUR
