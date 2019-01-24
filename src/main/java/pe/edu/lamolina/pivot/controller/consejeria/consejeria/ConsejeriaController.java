@@ -49,9 +49,7 @@ public class ConsejeriaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        model.addAttribute("cicloAcademico", ds.getCicloAcademico().getDescripcion());
-        model.addAttribute("nombreDocente", ds.getPersona().getApellidosNombres());
-        model.addAttribute("DepartAcademico", ds.getDepartamentoAcademico().getNombreLargo());
+        model.addAttribute("ciclo", ds.getCicloAcademico().getDescripcion());
 
         return "consejeria/consejero";
     }

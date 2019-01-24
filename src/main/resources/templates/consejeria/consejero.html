@@ -55,10 +55,7 @@
 
                         </div>
 
-                        <h2>Listado de Consejeros - <span v-text='user.ciclo'></span></h2>
-                        <span class="block"><strong>Docente:</strong> <span v-text='user.nombres'></span></span>
-                        <span class="block"><strong>Departamento Académico:</strong> <span v-text='user.departAcademico'></span></span>
-
+                        <h2>Listado de Consejeros - <span v-text='ciclo'></span></h2>
                     </header>
                     <section class="wrapper-lg">
                         <section class="panel">
@@ -163,9 +160,7 @@
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var cicloJson = /*[[${cicloAcademico.toString()}]]*/ 'json';
-                var NombreDocenteJson = /*[[${nombreDocente.toString()}]]*/ 'json';
-                var DepartAcademicoJson = /*[[${DepartAcademico.toString()}]]*/ 'json';
+                var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
