@@ -22,6 +22,8 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
     Carrera find(Long id);
 
     List<Carrera> allByNombre(String forLike);
+    
+   List<Carrera> allByNombreCarrera(String nombre, List<Carrera> carreras);
 
     List<Carrera> allByFilter(Facultad facultad, EstadoEnum estadoEnum);
 
@@ -52,5 +54,7 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
     List<Carrera> allActivasByModalidadEnum(ModalidadEstudioEnum modalidadEstudioEnum);
 
     List<Carrera> allOficinaAndIds(List<Long> idEsp);
+
+    Carrera findCarreraByIdFacultad(Long idFacultad);
 
 }

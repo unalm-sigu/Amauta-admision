@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -140,9 +141,12 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     public void calcularExamenesGrupoRegular(RolExamenes rolExamenes, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
-        Assert.isTrue(rolExamenes.isSituacionConfigurarCursoMasivo(), "Debe configurar los grupos masivos previamente.");
+        Assert.isTrue(rolExamenes.isSituacionConfigurarCursoMasivo() || rolExamenes.isSituacionConfiguraGrupoRegular(), "Debe configurar los grupos masivos previamente.");
 
         List<CursoMasivoExamen> cursosMasivosByRolExamenes = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
+        if (cursosMasivosByRolExamenes.isEmpty()) {
+            throw new PhobosException("Debe configurar los cursos masivos.");
+        }
         grupoRegularConnector.fillActiveInfoCursosMasivos(cursosMasivosByRolExamenes);
         List<String> cursosMasivosValidations = this.validarCursosMasivos(cursosMasivosByRolExamenes);
         Assert.isTrue(cursosMasivosValidations.isEmpty(), String.join("\n", cursosMasivosValidations));
