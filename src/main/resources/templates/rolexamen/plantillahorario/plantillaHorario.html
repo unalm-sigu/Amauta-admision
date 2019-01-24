@@ -53,13 +53,15 @@
                         <section class="panel-body">
                             <div class="row">
                                 <a class="btn btn-warning pull-left m-l-sm"
-                                   v-on:click.prevent="calcularPlantillaHorario">
+                                   v-on:click.prevent="calcularPlantillaHorario"
+                                   th:if="${false}">
                                     <i class="fa fa-arrow-left"></i>
                                     Configurar Rol Examenes
                                 </a>
 
                                 <a class="btn btn-success pull-right m-r-sm"
-                                   v-on:click.prevent="calcularPlantillaHorario">
+                                   v-on:click.prevent="calcularPlantillaHorario"
+                                   th:if="${false}">
                                     Configurar Cursos Masivos
                                     <i class="fa fa-arrow-right"></i>
                                 </a>
