@@ -1065,12 +1065,14 @@ public class GpoSeccionController {
             @RequestParam("seccion") Long seccionId,
             @RequestParam("aula") String codigoAula,
             HttpSession session) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
         JsonResponse response = new JsonResponse();
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            Aula aula = service.findAulaActiveByCode(codigoAula);
-            service.saveAula(seccionId, aula.getId(), ds.getCicloAcademico());
+            Aula aula = new Aula();
+            aula.setCodigo(codigoAula);
+            service.saveAula(new Seccion(seccionId), aula, ds);
 
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Aula cambiada correctamente");
@@ -2111,7 +2113,7 @@ public class GpoSeccionController {
             if (aulaId == null) {
                 message = "Aula removida correctamente.";
             }
-            service.saveAula(seccionId, aulaId, ds.getCicloAcademico());
+            service.saveAula(new Seccion(seccionId), new Aula(aulaId), ds);
 
             response.setSuccess(true);
             response.setMessage(message);

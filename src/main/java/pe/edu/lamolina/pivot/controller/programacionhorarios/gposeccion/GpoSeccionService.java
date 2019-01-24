@@ -110,7 +110,7 @@ public interface GpoSeccionService {
 
     void saveSeccionGrupoHorario(Seccion seccion, GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
-    void saveAula(Long seccionId, Long aulaId, CicloAcademico cicloAcademico);
+    void saveAula(Seccion seccion, Aula aula, DataSessionPivot ds);
 
     List<HorarioAula> allHorariosAula(Aula aula, CicloAcademico cicloAcademico);
 
@@ -176,8 +176,6 @@ public interface GpoSeccionService {
     void updateDocenteSecFechaFin(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico);
 
     List<DocenteSeccion> analizedDocenteSeccion(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
-
-    Aula findAulaActiveByCode(String codigoAula);
 
     GrupoHoras findGrupoHorasForDirectUpdate(String code, CicloAcademico cicloAcademico, Seccion seccion);
 

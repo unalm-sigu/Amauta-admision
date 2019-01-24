@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion;
 
+import com.google.common.base.Strings;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1772,10 +1773,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void saveAula(Long seccionId, Long aulaId, CicloAcademico cicloAcademico) {
-        Seccion seccion = seccionDAO.find(seccionId);
+    public void saveAula(Seccion seccionForm, Aula aulaForm, DataSessionPivot ds) {
 
-        Aula aula = aulaId == null ? null : aulaDAO.find(aulaId);
+        Seccion seccion = seccionDAO.find(seccionForm);
+
+        Aula aula = null;
+        if (aulaForm.getId() != null) {
+            aula = aulaDAO.find(aulaForm.getId());
+        } else if (!Strings.isNullOrEmpty(aulaForm.getCodigo())) {
+            aula = aulaDAO.findActiveByCode(aulaForm.getCodigo());
+        }
 
         if (ObjectUtil.getParentTree(seccion, "aula.id") != null && aula == null) {
             horarioAulaDAO.deleteBySeccionAula(seccion, seccion.getAula());
@@ -1805,6 +1812,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 throw new PhobosException("La capacidad del aula no abarca las vacantes de la sección.");
             }
         }
+
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         List<HorarioAula> horariosAulas = horarioAulaDAO.allByAula(aula, cicloAcademico);
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
@@ -2224,15 +2233,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         Collections.sort(fechas, (Date va1, Date va2) -> va1.compareTo(va2));
         return fechas;
-    }
-
-    @Override
-    public Aula findAulaActiveByCode(String codigoAula) {
-        Aula aula = aulaDAO.findActiveByCode(codigoAula);
-        if (aula == null) {
-            throw new PhobosException("Aula ingresada no existe");
-        }
-        return aula;
     }
 
     @Override
