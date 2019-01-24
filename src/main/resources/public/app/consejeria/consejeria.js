@@ -12,11 +12,7 @@ new Vue({
             okbtn: 'Agregar',
             showaccept: true
         },
-        user: {
-            nombres: NombreDocenteJson,
-            ciclo: cicloJson,
-            departAcademico: DepartAcademicoJson
-        },
+        ciclo: cicloJson,
         btndisabled: '',
         listadoDocentes: [],
         listadoCarreras: [],
