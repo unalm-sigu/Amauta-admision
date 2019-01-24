@@ -15,7 +15,6 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
-import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
@@ -185,14 +184,16 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     }
 
     @Override
-    public List<Aula> allByDynatableFilterTramite(DynatableFilter filter, List<Aula> aulasNoIncluidas, TipoAulaEnum tipoAulaEnum) {
+    public List<Aula> allByDynatableFilterTramite(DynatableFilter filter, List<Aula> aulasNoIncluidas,  Oficina oficina) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Aula.class, "au")
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
                 .leftJoin("aus.tipoAula tasu")
                 .searchFields("au.nombre", "aus.nombre", "ta.nombre", "au.codigo", "os.nombre")
-                .filter("tasu.codigo", tipoAulaEnum)
+                .isNotNull("au.capacidadAula")
                 .filter("au.estado", EstadoEnum.ACT.name())
+                .isNotNull("aus.id")
+                .filter("os.id", oficina)
                 .orderBy("au.id desc");
 
         if (aulasNoIncluidas != null && !aulasNoIncluidas.isEmpty()) {
@@ -231,25 +232,43 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                     sql.filter("aus.id", new Long(value));
                 }
             }
+            if (key.equals("capacidadmaximaambiente")) {
+
+                String capacidadmaximaambiente = (String) queries.get(key);
+                if (!Strings.isNullOrEmpty(capacidadmaximaambiente)) {
+                    sql.filter("au.capacidadAula", "<=", Integer.parseInt(capacidadmaximaambiente));
+                }
+            }
+
+            if (key.equals("capacidadminimaambiente")) {
+
+                String capacidadminimaambiente = (String) queries.get(key);
+                if (!Strings.isNullOrEmpty(capacidadminimaambiente)) {
+                    sql.filter("au.capacidadAula", ">=", Integer.parseInt(capacidadminimaambiente));
+                }
+            }
+
         }
 
     }
 
     @Override
-    public List<Aula> allAulaModuloByName(String nombre, Integer limit, TipoAulaEnum tipoAulaEnum) {
+    public List<Aula> allAulaModuloByName(String nombre, Integer limit, Oficina oficina) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
+                .selectDistinct("aus")
                 .from(Aula.class, "au")
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
-                .filter("ta.codigo", tipoAulaEnum)
+                .isNotNull("au.capacidadAula")
+                .isNotNull("aus.id")
+                .filter("os.id", oficina)
                 .filter("au.estado", EstadoEnum.ACT.name())
                 .beginBlock()
-                .__().complexFilter("concat(coalesce(au.codigo,''),' ',coalesce(au.nombre,''))", "like", nombre)
-                .__().complexFilter("concat(coalesce(au.nombre,''),' ',coalesce(au.codigo,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(aus.codigo,''),' ',coalesce(aus.nombre,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(aus.nombre,''),' ',coalesce(aus.codigo,''))", "like", nombre)
                 .endBlock()
-                .orderBy("au.codigo", "au.nombre")
+                .orderBy("aus.codigo", "aus.nombre")
                 .limit(limit);
-
         return sql.all(getCurrentSession());
     }
 

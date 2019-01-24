@@ -3,11 +3,17 @@ Vue.component("aula-horario-component", {
     props: {
         dias: {type: Array, default: []},
         horas: {type: Array, default: []},
-        jsonaulahorario: {type: Array, default: []}
+        jsonaulahorario: {type: Array, default: []},
+        validarrangofecha: {type: Function, default: () => {
+            }},
     },
     mounted: function () {
         let $vue = this;
         $vue.loadComponent($vue);
+
+        $global.$on("clearhorario", function () {
+            $vue.clearhorario();
+        });
     },
     methods: {
         loadComponent($vue) {
@@ -29,6 +35,10 @@ Vue.component("aula-horario-component", {
         },
         selectHora(dia, hora) {
             let $vue = this;
+            let estado = $vue.validarrangofecha(dia, hora);
+            if (estado) {
+                return;
+            }
             if (dia.selecionado) {
                 dia.selecionado = false;
             } else {
@@ -43,6 +53,15 @@ Vue.component("aula-horario-component", {
                 $vue.jsonaulahorario.push({id: idd, dia: {id: dia.id}, hora: {id: hora.id}});
             }
             $global.$emit('changehorario');
+        },
+        clearhorario() {
+            let $vue = this;
+            $vue.horas.map(function (vall, inx) {
+                vall.dias.map(function (valll, inx) {
+                    valll.selecionado = false;
+                });
+            });
+            $vue.jsonaulahorario = [];
         }
     }
 });

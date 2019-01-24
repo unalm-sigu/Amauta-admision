@@ -5,6 +5,7 @@ new Vue({
     data: {
         reservaaula: {tipoSolicitante: null, tramite: {alumno: {}, empresa: {}, docente: {}}},
         reservaaulaedit: JSON.parse(reservaAulaJson),
+        tiposSolicitante: JSON.parse(tiposSolicitanteJson),
         urlfilter: APP.url("tramite/aula/filteraula"),
         institucion: {pais: {}},
         dataInstitucionModal: {
@@ -24,7 +25,20 @@ new Vue({
         moduloselecto: {id: null},
         dias: [],
         horas: [],
-        jsonaulahorario: []
+        jsonaulahorario: [],
+        alumnos: [],
+        docentes: [],
+        empresas: [],
+        modulos: [],
+        paises: [],
+        isSearchingTipos: false,
+        isSearchingAlumnos: false,
+        isSearchingDocentes: false,
+        isSearchingEmpresas: false,
+        isSearchingModulos: false,
+        isSearchingPais: false,
+        tiposolicitante: [],
+        capacidadseleccinado: 0,
     },
     mounted: function () {
 
@@ -42,20 +56,28 @@ new Vue({
             $vue.changehorario();
         });
 
+        $($vue.$refs.capacidadMaximaAmbiente).numeric({negative: false});
+        $($vue.$refs.capacidadMinimaAmbiente).numeric({negative: false});
+
     },
     updated: function () {
         let $vue = this;
+
+        $($vue.$refs.capacidadMaximaAmbiente).numeric({negative: false});
+        $($vue.$refs.capacidadMinimaAmbiente).numeric({negative: false});
     },
     methods: {
         changeSoloFecha() {
             let $vue = this;
             $vue.reservados = [];
+            $vue.clearHorario();
             $vue.rangofecha = !$vue.rangofecha;
         },
         changeRangoFecha() {
             let $vue = this;
             $vue.reservados = [];
             $vue.solofecha = !$vue.solofecha;
+            $vue.clearHorario();
             $vue.changefilteraula();
         },
         addInstitucion() {
@@ -78,7 +100,8 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        $vue.tramite.empresa = response.data;
+                        console.log(response.data);
+                        $vue.reservaaula.tramite.empresa = response.data;
                         $vue.$refs.nuevaInstitucionModal.close();
                     } else {
                         notify(response.message, "error");
@@ -103,11 +126,13 @@ new Vue({
                 $vue.reservaaula.fechaFin = $vue.reservaaula.fechaInicio;
             }
             $vue.reservados = [];
+            $vue.clearHorario();
             $vue.changefilteraula();
         },
         changeFechaFin() {
             let $vue = this;
             $vue.reservados = [];
+            $vue.clearHorario();
             $vue.changefilteraula();
         },
         guardarTramite() {
@@ -158,16 +183,29 @@ new Vue({
             let indx = $vue.reservados.indexOf(reserva);
             $vue.reservados.splice(indx, 1);
             $vue.changefilteraula();
+            $vue.changeCapacidadSeleccionado();
         },
         addAula(aula) {
-
             let $vue = this;
+            if ($vue.reservaaula.aforo) {
+                if ($vue.capacidadseleccinado) {
+                    if (parseInt($vue.capacidadseleccinado) > parseInt($vue.reservaaula.aforo)) {
+                        notify("a sobrepasado su requerimiento", "error");
+                        return;
+                    }
+                }
+            }
             $vue.reservados.push(aula);
             $vue.changefilteraula();
+            $vue.changeCapacidadSeleccionado();
         },
         changefilteraula() {
 
             let $vue = this;
+
+
+            $vue.$refs.raptor.querie.push({name: 'capacidadmaximaambiente', value: $vue.reservaaula.capacidadMaximaAmbiente});
+            $vue.$refs.raptor.querie.push({name: 'capacidadminimaambiente', value: $vue.reservaaula.capacidadMinimaAmbiente});
 
             $vue.$refs.raptor.querie.push({name: 'solodisponible', value: $vue.solodisponible});
             $vue.$refs.raptor.querie.push({name: 'fechainicio', value: $vue.reservaaula.fechaInicio});
@@ -200,6 +238,171 @@ new Vue({
         changemodulo() {
             let $vue = this;
             $vue.changefilteraula();
+        },
+        searchAlumnos(search) {
+            let $vue = this;
+            $vue.isSearchingAlumnos = true;
+            $.ajax({
+                url: APP.url('tramite/aula/allAlumno'),
+                dataType: 'json',
+                type: 'POST',
+                async: true,
+                data: {nombre: search},
+                success(response) {
+                    $vue.isSearchingAlumnos = false;
+                    if (response.success) {
+                        $vue.alumnos = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        getNombreCompleto(item) {
+            if ($.isEmptyObject(item)) {
+                return;
+            }
+            return item.persona.nombreCompleto;
+        },
+        searchDocentes(search) {
+            let $vue = this;
+            $vue.isSearchingDocentes = true;
+            $.ajax({
+                url: APP.url('tramite/aula/allDocente'),
+                dataType: 'json',
+                type: 'POST',
+                async: true,
+                data: {nombre: search},
+                success(response) {
+                    $vue.isSearchingDocentes = false;
+                    if (response.success) {
+                        $vue.docentes = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        searchEmpresas(search) {
+            let $vue = this;
+            $vue.isSearchingEmpresas = true;
+            $.ajax({
+                url: APP.url('comun/buscar/allEmpresa'),
+                dataType: 'json',
+                type: 'POST',
+                async: true,
+                data: {nombre: search},
+                success(response) {
+                    $vue.isSearchingEmpresas = false;
+                    if (response.success) {
+                        $vue.empresas = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        searchModulos(search) {
+            let $vue = this;
+            $vue.isSearchingModulos = true;
+            $.ajax({
+                url: APP.url('tramite/aula/allAulaModulo'),
+                dataType: 'json',
+                type: 'POST',
+                async: true,
+                data: {nombre: search},
+                success(response) {
+                    $vue.isSearchingModulos = false;
+                    if (response.success) {
+                        $vue.modulos = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        searchPais(search) {
+            let $vue = this;
+            $vue.isSearchingPais = true;
+            $.ajax({
+                url: APP.url('comun/buscar/allPaises'),
+                dataType: 'json',
+                type: 'POST',
+                async: true,
+                data: {nombre: search},
+                success(response) {
+                    $vue.isSearchingPais = false;
+                    if (response.success) {
+                        $vue.paises = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        changeSolicitante(value) {
+            let $vue = this;
+            $vue.reservaaula.tramite.tipoSolicitante = value.id;
+        },
+        changeCapacidadMinima() {
+            let $vue = this;
+            $vue.changefilteraula();
+        },
+        changeCapacidadMaxima() {
+            let $vue = this;
+            $vue.changefilteraula();
+        },
+        changeCapacidadSeleccionado() {
+            let $vue = this;
+            let total = 0;
+            $vue.reservados.map(function (obj) {
+                total += obj.capacidadAula;
+            });
+            $vue.capacidadseleccinado = total;
+        },
+        validarrangofecha(dia, hora) {
+            let $vue = this;
+            if ($vue.reservaaula.fechaInicio == undefined) {
+                notify("Seleccione la fecha de inicio", 'error')
+                return true;
+            }
+            if ($vue.reservaaula.fechaFin == undefined) {
+                if ($vue.rangofecha == true) {
+                    notify("Seleccione la fecha de fin", 'error')
+                    return true;
+                }
+            }
+            if ($vue.rangofecha) {
+                return false;
+            }
+            var date = moment($vue.reservaaula.fechaInicio, "DD/MM/YYYY");
+            var day = date.day();
+            if (day == 0) {
+                day = 7;
+            }
+
+            if (dia.numeroDia != day) {
+                return true;
+            }
+        },
+        clearHorario() {
+            let $vue = this;
+            $global.$emit('clearhorario');
         }
     }
 });

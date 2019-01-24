@@ -15,7 +15,7 @@ public interface TramiteAulaService {
 
     List<ReservaAula> allDynatableFilter(DynatableFilter filter);
 
-    List<Aula> allByDynatableFilterAula(DynatableFilter filter);
+    List<Aula> allByDynatableFilterAula(DynatableFilter filter, DataSessionPivot ds);
 
     Empresa saveInstitucion(Empresa institucion);
 
@@ -33,7 +33,7 @@ public interface TramiteAulaService {
 
     void update(ReservaAula reservaAula, DataSessionPivot ds);
 
-    List<Aula> allAulaModuloByName(String nombre);
+    List<Aula> allAulaModuloByName(String nombre, DataSessionPivot ds);
 
     List<Dia> allDia();
 
