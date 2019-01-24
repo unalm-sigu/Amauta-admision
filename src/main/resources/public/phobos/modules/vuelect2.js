@@ -16,6 +16,7 @@ Vue.component("vuelect", {
         changevalue: {type: Function, default: () => {
             }},
         postdata: {type: Object, default: {}},
+        placeholder: {type: String, default: "  "},
     },
     mounted: function () {
         let vue = this;
@@ -49,7 +50,7 @@ Vue.component("vuelect", {
     methods: {
         buscarGenerico: function (vue) {
             return {
-                placeholder: "  ",
+                placeholder: vue.placeholder,
                 allowClear: vue.allowclear,
                 minimumInputLength: 2,
                 ajax: {
@@ -121,5 +122,10 @@ Vue.component("vuelect", {
                 }
             };
         }
+    },
+    destroyed: function () {
+        let vue = this;
+        let self = $(vue.$el);
+        self.select2("destroy");
     }
 });

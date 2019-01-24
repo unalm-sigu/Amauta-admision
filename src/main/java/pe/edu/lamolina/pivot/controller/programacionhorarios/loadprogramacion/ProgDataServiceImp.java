@@ -57,6 +57,7 @@ import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
+import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
@@ -66,6 +67,7 @@ import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
@@ -1803,14 +1805,26 @@ public class ProgDataServiceImp implements ProgDataService {
                 curso.setEstadoEnum(EstadoEnum.ACT);
                 curso.setCodigo(curNuevo);
                 curso.setNombre(nombre);
-                curso.setCreditos(Integer.parseInt(curCredit));
+                if (!StringUtils.isEmpty(curCredit)) {
+                    curso.setCreditos(Integer.parseInt(curCredit));
+                    if (curso.getCreditos() > 0) {
+                        curso.setTipoCreditoEnum(TipoCreditoEnum.FIJO);
+                    }
+                }
                 curso.setDepartamentoAcademico(mapDepartamentosAcademicos.get(depCodigo));
                 curso.setCodigoAnterior1(curCodigo);
-                if (!StringUtils.isEmpty(curCrevar)) {
-                    curso.setCreditosVariables(Integer.parseInt(curCrevar));
+                if (!StringUtils.isEmpty(curCrevar) && curCrevar.length() > 3) {
+                    curso.setCreditosVariables(Integer.parseInt(curCrevar.substring(4)));
+                    if (curso.getCreditosVariables() > 0) {
+                        curso.setTipoCreditoEnum(TipoCreditoEnum.VAR);
+                    }
                 }
-                curso.setHorasTeoria(Integer.parseInt(curTeoria));
-                curso.setHorasPractica(Integer.parseInt(curPracti));
+                if (!StringUtils.isEmpty(curTeoria)) {
+                    curso.setHorasTeoria(Integer.parseInt(curTeoria));
+                }
+                if (!StringUtils.isEmpty(curPracti)) {
+                    curso.setHorasPractica(Integer.parseInt(curPracti));
+                }
 
                 if (tCurso.compareTo("TT") == 0) {
                     curso.setTipoCurso(TipoCursoEnum.TEO.name());
@@ -1942,6 +1956,7 @@ public class ProgDataServiceImp implements ProgDataService {
                         nuevo.setFechaInicio(eventoAcademico.getFechaInicio());
                         nuevo.setFechaFin(eventoAcademico.getFechaFin());
                     }
+                    nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
                     horarioSeccionDAO.save(nuevo);
                     horarios.add(nuevo);
                 }
@@ -1987,6 +2002,7 @@ public class ProgDataServiceImp implements ProgDataService {
                         nuevo.setFechaInicio(eventoAcademico.getFechaInicio());
                         nuevo.setFechaFin(eventoAcademico.getFechaFin());
                     }
+                    nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
                     horarioAulaDAO.save(nuevo);
                 }
 

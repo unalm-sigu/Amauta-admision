@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -31,6 +32,7 @@ import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.RolSistema;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
@@ -38,6 +40,7 @@ import pe.edu.lamolina.pivot.dao.seguridad.FuncionRolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuRolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.RolSistemaDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 
 @Service
@@ -49,6 +52,9 @@ public class RolServiceImp implements RolService {
 
     @Autowired
     RolDAO rolDAO;
+
+    @Autowired
+    RolSistemaDAO rolSistemaDAO;
 
     @Autowired
     MenuRolDAO menuRolDAO;
@@ -63,7 +69,7 @@ public class RolServiceImp implements RolService {
 
     @Override
     @Transactional
-    public void save(Rol rol) {
+    public void save(Rol rol, Sistema sistema) {
 
         ObjectUtil.eliminarAttrSinId(rol, "rolSuperior");
 
@@ -71,7 +77,17 @@ public class RolServiceImp implements RolService {
         if (rolCode != null) {
             throw new PhobosException("Código ya registrado");
         }
+        Boolean existEnum = false;
+        for (RolEnum enu : RolEnum.values()) {
+            existEnum = rol.getCodigo().equals(enu.name()) ? true : false;
+        }
+        Assert.isTrue(existEnum, "No se agregó el código. Comunicarse con soporte.");
         rolDAO.save(rol);
+
+        RolSistema rolSistema = new RolSistema();
+        rolSistema.setRol(rol);
+        rolSistema.setSistema(sistema);
+        rolSistemaDAO.save(rolSistema);
     }
 
     @Override
@@ -81,15 +97,15 @@ public class RolServiceImp implements RolService {
         ObjectUtil.eliminarAttrSinId(rol, "rolSuperior");
 
         Rol rolCode = rolDAO.findByCode(rol.getCodigo());
-        
+
         if (rolCode != null) {
             if (rolCode.getId().longValue() != rol.getId()) {
                 throw new PhobosException("Código ya registrado");
             }
         }
-        
+
         Rol rolDb = rolDAO.find(rol.getId());
-        
+
         if (rol.getRolSuperior() != null) {
             if (rol.getRolSuperior().getId() == rolDb.getId().longValue()) {
                 throw new PhobosException("No puede asignar como rol superior al mismo rol");
@@ -210,7 +226,11 @@ public class RolServiceImp implements RolService {
 
     @Override
     @Transactional
-    public void delete(Rol rol) {
+    public void delete(Rol rol, Sistema sistema) {
+
+        RolSistema rolSistema = rolSistemaDAO.findByRolSistema(rol, sistema);
+        rolSistemaDAO.delete(rolSistema);
+
         rolDAO.delete(rol);
     }
 
@@ -231,8 +251,8 @@ public class RolServiceImp implements RolService {
     }
 
     @Override
-    public List<Rol> allRolByDynatable(DynatableFilter filter) {
-        return rolDAO.allByDynatable(filter);
+    public List<Rol> allRolByDynatable(DynatableFilter filter, Sistema sistema) {
+        return rolDAO.allByDynatable(filter, sistema);
     }
 
     @Override

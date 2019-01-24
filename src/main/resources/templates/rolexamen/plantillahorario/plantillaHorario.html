@@ -40,26 +40,28 @@
                                         </a>
                                     </div>
                                     <div class="form-group col-md-5" >
-                                         <label class=""  v-if="!hasGruposHorasExamen()">Pendiente de calcular</label>
+                                        <label class=""  v-if="!hasGruposHorasExamen()">Pendiente de calcular</label>
                                     </div>
                                 </form>
                             </div>
                         </section>
                     </section>
 
-                    
+
                     <section class="panel m-b-xs" 
                              v-bind:class="{'hide':!hasGruposHorasExamen()}">
                         <section class="panel-body">
                             <div class="row">
                                 <a class="btn btn-warning pull-left m-l-sm"
-                                   v-on:click.prevent="calcularPlantillaHorario">
+                                   v-on:click.prevent="calcularPlantillaHorario"
+                                   th:if="${false}">
                                     <i class="fa fa-arrow-left"></i>
                                     Configurar Rol Examenes
                                 </a>
 
                                 <a class="btn btn-success pull-right m-r-sm"
-                                   v-on:click.prevent="calcularPlantillaHorario">
+                                   v-on:click.prevent="calcularPlantillaHorario"
+                                   th:if="${false}">
                                     Configurar Cursos Masivos
                                     <i class="fa fa-arrow-right"></i>
                                 </a>
@@ -189,7 +191,7 @@
                 var jRolesExamenes = /*[[${jRolesExamenes}]]*/ {};
                 var jRolExamenes = /*[[${jRolExamenes}]]*/ {};
             </script>
-            <script th:src="@{/app/rolexamen/plantillahorario/plantillahorario.js}" charset="utf-8"></script>
+            <script th:src="@{/app/rolexamen/plantillahorario/plantillaHorario.js}" charset="utf-8"></script>
 
 
         </div>

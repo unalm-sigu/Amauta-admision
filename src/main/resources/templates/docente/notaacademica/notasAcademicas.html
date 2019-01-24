@@ -133,7 +133,7 @@
                                     <td class="text-center v-middle" 
                                         th:each="evaluacion : ${evaluacionesByTipoSeccion}" 
                                         th:style="${sistemaNotas.letras} ? 'width:50%' : ''">
-                                        
+
                                         <span class="block form-inline">
                                             <span th:class="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" >
                                                 <span style="display: ''" 
@@ -154,6 +154,7 @@
                                             </span>
 
                                             <span  th:class="${sistemaNotas.letras} ? 'form-inline col-md-12' : ''" th:title="${evaluacion.id}"> 
+
                                                 <div th:class="${sistemaNotas.letras} ? 'form-group col-md-6' : ''">
                                                     <select  class="clsCboLetraNota"  
                                                              th:title="${evaluacion.id}" 

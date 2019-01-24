@@ -27,10 +27,16 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.InasistenciaAlumno;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TemaLeccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_EPG;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoLeccionEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
@@ -407,6 +413,10 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
             horaReprogramadaDAO.save(horaReprogramada);
         }
 
+        Seccion seccionDb = seccionDAO.find(leccionReprogramada.getSeccion());
+        ModalidadEstudio modalidadCurso = seccionDb.getGrupoSeccion().getCurso().getModalidadEstudio();
+        EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(cicloAcademico, modalidadCurso);
+
         for (int i = horaInicioLT.getHour(); i <= horaFinLT.getHour(); i++) {
             Hora hora = horaDAO.findByNumeroHora(i);
             Dia dia = diaDAO.findByNumeroDia(fechaReprogramada.getDayOfWeek());
@@ -415,6 +425,14 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
             horarioAula.setDia(dia);
             horarioAula.setAula(leccionReprogramada.getAula());
             horarioAula.setSeccion(leccionReprogramada.getSeccion());
+
+            horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+
+            if (eventoAcademico != null) {
+                horarioAula.setFechaInicio(eventoAcademico.getFechaInicio());
+                horarioAula.setFechaFin(eventoAcademico.getFechaFin());
+            }
+
             horarioAulaDAO.save(horarioAula);
         }
 
@@ -454,6 +472,16 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
 
         return gruposSecciones;
 
+    }
+
+    private EventoCicloAcademico getEventoCicloAcademico(CicloAcademico cicloAcademico, ModalidadEstudio modalidadCurso) {
+        EventoAcademicoEnum eventoEnum = cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER
+                : (modalidadCurso.isPostgrado() ? CLASES_EPG : (modalidadCurso.isPregrado() ? CLASES_PRE : null));
+        if (eventoEnum == null) {
+            throw new PhobosException("No se ha encontrado algun evento de clases.");
+        }
+        EventoCicloAcademico eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoEnum);
+        return eventoCiclo;
     }
 
 }

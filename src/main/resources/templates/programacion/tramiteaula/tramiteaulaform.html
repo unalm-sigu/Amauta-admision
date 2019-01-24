@@ -1,6 +1,21 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Trámite Aula</title>
+        <style>
+            .div-variable {
+                border-radius: 5px;
+                border: 1px solid #AEBDCD;
+                zoom: 1;
+            }
+            .close-btn {
+                position: absolute;
+                top: -13px;
+                right: -1px;
+                z-index: 100;
+                border-radius: 50px;
+                padding: 5px 10px;
+            }
+        </style>
     </head>
 
     <body>
@@ -14,7 +29,8 @@
                         <a class="btn btn-default" type="button" th:href="@{/tramite/aula}"  >Regresar</a>
                     </div>  
 
-                    <h2>Nuevo tramite </h2>
+                    <h2 v-if="reservaaula.id==null">Nuevo Trámite </h2>
+                    <h2 v-else="reservaaula.id==null">Actualizando Trámite</h2>
 
                 </header>
 
@@ -24,18 +40,6 @@
                         <section class="panel-body">
 
                             <form  method="post" ref="formtramite"   data-parsley-validate="true">
-
-                                <div class="col-sm-3">
-                                    <label class="col-sm-12 control-label">Solo Una Fecha</label>
-                                    <div class="col-sm-12">
-                                        <label class="switch">
-                                            <input type="checkbox" 
-                                                   v-model="solofecha" 
-                                                   v-on:change="changeSoloFecha()"/>
-                                            <span></span>
-                                        </label>
-                                    </div>
-                                </div>
 
                                 <div class="col-sm-3">
                                     <label class="col-sm-12 control-label">Rango de Fecha</label>
@@ -52,11 +56,11 @@
 
                                 <div class="col-sm-3">
                                     <div class="form-group">
-                                        <label v-show="solofecha">Fecha </label>
+                                        <label v-show="solofecha">Unica Fecha </label>
                                         <label v-show="rangofecha">Fecha Inicio </label>
                                         <div class='input-group'>
                                             <date-picker 
-                                                v-bind:config="{format: 'DD/MM/YYYY'}" 
+                                                v-bind:config="{format: 'DD/MM/YYYY',useCurrent: false}" 
                                                 name="fechaInicio"
                                                 ref="fechaInicio"
                                                 class='form-control' 
@@ -81,6 +85,7 @@
                                                 ref="fechaFin"
                                                 data-parsley-errors-container="#errorfechafin"
                                                 class='form-control' 
+                                                v-on:dp-change="changeFechaFin()"
                                                 required="true"
                                                 v-bind:wrap="true" 
                                                 v-model="reservaaula.fechaFin"></date-picker>
@@ -94,57 +99,24 @@
 
                                 <div class="col-sm-12"></div>
 
-                                <div class="col-sm-3">
-                                    <div class="form-group">
-                                        <label>Hora Inicio </label>
-                                        <div class='input-group bootstrap-timepicker timepicker'>
-                                            <input 
-                                                name="horaInicio"
-                                                ref="horaInicio"
-                                                class='form-control' 
-                                                data-parsley-errors-container="#errorhorainicio"
-                                                required="true"
-                                                v-model="reservaaula.horaInicio"></input>
-                                            <span class="input-group-addon pointer">
-                                                <i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            </span>
-                                        </div>
-                                        <span id="errorhorainicio"></span>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-3">
-                                    <div class="form-group">
-                                        <label>Hora Fin </label>
-                                        <div class='input-group bootstrap-timepicker timepicker'>
-                                            <input 
-                                                name="horaFin"
-                                                ref="horaFin"
-                                                class='form-control' 
-                                                data-parsley-errors-container="#errorhorafin"
-                                                required="true"
-                                                v-model="reservaaula.horaFin"></input>
-                                            <span class="input-group-addon pointer">
-                                                <i class="fa fa-clock-o" aria-hidden="true"></i>
-                                            </span>
-                                        </div>
-                                        <span id="errorhorafin"></span>
-                                    </div>
-                                </div>
+                                <aula-horario-component
+                                    v-bind:jsonaulahorario="jsonaulahorario"
+                                    v-bind:validarrangofecha="validarrangofecha"
+                                    ></aula-horario-component>
 
 
                                 <div class="col-sm-12"></div>
 
                                 <div class="col-sm-3">
                                     <div class="form-group">
-                                        <label>Capacidad </label>
+                                        <label>Capacidad Total</label>
 
-                                        <input type="text"  v-model="reservaaula.capacidad" class="form-control" />
+                                        <input v-on:change="changeTotalAforo()" type="text"  v-model="reservaaula.aforo" class="form-control" />
 
                                     </div>
                                 </div>
 
-                                <div class="col-sm-3">
+                                <div v-show="variosambiente" class="col-sm-3">
                                     <div class="form-group">
                                         <label>Cantidad Ambiente </label>
 
@@ -185,7 +157,11 @@
                                     <div class="form-group">
                                         <label>Capacidad Mínima del Ambiente </label>
 
-                                        <input type="text" v-model="reservaaula.capacidadMinimaAmbiente" class="form-control" />
+                                        <input ref="capacidadMinimaAmbiente" 
+                                               type="text" 
+                                               v-on:change="changeCapacidadMinima" 
+                                               v-model="reservaaula.capacidadMinimaAmbiente" 
+                                               class="form-control" />
 
                                     </div>
                                 </div>
@@ -194,80 +170,108 @@
                                     <div class="form-group">
                                         <label>Capacidad Máxima del Ambiente </label>
 
-                                        <input type="text" v-model="reservaaula.capacidadMaximaAmbiente" class="form-control" />
+                                        <input ref="capacidadMaximaAmbiente" 
+                                               type="text" 
+                                               v-on:change="changeCapacidadMaxima" 
+                                               v-model="reservaaula.capacidadMaximaAmbiente" 
+                                               class="form-control" />
 
                                     </div>
                                 </div>
 
-
                                 <div class="col-xs-12"></div>
-
 
                                 <div class="col-sm-3">
                                     <div class="form-group">
                                         <label>Solicitante </label>
 
-                                        <select class="form-control"  v-model="reservaaula.tipoSolicitante" >
-                                            <option th:each="item:${tiposSolicitante}" th:value="${item.name()}" th:text="${item.value}">Alumno</option>
-                                        </select>
+                                        <multiselect 
+                                            v-model='tiposolicitante'
+                                            v-bind:internal-search='false'
+                                            v-bind:limit='15'
+                                            v-bind:options='tiposSolicitante'
+                                            v-bind:allow-empty="false"
+                                            placeholder=" "
+                                            label="nombre"
+                                            select-label=" "
+                                            deselect-label=" "
+                                            v-on:input="changeSolicitante"
+                                            v-bind:loading="isSearchingTipos"
+                                            track-by="id">
+                                        </multiselect>
 
                                     </div>
                                 </div>
-                                
-                                <div v-show="reservaaula.tipoSolicitante=='ALU'" class="col-xs-6">
+
+                                <div v-if="reservaaula.tramite.tipoSolicitante=='ALU'" class="col-xs-6">
                                     <div class="form-group">
                                         <label>Alumno </label>
 
-                                        <vuelect 
-                                            required="true"
-                                            formatselection="persona.nombreCompleto"
-                                            idtemplateresult="divBuscarAlumno"
-                                            usetemplateresult="true"
-                                            v-bind:objetogenerico="reservaaula.tramite.alumno"
-                                            nameinput="alumno.id"
-                                            remoteurl="tramite/aula/allAlumno"
-                                            v-model="reservaaula.tramite.alumno"
-                                            ></vuelect>
+                                        <multiselect v-model='reservaaula.tramite.alumno'
+                                                     v-bind:internal-search='false'
+                                                     v-bind:limit='15'
+                                                     v-on:search-change="searchAlumnos"
+                                                     v-bind:options='alumnos'
+                                                     v-bind:allow-empty="false"
+                                                     v-bind:custom-label="getNombreCompleto"
+                                                     placeholder=" "
+                                                     deselect-label=""
+                                                     select-label=" "
+                                                     v-bind:loading="isSearchingAlumnos"
+                                                     >
+                                        </multiselect>
+
 
                                     </div>
                                 </div>
 
-                                <div v-show="reservaaula.tipoSolicitante=='DOC'" class="col-xs-6">
+                                <div v-if="reservaaula.tramite.tipoSolicitante=='DOC'" class="col-xs-6">
                                     <div class="form-group">
                                         <label>Docente </label>
 
-                                        <vuelect 
-                                            required="true"
-                                            idtemplateresult="divBuscarDocente"
-                                            formatselection="persona.nombreCompleto"
-                                            usetemplateresult="true"
-                                            v-bind:objetogenerico="reservaaula.tramite.docente"
-                                            nameinput="docente.id"
-                                            remoteurl="tramite/aula/allDocente"
-                                            v-model="reservaaula.tramite.docente"
-                                            ></vuelect>
+
+                                        <multiselect v-model='reservaaula.tramite.docente'
+                                                     v-bind:internal-search='false'
+                                                     v-bind:limit='15'
+                                                     v-on:search-change="searchDocentes"
+                                                     v-bind:options='docentes'
+                                                     v-bind:allow-empty="false"
+                                                     v-bind:custom-label="getNombreCompleto"
+                                                     placeholder=" "
+                                                     deselect-label=""
+                                                     select-label=" "
+                                                     v-bind:loading="isSearchingDocentes"
+                                                     >
+                                        </multiselect>
+
 
                                     </div>
                                 </div>
 
-                                <div v-show="reservaaula.tipoSolicitante=='EMP'" class="col-xs-6">
+                                <div v-if="reservaaula.tramite.tipoSolicitante=='EMP'" class="col-xs-6">
                                     <div class="form-group">
                                         <label>Institución </label>
 
                                         <div class='input-group'>
 
-                                            <vuelect 
-                                                required="true"
-                                                formatselection="razonSocial"
-                                                formatresult="razonSocial"
-                                                v-bind:objetogenerico="reservaaula.tramite.empresa"
-                                                nameinput="institucion.id"
-                                                remoteurl="comun/buscar/allEmpresa"
-                                                v-model="reservaaula.tramite.empresa"
-                                                ></vuelect>
+                                            <multiselect v-model='reservaaula.tramite.empresa'
+                                                         v-bind:internal-search='false'
+                                                         v-bind:limit='15'
+                                                         v-on:search-change="searchEmpresas"
+                                                         v-bind:options='empresas'
+                                                         v-bind:allow-empty="false"
+                                                         placeholder=" "
+                                                         deselect-label=""
+                                                         select-label=""
+                                                         label="razonSocial"
+                                                         v-bind:loading="isSearchingEmpresas"
+                                                         >
+                                            </multiselect>
 
                                             <span class="input-group-addon pointer" v-on:click.prevent="addInstitucion()"><i class="fa fa-plus"></i></span>
                                         </div>
+
+                                        <span id="errorempresao"></span>
 
                                     </div>
                                 </div>
@@ -286,32 +290,33 @@
                                 <div class="line line-dashed b-b line-lg pull-in col-xs-12"></div>
 
                                 <div class="row">
-                                    <div v-for="reserva in reservados" class="col-sm-3 col-xs-4">
 
-                                        <div class="thumbnail" style="overflow-x: hidden">
+                                    <div v-for="reserva in reservados" class="col-sm-3  col-xs-4 panel">
+                                        <button class="btn btn-danger btn-sm close-btn" v-on:click.prevent="deleteReservado(reserva)">
+                                            <i class="fa fa-times"></i>
+                                        </button>
 
-                                            <a class="text-danger m-l-sm" v-on:click.prevent="deleteReservado(reserva)" href="#">
-                                                <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                            </a>
+                                        <div class="div-variable panel-body">
 
-                                            <div class="caption m-t-n-md">
-                                                
-                                                <h4>{{reserva.codigo}}</h4>
-                                                <p class="text-sm">{{reserva.nombre}}</p>
-                                                <p>{{reserva.aforo}}</p>
-
-                                                <span class="label label-primary"  data-toggle="tooltip" v-bind:title="reserva.motivoAnulacion" v-if="reserva.estado=='ACT'"> {{reserva.estadoEnum.value}} </span>
-                                                <span class="label label-danger"  data-toggle="tooltip" v-bind:title="reserva.motivoAnulacion" v-if="reserva.estado=='INA'"> {{reserva.estadoEnum.value}} </span>
-                                                <span class="label label-default"  data-toggle="tooltip" v-bind:title="reserva.motivoAnulacion" v-if="reserva.estado=='CRE'"> {{reserva.estadoEnum.value}} </span>
-
-                                            </div>
-
+                                            <h4>{{reserva.codigo}}</h4>
+                                            <p class="text-xs">{{reserva.nombre}}</p>
+                                            <p class="text-xs"> <b>Capacidad:</b> {{reserva.aforo}}</p>
 
                                         </div>
                                     </div>
+                     
                                 </div>
 
                                 <div class="line line-dashed b-b line-lg pull-in col-xs-12"></div>
+
+                                <p class="block"> 
+                                    <span>Capacidad seleccionada: <b v-text="capacidadseleccinado"></b> .   </span>
+                                    <span  v-if="capacidadfaltante>0" class="text-danger">Capacidad faltante: <b v-text="capacidadfaltante"></b> .    </span>
+                                    <span  v-else="capacidadfaltante>0" class="text-primary">Capacidad Exceso: <b v-text="Math.abs(capacidadfaltante)"></b> .  </span>
+                                    <span>Total de Aulas Seleccionadas : <b v-text="totalaulas"></b>.    </span>
+                                </p>
+
+                                <div class="col-sm-12"></div>
 
 
                                 <div class="col-xs-12">
@@ -324,30 +329,47 @@
 
                                         <div slot="header">
 
-                                            <div class="col-sm-3">
-                                                <label class="col-sm-12 control-label">Todos</label>
-                                                <div class="col-sm-12">
-                                                    <label class="switch">
-                                                        <input type="checkbox" 
-                                                               v-model="todos"  
-                                                               v-on:change="changeTodos()"/>
-                                                        <span></span>
-                                                    </label>
+                                            <div class="form-group">
+
+                                                <multiselect v-model='moduloselecto'
+                                                             v-bind:internal-search='false'
+                                                             v-bind:limit='15'
+                                                             v-on:input="changemodulo"
+                                                             v-on:search-change="searchModulos"
+                                                             v-bind:options='modulos'
+                                                             v-bind:allow-empty="false"
+                                                             placeholder="Módulo"
+                                                             deselect-label=""
+                                                             select-label=""
+                                                             label="nombre"
+                                                             v-bind:loading="isSearchingModulos"
+                                                             >
+                                                </multiselect>
+
+                                            </div>
+
+                                            <div class="col-sm-12"></div>
+
+                                            <div class="row">
+                                                <div class="col-sm-12 row">
+
+                                                    <div class="col-sm-3">
+                                                        <label class="col-sm-12 control-label">Solo disponible</label>
+                                                        <div class="col-sm-12">
+                                                            <label class="switch">
+                                                                <input type="checkbox"
+                                                                       v-model="solodisponible" 
+                                                                       v-on:change="changeSoloDisponible()"/>
+                                                                <span></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+
+
                                                 </div>
                                             </div>
 
 
-                                            <div class="col-sm-3">
-                                                <label class="col-sm-12 control-label">Solo disponible</label>
-                                                <div class="col-sm-12">
-                                                    <label class="switch">
-                                                        <input type="checkbox"
-                                                               v-model="solodisponible" 
-                                                               v-on:change="changeSoloDisponible()"/>
-                                                        <span></span>
-                                                    </label>
-                                                </div>
-                                            </div>
 
 
                                         </div>
@@ -359,7 +381,7 @@
                                                         <th></th>
                                                         <th class="col-xs-9 text-center">Ambiente</th>
                                                         <th class="col-xs-2 text-center v-middle">Situación</th>
-                                                        <th class="col-xs-1 text-center v-middle">Aforo</th>
+                                                        <th class="col-xs-1 text-center v-middle">Capacidad</th>
                                                         <th></th>
                                                     </tr>
                                                 </thead>
@@ -376,9 +398,8 @@
                                                         </td>
 
                                                         <td class="v-middle text-center">
-                                                            <label class="label label-primary"  data-toggle="tooltip" v-bind:title="item.motivoAnulacion" v-if="item.estado=='ACT'"> {{item.estadoEnum.value}} </label>
-                                                            <label class="label label-danger"  data-toggle="tooltip" v-bind:title="item.motivoAnulacion" v-if="item.estado=='INA'"> {{item.estadoEnum.value}} </label>
-                                                            <label class="label label-default"  data-toggle="tooltip" v-bind:title="item.motivoAnulacion" v-if="item.estado=='CRE'"> {{item.estadoEnum.value}} </label>
+                                                            <label class="label label-primary"  v-if="item.isDisponible"> Disponible </label>
+                                                            <label class="label label-danger"   v-else="item.isDisponible"> Ocupado </label>
                                                         </td>
 
                                                         <td class="v-middle text-center">
@@ -386,9 +407,7 @@
                                                         </td>
 
                                                         <td class="v-middle">
-
-
-                                                            <a href="#" v-on:click.prevent="addAula(item)">
+                                                            <a v-if="item.isDisponible" href="#" v-on:click.prevent="addAula(item)">
                                                                 <i class="fa fa-plus pointer text-primary" aria-hidden="true"></i>
 
                                                             </a>
@@ -440,13 +459,19 @@
                                     <div class="form-group">
                                         <label>Pais</label>
 
-                                        <vuelect 
-                                            required="true"
-                                            v-bind:objetogenerico="institucion.pais"
-                                            nameinput="paisUbicacion.id"
-                                            remoteurl="comun/buscar/allPaises"
-                                            v-model="institucion.pais"
-                                            ></vuelect>
+                                        <multiselect v-model='institucion.paisUbicacion'
+                                                     v-bind:internal-search='false'
+                                                     v-bind:limit='15'
+                                                     v-on:search-change="searchPais"
+                                                     v-bind:options='paises'
+                                                     v-bind:allow-empty="false"
+                                                     placeholder=" "
+                                                     deselect-label=""
+                                                     select-label=""
+                                                     label="nombre"
+                                                     v-bind:loading="isSearchingPais"
+                                                     >
+                                        </multiselect>
 
                                     </div>
 
@@ -472,6 +497,8 @@
 
             <div th:substituteby="_modules/vue-modal"></div>
 
+            <div th:substituteby="programacion/tramiteaula/tramiteaulahorario"></div>
+
             <template  type="text/x-template" id="divBuscarAlumno">
                 <div>
                     <p class="block">
@@ -493,13 +520,23 @@
         </div>
 
         <div layout:fragment="js">
+
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var reservaAulaJson = /*[[${reservaAula}]]*/ '';
+                var tiposSolicitanteJson = /*[[${tiposSolicitante}]]*/ '';
+                /*]]>*/
+            </script>
             <div th:substituteby="_layout/includes :: sweetalert"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vue-loader"/>
+
             <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
             <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
+
             <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/programacion/tramiteaula/tramiteaulahorario.js}" charset="utf-8"></script>
             <script th:src="@{/app/programacion/tramiteaula/tramiteaulaform.js}" charset="utf-8"></script>
         </div>
 

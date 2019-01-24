@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -19,6 +21,8 @@ import pe.edu.lamolina.model.general.Oficina;
 
 @Repository
 public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public AulaDAOH() {
         super();
@@ -180,12 +184,21 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     }
 
     @Override
-    public List<Aula> allByDynatableFilterTramite(DynatableFilter filter) {
+    public List<Aula> allByDynatableFilterTramite(DynatableFilter filter, List<Aula> aulasNoIncluidas,  Oficina oficina) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Aula.class, "au")
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
+                .leftJoin("aus.tipoAula tasu")
                 .searchFields("au.nombre", "aus.nombre", "ta.nombre", "au.codigo", "os.nombre")
+                .isNotNull("au.capacidadAula")
+                .filter("au.estado", EstadoEnum.ACT.name())
+                .isNotNull("aus.id")
+                .filter("os.id", oficina)
                 .orderBy("au.id desc");
+
+        if (aulasNoIncluidas != null && !aulasNoIncluidas.isEmpty()) {
+            sql.notIn("au.id", aulasNoIncluidas);
+        }
 
         sql.beginRelativeFilters();
         this.setCondicionAulaSeleccionada(filter, sql);
@@ -194,26 +207,69 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     }
 
     private void setCondicionAulaSeleccionada(DynatableFilter filter, DynatableSql sql) {
+
         Map<String, Object> queries = filter.getQueries();
+
         if (queries == null) {
             return;
         }
+
         for (String key : queries.keySet()) {
-            if (!key.equals("aulas")) {
-                continue;
+            if (key.equals("aulas")) {
+                String value = (String) queries.get(key);
+                if (!Strings.isNullOrEmpty(value)) {
+                    String[] ids = value.split(",");
+                    List<Long> idss = new ArrayList();
+                    for (String id : ids) {
+                        idss.add(new Long(id));
+                    }
+                    sql.notIn("au.id", idss);
+                }
             }
-            String value = (String) queries.get(key);
-            if (Strings.isNullOrEmpty(value)) {
-                continue;
+            if (key.equals("modulo")) {
+                String value = (String) queries.get(key);
+                if (!Strings.isNullOrEmpty(value)) {
+                    sql.filter("aus.id", new Long(value));
+                }
             }
-            String[] ids= value.split(",");
-            List<Long> idss= new ArrayList();
-            for (String id : ids) {
-                idss.add(new Long(id));
+            if (key.equals("capacidadmaximaambiente")) {
+
+                String capacidadmaximaambiente = (String) queries.get(key);
+                if (!Strings.isNullOrEmpty(capacidadmaximaambiente)) {
+                    sql.filter("au.capacidadAula", "<=", Integer.parseInt(capacidadmaximaambiente));
+                }
             }
-            sql.notIn("au.id", idss);
-            
+
+            if (key.equals("capacidadminimaambiente")) {
+
+                String capacidadminimaambiente = (String) queries.get(key);
+                if (!Strings.isNullOrEmpty(capacidadminimaambiente)) {
+                    sql.filter("au.capacidadAula", ">=", Integer.parseInt(capacidadminimaambiente));
+                }
+            }
+
         }
+
+    }
+
+    @Override
+    public List<Aula> allAulaModuloByName(String nombre, Integer limit, Oficina oficina) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .selectDistinct("aus")
+                .from(Aula.class, "au")
+                .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
+                .isNotNull("au.capacidadAula")
+                .isNotNull("aus.id")
+                .filter("os.id", oficina)
+                .filter("au.estado", EstadoEnum.ACT.name())
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(aus.codigo,''),' ',coalesce(aus.nombre,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(aus.nombre,''),' ',coalesce(aus.codigo,''))", "like", nombre)
+                .endBlock()
+                .orderBy("aus.codigo", "aus.nombre")
+                .limit(limit);
+        return sql.all(getCurrentSession());
     }
 
 }

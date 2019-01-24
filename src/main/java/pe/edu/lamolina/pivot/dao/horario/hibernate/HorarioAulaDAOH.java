@@ -1,13 +1,16 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
+import java.util.Date;
 import java.util.List;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -112,26 +115,28 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
-    public List<HorarioAula> allByPabellonCicloDiasHoras(Aula pabellon, CicloAcademico cicloAcademico, List<String> hdias) {
+    public List<HorarioAula> allByPabellonCicloDiasHoras(Aula pabellon, EventoCicloAcademico eventoAcademico, List<String> hdias) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia d", "hora h", "aula au", "au.aulaSuperior aus", "seccion sec")
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
                 .filter("aus.id", pabellon)
-                .filter("ca.id", cicloAcademico)
+                .filter("ha.fechaInicio", ">=", eventoAcademico.getFechaInicio())
+                .filter("ha.fechaFin", "<=", eventoAcademico.getFechaFin())
                 .complexFilter("concat(h.codigo,'-',d.id)", "in", hdias);
 
         return all(sql);
     }
 
     @Override
-    public List<HorarioAula> allByAulasCicloDiasHoras(List<Aula> aulas, CicloAcademico cicloAcademico, List<String> hdias) {
+    public List<HorarioAula> allByAulasCicloDiasHoras(List<Aula> aulas, EventoCicloAcademico eventoAcademico, List<String> hdias) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia d", "hora h", "aula au", "seccion sec")
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
                 .in("au.id", aulas)
-                .filter("ca.id", cicloAcademico)
+                .filter("ha.fechaInicio", ">=", eventoAcademico.getFechaInicio())
+                .filter("ha.fechaFin", "<=", eventoAcademico.getFechaFin())
                 .complexFilter("concat(h.codigo,'-',d.id)", "in", hdias);
 
         return all(sql);
@@ -193,6 +198,47 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .join("dia", "hora", "aula au", "seccion sec")
                 .filter("sec.id", seccion);
 
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByFilterAulaTramite(List<Aula> aulas) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .in("au.id", aulas);
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allSoloDiaByDiasHoras(List<String> diashoras, Date fechainicio) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au")
+                .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
+                .filter("tip.codigo", TipoAulaEnum.MOD)
+                .filter("au.estado", EstadoEnum.ACT)
+                .filter("ha.fechaInicio", "<=", fechainicio)
+                .filter("ha.fechaFin", ">=", fechainicio)
+                .complexFilter("concat(d.id,'-',h.id)", "in", diashoras);
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allRangoDiaByDiasHoras(List<String> diashoras, Date fechainicio, Date fechafin) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au")
+                .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
+                .filter("tip.codigo", TipoAulaEnum.MOD)
+                .filter("au.estado", EstadoEnum.ACT)
+                .beginBlock()
+                .__().between("ha.fechaInicio", fechainicio, fechafin)
+                .__().between("ha.fechaFin", fechainicio, fechafin)
+                .__().filter("ha.fechaInicio", "<=", fechainicio).filter("ha.fechaFin", ">=", fechainicio)
+                .endBlock()
+                .complexFilter("concat(d.id,'-',h.id)", "in", diashoras);
         return all(sql);
     }
 

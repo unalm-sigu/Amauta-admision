@@ -51,60 +51,62 @@
                                                 </td>
                                                 <td>
                                                     <span class="block" v-text="item.userRegistro.persona.apellidosNombres"></span>
-                                                    <smal class="block" v-text="item.fechaRegistro"></smal>
-                                                </td>
-                                                <td class="v-middle text-center"> 
-                                                    <span v-if="item.estado=='INA'" class="label label-danger" >Inactivo</span>
-                                                    <span v-if="item.estado=='ACT'" class="label label-primary" >Activo</span>
-                                                    <span v-if="item.estado=='CRE'" class="label label-default" >Creado</span>
-                                                </td>
-                                                <td>
+                                        <smal class="block" v-text="item.fechaRegistro"></smal>
+                                        </td>
+                                        <td class="v-middle text-center"> 
+                                            <span class="block" v-text="item.situacion"></span>
+                                            <span v-if="item.estado=='INA'" class="label label-danger" >Inactivo</span>
+                                            <span v-if="item.estado=='ACT'" class="label label-primary" >Activo</span>
+                                            <span v-if="item.estado=='CRE'" class="label label-default" >Creado</span>
+                                        </td>
+                                        <td>
 
-                                                    <div class="dropdown actions">
+                                            <div class="dropdown actions">
 
-                                                        <a class="dropdown-toggle" data-toggle="dropdown">
-                                                            <i class="glyphicon glyphicon-option-vertical"></i>
+                                                <a class="dropdown-toggle" data-toggle="dropdown">
+                                                    <i class="glyphicon glyphicon-option-vertical"></i>
+                                                </a>
+
+                                                <ul class="dropdown-menu pull-right">
+                                                    <li>
+                                                        <a href="#" 
+                                                           v-on:click.prevent="editarRolExamen(item)"
+                                                           v-if="item.isSituacionConfigurarRol"
+                                                           >
+                                                            Editar
+                                                        </a> 
+                                                    </li>
+                                                    <li>                                                            
+                                                        <a href="#" 
+                                                           v-on:click.prevent="redireccionarWithRol('rolexamen/plantillahorario',item)"
+                                                           v-if="item.isSituacionConfigurarRol || item.isSituacionConfigurarHorario">
+                                                            Configurar Horarios
+                                                        </a> 
+                                                    </li>
+                                                    <li>
+                                                        <a  th:href="@{/rolexamen/cursomasivos}" 
+                                                            v-if="item.isSituacionConfigurarHorario || item.isSituacionConfigurarCursoMasivo">
+                                                            Configurar Cursos Masivos
                                                         </a>
+                                                    </li>
+                                                    <li>
+                                                        <a th:href="@{/rolexamen/gruporegular}" 
+                                                           v-if="item.isSituacionConfigurarCursoMasivo || item.isSituacionConfigurarCursoRegular">
+                                                            Configurar Cursos Regulares
+                                                        </a> 
+                                                    </li>
+                                                    <li>
+                                                        <a th:href="@{/rolexamen/grupoespecial}" 
+                                                           v-if="item.isSituacionConfigurarCursoEspecial">
+                                                            Configurar Cursos Especiales
+                                                        </a>
+                                                    </li>
+                                                </ul>
 
-                                                        <ul class="dropdown-menu pull-right">
-                                                            <li>
-                                                                <a href="#" 
-                                                                   v-on:click.prevent="editarRolExamen(item)"
-                                                                   >
-                                                                    Editar
-                                                                </a> 
-                                                            </li>
-                                                            <li>                                                            
-                                                                <a href="#" 
-                                                                   v-on:click.prevent="redireccionarWithRol('rolexamen/plantillahorario',item)"
-                                                                   v-if="item.isSituacionConfigurarRol || item.isSituacionConfigurarHorario">
-                                                                    Configurar Horarios
-                                                                </a> 
-                                                            </li>
-                                                            <li>
-                                                                <a  th:href="@{/rolexamen/cursomasivos}" 
-                                                                    v-if="item.isSituacionConfigurarCursoMasivo">
-                                                                    Configurar Cursos Masivos
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a th:href="@{/rolexamen/gruporegular}" 
-                                                                   v-if="item.isSituacionConfigurarCursoRegular">
-                                                                    Configurar Cursos Regulares
-                                                                </a> 
-                                                            </li>
-                                                            <li>
-                                                                <a th:href="@{/rolexamen/grupoespecial}" 
-                                                                   v-if="item.isSituacionConfigurarCursoEspecial">
-                                                                    Configurar Cursos Especiales
-                                                                </a>
-                                                            </li>
-                                                        </ul>
+                                            </div>
 
-                                                    </div>
-
-                                                </td>
-                                            </tr> 
+                                        </td>
+                                        </tr> 
                                         </tbody>
                                     </table>
                                 </template>

@@ -98,8 +98,8 @@ public class RolController {
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-
-            List<Rol> roles = service.allRolByDynatable(filter);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<Rol> roles = service.allRolByDynatable(filter, new Sistema(despliegueConfig.getSistema()));
             List<FuncionRol> funcionesRol = service.allFuncionRol(roles);
             Map<Long, List<FuncionRol>> funcionesRolMap = TypesUtil.convertListToMapList("rol.id", funcionesRol);
 
@@ -185,7 +185,7 @@ public class RolController {
         try {
 
             if (rol.getId() == null) {
-                service.save(rol);
+                service.save(rol, new Sistema(despliegueConfig.getSistema()));
                 response.setMessage(Messages.CREATED);
             } else {
                 service.update(rol);
@@ -210,7 +210,7 @@ public class RolController {
         JsonResponse response = new JsonResponse();
 
         try {
-            service.delete(rol);
+            service.delete(rol, new Sistema(despliegueConfig.getSistema()));
             response.setMessage(Messages.DELETED);
             response.setSuccess(true);
         } catch (PhobosException e) {
@@ -233,12 +233,12 @@ public class RolController {
         try {
 
             Rol rolDb = service.findRol(rol);
-            
+
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            
+
             ObjectNode node = JsonHelper.createJson(rolDb, jsonFactory, true,
                     new String[]{
-                        "*","rolSuperior.*"
+                        "*", "rolSuperior.*"
                     });
 
             response.setSuccess(true);
