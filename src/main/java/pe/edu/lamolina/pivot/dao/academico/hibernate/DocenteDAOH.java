@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 
 @Repository
@@ -188,4 +189,82 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
         return sql.all(getCurrentSession());
     }
 
+    @Override
+    public List<Docente> allDocenteByCarrera(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(Docente.class, "doc")
+                .join("departamentoAcademico da", "da.facultad fa", "fa.carrera car")
+                .filter("car.nombre", nombre)
+                .orderBy("car.id desc");
+        return all(sql);
+
+    }
+
+    @Override
+    public List<Docente> allByNameAndCarrera(String nombre, String facultadid) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Docente.class, "doc")
+                .join("persona per", "departamentoAcademico da", "da.facultad fa")
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("doc.estado", EstadoEnum.ACT)
+                .filter("fa.id", facultadid)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .__().filter("doc.codigo", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return sql.all(getCurrentSession());
+    }
+//    @Override
+//    public List<Docente> allByNameAndCarrera(String nombre, String facultadid) {
+//        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+//        Octavia sql = Octavia.query().selectDistinct("doc")
+//                .from(Colaborador.class, "col")
+//                .join("col.persona per", "per.docente doc", "col.oficina of", "of.compania com", "com.facultad fa")
+//                .filter("per.estado", PersonaEstadoEnum.ACT)
+//                //                .filter("doc.estado", EstadoEnum.ACT)
+//                .filter("fa.id", facultadid)
+//                .filter("col.cargo", 10)
+//                //                .filter("of.tipoOficina", 8)
+//                .beginBlock()
+//                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+//                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+//                .__().filter("per.numeroDocIdentidad", "like", nombre)
+//                .__().filter("doc.codigo", "like", nombre)
+//                .endBlock()
+//                .limit(15);
+//        return sql.all(getCurrentSession());
+//    }
+//    @Override
+//    public List<Docente> allByNameAndCarrera(String nombre, String facultadid) {
+//        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+//        Octavia sql = Octavia.query()
+//                .from(Docente.class, "doc")
+//                .join("persona per", "departamentoAcademico da", "da.facultad fa", "per.colaborador col")
+//                .filter("per.estado", PersonaEstadoEnum.ACT)
+//                .filter("doc.estado", EstadoEnum.ACT)
+//                .filter("fa.id", facultadid)
+//                .filter("col.cargo", 10)
+//                .beginBlock()
+//                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+//                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+//                .__().filter("per.numeroDocIdentidad", "like", nombre)
+//                .__().filter("doc.codigo", "like", nombre)
+//                .endBlock()
+//                .limit(15);
+//        return sql.all(getCurrentSession());
+//    }
+//    @Override
+//    public List<Docente> allByNameAndCarrera(String nombre, String facultadid) {
+//        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+//        Octavia sql = Octavia.query()
+//                .from(DepartamentoAcademico.class, "dep")
+//                .join("dep.facultad fac")
+//                .filter("fac.id", facultadid)
+//                .limit(15);
+//        return sql.all(getCurrentSession());
+//    }
 }
