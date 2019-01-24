@@ -207,4 +207,9 @@ public class CarreraServiceImp implements CarreraService {
         return carreraDAO.resumen();
     }
 
+    @Override
+    public List<Carrera> all() {
+        return carreraDAO.all();
+    }
+
 }

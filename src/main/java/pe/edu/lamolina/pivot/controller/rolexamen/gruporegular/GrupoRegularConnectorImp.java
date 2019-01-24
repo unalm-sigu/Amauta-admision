@@ -423,6 +423,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             List<MatriculaSeccion> matriculadosPorSeccion,
             DataSessionPivot ds) {
         SeccionGrupoRegular seccionGrupoRegular = this.crearObjectSeccionGrupoRegular(seccion, letraGrupoRegular, ds);
+        letraGrupoRegular.getSeccionesGruposRegulares().add(seccionGrupoRegular);
 
         GrupoRegularExamen grupoRegularExamen = letraGrupoRegular.getGruposRegularesExamenes()
                 .stream().filter(x -> x.getGrupoHoras().equals(seccion.getGrupoHoras()))

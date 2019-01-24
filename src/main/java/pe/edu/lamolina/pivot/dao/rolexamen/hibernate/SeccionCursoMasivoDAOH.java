@@ -129,7 +129,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionCursoMasivo.class, "scm")
                 .join("seccion sec", "cursoMasivoExamen cm", "cm.rolExamenes re", "userRegistro ur", "ur.persona urPer")
-                .join("usuarioExclusion uex", "uex.persona uexPer")
+                .left("usuarioExclusion uex", "uex.persona uexPer")
                 .filter("cm.id", cursoMasivoExamen.getId())
                 .searchFields("sec.codigo");
 
