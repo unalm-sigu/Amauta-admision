@@ -89,7 +89,7 @@
                     <div class="tab-pane" id="TabAula3" 
                          v-bind:class="{active : tabAulas.aulaSel.tabAula=='especifica'}">
                         <section class="panel-body">
-                            <div class="form-group">   
+                            <div class="form-group">
 
                                 <multiselect v-model="tabAulas['especificas'].aulasEspecificaSel"
                                              track-by="id"
@@ -98,7 +98,7 @@
                                              v-on:search-change="asyncFindAulas"
                                              v-on:input="seleccionarAulaEspecifica"
                                              v-bind:options="tabAulas['especificas'].aulasEspecificas"
-                                             custom-label="labelAula"
+                                             v-bind:custom-label="labelAula"
                                              placeholder="Seleccione un edificio">
                                     <template slot="option" slot-scope="props">    
                                         <span v-if="props.option.nombre != ''" class="block">
