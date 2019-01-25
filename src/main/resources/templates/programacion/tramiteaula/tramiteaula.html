@@ -1,6 +1,21 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Reserva de Ambiente</title>
+        <style>
+            .div-variable {
+                border-radius: 5px;
+                border: 1px solid #AEBDCD;
+                zoom: 1;
+            }
+            .close-btn {
+                position: absolute;
+                top: -13px;
+                right: -1px;
+                z-index: 100;
+                border-radius: 50px;
+                padding: 5px 10px;
+            }
+        </style>
     </head>
 
     <body>
@@ -78,7 +93,7 @@
                                                             data-toggle="popover"
                                                             data-placement="left"
                                                             v-bind:data-content="giveMeAulas(item)">
-                                                        <i class="fa fa-building-o" aria-hidden="true"></i>
+                                                        <i class="fa fa-home" aria-hidden="true"></i>
                                                     </button>
 
                                                 </td>
@@ -95,6 +110,7 @@
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                                         <ul class="dropdown-menu pull-right">
                                                             <li  v-if="item.estado == 'PEND' " ><a  v-bind:href="editarTramite(item)">Editar Aula Reservada</a></li>
+                                                            <li ><a  href="#" v-on:click="resumenTramite(item)"  >Resumen</a></li>
                                                             <li v-if="item.estado == 'PEND' || item.estado == 'RES'" class="divider"></li>
                                                             <li v-if="item.estado == 'PEND'  || item.estado == 'RES'">
                                                                 <a v-on:click="aceptarTramite(item)" href="#">Aceptar</a>
@@ -172,6 +188,8 @@
                     </div>
                 </modal-vik>
 
+                <div th:substituteby="programacion/tramiteaula/tramiteaularesumen"></div>
+
             </div>
 
             <div th:substituteby="_modules/vue-modal"></div>
@@ -182,8 +200,8 @@
             <div th:substituteby="_layout/includes :: sweetalert"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vue-loader"/>
-            <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/programacion/tramiteaula/tramiteaulahorarioresumen.js}" charset="utf-8"></script>
             <script th:src="@{/app/programacion/tramiteaula/tramiteaula.js}" charset="utf-8"></script>
         </div>
 

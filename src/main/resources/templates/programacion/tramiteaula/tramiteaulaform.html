@@ -276,6 +276,34 @@
                                     </div>
                                 </div>
 
+                                <div v-if="reservaaula.tramite.tipoSolicitante=='OFI'" class="col-xs-6">
+                                    <div class="form-group">
+                                        <label>Oficina </label>
+
+                                        <div class='input-group'>
+
+                                            <multiselect v-model='reservaaula.tramite.oficina'
+                                                         v-bind:internal-search='false'
+                                                         v-bind:limit='15'
+                                                         v-on:search-change="searchOficina"
+                                                         v-bind:options='oficinas'
+                                                         v-bind:allow-empty="false"
+                                                         placeholder=" "
+                                                         deselect-label=""
+                                                         select-label=""
+                                                         label="nombre"
+                                                         v-bind:loading="isSearchingOficina"
+                                                         >
+                                            </multiselect>
+
+                                            <span class="input-group-addon pointer" v-on:click.prevent="addInstitucion()"><i class="fa fa-plus"></i></span>
+                                        </div>
+
+                                        <span id="errorempresao"></span>
+
+                                    </div>
+                                </div>
+
                                 <div class="col-xs-12"></div>
 
                                 <div class="col-sm-12">

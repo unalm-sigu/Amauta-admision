@@ -9,6 +9,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -240,6 +241,14 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .endBlock()
                 .complexFilter("concat(d.id,'-',h.id)", "in", diashoras);
         return all(sql);
+    }
+
+    @Override
+    public void deleteAllByReservaAula(ReservaAula reservaAula) {
+        String strQuery = "delete from HorarioAula ha where ha.reservaAula.id=:IDRESERVAAULA";
+        Query query = getCurrentSession().createQuery(strQuery);
+        query.setLong("IDRESERVAAULA", reservaAula.getId());
+        query.executeUpdate();
     }
 
 }

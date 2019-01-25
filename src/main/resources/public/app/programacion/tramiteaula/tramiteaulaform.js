@@ -3,7 +3,7 @@ Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 new Vue({
     el: '#main',
     data: {
-        reservaaula: {tipoSolicitante: null, tramite: {alumno: {}, empresa: {}, docente: {}}},
+        reservaaula: {tipoSolicitante: null, tramite: {alumno: {}, empresa: {}, docente: {}, oficina: {}}},
         reservaaulaedit: JSON.parse(reservaAulaJson),
         tiposSolicitante: JSON.parse(tiposSolicitanteJson),
         urlfilter: APP.url("tramite/aula/filteraula"),
@@ -29,6 +29,7 @@ new Vue({
         alumnos: [],
         docentes: [],
         empresas: [],
+        oficinas: [],
         modulos: [],
         paises: [],
         isSearchingTipos: false,
@@ -37,6 +38,7 @@ new Vue({
         isSearchingEmpresas: false,
         isSearchingModulos: false,
         isSearchingPais: false,
+        isSearchingOficina: false,
         tiposolicitante: [],
         capacidadseleccinado: 0,
         capacidadfaltante: 0,
@@ -305,6 +307,28 @@ new Vue({
                     $vue.isSearchingEmpresas = false;
                     if (response.success) {
                         $vue.empresas = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        searchOficina(search) {
+            let $vue = this;
+            $vue.isSearchingOficina = true;
+            $.ajax({
+                url: APP.url('tramite/aula/allOficina'),
+                dataType: 'json',
+                type: 'POST',
+                async: true,
+                data: {nombre: search},
+                success(response) {
+                    $vue.isSearchingOficina = false;
+                    if (response.success) {
+                        $vue.oficinas = response.data;
                     } else {
                         notify(response.message, "error");
                     }
