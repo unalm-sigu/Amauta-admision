@@ -8,7 +8,8 @@ new Vue({
     },
     methods: {
         verDetalle(item, act) {
-            var texto = act.tipoActividadIngresante.nombre;
+            var texto = act.tipoActividadIngresante.codigoOficina == 'ALUMNO' ? 'Alumno' : act.tipoActividadIngresante.codigoOficina;
+            texto += ' - ' + act.tipoActividadIngresante.nombre;
             var time = 0;
             for (var i = 0; i < texto.length + 1; i++) {
                 setTimeout(function () {

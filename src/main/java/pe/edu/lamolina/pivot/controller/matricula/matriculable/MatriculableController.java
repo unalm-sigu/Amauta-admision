@@ -473,7 +473,7 @@ public class MatriculableController {
         try {
 
             service.inhabilitarMatriculable(matriculaResumen, ds);
-            response.setMessage("Se registró el aporte satisfactoriamente.");
+            response.setMessage("Se actualizo el matriculable satisfactoriamente.");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
