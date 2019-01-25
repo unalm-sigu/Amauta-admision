@@ -159,4 +159,23 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
                 .in("co.estado", Arrays.asList(ACT, PER, VAC, DSC));
         return find(sql);
     }
+
+    @Override
+    public Colaborador findColaboradorByIdPersona(Long idPersona) {
+        Octavia sql = Octavia.query()
+                .from(Colaborador.class, "co")
+                .filter("co.persona", idPersona);
+
+        return find(sql);
+    }
+
+    @Override
+    public Colaborador findColaboradorDocenteByIdPersona(Long idPersona, Long idCLongargo) {
+        Octavia sql = Octavia.query()
+                .from(Colaborador.class, "co")
+                .filter("co.persona", idPersona)
+                .filter("co.cargo", idCLongargo);
+
+        return find(sql);
+    }
 }

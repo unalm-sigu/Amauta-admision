@@ -210,6 +210,7 @@ public class MatriculableServiceImp implements MatriculableService {
             matriculable.setCreditosMatriculados(0);
             matriculable.setCreditosRetirados(0);
             matriculable.setCreditosTrikaPagados(0);
+            matriculable.setCreditosTrikaSeparados(0);
             matriculable.setCursosMatriculados(0);
             matriculable.setCursosRetirados(0);
             matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
@@ -285,6 +286,7 @@ public class MatriculableServiceImp implements MatriculableService {
             matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculable.setSituacionInicio(alumno.getSituacionAcademica());
             matriculable.setEsUltimoCiclo(alumno.getCreditosAprobados() >= 172);
+            matriculable.setCreditosTrikaSeparados(0);
             matriculaResumenDAO.save(matriculable);
         }
 
@@ -659,6 +661,7 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setCursosMatriculados(0);
         matri.setCursosRetirados(0);
         matri.setCreditosTrikaPagados(0);
+        matri.setCreditosTrikaSeparados(0);
         matri.setPorcentajeAvance(0);
         matri.setNotaAcumulada("0");
         matri.setNotaAvance("0");
