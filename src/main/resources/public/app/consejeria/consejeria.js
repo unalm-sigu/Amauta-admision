@@ -12,7 +12,8 @@ new Vue({
             okbtn: 'Agregar',
             showaccept: true
         },
-        ciclo: cicloJson,
+        ciclo: JSON.parse(cicloJson),
+        carreras: JSON.parse(carrerasJson),
         btndisabled: '',
         listadoDocentes: [],
         listadoCarreras: [],
@@ -77,7 +78,7 @@ new Vue({
             this.isLoading = true
             $.ajax({
                 url: APP.url("consejeria/consejero/list"),
-                data: {nombre: nombreDoc, facultadid: idfacultad, idCarrera: idCarrera},
+                data: {nombre: nombreDoc, idFacultad: idfacultad},
                 dataType: 'json',
                 type: 'post',
             }).then(response => {
@@ -99,7 +100,7 @@ new Vue({
             }
 
         },
-        CargaConsejeros() {
+        cargaConsejeros() {
             let $vue = this;
             $vue.$refs.load.querie = [];
             this.listadoDocentes = '';
@@ -181,7 +182,7 @@ new Vue({
             });
         },
         asignarAlummnos() {
-            
+
 
         },
         editRecorrido(item) {

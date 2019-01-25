@@ -55,7 +55,7 @@
 
                         </div>
 
-                        <h2>Listado de Consejeros - <span v-text='ciclo'></span></h2>
+                        <h2>Listado de Consejeros <span v-text='ciclo.descripcion'></span></h2>
                     </header>
                     <section class="wrapper-lg">
                         <section class="panel">
@@ -68,14 +68,12 @@
                                         <div class="col-md-8 preguntas-col">
                                             <div class="form-group">
                                                 <multiselect v-model="nombreCarreraSelect" 
-                                                             v-bind:options='listadoCarreras'
+                                                             v-bind:options='carreras'
                                                              label='nombre'
                                                              track-by='id'
                                                              placeholder="Ingrese y seleccione una carrera"
-                                                             v-bind:internal-search="false"
-                                                             v-on:search-change="getCarrera"
                                                              v-bind:allow-empty="false"
-                                                             v-on:input="CargaConsejeros">
+                                                             v-on:input="cargaConsejeros">
                                                 </multiselect>
                                             </div>
                                         </div>
@@ -160,7 +158,8 @@
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
+                var cicloJson = /*[[${ciclo}]]*/ 'json';
+                var carrerasJson = /*[[${carreras}]]*/ 'json';
                 /*]]>*/
             </script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>

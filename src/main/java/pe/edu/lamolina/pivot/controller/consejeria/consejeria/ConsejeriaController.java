@@ -3,8 +3,6 @@ package pe.edu.lamolina.pivot.controller.consejeria.consejeria;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -23,11 +21,13 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
@@ -49,7 +49,10 @@ public class ConsejeriaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        model.addAttribute("ciclo", ds.getCicloAcademico().getDescripcion());
+        List<Carrera> carreras = service.allCarreraByPersonaCiclo(ds.getPersona(), ds.getCicloAcademico());
+
+        model.addAttribute("ciclo", createCicloJson(ds.getCicloAcademico()).toString());
+        model.addAttribute("carreras", createCarrerasJson(carreras).toString());
 
         return "consejeria/consejero";
     }
@@ -64,13 +67,11 @@ public class ConsejeriaController {
 
         try {
 
-            System.out.println("idDoc  " + ds.getDocente().getId());
-            long idDocente =  ds.getDocente().getId();
-            
-            List<Carrera> carrerasOfuser = service.allCarreraByIdDocente(idDocente);
-            
-            List<Carrera> carreras = service.allByCarreraByNombre(nombre, carrerasOfuser);
+//            long idDocente =  ds.getDocente().getId();
+            List<Carrera> carreras = service.allCarreraByPersonaCiclo(ds.getPersona(), ds.getCicloAcademico());
+//            List<Carrera> carrerasOfuser = service.allCarreraByIdDocente(idDocente);
 
+            ///List<Carrera> carreras = service.allByCarreraByNombre(nombre, carreras);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Carrera carrera : carreras) {
@@ -96,7 +97,7 @@ public class ConsejeriaController {
 
     @ResponseBody
     @RequestMapping("listConsjeros")
-    public DynatableResponse listadoConsjeros(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
+    public DynatableResponse listConsjeros(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
 
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -133,28 +134,31 @@ public class ConsejeriaController {
 
     @ResponseBody
     @RequestMapping("list")
-    public JsonResponse listDocenteByNombreAndCarrera(@RequestParam String nombre, String facultadid, HttpSession session) {
+    public JsonResponse list(
+            @RequestParam String nombre,
+            @RequestParam Long idFacultad, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse json = new JsonResponse();
         try {
 
-            System.out.println("Imprimiendo datos: " + nombre + " " + facultadid);
+            System.out.println("Imprimiendo datos: " + nombre);
 
             // List<Docente> docentes = service.allDocenteByNombreAndCarrera(nombre, facultadid);
-            List<DepartamentoAcademico> departs = service.allDeptByIdFacultad(facultadid);
-
-            List<Docente> docentes = service.allDocenteByNombreAndCarreraAndDeparts(nombre, departs);
+//            List<DepartamentoAcademico> departs = service.allDeptByIdFacultad("23");
+//            List<Docente> docentes = service.allDocenteByNombreAndCarreraAndDeparts(nombre, departs);
+            List<Docente> docentes = service.allDocenteByNombreFacultad(nombre, new Facultad(idFacultad));
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Docente docente : docentes) {
 
                 ObjectNode node = JsonHelper.createJson(docente, JsonNodeFactory.instance, true, new String[]{
-                    "id",
-                    "estado",
+                    "id", "estado", "codigo",
                     "persona.id",
                     "persona.nombreCompleto",
+                    "persona.numeroDocIdentidad",
+                    "persona.tipoDocumento.simbolo",
                     "departamentoAcademico.id",
                     "departamentoAcademico.nombre",
                     "departamentoAcademico.facultad.id"
@@ -216,7 +220,7 @@ public class ConsejeriaController {
 
     @ResponseBody
     @RequestMapping("cambiarEstado")
-    public JsonResponse EditState(@RequestParam Long idConsejero, String estado, HttpSession session) {
+    public JsonResponse cambiarEstado(@RequestParam Long idConsejero, String estado, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
@@ -236,5 +240,23 @@ public class ConsejeriaController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    private ObjectNode createCicloJson(CicloAcademico ciclo) {
+        return JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{"id", "descripcion", "descripcion2"});
+    }
+
+    private ArrayNode createCarrerasJson(List<Carrera> carreras) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (Carrera carrera : carreras) {
+            ObjectNode node = JsonHelper.createJson(carrera, JsonNodeFactory.instance, true, new String[]{
+                "id", "nombre", "codigo",
+                "facultad.id",
+                "facultad.codigo",
+                "facultad.nombre"
+            });
+            array.add(node);
+        }
+        return array;
     }
 }
