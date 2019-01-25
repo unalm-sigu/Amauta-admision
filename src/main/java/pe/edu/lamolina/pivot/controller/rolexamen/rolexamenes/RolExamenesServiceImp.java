@@ -7,7 +7,6 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Days;
-import org.joda.time.Weeks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
-import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
@@ -69,7 +68,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
     @Override
     public void save(RolExamenes rolExamenes, DataSessionPivot ds) {
-        rolExamenes.setEstado(EstadoEnum.CRE.name());
+        rolExamenes.setEstadoEnum(RolExamenesEstadoEnum.CRE);
         rolExamenes.setFechaRegistro(new Date());
         rolExamenes.setUserRegistro(ds.getUsuario());
         rolExamenes.setHorasExamen(Constantine.CANTIDAD_HORAS_POR_EXAMEN);
@@ -100,6 +99,18 @@ public class RolExamenesServiceImp implements RolExamenesService {
             semanaExamen.setRolExamenes(rolExamenes);
             semanaExamenDAO.save(semanaExamen);
         }
+    }
+
+    @Override
+    @Transactional
+    public void publicarRolExamen(RolExamenes rolExamenes, DataSessionPivot ds) {
+        rolExamenes = rolexamenesDAO.find(rolExamenes.getId());
+        Assert.isTrue(rolExamenes.isSituacionConfigurarGrupoEspecial(), "No se puede publicar el rol examenes, sin configurar las secciones especiales.");
+        RolExamenes rolExamenesUpd = new RolExamenes();
+        rolExamenesUpd.setId(rolExamenes.getId());
+        rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.PUB);
+        rolExamenesUpd.setFechaPublicacion(ds.getFechaAccionAudit());
+        rolexamenesDAO.updatePublicacion(rolExamenesUpd);
     }
 
     @Override

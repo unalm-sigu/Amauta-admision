@@ -8,6 +8,7 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
+                    <a href="/rolexamen/rolexamenes" class="btn btn-default btn-sm pull-right">Regresar</a>
                     <h2>Grupos Especiales <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
                 </header>
 
@@ -201,6 +202,7 @@
             <div th:substituteby="rolexamen/components/mover-seccion-examen"/>
             <script th:inline="javascript">
                 var jRolesExamenes = /*[[${jRolesExamenes}]]*/ {};
+                var jRolExamenes = /*[[${jRolExamenes}]]*/ {};
             </script>
             <script th:src="@{/app/rolexamen/grupoespecial/grupoEspecial.js}" charset="utf-8"></script>
         </div>

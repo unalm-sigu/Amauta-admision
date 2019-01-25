@@ -12,12 +12,12 @@ import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
 
 @Repository
 public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements RolExamenesDAO {
-    
+
     public RolExamenesDAOH() {
         super();
         setClazz(RolExamenes.class);
     }
-    
+
     @Override
     public RolExamenes find(long id) {
         Octavia sql = Octavia.query()
@@ -28,7 +28,7 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
                 .filter("rexa.id", id);
         return find(sql);
     }
-    
+
     @Override
     public List<RolExamenes> allActiveByCiclo(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -38,7 +38,7 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
                 .filter("ca.id", cicloAcademico);
         return all(sql);
     }
-    
+
     @Override
     public List<RolExamenes> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
@@ -50,7 +50,7 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
                 .orderBy("re.id desc");
         return all(sql);
     }
-    
+
     @Override
     public void updateRolExamenes(RolExamenes rolExamenes) {
         Octavia octavia = Octavia.update(RolExamenes.class);
@@ -58,12 +58,20 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
         octavia.set(rolExamenes, "nombre");
         this.update(octavia);
     }
-    
+
+    @Override
+    public void updatePublicacion(RolExamenes rolExamenes) {
+        Octavia octavia = Octavia.update(RolExamenes.class);
+        octavia.set(rolExamenes, "estado");
+        octavia.set(rolExamenes, "fechaPublicacion");
+        this.update(octavia);
+    }
+
     @Override
     public void updateSituacion(RolExamenes rolExamenes) {
         Octavia octavia = Octavia.update(RolExamenes.class);
         octavia.set(rolExamenes, "situacion");
         this.update(octavia);
     }
-    
+
 }

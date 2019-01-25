@@ -12,6 +12,8 @@ public interface GrupoEspecialService {
 
     List<RolExamenes> allRolExamenesActives(CicloAcademico cicloAcademico);
 
+    RolExamenes findRolExamenes(long rolExamenId);
+
     List<SeccionGrupoEspecial> allSeccionesGrupoEspecialByRolExamenes(DynatableFilter filter, RolExamenes rolExamenes);
 
     void deleteGrupoEspecial(RolExamenes rolExamenes);

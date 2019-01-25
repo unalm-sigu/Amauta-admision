@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -23,6 +24,16 @@ public class CursoMasivoExamenDAOH extends AbstractEasyDAO<CursoMasivoExamen> im
     public CursoMasivoExamenDAOH() {
         super();
         setClazz(CursoMasivoExamen.class);
+    }
+
+    @Override
+    public void deleteByRolExamenes(RolExamenes rolExamenes) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  CursoMasivoExamen cme where cme.rolExamenes.id=:ROLEX");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("ROLEX", rolExamenes.getId());
+        query.executeUpdate();
     }
 
     @Override
@@ -101,6 +112,7 @@ public class CursoMasivoExamenDAOH extends AbstractEasyDAO<CursoMasivoExamen> im
         Octavia sql = Octavia.query()
                 .from(CursoMasivoExamen.class, "cm")
                 .join("rolExamenes re", "userRegistro ur", "curso cu")
+                .left("grupoHorasExamen ghe", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras")
                 .filter("cm.id", id);
 
         return find(sql);

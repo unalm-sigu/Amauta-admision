@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -22,6 +23,16 @@ public class AlumnoCursoMasivoDAOH extends AbstractEasyDAO<AlumnoCursoMasivo> im
     public AlumnoCursoMasivoDAOH() {
         super();
         setClazz(AlumnoCursoMasivo.class);
+    }
+
+    @Override
+    public void deleteByCursoMasivo(CursoMasivoExamen cursoMasivoExamen) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  AlumnoCursoMasivo acm where acm.cursoMasivoExamen.id = :CURSO_MASIVO ");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("CURSO_MASIVO", cursoMasivoExamen.getId());
+        query.executeUpdate();
     }
 
     @Override

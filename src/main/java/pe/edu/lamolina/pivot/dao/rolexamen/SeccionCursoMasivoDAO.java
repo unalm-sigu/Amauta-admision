@@ -11,6 +11,8 @@ import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 
 public interface SeccionCursoMasivoDAO extends EasyDAO<SeccionCursoMasivo> {
 
+    void deleteByCursoMasivo(CursoMasivoExamen cursoMasivoExamen);
+
     SeccionCursoMasivo findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... estado);
 
     List<SeccionCursoMasivo> allByCursosMasivos(List<CursoMasivoExamen> cursosMasivos);

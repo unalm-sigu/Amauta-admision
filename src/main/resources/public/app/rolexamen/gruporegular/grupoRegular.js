@@ -19,7 +19,10 @@ new Vue({
         alumnosGruposRegulares: []
     },
     mounted() {
-
+        if (jRolExamenes != null) {
+            this.rolExamen = JSON.parse(jRolExamenes);
+            this.listGruposRegulares(this.rolExamen);
+        }
     },
     methods: {
         rolExamenCustomLabel( { eventoCicloAcademico }) {
@@ -89,6 +92,30 @@ new Vue({
 
         }, changeRolExamen() {
             this.listGruposRegulares(this.rolExamen);
+        }, eliminarGruposRegulares() {
+            let vue = this;
+            bootbox.confirm({
+                message: "¿Si continua se perdera el avance de los grupos regulares y especiales?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/eliminarGruposRegulares`, vue.rolExamen)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        // notify(response.data.message, 'info');
+                                        vue.listGruposRegulares(vue.rolExamen);
+                                    }
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
+
+
         }, listGruposRegulares(rolExamen) {
             MODAL.showWait("Espere un momento por favor");
             AXIOS.post(`${this.URL}/listGruposRegulares`, rolExamen)
