@@ -289,14 +289,23 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         if (TipoSolicitanteEnum.ALU.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setDocente(null);
             tramite.setEmpresa(null);
+            tramite.setOficina(null);
         }
 
         if (TipoSolicitanteEnum.DOC.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setAlumno(null);
             tramite.setEmpresa(null);
+            tramite.setOficina(null);
         }
 
         if (TipoSolicitanteEnum.EMP.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
+            tramite.setAlumno(null);
+            tramite.setDocente(null);
+            tramite.setOficina(null);
+        }
+
+        if (TipoSolicitanteEnum.OFI.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
+            tramite.setEmpresa(null);
             tramite.setAlumno(null);
             tramite.setDocente(null);
         }
@@ -336,6 +345,11 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
                     aulaReservadaDAO.save(aulaReservada);
 
                     HorarioAula horarioAula = new HorarioAula();
+                    horarioAula.setFechaInicio(reservaAula.getFechaInicio());
+                    horarioAula.setFechaFin(reservaAula.getFechaFin());
+                    if (reservaAula.getFechaFin() == null) {
+                        horarioAula.setFechaFin(reservaAula.getFechaInicio());
+                    }
                     horarioAula.setAula(aula);
                     horarioAula.setDia(diaHora.getDia());
                     horarioAula.setHora(diaHora.getHora());
@@ -368,19 +382,29 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         if (TipoSolicitanteEnum.ALU.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setDocente(null);
             tramite.setEmpresa(null);
+            tramite.setOficina(null);
             tramite.setAlumno(tramiteForm.getAlumno());
         }
 
         if (TipoSolicitanteEnum.DOC.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setAlumno(null);
             tramite.setEmpresa(null);
+            tramite.setOficina(null);
             tramite.setDocente(tramiteForm.getDocente());
         }
 
         if (TipoSolicitanteEnum.EMP.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setAlumno(null);
             tramite.setDocente(null);
+            tramite.setOficina(null);
             tramite.setEmpresa(tramiteForm.getEmpresa());
+        }
+
+        if (TipoSolicitanteEnum.OFI.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
+            tramite.setAlumno(null);
+            tramite.setDocente(null);
+            tramite.setEmpresa(null);
+            tramite.setOficina(tramiteForm.getOficina());
         }
 
         tramite.setUserModificacion(ds.getUsuario());
@@ -414,6 +438,11 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
                     aulaReservadaDAO.save(aulaReservada);
 
                     HorarioAula horarioAula = new HorarioAula();
+                    horarioAula.setFechaInicio(reservaAulaForm.getFechaInicio());
+                    horarioAula.setFechaFin(reservaAulaForm.getFechaFin());
+                    if (reservaAulaForm.getFechaFin() == null) {
+                        horarioAula.setFechaFin(reservaAulaForm.getFechaInicio());
+                    }
                     horarioAula.setAula(aula);
                     horarioAula.setDia(diaHora.getDia());
                     horarioAula.setHora(diaHora.getHora());

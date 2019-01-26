@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +17,6 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
@@ -65,6 +66,8 @@ public class AulaServiceImp implements AulaService {
 
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public List<Aula> allByDynatable(DynatableFilter filter) {
@@ -254,9 +257,10 @@ public class AulaServiceImp implements AulaService {
     }
 
     @Override
-    public Aula findAulaFull(Long aulaId, CicloAcademico cicloAcademico) {
-        Aula aula = aulaDAO.find(aulaId);
-        List<HorarioAula> horariosAulas = horarioAulaDAO.allByAula(aula, cicloAcademico);
+    public Aula findAulaFull(Aula aulaFormFecha) {
+
+        Aula aula = aulaDAO.find(aulaFormFecha.getId());
+        List<HorarioAula > horariosAulas = horarioAulaDAO.allByAulaFecha(aulaFormFecha);
         this.completarDocentes(horariosAulas);
         aula.setHorariosAula(horariosAulas);
         return aula;
@@ -268,9 +272,12 @@ public class AulaServiceImp implements AulaService {
     }
 
     private void completarDocentes(List<HorarioAula> horariosAulas) {
-        List<Seccion> secciones = horariosAulas.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+        
+        List<Seccion> secciones = horariosAulas.stream().filter(x->x.getSeccion()!=null).map(x -> x.getSeccion()).collect(Collectors.toList());
+       
         List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allActivosBySeccionesOrderPrincipalLimit(secciones);
         Map<Long, List<DocenteSeccion>> docenteSeccionesMap = TypesUtil.convertListToMapList("seccion.id", docenteSecciones);
+        
         for (HorarioAula horariosAula : horariosAulas) {
             Seccion seccion = horariosAula.getSeccion();
             if (seccion != null) {
