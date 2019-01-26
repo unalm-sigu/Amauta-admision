@@ -19,6 +19,8 @@ public interface CursoMasivosService {
 
     List<RolExamenes> allRolExamenesByCicloActivo(CicloAcademico cicloAcademico);
 
+    RolExamenes findRolExamenes(RolExamenes rolExamenes);
+
     void save(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     List<CursoMasivoExamen> listCursosMasivosExamenes(RolExamenes rolExamenes);
@@ -62,4 +64,6 @@ public interface CursoMasivosService {
     void activarSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivo, DataSessionPivot ds);
 
     boolean validateCruceCursosMasivos(CursoMasivoExamen cursoMasivoExamen, List<Alumno> alumnos, List<Docente> docentes, List<Aula> aulas);
+
+    void eliminarCursosMasivos(RolExamenes rolExamenes);
 }

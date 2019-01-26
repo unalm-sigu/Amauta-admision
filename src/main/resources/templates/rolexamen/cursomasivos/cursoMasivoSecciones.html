@@ -38,6 +38,18 @@
                                     </div>
                                 </div>
 
+                                <div class="row"  v-if="cursoMasivoExamen.grupoHorasExamen">
+                                    <div class="form-group">
+                                        <label class="m col-md-2 bold">Fecha Examen</label>
+                                        <div class="m-t-md col-md-4">
+                                            {{cursoMasivoExamen.grupoHorasExamen.fecha }}
+                                            (Grupo {{cursoMasivoExamen.grupoHorasExamen.grupoHoras.codigo}})
+                                            <label >Hora Inicio: {{cursoMasivoExamen.grupoHorasExamen.horaInicio.descripcion}}</label>
+                                            <label >Hora Fin: {{cursoMasivoExamen.grupoHorasExamen.horaFin.descripcion}}</label>
+                                        </div>
+
+                                    </div>
+                                </div>
                             </div>
 
                         </section>
@@ -52,7 +64,7 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th class="col-md-3 text-center">Codigo</th>
+                                                <th class="col-md-3 text-center">Secció</th>
                                                 <th>Alumnos</th>
                                                 <th class="col-md-3 text-center">Registro</th>
                                                 <th class="col-md-3 text-center">Exclusión</th>
@@ -63,7 +75,7 @@
                                         <tbody>
                                             <tr v-for="sec in props.data">
                                                 <td>
-                                                    <span v-text="sec.seccion.codigo2"></span>
+                                                    <span v-text="sec.seccion.codigo2"></span> ({{sec.seccion.grupoHoras.codigo}})
                                                 </td>
                                                 <td class="text-center">
                                                     <span class="badge pointer"

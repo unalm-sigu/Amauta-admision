@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -47,6 +48,16 @@ public class LetraGrupoRegularDAOH extends AbstractEasyDAO<LetraGrupoRegular> im
                 .left("ur.persona urPer")
                 .filter("gex.id", grupoHorasExamen);
         return find(sql);
+    }
+
+    @Override
+    public void deleteByRolExamenes(RolExamenes rolExamenes) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  LetraGrupoRegular lgr where lgr.rolExamenes.id=:ROLEX");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("ROLEX", rolExamenes.getId());
+        query.executeUpdate();
     }
 
 }

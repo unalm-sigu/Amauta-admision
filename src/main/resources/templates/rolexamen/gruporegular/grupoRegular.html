@@ -8,6 +8,7 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
+                    <a href="/rolexamen/rolexamenes" class="btn btn-default btn-sm pull-right">Regresar</a>
                     <h2>Grupos Regulares <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
                 </header>
 
@@ -31,11 +32,22 @@
                                                 required="true"
                                                 >
                                             </multiselect>
+
+                                            <input v-bind:value="rolExamen.id" 
+                                                   type="hidden"
+                                                   required="true"
+                                                   v-if="rolExamen" />
                                         </div>
                                         <div class="col-md-4">
-                                            <a class="btn btn-success"
+                                            <a class="btn btn-success m-l-sm"
                                                v-on:click.prevent="calcularGrupoRegular">
                                                 Calcular
+                                            </a>
+
+                                            <a class="btn btn-warning"
+                                               v-on:click.prevent="eliminarGruposRegulares"
+                                               v-if="letrasGruposRegulares.length>0">
+                                                Eliminar
                                             </a>
                                         </div>
                                     </div>
@@ -68,9 +80,9 @@
                                                    >{{ item.letra }} ({{item.gruposRegularesActivosCount}})</a>
                                             </td>
                                             <td class="text-center">  
-                                             <!--   <span class="badge pointer"
-                                                      v-on:click.prevent="loadModalSecciones(item)"
-                                                      v-text="item.seccionesRegularesActivosCount"></span>--> 
+                                                <!--   <span class="badge pointer"
+                                                         v-on:click.prevent="loadModalSecciones(item)"
+                                                         v-text="item.seccionesRegularesActivosCount"></span>--> 
                                                 <span class="badge pointer"
                                                       v-on:click.prevent="letraRegularSecciones(item)"
                                                       v-text="item.seccionesRegularesActivosCount"></span>
@@ -279,6 +291,7 @@
 
             <script th:inline="javascript">
                 var jRolesExamenes = /*[[${jRolesExamenes}]]*/ {};
+                var jRolExamenes = /*[[${jRolExamenes}]]*/ {};
             </script>
             <script th:src="@{/app/rolexamen/gruporegular/grupoRegular.js}" charset="utf-8"></script>
 

@@ -25,6 +25,16 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
     }
 
     @Override
+    public void deleteByCursoMasivo(CursoMasivoExamen cursoMasivoExamen) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  SeccionCursoMasivo scm where scm.cursoMasivoExamen.id = :CURSO_MASIVO ");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("CURSO_MASIVO", cursoMasivoExamen.getId());
+        query.executeUpdate();
+    }
+
+    @Override
     public SeccionCursoMasivo find(long id) {
         Octavia sql = Octavia.query()
                 .from(SeccionCursoMasivo.class, "scm")
@@ -128,7 +138,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
     public List<SeccionCursoMasivo> allByDynatableAndCursoMasivo(DynatableFilter filter, CursoMasivoExamen cursoMasivoExamen) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionCursoMasivo.class, "scm")
-                .join("seccion sec", "cursoMasivoExamen cm", "cm.rolExamenes re", "userRegistro ur", "ur.persona urPer")
+                .join("seccion sec", "cursoMasivoExamen cm", "cm.rolExamenes re", "userRegistro ur", "ur.persona urPer", "sec.grupoHoras gh")
                 .left("usuarioExclusion uex", "uex.persona uexPer")
                 .filter("cm.id", cursoMasivoExamen.getId())
                 .searchFields("sec.codigo");

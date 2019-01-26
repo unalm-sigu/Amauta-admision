@@ -39,24 +39,6 @@ new Vue({
             this.confirmarModal.title = 'Crear Nuevo Rol Examen';
             this.$refs.modalConfirmar.open();
 
-            /*
-             $.ajax({
-             url: APP.url("rolexamen/rolexamenes/allEventoCicloAcademico"),
-             dataType: 'json',
-             type: 'post',
-             }).then(response => {
-             if (response.success) {
-             $vue.eventosCiclos = response.data;
-             console.log("Estoy dentro del ajax");
-             console.log($vue.eventosCiclos);
-             $vue.confirmarModal.title = 'Crear Nuevo Rol Examen';
-             $vue.$refs.modalConfirmar.open();
-             } else {
-             notify(response.message, 'error');
-             }
-             }, error => {
-             notify(MESSAGES.errorComunicacion, 'error');
-             });*/
         },
         editarRolExamen(rolExamen) {
             let $vue = this;
@@ -120,6 +102,36 @@ new Vue({
         }, redireccionarWithRol(ruta, rolExamen) {
             console.log(APP.url(ruta) + "/" + rolExamen.id);
             location.href = APP.url(ruta) + "/" + rolExamen.id;
+        }, publicarRolExamen(rolExamen) {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea publicar el rol examen?',
+                buttons: {
+                    confirm: {label: 'Si, publicar', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: "POST",
+                            contentType: "application/json",
+                            url: APP.url("rolexamen/rolexamenes/publicarrolexamen"),
+                            data: JSON.stringify(rolExamen)
+                        }).then(response => {
+                            if (response.success) {
+                                $vue.$refs.raptorRolExamenes.loadRemoteData();
+                                notify(response.message, "info")
+                            } else {
+                                notify(response.message, 'error');
+                            }
+                            MODAL.hideWait();
+                        }, error => {
+                            notify(MESSAGES.errorComunicacion, 'error');
+                        });
+                    }
+                }
+            });
         }
     }
 });
