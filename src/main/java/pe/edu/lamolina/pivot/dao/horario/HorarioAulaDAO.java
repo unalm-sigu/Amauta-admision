@@ -50,4 +50,6 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     public void deleteAllByReservaAula(ReservaAula reservaAulaForm);
 
+    public List<HorarioAula> allByAulaFecha(Aula aulaFormFecha);
+
 }

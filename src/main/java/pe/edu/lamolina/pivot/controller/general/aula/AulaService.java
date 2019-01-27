@@ -33,8 +33,8 @@ public interface AulaService {
 
     void eliminarAula(Aula aula, DataSessionPivot ds);
 
-    Aula findAulaFull(Long aulaId, CicloAcademico cicloAcademico);
-
     List<Dia> allDia();
+
+    Aula findAulaFull(Aula aulaForm);
 
 }

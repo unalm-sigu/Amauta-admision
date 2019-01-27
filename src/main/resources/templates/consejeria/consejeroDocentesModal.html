@@ -6,13 +6,13 @@
         <div class="row" data-parsley-validate="true" id="form">
             <div class="col-md-8 preguntas-col">
                 <div class="form-group">
-                    <label>Especialidad: <span v-text="nombreCarreraSelect.nombre"></span></label>
+                    <label>Especialidad: <span v-text="carreraSelect.nombre"></span></label>
                 </div>
             </div>
             <div class="col-md-12 preguntas-col">
                 <label>Seleccione un docente</label>
                 <div class="form-group">
-                    <multiselect v-model="objeto_docenteSelect" 
+                    <multiselect v-model="docenteSelect" 
                                  v-bind:options='listadoDocentes'
                                  label='nombres'
                                  v-bind:custom-label="nombreforShow"
@@ -21,13 +21,20 @@
                                  v-bind:internal-search="false"
                                  v-on:search-change="getDocentes"
                                  v-on:input="CargaDepartamento">
+
+                        <template slot="option" slot-scope="props">
+                            <span class="option__title">{{ props.option.persona.nombreCompleto }}</span>
+                            <div class="option__desc">
+                                <span class="option__small text-primary">{{ props.option.departamentoAcademico.nombre }}</span>
+                            </div>
+                        </template>
                     </multiselect>
                 </div>
             </div>
-            <div class="col-md-8 preguntas-col">
+            <div class="col-md-12 preguntas-col">
                 <label>Departamento del docente seleccionado</label>
                 <div class="form-group">
-                    <input type="text" class="form-control numeric" v-model="departamentoAcademicoNombre" disabled="true" />
+                    <input type="text" class="form-control numeric" v-model="departamento" disabled="true" />
                 </div>
             </div>
         </div>

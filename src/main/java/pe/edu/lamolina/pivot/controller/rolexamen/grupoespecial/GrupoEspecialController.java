@@ -25,12 +25,8 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
-import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
-import pe.edu.lamolina.model.rolexamen.GrupoRegularExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
-import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
-import pe.edu.lamolina.pivot.controller.rolexamen.gruporegular.GrupoRegularController;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -71,6 +67,26 @@ public class GrupoEspecialController {
         model.addAttribute("jRolesExamenes", jRolesExamenes.toString());
 
         return "rolexamen/grupoespecial/grupoEspecial";
+    }
+
+    @RequestMapping("{rolExamen}")
+    public String indexWithRolExamen(
+            @PathVariable("rolExamen") Long rolExamenId,
+            Model model,
+            HttpSession session) {
+
+        RolExamenes rolExamenes = grupoEspecialService.findRolExamenes(rolExamenId);
+        ObjectNode jRolExamenes = JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, false,
+                new String[]{
+                    "*",
+                    "eventoCicloAcademico.eventoAcademico.*",
+                    "semanasExamen.rolExamenes.*",
+                    "semanasExamen.*",
+                    "semanasExamen.horaFin",
+                    "semanasExamen.horaInicio"
+                });
+        model.addAttribute("jRolExamenes", jRolExamenes.toString());
+        return this.index(model, session);
     }
 
     @ResponseBody

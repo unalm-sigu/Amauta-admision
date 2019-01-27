@@ -12,6 +12,8 @@ import pe.edu.lamolina.model.rolexamen.RolExamenes;
 
 public interface CursoMasivoExamenDAO extends EasyDAO<CursoMasivoExamen> {
 
+    void deleteByRolExamenes(RolExamenes rolExamenes);
+
     List<CursoMasivoExamen> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     List<RolExamenes> allRolExamenesByCicloActivo(CicloAcademico cicloAcademico);
