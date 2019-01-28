@@ -88,6 +88,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
     }
 
     @Override
+    @Transactional
     public void save(RolExamenes rolExamenes, DataSessionPivot ds) {
         rolExamenes.setEstadoEnum(RolExamenesEstadoEnum.CRE);
         rolExamenes.setFechaRegistro(new Date());
@@ -109,16 +110,18 @@ public class RolExamenesServiceImp implements RolExamenesService {
     }
 
     @Override
+    @Transactional
     public void update(RolExamenes rolExamenes, DataSessionPivot ds) {
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
         rolExamenes.setEventoCicloAcademico(rolExamenes.getEventoCicloAcademico());
         rolexamenesDAO.updateRolExamenes(rolExamenes);
 
+        //semanaExamenDAO.deleteByRolExamenes(rolExamenes);
         semanaExamenDAO.allByRolExamenes(rolExamenes);
         for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
             semanaExamen.setRolExamenes(rolExamenes);
-            semanaExamenDAO.save(semanaExamen);
+            semanaExamenDAO.update(semanaExamen);
         }
     }
 
