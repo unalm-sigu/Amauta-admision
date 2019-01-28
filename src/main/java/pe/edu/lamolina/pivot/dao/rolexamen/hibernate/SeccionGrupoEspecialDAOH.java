@@ -43,9 +43,12 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionGrupoEspecial.class, "sge")
                 .join("rolExamenes re", "seccion sec", "userRegistro ur", "aula au")
+                .join("sec.grupoSeccion gpo", "gpo.curso cur")
                 .join("ur.persona per")
                 .left("docente doc", "doc.persona dper", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras")
-                .searchFields("sec.codigo", "sec.codigo2");
+                .searchFields("sec.codigo2", "cur.codigo", "cur.nombre", "au.codigo")
+                .searchComplexField("concat(coalesce(dper.paterno,''),' ',coalesce(dper.materno,''),' ',coalesce(dper.nombres,''))")
+                .searchComplexField("concat(coalesce(dper.nombres,''),' ',coalesce(dper.paterno,''),' ',coalesce(dper.materno,''))");
 
         return all(sql);
     }
