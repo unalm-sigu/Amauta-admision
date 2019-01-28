@@ -196,6 +196,11 @@ public class GrupoRegularController {
             array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "*",
                 "seccion.*",
+                "seccion.grupoSeccion.id",
+                "seccion.grupoSeccion.curso.id",
+                "seccion.grupoSeccion.curso.nombre",
+                "seccion.grupoSeccion.curso.codigo",
+                "seccion.grupoSeccion.curso.tpc",
                 "docente.*",
                 "docente.persona.*",
                 "aula.*",

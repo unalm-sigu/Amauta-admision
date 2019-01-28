@@ -52,11 +52,10 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th class="col-md-1 text-center">Codigo</th>
+                                                <th class="col-md-3 text-center"></th>
                                                 <th class="col-md-1 text-center">Alumnos</th>
                                                 <th class="col-md-2 text-center">Docente</th>
                                                 <th class="col-md-1 text-center">Aula</th>
-                                                <th class="col-md-2 text-center">Registro</th>
                                                 <th class="col-md-2 text-center">Exclusión</th>
                                                 <th class="col-md-1 text-center">Estado</th>
                                                 <th class="col-md-1 text-center"></th>
@@ -65,7 +64,9 @@
                                         <tbody>
                                             <tr v-for="sec in props.data">
                                                 <td>
-                                                    <span v-text="sec.seccion.codigo2"></span>
+                                                    <span class="bold text-info text-md" v-text="sec.seccion.codigo2"></span>
+                                                    <span class="block text-muted">{{ sec.seccion.grupoSeccion.curso.nombre }}</span>
+                                                    <span class="block text-muted"><b>{{ sec.seccion.grupoSeccion.curso.codigo  }}</b> &nbsp; <i class="fa fa-bookmark-o"></i> {{ sec.seccion.grupoSeccion.curso.tpc }}</span>
                                                 </td>
                                                 <td class="text-center">
                                                     <span class="badge pointer"
@@ -74,12 +75,8 @@
                                                 <td>
                                                     <span v-text="sec.docente.persona.apellidosNombres"></span>
                                                 </td>
-                                                <td>
+                                                <td class="text-center">
                                                     <span v-text="sec.aula.codigo"></span>
-                                                </td>
-                                                <td>
-                                                    <span class="block" v-text="sec.userRegistro.persona.apellidosNombres"></span>
-                                                    <small v-text="sec.fechaRegistro"></small>
                                                 </td>
                                                 <td>
                                                     <span class="block" v-text="sec.usuarioExclusion.persona.apellidosNombres"></span>
