@@ -184,6 +184,7 @@
 
                                     </td>
                                     <td th:if="${sistemaNotas.letras}">
+                                        <input type="hidden" th:value="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].id}"/>
                                         <span th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
                                               > 
                                             04.18 

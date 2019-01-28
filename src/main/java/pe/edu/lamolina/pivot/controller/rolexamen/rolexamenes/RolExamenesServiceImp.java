@@ -20,11 +20,17 @@ import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
+import pe.edu.lamolina.pivot.controller.rolexamen.cursomasivos.CursoMasivosService;
+import pe.edu.lamolina.pivot.controller.rolexamen.grupoespecial.GrupoEspecialService;
+import pe.edu.lamolina.pivot.controller.rolexamen.gruporegular.GrupoRegularService;
+import pe.edu.lamolina.pivot.controller.rolexamen.plantillahorario.PlantillaHorarioService;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.SeccionExcluidoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SemanaExamenDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -32,21 +38,36 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class RolExamenesServiceImp implements RolExamenesService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
+    @Autowired
+    GrupoEspecialService grupoEspecialService;
+    
+    @Autowired
+    GrupoRegularService grupoRegularService;
+    
+    @Autowired
+    CursoMasivosService cursoMasivosService;
+    
+    @Autowired
+    PlantillaHorarioService plantillaHorarioService;
+    
     @Autowired
     RolExamenesDAO rolexamenesDAO;
-
+    
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
+    
     @Autowired
     HoraDAO horaDAO;
-
+    
     @Autowired
     SemanaExamenDAO semanaExamenDAO;
-
+    
+    @Autowired
+    SeccionExcluidoDAO seccionExcluidoDAO;
+    
     @Override
     public RolExamenes findRolExamenes(long rolExamenId) {
         RolExamenes rolExamenes = rolexamenesDAO.find(rolExamenId);
@@ -54,18 +75,18 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolExamenes.setSemanasExamen(semanaExamens);
         return rolExamenes;
     }
-
+    
     @Override
     public List<EventoCicloAcademico> allEventoCicloAcademicos(CicloAcademico cicloAcademico) {
         List<EventoCicloAcademico> eventoCicloAcademicos = eventoCicloAcademicoDAO.allEventoCicloAcademicos(cicloAcademico);
         return eventoCicloAcademicos;
     }
-
+    
     @Override
     public List<RolExamenes> allRolExamenes(DynatableFilter filter, CicloAcademico cicloAcademico) {
         return rolexamenesDAO.allByDynatable(filter, cicloAcademico);
     }
-
+    
     @Override
     public void save(RolExamenes rolExamenes, DataSessionPivot ds) {
         rolExamenes.setEstadoEnum(RolExamenesEstadoEnum.CRE);
@@ -73,7 +94,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolExamenes.setUserRegistro(ds.getUsuario());
         rolExamenes.setHorasExamen(Constantine.CANTIDAD_HORAS_POR_EXAMEN);
         rolExamenes.setSituacionEnum(SituacionRolExamenesEnum.CONF_ROL);
-
+        
         List<String> errors = new ArrayList<>();
         for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
             if (semanaExamen.getHoraInicio().getNumero() >= semanaExamen.getHoraFin().getNumero()) {
@@ -83,24 +104,24 @@ public class RolExamenesServiceImp implements RolExamenesService {
             semanaExamen.setRolExamenes(rolExamenes);
         }
         Assert.isTrue(errors.isEmpty(), String.join("<br/>", errors));
-
+        
         rolexamenesDAO.save(rolExamenes);
     }
-
+    
     @Override
     public void update(RolExamenes rolExamenes, DataSessionPivot ds) {
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
         rolExamenes.setEventoCicloAcademico(rolExamenes.getEventoCicloAcademico());
         rolexamenesDAO.updateRolExamenes(rolExamenes);
-
+        
         semanaExamenDAO.allByRolExamenes(rolExamenes);
         for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
             semanaExamen.setRolExamenes(rolExamenes);
             semanaExamenDAO.save(semanaExamen);
         }
     }
-
+    
     @Override
     @Transactional
     public void publicarRolExamen(RolExamenes rolExamenes, DataSessionPivot ds) {
@@ -112,21 +133,44 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolExamenesUpd.setFechaPublicacion(ds.getFechaAccionAudit());
         rolexamenesDAO.updatePublicacion(rolExamenesUpd);
     }
-
+    
+    @Transactional
+    @Override
+    public void eliminarConfiguracion(RolExamenes rolExamenes, DataSessionPivot ds) {
+        rolExamenes = rolexamenesDAO.find(rolExamenes.getId());
+        Assert.isFalse(rolExamenes.isSituacionConfigurarRol(), "No se puede eliminar la configuración del rol examen.");
+        
+        this.deleteSeccionesExcluidasByRolExamenes(rolExamenes);
+        grupoEspecialService.deleteGrupoEspecial(rolExamenes);
+        grupoRegularService.deleteGrupoRegular(rolExamenes);
+        cursoMasivosService.deleteCursosMasivos(rolExamenes);
+        plantillaHorarioService.deletePlantillaHorario(rolExamenes);
+        
+        RolExamenes rolExamenesUpd = new RolExamenes();
+        rolExamenesUpd.setId(rolExamenes.getId());
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_ROL);
+        rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CRE);
+        rolexamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
+    }
+    
+    public void deleteSeccionesExcluidasByRolExamenes(RolExamenes rolExamenes) {
+        seccionExcluidoDAO.deleteByRolExamenes(rolExamenes);
+    }
+    
     @Override
     public List<Hora> allHoras() {
         return horaDAO.all();
     }
-
+    
     @Override
     public List<SemanaExamen> allSemanaExamenByEventoCiclo(EventoCicloAcademico eventoCicloAcademico) {
         eventoCicloAcademico = eventoCicloAcademicoDAO.findEventoCicloAcademico(eventoCicloAcademico);
         DateTime fechaInicio = new DateTime(eventoCicloAcademico.getFechaInicio());
         DateTime fechaFin = new DateTime(eventoCicloAcademico.getFechaFin());
-
+        
         Assert.isTrue(fechaInicio.getDayOfWeek() == DateTimeConstants.MONDAY, "El dia inicial del evento debe ser lunes.");
         Assert.isTrue(fechaFin.getDayOfWeek() == DateTimeConstants.SUNDAY, "El dia final del evento debe ser domingo.");
-
+        
         int dias = Days.daysBetween(fechaInicio.toLocalDate(), fechaFin.toLocalDate()).getDays();
         int diasSemana = fechaInicio.dayOfWeek().withMaximumValue().getDayOfWeek();
         if (++dias % diasSemana != 0) {
@@ -135,25 +179,25 @@ public class RolExamenesServiceImp implements RolExamenesService {
         //Weeks weeks = Weeks.weeksBetween(dateTime1.toLocalDate(), dateTime2.toLocalDate());
         int weeks = dias / diasSemana;
         List<SemanaExamen> semanasExamen = new ArrayList<>();
-
+        
         DateTime lastDateOfWeek = null;
         for (int i = 1; i <= weeks; i++) {
             SemanaExamen semanaExamen = new SemanaExamen();
-
+            
             semanaExamen.setNumeroSemana(i);
-
+            
             DateTime fechaInicioEach = lastDateOfWeek == null ? new DateTime(fechaInicio) : lastDateOfWeek.plusDays(BigDecimal.ONE.intValue());
             semanaExamen.setFechaInicio(fechaInicioEach.toDate());
-
+            
             lastDateOfWeek = fechaInicioEach.dayOfWeek().withMaximumValue();
             semanaExamen.setFechaFin(lastDateOfWeek.toDate());
-
+            
             semanaExamen.setHoraInicio(new Hora());
             semanaExamen.setHoraFin(new Hora());
             semanasExamen.add(semanaExamen);
         }
-
+        
         return semanasExamen;
     }
-
+    
 }

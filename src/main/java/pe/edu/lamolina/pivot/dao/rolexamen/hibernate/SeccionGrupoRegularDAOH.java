@@ -13,6 +13,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 
@@ -54,6 +55,18 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
                 .left("docente doc", "doc.persona dper")
                 .filter("lgr.id", letrasGruposRegular)
                 .in("sgr.estado", estados);
+        return all(sql);
+    }
+
+    @Override
+    public List<SeccionGrupoRegular> allByRolExamenes(
+            RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnums) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("letraGrupoRegular lgr", "seccion sec", "lgr.rolExamenes rex")
+                .left("docente doc", "doc.persona dper")
+                .filter("sgr.estado", seccionRolExamenEstadoEnums)
+                .filter("rex.id", rolExamenes);
         return all(sql);
     }
 

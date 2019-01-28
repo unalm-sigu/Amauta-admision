@@ -13,6 +13,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
 
@@ -93,6 +94,18 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .left("usuarioExclusion uexl", "uexl.persona puexl")
                 .in("scm.estado", estados)
                 .filter("cme.id", cursoMasivo);
+        return all(sql);
+    }
+
+    @Override
+    public List<SeccionCursoMasivo> allByRolExamenes(RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme")
+                .join("userRegistro ureg", "ureg.persona pureg", "rolExamenes rex")
+                .left("usuarioExclusion uexl", "uexl.persona puexl")
+                .in("scm.estado", estados)
+                .filter("rex.id", rolExamenes);
         return all(sql);
     }
 
