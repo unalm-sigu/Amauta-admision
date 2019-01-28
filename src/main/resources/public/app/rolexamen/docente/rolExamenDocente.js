@@ -13,6 +13,7 @@ new Vue({
         grupoHorasExamen: [],
         semanaExamenActiva: null,
         grupoActivo: null,
+        nombreExamen: ""
     },
     mounted() {
         this.allRolExamen();
@@ -28,7 +29,7 @@ new Vue({
             }).then(response => {
                 if (response.success) {
                     $vue.rolExamen = response.data;
-                    console.log($vue.rolExamen);
+                    $vue.nombreExamen = $vue.rolExamen[0].nombreRolExamen;
                     this.plantilla();
 
                 } else {
@@ -57,11 +58,6 @@ new Vue({
                     .then(response => {
                         if (response.data.success) {
                             this.semanasExamen = response.data.data;
-//                            if ($vue.semanaExamenActiva != null) {
-//                                $vue.seleccionarSemana(this.semanaExamenActiva);
-//                            } else {
-//                                $vue.seleccionarSemana(this.semanasExamen[0]);
-//                            }
                         }
                     });
 
@@ -87,18 +83,6 @@ new Vue({
                     }
                 })
             });
-//            for (var x in this.semanasExamen) {
-//                var values = Object.values(x.tblHorarioSeamanaExamen.fechasHorasGrupos);
-//                for (var y in values) {
-//                    if (y.grupoHorasExamen.id == $vue.grupoActivo.id) {
-//                        x.selected = true;
-//                        $vue.semanaExamenActiva = x;
-//                        break;
-//                    } else {
-//                        x.selected = false;
-//                    }
-//                }
-//            }
         },
         fechaGrupoHoraItem(fechaGrupoHora) {
             if (this.grupoActivo != null && fechaGrupoHora.grupoHorasExamen.id == this.grupoActivo.id) {

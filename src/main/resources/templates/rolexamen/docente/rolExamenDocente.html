@@ -7,7 +7,7 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <h2>Examenes <span th:text="${cicloAcademico.descripcion}">2018-II</span></h2>
+                    <h2>{{nombreExamen}} <span th:text="${cicloAcademico.descripcion}">2018-II</span></h2>
                 </header>
 
                 <section class="wrapper-lg">
@@ -39,11 +39,11 @@
                                             <span v-text="exam.grupoHorasExamen.horaInicio.descripcion"></span> - <span v-text="exam.grupoHorasExamen.horaFin.descripcion"></span>
                                         </td>
                                         <td v-if="exam.secciones == null" class="col-md-2 v-middle text-center">
-                                            <span  class="label label-default " v-text="exam.seccion.codigo"></span>
+                                            <span  class="label label-default " v-text="exam.seccion.codigo2"></span>
                                         </td>
                                         <td v-else="" class="col-md-2 v-middle text-center">
                                             <div v-for="seccion in exam.secciones" class="col-md-4">                                                 
-                                                <span  class="label label-default col-md-12 m-b-xs" v-text="seccion.codigo"></span>
+                                                <span  class="label label-default col-md-12 m-b-xs" v-text="seccion.codigo2"></span>
                                             </div> 
                                         </td>
                                         <td v-if="exam.aulas == null" class="col-md-2 v-middle text-center">
