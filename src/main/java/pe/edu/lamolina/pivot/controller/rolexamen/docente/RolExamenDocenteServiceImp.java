@@ -85,7 +85,8 @@ public class RolExamenDocenteServiceImp implements RolExamenDocenteService {
                     aulas,
                     secciones,
                     rolExamenes.getEstado(),
-                    rolExamenes.getId()));
+                    rolExamenes.getId(),
+                    rolExamenes.getNombre()));
         }
         examenDocentes.addAll(seccionGrupoRegulars);
         examenDocentes.addAll(seccionGrupoEspecials);
