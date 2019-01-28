@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import pe.edu.lamolina.model.bean.RolExamenDocente;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import static pe.edu.lamolina.model.enums.TipoGestionEnum.PUB;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 
@@ -62,13 +64,27 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
     }
 
     @Override
+    public List<SeccionGrupoRegular> allByRolExamenes(
+            RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnums) {
+        //  List<SeccionRolExamenEstadoEnum> estados = Arrays.asList(seccionRolExamenEstadoEnums);
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("letraGrupoRegular lgr", "seccion sec", "lgr.rolExamenes rex")
+                .left("docente doc", "doc.persona dper")
+                .in("sgr.estado", seccionRolExamenEstadoEnums)
+                .filter("rex.id", rolExamenes);
+        return all(sql);
+    }
+
+    @Override
     public List<SeccionGrupoRegular> allByLetraGrupoRegularAndEstados(
             List<LetraGrupoRegular> letrasGruposRegular, SeccionRolExamenEstadoEnum... estados) {
+        List<SeccionRolExamenEstadoEnum> lEstados = Arrays.asList(estados);
         Octavia sql = Octavia.query()
                 .from(SeccionGrupoRegular.class, "sgr")
                 .join("letraGrupoRegular lgr", "seccion sec", "docente doc", "doc.persona dper", "aula au")
                 .in("lgr.id", letrasGruposRegular)
-                .in("sgr.estado", estados);
+                .in("sgr.estado", lEstados);
         return all(sql);
     }
 

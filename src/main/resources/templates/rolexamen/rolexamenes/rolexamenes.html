@@ -54,7 +54,7 @@
                                         <smal class="block" v-text="item.fechaRegistro"></smal>
                                         </td>
                                         <td class="v-middle text-center"> 
-
+                                            <span style="display: none">{{item.situacion}}    </span>
                                             <span v-if="item.estado=='INA'" class="label label-danger" >Inactivo</span>
                                             <span v-if="item.estado=='ACT'" class="label label-primary" >Activo</span>
                                             <span v-if="item.estado=='CRE'" class="label label-default" >Creado</span>
@@ -118,6 +118,12 @@
                                                     <li>
                                                         <a v-bind:href="`/rolexamen/reporte/${item.id}/aulas`">
                                                             Reporte de Aulas
+                                                        </a>
+                                                    </li>
+                                                    <li class="divider"></li> 
+                                                    <li>
+                                                        <a v-on:click.prevent="eliminarAvanceConfiguracion(item)">
+                                                            Eliminar Configuración
                                                         </a>
                                                     </li>
                                                 </ul>

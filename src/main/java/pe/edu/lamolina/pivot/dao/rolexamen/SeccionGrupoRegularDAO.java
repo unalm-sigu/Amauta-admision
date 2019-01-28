@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bean.RolExamenDocente;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 
 public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
@@ -35,6 +36,8 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
 
     SeccionGrupoRegular findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... seccionRolExamenEstadosEnum);
 
+    List<SeccionGrupoRegular> allByRolExamenes(
+            RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnums);
     public List<RolExamenDocente> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico);
 
 }

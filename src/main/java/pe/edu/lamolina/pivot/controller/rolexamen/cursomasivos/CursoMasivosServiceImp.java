@@ -2,7 +2,6 @@ package pe.edu.lamolina.pivot.controller.rolexamen.cursomasivos;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -170,7 +169,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void save(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds) {
 
         RolExamenes rolExamenes = rolExamenesDAO.find(cursoMasivosExamen.getRolExamenes().getId());
-        Assert.isTrue(rolExamenes.isSituacionConfigurarCursoMasivo(), "No puede agregar cursos masivos, en este momento.");
+        Assert.isTrue(rolExamenes.isSituacionConfigurarHorario() || rolExamenes.isSituacionConfigurarCursoMasivo(), "No puede agregar cursos masivos, en este momento.");
         List<String> validationsHorariosExamen = this.validarHorariosExamen(rolExamenes);
         Assert.isTrue(validationsHorariosExamen.isEmpty(), String.join("\n", validationsHorariosExamen));
 
@@ -614,7 +613,14 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         rolExamenesDAO.updateSituacion(rolExamenesUpd);
     }
 
+    @Override
+    @Transactional
     public void deleteCursosMasivos(RolExamenes rolExamenes) {
+        List<SeccionCursoMasivo> seccionesCurMasivosExcluidas = seccionCursoMasivoDAO.allByRolExamenes(rolExamenes, SeccionRolExamenEstadoEnum.EXC);
+        List<Seccion> seccionesExcluidas = seccionesCurMasivosExcluidas.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+        if (!seccionesExcluidas.isEmpty()) {
+            seccionExcluidoDAO.deleteBySecciones(seccionesExcluidas);
+        }
         List<CursoMasivoExamen> cursosMasivos = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes);
         for (CursoMasivoExamen cursosMasivo : cursosMasivos) {
             docenteCursoMasivoDAO.deleteByCursoMasivo(cursosMasivo);
