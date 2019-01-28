@@ -224,9 +224,13 @@
                               th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id].notaFinal}"
                               th:text="${matriculaCurso[matSec.matriculaResumen.alumno.id].notaFinal}" > 04.18 </span>
                     </span>
-                    <span  th:if="${planCalificacion.sistemaNotas.letras}" >
+                    <span  th:if="${planCalificacion.sistemaNotas.letras}" > 
                         <span class="nota-academica" 
-                              th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id].creditos}"
+                              th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id].curso.tieneCreditosFijos}"
+                              th:text="${matriculaCurso[matSec.matriculaResumen.alumno.id].creditos}" > 04.18 </span>
+
+                        <span class="nota-academica" 
+                              th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id].curso.tieneCreditosVariables}"
                               th:text="${matriculaCurso[matSec.matriculaResumen.alumno.id].creditosAprobados}" > 04.18 </span>
                     </span>
                 </td>
