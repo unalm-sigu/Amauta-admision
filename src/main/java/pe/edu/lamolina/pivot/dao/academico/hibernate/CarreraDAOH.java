@@ -13,6 +13,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -308,7 +309,21 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .filter("carr.nombre", "like", nombre)
                 .in("carr.id", carreras)
                 .limit(15);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Carrera> allPregradoByCicloMatriculables(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("carr")
+                .from(MatriculaResumen.class, "mr")
+                .join("mr.alumno al", "al.modalidadEstudio me", "al.carrera carr", "mr.cicloAcademico ci", "carr.facultad")
+                .filter("ci.id", ciclo)
+                .filter("me.codigo", ModalidadEstudioEnum.PRE)
+                .orderBy("carr.nombre");
+
+        return all(sql);
     }
 
 }

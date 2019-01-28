@@ -7,10 +7,10 @@
                 position: relative;
                 float: left;
                 border-radius: 50%;
-                width: 60px;
-                height: 60px;
+                width: 68px;
+                height: 68px;
                 overflow: hidden;
-                line-height: 60px;
+                line-height: 55px;
                 text-align: center;
                 font-size: 16px;
                 margin-right: 12px;
@@ -29,6 +29,10 @@
             }
             .circle-recorrido.bgr-default {
                 background-color: #3C4043;
+                color: #fff;
+            }
+            .circle-recorrido.bgr-danger {
+                background-color: #d9534f;
                 color: #fff;
             }
             .nombre-actividad {
@@ -54,6 +58,23 @@
             /* .slide-fade-leave-active below version 2.1.8 */ {
                 transform: translateX(10px);
                 opacity: 0;
+            }
+            
+            .circle-recorrido.CAP{
+                border:8px solid #AED6F1;
+                /*border:3px solid #000080;*/
+            }
+            .circle-recorrido.OBU{
+                border:8px solid #95A5A6;
+                /*border:3px solid #ffd110;*/
+            }
+            .circle-recorrido.ALUMNO{
+                border:8px solid #F9E79F;
+                /*border:3px solid #ffd110;*/
+            }
+            .circle-recorrido.OERA{
+                border:8px solid #D7BDE2;
+                /*border:3px solid #00aaff;*/
             }
         </style>
     </head>
@@ -137,7 +158,7 @@
                                                                      class="circle-recorrido pointer"
                                                                      v-on:mouseover="verDetalle(item,actividad)"
                                                                      v-on:mouseout="noverDetalle(item)"
-                                                                     v-bind:class="{ 'bgr-default': actividad.estado=='PEND' , 'bgr-warning': actividad.estado=='INC' , 'bgr-success':  actividad.estado=='ACT'  }"
+                                                                     v-bind:class="[{ 'bgr-default': actividad.estado=='PEND' , 'bgr-warning': actividad.estado=='INC' , 'bgr-success':  actividad.estado=='ACT'}, actividad.tipoActividadIngresante.codigoOficina]"
                                                                      >
                                                                     {{actividad.tipoActividadIngresante.codigoVisible}}
                                                                 </div>

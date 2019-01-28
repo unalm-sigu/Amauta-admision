@@ -181,8 +181,7 @@ new Vue({
             } else {
                 $vue.cfgAnularAnexo.showaccept = false;
             }
-        }
-        ,
+        },
         textColorClass(item) {
             let $vue = this;
             if (item.id == $vue.ordenSelect) {

@@ -9,6 +9,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -233,12 +234,54 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
                 .filter("tip.codigo", TipoAulaEnum.MOD)
                 .filter("au.estado", EstadoEnum.ACT)
+                .complexFilter("concat(d.id,'-',h.id)", "in", diashoras)
                 .beginBlock()
                 .__().between("ha.fechaInicio", fechainicio, fechafin)
                 .__().between("ha.fechaFin", fechainicio, fechafin)
-                .__().filter("ha.fechaInicio", "<=", fechainicio).filter("ha.fechaFin", ">=", fechainicio)
-                .endBlock()
-                .complexFilter("concat(d.id,'-',h.id)", "in", diashoras);
+                    .beginBlock()
+                    .__().filter("ha.fechaInicio", "<=", fechainicio)
+                    .__().filter("ha.fechaFin", ">=", fechafin)
+                    .endBlock()
+                    .beginBlock()
+                    .__().filter("ha.fechaInicio", ">=", fechainicio)
+                    .__().filter("ha.fechaFin", "<=", fechafin)
+                    .endBlock()
+                .endBlock();
+        return all(sql);
+    }
+
+    @Override
+    public void deleteAllByReservaAula(ReservaAula reservaAula) {
+        String strQuery = "delete from HorarioAula ha where ha.reservaAula.id=:IDRESERVAAULA";
+        Query query = getCurrentSession().createQuery(strQuery);
+        query.setLong("IDRESERVAAULA", reservaAula.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public List<HorarioAula> allByAulaFecha(Aula aulaFormFecha) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia", "hora", "aula au")
+                .left("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "sec.grupoHoras gh")
+                .left("gs.cicloAcademico ca")
+                .left("reservaAula ra", "ra.tramite tra")
+                .left("tra.docente do", "do.persona")
+                .left("tra.alumno al", "al.persona")
+                .left("tra.oficina ofi", "tra.empresa emp")
+                .filter("au.id", aulaFormFecha)
+                .beginBlock()
+                .__().between("ha.fechaInicio", aulaFormFecha.getFechaInicio(), aulaFormFecha.getFechaFin())
+                .__().between("ha.fechaFin", aulaFormFecha.getFechaInicio(), aulaFormFecha.getFechaFin())
+                    .beginBlock()
+                    .__().filter("ha.fechaInicio", "<=", aulaFormFecha.getFechaInicio())
+                    .__().filter("ha.fechaFin", ">=", aulaFormFecha.getFechaFin())
+                    .endBlock()
+                    .beginBlock()
+                    .__().filter("ha.fechaInicio", ">=", aulaFormFecha.getFechaInicio())
+                    .__().filter("ha.fechaFin", "<=", aulaFormFecha.getFechaFin())
+                    .endBlock()
+                .endBlock();
         return all(sql);
     }
 

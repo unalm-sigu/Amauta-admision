@@ -184,7 +184,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     }
 
     @Override
-    public List<Aula> allByDynatableFilterTramite(DynatableFilter filter, List<Aula> aulasNoIncluidas,  Oficina oficina) {
+    public List<Aula> allByDynatableFilterTramite(DynatableFilter filter, List<Aula> aulasNoIncluidas, Oficina oficina) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Aula.class, "au")
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
@@ -269,6 +269,16 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .endBlock()
                 .orderBy("aus.codigo", "aus.nombre")
                 .limit(limit);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Aula> allByOficinaSupervisora(Oficina oficinaEstudios) {
+        Octavia sql = Octavia.query()
+                .from(Aula.class, "au")
+                .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
+                .filter("ofi.id", oficinaEstudios);
+        
         return sql.all(getCurrentSession());
     }
 

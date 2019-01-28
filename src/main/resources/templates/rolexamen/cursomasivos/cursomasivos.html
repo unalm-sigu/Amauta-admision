@@ -7,6 +7,7 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
+                    <a href="/rolexamen/rolexamenes" class="btn btn-default btn-sm pull-right">Regresar</a>
                     <h2>Cursos Masivos <span th:text="${cicloAcademico.descripcion}">2018-II</span></h2>
                 </header>
 
@@ -69,10 +70,15 @@
                                             </multiselect>
                                         </div>
                                         <div class="m-t-md col-md-4">
-                                            <a type="button" class="btn btn-success pull-right  m-l" v-on:click.prevent="agregarCursoMasivo">Agregar Curso</a>  
-                                            <!-- 
-                                            <a type="button" class="btn btn-success pull-right" v-on:click.prevent="agregarCursoMasivo">Configurar Grupo Regular</a>  
-                                            -->
+                                            <a class="btn btn-warning pull-right m-l"
+                                               v-on:click.prevent="eliminarGruposMasivos"
+                                               v-if="cursosMasivosByRolExamenes.length>0">
+                                                Eliminar
+                                            </a>
+
+                                            <a type="button" class="btn btn-success pull-right  " v-on:click.prevent="agregarCursoMasivo">Agregar Curso</a>  
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -123,6 +129,7 @@
                                         </td>
                                         <td class="v-middle text-center"> 
                                             <span class="badge pointer"
+                                                  v-on:click="cursoMasivoSecciones(item)"
                                                   >{{ item.seccionesCount }}</span>
                                         </td>
                                         <td class="v-middle text-center">
@@ -179,6 +186,7 @@
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var jRolexamenes = /*[[${jRolexamenes}]]*/ '';
+                var jRolExamenes = /*[[${jRolExamenes}]]*/ {};
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>

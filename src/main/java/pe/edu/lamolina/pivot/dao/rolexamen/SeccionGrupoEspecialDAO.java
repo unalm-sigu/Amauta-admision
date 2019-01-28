@@ -33,4 +33,5 @@ public interface SeccionGrupoEspecialDAO extends EasyDAO<SeccionGrupoEspecial> {
     List<SeccionGrupoEspecial> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, SeccionRolExamenEstadoEnum... estados);
 
     public List<RolExamenDocente> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico);
+    List<SeccionGrupoEspecial> allByRolExamenesForReporte(RolExamenes rol);
 }

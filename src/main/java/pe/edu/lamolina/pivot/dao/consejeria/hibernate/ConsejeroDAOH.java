@@ -11,7 +11,10 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.dao.consejeria.ConsejeroDAO;
 
 @Service
@@ -21,7 +24,7 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
         super();
         setClazz(Consejero.class);
     }
-    
+
     @Override
     public List<Consejero> allByCarreraDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
@@ -40,12 +43,17 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
         if (queries == null) {
             return;
         }
-
         for (String key : queries.keySet()) {
             if (key.equals("search")) {
                 continue;
             }
+
             String values = (String) queries.get(key);
+            if (values.equals("ACT")) {
+                sql.filter("estado", ACT);
+            }   else if (values.equals("INA")) {
+                sql.filter("estado", INA);
+            }
             sql.filter(key, values);
         }
     }
@@ -79,20 +87,21 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
-    public Consejero finByIdColaborador(Long id) {
+    public Consejero finByIdPersona(Persona persona) {
         Octavia sql = Octavia.query()
-                .from(Consejero.class, "con")
-                .join("colaborador col")
-                .filter("col.id", id);
-          return find(sql);
+                .selectDistinct("con")
+                .from(Colaborador.class, "col")
+                .join("persona per", "consejero con")
+                .filter("per.id", persona);
+        return find(sql);
     }
 
     @Override
     public List<Carrera> findAllCarreraByIdDocente(long idDocente) {
-       Octavia sql = Octavia.query().selectDistinct("carr")
+        Octavia sql = Octavia.query().selectDistinct("carr")
                 .from(Docente.class, "doc")
                 .join("departamentoAcademico dep", "dep.facultad fac", "fac.carrera carr")
                 .filter("doc.id", idDocente);
-          return sql.all(getCurrentSession());
+        return sql.all(getCurrentSession());
     }
 }

@@ -22,6 +22,7 @@ public class AulaReservadaDAOH extends AbstractEasyDAO<AulaReservada> implements
         Octavia sql = Octavia.query()
                 .from(AulaReservada.class, "ar")
                 .join("reservaAula ra", "aula au")
+                .leftJoin("dia d", "hora h")
                 .filter("ra.id", reservaAula);
         return all(sql);
     }
@@ -39,6 +40,7 @@ public class AulaReservadaDAOH extends AbstractEasyDAO<AulaReservada> implements
         Octavia sql = Octavia.query()
                 .from(AulaReservada.class, "ar")
                 .join("reservaAula ra", "aula au")
+                .leftJoin("dia d", "hora h")
                 .in("ra.id", reservaAulas);
         return all(sql);
     }

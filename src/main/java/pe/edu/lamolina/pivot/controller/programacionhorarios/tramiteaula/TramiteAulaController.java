@@ -7,9 +7,10 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -33,11 +34,13 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.bienestar.AulaReservada;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Empresa;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -176,6 +179,7 @@ public class TramiteAulaController {
                     "tramite.alumno.*",
                     "tramite.docente.*",
                     "tramite.empresa.*",
+                    "tramite.oficina.*",
                     "tramite.alumno.persona.*",
                     "tramite.docente.persona.*",
                     "reservados.id",
@@ -202,7 +206,7 @@ public class TramiteAulaController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            List<Aula> aulas = service.allByDynatableFilterAula(filter,ds);
+            List<Aula> aulas = service.allByDynatableFilterAula(filter, ds);
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
             ArrayNode array = new ArrayNode(jFactory);
@@ -392,6 +396,36 @@ public class TramiteAulaController {
     }
 
     @ResponseBody
+    @RequestMapping("allOficina")
+    public JsonResponse allOficina(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Oficina> oficinas = service.allOficinaByName(nombre, ds);
+
+            for (Oficina oficina : oficinas) {
+                ObjectNode json = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{"*"});
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("loadHorario")
     public JsonResponse loadHorario(HttpSession session, Model model) {
         JsonResponse response = new JsonResponse();
@@ -427,6 +461,80 @@ public class TramiteAulaController {
 
             response.setData(data);
             response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("resumen")
+    public JsonResponse resumen(ReservaAula reservaAulaForm, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ObjectNode data = new ObjectNode(jFactory);
+            ReservaAula reservaAula = service.findReservaAula(reservaAulaForm.getId());
+            ObjectNode reservaAulaNode = JsonHelper.createJson(reservaAula, jFactory, true, new String[]{
+                "*",
+                "tramite.id",
+                "tramite.tipoSolicitante",
+                "tramite.alumno.id",
+                "tramite.docente.id",
+                "tramite.empresa.id",
+                "tramite.empresa.razonSocial",
+                "tramite.alumno.persona.id",
+                "tramite.alumno.persona.nombreCompleto",
+                "tramite.docente.persona.nombreCompleto",
+                "reservados.*"});
+
+            List<Dia> dias = service.allDia();
+            ArrayNode diasJson = new ArrayNode(jFactory);
+            for (Dia dia : dias) {
+                ObjectNode json = JsonHelper.createJson(dia, jFactory, true, new String[]{"*"});
+                diasJson.add(json);
+            }
+
+            List<AulaReservada> aulaReservadas = service.allAulaReservada(reservaAula);
+
+            Map<Long, Hora> horass = aulaReservadas.stream().collect(Collectors.toMap(x -> x.getHora().getId(), x -> x.getHora(), (f, s) -> s));
+
+            Map<String, AulaReservada> diasHoras = aulaReservadas.stream().collect(Collectors.toMap(x -> x.getHora().getId() + "-" + x.getDia().getId(), x -> x, (f, s) -> s));
+
+            List<Hora> horas = horass.values().stream().collect(Collectors.toList());
+
+            Collections.sort(horas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
+
+            for (Hora hora : horas) {
+                for (Dia dia : dias) {
+                    dia.setSelecionado(null);
+                    String key = hora.getId() + "-" + dia.getId();
+                    AulaReservada reserva = diasHoras.get(key);
+                    if (reserva != null) {
+                        dia.setSelecionado("1");
+                    }
+                }
+                hora.setDias(dias);
+            }
+
+            ArrayNode horasJson = new ArrayNode(jFactory);
+
+            for (Hora hora : horas) {
+                ObjectNode json = JsonHelper.createJson(hora, jFactory, true, new String[]{"*", "dias.*"});
+                horasJson.add(json);
+            }
+
+            data.set("dias", diasJson);
+            data.set("horas", horasJson);
+            data.set("reservaAula", reservaAulaNode);
+
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

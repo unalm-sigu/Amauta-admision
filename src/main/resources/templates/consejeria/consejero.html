@@ -43,43 +43,46 @@
                 <div v-cloak="">
 
                     <header class="header b-b padder-lg">
-
                         <div class="btn-group pull-right">
                             <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
                                 Acciones &nbsp; <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a type="button" v-bind:disabled="btnAñadir" title="Primero seleccione una carrera" v-on:click.prevent="newConsejero">Añadir Consejero</a></li>
+                                <li><a type="button" v-bind:disabled="btnAñadir" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Consejero</a></li>
                                 <li><a v-if="" type="button" v-on:click.prevent="asignarAlummnos" >Asignar Alumno</a></li>
                             </ul>
-
                         </div>
-
-                        <h2>Listado de Consejeros - <span v-text='user.ciclo'></span></h2>
-                        <span class="block"><strong>Docente:</strong> <span v-text='user.nombres'></span></span>
-                        <span class="block"><strong>Departamento Académico:</strong> <span v-text='user.departAcademico'></span></span>
-
+                        <h2>Listado de Consejeros <span v-text='ciclo.descripcion'></span></h2>
                     </header>
                     <section class="wrapper-lg">
                         <section class="panel">
-
                             <section class="panel-body">
-
                                 <raptor-table v-bind:url="consjerosURL" v-bind:preload="false" ref="load">      
                                     <div slot="header">
-
                                         <div class="col-md-8 preguntas-col">
-                                            <div class="form-group">
-                                                <multiselect v-model="nombreCarreraSelect" 
-                                                             v-bind:options='listadoCarreras'
-                                                             label='nombre'
-                                                             track-by='id'
-                                                             placeholder="Ingrese y seleccione una carrera"
-                                                             v-bind:internal-search="false"
-                                                             v-on:search-change="getCarrera"
-                                                             v-bind:allow-empty="false"
-                                                             v-on:input="CargaConsejeros">
-                                                </multiselect>
+                                            <div class="row">
+                                                <div class="col-md-8" >
+                                                    <multiselect v-model="carreraSelect" 
+                                                                 v-bind:options='carreras'
+                                                                 label='nombre'
+                                                                 track-by='id'
+                                                                 placeholder="Seleccione una carrera"
+                                                                 v-bind:allow-empty="false"
+                                                                 v-on:input="cargaConsejeros">
+                                                    </multiselect>
+                                                </div>
+                                                <div class="col-md-2 text-center" v-bind:class="bgColorClass['visitante']">
+                                                    <a v-on:click="filtroConsejeros('ACT')" class="text-success pointer" >
+                                                        <span class="h2 bold">{{ cantidadAct }}</span>
+                                                        <small class="block m-b-xs">Activos</small>
+                                                    </a>
+                                                </div>
+                                                <div class="col-md-2 text-center" v-bind:class="bgColorClass['postgrado']">
+                                                    <a v-on:click="filtroConsejeros('INA')" class="text-black pointer" >
+                                                        <span class="h2 bold">{{ cantidadInac }}</span>
+                                                        <small class="block m-b-xs">Inactivos</small>
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -87,10 +90,10 @@
                                         <table id="dynaTable" class="table table-striped">
                                             <thead class="panel panel-heading">
                                                 <tr>
-                                                    <th class="col-md-2 v-middle"><span>Docentes</span></th>
+                                                    <th class="col-md-2 v-middle"><span>Consejeros</span></th>
                                                     <th class="col-md-2 text-center v-middle" colspan="2">Estudiantes</th>
-                                                    <th class="col-md-2 text-center v-middle" >Estado</th>
-                                                    <th class="col-md-1"></th>
+                                                    <th class="col-md-2 v-middle text-center">Estado</th>
+                                                    <th class="col-md-1 v-middle"></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -98,7 +101,6 @@
                                                     <td class="v-middle">
 
                                                         <a class="block text-primary bold ">{{item.colaborador.persona.nombreCompleto}}</a> 
-                                                        <!--                                                        <small class="block bold">Código: {{item.codigo}}</small> -->
                                                         <small class="block bold">DNI: {{item.colaborador.persona.numeroDocIdentidad}}</small>
                                                         <small class="block bold">Codigo: 
                                                             <small class="bold" v-for="docente in item.colaborador.persona.docente"> {{docente.codigo}}</small>
@@ -106,35 +108,33 @@
                                                         <small class="block bold">Departamento: 
                                                             <small v-for="docente in item.colaborador.persona.docente">
                                                                 <span v-for="departamento in docente">
-
                                                                     <span v-if="departamento.nombre == null" ></span>
                                                                     <span v-else="" class="bold label label-default" id="departs" >{{ departamento.nombre }} </span>
-
                                                                 </span>
                                                             </small>
                                                         </small> 
-
                                                     </td>
-                                                    <td class="v-middle text-center">
+                                                    <td class="v-middle text-center b-r">
                                                         <label>Activos</label>
                                                         <div class="v-middle text-center">
-                                                            <div class="circle-recorrido pointer bgr-success text-center" v-text="item.alumnosActivos"></div>
+                                                            <div class=" circle-recorrido pointer bgr-success text-center" v-text="item.alumnosActivos"></div>
                                                         </div>
                                                     </td>
                                                     <td class="v-middle text-center">
                                                         <label>Inactivos</label>
                                                         <div class="circle-recorrido pointer bgr-default text-center" v-text="item.alumnosInactivos"></div>
                                                     </td>
-
                                                     <td class="v-middle text-center">
-                                                        <small v-if="item.estado == 'ACT' " class="label label-success">{{item.estado}}</small> 
-                                                        <span v-else="" class="label label-default">{{item.estado}} </span>
+                                                        <small v-if="item.estado == 'ACT' " class="label label-success">Activo</small>
+                                                        <span v-else="" class="label label-default">Inactivo</span>
                                                     </td>
                                                     <td class="v-middle">
-                                                        <div class="actions">
-                                                            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                                        <div class="dropdown actions">
+                                                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                                                <i class="glyphicon glyphicon-cog"></i>
+                                                            </a>
                                                             <ul class="dropdown-menu pull-right">
-                                                                <li v-if="item.estado == 'ACT'"><a v-on:click="cambiarEstado(item, 'INA')">Inhabilitar</a></li>
+                                                                <li v-if="item.estado == 'ACT'" ><a v-on:click="cambiarEstado(item, 'INA')">Inhabilitar</a></li>
                                                                 <li v-else=""><a v-on:click="cambiarEstado(item, 'ACT')">Habilitar</a></li>
                                                             </ul>
                                                         </div>
@@ -145,14 +145,9 @@
                                     </template>
                                 </raptor-table>
 
-
                             </section>
                         </section>
                     </section>
-                    <!--                <script id="profesorTemplate" type="text/x-jsrender" class="hide" > 
-                                        <div th:substituteby="academico/profesor/profesorTemplate"/>
-                                    </script>-->
-                    <!--</div>-->
                     <div th:substituteby="consejeria/consejeroDocentesModal"></div>
                 </div>
             </div>
@@ -163,9 +158,8 @@
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var cicloJson = /*[[${cicloAcademico.toString()}]]*/ 'json';
-                var NombreDocenteJson = /*[[${nombreDocente.toString()}]]*/ 'json';
-                var DepartAcademicoJson = /*[[${DepartAcademico.toString()}]]*/ 'json';
+                var cicloJson = /*[[${ciclo}]]*/ 'json';
+                var carrerasJson = /*[[${carreras}]]*/ 'json';
                 /*]]>*/
             </script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>

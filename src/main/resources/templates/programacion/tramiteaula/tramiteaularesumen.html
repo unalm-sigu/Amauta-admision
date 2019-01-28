@@ -1,0 +1,94 @@
+<modal-vik ref="resumenModal"  v-bind="dataResumenModal"  >
+
+    <div slot="body">
+
+        <div class="col-xs-12">
+
+            <p v-if="tramiteresumen.tramite.tipoSolicitante=='DOC' "><b>Solicitante:</b>  {{tramiteresumen.tramite.docente.persona.nombreCompleto}}</p>                
+            <p v-if="tramiteresumen.tramite.tipoSolicitante=='ALU' "><b>Solicitante:</b>  {{tramiteresumen.tramite.alumno.persona.nombreCompleto}}</p>                
+            <p v-if="tramiteresumen.tramite.tipoSolicitante=='EMP' "><b>Solicitante:</b>  {{tramiteresumen.tramite.empresa.razonSocial}}</p>                
+            <p v-if="tramiteresumen.tramite.tipoSolicitante=='OFI' "><b>Solicitante:</b>  {{tramiteresumen.tramite.oficina.nombre}}</p>
+        </div>
+
+
+        <div class="col-xs-12">
+            <p><b>Motivo:</b>{{tramiteresumen.motivo}}</p>
+        </div>
+
+        <div class="col-xs-12">
+            <p><b>Fecha:</b>{{tramiteresumen.fechaInicio}} {{tramiteresumen.fechaFin}} </p>
+        </div>
+
+        <div class="col-xs-3">
+            <p><b>Capacidad Total:</b>{{tramiteresumen.aforo}} </p>
+        </div>
+
+        <div class="col-xs-3">
+            <p><b>Cantidad Ambiente:</b>{{tramiteresumen.cantidadAmbiente}} </p>
+        </div>
+
+        <div class="col-xs-3">
+            <p><b>Capacidad Mínima del Ambiente:</b>{{tramiteresumen.capacidadMinimaAmbiente}} </p>
+        </div>
+
+        <div class="col-xs-3">
+            <p><b>Capacidad Máxima del Ambiente:</b>{{tramiteresumen.capacidadMaximaAmbiente}} </p>
+        </div>
+
+        <div class="line line-dashed b-b line-lg pull-in col-xs-12"></div>
+
+        <div class="row">
+
+            <div v-for="reserva in tramiteresumen.reservados" class="col-sm-2  col-xs-2">
+
+                <div class="div-variable panel-body">
+
+                    <h5>{{reserva.codigo}}</h5>
+                    <p class="text-xs">{{reserva.nombre}}</p>
+                    <p class="text-xs"> <b>Capacidad:</b> {{reserva.aforo}}</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="line line-dashed b-b line-lg pull-in col-xs-12"></div>
+
+
+        <table class="table table-bordered" >
+
+            <thead>
+                <tr>
+                    <th style="width: 12.5%" class="text-center">Hora</th>
+                    <th style="width: 12.5%" class="text-center" 
+                        v-for="dia in dias">
+                        {{dia.nombre}}
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr v-for="hora in horas">
+
+                    <td class="v-middle">
+                        <span class="bold" >
+                            {{hora.descripcion}}
+                        </span>
+                    </td>
+
+                    <td  v-for="dia in hora.dias" class="text-center pointer"
+                         v-bind:class="{ 'bg-primary' : dia.selecionado }"  > 
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+
+
+
+
+    </div>
+</modal-vik>
+

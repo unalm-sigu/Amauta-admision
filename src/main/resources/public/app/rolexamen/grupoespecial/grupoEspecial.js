@@ -14,7 +14,10 @@ new Vue({
         },
     },
     mounted() {
-
+        if (jRolExamenes != null) {
+            this.rolExamen = JSON.parse(jRolExamenes);
+            this.changeRolExamen();
+        }
     },
     methods: {
         rolExamenCustomLabel( { eventoCicloAcademico }) {

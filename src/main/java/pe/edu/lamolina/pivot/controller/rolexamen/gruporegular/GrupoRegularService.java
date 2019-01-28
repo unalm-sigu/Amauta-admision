@@ -14,6 +14,8 @@ public interface GrupoRegularService {
 
     List<RolExamenes> allRolExamenesActives(CicloAcademico cicloAcademico);
 
+    RolExamenes findRolExamenes(long rolExamenId);
+
     LetraGrupoRegular findLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
 
     void calcularExamenesGrupoRegular(RolExamenes rolExamenes, CicloAcademico cicloAcademico, DataSessionPivot ds);
@@ -37,5 +39,9 @@ public interface GrupoRegularService {
     List<SeccionGrupoRegular> allSeccionesGrupoRegularDynaByLetraGrupoReg(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
 
     List<AlumnoGrupoRegular> allAlumnosGrupoRegularDynaByLetraGrupoReg(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
+
+    void eliminarGruposRegulares(RolExamenes rolExamenes);
+
+    void deleteGrupoRegular(RolExamenes rolExamenes);
 
 }

@@ -3,32 +3,31 @@ Vue.component("multiselect", window.VueMultiselect.default)
 new Vue({
     el: '#consejeriaVUE',
     data: {
-        consjerosURL: APP.url('consejeria/consejero/listConsjeros'),
+        bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''},
+        consjerosURL: APP.url('consejeria/consejero/list'),
         añadirConsejeroModal: {
-
             id: 'añadirConsejeroModal',
             header: 'true',
             title: "Añadir Consejeros",
             okbtn: 'Agregar',
             showaccept: true
         },
-        user: {
-            nombres: NombreDocenteJson,
-            ciclo: cicloJson,
-            departAcademico: DepartAcademicoJson
-        },
+        cantidadAct: 0,
+        cantidadInac: 0,
+        ciclo: JSON.parse(cicloJson),
+        carreras: JSON.parse(carrerasJson),
         btndisabled: '',
         listadoDocentes: [],
         listadoCarreras: [],
-        nombreCarreraSelect: '',
-        objeto_docenteSelect: '',
-        departamentoAcademicoNombre: '',
-        docente_resquest: {
+        carreraSelect: '',
+        docenteSelect: '',
+        departamento: '',
+        docenteResquest: {
             id: '',
             estado: '',
-            id_persona: '',
-            id_depart: '',
-            id_facultad: '',
+            idPersona: '',
+            idDepart: '',
+            idFacultad: '',
         },
         pagination: {'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true},
         isLoading: false,
@@ -41,7 +40,6 @@ new Vue({
     },
     mounted: function () {
         let $vue = this;
-
     },
     created: function () {
         let $vue = this;
@@ -51,37 +49,26 @@ new Vue({
         nombreforShow(item) {
             return item.persona.nombreCompleto;
         },
-        newConsejero() {
+        nuevoConsejero() {
             let $vue = this;
             if ($vue.btndisabled === false) {
-                $vue.openModal();
+                $vue.$refs.añadirConsejeroModal.open();
             }
         },
-        openModal() {
+        filtroConsejeros(estado) {
             let $vue = this;
-            $vue.$refs.añadirConsejeroModal.open();
-        },
-        getCarrera(nombreCar) {
-            this.isLoading = true
-            $.ajax({
-                url: APP.url("consejeria/consejero/listCarrera"),
-                data: {nombre: nombreCar},
-                dataType: 'json',
-                type: 'post',
-            }).then(response => {
-                this.listadoCarreras = response.data;
-                this.isLoading = false;
-            })
+            $vue.$refs.load.querie.push({name: 'estado', value: estado});
+            $vue.$refs.load.loadRemoteData();
+            alert($vue.contadorAct);
         },
         getDocentes(nombreDoc) {
             /// listado de docente por carrera
             let $vue = this;
-            let idfacultad = $vue.nombreCarreraSelect.facultad.id;
-            let idCarrera = $vue.nombreCarreraSelect.id;
+            let idfacultad = $vue.carreraSelect.facultad.id;
             this.isLoading = true
             $.ajax({
-                url: APP.url("consejeria/consejero/list"),
-                data: {nombre: nombreDoc, facultadid: idfacultad, idCarrera: idCarrera},
+                url: APP.url("consejeria/consejero/listDocente"),
+                data: {nombre: nombreDoc, idFacultad: idfacultad},
                 dataType: 'json',
                 type: 'post',
             }).then(response => {
@@ -91,55 +78,56 @@ new Vue({
         },
         CargaDepartamento() {
             let $vue = this;
-            if ($vue.objeto_docenteSelect === null) {
-                $vue.departamentoAcademicoNombre = "";
-                $vue.docente_resquest = null;
+            if ($vue.docenteSelect === null) {
+                $vue.departamento = "";
+                $vue.docenteResquest = null;
             } else {
-                $vue.departamentoAcademicoNombre = $vue.objeto_docenteSelect.departamentoAcademico.nombre;
-                $vue.docente_resquest.estado = $vue.objeto_docenteSelect.estado;
-                $vue.docente_resquest.id_depart = $vue.objeto_docenteSelect.departamentoAcademico.id;
-                $vue.docente_resquest.id_facultad = $vue.objeto_docenteSelect.departamentoAcademico.facultad.id;
-                $vue.docente_resquest.id_persona = $vue.objeto_docenteSelect.persona.id;
+                $vue.departamento = $vue.docenteSelect.departamentoAcademico.nombre;
+                $vue.docenteResquest.estado = $vue.docenteSelect.estado;
+                $vue.docenteResquest.idDepartamento = $vue.docenteSelect.departamentoAcademico.id;
+                $vue.docenteResquest.idFacultad = $vue.docenteSelect.departamentoAcademico.facultad.id;
+                $vue.docenteResquest.idPersona = $vue.docenteSelect.persona.id;
             }
-
         },
-        CargaConsejeros() {
+        cargaConsejeros() {
+            // listado de consejeros en dynatable
             let $vue = this;
             $vue.$refs.load.querie = [];
             this.listadoDocentes = '';
-            this.objeto_docenteSelect = '';
-            this.departamentoAcademicoNombre = '';
-            if ($vue.nombreCarreraSelect === null) {
+            this.docenteSelect = '';
+            this.departamento = '';
+            if ($vue.carreraSelect === null) {
                 $vue.btndisabled = true;
                 //   $vue.$refs.load.loadRemoteData();
             } else {
-                let nombreCarrera = $vue.nombreCarreraSelect.nombre;
-                $vue.$refs.load.querie.push({name: 'car.nombre', value: nombreCarrera});
+                let carrera = $vue.carreraSelect.nombre;
+                $vue.$refs.load.querie.push({name: 'car.nombre', value: carrera});
                 $vue.btndisabled = false;
                 $vue.$refs.load.loadRemoteData();
             }
         },
         cambiarEstado(item, estado) {
             let $vue = this;
-            let idConsejero = item.id;
+            let consejero = item;
+
             this.isLoading = true
+            //alert(JSON.stringify(item));
             $.ajax({
+                method: 'POST',
                 url: APP.url("consejeria/consejero/cambiarEstado"),
-                data: {idConsejero: idConsejero, estado: estado},
-                dataType: 'json',
-                type: 'post',
+                data: JSON.stringify({
+                    id: consejero.id,
+                    estado: estado
+                }),
+                contentType: "application/json",
             }).then(response => {
                 this.isLoading = false;
                 notify(response.message, 'info');
                 $vue.$refs.load.loadRemoteData();
-            })
-
+            });
         },
         saveConsejero() {
             let $vue = this;
-            console.log($vue.nombreCarreraSelect);
-            /// let res = $vue.docente_responsive = id_docente_tets;
-            // alert(JSON.stringify($vue.docente_resquest));
             bootbox.confirm({
                 message: '¿Seguro que desea añadir como Consejero el docente seleccionado?',
                 buttons: {
@@ -147,31 +135,29 @@ new Vue({
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
-
                     if (result) {
-
                         $.ajax({
                             method: 'POST',
                             url: APP.url("consejeria/consejero/saveConsejero"),
                             data: JSON.stringify({
-                                estado: $vue.docente_resquest.estado,
-                                persona: {id: $vue.docente_resquest.id_persona
+                                estado: $vue.docenteResquest.estado,
+                                persona: {id: $vue.docenteResquest.idPersona
                                 },
                                 departamentoAcademico: {
-                                    id: $vue.docente_resquest.id_depart,
+                                    id: $vue.docenteResquest.idDepartamento,
                                     facultad: {
-                                        id: $vue.docente_resquest.id_facultad
+                                        id: $vue.docenteResquest.id_facultad
                                     }
                                 },
-                                carrera: $vue.nombreCarreraSelect
+                                carrera: $vue.carreraSelect
                             }),
                             contentType: "application/json",
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
                                     $vue.$refs.añadirConsejeroModal.close();
-                                    $vue.objeto_docenteSelect = '';
-                                    $vue.departamentoAcademicoNombre = '';
+                                    $vue.docenteSelect = '';
+                                    $vue.departamento = '';
                                     $vue.$refs.load.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
@@ -185,10 +171,7 @@ new Vue({
             });
         },
         asignarAlummnos() {
-            
 
-        },
-        editRecorrido(item) {
         }
     }
 });
