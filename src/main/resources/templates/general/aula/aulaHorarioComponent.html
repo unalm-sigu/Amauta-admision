@@ -2,6 +2,24 @@
     <div> 
         <section class="panel-body">
             <div class="" >
+
+                <div class="col-xs-12 text-center">
+
+                    <form class="form-inline m-b-lg">
+                        <button type="button" class="btn btn-default" v-on:click="backweek()"><i class="fa fa-backward" aria-hidden="true"></i></button>
+                        <div class="form-group">
+                            <label for="exampleInputName2">De</label>
+                            <input readonly="true" type="text" v-bind:value="fechaInicio" class="form-control" id="exampleInputName2" />
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputEmail2">al</label>
+                            <input readonly="true" type="text" v-bind:value="fechaFin" class="form-control" id="exampleInputEmail2"  />
+                        </div>
+                        <button type="button" class="btn btn-default" v-on:click="nextweek()"><i class="fa fa-forward" aria-hidden="true"></i></button>
+                    </form>
+
+                </div>
+
                 <table class="table table-bordered" v-if="aula!=null">
 
                     <thead>
@@ -22,29 +40,42 @@
                                 </span>
 
                             </td>
-                            <td  v-for="dia in dias" class="text-center"> 
+                            <td  v-for="dia in hora.dias" class="text-center"> 
 
-                                <div v-if="jsonHorarioAula[dia.id+'_'+hora.id]"  class="dropdown notas-cepre">
+                                <div v-if="dia.mainHorarioAula.id"  class="dropdown notas-cepre">
 
                                     <a v-on:mouseover="onmousein($event)" v-on:mouseleave="onmouseout($event)" class="dropdown-toggle" href="#" data-toggle="dropdown" >
-                                        <strong>{{jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}</strong>  <b class="caret"></b> 
+                                        <strong v-if="dia.mainHorarioAula.seccion">{{dia.mainHorarioAula.seccion.codigo2}}</strong>  
+                                        <strong v-if="dia.mainHorarioAula.reservaAula.tramite.serie">{{dia.mainHorarioAula.reservaAula.tramite.serie}} - {{dia.mainHorarioAula.reservaAula.tramite.numero}}</strong>  
+                                        <b class="caret"></b> 
                                     </a>
 
                                     <div class="dropdown-menu dropdown-box">
                                         <div class="row m-l-xs m-r-xs">
 
-                                            <span class="disabled block docente-uno">
-                                                <strong> {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoSeccion.curso.codigo}}</strong>
-                                                {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoSeccion.curso.nombre}}
+                                            <span v-if="dia.mainHorarioAula.seccion.grupoSeccion.curso.codigo" class="disabled block docente-uno">
+                                                <strong> {{dia.mainHorarioAula.seccion.grupoSeccion.curso.codigo}}</strong>
+                                                {{dia.mainHorarioAula.seccion.grupoSeccion.curso.nombre}}
                                             </span>
 
-                                            <span class="block" style="margin-top:5px;margin-bottom:5px;">
+                                            <span v-if="dia.mainHorarioAula.reservaAula.tramite.numero"  class="disabled block docente-uno">
+                                                Reserva Ambiente
+                                            </span>
+
+                                            <span v-if="dia.mainHorarioAula.reservaAula.estado" class="v-middle text-left">
+                                                <span class="label label-primary" v-if="dia.mainHorarioAula.reservaAula.estado=='ACT'"> Activo </span>
+                                                <span class="label label-success" v-if="dia.mainHorarioAula.reservaAula.estado=='RES'"> Reservado </span>
+                                                <span class="label label-default" v-if="dia.mainHorarioAula.reservaAula.estado=='PEND'"> Pendiente </span>
+                                                <span class="label label-danger" v-if="dia.mainHorarioAula.reservaAula.estado=='ANU'"> Anulado </span>
+                                            </span>
+
+                                            <span v-if="dia.mainHorarioAula.seccion.docenteSeccion.length" class="block" style="margin-top:5px;margin-bottom:5px;">
 
                                                 <strong  > Docentes </strong> 
 
 
                                                 <ul class="otros-docente">
-                                                    <li v-for="(item, index )  in jsonHorarioAula[dia.id+'_'+hora.id].seccion.docenteSeccion" class="prof">
+                                                    <li v-for="(item, index )  in dia.mainHorarioAula.seccion.docenteSeccion" class="prof">
                                                         <p>
                                                             <strong>
                                                                 <i  v-if="index==0" class="fa fa-shield" aria-hidden="true"></i> 
@@ -55,17 +86,28 @@
                                                             <span v-else="item.docente.codigo!='N.N.'">Desconocido</span>
                                                         </p>
                                                     </li>
-                                                    <li v-if="jsonHorarioAula[dia.id+'_'+hora.id].seccion.sizeDocente>2" class="prof"><span>Otros...</span></li>
+                                                    <li v-if="dia.mainHorarioAula.seccion.sizeDocente>2" class="prof"><span>Otros...</span></li>
                                                 </ul>
 
                                             </span>
 
-                                            <span class="block">
-                                                <strong> Sección </strong> {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
+                                            <span v-if="dia.mainHorarioAula.seccion.codigo2" class="block">
+                                                <strong> Sección </strong> {{dia.mainHorarioAula.seccion.codigo2}}
                                             </span>
 
-                                            <span class="block">
-                                                <strong> Grupo </strong>  {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoHoras.codigo}}
+                                            <span v-if="dia.mainHorarioAula.seccion.grupoHoras.codigo" class="block">
+                                                <strong> Grupo </strong>  {{dia.mainHorarioAula.seccion.grupoHoras.codigo}}
+                                            </span>
+
+                                            <span v-if="dia.mainHorarioAula.reservaAula.tramite.tipoSolicitante" class="v-middle">
+                                                <p v-if="dia.mainHorarioAula.reservaAula.tramite.tipoSolicitante=='OFI'"><strong> Oficina: </strong> {{dia.mainHorarioAula.reservaAula.tramite.oficina.nombre}}</p>
+                                                <p v-if="dia.mainHorarioAula.reservaAula.tramite.tipoSolicitante=='EMP'">{{dia.mainHorarioAula.reservaAula.tramite.empresa.razonSocial}}</p>
+                                                <p v-if="dia.mainHorarioAula.reservaAula.tramite.tipoSolicitante=='ALU'">{{dia.mainHorarioAula.reservaAula.tramite.alumno.persona.nombreCompleto}}</p>
+                                                <p v-if="dia.mainHorarioAula.reservaAula.tramite.tipoSolicitante=='DOC'">{{dia.mainHorarioAula.reservaAula.tramite.docente.persona.nombreCompleto}}</p>
+                                            </span>
+
+                                            <span v-if="dia.mainHorarioAula.reservaAula.motivo" class="block">
+                                                <strong> Motivo: </strong>  {{dia.mainHorarioAula.reservaAula.motivo}}
                                             </span>
 
 
@@ -74,10 +116,11 @@
 
                                 </div>
 
-                                <span v-if="jsonHorarioAula[dia.id+'_'+hora.id]"
+                                <span v-if="dia.mainHorarioAula"
                                       class="text-muted block">
-                                    {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoHoras.codigo}}
+                                    {{dia.mainHorarioAula.seccion.grupoHoras.codigo}}
                                 </span>
+
                             </td>
                         </tr>
                         <tr v-if="horas.length == 0">

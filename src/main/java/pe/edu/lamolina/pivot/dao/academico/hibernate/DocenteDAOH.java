@@ -269,7 +269,32 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
 //        return sql.all(getCurrentSession());
 //    }
 
-    @Override
+//    @Override
+//    public List<Docente> allByNombreFacultad(String nombre, Facultad facultad) {
+//        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+//        Octavia sql = Octavia.query()
+//                .selectDistinct("doc")
+//                .from(Colaborador.class, "col")
+//                .join("persona per", "per.docente doc", "oficina ofi", "ofi.tipoOficina tip", "cargo carg", "departamentoAcademico da", "da.facultad fa")
+//                .in("ofi.instanciaOficina", "")
+//                .leftJoin("per.tipoDocumento")
+//                .filter("carg.id", 10) //Docente
+//                .filter("tip.id", 8) //departamentoAcdemico
+//                .filter("per.estado", PersonaEstadoEnum.ACT)
+//                //.filter("doc.estado", EstadoEnum.ACT)
+//                .filter("fa.id", facultad)
+//                .beginBlock()
+//                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+//                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+//                .__().filter("per.numeroDocIdentidad", "like", nombre)
+//                .__().filter("doc.codigo", "like", nombre)
+//                .endBlock()
+//                .limit(15);
+//
+//        return all(sql);
+//    }
+    
+        @Override
     public List<Docente> allByNombreFacultad(String nombre, Facultad facultad) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()

@@ -109,6 +109,14 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
     }
 
     @Override
+    public RolExamenes findRolExamenes(long rolExamenId) {
+        RolExamenes rolExamenes = rolExamenesDAO.find(rolExamenId);
+        List<SemanaExamen> semanaExamens = semanaExamenDAO.allByRolExamenes(rolExamenes);
+        rolExamenes.setSemanasExamen(semanaExamens);
+        return rolExamenes;
+    }
+
+    @Override
     public List<SeccionGrupoEspecial> allSeccionesGrupoEspecialByRolExamenes(DynatableFilter filter, RolExamenes rolExamenes) {
         List<SeccionGrupoEspecial> seccionesGrupoEspecial = seccionGrupoEspecialDAO.allByDynatableAndRolExamenes(filter, rolExamenes);
 

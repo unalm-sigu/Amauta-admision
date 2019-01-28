@@ -40,6 +40,7 @@ import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.rolexamen.grupoespecial.GrupoEspecialService;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
@@ -58,6 +59,7 @@ import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionExcluidoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoEspecialDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoRegularDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.SemanaExamenDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -126,6 +128,9 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     @Autowired
     CursoMasivoExamenDAO cursoMasivoExamenDAO;
 
+    @Autowired
+    SemanaExamenDAO semanaExamenDAO;
+
     @Override
     public List<RolExamenes> allRolExamenesActives(CicloAcademico cicloAcademico) {
         return rolExamenesDAO.allActiveByCiclo(cicloAcademico);
@@ -134,6 +139,30 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     @Override
     public LetraGrupoRegular findLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
         return letraGrupoRegularDAO.find(letraGrupoRegular.getId());
+    }
+
+    @Override
+    public RolExamenes findRolExamenes(long rolExamenId) {
+        RolExamenes rolExamenes = rolExamenesDAO.find(rolExamenId);
+        List<SemanaExamen> semanaExamens = semanaExamenDAO.allByRolExamenes(rolExamenes);
+        rolExamenes.setSemanasExamen(semanaExamens);
+        return rolExamenes;
+    }
+
+    @Override
+    public void eliminarGruposRegulares(RolExamenes rolExamenes) {
+        rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
+        Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
+                rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
+        Assert.isTrue(rolExamenes.isSituacionConfiguraGrupoRegular(), "No puede eliminar los grupos regulares.");
+
+        grupoEspecialService.deleteGrupoEspecial(rolExamenes);
+        this.deleteGrupoRegular(rolExamenes);
+
+        RolExamenes rolExamenesUpd = new RolExamenes();
+        rolExamenesUpd.setId(rolExamenes.getId());
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_MAS);
+        rolExamenesDAO.updateSituacion(rolExamenesUpd);
     }
 
     @Override
@@ -254,10 +283,10 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<String> validations = new ArrayList<>();
         for (CursoMasivoExamen cursosMasivosByRolExamene : cursosMasivosByRolExamenes) {
             List<String> errors = new ArrayList<>();
-            if (cursosMasivosByRolExamene.getAulasCursosMasivos() == null || cursosMasivosByRolExamene.getAulasCursosMasivos().isEmpty()) {
+            /*  if (cursosMasivosByRolExamene.getAulasCursosMasivos() == null || cursosMasivosByRolExamene.getAulasCursosMasivos().isEmpty()) {
                 String msg = "Sin aulas asignadas.";
                 errors.add(msg);
-            }
+            }*/
             if (cursosMasivosByRolExamene.getAlumnosCursosMasivos() == null || cursosMasivosByRolExamene.getAlumnosCursosMasivos().isEmpty()) {
                 String msg = "\t Sin alumnos asignados.";
                 errors.add(msg);
@@ -386,6 +415,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     }
 
     @Transactional(readOnly = false)
+    @Override
     public void deleteGrupoRegular(RolExamenes rolExamenes) {
         List<LetraGrupoRegular> letrasGruposRegular = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
         logger.debug("Letras Grupos Regulares a eliminar {}", letrasGruposRegular.size());
@@ -393,8 +423,9 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
             alumnoGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
             seccionGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
             grupoRegularExamenDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
-            letraGrupoRegularDAO.delete(letraGrupoRegular);
+            //    letraGrupoRegularDAO.delete(letraGrupoRegular);
         }
+        letraGrupoRegularDAO.deleteByRolExamenes(rolExamenes);
     }
 
     @Override

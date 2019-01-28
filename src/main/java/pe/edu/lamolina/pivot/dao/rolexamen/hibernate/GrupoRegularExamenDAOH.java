@@ -79,4 +79,15 @@ public class GrupoRegularExamenDAOH extends AbstractEasyDAO<GrupoRegularExamen> 
         query.executeUpdate();
     }
 
+    @Override
+    public List<GrupoRegularExamen> allActivosByLetrasGrupoRegular(List<LetraGrupoRegular> regulares) {
+        Octavia sql = Octavia.query()
+                .from(GrupoRegularExamen.class, "gre")
+                .join("letraGrupoRegular lgr", "grupoHoras gh")
+                .in("lgr.id", regulares)
+                .filter("gre.estado", GrupoHorasRolExamenEstadoEnum.ACT);
+        
+        return all(sql);
+    }
+
 }

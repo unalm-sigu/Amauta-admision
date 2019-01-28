@@ -23,14 +23,15 @@ import pe.edu.lamolina.model.bienestar.AulaReservada;
 import pe.edu.lamolina.model.bienestar.DiaHora;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
+import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.EstadoReservaAulaEnum;
-import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoDocIdentidadEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Oficina;
@@ -52,6 +53,7 @@ import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.EmpresaDAO;
+import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
@@ -114,6 +116,9 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Autowired
     DiaDAO diaDAO;
 
+    @Autowired
+    OficinaDAO oficinaDAO;
+
     @Override
     public List<ReservaAula> allDynatableFilter(DynatableFilter filter) {
 
@@ -125,7 +130,8 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
             List<AulaReservada> aulaReservada = aulassMap.get(reservaAula.getId());
             reservaAula.setAulaReservada(aulaReservada);
             if (aulaReservada != null) {
-                List<Aula> aulasss = aulaReservada.stream().map(x -> x.getAula()).collect(Collectors.toList());
+                Map<Long, Aula> aulassss = aulaReservada.stream().collect(Collectors.toMap(x -> x.getAula().getId(), x -> x.getAula(), (f, s) -> s));
+                List<Aula> aulasss = aulassss.values().stream().collect(Collectors.toList());
                 reservaAula.setReservados(aulasss);
             }
         }
@@ -211,7 +217,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         }
 
         List<Aula> aulasNoIncluidas = horarios.stream().map(z -> z.getAula()).collect(Collectors.toList());
-        logger.debug("aulasNoIncluidas {}",aulasNoIncluidas.size());
+        logger.debug("aulasNoIncluidas {}", aulasNoIncluidas.size());
         for (Aula aulasNoIncluida : aulasNoIncluidas) {
             logger.debug("aulasNoIncluidas {} {} ", aulasNoIncluida.getId(), aulasNoIncluida.getCodigo());
         }
@@ -278,18 +284,28 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         ObjectUtil.eliminarAttrSinId(tramite, "alumno");
         ObjectUtil.eliminarAttrSinId(tramite, "docente");
         ObjectUtil.eliminarAttrSinId(tramite, "empresa");
+        ObjectUtil.eliminarAttrSinId(tramite, "oficina");
 
         if (TipoSolicitanteEnum.ALU.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setDocente(null);
             tramite.setEmpresa(null);
+            tramite.setOficina(null);
         }
 
         if (TipoSolicitanteEnum.DOC.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setAlumno(null);
             tramite.setEmpresa(null);
+            tramite.setOficina(null);
         }
 
         if (TipoSolicitanteEnum.EMP.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
+            tramite.setAlumno(null);
+            tramite.setDocente(null);
+            tramite.setOficina(null);
+        }
+
+        if (TipoSolicitanteEnum.OFI.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
+            tramite.setEmpresa(null);
             tramite.setAlumno(null);
             tramite.setDocente(null);
         }
@@ -327,6 +343,20 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
                     aulaReservada.setHora(diaHora.getHora());
                     aulaReservada.setReservaAula(reservaAula);
                     aulaReservadaDAO.save(aulaReservada);
+
+                    HorarioAula horarioAula = new HorarioAula();
+                    horarioAula.setFechaInicio(reservaAula.getFechaInicio());
+                    horarioAula.setFechaFin(reservaAula.getFechaFin());
+                    if (reservaAula.getFechaFin() == null) {
+                        horarioAula.setFechaFin(reservaAula.getFechaInicio());
+                    }
+                    horarioAula.setAula(aula);
+                    horarioAula.setDia(diaHora.getDia());
+                    horarioAula.setHora(diaHora.getHora());
+                    horarioAula.setReservaAula(reservaAula);
+                    horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
+                    horarioAulaDAO.save(horarioAula);
+
                 }
             }
         }
@@ -347,23 +377,34 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         ObjectUtil.eliminarAttrSinId(tramiteForm, "alumno");
         ObjectUtil.eliminarAttrSinId(tramiteForm, "docente");
         ObjectUtil.eliminarAttrSinId(tramiteForm, "empresa");
+        ObjectUtil.eliminarAttrSinId(tramiteForm, "oficina");
 
         if (TipoSolicitanteEnum.ALU.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setDocente(null);
             tramite.setEmpresa(null);
+            tramite.setOficina(null);
             tramite.setAlumno(tramiteForm.getAlumno());
         }
 
         if (TipoSolicitanteEnum.DOC.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setAlumno(null);
             tramite.setEmpresa(null);
+            tramite.setOficina(null);
             tramite.setDocente(tramiteForm.getDocente());
         }
 
         if (TipoSolicitanteEnum.EMP.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setAlumno(null);
             tramite.setDocente(null);
+            tramite.setOficina(null);
             tramite.setEmpresa(tramiteForm.getEmpresa());
+        }
+
+        if (TipoSolicitanteEnum.OFI.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
+            tramite.setAlumno(null);
+            tramite.setDocente(null);
+            tramite.setEmpresa(null);
+            tramite.setOficina(tramiteForm.getOficina());
         }
 
         tramite.setUserModificacion(ds.getUsuario());
@@ -383,6 +424,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         reservaAulaForm.setTramite(tramite);
         reservaAulaDAO.update(reservaAulaForm);
         aulaReservadaDAO.deleteAllByReservaAula(reservaAulaForm);
+        horarioAulaDAO.deleteAllByReservaAula(reservaAulaForm);
 
         List<DiaHora> diaHoras = reservaAula.getDiahora();
         for (Aula aula : aulas) {
@@ -394,6 +436,19 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
                     aulaReservada.setHora(diaHora.getHora());
                     aulaReservada.setReservaAula(reservaAula);
                     aulaReservadaDAO.save(aulaReservada);
+
+                    HorarioAula horarioAula = new HorarioAula();
+                    horarioAula.setFechaInicio(reservaAulaForm.getFechaInicio());
+                    horarioAula.setFechaFin(reservaAulaForm.getFechaFin());
+                    if (reservaAulaForm.getFechaFin() == null) {
+                        horarioAula.setFechaFin(reservaAulaForm.getFechaInicio());
+                    }
+                    horarioAula.setAula(aula);
+                    horarioAula.setDia(diaHora.getDia());
+                    horarioAula.setHora(diaHora.getHora());
+                    horarioAula.setReservaAula(reservaAula);
+                    horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
+                    horarioAulaDAO.save(horarioAula);
                 }
             }
         }
@@ -412,11 +467,14 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Override
     @Transactional
     public void rechazartramite(ReservaAula reservaAula) {
+
         ReservaAula reservaAulaDb = reservaAulaDAO.find(reservaAula);
         reservaAulaDb.setComentario(reservaAula.getComentario());
         reservaAulaDb.setEstado(EstadoReservaAulaEnum.ANU.name());
         reservaAulaDAO.update(reservaAulaDb);
         this.sendNotificacionRechazar(reservaAulaDb);
+        horarioAulaDAO.deleteAllByReservaAula(reservaAulaDb);
+
     }
 
     @Override
@@ -424,7 +482,8 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         ReservaAula reservaAulaDb = reservaAulaDAO.find(new ReservaAula(idReservaAula));
         List<AulaReservada> reservados = aulaReservadaDAO.allByReservaAula(reservaAulaDb);
         reservaAulaDb.setAulaReservada(reservados);
-        List<Aula> aulas = reservados.stream().map(x -> x.getAula()).collect(Collectors.toList());
+        Map<Long, Aula> aulass = reservados.stream().collect(Collectors.toMap(x -> x.getAula().getId(), x -> x.getAula(), (f, s) -> s));
+        List<Aula> aulas = aulass.values().stream().collect(Collectors.toList());
         reservaAulaDb.setReservados(aulas);
         return reservaAulaDb;
     }
@@ -490,4 +549,16 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     public List<Hora> allHora() {
         return horaDAO.all();
     }
+
+    @Override
+    public List<Oficina> allOficinaByName(String nombre, DataSessionPivot ds) {
+        Compania compania = ds.getCompania();
+        return oficinaDAO.allOficinaByName(nombre, compania);
+    }
+
+    @Override
+    public List<AulaReservada> allAulaReservada(ReservaAula reservaAula) {
+        return aulaReservadaDAO.allByReservaAula(reservaAula);
+    }
+
 }

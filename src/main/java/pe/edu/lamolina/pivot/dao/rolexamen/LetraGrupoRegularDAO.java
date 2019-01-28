@@ -12,4 +12,8 @@ public interface LetraGrupoRegularDAO extends EasyDAO<LetraGrupoRegular> {
 
     LetraGrupoRegular findByGrupoHorasExamen(GrupoHorasExamen grupoHorasExamen);
 
+    List<LetraGrupoRegular> allByRolExamenesForReporte(RolExamenes rol);
+
+    void deleteByRolExamenes(RolExamenes rolExamenes);
+
 }

@@ -54,10 +54,11 @@
                                         <smal class="block" v-text="item.fechaRegistro"></smal>
                                         </td>
                                         <td class="v-middle text-center"> 
-                                            <span class="block" v-text="item.situacion"></span>
+                              
                                             <span v-if="item.estado=='INA'" class="label label-danger" >Inactivo</span>
                                             <span v-if="item.estado=='ACT'" class="label label-primary" >Activo</span>
                                             <span v-if="item.estado=='CRE'" class="label label-default" >Creado</span>
+                                            <span v-if="item.estado=='PUB'" class="label label-primary" >Publicado</span>
                                         </td>
                                         <td>
 
@@ -69,36 +70,43 @@
 
                                                 <ul class="dropdown-menu pull-right">
                                                     <li>
+                                                        <!-- 
+                                                           v-if="item.isSituacionConfigurarRol" -->
                                                         <a href="#" 
                                                            v-on:click.prevent="editarRolExamen(item)"
-                                                           v-if="item.isSituacionConfigurarRol"
                                                            >
                                                             Editar
                                                         </a> 
+                                                        <a href="#" 
+                                                           v-on:click.prevent="publicarRolExamen(item)"
+                                                           v-if="item.isSituacionConfigurarGrupoEspecial"
+                                                           >
+                                                            Publicar
+                                                        </a> 
                                                     </li>
+                                                    <li class="divider"></li>  
                                                     <li>                                                            
                                                         <a href="#" 
-                                                           v-on:click.prevent="redireccionarWithRol('rolexamen/plantillahorario',item)"
-                                                           v-if="item.isSituacionConfigurarRol || item.isSituacionConfigurarHorario">
+                                                           v-on:click.prevent="redireccionarWithRol('rolexamen/plantillahorario',item)">
                                                             Configurar Horarios
                                                         </a> 
                                                     </li>
                                                     <li>
-                                                        <a  th:href="@{/rolexamen/cursomasivos}" 
-                                                            v-if="item.isSituacionConfigurarHorario || item.isSituacionConfigurarCursoMasivo">
+                                                        <a  href="#" 
+                                                            v-on:click.prevent="redireccionarWithRol('rolexamen/cursomasivos',item)" >
                                                             Configurar Cursos Masivos
                                                         </a>
                                                     </li>
                                                     <li>
                                                         <a th:href="@{/rolexamen/gruporegular}" 
-                                                           v-if="item.isSituacionConfigurarCursoMasivo || item.isSituacionConfigurarCursoRegular">
-                                                            Configurar Cursos Regulares
+                                                           v-on:click.prevent="redireccionarWithRol('rolexamen/gruporegular',item)">
+                                                            Configurar Grupos Regulares
                                                         </a> 
                                                     </li>
                                                     <li>
                                                         <a th:href="@{/rolexamen/grupoespecial}" 
-                                                           v-if="item.isSituacionConfigurarCursoEspecial">
-                                                            Configurar Cursos Especiales
+                                                           v-on:click.prevent="redireccionarWithRol('rolexamen/grupoespecial',item)">
+                                                            Configurar Secciones Especiales
                                                         </a>
                                                     </li>
                                                 </ul>

@@ -56,19 +56,6 @@ public class ConsejeroServiceImp implements ConsejeroService {
     }
 
     @Override
-    @Transactional
-    public void saveConsejero(Consejero consejero, DataSessionPivot ds) {
-
-        consejero.setFechaRegistro(new Date());
-        consejero.setFechaModificacion(new Date());
-        consejero.setFechaInicio(new Date());
-        consejero.setUserRegistro(ds.getUsuario());
-
-        consejeroDAO.save(consejero);
-
-    }
-
-    @Override
     public Carrera findCarreraByIdFacultad(Long idFaculta) {
         return carreraDAO.findCarreraByIdFacultad(idFaculta);
     }
@@ -119,8 +106,8 @@ public class ConsejeroServiceImp implements ConsejeroService {
     }
 
     @Override
-    public Consejero findByIdColaborador(Long id) {
-        return consejeroDAO.finByIdColaborador(id);
+    public Consejero finByIdPersona(Persona persona) {
+        return consejeroDAO.finByIdPersona(persona);
     }
 
     @Override
@@ -144,7 +131,6 @@ public class ConsejeroServiceImp implements ConsejeroService {
             if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP) {
                 carreras.add(new Carrera(oficina.getInstanciaOficina()));
             }
-
         }
 
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -153,6 +139,37 @@ public class ConsejeroServiceImp implements ConsejeroService {
     @Override
     public List<Docente> allDocenteByNombreFacultad(String nombre, Facultad facultad) {
         return docenteDAO.allByNombreFacultad(nombre, facultad);
+    }
+
+    @Override
+    @Transactional
+    public void updateEstado(Consejero consejero, DataSessionPivot ds) {
+        Consejero cons = this.find(consejero.getId());
+        cons.setEstado(consejero.getEstado());
+        consejeroDAO.update(cons);
+    }
+
+    @Override
+    @Transactional
+    public void saveConsejeroByDocente(Docente docente, DataSessionPivot ds) {
+
+        Consejero consejero = new Consejero();
+
+        Colaborador colaborador = this.findColaboradorByIdPersona(docente.getPersona().getId());
+
+        Carrera carrera = this.findbByNombre(docente.getCarrera().getId());
+
+        consejero.setEstado(docente.getEstadoEnum().name());
+        consejero.setFechaRegistro(new Date());
+        consejero.setFechaModificacion(new Date());
+        consejero.setFechaInicio(new Date());
+        consejero.setUserRegistro(ds.getUsuario());
+        consejero.setCarrera(carrera);
+        consejero.setColaborador(colaborador);
+        consejero.setAlumnosInactivos(0);
+        consejero.setAlumnosActivos(0);
+
+        consejeroDAO.save(consejero);
     }
 
 }

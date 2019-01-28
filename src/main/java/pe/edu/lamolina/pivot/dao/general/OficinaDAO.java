@@ -50,4 +50,6 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
 
     Oficina find(Oficina oficina);
 
+    List<Oficina> allOficinaByName(String nombre, Compania compania);
+
 }

@@ -43,7 +43,10 @@ import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
+import pe.edu.lamolina.model.rolexamen.SemanaExamen;
+import pe.edu.lamolina.pivot.controller.rolexamen.grupoespecial.GrupoEspecialService;
 import pe.edu.lamolina.pivot.controller.rolexamen.gruporegular.GrupoRegularConnector;
+import pe.edu.lamolina.pivot.controller.rolexamen.gruporegular.GrupoRegularService;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -65,6 +68,7 @@ import pe.edu.lamolina.pivot.dao.rolexamen.SeccionCursoMasivoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionExcluidoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoEspecialDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoRegularDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.SemanaExamenDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -72,6 +76,12 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public class CursoMasivosServiceImp implements CursoMasivosService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    GrupoRegularService grupoRegularService;
+
+    @Autowired
+    GrupoEspecialService grupoEspecialService;
 
     @Autowired
     CursoMasivoExamenDAO cursoMasivoExamenDAO;
@@ -139,9 +149,20 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Autowired
     RolExamenesLogger rolExamenesLogger;
 
+    @Autowired
+    SemanaExamenDAO semanaExamenDAO;
+
     @Override
     public List<RolExamenes> allRolExamenesByCicloActivo(CicloAcademico cicloAcademico) {
         return cursoMasivoExamenDAO.allRolExamenesByCicloActivo(cicloAcademico);
+    }
+
+    @Override
+    public RolExamenes findRolExamenes(RolExamenes rolExamenes) {
+        rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
+        List<SemanaExamen> semanasExamen = semanaExamenDAO.allByRolExamenes(rolExamenes);
+        rolExamenes.setSemanasExamen(semanasExamen);
+        return rolExamenes;
     }
 
     @Override
@@ -149,7 +170,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void save(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds) {
 
         RolExamenes rolExamenes = rolExamenesDAO.find(cursoMasivosExamen.getRolExamenes().getId());
-        Assert.isTrue(rolExamenes.isSituacionConfigurarHorario() || rolExamenes.isSituacionConfigurarCursoMasivo(), "Debe configurar los horarios de examenes previamente.");
+        Assert.isTrue(rolExamenes.isSituacionConfigurarCursoMasivo(), "No puede agregar cursos masivos, en este momento.");
         List<String> validationsHorariosExamen = this.validarHorariosExamen(rolExamenes);
         Assert.isTrue(validationsHorariosExamen.isEmpty(), String.join("\n", validationsHorariosExamen));
 
@@ -328,6 +349,10 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         CursoMasivoExamen cursoMasivoBD = cursoMasivoExamenDAO.find(cursoMasivo.getId());
 
+        Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
+                rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
+        Assert.isTrue(cursoMasivoBD.getRolExamenes().isSituacionConfiguraGrupoRegular(), "Debe configurar los grupos regulares previamente.");
+
         List<AulaCursoMasivo> aulasCurso = cursoMasivo.getAulasCursosMasivos();
         List<AulaCursoMasivo> aulasCursoBD = aulaCursoMasivoDAO.allByCursoMasivo(cursoMasivoBD);
         ListsInspector inspector = TypesUtil.analizeLists(aulasCursoBD, aulasCurso, "aula.id");
@@ -496,8 +521,9 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         GrupoHorasExamen grupoHorasExamen = cursoMasivoExamen.getGrupoHorasExamen();
 
-        List<AlumnoCursoMasivo> alumnosCursoMasivo = alumnoCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamen, AlumnoRolExamenEstadoEnum.ACT);
         List<AulaCursoMasivo> aulasCursoMasivo = aulaCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamen);
+        Assert.isFalse(aulasCursoMasivo.isEmpty(), "Debe asignar aulas al curso masivo.");
+        List<AlumnoCursoMasivo> alumnosCursoMasivo = alumnoCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamen, AlumnoRolExamenEstadoEnum.ACT);
         List<DocenteCursoMasivo> docenteCursoMasivo = docenteCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamen, DocenteRolExamenEstadoEnum.ACT);
 
         cursoMasivoExamen.setAlumnosCursosMasivos(alumnosCursoMasivo);
@@ -569,6 +595,34 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             seccionesCursoMasivo.setAlumnosCount(countAlumnosSeccionCursosMasivos.get(seccionesCursoMasivo.getId()) != null ? countAlumnosSeccionCursosMasivos.get(seccionesCursoMasivo.getId()) : BigDecimal.ZERO.intValue());
         }
         return seccionesCursoMasivos;
+    }
+
+    @Override
+    @Transactional
+    public void eliminarCursosMasivos(RolExamenes rolExamenes) {
+        rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
+        Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
+                rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
+
+        grupoEspecialService.deleteGrupoEspecial(rolExamenes);
+        grupoRegularService.deleteGrupoRegular(rolExamenes);
+        this.deleteCursosMasivos(rolExamenes);
+
+        RolExamenes rolExamenesUpd = new RolExamenes();
+        rolExamenesUpd.setId(rolExamenes.getId());
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR);
+        rolExamenesDAO.updateSituacion(rolExamenesUpd);
+    }
+
+    public void deleteCursosMasivos(RolExamenes rolExamenes) {
+        List<CursoMasivoExamen> cursosMasivos = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes);
+        for (CursoMasivoExamen cursosMasivo : cursosMasivos) {
+            docenteCursoMasivoDAO.deleteByCursoMasivo(cursosMasivo);
+            alumnoCursoMasivoDAO.deleteByCursoMasivo(cursosMasivo);
+            aulaCursoMasivoDAO.deleteByCursoMasivo(cursosMasivo);
+            seccionCursoMasivoDAO.deleteByCursoMasivo(cursosMasivo);
+        }
+        cursoMasivoExamenDAO.deleteByRolExamenes(rolExamenes);
     }
 
 }

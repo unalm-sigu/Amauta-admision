@@ -25,4 +25,6 @@ public interface RolExamenesService {
 
     List<SemanaExamen> allSemanaExamenByEventoCiclo(EventoCicloAcademico eventoCicloAcademico);
 
+    void publicarRolExamen(RolExamenes rolExamenes, DataSessionPivot ds);
+
 }

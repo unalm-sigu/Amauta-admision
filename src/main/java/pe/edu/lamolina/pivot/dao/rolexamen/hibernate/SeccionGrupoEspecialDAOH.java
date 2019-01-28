@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
 import java.util.List;
+
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -66,6 +67,20 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .left("aula au", "grupoHorasExamen ghe")
                 .filter("ghe.id", grupoHorasExamen)
                 .in("sce.estado", estados);
+        return all(sql);
+    }
+
+    @Override
+    public List<SeccionGrupoEspecial> allByRolExamenesForReporte(RolExamenes rol) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoEspecial.class, "sce")
+                .join("docente doc", "doc.persona")
+                .join("seccion sec", "rolExamenes re", "sec.grupoSeccion gs", "gs.curso cur")
+                .join("aula au")
+                .join("grupoHorasExamen ghe", "ghe.horaInicio", "ghe.horaFin")
+                .filter("re.id", rol)
+                .orderBy("cur.nombre asc", "sec.codigo2 asc");
+
         return all(sql);
     }
 
