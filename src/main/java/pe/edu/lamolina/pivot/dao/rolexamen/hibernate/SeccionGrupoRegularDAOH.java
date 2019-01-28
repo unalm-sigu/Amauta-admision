@@ -11,8 +11,12 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.bean.RolExamenDocente;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
+import static pe.edu.lamolina.model.enums.TipoGestionEnum.PUB;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
@@ -151,6 +155,22 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
                 .searchFields("sec.codigo");
 
         return all(sql);
+    }
+
+    @Override
+    public List<RolExamenDocente> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico) {
+        Octavia sql = new Octavia()
+                .select("cur", "ghe", "au", "sec", "re.estado", "re.id")
+                .into(RolExamenDocente.class)
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("docente doc", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "aula au", "letraGrupoRegular lgr")
+                .join("lgr.rolExamenes re", "re.eventoCicloAcademico eca", "eca.cicloAcademico ca")
+                .join("lgr.grupoHorasExamen ghe", "ghe.dia di", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .filter("doc.id", docente)
+                .filter("re.estado", PUB)
+                .filter("ca.id", cicloAcademico);
+
+        return sql.all(getCurrentSession());
     }
 
 }
