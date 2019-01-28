@@ -49,6 +49,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
         Octavia sql = Octavia.query()
                 .from(SeccionCursoMasivo.class, "scm")
                 .join("cursoMasivoExamen cme", "userRegistro ur", "seccion se")
+                .join("se.grupoSeccion gs", "gs.curso")
                 .in("cme.id", cursosMasivosExamenes);
         return all(sql);
     }

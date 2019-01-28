@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.bean.RolExamenDocente;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
@@ -31,5 +34,7 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
     List<SeccionGrupoRegular> allByDynatableAndLetraGrupoRegular(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
 
     SeccionGrupoRegular findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... seccionRolExamenEstadosEnum);
+
+    public List<RolExamenDocente> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico);
 
 }

@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
@@ -33,4 +34,5 @@ public interface CursoMasivoExamenDAO extends EasyDAO<CursoMasivoExamen> {
     List<CursoMasivoExamen> allByRolExamenes(RolExamenes rolExamenes, EstadoCursoMasivoEnum... estados);
 
     CursoMasivoExamen findByCursoAndRolExamenes(Curso curso, RolExamenes rolExamenes, EstadoCursoMasivoEnum... estados);
+
 }
