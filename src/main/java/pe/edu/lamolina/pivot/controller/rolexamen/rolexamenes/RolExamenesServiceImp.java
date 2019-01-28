@@ -88,6 +88,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
     }
 
     @Override
+    @Transactional
     public void save(RolExamenes rolExamenes, DataSessionPivot ds) {
         rolExamenes.setEstadoEnum(RolExamenesEstadoEnum.CRE);
         rolExamenes.setFechaRegistro(new Date());
@@ -109,6 +110,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
     }
 
     @Override
+    @Transactional
     public void update(RolExamenes rolExamenes, DataSessionPivot ds) {
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
