@@ -34,10 +34,6 @@ public class RolExamenReporteView extends AbstractPOIExcelView {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public final static String TIPO = "tipo";
-    public final static String PRE_GRADO = "PRE";
-    public final static String POST_GRADO = "POST";
-
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
 

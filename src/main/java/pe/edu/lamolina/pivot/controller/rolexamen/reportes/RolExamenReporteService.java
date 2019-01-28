@@ -21,4 +21,6 @@ public interface RolExamenReporteService {
 
     void infoReporteAulas(Model model, RolExamenes rol);
 
+    public RolExamenes find(Long id);
+
 }

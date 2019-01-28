@@ -7,6 +7,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 
 public interface SeccionCursoMasivoDAO extends EasyDAO<SeccionCursoMasivo> {
@@ -30,4 +31,6 @@ public interface SeccionCursoMasivoDAO extends EasyDAO<SeccionCursoMasivo> {
     Map<Long, Integer> countByCursosMasivos(List<CursoMasivoExamen> cursosMasivosExamen, SeccionRolExamenEstadoEnum... estados);
 
     List<SeccionCursoMasivo> allByDynatableAndCursoMasivo(DynatableFilter filter, CursoMasivoExamen cursoMasivoExamen);
+
+    List<SeccionCursoMasivo> allByRolExamenes(RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... estados);
 }

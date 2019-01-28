@@ -132,6 +132,36 @@ new Vue({
                     }
                 }
             });
+        }, eliminarAvanceConfiguracion(rolExamen) {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea eliminar la configuracion del rol examene?',
+                buttons: {
+                    confirm: {label: 'Si, eliminar', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: "POST",
+                            contentType: "application/json",
+                            url: APP.url("rolexamen/rolexamenes/eliminarconfiguracion"),
+                            data: JSON.stringify(rolExamen)
+                        }).then(response => {
+                            if (response.success) {
+                                $vue.$refs.raptorRolExamenes.loadRemoteData();
+                                notify(response.message, "info")
+                            } else {
+                                notify(response.message, 'error');
+                            }
+                            MODAL.hideWait();
+                        }, error => {
+                            notify(MESSAGES.errorComunicacion, 'error');
+                        });
+                    }
+                }
+            });
         }
     }
 });

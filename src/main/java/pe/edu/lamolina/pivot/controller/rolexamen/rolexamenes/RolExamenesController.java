@@ -32,19 +32,19 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("rolexamen/rolexamenes")
 public class RolExamenesController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     RolExamenesService service;
-    
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         JsonNodeFactory jc = JsonNodeFactory.instance;
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        
+
         List<Hora> horas = service.allHoras();
         ArrayNode jHoras = new ArrayNode(jc);
         horas.forEach(x -> {
@@ -54,7 +54,7 @@ public class RolExamenesController {
                     }));
         });
         model.addAttribute("jHoras", jHoras.toString());
-        
+
         List<EventoCicloAcademico> eventoCicloAcademicos = service.allEventoCicloAcademicos(ds.getCicloAcademico());
         ArrayNode arrayEventosCiclosAcademicos = new ArrayNode(jc);
         for (EventoCicloAcademico eventoCicloAcademico : eventoCicloAcademicos) {
@@ -64,18 +64,18 @@ public class RolExamenesController {
         model.addAttribute("jEventosCiclosAcademicos", arrayEventosCiclosAcademicos.toString());
         return "rolexamen/rolexamenes/rolexamenes";
     }
-    
+
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            
+
             List<RolExamenes> rolexamenes = service.allRolExamenes(filter, ds.getCicloAcademico());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            
+
             for (RolExamenes rolexamen : rolexamenes) {
                 ObjectNode node = JsonHelper.createJson(rolexamen, JsonNodeFactory.instance, true,
                         new String[]{
@@ -85,28 +85,28 @@ public class RolExamenesController {
                             "nombre", "estado", "fechaPublicacion",
                             "userRegistro.persona.apellidosNombres"
                         });
-                
+
                 array.add(node);
             }
-            
+
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("allEventoCicloAcademico")
     public JsonResponse allEventoCicloAcademico(HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<EventoCicloAcademico> eventoCicloAcademicos = service.allEventoCicloAcademicos(ds.getCicloAcademico());
@@ -117,10 +117,10 @@ public class RolExamenesController {
                 ObjectNode json = createEventoCicloAcademicoJson(eventoCicloAcademico);
                 arrayEventosCiclosAcademicos.add(json);
             }
-            
+
             response.setData(arrayEventosCiclosAcademicos);
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -128,14 +128,14 @@ public class RolExamenesController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("loadRolExamenesInfo")
     public JsonResponse loadRolExamenesInfo(@RequestBody RolExamenes rolExamenes, HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             rolExamenes = service.findRolExamenes(rolExamenes.getId());
@@ -150,7 +150,7 @@ public class RolExamenesController {
                         "semanasExamen.horaFin.*"
                     }));
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -158,14 +158,14 @@ public class RolExamenesController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("changeEventoCicloAcademico")
     public JsonResponse changeEventoCicloAcademico(@RequestBody EventoCicloAcademico eventoCicloAcademico, HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             List<SemanaExamen> semanasExamen = service.allSemanaExamenByEventoCiclo(eventoCicloAcademico);
             ArrayNode jSemanasExamen = new ArrayNode(jsonFactory);
@@ -177,10 +177,10 @@ public class RolExamenesController {
                             "horaFin.*"
                         }));
             });
-            
+
             response.setData(jSemanasExamen);
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -188,7 +188,7 @@ public class RolExamenesController {
         }
         return response;
     }
-    
+
     private ObjectNode createEventoCicloAcademicoJson(EventoCicloAcademico eventoCicloAcademico) {
         ObjectNode json = JsonHelper.createJson(eventoCicloAcademico, JsonNodeFactory.instance, true, new String[]{
             "eventoAcademico.id", "eventoAcademico.codigo", "eventoAcademico.tipo", "eventoAcademico.nombre",
@@ -198,14 +198,14 @@ public class RolExamenesController {
         });
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody RolExamenes rolExamenes, HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             if (rolExamenes.getId() == null) {
@@ -216,7 +216,7 @@ public class RolExamenesController {
                 response.setMessage("Actualizado satisfactoriamnente");
             }
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -224,14 +224,14 @@ public class RolExamenesController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("publicarrolexamen")
     public JsonResponse publicarrolexamen(@RequestBody RolExamenes rolExamenes, HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
@@ -245,5 +245,26 @@ public class RolExamenesController {
         }
         return response;
     }
-    
+
+    @ResponseBody
+    @RequestMapping("eliminarconfiguracion")
+    public JsonResponse eliminarconfiguracion(@RequestBody RolExamenes rolExamenes, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds.setFechaAccionAudit(new Date());
+            service.eliminarConfiguracion(rolExamenes, ds);
+            response.setSuccess(true);
+            response.setMessage("Rol examen publicado.");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }

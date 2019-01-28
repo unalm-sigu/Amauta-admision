@@ -6,7 +6,7 @@
                 <div class="col-xs-12 text-center">
 
                     <form class="form-inline m-b-lg">
-                        <button type="button" class="btn btn-default" v-on:click="backweek()"><i class="fa fa-backward" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-default" v-on:click="backweek()"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
                         <div class="form-group">
                             <label for="exampleInputName2">De</label>
                             <input readonly="true" type="text" v-bind:value="fechaInicio" class="form-control" id="exampleInputName2" />
@@ -15,7 +15,7 @@
                             <label for="exampleInputEmail2">al</label>
                             <input readonly="true" type="text" v-bind:value="fechaFin" class="form-control" id="exampleInputEmail2"  />
                         </div>
-                        <button type="button" class="btn btn-default" v-on:click="nextweek()"><i class="fa fa-forward" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-default" v-on:click="nextweek()"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
                     </form>
 
                 </div>

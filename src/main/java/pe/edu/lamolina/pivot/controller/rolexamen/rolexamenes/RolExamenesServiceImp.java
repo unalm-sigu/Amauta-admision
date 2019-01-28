@@ -20,11 +20,17 @@ import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
+import pe.edu.lamolina.pivot.controller.rolexamen.cursomasivos.CursoMasivosService;
+import pe.edu.lamolina.pivot.controller.rolexamen.grupoespecial.GrupoEspecialService;
+import pe.edu.lamolina.pivot.controller.rolexamen.gruporegular.GrupoRegularService;
+import pe.edu.lamolina.pivot.controller.rolexamen.plantillahorario.PlantillaHorarioService;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.SeccionExcluidoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SemanaExamenDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -34,6 +40,18 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public class RolExamenesServiceImp implements RolExamenesService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    GrupoEspecialService grupoEspecialService;
+
+    @Autowired
+    GrupoRegularService grupoRegularService;
+
+    @Autowired
+    CursoMasivosService cursoMasivosService;
+
+    @Autowired
+    PlantillaHorarioService plantillaHorarioService;
 
     @Autowired
     RolExamenesDAO rolexamenesDAO;
@@ -46,6 +64,9 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
     @Autowired
     SemanaExamenDAO semanaExamenDAO;
+
+    @Autowired
+    SeccionExcluidoDAO seccionExcluidoDAO;
 
     @Override
     public RolExamenes findRolExamenes(long rolExamenId) {
@@ -111,6 +132,29 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.PUB);
         rolExamenesUpd.setFechaPublicacion(ds.getFechaAccionAudit());
         rolexamenesDAO.updatePublicacion(rolExamenesUpd);
+    }
+
+    @Transactional
+    @Override
+    public void eliminarConfiguracion(RolExamenes rolExamenes, DataSessionPivot ds) {
+        rolExamenes = rolexamenesDAO.find(rolExamenes.getId());
+        Assert.isFalse(rolExamenes.isSituacionConfigurarRol(), "No tiene avance en la configuración.");
+
+        this.deleteSeccionesExcluidasByRolExamenes(rolExamenes);
+        grupoEspecialService.deleteGrupoEspecial(rolExamenes);
+        grupoRegularService.deleteGrupoRegular(rolExamenes);
+        cursoMasivosService.deleteCursosMasivos(rolExamenes);
+        plantillaHorarioService.deletePlantillaHorario(rolExamenes);
+
+        RolExamenes rolExamenesUpd = new RolExamenes();
+        rolExamenesUpd.setId(rolExamenes.getId());
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_ROL);
+        rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CRE);
+        rolexamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
+    }
+
+    public void deleteSeccionesExcluidasByRolExamenes(RolExamenes rolExamenes) {
+        seccionExcluidoDAO.deleteByRolExamenes(rolExamenes);
     }
 
     @Override

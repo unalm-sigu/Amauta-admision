@@ -7,6 +7,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
 
@@ -72,6 +73,25 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
         Octavia octavia = Octavia.update(RolExamenes.class);
         octavia.set(rolExamenes, "situacion");
         this.update(octavia);
+    }
+
+    @Override
+    public void updateEstadoAndSituacion(RolExamenes rolExamenes) {
+        Octavia octavia = Octavia.update(RolExamenes.class);
+        octavia.set(rolExamenes, "situacion");
+        octavia.set(rolExamenes, "estado");
+        this.update(octavia);
+    }
+
+    public RolExamenes findByEstadoCiclo(RolExamenesEstadoEnum rolExamenesEstadoEnum, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(RolExamenes.class, "rexa")
+                .join("eventoCicloAcademico eca", "userRegistro ur")
+                .join("eca.eventoAcademico ea", "eca.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .filter("rexa.estado", rolExamenesEstadoEnum);
+
+        return find(sql);
     }
 
 }
