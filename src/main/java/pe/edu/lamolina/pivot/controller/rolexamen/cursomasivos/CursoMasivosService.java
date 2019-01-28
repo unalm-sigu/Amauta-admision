@@ -66,4 +66,6 @@ public interface CursoMasivosService {
     boolean validateCruceCursosMasivos(CursoMasivoExamen cursoMasivoExamen, List<Alumno> alumnos, List<Docente> docentes, List<Aula> aulas);
 
     void eliminarCursosMasivos(RolExamenes rolExamenes);
+
+    void deleteCursosMasivos(RolExamenes rolExamenes);
 }

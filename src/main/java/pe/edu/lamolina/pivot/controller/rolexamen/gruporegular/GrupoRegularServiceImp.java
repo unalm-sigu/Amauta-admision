@@ -37,6 +37,7 @@ import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoRegularExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
@@ -180,6 +181,13 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<String> cursosMasivosValidations = this.validarCursosMasivos(cursosMasivosByRolExamenes);
         Assert.isTrue(cursosMasivosValidations.isEmpty(), String.join("\n", cursosMasivosValidations));
 
+        List<Seccion> seccionesCursosMasivos = new ArrayList<>();
+        for (CursoMasivoExamen cursosMasivosByRolExamene : cursosMasivosByRolExamenes) {
+            for (SeccionCursoMasivo seccionesCursosMasivo : cursosMasivosByRolExamene.getSeccionesCursosMasivos()) {
+                seccionesCursosMasivos.add(seccionesCursosMasivo.getSeccion());
+            }
+        }
+
         List<SeccionGrupoEspecial> seccionesGrupoEspecial = seccionGrupoEspecialDAO.allByRolExamenesAndEstados(rolExamenes, SeccionRolExamenEstadoEnum.ACT);
         grupoRegularConnector.fillActiveInfoGrupoEspecial(seccionesGrupoEspecial);
 
@@ -198,7 +206,12 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<Seccion> seccionesEspecialesRecolected = new ArrayList<>();
 
         logger.debug("Crear grupos regulares");
-        List<Seccion> secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.REGULAR); //grupo horas regulares
+        //secciones de los grupos regulares
+        List<Seccion> secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.REGULAR);
+        for (Seccion seccionCursoMasivo : seccionesCursosMasivos) {
+            secciones.removeIf(x -> x.equals(seccionCursoMasivo));
+        }
+
         for (SeccionExcluido seccionExcluido : seccionesExcluidasByRolExamen) {
             secciones.removeIf(x -> x.equals(seccionExcluido.getSeccion()));
         }
@@ -227,7 +240,11 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         }
 
         logger.debug("Grupos Especiales");
+        //secciones grupos especiales
         secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.ESPECIAL);
+        for (Seccion seccionCursoMasivo : seccionesCursosMasivos) {
+            secciones.removeIf(x -> x.equals(seccionCursoMasivo));
+        }
         for (SeccionExcluido seccionExcluido : seccionesExcluidasByRolExamen) {
             secciones.removeIf(x -> x.equals(seccionExcluido.getSeccion()));
         }
@@ -419,6 +436,12 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     public void deleteGrupoRegular(RolExamenes rolExamenes) {
         List<LetraGrupoRegular> letrasGruposRegular = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
         logger.debug("Letras Grupos Regulares a eliminar {}", letrasGruposRegular.size());
+
+        List<SeccionGrupoRegular> seccionesGruposRegularesExc = seccionGrupoRegularDAO.allByRolExamenes(rolExamenes, SeccionRolExamenEstadoEnum.EXC);
+        List<Seccion> seccionesExcluidas = seccionesGruposRegularesExc.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+        if (!seccionesExcluidas.isEmpty()) {
+            seccionExcluidoDAO.deleteBySecciones(seccionesExcluidas);
+        }
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegular) {
             alumnoGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
             seccionGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);

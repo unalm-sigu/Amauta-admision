@@ -167,7 +167,7 @@
                                                                 th:value="${notaLet.letra}"></option>
                                                     </select>
                                                 </div>
-
+                                           
                                                 <div th:class="${sistemaNotas.letras} ? 'form-group col-md-6' : ''">
                                                     <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
                                                            th:unless="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id]}"
@@ -184,6 +184,7 @@
 
                                     </td>
                                     <td th:if="${sistemaNotas.letras}">
+                                        <input type="hidden" th:value="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].id}"/>
                                         <span th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
                                               > 
                                             04.18 

@@ -5,6 +5,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -50,7 +51,17 @@ public class SeccionExcluidoDAOH extends AbstractEasyDAO<SeccionExcluido> implem
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameterList("SECCIONES", seccionesIds);
         query.executeUpdate();
+    }
 
+    @Override
+    public void deleteByRolExamenes(RolExamenes rolExamenes) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" DELETE ").append(SeccionExcluido.class.getName()).append(" sex ")
+                .append(" WHERE sex.rolExamenes.id in :ROL_EXAMENES ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameter("ROL_EXAMENES", rolExamenes.getId());
+        query.executeUpdate();
     }
 
 }

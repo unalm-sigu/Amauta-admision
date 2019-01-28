@@ -19,6 +19,7 @@ public interface RolExamenesDAO extends EasyDAO<RolExamenes> {
 
     void updatePublicacion(RolExamenes rolExamenes);
 
+    void updateEstadoAndSituacion(RolExamenes rolExamenes);
     RolExamenes findByEstadoCiclo(RolExamenesEstadoEnum rolExamenesEstadoEnum, CicloAcademico cicloAcademico);
 
 }

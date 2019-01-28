@@ -27,4 +27,6 @@ public interface RolExamenesService {
 
     void publicarRolExamen(RolExamenes rolExamenes, DataSessionPivot ds);
 
+    void eliminarConfiguracion(RolExamenes rolExamenes, DataSessionPivot ds);
+
 }
