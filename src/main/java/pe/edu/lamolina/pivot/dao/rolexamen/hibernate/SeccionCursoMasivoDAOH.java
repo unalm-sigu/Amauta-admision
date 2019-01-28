@@ -102,7 +102,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
         Octavia sql = Octavia.query()
                 .from(SeccionCursoMasivo.class, "scm")
                 .join("cursoMasivoExamen cme")
-                .join("userRegistro ureg", "ureg.persona pureg", "rolExamenes rex")
+                .join("userRegistro ureg", "ureg.persona pureg", "cme.rolExamenes rex")
                 .left("usuarioExclusion uexl", "uexl.persona puexl")
                 .in("scm.estado", estados)
                 .filter("rex.id", rolExamenes);

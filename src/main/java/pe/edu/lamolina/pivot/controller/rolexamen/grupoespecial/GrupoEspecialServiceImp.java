@@ -142,8 +142,9 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
     public void deleteGrupoEspecial(RolExamenes rolExamenes) {
         List<SeccionGrupoEspecial> seccionesExcluidas = seccionGrupoEspecialDAO.allByRolExamenesAndEstados(rolExamenes, SeccionRolExamenEstadoEnum.EXC);
         List<Seccion> secciones = seccionesExcluidas.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
-
-        seccionExcluidoDAO.deleteBySecciones(secciones);
+        if (!secciones.isEmpty()) {
+            seccionExcluidoDAO.deleteBySecciones(secciones);
+        }
         alumnoGrupoEspecialDAO.deleteByRolExamenes(rolExamenes);
         seccionGrupoEspecialDAO.deleteByRolExamenes(rolExamenes);
     }

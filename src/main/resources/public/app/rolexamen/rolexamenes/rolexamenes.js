@@ -137,7 +137,7 @@ new Vue({
             bootbox.confirm({
                 message: '¿Está seguro que desea eliminar la configuracion del rol examene?',
                 buttons: {
-                    confirm: {label: 'Si, publicar', className: 'btn-success'},
+                    confirm: {label: 'Si, eliminar', className: 'btn-success'},
                     cancel: {label: 'No', className: 'btn-link'}
                 },
                 callback: function (result) {

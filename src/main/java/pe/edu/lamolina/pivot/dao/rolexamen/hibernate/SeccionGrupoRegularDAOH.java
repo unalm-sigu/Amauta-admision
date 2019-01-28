@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,11 +62,12 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
     @Override
     public List<SeccionGrupoRegular> allByRolExamenes(
             RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnums) {
+        //  List<SeccionRolExamenEstadoEnum> estados = Arrays.asList(seccionRolExamenEstadoEnums);
         Octavia sql = Octavia.query()
                 .from(SeccionGrupoRegular.class, "sgr")
                 .join("letraGrupoRegular lgr", "seccion sec", "lgr.rolExamenes rex")
                 .left("docente doc", "doc.persona dper")
-                .filter("sgr.estado", seccionRolExamenEstadoEnums)
+                .in("sgr.estado", seccionRolExamenEstadoEnums)
                 .filter("rex.id", rolExamenes);
         return all(sql);
     }
@@ -73,11 +75,12 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
     @Override
     public List<SeccionGrupoRegular> allByLetraGrupoRegularAndEstados(
             List<LetraGrupoRegular> letrasGruposRegular, SeccionRolExamenEstadoEnum... estados) {
+        List<SeccionRolExamenEstadoEnum> lEstados = Arrays.asList(estados);
         Octavia sql = Octavia.query()
                 .from(SeccionGrupoRegular.class, "sgr")
                 .join("letraGrupoRegular lgr", "seccion sec", "docente doc", "doc.persona dper", "aula au")
                 .in("lgr.id", letrasGruposRegular)
-                .in("sgr.estado", estados);
+                .in("sgr.estado", lEstados);
         return all(sql);
     }
 
