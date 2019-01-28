@@ -117,11 +117,12 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolExamenes.setEventoCicloAcademico(rolExamenes.getEventoCicloAcademico());
         rolexamenesDAO.updateRolExamenes(rolExamenes);
 
-        //semanaExamenDAO.deleteByRolExamenes(rolExamenes);
-        semanaExamenDAO.allByRolExamenes(rolExamenes);
+        semanaExamenDAO.deleteByRolExamenes(rolExamenes);
+        //    semanaExamenDAO.allByRolExamenes(rolExamenes);
         for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
+            semanaExamen.setId(null);
             semanaExamen.setRolExamenes(rolExamenes);
-            semanaExamenDAO.update(semanaExamen);
+            semanaExamenDAO.save(semanaExamen);
         }
     }
 

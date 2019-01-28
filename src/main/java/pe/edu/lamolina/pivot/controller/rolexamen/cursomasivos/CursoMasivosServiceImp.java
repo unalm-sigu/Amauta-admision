@@ -185,6 +185,8 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         int alus = 0;
         List<DocenteSeccion> docentesPrincipales = docenteSeccionDAO.allPrincipalesBySecciones(secciones);
+        List<DocenteCursoMasivo> docentesCursoMasivo = new ArrayList<>();
+
         for (Seccion seccion : secciones) {
             List<DocenteSeccion> docenteSecciones = docentesPrincipales.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
             Assert.isFalse(docenteSecciones.isEmpty(), String.format("La sección (%s) de código %s, no tiene docente principal", seccion.getId(), seccion.getCodigo2()));
@@ -197,9 +199,16 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             docenteCursoMasivo.setSecciones(BigDecimal.ZERO.intValue());
             docenteCursoMasivo.setUserRegistro(ds.getUsuario());
             docenteCursoMasivo.setEstadoEnum(DocenteRolExamenEstadoEnum.ACT);
-            docenteCursoMasivoDAO.save(docenteCursoMasivo);
+            // docenteCursoMasivoDAO.save(docenteCursoMasivo);
+            DocenteCursoMasivo docenteCursoMasivoFound = docentesCursoMasivo.stream()
+                    .filter(x -> x.getDocente().equals(docenteCursoMasivo.getDocente()))
+                    .findFirst().orElse(null);
+            if (docenteCursoMasivoFound == null) {
+                docentesCursoMasivo.add(docenteCursoMasivo);
+            }
 
             SeccionCursoMasivo seccionCursoMasivo = new SeccionCursoMasivo();
+            seccionCursoMasivo.setDocente(docenteCursoMasivo.getDocente());
             seccionCursoMasivo.setCursoMasivoExamen(cursoMasivosExamen);
             seccionCursoMasivo.setEstadoEnum(SeccionRolExamenEstadoEnum.ACT);
             seccionCursoMasivo.setSeccion(seccion);
@@ -221,6 +230,10 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
                 alumnoCursoMasivo.setUserRegistro(ds.getUsuario());
                 alumnoCursoMasivoDAO.save(alumnoCursoMasivo);
             }
+        }
+
+        for (DocenteCursoMasivo docCursoMasivo : docentesCursoMasivo) {
+            docenteCursoMasivoDAO.save(docCursoMasivo);
         }
 
         cursoMasivosExamen.setAlumnos(alus);
