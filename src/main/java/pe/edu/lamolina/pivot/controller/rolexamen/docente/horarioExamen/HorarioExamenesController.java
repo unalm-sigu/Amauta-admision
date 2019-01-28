@@ -1,8 +1,10 @@
-package pe.edu.lamolina.pivot.controller.rolexamen.docente;
+package pe.edu.lamolina.pivot.controller.rolexamen.docente.horarioExamen;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,13 +33,14 @@ import pe.edu.lamolina.model.rolexamen.FechaHoraGrupoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
+import pe.edu.lamolina.pivot.controller.rolexamen.docente.RolExamenDocenteService;
 import pe.edu.lamolina.pivot.controller.rolexamen.plantillahorario.PlantillaHorarioService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("rolexamen/docentes")
-public class RolExamenDocenteController {
+@RequestMapping("rolexamen/horariodocente")
+public class HorarioExamenesController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -55,50 +58,33 @@ public class RolExamenDocenteController {
             "*",
             "persona.*",}));
 
-        return "rolexamen/docente/rolExamenDocente";
+        return "rolexamen/docente/horario/horarioexamen";
     }
 
     @ResponseBody
-    @RequestMapping("list")
-    public JsonResponse list(HttpSession session, HttpServletRequest request) {
-        JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        try {
-
-            List<RolExamenDocente> examenDocentes = service.listExamenDocente(ds.getDocente(), ds);
-
-            response.setData(jsonExamenDocente(examenDocentes));
-            response.setSuccess(Boolean.TRUE);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "plantilla/{rolExamenId}", method = RequestMethod.POST)
-    public JsonResponse plantilla(@PathVariable Long rolExamenId, @RequestBody GrupoHorasExamen grupoHorasExamen, HttpSession session, HttpServletRequest request) {
+    @RequestMapping(value = "plantilla", method = RequestMethod.POST)
+    public JsonResponse plantilla(HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonNodeFactory jc = JsonNodeFactory.instance;
         try {
-            RolExamenes rolExamenes = plantillaHorarioService.findRolExamenes(new RolExamenes(rolExamenId));
+            List<RolExamenDocente> examenDocentes = service.listExamenDocente(ds.getDocente(), ds);
+            List<GrupoHorasExamen> grupoHorasExamen = examenDocentes.stream().distinct().map(RolExamenDocente::getGrupoHorasExamen).collect(Collectors.toList());
+            RolExamenes rolExamenes = plantillaHorarioService.findRolExamenes(new RolExamenes(examenDocentes.get(0).getIdRolExamen()));
             ArrayNode jSeamanasExamen = new ArrayNode(jc);
             for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
-                ObjectNode jTblSeamanaExamen = this.horarioBySemanaExamen(semanaExamen, grupoHorasExamen.getGrupoHorasExamens());
+                ObjectNode jTblSeamanaExamen = this.horarioBySemanaExamen(semanaExamen, grupoHorasExamen, examenDocentes);
                 ObjectNode jSemanaExamen = JsonHelper.createJson(semanaExamen, jc, false,
                         new String[]{
                             "*",
-                            "fechaInicio.*",
-                            "fechaFin.*",
+                            "fechaInicio",
+                            "fechaFin",
                             "horaInicio.*",
                             "horaFin.*"
                         });
                 jSemanaExamen.set("tblHorarioSeamanaExamen", jTblSeamanaExamen);
                 jSemanaExamen.put("selected", Boolean.FALSE);
+                jSemanaExamen.put("nombreExamen", examenDocentes.get(0).getNombreRolExamen());
                 jSeamanasExamen.add(jSemanaExamen);
             }
 
@@ -113,42 +99,7 @@ public class RolExamenDocenteController {
         return response;
     }
 
-    private ArrayNode jsonExamenDocente(List<RolExamenDocente> examenDocentes) {
-        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode arrayAulas = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode arraySecciones = new ArrayNode(JsonNodeFactory.instance);
-
-        for (RolExamenDocente examenDocente : examenDocentes) {
-            ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
-            objectNode = JsonHelper.createJson(examenDocente, JsonNodeFactory.instance, new String[]{
-                "*",
-                "curso.*",
-                "grupoHorasExamen.*",
-                "grupoHorasExamen.horaInicio.*",
-                "grupoHorasExamen.horaFin.*",
-                "grupoHorasExamen.dia.*",
-                "grupoHorasExamen.grupoHoras.*",
-                "seccion.*",
-                "aula.*"
-            });
-            if (examenDocente.getAulas() != null) {
-                for (Aula aula : examenDocente.getAulas()) {
-                    arrayAulas.add(JsonHelper.createJson(aula, JsonNodeFactory.instance, new String[]{"*"}));
-                }
-                objectNode.set("aulas", arrayAulas);
-            }
-            if (examenDocente.getSecciones() != null) {
-                for (Seccion seccione : examenDocente.getSecciones()) {
-                    arraySecciones.add(JsonHelper.createJson(seccione, JsonNodeFactory.instance, new String[]{"*"}));
-                }
-                objectNode.set("secciones", arraySecciones);
-            }
-            arrayNode.add(objectNode);
-        }
-        return arrayNode;
-    }
-
-    public ObjectNode horarioBySemanaExamen(SemanaExamen semanaExamen, List<GrupoHorasExamen> grupoHorasExamens) {
+    public ObjectNode horarioBySemanaExamen(SemanaExamen semanaExamen, List<GrupoHorasExamen> grupoHorasExamens, List<RolExamenDocente> examenDocentes) {
         JsonNodeFactory jc = JsonNodeFactory.instance;
 
         ObjectNode data = new ObjectNode(jc);
@@ -183,9 +134,46 @@ public class RolExamenDocenteController {
                         "grupoHorasExamen.grupoHoras.tipoGrupoHoras.*",
                         "semanaExamen.*"
                     });
+            for (RolExamenDocente examenDocente : examenDocentes) {
+                if (examenDocente.getGrupoHorasExamen().getId() == fechaHoraGrupoExamen.getGrupoHorasExamen().getId()) {
+                    jsonFechaHoraGrupoEach.set("rolExamenDocente", jsonExamenDocente(examenDocente));
+                }
+            }
             jFechasHorasGrupos.putPOJO(fechaHoraGrupoExamen.getIdDiaHora(), jsonFechaHoraGrupoEach);
         }
         data.set("fechasHorasGrupos", jFechasHorasGrupos);
         return data;
+    }
+
+    private ObjectNode jsonExamenDocente(RolExamenDocente examenDocente) {
+        ArrayNode arrayAulas = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode arraySecciones = new ArrayNode(JsonNodeFactory.instance);
+
+        ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
+        objectNode = JsonHelper.createJson(examenDocente, JsonNodeFactory.instance, new String[]{
+            "*",
+            "curso.*",
+            "grupoHorasExamen.*",
+            "grupoHorasExamen.horaInicio.*",
+            "grupoHorasExamen.horaFin.*",
+            "grupoHorasExamen.dia.*",
+            "grupoHorasExamen.grupoHoras.*",
+            "seccion.*",
+            "aula.*"
+        });
+        if (examenDocente.getAulas() != null) {
+            for (Aula aula : examenDocente.getAulas()) {
+                arrayAulas.add(JsonHelper.createJson(aula, JsonNodeFactory.instance, new String[]{"*"}));
+            }
+            objectNode.set("aulas", arrayAulas);
+        }
+        if (examenDocente.getSecciones() != null) {
+            for (Seccion seccione : examenDocente.getSecciones()) {
+                arraySecciones.add(JsonHelper.createJson(seccione, JsonNodeFactory.instance, new String[]{"*"}));
+            }
+            objectNode.set("secciones", arraySecciones);
+        }
+
+        return objectNode;
     }
 }
