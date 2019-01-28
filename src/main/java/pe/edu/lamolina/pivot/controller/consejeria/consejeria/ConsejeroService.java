@@ -20,31 +20,33 @@ public interface ConsejeroService {
 
     List<Docente> allDocente();
 
-    public Docente findById(Long idDocente);
+    Docente findById(Long idDocente);
 
-    public Carrera findCarreraByIdFacultad(Long idFaculta);
+    Carrera findCarreraByIdFacultad(Long idFaculta);
 
-    public Colaborador findColaboradorByIdPersona(Long idPersona);
+    Colaborador findColaboradorByIdPersona(Long idPersona);
 
-    public Colaborador findColaboradorDocenteByIdPersona(Long idPersona, Long IdCargo);
+    Colaborador findColaboradorDocenteByIdPersona(Long idPersona, Long IdCargo);
 
-    public void saveConsejero(Consejero consejero, DataSessionPivot ds);
+    void saveConsejeroByDocente(Docente docente, DataSessionPivot ds);
 
-    public List<Carrera> allByCarreraByNombre(String nombre, List<Carrera> carreras);
+    void updateEstado(Consejero consejero, DataSessionPivot ds);
 
-    public Carrera findbByNombre(Long idcarrera);
+    List<Carrera> allByCarreraByNombre(String nombre, List<Carrera> carreras);
 
-    public List<Consejero> allConsejerosbyDynatableCarrera(DynatableFilter filter);
+    Carrera findbByNombre(Long idcarrera);
 
-    public List<DepartamentoAcademico> allDeptByIdFacultad(String facultadid);
+    List<Consejero> allConsejerosbyDynatableCarrera(DynatableFilter filter);
 
-    public List<Docente> allDocenteByNombreAndCarreraAndDeparts(String nombre, List<DepartamentoAcademico> departs);
+    List<DepartamentoAcademico> allDeptByIdFacultad(String facultadid);
 
-    public Consejero find(Long idConsejero);
+    List<Docente> allDocenteByNombreAndCarreraAndDeparts(String nombre, List<DepartamentoAcademico> departs);
 
-    public Consejero findByIdColaborador(Long id);
+    Consejero find(Long idConsejero);
 
-    public List<Carrera> allCarreraByIdDocente(long idDocente);
+    Consejero finByIdPersona(Persona persona);
+
+    List<Carrera> allCarreraByIdDocente(long idDocente);
 
     List<Carrera> allCarreraByPersonaCiclo(Persona persona, CicloAcademico ciclo);
 

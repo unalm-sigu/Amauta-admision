@@ -7,6 +7,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -178,6 +179,7 @@ public class TramiteAulaController {
                     "tramite.alumno.*",
                     "tramite.docente.*",
                     "tramite.empresa.*",
+                    "tramite.oficina.*",
                     "tramite.alumno.persona.*",
                     "tramite.docente.persona.*",
                     "reservados.id",
@@ -506,6 +508,8 @@ public class TramiteAulaController {
 
             List<Hora> horas = horass.values().stream().collect(Collectors.toList());
 
+            Collections.sort(horas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
+
             for (Hora hora : horas) {
                 for (Dia dia : dias) {
                     dia.setSelecionado(null);
@@ -519,7 +523,7 @@ public class TramiteAulaController {
             }
 
             ArrayNode horasJson = new ArrayNode(jFactory);
-            
+
             for (Hora hora : horas) {
                 ObjectNode json = JsonHelper.createJson(hora, jFactory, true, new String[]{"*", "dias.*"});
                 horasJson.add(json);

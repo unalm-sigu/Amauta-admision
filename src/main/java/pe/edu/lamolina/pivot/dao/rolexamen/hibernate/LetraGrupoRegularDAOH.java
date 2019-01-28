@@ -5,6 +5,7 @@ import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
@@ -48,6 +49,18 @@ public class LetraGrupoRegularDAOH extends AbstractEasyDAO<LetraGrupoRegular> im
                 .left("ur.persona urPer")
                 .filter("gex.id", grupoHorasExamen);
         return find(sql);
+    }
+
+    @Override
+    public List<LetraGrupoRegular> allByRolExamenesForReporte(RolExamenes rol) {
+        Octavia sql = Octavia.query()
+                .from(LetraGrupoRegular.class, "lgr")
+                .join("rolExamenes re", "userRegistro ur", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio hi", "ghe.horaFin", "ghe.grupoHoras")
+                .left("ur.persona urPer")
+                .filter("re.id", rol)
+                .orderBy("lgr.letra asc", "ghe.fecha asc", "hi.codigo asc");
+
+        return all(sql);
     }
 
     @Override

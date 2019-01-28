@@ -12,7 +12,9 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
@@ -127,6 +129,19 @@ public class CursoMasivoExamenDAOH extends AbstractEasyDAO<CursoMasivoExamen> im
                 .filter("re.id", rolExamenes)
                 .in("cm.estado", estados);
         return find(sql);
+    }
+
+    @Override
+    public List<CursoMasivoExamen> allByRolExamenesForReporte(RolExamenes rol) {
+        Octavia sql = Octavia.query()
+                .from(CursoMasivoExamen.class, "cme")
+                .join("rolExamenes re", "userRegistro ur", "curso cu")
+                //      .leftJoin("dia d", "hora h")
+                .left("ur.persona urPer", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras gh")
+                .filter("re.id", rol)
+                .orderBy("cme.id desc");
+
+        return all(sql);
     }
 
     @Override

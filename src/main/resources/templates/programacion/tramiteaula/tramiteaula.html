@@ -7,13 +7,13 @@
                 border: 1px solid #AEBDCD;
                 zoom: 1;
             }
-            .close-btn {
-                position: absolute;
-                top: -13px;
-                right: -1px;
-                z-index: 100;
-                border-radius: 50px;
-                padding: 5px 10px;
+            .div-variable>h1, 
+            .div-variable>h2,
+            .div-variable>h3, 
+            .div-variable>h4, 
+            .div-variable>h5, 
+            .div-variable>h6 {
+                margin-top: auto;
             }
         </style>
     </head>
@@ -70,6 +70,7 @@
                                                 </td>
 
                                                 <td class="v-middle">
+                                                    <p v-if="item.tipoSolicitante='OFI'">{{item.tramite.oficina.nombre}}</p>
                                                     <p v-if="item.tipoSolicitante='EMP'">{{item.tramite.empresa.razonSocial}}</p>
                                                     <p v-if="item.tipoSolicitante='ALU'">{{item.tramite.alumno.persona.nombreCompleto}}</p>
                                                     <p v-if="item.tipoSolicitante='DOC'">{{item.tramite.docente.persona.nombreCompleto}}</p>
