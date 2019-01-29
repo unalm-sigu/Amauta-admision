@@ -1,0 +1,32 @@
+<modal-vik ref="consejeroModal"
+           v-bind="consejeroModal"
+           v-bind:okaction="cambiarConsejero">
+    <div slot="body">
+
+        <div class="row" data-parsley-validate="true" id="form">
+            <div class="col-md-8 preguntas-col">
+                <div class="form-group">
+                    <label>Especialidad: <span v-text="carreraSelect.nombre"></span></label>
+                </div>
+            </div>
+            <div class="col-md-12 preguntas-col">
+                <label>Seleccione un docente</label>
+                <div class="form-group">
+                    <multiselect v-model="alumnoConsejeroForm.consejero" 
+                                 v-bind:options='consejeros'
+                                 label='nombres'
+                                 v-bind:custom-label="customLabel"
+                                 track-by='id'
+                                 placeholder="Ingrese y seleccione el nombre de un docente"
+                                 v-bind:internal-search="false"
+                                 v-on:search-change="getDocentes">
+
+                        <template slot="option" slot-scope="props">
+                            <span class="option__title">{{ props.option.colaborador.persona.nombreCompleto }}</span>
+                        </template>
+                    </multiselect>
+                </div>
+            </div>
+        </div>
+    </div>
+</modal-vik>
