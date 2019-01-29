@@ -119,19 +119,14 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
         sql.append("  from ").append(Consejero.class.getName()).append(" as conse ");
         sql.append(" inner join conse.carrera ca ");
         sql.append(" where ca.id = :CARRERA ");
-        
+
         Query query = getCurrentSession().createQuery(sql.toString());
-        
+
         query.setString("ACT", ACT.name());
         query.setString("INA", INA.name());
         query.setLong("CARRERA", carrera);
 
         return (ConsejeroEstado) query.uniqueResult();
-    }
-
-    @Override
-    public void asignarAlumnosAleatorio(Long carrera, String estado) {
-        
     }
 
     @Override
@@ -142,5 +137,21 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .filter("ca.id", carrera)
                 .filter("estado", ACT);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Consejero> allByNombreAndCarrera(String nombre, Carrera carrera) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "con")
+                .join("colaborador col", "col.persona per", "carrera carr")
+                .filter("carr.id", carrera)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return all(sql);
     }
 }

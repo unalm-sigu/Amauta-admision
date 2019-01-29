@@ -56,4 +56,7 @@ public interface ConsejeroService {
 
     void asignarAlumnosAleatorio(Long carrera, DataSessionPivot ds);
 
+    void desasignarAlumnos(Long carrera, DataSessionPivot ds);
+    public List<Consejero> allByCarrera(String nombre, Carrera carrera);
+
 }
