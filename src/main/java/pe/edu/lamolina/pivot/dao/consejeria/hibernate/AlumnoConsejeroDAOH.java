@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -91,9 +92,12 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoConsejero.class, "ac")
                 .join("alumno al", "consejero con")
+                .join("al.situacionAcademica ")
                 .join("al.persona per", "al.carrera car")
+                .left("al.cicloIngreso")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .filter("estado", EstadoEnum.ACT)
                 .orderBy("al.id desc");
         sql.beginRelativeFilters();
         setCondicion(filter, sql);

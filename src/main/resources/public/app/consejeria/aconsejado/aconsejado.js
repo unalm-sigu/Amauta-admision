@@ -68,6 +68,14 @@ new Vue({
                 }
                 $vue.$refs.consejeroModal.close();
             });
+        },
+        urlAcademico(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.id + '/infoacademico') + $vue.getOrigenURL();
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
         }
     }
 });

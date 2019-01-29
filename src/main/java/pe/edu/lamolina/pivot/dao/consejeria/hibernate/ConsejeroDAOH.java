@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -146,6 +147,7 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .from(Consejero.class, "con")
                 .join("colaborador col", "col.persona per", "carrera carr")
                 .filter("carr.id", carrera)
+                .filter("con.estado", EstadoEnum.ACT)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
