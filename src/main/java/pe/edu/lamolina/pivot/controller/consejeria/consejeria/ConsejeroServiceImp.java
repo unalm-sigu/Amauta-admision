@@ -235,4 +235,9 @@ public class ConsejeroServiceImp implements ConsejeroService {
 
     }
 
+    @Override
+    public List<Consejero> allByCarrera(String nombre, Carrera carrera) {
+        return consejeroDAO.allByNombreAndCarrera(nombre, carrera);
+    }
+
 }

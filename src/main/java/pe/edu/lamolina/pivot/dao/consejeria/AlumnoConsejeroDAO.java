@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.consejeria;
 
 import java.util.List;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -15,5 +16,7 @@ public interface AlumnoConsejeroDAO extends EasyDAO<AlumnoConsejero> {
     void insertAlumnoConsejero(Consejero get, CicloAcademico cicloAcademico, Usuario usuario, Carrera carrera, List<Alumno> alumno);
 
     void desasignarAlumnosConsejero(List<Consejero> consejeros, Usuario usuario );
+
+    public List<AlumnoConsejero> allByCarrera(DynatableFilter filter);
 
 }

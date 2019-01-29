@@ -26,4 +26,6 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
     public List<Consejero> findConsejeroByEstado(Long carrera);
 
+    public List<Consejero> allByNombreAndCarrera(String nombre, Carrera carrera);
+
 }
