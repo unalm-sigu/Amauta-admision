@@ -142,8 +142,13 @@ public class ConsejeroServiceImp implements ConsejeroService {
                 carreras.add(new Carrera(oficina.getInstanciaOficina()));
             }
         }
-
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        if(!facultades.isEmpty()){
+            List<Carrera> carrerasFac = carreraDAO.allByFacultades(facultades);
+            carreras.addAll(carrerasFac);
+        }
+        
+        return carreraDAO.allByCarreras(carreras);
     }
 
     @Override
