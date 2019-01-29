@@ -48,4 +48,6 @@ public interface AlumnoService {
     Parametro findParametroByEnum(ParametrosSistemasEnum parametrosSistemasEnum);
 
     String goMatricula(Long idAlumno, Usuario usuario);
+
+    List<Alumno> findAlumnnoByCarrera(Long carrera, CicloAcademico cicloAcademico);
 }

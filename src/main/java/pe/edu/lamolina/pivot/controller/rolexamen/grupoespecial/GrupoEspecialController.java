@@ -102,6 +102,7 @@ public class GrupoEspecialController {
             ObjectNode jItem = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "*",
                 "seccion.*",
+                "seccion.grupoHoras.*",
                 "seccion.grupoSeccion.id",
                 "seccion.grupoSeccion.curso.id",
                 "seccion.grupoSeccion.curso.nombre",

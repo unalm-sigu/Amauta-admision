@@ -1,12 +1,15 @@
 package pe.edu.lamolina.pivot.controller.consejeria.consejeria;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -18,9 +21,11 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoService;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
+import pe.edu.lamolina.pivot.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.pivot.dao.consejeria.ConsejeroDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -39,6 +44,11 @@ public class ConsejeroServiceImp implements ConsejeroService {
 
     @Autowired
     OficinaService oficinaService;
+    @Autowired
+    AlumnoService alumnoService;
+
+    @Autowired
+    AlumnoConsejeroDAO alumnoConsejeroDAO;
 
     @Override
     public List<Docente> allDocenteByNombreAndCarrera(String nombre, String facultadid) {
@@ -170,6 +180,54 @@ public class ConsejeroServiceImp implements ConsejeroService {
         consejero.setAlumnosActivos(0);
 
         consejeroDAO.save(consejero);
+    }
+
+    @Override
+    public ConsejeroEstado findConsejeroByStateAndCarrera(Long carrera) {
+        return consejeroDAO.findByStateAndCarrera(carrera);
+    }
+
+    @Override
+    @Transactional
+    public void asignarAlumnosAleatorio(Long carrera, DataSessionPivot ds) {
+
+        List<Alumno> alumnos = alumnoService.findAlumnnoByCarrera(carrera, ds.getCicloAcademico());
+        int i = 1;
+        Collections.shuffle(alumnos);
+        for (Alumno alumno : alumnos) {
+            alumno.setIndex(i);
+            i++;
+        }
+        List<Consejero> consejeros = consejeroDAO.findConsejeroByEstado(carrera);
+        int cantEqv = alumnos.size() / consejeros.size();
+
+        int ult = consejeros.size();
+        int sum = 0;
+        for (int numConsejero = 1; numConsejero <= consejeros.size(); numConsejero++) {
+            sum = cantEqv;
+            int offset = (numConsejero - 1) * sum;
+            int a = ult == numConsejero ? alumnos.size() : sum;
+            List<Alumno> alumos = alumnos.stream().filter((x) -> x.getIndex() > offset && x.getIndex() <= a).collect(Collectors.toList());
+            alumnoConsejeroDAO.insertAlumnoConsejero(consejeros.get(numConsejero - 1), ds.getCicloAcademico(), ds.getUsuario(), new Carrera(carrera), alumos);
+            Consejero consejero = consejeros.get(numConsejero - 1);
+            consejero.setAlumnosActivos(alumos.size());
+            consejeroDAO.update(consejero);
+        }
+
+    }
+
+    @Override
+    @Transactional
+    public void desasignarAlumnos(Long carrera, DataSessionPivot ds) {
+        List<Consejero> consejeros = consejeroDAO.findConsejeroByEstado(carrera);
+        int cantidadConsejeros = consejeros.size();
+        alumnoConsejeroDAO.desasignarAlumnosConsejero(consejeros, ds.getUsuario());
+        for (Consejero consejero : consejeros) {
+            consejero.setAlumnosActivos(0);
+            consejero.setAlumnosInactivos(0);
+            consejeroDAO.update(consejero);
+        }
+
     }
 
 }

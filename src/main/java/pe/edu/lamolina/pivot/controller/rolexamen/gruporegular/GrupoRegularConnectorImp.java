@@ -177,15 +177,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         if (letraGrupoRegular == null) {
             return true;
         }
-        /*
-        List<SeccionGrupoRegular> seccionesGrupoRegular = seccionGrupoRegularDAO.allByLetraGrupoRegularAndEstados(letraGrupoRegular, SeccionRolExamenEstadoEnum.ACT);
-        List<AlumnoGrupoRegular> alumnosGruposRegular = alumnoGrupoRegularDAO.allByLetraGrupoRegularAndEstados(letraGrupoRegular, AlumnoRolExamenEstadoEnum.ACT);
-        for (SeccionGrupoRegular seccionGrupoRegular : seccionesGrupoRegular) {
-            List<AlumnoGrupoRegular> alumnosBySeccionGpoRegular = alumnosGruposRegular.stream().filter(x -> x.getSeccionGrupoRegular().equals(seccionGrupoRegular)).collect(Collectors.toList());
-            seccionGrupoRegular.setAlumnosGruposRegulares(alumnosBySeccionGpoRegular);
-        }
-        letraGrupoRegular.setSeccionesGruposRegulares(seccionesGrupoRegular);
-         */
         this.fillActiveInfoLetrasGruposRegulares(Arrays.asList(letraGrupoRegular));
         return this.validarGrupoRegular(letraGrupoRegular, alumnos, docentes, aulas);
     }
@@ -481,6 +472,75 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
     public void validarSituacion(String accion, String situacion, Boolean... or) {
         String msg = String.format("Solo se puede %s al configurar %s", accion, situacion);
         Assert.isTrue(Arrays.asList(or).contains(true), msg);
+    }
+
+    @Override
+    public RolExamenesLogger validacionActivarDocente(GrupoHorasExamen grupoHorasExamen, Docente docente) {
+        RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
+        rolExamenesLogger.iniciarGeneric();
+
+        List<DocenteCursoMasivo> docentesCursosMasivos = docenteCursoMasivoDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, DocenteRolExamenEstadoEnum.ACT);
+        List<SeccionGrupoRegular> seccionGrupoRegulares = seccionGrupoRegularDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, SeccionRolExamenEstadoEnum.ACT);
+        List<SeccionGrupoEspecial> seccionGrupoEspeciales = seccionGrupoEspecialDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, SeccionRolExamenEstadoEnum.ACT);
+
+        List<DocenteCursoMasivo> docentesCursosMasivosFound = docentesCursosMasivos.stream()
+                .filter(x -> x.getDocente().equals(docente))
+                .collect(Collectors.toList());
+
+        List<SeccionGrupoRegular> seccionGrupoRegularesFound = seccionGrupoRegulares.stream()
+                .filter(x -> x.getDocente().equals(docente))
+                .collect(Collectors.toList());
+
+        List<SeccionGrupoEspecial> seccionGrupoEspecial = seccionGrupoEspeciales.stream()
+                .filter(x -> x.getDocente().equals(docente))
+                .collect(Collectors.toList());
+
+        for (DocenteCursoMasivo docenteCursoMasivoEach : docentesCursosMasivosFound) {
+            rolExamenesLogger.cruceDocente(docente, docenteCursoMasivoEach.getCursoMasivoExamen().getCurso());
+        }
+        for (SeccionGrupoRegular seccionGrupoRegularEach : seccionGrupoRegularesFound) {
+            rolExamenesLogger.cruceDocente(docente, seccionGrupoRegularEach.getLetraGrupoRegular(), seccionGrupoRegularEach.getSeccion());
+        }
+        for (SeccionGrupoEspecial seccionGrupoEspecialEach : seccionGrupoEspecial) {
+            rolExamenesLogger.cruceDocente(docente, seccionGrupoEspecialEach);
+        }
+        return rolExamenesLogger;
+    }
+
+    @Override
+    public RolExamenesLogger validacionActivarAlumno(GrupoHorasExamen grupoHorasExamen, Alumno alumno) {
+        RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
+        rolExamenesLogger.iniciarGeneric();
+
+        List<AlumnoCursoMasivo> alumnosCursosMasivos = alumnoCursoMasivoDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, AlumnoRolExamenEstadoEnum.ACT);
+        List<AlumnoGrupoRegular> alumnosGrupoRegular = alumnoGrupoRegularDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, AlumnoRolExamenEstadoEnum.ACT);
+        List<AlumnoGrupoEspecial> alumnosGrupoEspecial = alumnoGrupoEspecialDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, AlumnoRolExamenEstadoEnum.ACT);
+
+        List<AlumnoCursoMasivo> alumnosCursosMasivosConflicts = alumnosCursosMasivos.stream()
+                .filter(x -> x.getAlumno().equals(alumno))
+                .collect(Collectors.toList());
+        List<AlumnoGrupoRegular> alumnosGrupoRegularConflicts = alumnosGrupoRegular.stream()
+                .filter(x -> x.getAlumno().equals(alumno))
+                .collect(Collectors.toList());
+        List<AlumnoGrupoEspecial> alumnosSeccionEspecialConflics = alumnosGrupoEspecial.stream()
+                .filter(x -> x.getAlumno().equals(alumno))
+                .collect(Collectors.toList());
+
+        for (AlumnoCursoMasivo aCursoMasivo : alumnosCursosMasivosConflicts) {
+            rolExamenesLogger.cruceAlumno(alumno, aCursoMasivo.getCursoMasivoExamen().getCurso());
+        }
+
+        for (AlumnoGrupoRegular aGrupoRegular : alumnosGrupoRegularConflicts) {
+            rolExamenesLogger.cruceAlumno(
+                    alumno,
+                    aGrupoRegular.getSeccionGrupoRegular().getLetraGrupoRegular(),
+                    aGrupoRegular.getSeccionGrupoRegular().getSeccion());
+        }
+        for (AlumnoGrupoEspecial aGrupoEspecial : alumnosSeccionEspecialConflics) {
+            rolExamenesLogger.cruceAlumno(alumno, aGrupoEspecial.getSeccionGrupoEspecial());
+        }
+
+        return rolExamenesLogger;
     }
 
 }

@@ -64,22 +64,32 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th class="col-md-4 text-center">Sección</th>
-                                                <th class="col-md-4 text-center"> Alumnos</th>
-                                                <th class="col-md-4 text-center">Estado</th>
-                                                <th class="text-center"></th>
+                                                <th class="col-md-3 text-center">Sección</th>
+                                                <th>Alumnos</th>
+                                                <th class="col-md-3 text-center">Registro</th>
+                                                <th class="col-md-3 text-center">Exclusión</th>
+                                                <th class="col-md-2 text-center">Estado</th>
+                                                <th class="col-md-1 text-center"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="sec in props.data">
-                                                <td class="text-center">
-                                                    <span class="text-info bold text-md"> {{ sec.seccion.codigo2 }} ({{sec.seccion.grupoHoras.codigo}}) </span>
+                                                <td>
+                                                    <span v-text="sec.seccion.codigo2"></span> ({{sec.seccion.grupoHoras.codigo}})
                                                 </td>
                                                 <td class="text-center">
                                                     <span class="badge pointer"
                                                           >{{ sec.alumnosCount }}</span>
                                                 </td>
-                                                <td class="text-center">
+                                                <td>
+                                                    <span class="block" v-text="sec.userRegistro.persona.apellidosNombres"></span>
+                                                    <small v-text="sec.fechaRegistro"></small>
+                                                </td>
+                                                <td>
+                                                    <span class="block" v-text="sec.usuarioExclusion.persona.apellidosNombres"></span>
+                                                    <small v-text="sec.fechaExclusion"></small>
+                                                </td>
+                                                <td>
                                         <v-estado v-bind:codigo="sec.estado" v-bind:valor="sec.estadoEnum.value"/> 
                                         </td>
                                         <td>

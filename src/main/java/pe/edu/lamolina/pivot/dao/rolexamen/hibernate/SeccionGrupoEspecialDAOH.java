@@ -45,11 +45,11 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .join("rolExamenes re", "seccion sec", "userRegistro ur", "aula au")
                 .join("sec.grupoSeccion gpo", "gpo.curso cur")
                 .join("ur.persona per")
+                .left("sec.grupoHoras ghsec")
                 .left("docente doc", "doc.persona dper", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras")
                 .searchFields("sec.codigo2", "cur.codigo", "cur.nombre", "au.codigo")
                 .searchComplexField("concat(coalesce(dper.paterno,''),' ',coalesce(dper.materno,''),' ',coalesce(dper.nombres,''))")
                 .searchComplexField("concat(coalesce(dper.nombres,''),' ',coalesce(dper.paterno,''),' ',coalesce(dper.materno,''))");
-
         return all(sql);
     }
 
