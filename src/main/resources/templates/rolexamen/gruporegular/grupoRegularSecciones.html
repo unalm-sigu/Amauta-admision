@@ -52,56 +52,51 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th class="col-md-1 text-center">Codigo</th>
-                                                <th class="col-md-1 text-center">Alumnos</th>
-                                                <th class="col-md-2 text-center">Docente</th>
-                                                <th class="col-md-1 text-center">Aula</th>
-                                                <th class="col-md-2 text-center">Registro</th>
-                                                <th class="col-md-2 text-center">Exclusión</th>
+                                                <th class="col-md-3 text-center"></th>
+                                                <th class="col-md-3 text-center">Alumnos</th>
+                                                <th class="col-md-2">Docente</th>
+                                                <th class="col-md-3 text-center">Aula</th>
                                                 <th class="col-md-1 text-center">Estado</th>
-                                                <th class="col-md-1 text-center"></th>
+                                                <th class="text-center"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="sec in props.data">
                                                 <td>
-                                                    <span v-text="sec.seccion.codigo2"></span>
+                                                    <span class="bold text-info text-md" v-text="sec.seccion.codigo2"></span>
+                                                    <span class="block text-muted">{{ sec.seccion.grupoSeccion.curso.nombre }}</span>
+                                                    <span class="block text-muted"><b>{{ sec.seccion.grupoSeccion.curso.codigo  }}</b> &nbsp; <i class="fa fa-bookmark-o"></i> {{ sec.seccion.grupoSeccion.curso.tpc }}</span>
                                                 </td>
-                                                <td class="text-center">
+                                                <td class="text-center v-middle">
                                                     <span class="badge pointer"
                                                           >{{ sec.alumnosCount }}</span>
                                                 </td>
-                                                <td>
+                                                <td class="v-middle">
                                                     <span v-text="sec.docente.persona.apellidosNombres"></span>
                                                 </td>
-                                                <td>
+                                                <td class="text-center v-middle">
                                                     <span v-text="sec.aula.codigo"></span>
                                                 </td>
-                                                <td>
-                                                    <span class="block" v-text="sec.userRegistro.persona.apellidosNombres"></span>
-                                                    <small v-text="sec.fechaRegistro"></small>
+                                          
+                                                <td class="text-center v-middle">
+                                                    <div>
+                                                        <v-estado v-bind:codigo="sec.estado" v-bind:valor="sec.estadoEnum.value"/> 
+                                                    </div>
                                                 </td>
-                                                <td>
-                                                    <span class="block" v-text="sec.usuarioExclusion.persona.apellidosNombres"></span>
-                                                    <small v-text="sec.fechaExclusion"></small>
+                                                <td class="v-middle">
+                                                    <div class="dropdown actions pointer">
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="glyphicon glyphicon-option-vertical"></i>
+                                                        </a> 
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a v-on:click.prevent="excluir(sec,tipoAccion.SECCION)">Excluir</a></li>
+                                                            <li><a v-on:click.prevent="incluir(sec,tipoAccion.SECCION)">Incluir</a></li>
+                                                            <li class="divider"></li> 
+                                                            <li><a v-if="sec.isEstadoActivo"  v-on:click.prevent="trasladar(sec)">Mover</a></li>
+                                                        </ul>
+                                                    </div>
                                                 </td>
-                                                <td class="text-center">
-                                        <v-estado v-bind:codigo="sec.estado" v-bind:valor="sec.estadoEnum.value"/> 
-                                        </td>
-                                        <td>
-                                            <div class="dropdown actions pointer">
-                                                <a class="dropdown-toggle" data-toggle="dropdown">
-                                                    <i class="glyphicon glyphicon-option-vertical"></i>
-                                                </a> 
-                                                <ul class="dropdown-menu pull-right">
-                                                    <li><a   v-on:click.prevent="excluir(sec,tipoAccion.SECCION)">Excluir</a></li>
-                                                    <li><a   v-on:click.prevent="incluir(sec,tipoAccion.SECCION)">Incluir</a></li>
-                                                    <li class="divider"></li> 
-                                                    <li><a v-if="sec.isEstadoActivo"  v-on:click.prevent="trasladar(sec)">Mover</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                        </tr>
+                                            </tr>
                                         </tbody>
                                     </table>
 

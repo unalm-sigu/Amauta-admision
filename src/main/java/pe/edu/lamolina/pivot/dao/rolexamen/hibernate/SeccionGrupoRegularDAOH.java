@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,9 +11,14 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.bean.RolExamenDocente;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
+import static pe.edu.lamolina.model.enums.TipoGestionEnum.PUB;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 
@@ -58,13 +64,27 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
     }
 
     @Override
+    public List<SeccionGrupoRegular> allByRolExamenes(
+            RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnums) {
+        //  List<SeccionRolExamenEstadoEnum> estados = Arrays.asList(seccionRolExamenEstadoEnums);
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("letraGrupoRegular lgr", "seccion sec", "lgr.rolExamenes rex")
+                .left("docente doc", "doc.persona dper")
+                .in("sgr.estado", seccionRolExamenEstadoEnums)
+                .filter("rex.id", rolExamenes);
+        return all(sql);
+    }
+
+    @Override
     public List<SeccionGrupoRegular> allByLetraGrupoRegularAndEstados(
             List<LetraGrupoRegular> letrasGruposRegular, SeccionRolExamenEstadoEnum... estados) {
+        List<SeccionRolExamenEstadoEnum> lEstados = Arrays.asList(estados);
         Octavia sql = Octavia.query()
                 .from(SeccionGrupoRegular.class, "sgr")
                 .join("letraGrupoRegular lgr", "seccion sec", "docente doc", "doc.persona dper", "aula au")
                 .in("lgr.id", letrasGruposRegular)
-                .in("sgr.estado", estados);
+                .in("sgr.estado", lEstados);
         return all(sql);
     }
 
@@ -128,13 +148,32 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
     public List<SeccionGrupoRegular> allByDynatableAndLetraGrupoRegular(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionGrupoRegular.class, "sgr")
-                .join("letraGrupoRegular lgr", "seccion sec", "docente doc", "doc.persona dper")
+                .join("letraGrupoRegular lgr", "seccion sec", "docente doc", "doc.persona dper", "sec.grupoSeccion gpo", "gpo.curso cur")
                 .join("sgr.userRegistro ureg", "ureg.persona uregper")
                 .left("usuarioExclusion usexc", "usexc.persona usexcper")
+                .left("aula au")
                 .filter("lgr.id", letraGrupoRegular)
-                .searchFields("sec.codigo");
+                .searchFields("sec.codigo2", "cur.nombre", "cur.codigo", "au.codigo")
+                .searchComplexField("concat(coalesce(dper.paterno,''),' ',coalesce(dper.materno,''),' ',coalesce(dper.nombres,''))")
+                .searchComplexField("concat(coalesce(dper.nombres,''),' ',coalesce(dper.paterno,''),' ',coalesce(dper.materno,''))");
 
         return all(sql);
+    }
+
+    @Override
+    public List<RolExamenDocente> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico) {
+        Octavia sql = new Octavia()
+                .select("cur", "ghe", "au", "sec", "re.estado", "re.id", "re.nombre")
+                .into(RolExamenDocente.class)
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("docente doc", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "aula au", "letraGrupoRegular lgr")
+                .join("lgr.rolExamenes re", "re.eventoCicloAcademico eca", "eca.cicloAcademico ca")
+                .join("lgr.grupoHorasExamen ghe", "ghe.dia di", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .filter("doc.id", docente)
+                .filter("re.estado", PUB)
+                .filter("ca.id", cicloAcademico);
+
+        return sql.all(getCurrentSession());
     }
 
 }

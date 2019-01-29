@@ -59,6 +59,7 @@
         <div class="row m-b-xs">
             <div class="form-group">
                 <label  class="col-sm-4 bold">Fecha de la evaluación: </label>
+
                 <div class="col-sm-6">
 
                     <input id="calFechaEval"
@@ -70,8 +71,29 @@
 
                     <span id="errorFechaInicio"></span>
                 </div>
+
             </div>
         </div>
         {{/if}}
+
+        {{if estaCerrado==true}}  
+
+
+        <div class="row m-b-xs">
+            <div class="form-group">
+                <label  class="col-sm-4 bold">Fecha Evaluacion: </label>
+                <div class="col-sm-2">
+
+                    <span>{{:evaFechaRealizada}}</span>
+                </div>
+
+                <label  class="col-sm-4 bold">Fecha Ingreso Nota:</label>
+                <div class="col-sm-2">
+                    <span >{{:evaFechaIngresoNota}}</span>
+                </div>
+            </div>
+        </div>
+        {{/if}}
+
     </form>
 </div>

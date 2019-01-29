@@ -37,4 +37,6 @@ public interface PlantillaHorarioService {
 
     void deleteFechaHoraGrupoExamen(FechaHoraGrupoExamen fechaHoraGrupoExamen);
 
+    void deletePlantillaHorario(RolExamenes rolExamenes);
+
 }

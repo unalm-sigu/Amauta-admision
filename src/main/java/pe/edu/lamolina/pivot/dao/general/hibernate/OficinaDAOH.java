@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.OficinaNivel;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -293,9 +294,10 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
 
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
-                .join("compania cia", "tipoOficina")
+                .join("compania cia", "tipoOficina to")
                 .leftJoin("personaJefe pj", "jefeEncargado", "cargoJefe", "oficinaSuperior")
                 .filter("cia.id", compania)
+                .filter("to.nivel", OficinaNivel.OFI)
                 .orderBy("ofi.nombre")
                 .limit(10);
 

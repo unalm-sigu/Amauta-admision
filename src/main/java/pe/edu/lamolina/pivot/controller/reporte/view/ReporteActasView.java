@@ -112,7 +112,12 @@ public class ReporteActasView extends AbstractPOIExcelView {
             }
             MatriculaCurso matriculaCurso = (MatriculaCurso) matriculaCursoMap.get(alumno.getId());
             if (sistemaNotas.isLetras()) {
-                sb.append(matriculaCurso.getCreditos() != null ? matriculaCurso.getCreditos() : "").append("|");
+                if (matriculaCurso.getCurso().isTieneCreditosFijos()) {
+                    sb.append(matriculaCurso.getCreditosAprobados() != null ? matriculaCurso.getCreditos() : "").append("|");
+                }
+                if (matriculaCurso.getCurso().isTieneCreditosVariables()) {
+                    sb.append(matriculaCurso.getCreditosAprobados() != null ? matriculaCurso.getCreditosAprobados() : "").append("|");
+                }
             }
             if (sistemaNotas.isNumerico()) {
                 sb.append(matriculaCurso.getNotaAvanceFull() != null ? matriculaCurso.getNotaAvanceFull() : "").append("|");

@@ -25,6 +25,7 @@ import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.GrupoHorasRolExamenEstadoEnum;
+import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
@@ -37,6 +38,7 @@ import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoRegularExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
@@ -131,6 +133,10 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     @Autowired
     SemanaExamenDAO semanaExamenDAO;
 
+    private void checkNoPublicado(RolExamenes rol) {
+        Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de exámenes ya ha sido publicado");
+    }
+
     @Override
     public List<RolExamenes> allRolExamenesActives(CicloAcademico cicloAcademico) {
         return rolExamenesDAO.allActiveByCiclo(cicloAcademico);
@@ -152,6 +158,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     @Override
     public void eliminarGruposRegulares(RolExamenes rolExamenes) {
         rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
+        this.checkNoPublicado(rolExamenes);
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
         Assert.isTrue(rolExamenes.isSituacionConfiguraGrupoRegular(), "No puede eliminar los grupos regulares.");
@@ -168,6 +175,8 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     @Override
     @Transactional(readOnly = false)
     public void calcularExamenesGrupoRegular(RolExamenes rolExamenes, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
+        this.checkNoPublicado(rolBD);
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
         Assert.isTrue(rolExamenes.isSituacionConfigurarCursoMasivo() || rolExamenes.isSituacionConfiguraGrupoRegular(), "Debe configurar los grupos masivos previamente.");
@@ -179,6 +188,13 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         grupoRegularConnector.fillActiveInfoCursosMasivos(cursosMasivosByRolExamenes);
         List<String> cursosMasivosValidations = this.validarCursosMasivos(cursosMasivosByRolExamenes);
         Assert.isTrue(cursosMasivosValidations.isEmpty(), String.join("\n", cursosMasivosValidations));
+
+        List<Seccion> seccionesCursosMasivos = new ArrayList<>();
+        for (CursoMasivoExamen cursosMasivosByRolExamene : cursosMasivosByRolExamenes) {
+            for (SeccionCursoMasivo seccionesCursosMasivo : cursosMasivosByRolExamene.getSeccionesCursosMasivos()) {
+                seccionesCursosMasivos.add(seccionesCursosMasivo.getSeccion());
+            }
+        }
 
         List<SeccionGrupoEspecial> seccionesGrupoEspecial = seccionGrupoEspecialDAO.allByRolExamenesAndEstados(rolExamenes, SeccionRolExamenEstadoEnum.ACT);
         grupoRegularConnector.fillActiveInfoGrupoEspecial(seccionesGrupoEspecial);
@@ -198,7 +214,12 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<Seccion> seccionesEspecialesRecolected = new ArrayList<>();
 
         logger.debug("Crear grupos regulares");
-        List<Seccion> secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.REGULAR); //grupo horas regulares
+        //secciones de los grupos regulares
+        List<Seccion> secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.REGULAR);
+        for (Seccion seccionCursoMasivo : seccionesCursosMasivos) {
+            secciones.removeIf(x -> x.equals(seccionCursoMasivo));
+        }
+
         for (SeccionExcluido seccionExcluido : seccionesExcluidasByRolExamen) {
             secciones.removeIf(x -> x.equals(seccionExcluido.getSeccion()));
         }
@@ -227,7 +248,11 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         }
 
         logger.debug("Grupos Especiales");
+        //secciones grupos especiales
         secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.ESPECIAL);
+        for (Seccion seccionCursoMasivo : seccionesCursosMasivos) {
+            secciones.removeIf(x -> x.equals(seccionCursoMasivo));
+        }
         for (SeccionExcluido seccionExcluido : seccionesExcluidasByRolExamen) {
             secciones.removeIf(x -> x.equals(seccionExcluido.getSeccion()));
         }
@@ -417,8 +442,17 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     @Transactional(readOnly = false)
     @Override
     public void deleteGrupoRegular(RolExamenes rolExamenes) {
+        RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
+        this.checkNoPublicado(rolBD);
+
         List<LetraGrupoRegular> letrasGruposRegular = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
         logger.debug("Letras Grupos Regulares a eliminar {}", letrasGruposRegular.size());
+
+        List<SeccionGrupoRegular> seccionesGruposRegularesExc = seccionGrupoRegularDAO.allByRolExamenes(rolExamenes, SeccionRolExamenEstadoEnum.EXC);
+        List<Seccion> seccionesExcluidas = seccionesGruposRegularesExc.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+        if (!seccionesExcluidas.isEmpty()) {
+            seccionExcluidoDAO.deleteBySecciones(seccionesExcluidas);
+        }
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegular) {
             alumnoGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
             seccionGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);

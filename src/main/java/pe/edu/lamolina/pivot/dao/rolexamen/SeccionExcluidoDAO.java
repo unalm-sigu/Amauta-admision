@@ -15,4 +15,6 @@ public interface SeccionExcluidoDAO extends EasyDAO<SeccionExcluido> {
 
     SeccionExcluido findBySeccion(Seccion seccion, EstadoEnum... estadoEnum);
 
+    void deleteByRolExamenes(RolExamenes rolExamenes);
+
 }
