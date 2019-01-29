@@ -24,9 +24,7 @@ new Vue({
         let query = $vue.$refs.load.getParameterByName('queries[carrera]');
         query = (query == null) ? '' : query;
         if (query != '') {
-            $vue.carreraSelect = $vue.carreras.filter(function (value) {
-                return value.id == query;
-            })[0];
+            $vue.carreraSelect = $vue.carreras.filter(value => value.id == query)[0];
             $vue.$refs.load.querie.push({name: 'carrera', value: query});
             $vue.$refs.load.repreload();
         }
