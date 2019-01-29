@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.dao.consejeria.hibernate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.springframework.stereotype.Service;
@@ -67,6 +66,23 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
         query.setParameterList("idAlumno", ids);
 
         query.executeUpdate();
+    }
+
+    @Override
+    public void desasignarAlumnosConsejero(List<Consejero> consejeros, Usuario usuario) {
+        List<Long> ids = consejeros.stream().map(Consejero::getId).collect(Collectors.toList());
+        StringBuilder strb = new StringBuilder("");
+
+        strb.append("delete ");
+        strb.append(" from AlumnoConsejero ");
+        strb.append("where ");
+        strb.append("consejero.id in (:consejeros)");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameterList("consejeros", ids);
+
+        query.executeUpdate();
+
     }
 
 }

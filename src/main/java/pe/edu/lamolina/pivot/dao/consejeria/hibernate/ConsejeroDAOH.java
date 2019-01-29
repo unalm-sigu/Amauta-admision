@@ -130,11 +130,6 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
-    public void asignarAlumnosAleatorio(Long carrera, String estado) {
-        
-    }
-
-    @Override
     public List<Consejero> findConsejeroByEstado(Long carrera) {
         Octavia sql = Octavia.query()
                 .from(Consejero.class, "conse")

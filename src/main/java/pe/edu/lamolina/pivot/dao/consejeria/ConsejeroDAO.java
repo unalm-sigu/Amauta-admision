@@ -24,8 +24,6 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
     ConsejeroEstado findByStateAndCarrera(Long carrera);
 
-    public void asignarAlumnosAleatorio(Long carrera, String estado);
-
     public List<Consejero> findConsejeroByEstado(Long carrera);
 
 }

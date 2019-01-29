@@ -193,6 +193,7 @@ new Vue({
         asignarAlummnos() {
             let $vue = this;
             let carrera = $vue.carreraSelect.id;
+            $vue.isLoading = true;
             bootbox.confirm({
                 message: '¿Esta seguro que desea asignar alumnos de manera aleatoria?',
                 buttons: {
@@ -204,11 +205,12 @@ new Vue({
                         $.ajax({
                             method: 'POST',
                             url: APP.url("consejeria/consejero/asignarAlumno"),
-                            data: {carrera: carrera },
+                            data: {carrera: carrera},
                             dataType: 'json',
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
+                                    $vue.$refs.load.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
                                 }
@@ -218,7 +220,43 @@ new Vue({
                         });
                     }
                 }
+
             });
+            $vue.isLoading = false;
+        },
+        desasignarAlummnos() {
+            let $vue = this;
+            let carrera = $vue.carreraSelect.id;
+            $vue.isLoading = true;
+            bootbox.confirm({
+                message: '¿Esta seguro que desea desasignar todos los alumnos?',
+                buttons: {
+                    confirm: {label: 'Si, Desasignar alumnos', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url("consejeria/consejero/desasignarAlumno"),
+                            data: {carrera: carrera},
+                            dataType: 'json',
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, 'info');
+                                    $vue.$refs.load.loadRemoteData();
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }, error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+
+            });
+            $vue.isLoading = false;
         }
     }
 });

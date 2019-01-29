@@ -56,4 +56,6 @@ public interface ConsejeroService {
 
     void asignarAlumnosAleatorio(Long carrera, DataSessionPivot ds);
 
+    void desasignarAlumnos(Long carrera, DataSessionPivot ds);
+
 }
