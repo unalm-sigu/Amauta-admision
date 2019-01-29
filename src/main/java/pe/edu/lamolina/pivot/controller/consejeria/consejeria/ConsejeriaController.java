@@ -22,11 +22,14 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoService;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -167,7 +170,7 @@ public class ConsejeriaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            
+
             service.updateEstado(consejero, ds);
 
             response.setMessage("El estado del consejero fue modificado satisfactoriamente.");
@@ -180,11 +183,57 @@ public class ConsejeriaController {
         }
         return response;
     }
-    
+
+    @ResponseBody
+    @RequestMapping("filtroEstado")
+    public JsonResponse filtroEstado(@RequestParam Long carrera, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
+        try {
+
+            System.out.println("Probando : " + carrera);
+            ConsejeroEstado consejeroEstado = service.findConsejeroByStateAndCarrera(carrera);
+            ObjectNode consejeroJson = JsonHelper.createJson(consejeroEstado, JsonNodeFactory.instance, true, new String[]{
+                "*"
+            });
+            json.setData(consejeroJson);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("asignarAlumno")
+    public JsonResponse asignarAlumno(@RequestParam Long carrera, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
+
+        try {
+
+            service.asignarAlumnosAleatorio(carrera, ds);
+            json.setMessage("Los alumnos se asignaron de manera aleatoria satisfactoriamente");
+            json.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+        }
+        return json;
+    }
+
     private ObjectNode createCicloJson(CicloAcademico ciclo) {
         return JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{"id", "descripcion", "descripcion2"});
     }
 
+//    private ObjectNode createConsejeroJson(ConsejeroEstado consejero) {
+//        return JsonHelper.createJson(consejero, JsonNodeFactory.instance, true, new String[]{"activo", "inactivo"});
+//    }
     private ArrayNode createCarrerasJson(List<Carrera> carreras) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (Carrera carrera : carreras) {

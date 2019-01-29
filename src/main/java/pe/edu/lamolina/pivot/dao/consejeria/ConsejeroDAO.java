@@ -8,17 +8,24 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeria.ConsejeroEstado;
 
 public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
-    public List<Consejero> allByCarreraDynatable(DynatableFilter filter);
+    List<Consejero> allByCarreraDynatable(DynatableFilter filter);
 
-    public List<DepartamentoAcademico> allByIdFacultad(String facultadid);
+    List<DepartamentoAcademico> allByIdFacultad(String facultadid);
 
-    public List<Docente> allByNombreAndDeparts(String nombre, List<DepartamentoAcademico> departs);
+    List<Docente> allByNombreAndDeparts(String nombre, List<DepartamentoAcademico> departs);
 
-    public Consejero finByIdPersona(Persona persona);
+    Consejero finByIdPersona(Persona persona);
 
-    public List<Carrera> findAllCarreraByIdDocente(long idDocente);
-    
+    List<Carrera> findAllCarreraByIdDocente(long idDocente);
+
+    ConsejeroEstado findByStateAndCarrera(Long carrera);
+
+    public void asignarAlumnosAleatorio(Long carrera, String estado);
+
+    public List<Consejero> findConsejeroByEstado(Long carrera);
+
 }

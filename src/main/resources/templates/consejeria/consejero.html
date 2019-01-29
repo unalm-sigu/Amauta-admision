@@ -71,15 +71,15 @@
                                                                  v-on:input="cargaConsejeros">
                                                     </multiselect>
                                                 </div>
-                                                <div class="col-md-2 text-center" v-bind:class="bgColorClass['visitante']">
+                                                <div v-if="cantidadActivo != 0" class="col-md-2 text-center" v-bind:class="bgColorClass['visitante']">
                                                     <a v-on:click="filtroConsejeros('ACT')" class="text-success pointer" >
-                                                        <span class="h2 bold">{{ cantidadAct }}</span>
+                                                        <span class="h2 bold" v-text="cantidadActivo"></span>
                                                         <small class="block m-b-xs">Activos</small>
                                                     </a>
                                                 </div>
-                                                <div class="col-md-2 text-center" v-bind:class="bgColorClass['postgrado']">
+                                                <div v-if="cantidadInactivo != 0" class="col-md-2 text-center" v-bind:class="bgColorClass['postgrado']">
                                                     <a v-on:click="filtroConsejeros('INA')" class="text-black pointer" >
-                                                        <span class="h2 bold">{{ cantidadInac }}</span>
+                                                        <span class="h2 bold" v-text="cantidadInactivo"></span>
                                                         <small class="block m-b-xs">Inactivos</small>
                                                     </a>
                                                 </div>
