@@ -49,7 +49,8 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a type="button" v-bind:disabled="btnAñadir" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Consejero</a></li>
-                                <li><a v-if="" type="button" v-on:click.prevent="asignarAlummnos" >Asignar Alumno</a></li>
+                                <li><a v-if="" type="button" v-on:click.prevent="asignarAlummnos" >Asignar Alumno aleatoriamente</a></li>
+                                <li><a v-if="" type="button" v-on:click.prevent="desasignarAlummnos" >Desasignar Alumno</a></li>
                             </ul>
                         </div>
                         <h2>Listado de Consejeros <span v-text='ciclo.descripcion'></span></h2>

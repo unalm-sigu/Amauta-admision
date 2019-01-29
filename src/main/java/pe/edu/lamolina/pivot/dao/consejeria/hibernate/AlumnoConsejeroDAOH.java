@@ -4,11 +4,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.springframework.stereotype.Service;
-import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -17,8 +15,6 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
-import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
-import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -76,6 +72,21 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
     }
 
     @Override
+    public void desasignarAlumnosConsejero(List<Consejero> consejeros, Usuario usuario) {
+        List<Long> ids = consejeros.stream().map(Consejero::getId).collect(Collectors.toList());
+        StringBuilder strb = new StringBuilder("");
+
+        strb.append("delete ");
+        strb.append(" from AlumnoConsejero ");
+        strb.append("where ");
+        strb.append("consejero.id in (:consejeros)");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameterList("consejeros", ids);
+
+        query.executeUpdate();
+    }
+
     public List<AlumnoConsejero> allByCarrera(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoConsejero.class, "ac")

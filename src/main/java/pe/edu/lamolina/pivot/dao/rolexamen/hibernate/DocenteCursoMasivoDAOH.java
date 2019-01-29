@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.enums.DocenteRolExamenEstadoEnum;
 import static pe.edu.lamolina.model.enums.TipoGestionEnum.PUB;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.DocenteCursoMasivoDAO;
 
@@ -25,6 +26,17 @@ public class DocenteCursoMasivoDAOH extends AbstractEasyDAO<DocenteCursoMasivo> 
     public DocenteCursoMasivoDAOH() {
         super();
         setClazz(DocenteCursoMasivo.class);
+    }
+
+    @Override
+    public DocenteCursoMasivo find(long id) {
+        Octavia sql = Octavia.query()
+                .from(DocenteCursoMasivo.class, "dcm")
+                .join("cursoMasivoExamen cm", "docente d", "userRegistro ur")
+                .join("cm.rolExamenes re")
+                .left("ur.persona urPer", "cm.grupoHorasExamen ghe")
+                .filter("dcm.id", id);
+        return find(sql);
     }
 
     @Override
@@ -58,6 +70,19 @@ public class DocenteCursoMasivoDAOH extends AbstractEasyDAO<DocenteCursoMasivo> 
                 .join("cm.rolExamenes re")
                 .left("ur.persona urPer")
                 .filter("cm.id", cursoMasivoExamen)
+                .in("dcm.estado", estados)
+                .orderBy("cm.id desc");
+        return all(sql);
+    }
+
+    @Override
+    public List<DocenteCursoMasivo> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, DocenteRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(DocenteCursoMasivo.class, "dcm")
+                .join("cursoMasivoExamen cm", "docente d", "userRegistro ur")
+                .join("cm.rolExamenes re")
+                .left("ur.persona urPer", "cm.grupoHorasExamen ghe")
+                .filter("ghe.id", grupoHorasExamen)
                 .in("dcm.estado", estados)
                 .orderBy("cm.id desc");
         return all(sql);
@@ -138,6 +163,19 @@ public class DocenteCursoMasivoDAOH extends AbstractEasyDAO<DocenteCursoMasivo> 
                 .filter("re.estado", PUB)
                 .filter("dc.id", docente);
 
+        return all(sql);
+    }
+
+    @Override
+    public List<DocenteCursoMasivo> allByCursoMasivoAndDocenteAndEstados(CursoMasivoExamen cursoMasivoExamen, Docente docente, DocenteRolExamenEstadoEnum... estados) {
+        Octavia sql = new Octavia()
+                .from(DocenteCursoMasivo.class, "dcm")
+                .join("docente dc", "cursoMasivoExamen cme", "cme.rolExamenes re", "re.eventoCicloAcademico eca")
+                .join("eca.cicloAcademico ca", "cme.grupoHorasExamen ghe")
+                .join("ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras")
+                .filter("cme.id", cursoMasivoExamen)
+                .in("re.estado", estados)
+                .filter("dc.id", docente);
         return all(sql);
     }
 

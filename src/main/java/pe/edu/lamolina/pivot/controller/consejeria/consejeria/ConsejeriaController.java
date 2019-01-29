@@ -224,6 +224,27 @@ public class ConsejeriaController {
         return json;
     }
 
+    @ResponseBody
+    @RequestMapping("desasignarAlumno")
+    public JsonResponse desasignarAlumno(@RequestParam Long carrera, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
+
+        try {
+
+            service.desasignarAlumnos(carrera, ds);
+            json.setMessage("Los alumnos fueron desasignados satisfactoriamente");
+            json.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+        }
+        return json;
+    }
+
     private ObjectNode createCicloJson(CicloAcademico ciclo) {
         return JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{"id", "descripcion", "descripcion2"});
     }

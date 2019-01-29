@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
+import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CursoMasivosService {
@@ -47,7 +48,7 @@ public interface CursoMasivosService {
 
     void excluirDocenteCursoMasivo(DocenteCursoMasivo docenteCursoMasivo, DataSessionPivot ds);
 
-    void activarDocenteCursoMasivo(DocenteCursoMasivo docenteCursoMasivo, DataSessionPivot ds);
+    RolExamenesLogger activarDocenteCursoMasivo(DocenteCursoMasivo docenteCursoMasivo, DataSessionPivot ds);
 
     void excluirAlumnoCursoMasivo(AlumnoCursoMasivo alumnoCursoMasivo, DataSessionPivot ds);
 
@@ -59,7 +60,7 @@ public interface CursoMasivosService {
 
     void activarCursoMasivo(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds);
 
-    void activarAlumnoCursoMasivo(AlumnoCursoMasivo alumnoCursoMasivo, DataSessionPivot ds);
+    RolExamenesLogger activarAlumnoCursoMasivo(AlumnoCursoMasivo alumnoCursoMasivo, DataSessionPivot ds);
 
     void activarSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivo, DataSessionPivot ds);
 
