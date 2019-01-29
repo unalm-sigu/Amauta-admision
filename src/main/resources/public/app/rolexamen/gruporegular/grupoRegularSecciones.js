@@ -4,7 +4,13 @@ new Vue({
     el: '#main',
     data: {
         URL: APP.url('rolexamen/gruporegular'),
-        letraGrupoRegular: JSON.parse(jLetraGrupoRegular)
+        letraGrupoRegular: JSON.parse(jLetraGrupoRegular),
+        tipoAccion: {
+            LETRA: "LETRA",
+            GRUPO: "GRUPO",
+            SECCION: "SECCION",
+            ALUMNO: "ALUMNO"
+        },
     },
     mounted() {
         this.loadModalSecciones(this.letraGrupoRegular);
@@ -14,7 +20,8 @@ new Vue({
             this.letraSelected = letraGrupoRegular;
             this.$refs.tblSeccionesGrupoRegular.ajaxdata = {letraGrupoRegular: letraGrupoRegular.id};
             this.$refs.tblSeccionesGrupoRegular.loadRemoteData();
-        }, excluir(obj, tipoAccion) {
+        }, 
+        excluir(obj, tipoAccion) {
             let vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea excluir?",
