@@ -12,8 +12,9 @@ new Vue({
             okbtn: 'Agregar',
             showaccept: true
         },
-        cantidadAct: 0,
-        cantidadInac: 0,
+        cantidadActivo: 0,
+        cantidadInactivo: 0,
+        estadoConsejero: '',
         ciclo: JSON.parse(cicloJson),
         carreras: JSON.parse(carrerasJson),
         btndisabled: '',
@@ -57,23 +58,24 @@ new Vue({
         },
         filtroConsejeros(estado) {
             let $vue = this;
+            $vue.isLoading = true;
+            $vue.estadoConsejero = estado;
             $vue.$refs.load.querie.push({name: 'estado', value: estado});
             $vue.$refs.load.loadRemoteData();
-            alert($vue.contadorAct);
         },
         getDocentes(nombreDoc) {
             /// listado de docente por carrera
             let $vue = this;
             let idfacultad = $vue.carreraSelect.facultad.id;
-            this.isLoading = true
+            $vue.isLoading = true;
             $.ajax({
                 url: APP.url("consejeria/consejero/listDocente"),
                 data: {nombre: nombreDoc, idFacultad: idfacultad},
                 dataType: 'json',
                 type: 'post',
             }).then(response => {
-                this.listadoDocentes = response.data;
-                this.isLoading = false;
+                $vue.listadoDocentes = response.data;
+                $vue.isLoading = false;
             });
         },
         CargaDepartamento() {
@@ -92,10 +94,11 @@ new Vue({
         cargaConsejeros() {
             // listado de consejeros en dynatable
             let $vue = this;
+            let carrera = $vue.carreraSelect.id;
             $vue.$refs.load.querie = [];
-            this.listadoDocentes = '';
-            this.docenteSelect = '';
-            this.departamento = '';
+            $vue.listadoDocentes = '';
+            $vue.docenteSelect = '';
+            $vue.departamento = '';
             if ($vue.carreraSelect === null) {
                 $vue.btndisabled = true;
                 //   $vue.$refs.load.loadRemoteData();
@@ -105,10 +108,26 @@ new Vue({
                 $vue.btndisabled = false;
                 $vue.$refs.load.loadRemoteData();
             }
+            $vue.cantidadEstado(carrera);
+        },
+        cantidadEstado(carrera) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url("consejeria/consejero/filtroEstado"),
+                data: {carrera: carrera},
+                dataType: 'json',
+                type: 'post',
+            }).then(response => {
+                $vue.cantidadActivo = response.data.activo;
+                $vue.cantidadInactivo = response.data.inactivo;
+                this.isLoading = false;
+            });
+
         },
         cambiarEstado(item, estado) {
             let $vue = this;
             let consejero = item;
+            let carrera = $vue.carreraSelect.id;
 
             this.isLoading = true
             //alert(JSON.stringify(item));
@@ -123,6 +142,7 @@ new Vue({
             }).then(response => {
                 this.isLoading = false;
                 notify(response.message, 'info');
+                $vue.cantidadEstado(carrera);
                 $vue.$refs.load.loadRemoteData();
             });
         },
@@ -171,7 +191,34 @@ new Vue({
             });
         },
         asignarAlummnos() {
-
+            let $vue = this;
+            let carrera = $vue.carreraSelect.id;
+            bootbox.confirm({
+                message: '¿Esta seguro que desea asignar alumnos de manera aleatoria?',
+                buttons: {
+                    confirm: {label: 'Si, Asignar aleatoriamente', className: "btn-success"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url("consejeria/consejero/asignarAlumno"),
+                            data: {carrera: carrera },
+                            dataType: 'json',
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, 'info');
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }, error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
         }
     }
 });

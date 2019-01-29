@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Dia;
@@ -63,6 +65,10 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     @Autowired
     HoraDAO horaDAO;
 
+    private void checkEstadoPublicado(RolExamenes rol) {
+        Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de examanes ya ha sido publicado");
+    }
+
     @Override
     public List<RolExamenes> allRolExamenesActives(CicloAcademico cicloAcademico) {
         return rolExamenesDAO.allActiveByCiclo(cicloAcademico);
@@ -79,6 +85,9 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     @Override
     @Transactional(readOnly = false)
     public void calcularPlantillaHorario(RolExamenes rolExamenes) {
+        RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
+        checkEstadoPublicado(rolBD);
+
         this.deletePlantillaHorario(rolExamenes);
         List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
         List<Hora> horas = horaDAO.all();
@@ -142,6 +151,8 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         SemanaExamen semanaExamen = semanaExamenDAO.find(fechaHoraGrupoExamen.getSemanaExamen().getId());
         fechaHoraGrupoExamen.setSemanaExamen(semanaExamen);
 
+        checkEstadoPublicado(semanaExamen.getRolExamenes());
+
         List<FechaHoraGrupoExamen> fechasHorasGrupos = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(fechaHoraGrupoExamen.getGrupoHorasExamen());
         if (fechasHorasGrupos.size() >= semanaExamen.getRolExamenes().getHorasExamen()) {
             throw new PhobosException("No puede programar mas horas.");
@@ -197,6 +208,9 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
 
     @Override
     public void deletePlantillaHorario(RolExamenes rolExamenes) {
+        RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
+        checkEstadoPublicado(rolBD);
+
         List<GrupoHorasExamen> gruposHoras = grupoHorasExamenDAO.allByRolExamenes(rolExamenes);
         List<SemanaExamen> semanasExamenes = semanaExamenDAO.allByRolExamenes(rolExamenes);
 
@@ -319,6 +333,8 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     @Transactional(readOnly = false)
     public void deleteFechaHoraGrupoExamen(FechaHoraGrupoExamen fechaHoraGrupoExamen) {
         GrupoHorasExamen grupoHorasExamen = grupoHorasExamenDAO.find(fechaHoraGrupoExamen.getGrupoHorasExamen().getId());
+
+        checkEstadoPublicado(grupoHorasExamen.getRolExamenes());
 
         fechaHoraGrupoExamen = fechaHoraGrupoExamenDAO.find(fechaHoraGrupoExamen.getId());
         fechaHoraGrupoExamenDAO.delete(fechaHoraGrupoExamen);

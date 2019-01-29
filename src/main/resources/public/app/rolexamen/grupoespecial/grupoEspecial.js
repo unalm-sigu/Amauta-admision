@@ -45,7 +45,7 @@ new Vue({
             //    this.letraSelected = letraGrupoRegular;
             this.$refs.tblAlumnosGrupoEspecial.ajaxdata = {seccionGrupoEspecial: seccionGrupoEspecial.id};
             this.$refs.tblAlumnosGrupoEspecial.loadRemoteData();
-            this.$refs.alumnosModal.title = "Seccion Grupo Especial " + seccionGrupoEspecial.seccion.codigo2 + " | Alumnos";
+            this.$refs.alumnosModal.title = "Sección Grupo Especial " + seccionGrupoEspecial.seccion.codigo2 + " | Alumnos";
             this.$refs.alumnosModal.open();
 
         }, excluir(obj, tipoAccion) {
@@ -53,7 +53,7 @@ new Vue({
             bootbox.confirm({
                 message: "¿Está seguro que desea excluir?",
                 buttons: {
-                    confirm: {label: 'Si', className: "btn-warning"},
+                    confirm: {label: 'Sí', className: "btn-warning"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
@@ -82,7 +82,7 @@ new Vue({
             bootbox.confirm({
                 message: "¿Está seguro que desea incluir?",
                 buttons: {
-                    confirm: {label: 'Si', className: "btn-warning"},
+                    confirm: {label: 'Sí', className: "btn-warning"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {

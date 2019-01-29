@@ -52,4 +52,8 @@ public interface ConsejeroService {
 
     List<Docente> allDocenteByNombreFacultad(String nombre, Facultad facultad);
 
+    ConsejeroEstado findConsejeroByStateAndCarrera(Long carrera);
+
+    void asignarAlumnosAleatorio(Long carrera, DataSessionPivot ds);
+
 }

@@ -22,6 +22,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -103,6 +104,10 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
     @Autowired
     CursoMasivoExamenDAO cursoMasivoExamenDAO;
 
+    private void checkNoPublicado(RolExamenes rol) {
+        Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de exámenes ya ha sido publicado");
+    }
+
     @Override
     public List<RolExamenes> allRolExamenesActives(CicloAcademico cicloAcademico) {
         return rolExamenesDAO.allActiveByCiclo(cicloAcademico);
@@ -139,7 +144,11 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public void deleteGrupoEspecial(RolExamenes rolExamenes) {
+        RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
+        this.checkNoPublicado(rolBD);
+
         List<SeccionGrupoEspecial> seccionesExcluidas = seccionGrupoEspecialDAO.allByRolExamenesAndEstados(rolExamenes, SeccionRolExamenEstadoEnum.EXC);
         List<Seccion> secciones = seccionesExcluidas.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
         if (!secciones.isEmpty()) {
@@ -153,6 +162,8 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
     @Transactional(readOnly = false)
     public void calcularExamenesGrupoEspecial(RolExamenes rolExamenes, DataSessionPivot ds) {
         rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
+        this.checkNoPublicado(rolExamenes);
+        
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
         Assert.isTrue(rolExamenes.isSituacionAsignarHorarioCursosMasivos(), "Debe asignar horario de examen a los cursos masivos.");
