@@ -91,9 +91,9 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
     public List<AlumnoConsejero> allByCarrera(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoConsejero.class, "ac")
-                .join("alumno al", "consejero con")
-                .join("al.situacionAcademica ")
+                .join("alumno al", "consejero con", "con.colaborador col", "col.persona perc")
                 .join("al.persona per", "al.carrera car")
+                .join("perc.tipoDocumento", "per.tipoDocumento", "al.situacionAcademica ")
                 .left("al.cicloIngreso")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")

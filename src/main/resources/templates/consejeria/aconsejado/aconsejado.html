@@ -127,7 +127,7 @@
                                                             <span class=" bold"> PPA: </span>
                                                             {{item.alumno.promedioAcumulado}}
                                                         </span>
-                                                        <span class="block">                                                            
+                                                        <span class="block" v-if="item.alumno.cicloIngreso != null">                                                            
                                                             <span class=" bold"> Ciclo Ingreso: </span>
                                                             {{item.alumno.cicloIngreso.descripcion}}
                                                         </span>

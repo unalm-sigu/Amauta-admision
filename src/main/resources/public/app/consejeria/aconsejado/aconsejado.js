@@ -25,8 +25,9 @@ new Vue({
         query = (query == null) ? '' : query;
         if (query != '') {
             $vue.carreraSelect = $vue.carreras.filter(function (value) {
-                return value.id = query;
-            });
+                return value.id == query;
+            })[0];
+            $vue.$refs.load.querie.push({name: 'carrera', value: query});
             $vue.$refs.load.repreload();
         }
     },
@@ -58,7 +59,7 @@ new Vue({
         },
         model(item) {
             let $vue = this;
-            $vue.alumnoConsejeroForm = item;
+            $vue.alumnoConsejeroForm = Object.assign({}, item);
             $vue.$refs.consejeroModal.open();
         },
         cambiarConsejero() {

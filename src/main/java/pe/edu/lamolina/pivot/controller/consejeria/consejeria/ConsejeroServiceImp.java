@@ -143,12 +143,12 @@ public class ConsejeroServiceImp implements ConsejeroService {
             }
         }
         
-        if(!facultades.isEmpty()){
-            List<Carrera> carrerasFac = carreraDAO.allByFacultades(facultades);
-            carreras.addAll(carrerasFac);
-        }
-        
-        return carreraDAO.allByCarreras(carreras);
+//        if(!facultades.isEmpty()){
+//            List<Carrera> carrerasFac = carreraDAO.allByFacultades(facultades);
+//            carreras.addAll(carrerasFac);
+//        }
+//        
+        return null;//carreraDAO.allByCarreras(carreras);
     }
 
     @Override
