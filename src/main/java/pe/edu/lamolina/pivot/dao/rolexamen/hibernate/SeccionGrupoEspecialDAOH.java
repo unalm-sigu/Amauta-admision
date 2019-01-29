@@ -21,12 +21,12 @@ import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoEspecialDAO;
 
 @Repository
 public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspecial> implements SeccionGrupoEspecialDAO {
-
+    
     public SeccionGrupoEspecialDAOH() {
         super();
         setClazz(SeccionGrupoEspecial.class);
     }
-
+    
     @Override
     public SeccionGrupoEspecial findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnum) {
         Octavia sql = Octavia.query()
@@ -37,19 +37,20 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .in("sce.estado", seccionRolExamenEstadoEnum);
         return find(sql);
     }
-
+    
     @Override
     public List<SeccionGrupoEspecial> allByDynatableAndRolExamenes(DynatableFilter filter, RolExamenes rolExamenes) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionGrupoEspecial.class, "sge")
                 .join("rolExamenes re", "seccion sec", "userRegistro ur", "aula au")
                 .join("ur.persona per")
+                .left("sec.grupoHoras ghsec")
                 .left("docente doc", "doc.persona dper", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras")
                 .searchFields("sec.codigo", "sec.codigo2");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<SeccionGrupoEspecial> allByRolExamenesAndEstados(RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
@@ -61,7 +62,7 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .in("sce.estado", estados);
         return all(sql);
     }
-
+    
     @Override
     public List<SeccionGrupoEspecial> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, SeccionRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
@@ -73,7 +74,7 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .in("sce.estado", estados);
         return all(sql);
     }
-
+    
     @Override
     public List<SeccionGrupoEspecial> allByRolExamenesForReporte(RolExamenes rol) {
         Octavia sql = Octavia.query()
@@ -84,10 +85,10 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .join("grupoHorasExamen ghe", "ghe.horaInicio", "ghe.horaFin")
                 .filter("re.id", rol)
                 .orderBy("cur.nombre asc", "sec.codigo2 asc");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<SeccionGrupoEspecial> allByRolExamenes(RolExamenes rolExamenes) {
         Octavia sql = Octavia.query()
@@ -98,24 +99,24 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .filter("re.id", rolExamenes);
         return all(sql);
     }
-
+    
     @Override
     public void deleteByRolExamenes(RolExamenes rolExamenes) {
         StringBuilder strb = new StringBuilder();
         strb.append(" delete from  SeccionGrupoEspecial sge where sge.rolExamenes.id=:ROL_EXAMENES ");
-
+        
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("ROL_EXAMENES", rolExamenes.getId());
         query.executeUpdate();
     }
-
+    
     @Override
     public void updateFechaExamen(SeccionGrupoEspecial seccionGrupoEspecial) {
         Octavia octavia = Octavia.update(SeccionGrupoEspecial.class);
         octavia.set(seccionGrupoEspecial, "grupoHorasExamen");
         this.update(octavia);
     }
-
+    
     @Override
     public void updateEstadoExclusion(SeccionGrupoEspecial seccionGrupoEspecialUpd) {
         seccionGrupoEspecialUpd.setEstadoEnum(SeccionRolExamenEstadoEnum.EXC);
@@ -123,14 +124,14 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
         octavia.set(seccionGrupoEspecialUpd, "estado");
         this.update(octavia);
     }
-
+    
     @Override
     public void updateEstado(SeccionGrupoEspecial seccionGrupoEspecialUpd) {
         Octavia octavia = Octavia.update(SeccionGrupoEspecial.class);
         octavia.set(seccionGrupoEspecialUpd, "estado");
         this.update(octavia);
     }
-
+    
     @Override
     public List<RolExamenDocente> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico) {
         Octavia sql = new Octavia()
@@ -143,8 +144,8 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .filter("doc.id", docente)
                 .filter("re.estado", PUB)
                 .filter("ca.id", cicloAcademico);
-
+        
         return sql.all(getCurrentSession());
     }
-
+    
 }

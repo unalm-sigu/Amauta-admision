@@ -440,10 +440,15 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         RolExamenes rolExamenes = alumnoGrupoEspecial.getSeccionGrupoEspecial().getRolExamenes();
         grupoRegularConnector.validarSituacion("excluir", "los grupos especiales", rolExamenes.isSituacionConfigurarGrupoEspecial());
         Assert.isTrue(alumnoGrupoEspecial.isEstadoExcluido(), "Solo se puede incluir los alumnos especiales excluidos");
+        
 
         AlumnoGrupoEspecial alumnoGrupoEspecialUpd = new AlumnoGrupoEspecial(alumnoGrupoEspecial.getId());
         alumnoGrupoEspecialUpd.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
         alumnoGrupoEspecialDAO.updateEstado(alumnoGrupoEspecialUpd);
+    }
+    
+    public void validarActivarAlumno(){
+        
     }
 
 }
