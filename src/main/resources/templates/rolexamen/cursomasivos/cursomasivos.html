@@ -36,7 +36,7 @@
                                     </div>
                                 </div>                                   
 
-                                <div class="row">
+                                <div class="row" v-if="rolExamenes &amp;&amp; rolExamenes.estado !== 'PUB'">
                                     <div class="form-group">
                                         <label class="m col-md-2 bold">Cursos</label>
                                         <div class="m-t-md col-md-4">
@@ -88,8 +88,8 @@
                             <table class="table table-striped">
                                 <thead> 
                                     <tr> 
-                                        <th class="col-md-4 v-middle text-center">Curso</th>
-                                        <th class="col-md-2 v-middle text-center">Fecha / Hora</th>
+                                        <th class="col-md-3 v-middle">Curso</th>
+                                        <th class="col-md-3 v-middle text-center">Fecha / Hora</th>
                                         <th class="col-md-1 v-middle text-center">Secciones</th>
                                         <th class="col-md-1 v-middle text-center">Docentes</th>
                                         <th class="col-md-1 v-middle text-center">Alumnos</th>
@@ -151,7 +151,7 @@
                                 </td>
                                 <td class="v-middle">
                                     <div class="actions">
-                                        <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="glyphicon glyphicon-cog"> </i></a>
+                                        <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="glyphicon glyphicon-option-vertical"> </i></a>
 
                                         <ul class="dropdown-menu pull-right" >
                                             <li><a class=" pointer btn-link bold" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>     

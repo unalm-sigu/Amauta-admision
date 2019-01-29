@@ -28,6 +28,7 @@ import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.DocenteRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
@@ -151,6 +152,10 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Autowired
     SemanaExamenDAO semanaExamenDAO;
 
+    private void checkNoPublicado(RolExamenes rol) {
+        Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de exámenes ya ha sido publicado");
+    }
+
     @Override
     public List<RolExamenes> allRolExamenesByCicloActivo(CicloAcademico cicloAcademico) {
         return cursoMasivoExamenDAO.allRolExamenesByCicloActivo(cicloAcademico);
@@ -169,6 +174,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void save(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds) {
 
         RolExamenes rolExamenes = rolExamenesDAO.find(cursoMasivosExamen.getRolExamenes().getId());
+        this.checkNoPublicado(rolExamenes);
         Assert.isTrue(rolExamenes.isSituacionConfigurarHorario() || rolExamenes.isSituacionConfigurarCursoMasivo(), "No puede agregar cursos masivos, en este momento.");
         List<String> validationsHorariosExamen = this.validarHorariosExamen(rolExamenes);
         Assert.isTrue(validationsHorariosExamen.isEmpty(), String.join("\n", validationsHorariosExamen));
@@ -311,7 +317,8 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void eliminarCursoMasivoExamen(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds) {
         CursoMasivoExamen cursoMasivoExamenBD = cursoMasivoExamenDAO.find(cursoMasivoExamen.getId());
         RolExamenes rolExamenes = cursoMasivoExamenBD.getRolExamenes();
-
+        this.checkNoPublicado(rolExamenes);
+        
         grupoRegularConnector.validarSituacionBeforeOr("eliminar", "los grupos regulares", rolExamenes.isSituacionConfigurarRol(), rolExamenes.isSituacionConfigurarCursoMasivo());
 
         List<SeccionCursoMasivo> seccionCursoMasivos = seccionCursoMasivoDAO.allSeccionByCursoMasivo(cursoMasivoExamenBD);
@@ -347,7 +354,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void saveAula(CursoMasivoExamen cursoMasivo, CicloAcademico cicloAcademico, DataSessionPivot ds) {
 
         CursoMasivoExamen cursoMasivoBD = cursoMasivoExamenDAO.find(cursoMasivo.getId());
-
+        
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
         Assert.isTrue(cursoMasivoBD.getRolExamenes().isSituacionConfiguraGrupoRegular(), "Debe configurar los grupos regulares previamente.");
@@ -383,7 +390,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void excluirCursoMasivo(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds) {
         cursoMasivoExamen = cursoMasivoExamenDAO.find(cursoMasivoExamen.getId());
         RolExamenes rolExamenes = cursoMasivoExamen.getRolExamenes();
-
+        
         grupoRegularConnector.validarSituacionBeforeOr("excluir", "los grupos regulares", rolExamenes.isSituacionConfigurarRol(), rolExamenes.isSituacionConfigurarCursoMasivo());
         Assert.isTrue(cursoMasivoExamen.isEstadoActivo(), "Solo se puede excluir los cursos masivos activos");
 
@@ -404,7 +411,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void activarCursoMasivo(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds) {
         cursoMasivoExamen = cursoMasivoExamenDAO.find(cursoMasivoExamen.getId());
         RolExamenes rolExamenes = cursoMasivoExamen.getRolExamenes();
-
+        
         grupoRegularConnector.validarSituacionBeforeOr("incluir", "los grupos regulares", rolExamenes.isSituacionConfigurarRol(), rolExamenes.isSituacionConfigurarCursoMasivo());
         Assert.isTrue(cursoMasivoExamen.isEstadoExcluido(), "Solo se puede incluir los cursos masivos excluidos");
 
@@ -511,7 +518,8 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void saveHorarioExamen(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds) {
         //   SemanaExamen semanaExamen = cursoMasivoExamen.getGrupoHorasExamen().getSemanaExamen();
         RolExamenes rolExamenes = rolExamenesDAO.find(cursoMasivoExamen.getRolExamenes().getId());
-
+        this.checkNoPublicado(rolExamenes);
+        
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
         Assert.isTrue(rolExamenes.isSituacionConfiguraGrupoRegular(), "Debe configurar los grupos regulares previamente.");

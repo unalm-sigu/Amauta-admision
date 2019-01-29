@@ -19,6 +19,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.DocenteRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
+import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
@@ -133,9 +134,14 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
         return grupoHorasExamenDAO.find(grupoHorasExamen.getId());
     }
 
+    private void checkNoPublicado(RolExamenes rol) {
+        Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de exámenes ya ha sido publicado");
+    }
+
     @Override
     @Transactional
     public void cambioHorarioExamenSeccion(CambioHorarioExamenSeccion cambioHorarioExamenSeccion, DataSessionPivot ds) {
+
         SeccionCursoMasivo seccionCursoMasivoOrigen = null;
         SeccionGrupoRegular seccionGrupoRegularOrigen = null;
         SeccionGrupoEspecial seccionGrupoEspecialOrigen = null;
@@ -145,10 +151,13 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
 
         if (cambioHorarioExamenSeccion.isTipoGrupMasivooOrigen()) {
             seccionCursoMasivoOrigen = seccionCursoMasivoDAO.find(cambioHorarioExamenSeccion.getIdSeccionRolExamenesOrigen());
+            this.checkNoPublicado(seccionCursoMasivoOrigen.getCursoMasivoExamen().getRolExamenes());
         } else if (cambioHorarioExamenSeccion.isTipoGrupoRegularOrigen()) {
             seccionGrupoRegularOrigen = seccionGrupoRegularDAO.find(cambioHorarioExamenSeccion.getIdSeccionRolExamenesOrigen());
+            this.checkNoPublicado(seccionGrupoRegularOrigen.getLetraGrupoRegular().getRolExamenes());
         } else if (cambioHorarioExamenSeccion.isTipoGrupoEspecialOrigen()) {
             seccionGrupoEspecialOrigen = seccionGrupoEspecialDAO.find(cambioHorarioExamenSeccion.getIdSeccionRolExamenesOrigen());
+            this.checkNoPublicado(seccionGrupoEspecialOrigen.getRolExamenes());
         }
 
         if (cambioHorarioExamenSeccion.isTipoGrupRegularoDestino()) {
