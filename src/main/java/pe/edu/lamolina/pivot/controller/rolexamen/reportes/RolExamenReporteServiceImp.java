@@ -151,7 +151,7 @@ public class RolExamenReporteServiceImp implements RolExamenReporteService {
                 Integer horaInicio = aulasCursosMasivo.getCursoMasivoExamen().getGrupoHorasExamen().getHoraInicio().getNumero();
                 Integer horaFin = aulasCursosMasivo.getCursoMasivoExamen().getGrupoHorasExamen().getHoraFin().getNumero();
                 Assert.isTrue(horaFin >= horaInicio, "Hora de inicio mayor que la hora de fin del examen");
-                for (int hora = horaInicio; hora <= horaFin; hora++) {
+                for (int hora = horaInicio; hora < horaFin; hora++) {
                     this.agregarOcupacion(mapOcupacion, aula, dia, hora);
                 }
             }
@@ -167,7 +167,7 @@ public class RolExamenReporteServiceImp implements RolExamenReporteService {
             Integer horaInicio = especiale.getGrupoHorasExamen().getHoraInicio().getNumero();
             Integer horaFin = especiale.getGrupoHorasExamen().getHoraFin().getNumero();
             Assert.isTrue(horaFin >= horaInicio, "Hora de inicio mayor que la hora de fin del examen");
-            for (int hora = horaInicio; hora <= horaFin; hora++) {
+            for (int hora = horaInicio; hora < horaFin; hora++) {
                 this.agregarOcupacion(mapOcupacion, aula, dia, hora);
             }
         }
@@ -183,7 +183,7 @@ public class RolExamenReporteServiceImp implements RolExamenReporteService {
                 Integer horaInicio = regular.getGrupoHorasExamen().getHoraInicio().getNumero();
                 Integer horaFin = regular.getGrupoHorasExamen().getHoraFin().getNumero();
                 Assert.isTrue(horaFin >= horaInicio, "Hora de inicio mayor que la hora de fin del examen");
-                for (int hora = horaInicio; hora <= horaFin; hora++) {
+                for (int hora = horaInicio; hora < horaFin; hora++) {
                     this.agregarOcupacion(mapOcupacion, aula, dia, hora);
                 }
             }
