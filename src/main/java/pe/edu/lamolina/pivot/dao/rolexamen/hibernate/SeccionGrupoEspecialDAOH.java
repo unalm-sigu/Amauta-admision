@@ -77,6 +77,7 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .join("aula au")
                 .join("grupoHorasExamen ghe", "ghe.horaInicio", "ghe.horaFin")
                 .filter("re.id", rol)
+                .filter("sce.estado", SeccionRolExamenEstadoEnum.ACT)
                 .orderBy("cur.nombre asc", "sec.codigo2 asc");
 
         return all(sql);

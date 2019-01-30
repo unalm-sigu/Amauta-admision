@@ -23,9 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
-import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.OficinaEnum;
-import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
@@ -73,11 +71,6 @@ public class RolExamenReporteServiceImp implements RolExamenReporteService {
 
     @Autowired
     SeccionGrupoRegularDAO seccionGrupoRegularDAO;
-
-    @Override
-    public RolExamenes findRolExamenesActivo(CicloAcademico cicloAcademico) {
-        return rolExamenesDAO.findByEstadoCiclo(RolExamenesEstadoEnum.PUB, cicloAcademico);
-    }
 
     @Override
     public List<LetraGrupoRegular> allLetrasGrupoRegularByRolExamenes(RolExamenes rol) {
@@ -221,7 +214,6 @@ public class RolExamenReporteServiceImp implements RolExamenReporteService {
     @Override
     public RolExamenes find(Long id) {
         RolExamenes rol = rolExamenesDAO.find(id);
-        //Assert.isTrue(rol.getEstadoEnum() == RolExamenesEstadoEnum.PUB, "El rol de examenes no esta en estado Publicado");
         return rol;
     }
 }
