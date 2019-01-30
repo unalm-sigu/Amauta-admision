@@ -53,6 +53,17 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
     }
 
     @Override
+    public List<SeccionGrupoRegular> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, SeccionRolExamenEstadoEnum... seccionRolExamenEstadosEnum) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("letraGrupoRegular lgr", "seccion sec", "lgr.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .join("lgr.rolExamenes rex")
+                .filter("gh.id", grupoHorasExamen)
+                .in("sgr.estado", seccionRolExamenEstadosEnum);
+        return all(sql);
+    }
+
+    @Override
     public List<SeccionGrupoRegular> allByLetraGrupoRegularAndEstados(
             LetraGrupoRegular letrasGruposRegular, SeccionRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()

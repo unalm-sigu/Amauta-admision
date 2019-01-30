@@ -29,6 +29,7 @@
                                                 label="nombre"
                                                 track-by="id"
                                                 v-bind:options="rolesExamenes"
+                                                v-bind:show-labels="false"
                                                 required="true"
                                                 >
                                             </multiselect>
@@ -38,7 +39,7 @@
                                                    required="true"
                                                    v-if="rolExamen" />
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-4" v-if="rolExamen &amp;&amp; rolExamen.estado !== 'PUB'">
                                             <a class="btn btn-success m-l-sm"
                                                v-on:click.prevent="calcularGrupoRegular">
                                                 Calcular
@@ -59,73 +60,65 @@
 
                     <section class="panel">
                         <section class="panel-body">
-                            <div class="row">
 
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th class="col-md-2 text-center">Grupo</th>
-                                            <th class="col-md-2 text-center">Secciones</th>
-                                            <th class="col-md-2 text-center">Alumnos</th>
-                                            <th class="col-md-2 text-center">Fecha</th>
-                                            <th class="col-md-3 text-center">Registro</th>
-                                            <th class="col-md-1 text-center"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="item in letrasGruposRegulares" v-if="letrasGruposRegulares">
-                                            <td>
-                                                <a v-on:click="loadModalGrupos(item)"
-                                                   class="pointer"
-                                                   >{{ item.letra }} ({{item.gruposRegularesActivosCount}})</a>
-                                            </td>
-                                            <td class="text-center">  
-                                                <!--   <span class="badge pointer"
-                                                         v-on:click.prevent="loadModalSecciones(item)"
-                                                         v-text="item.seccionesRegularesActivosCount"></span>--> 
-                                                <span class="badge pointer"
-                                                      v-on:click.prevent="letraRegularSecciones(item)"
-                                                      v-text="item.seccionesRegularesActivosCount"></span>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge pointer"
-                                                      v-on:click.prevent="loadModalAlumnos(item)"
-                                                      v-text="item.alumnosRegularesActivosCount"></span>
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                <div v-if="item.grupoHorasExamen.fecha">
-                                                    {{item.grupoHorasExamen.fecha }}
-                                                    (Grupo {{item.grupoHorasExamen.grupoHoras.codigo}})
-                                                    <small class="block">Hora Inicio: {{item.grupoHorasExamen.horaInicio.descripcion}}</small>
-                                                    <small class="block">Hora Fin: {{item.grupoHorasExamen.horaFin.descripcion}}</small>
-                                                </div>
-                                                <div v-else="" >
-                                                    <label class="alert alert-info">
-                                                        Sin Asignar Horario
-                                                    </label>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="block" v-text="item.userRegistro.persona.apellidosNombres"></span>
-                                                <small v-text="item.fechaRegistro">
-                                                </small>
-                                            </td>
-                                            <td class="v-middle">
-                                                <div class="dropdown actions" th:if="false">
-                                                    <a class="dropdown-toggle" data-toggle="dropdown">
-                                                        <i class="glyphicon glyphicon-option-vertical"></i>
-                                                    </a> 
-                                                    <ul class="dropdown-menu pull-right">
-                                                        <li><a v-on:click.prevent="excluir(item,tipoAccion.LETRA)">Excluir</a></li>
-                                                        <li><a v-on:click.prevent="excluir(item,tipoAccion.LETRA)">Mover</a></li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-3 text-center">Grupo</th>
+                                        <th class="col-md-3 text-center">Secciones</th>
+                                        <th class="col-md-3 text-center">Alumnos</th>
+                                        <th class="col-md-3 text-center">Fecha</th>
+                                        <th class="text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in letrasGruposRegulares" v-if="letrasGruposRegulares">
+                                        <td class="text-center v-middle">
+                                            <a v-on:click="loadModalGrupos(item)"
+                                               class="pointer text-md"
+                                               >{{ item.letra }} ({{item.gruposRegularesActivosCount}})</a>
+                                        </td>
+                                        <td class="text-center v-middle">  
+                                            <!--   <span class="badge pointer"
+                                                     v-on:click.prevent="loadModalSecciones(item)"
+                                                     v-text="item.seccionesRegularesActivosCount"></span>--> 
+                                            <span class="badge pointer"
+                                                  v-on:click.prevent="letraRegularSecciones(item)"
+                                                  v-text="item.seccionesRegularesActivosCount"></span>
+                                        </td>
+                                        <td class="text-center v-middle">
+                                            <span class="badge pointer"
+                                                  v-on:click.prevent="loadModalAlumnos(item)"
+                                                  v-text="item.alumnosRegularesActivosCount"></span>
+                                        </td>
+                                        <td class="v-middle text-center v-middle">
+                                            <div v-if="item.grupoHorasExamen.fecha">
+                                                {{item.grupoHorasExamen.fecha }}
+                                                (Grupo {{item.grupoHorasExamen.grupoHoras.codigo}})
+                                                <small class="block">Hora Inicio: {{item.grupoHorasExamen.horaInicio.descripcion}}</small>
+                                                <small class="block">Hora Fin: {{item.grupoHorasExamen.horaFin.descripcion}}</small>
+                                            </div>
+                                            <div v-else="" >
+                                                <label class="alert alert-info">
+                                                    Sin Asignar Horario
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td class="v-middle">
+                                            <div class="dropdown actions" th:if="false">
+                                                <a class="dropdown-toggle" data-toggle="dropdown">
+                                                    <i class="glyphicon glyphicon-option-vertical"></i>
+                                                </a> 
+                                                <ul class="dropdown-menu pull-right">
+                                                    <li><a v-on:click.prevent="excluir(item,tipoAccion.LETRA)">Excluir</a></li>
+                                                    <li><a v-on:click.prevent="excluir(item,tipoAccion.LETRA)">Mover</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
-                            </div>
 
                         </section>
                     </section>

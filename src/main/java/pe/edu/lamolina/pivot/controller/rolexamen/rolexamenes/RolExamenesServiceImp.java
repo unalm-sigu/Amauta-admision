@@ -147,16 +147,20 @@ public class RolExamenesServiceImp implements RolExamenesService {
     @Override
     @Transactional
     public void update(RolExamenes rolExamenes, DataSessionPivot ds) {
+        RolExamenes rolBD = rolexamenesDAO.find(rolExamenes.getId());
+        Assert.isTrue(rolBD.isSituacionConfigurarRol(), "No puede grabar en este momento.");
+
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
         rolExamenes.setEventoCicloAcademico(rolExamenes.getEventoCicloAcademico());
         rolexamenesDAO.updateRolExamenes(rolExamenes);
 
-        //semanaExamenDAO.deleteByRolExamenes(rolExamenes);
-        semanaExamenDAO.allByRolExamenes(rolExamenes);
+        semanaExamenDAO.deleteByRolExamenes(rolExamenes);
+        //    semanaExamenDAO.allByRolExamenes(rolExamenes);
         for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
+            semanaExamen.setId(null);
             semanaExamen.setRolExamenes(rolExamenes);
-            semanaExamenDAO.update(semanaExamen);
+            semanaExamenDAO.save(semanaExamen);
         }
     }
 

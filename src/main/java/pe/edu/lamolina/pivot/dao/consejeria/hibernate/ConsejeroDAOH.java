@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.consejeria.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import org.hibernate.Query;
 import org.springframework.stereotype.Service;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -11,10 +12,12 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeria.ConsejeroEstado;
 import pe.edu.lamolina.pivot.dao.consejeria.ConsejeroDAO;
 
 @Service
@@ -51,7 +54,7 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
             String values = (String) queries.get(key);
             if (values.equals("ACT")) {
                 sql.filter("estado", ACT);
-            }   else if (values.equals("INA")) {
+            } else if (values.equals("INA")) {
                 sql.filter("estado", INA);
             }
             sql.filter(key, values);
@@ -103,5 +106,54 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .join("departamentoAcademico dep", "dep.facultad fac", "fac.carrera carr")
                 .filter("doc.id", idDocente);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public ConsejeroEstado findByStateAndCarrera(Long carrera) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("select new ").append(ConsejeroEstado.class.getName());
+        sql.append(" (   ");
+        sql.append("   sum(case conse.estado when :ACT then 1 else 0 end),   ");
+        sql.append("   sum(case conse.estado when :INA then 1 else 0 end)   ");
+        sql.append(" )   ");
+        sql.append("  from ").append(Consejero.class.getName()).append(" as conse ");
+        sql.append(" inner join conse.carrera ca ");
+        sql.append(" where ca.id = :CARRERA ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+
+        query.setString("ACT", ACT.name());
+        query.setString("INA", INA.name());
+        query.setLong("CARRERA", carrera);
+
+        return (ConsejeroEstado) query.uniqueResult();
+    }
+
+    @Override
+    public List<Consejero> findConsejeroByEstado(Long carrera) {
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "conse")
+                .join("carrera ca")
+                .filter("ca.id", carrera)
+                .filter("estado", ACT);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Consejero> allByNombreAndCarrera(String nombre, Carrera carrera) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "con")
+                .join("colaborador col", "col.persona per", "carrera carr")
+                .filter("carr.id", carrera)
+                .filter("con.estado", EstadoEnum.ACT)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return all(sql);
     }
 }

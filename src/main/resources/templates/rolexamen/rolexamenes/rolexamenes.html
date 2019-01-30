@@ -28,11 +28,8 @@
                                                 <th class="col-md-2 v-middle text-center">Fecha Inicio</th>
                                                 <th class="col-md-2 v-middle text-center">Fecha Fin</th>
                                                 <th class="col-md-2 v-middle text-center">Fecha Publicación</th>
-                                                <th class="col-md-2 v-middle text-center">Registro</th>
-                                                <th class="col-md-1 v-middle text-center">Estado</th>
-                                                <th>
-
-                                                </th>
+                                                <th class="col-md-2 v-middle text-center">Estado</th>
+                                                <th>  </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -49,96 +46,99 @@
                                                 <td class="v-middle text-center"> 
                                                     {{item.fechaPublicacion}}
                                                 </td>
+
+                                                <td class="v-middle text-center"> 
+                                                    <span style="display: none">{{item.situacion}}    </span>
+                                                    <span v-if="item.estado=='INA'" class="label label-danger" >Inactivo</span>
+                                                    <span v-if="item.estado=='ACT'" class="label label-primary" >Activo</span>
+                                                    <span v-if="item.estado=='CRE'" class="label label-default" >Creado</span>
+                                                    <span v-if="item.estado=='PUB'" class="label label-primary" >Publicado</span>
+                                                </td>
                                                 <td>
-                                                    <span class="block" v-text="item.userRegistro.persona.apellidosNombres"></span>
-                                        <smal class="block" v-text="item.fechaRegistro"></smal>
-                                        </td>
-                                        <td class="v-middle text-center"> 
-                                            <span style="display: none">{{item.situacion}}    </span>
-                                            <span v-if="item.estado=='INA'" class="label label-danger" >Inactivo</span>
-                                            <span v-if="item.estado=='ACT'" class="label label-primary" >Activo</span>
-                                            <span v-if="item.estado=='CRE'" class="label label-default" >Creado</span>
-                                            <span v-if="item.estado=='PUB'" class="label label-primary" >Publicado</span>
-                                        </td>
-                                        <td>
 
-                                            <div class="dropdown actions">
+                                                    <div class="dropdown actions">
 
-                                                <a class="dropdown-toggle" data-toggle="dropdown">
-                                                    <i class="glyphicon glyphicon-option-vertical"></i>
-                                                </a>
-
-                                                <ul class="dropdown-menu pull-right">
-                                                    <li>
-                                                        <!-- 
-                                                           v-if="item.isSituacionConfigurarRol" -->
-                                                        <a href="#" 
-                                                           v-on:click.prevent="editarRolExamen(item)"
-                                                           >
-                                                            Editar
-                                                        </a> 
-                                                        <a href="#" 
-                                                           v-on:click.prevent="publicarRolExamen(item)"
-                                                           v-if="item.isSituacionConfigurarGrupoEspecial"
-                                                           >
-                                                            Publicar
-                                                        </a> 
-                                                    </li>
-                                                    <li v-if="item.estado=='PUB'">
-                                                        <a href="#" 
-                                                           v-on:click.prevent="fijarHorarioAula(item)"
-                                                           >
-                                                            Fijar Horario Aula
-                                                        </a> 
-                                                    </li>
-                                                    <li class="divider"></li>  
-                                                    <li>                                                            
-                                                        <a href="#" 
-                                                           v-on:click.prevent="redireccionarWithRol('rolexamen/plantillahorario',item)">
-                                                            Configurar Horarios
-                                                        </a> 
-                                                    </li>
-                                                    <li>
-                                                        <a  href="#" 
-                                                            v-on:click.prevent="redireccionarWithRol('rolexamen/cursomasivos',item)" >
-                                                            Configurar Cursos Masivos
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="glyphicon glyphicon-option-vertical"></i>
                                                         </a>
-                                                    </li>
-                                                    <li>
-                                                        <a th:href="@{/rolexamen/gruporegular}" 
-                                                           v-on:click.prevent="redireccionarWithRol('rolexamen/gruporegular',item)">
-                                                            Configurar Grupos Regulares
-                                                        </a> 
-                                                    </li>
-                                                    <li>
-                                                        <a th:href="@{/rolexamen/grupoespecial}" 
-                                                           v-on:click.prevent="redireccionarWithRol('rolexamen/grupoespecial',item)">
-                                                            Configurar Secciones Especiales
-                                                        </a>
-                                                    </li>
-                                                    <li class="divider"></li>  
-                                                    <li>
-                                                        <a v-bind:href="`/rolexamen/reporte/${item.id}/examenes`">
-                                                            Reporte de Examenes
-                                                        </a> 
-                                                    </li>
-                                                    <li>
-                                                        <a v-bind:href="`/rolexamen/reporte/${item.id}/aulas`">
-                                                            Reporte de Aulas
-                                                        </a>
-                                                    </li>
-                                                    <li class="divider"></li> 
-                                                    <li>
-                                                        <a v-on:click.prevent="eliminarAvanceConfiguracion(item)">
-                                                            Eliminar Configuración
-                                                        </a>
-                                                    </li>
-                                                </ul>
 
-                                            </div>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li>
+                                                                <!-- 
+                                                                   v-if="item.isSituacionConfigurarRol" -->
+                                                                <a href="#" 
+                                                                   v-on:click.prevent="editarRolExamen(item)"
+                                                                   >
+                                                                    Editar
+                                                                </a> 
+                                                            </li>
 
-                                        </td>
-                                        </tr> 
+                                                            <li>
+                                                                <a href="#" 
+                                                                   v-on:click.prevent="publicarRolExamen(item)"
+                                                                   v-if="item.isSituacionConfigurarGrupoEspecial"
+                                                                   >
+                                                                    Publicar
+                                                                </a> 
+                                                            </li>
+
+                                                            <li v-if="item.estado=='PUB'">
+                                                                <a href="#" 
+                                                                   v-on:click.prevent="fijarHorarioAula(item)"
+                                                                   >
+                                                                    Fijar Horario Aula
+                                                                </a> 
+                                                            </li>
+
+
+                                                            <li class="divider"></li>  
+                                                            <li>                                                            
+                                                                <a href="#" 
+                                                                   v-on:click.prevent="redireccionarWithRol('rolexamen/plantillahorario',item)">
+                                                                    Configurar Horarios
+                                                                </a> 
+                                                            </li>
+                                                            <li>
+                                                                <a  href="#" 
+                                                                    v-on:click.prevent="redireccionarWithRol('rolexamen/cursomasivos',item)" >
+                                                                    Configurar Cursos Masivos
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a th:href="@{/rolexamen/gruporegular}" 
+                                                                   v-on:click.prevent="redireccionarWithRol('rolexamen/gruporegular',item)">
+                                                                    Configurar Grupos Regulares
+                                                                </a> 
+                                                            </li>
+                                                            <li>
+                                                                <a th:href="@{/rolexamen/grupoespecial}" 
+                                                                   v-on:click.prevent="redireccionarWithRol('rolexamen/grupoespecial',item)">
+                                                                    Configurar Secciones Especiales
+                                                                </a>
+                                                            </li>
+                                                            <li class="divider"></li>  
+                                                            <li>
+                                                                <a v-bind:href="`/rolexamen/reporte/${item.id}/examenes`">
+                                                                    Reporte de Examenes
+                                                                </a> 
+                                                            </li>
+                                                            <li>
+                                                                <a v-bind:href="`/rolexamen/reporte/${item.id}/aulas`">
+                                                                    Reporte de Aulas
+                                                                </a>
+                                                            </li>
+                                                            <li class="divider"></li> 
+                                                            <li>
+                                                                <a v-on:click.prevent="eliminarAvanceConfiguracion(item)">
+                                                                    Eliminar Configuración
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+
+                                                    </div>
+
+                                                </td>
+                                            </tr> 
                                         </tbody>
                                     </table>
                                 </template>
@@ -149,27 +149,33 @@
 
                 <modal-vik ref="modalConfirmar"
                            v-bind="confirmarModal"
-                           v-bind:okaction="guardarRol">
+                           v-bind:okaction="guardarRol"
+                           v-bind:showAccept="rolExamenes.estado !== 'PUB'">
                     <div slot="body">                                                
                         <form  id="formEvento"  data-parsley-validate="true">
                             <div class="form-group">
                                 <label> Evento Ciclo Académico </label>
-                                <multiselect v-model='rolExamenes.eventoCicloAcademico'                                                 
-                                             v-bind:custom-label="eventoAcademicoCustomLabel"
-                                             v-on:input="changeEventoCicloAcademico"
-                                             placeholder=""
-                                             track-by="id"
-                                             v-bind:allow-empty="false"
-                                             v-bind:options="eventosCiclos"
-                                             deselect-label=""
-                                             select-label="">
-                                </multiselect>
+                                <div v-if="rolExamenes.estado !== 'PUB'">
+                                    <multiselect v-model='rolExamenes.eventoCicloAcademico'                                                 
+                                                 v-bind:custom-label="eventoAcademicoCustomLabel"
+                                                 v-on:input="changeEventoCicloAcademico"
+                                                 placeholder=""
+                                                 track-by="id"
+                                                 v-bind:allow-empty="false"
+                                                 v-bind:options="eventosCiclos"
+                                                 deselect-label=""
+                                                 select-label="">
+                                    </multiselect>
+                                </div>
+                                <div v-else="">
+                                    <input class="form-control" required="true" v-model="rolExamenes.eventoCicloAcademico.eventoAcademico.nombre" v-bind:readonly="rolExamenes.estado === 'PUB'"/>
+                                </div>
                                 <input type="text" class="hide" required="" v-model="rolExamenes.eventoCicloAcademico.id"/>
                             </div>
 
                             <div class="form-group" >
                                 <label  class="control-label">Nombre</label>
-                                <input class="form-control" required="true" v-model="rolExamenes.nombre"/>
+                                <input class="form-control" required="true" v-model="rolExamenes.nombre" v-bind:readonly="rolExamenes.estado === 'PUB'"/>
                             </div>
 
                             <div class="row">
@@ -218,41 +224,54 @@
                                                     <span v-text="semana.fechaFin"></span>
                                                 </td>
                                                 <td class="v-middle text-center"> 
-                                        <multiselect 
-                                            v-model="semana.horaInicio"
-                                            placeholder=""
-                                            v-bind:options="horas"
-                                            label="descripcion"
-                                            track-by="id" 
-                                            required="true"
-                                            v-bind:allow-empty="false"  
-                                            deselect-label=""
-                                            select-label=""
-                                            >
-                                        </multiselect>
-                                        <input v-model="semana.horaInicio.id" 
-                                               required="" 
-                                               class="hide"/>
+                                                    <div v-if="rolExamenes.estado !== 'PUB'">
+                                                        <multiselect 
+                                                            v-model="semana.horaInicio"
+                                                            placeholder=""
+                                                            v-bind:options="horas"
+                                                            label="descripcion"
+                                                            track-by="id" 
+                                                            required="true"
+                                                            v-bind:allow-empty="false"  
+                                                            deselect-label=""
+                                                            select-label=""
+                                                            >
+                                                        </multiselect>
+                                                    </div>
+                                                    <div v-else="">
+                                                        <span v-text="semana.horaInicio.descripcion"></span>
+                                                    </div>
 
-                                        </td>
-                                        <td class="v-middle text-center"> 
-                                        <multiselect 
-                                            v-model="semana.horaFin"
-                                            placeholder=""
-                                            v-bind:options="horas"
-                                            label="descripcion"
-                                            track-by="id" 
-                                            required="true"
-                                            v-bind:allow-empty="false"
-                                            deselect-label=""
-                                            select-label=""
-                                            >
-                                        </multiselect>
-                                        <input v-model="semana.horaFin.id" 
-                                               required=""
-                                               class="hide"/>
-                                        </td>
-                                        </tr>
+                                                    <input v-model="semana.horaInicio.id" 
+                                                           required="" 
+                                                           class="hide"/>
+
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    <div v-if="rolExamenes.estado !== 'PUB'">
+                                                        <multiselect 
+                                                            v-model="semana.horaFin"
+                                                            placeholder=""
+                                                            v-bind:options="horas"
+                                                            label="descripcion"
+                                                            track-by="id" 
+                                                            required="true"
+                                                            v-bind:allow-empty="false"
+                                                            deselect-label=""
+                                                            select-label=""
+                                                            >
+                                                        </multiselect>
+                                                    </div>
+                                                    <div v-else="">
+                                                        <span v-text="semana.horaFin.descripcion"></span>
+                                                    </div>
+
+
+                                                    <input v-model="semana.horaFin.id" 
+                                                           required=""
+                                                           class="hide"/>
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </section>

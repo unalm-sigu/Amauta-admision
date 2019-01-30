@@ -17,12 +17,32 @@ public class RolExamenesLogger {
     private String tipo;
     private String message;
     private boolean running;
+    private boolean cruce;
 
     private List<RolExamenesLogger> logDetails;
+
+    public void iniciarGeneric() {
+        this.running = true;
+        this.logDetails = new ArrayList<>();
+    }
 
     public void iniciarCursoMasivo() {
         this.tipo = TipoRolExamenesLoggerEnum.CUR_MAS.name();
         this.message = "Calculo de " + this.getTipoEnum().getValue();
+        this.running = true;
+        this.logDetails = new ArrayList<>();
+    }
+
+    public void activarCursoMasivo() {
+        this.tipo = TipoRolExamenesLoggerEnum.ACT_CUR_MAS.name();
+        this.message = "Proceso: " + this.getTipoEnum().getValue();
+        this.running = true;
+        this.logDetails = new ArrayList<>();
+    }
+
+    public void activarGrupoRegular() {
+        this.tipo = TipoRolExamenesLoggerEnum.ACT_GPO_REG.name();
+        this.message = "Proceso: " + this.getTipoEnum().getValue();
         this.running = true;
         this.logDetails = new ArrayList<>();
     }
@@ -59,6 +79,7 @@ public class RolExamenesLogger {
     }
 
     public void cruceDocente(Docente docente, Curso curso) {
+        this.cruce = true;
         RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
         rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_DOC);
 
@@ -69,6 +90,7 @@ public class RolExamenesLogger {
     }
 
     public void cruceDocente(Docente docente, SeccionGrupoEspecial seccionGrupoEspecial) {
+        this.cruce = true;
         RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
         rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_DOC);
 
@@ -81,6 +103,7 @@ public class RolExamenesLogger {
     }
 
     public void cruceAlumno(Alumno alumno, Curso curso) {
+        this.cruce = true;
         RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
         rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_ALU);
 
@@ -91,6 +114,7 @@ public class RolExamenesLogger {
     }
 
     public void cruceAlumno(Alumno alumno, SeccionGrupoEspecial seccionGrupoEspecial) {
+        this.cruce = true;
         RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
         rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_ALU);
 
@@ -103,6 +127,7 @@ public class RolExamenesLogger {
     }
 
     public void cruceAlumno(Alumno alumno, LetraGrupoRegular letraGrupoRegular, Seccion seccion) {
+        this.cruce = true;
         RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
         rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_ALU);
 
@@ -117,6 +142,7 @@ public class RolExamenesLogger {
     }
 
     public void cruceDocente(Docente docente, LetraGrupoRegular letraGrupoRegular, Seccion seccion) {
+        this.cruce = true;
         RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
         rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_DOC);
 
@@ -131,6 +157,7 @@ public class RolExamenesLogger {
     }
 
     public void cruceAula(Aula aula, Curso curso) {
+        this.cruce = true;
         RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
         rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_AUL);
 
@@ -141,6 +168,7 @@ public class RolExamenesLogger {
     }
 
     public void cruceAula(Aula aula, LetraGrupoRegular letraGrupoRegular, Seccion seccion) {
+        this.cruce = true;
         RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
         rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_AUL);
 
@@ -155,6 +183,7 @@ public class RolExamenesLogger {
     }
 
     public void cruceAula(Aula aula, SeccionGrupoEspecial seccionGrupoEspecial) {
+        this.cruce = true;
         RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
         rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.CRU_AUL);
 
@@ -211,6 +240,14 @@ public class RolExamenesLogger {
 
     public void setRunning(boolean running) {
         this.running = running;
+    }
+
+    public boolean isCruce() {
+        return cruce;
+    }
+
+    public void setCruce(boolean cruce) {
+        this.cruce = cruce;
     }
 
 }

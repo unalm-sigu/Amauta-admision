@@ -39,8 +39,10 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
 
     List<SeccionGrupoRegular> allByRolExamenes(
             RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnums);
+
     public List<RolExamenDocente> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico);
 
+    List<SeccionGrupoRegular> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, SeccionRolExamenEstadoEnum... seccionRolExamenEstadosEnum);
     public List<SeccionGrupoRegular> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes);
 
 }

@@ -19,6 +19,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.DocenteRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
+import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
@@ -133,9 +134,14 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
         return grupoHorasExamenDAO.find(grupoHorasExamen.getId());
     }
 
+    private void checkNoPublicado(RolExamenes rol) {
+        Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de exámenes ya ha sido publicado");
+    }
+
     @Override
     @Transactional
     public void cambioHorarioExamenSeccion(CambioHorarioExamenSeccion cambioHorarioExamenSeccion, DataSessionPivot ds) {
+
         SeccionCursoMasivo seccionCursoMasivoOrigen = null;
         SeccionGrupoRegular seccionGrupoRegularOrigen = null;
         SeccionGrupoEspecial seccionGrupoEspecialOrigen = null;
@@ -145,10 +151,13 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
 
         if (cambioHorarioExamenSeccion.isTipoGrupMasivooOrigen()) {
             seccionCursoMasivoOrigen = seccionCursoMasivoDAO.find(cambioHorarioExamenSeccion.getIdSeccionRolExamenesOrigen());
+            this.checkNoPublicado(seccionCursoMasivoOrigen.getCursoMasivoExamen().getRolExamenes());
         } else if (cambioHorarioExamenSeccion.isTipoGrupoRegularOrigen()) {
             seccionGrupoRegularOrigen = seccionGrupoRegularDAO.find(cambioHorarioExamenSeccion.getIdSeccionRolExamenesOrigen());
+            this.checkNoPublicado(seccionGrupoRegularOrigen.getLetraGrupoRegular().getRolExamenes());
         } else if (cambioHorarioExamenSeccion.isTipoGrupoEspecialOrigen()) {
             seccionGrupoEspecialOrigen = seccionGrupoEspecialDAO.find(cambioHorarioExamenSeccion.getIdSeccionRolExamenesOrigen());
+            this.checkNoPublicado(seccionGrupoEspecialOrigen.getRolExamenes());
         }
 
         if (cambioHorarioExamenSeccion.isTipoGrupRegularoDestino()) {
@@ -257,7 +266,7 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
     public void trasladarToLetraGrupoRegular(SeccionGrupoEspecial seccionCursoMasivoOrigen, LetraGrupoRegular letraGrupoRegular, DataSessionPivot ds) {
         Seccion seccion = seccionDAO.find(seccionCursoMasivoOrigen.getSeccion());
         seccion = seccion.clone();
-        List<Aula> aulas = Arrays.asList(seccion.getAula());
+        List<Aula> aulaOrigen = Arrays.asList(seccion.getAula());
 
         List<DocenteSeccion> docentesPrincipalesOrigen = docenteSeccionDAO.allPrincipalesBySecciones(Arrays.asList(seccion));
         List<Docente> docentesOrigen = docentesPrincipalesOrigen.stream().map(x -> x.getDocente()).collect(Collectors.toList());
@@ -267,9 +276,9 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
 
         this.rolExamenesLogger.iniciarTrasladoToGrupoRegular();
 
-        boolean validacionCursosMasivos = grupoRegularConnector.validarCursosMasivos(letraGrupoRegular.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
-        boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(letraGrupoRegular.getGrupoHorasExamen(), alumnosOrigen, docentesOrigen, aulas);
-        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(letraGrupoRegular.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
+        boolean validacionCursosMasivos = grupoRegularConnector.validarCursosMasivos(letraGrupoRegular.getGrupoHorasExamen(), docentesOrigen, aulaOrigen, alumnosOrigen);
+        boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(letraGrupoRegular.getGrupoHorasExamen(), alumnosOrigen, docentesOrigen, aulaOrigen);
+        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(letraGrupoRegular.getGrupoHorasExamen(), docentesOrigen, aulaOrigen, alumnosOrigen);
 
         if (validacionCursosMasivos && validacionGruposRegulares && validacionSeccionesEspeciales) {
             SeccionGrupoRegular seccionGrupoRegular = grupoRegularConnector.crearObjectSeccionGrupoRegular(seccion, letraGrupoRegular, ds);
@@ -304,6 +313,7 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
 
         this.rolExamenesLogger.iniciarTrasladoToCursoMasivo();
         boolean validacionCursosMasivos = cursoMasivosService.validateCruceCursosMasivos(seccionCursoMasivoOrigen.getCursoMasivoExamen(), alumnosOrigen, docentesOrigen, aulas);
+        aulas = Arrays.asList(seccion.getAula());
         boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(cursoMasivoExamenDestino.getGrupoHorasExamen(), alumnosOrigen, docentesOrigen, aulas);
         boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(cursoMasivoExamenDestino.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
 
