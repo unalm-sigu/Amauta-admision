@@ -16,6 +16,8 @@ new Vue({
         cantidadInactivoAlumno: 0,
         cantidadActivo: 0,
         cantidadInactivo: 0,
+        cantidadAconsejados: 0,
+        cantidadSinAconsejados: 0,
         estadoConsejero: '',
         ciclo: [],
         carreras: [],
@@ -79,13 +81,15 @@ new Vue({
         },
         filtroConsejeros(estado) {
             let $vue = this;
+            let carrera = $vue.carreraSelect.id;
             $vue.isLoading = true;
             $vue.estadoConsejero = estado;
-            $vue.$refs.raptorConsejero.querie.push({name: 'estado', value: estado});
+            $vue.$refs.raptorConsejero.querie.push({name: 'status', value: estado});
+            $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejero/list/' + carrera);
             $vue.$refs.raptorConsejero.loadRemoteData();
 
 //            let fondoColor = estado === 'ACT' ? 'activos' : 'inactivos';
-            if (estado === 'ACT') {
+            if (estado === 'Habilitado') {
                 $vue.bgColorClass['activos'] = 'bg-light';
                 $vue.bgColorClass['inactivos'] = '';
             } else {
@@ -126,6 +130,8 @@ new Vue({
             let $vue = this;
             let carrera = $vue.carreraSelect.id;
             $vue.$refs.raptorConsejero.querie = [];
+            $vue.bgColorClass['inactivos'] = '';
+            $vue.bgColorClass['activos'] = '';
             $vue.listadoDocentes = '';
             $vue.docenteSelect = '';
             $vue.departamento = '';
@@ -136,11 +142,13 @@ new Vue({
                 //   $vue.$refs.raptorConsejero.loadRemoteData();
             } else {
                 //let carrera = $vue.carreraSelect.nombre;
+                /// pendiente
                 $vue.$refs.raptorConsejero.querie.push({name: 'carrera', value: carrera});
                 $vue.btndisabled = false;
                 $vue.$refs.raptorConsejero.loadRemoteData();
             }
             $vue.cantidadEstado(carrera);
+            $vue.getAconsejados(carrera);
         },
         cantidadEstado(carrera) {
             let $vue = this;
@@ -150,11 +158,23 @@ new Vue({
                 dataType: 'json',
                 type: 'post',
             }).then(response => {
-                $vue.cantidadActivo = response.data.activo;
-                $vue.cantidadInactivo = response.data.inactivo;
+                $vue.cantidadActivo = response.data.activo === "" ? 0 : response.data.activo;
+                $vue.cantidadInactivo = response.data.inactivo === "" ? 0 : response.data.inactivo;
                 this.isLoading = false;
             });
-
+        },
+        getAconsejados(carrera) {
+            let $vue = this;
+//            $.ajax({
+//                url: APP.url("consejeria/consejero/cantidadAconsejados"),
+//                data: {carrera: carrera},
+//                dataType: 'json',
+//                type: 'post',
+//            }).then(response => {
+//                $vue.getAconsejados = response.data.activo;
+//                $vue.cantidadSinAconsejados = response.data.inactivo;
+//                this.isLoading = false;
+//            });
         },
         cambiarEstado(item, estado) {
             let $vue = this;
@@ -175,11 +195,13 @@ new Vue({
                 this.isLoading = false;
                 notify(response.message, 'info');
                 $vue.cantidadEstado(carrera);
+                $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejero/list/' + carrera);
                 $vue.$refs.raptorConsejero.loadRemoteData();
             });
         },
         saveConsejero() {
             let $vue = this;
+
             bootbox.confirm({
                 message: '¿Seguro que desea añadir como Consejero el docente seleccionado?',
                 buttons: {
@@ -210,6 +232,8 @@ new Vue({
                                     $vue.$refs.añadirConsejeroModal.close();
                                     $vue.docenteSelect = '';
                                     $vue.departamento = '';
+                                    $vue.cantidadEstado($vue.carreraSelect.id);
+                                    $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejero/list/' + $vue.carreraSelect.id);
                                     $vue.$refs.raptorConsejero.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
@@ -242,6 +266,7 @@ new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
+                                    $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejero/list/' + carrera);
                                     $vue.$refs.raptorConsejero.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
@@ -276,6 +301,7 @@ new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
+                                    $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejero/list/' + carrera);
                                     $vue.$refs.raptorConsejero.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');

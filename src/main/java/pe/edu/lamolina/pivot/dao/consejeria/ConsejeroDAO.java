@@ -22,7 +22,7 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
     List<Carrera> findAllCarreraByIdDocente(long idDocente);
 
-    ConsejeroEstado findByStateAndCarrera(Long carrera);
+    ConsejeroEstado findByStateCarrera(Long carrera);
 
     List<Consejero> findConsejeroByEstado(Long carrera);
 

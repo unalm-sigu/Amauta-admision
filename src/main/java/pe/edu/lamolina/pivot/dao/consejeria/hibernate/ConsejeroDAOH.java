@@ -37,10 +37,10 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .filter("car.id", carrera)
                 .orderBy("con.id desc");
-        
+
         sql.beginRelativeFilters();
         setCondicion(filter, sql);
-        
+
         return all(sql);
     }
 
@@ -54,20 +54,18 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 continue;
             }
 
+//            if (key.equals("carrera")) {
+//                sql.filter("car.nombre", ACT);
+//            }
+
             if (key.equals("status")) {
                 String values = (String) queries.get(key);
-                if (values.equals("Activo")) {
+                if (values.equals("Habilitado")) {
                     sql.filter("estado", ACT);
+                } else if (values.equals("Inhabilitado")) {
+                    sql.filter("estado", INA);
                 }
             }
-
-            String values = (String) queries.get(key);
-            if (values.equals("ACT")) {
-                sql.filter("estado", ACT);
-            } else if (values.equals("INA")) {
-                sql.filter("estado", INA);
-            }
-            //sql.filter(key, values);
         }
     }
 
@@ -119,7 +117,7 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
-    public ConsejeroEstado findByStateAndCarrera(Long carrera) {
+    public ConsejeroEstado findByStateCarrera(Long carrera) {
         StringBuilder sql = new StringBuilder();
 
         sql.append("select new ").append(ConsejeroEstado.class.getName());

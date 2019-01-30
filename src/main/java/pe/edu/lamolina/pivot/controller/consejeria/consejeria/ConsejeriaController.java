@@ -194,7 +194,7 @@ public class ConsejeriaController {
         try {
 
             System.out.println("Probando : " + carrera);
-            ConsejeroEstado consejeroEstado = service.findConsejeroByStateAndCarrera(carrera);
+            ConsejeroEstado consejeroEstado = service.findConsejeroByStateCarrera(carrera);
             ObjectNode consejeroJson = JsonHelper.createJson(consejeroEstado, JsonNodeFactory.instance, true, new String[]{
                 "*"
             });
@@ -206,6 +206,13 @@ public class ConsejeriaController {
         }
         return json;
     }
+
+//    @ResponseBody
+//    @RequestMapping("cantidadAconsejados")
+//    public JsonResponse cantidadAconsejados(@RequestParam Long carrera, HttpSession session) {
+//
+//        return null;
+//    }
 
     @ResponseBody
     @RequestMapping("asignarAlumno")

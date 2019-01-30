@@ -202,8 +202,8 @@ public class ConsejeroServiceImp implements ConsejeroService {
     }
 
     @Override
-    public ConsejeroEstado findConsejeroByStateAndCarrera(Long carrera) {
-        return consejeroDAO.findByStateAndCarrera(carrera);
+    public ConsejeroEstado findConsejeroByStateCarrera(Long carrera) {
+        return consejeroDAO.findByStateCarrera(carrera);
     }
 
     @Override
