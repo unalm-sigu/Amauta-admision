@@ -36,7 +36,7 @@
                                     </div>
                                 </div>                                   
 
-                                <div class="row" v-if="rolExamenes &amp;&amp; rolExamenes.estado !== 'PUB'">
+                                <div class="row" v-if="agregarCursoDisponible">
                                     <div class="form-group">
                                         <label class="m col-md-2 bold">Cursos</label>
                                         <div class="m-t-md col-md-4">
@@ -154,13 +154,22 @@
                                         <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="glyphicon glyphicon-option-vertical"> </i></a>
 
                                         <ul class="dropdown-menu pull-right" >
-                                            <li><a class=" pointer btn-link bold" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>     
-                                            <li><a class=" pointer btn-link bold" v-on:click="verAsignarHorario(item)">Asignar Horario</a></li>  
+                                            <template v-if="modificarAulaHorarioDisponible">
+                                                <li><a class=" pointer btn-link bold" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>     
+                                                <li><a class=" pointer btn-link bold" v-on:click="verAsignarHorario(item)">Asignar Horario</a></li>  
+                                            </template>
+                                            <template v-else="">
+                                                <li><a class=" pointer btn-link bold" v-on:click="verAsignarAulas(item)">Aulas</a></li>     
+                                                <li><a class=" pointer btn-link bold" v-on:click="verAsignarHorario(item)">Horario</a></li>  
+                                            </template>
                                             <li><a class=" pointer btn-link bold" v-on:click="cursoMasivoSecciones(item)"  >Secciones</a></li>   
-                                            <li class="divider"></li>     
-                                            <li><a class=" pointer bold" v-on:click="excluir(item,tipoAccion.CURSO)"  >Excluir</a></li>
-                                            <li><a class=" pointer bold" v-on:click="incluir(item,tipoAccion.CURSO)"  >Incluir</a></li>
-                                            <li><a class=" pointer bold" v-on:click="eliminar(item)">Eliminar</a></li>
+                                            <template v-if="incluirExcluirMoverDisponible">
+                                                <li class="divider"></li>     
+                                                <li><a class=" pointer bold" v-on:click="excluir(item,tipoAccion.CURSO)"  >Excluir</a></li>
+                                                <li><a class=" pointer bold" v-on:click="incluir(item,tipoAccion.CURSO)"  >Incluir</a></li>
+                                                <li><a class=" pointer bold" v-on:click="eliminar(item)">Eliminar</a></li>
+                                            </template>
+
                                         </ul>
                                     </div>
                                 </td>

@@ -15,12 +15,22 @@ new Vue({
     mounted() {
         this.loadModalSecciones(this.letraGrupoRegular);
     },
+    computed: {
+        accionesDisponibles() {
+            try {
+                const rolExamenes = this.letraGrupoRegular.rolExamenes;
+                return (rolExamenes.isEstadoConfigurando || rolExamenes.isEstadoModificando);
+            } catch (error) {
+                return false;
+            }
+        }
+    },
     methods: {
         loadModalSecciones(letraGrupoRegular) {
             this.letraSelected = letraGrupoRegular;
             this.$refs.tblSeccionesGrupoRegular.ajaxdata = {letraGrupoRegular: letraGrupoRegular.id};
             this.$refs.tblSeccionesGrupoRegular.loadRemoteData();
-        }, 
+        },
         excluir(obj, tipoAccion) {
             let vue = this;
             bootbox.confirm({

@@ -32,7 +32,7 @@
                                                 >
                                             </multiselect>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-4" v-if="calcularDisponible">
                                             <a class="btn btn-success"
                                                v-on:click.prevent="calcularGrupoEspecial">
                                                 Calcular
@@ -46,7 +46,6 @@
 
                     <section class="panel">
                         <section class="panel-body">
-                            <div class="row">
 
                                 <raptor-table v-bind:url="`${URL}/listGruposEspeciales`" v-bind:preload="false" ref="raptor">
                                     <template scope="props">
@@ -58,9 +57,8 @@
                                                     <th class="col-md-2 text-center">Docente</th>
                                                     <th class="col-md-1 text-center">Aula</th>
                                                     <th class="col-md-1 text-center">Alumnos</th>
-                                                    <th class="col-md-2 text-center">Registro</th>
                                                     <th class="col-md-1 text-center">Estado</th>
-                                                    <th  class="col-md-1 text-center"></th>
+                                                    <th class="col-md-1 text-center" v-if="accionesSeccionDisponibles"></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -96,22 +94,18 @@
                                                               v-on:click.prevent="loadModalAlumnos(item)"
                                                               v-text="item.alumnosEspecialesActivosCount"></span>
                                                     </td>
-                                                    <td>    
-                                                        <span class="block" v-text="item.userRegistro.persona.apellidosNombres"></span>
-                                                        <small class="block" v-text="item.fechaRegistro"></small>
-                                                    </td>
                                                     <td class="text-center">
                                             <v-estado v-bind:codigo="item.estado" v-bind:valor="item.estadoEnum.value"/> 
                                             </td>
-                                            <td class="v-middle">
+                                            <td class="v-middle" v-if="accionesSeccionDisponibles">
                                                 <div class="dropdown actions" >
                                                     <a class="dropdown-toggle" data-toggle="dropdown">
                                                         <i class="glyphicon glyphicon-option-vertical"></i>
                                                     </a> 
                                                     <ul class="dropdown-menu pull-right">
-                                                        <li><a v-on:click.prevent="excluir(item,tipoAccion.SECCION)">Excluir</a></li>
-                                                        <li><a v-on:click.prevent="incluir(item,tipoAccion.SECCION)">Incluir</a></li>
-                                                        <li><a v-if="item.isEstadoActivo"  v-on:click.prevent="trasladar(item)">Mover</a></li>
+                                                        <li><a class="pointer" v-on:click.prevent="excluir(item,tipoAccion.SECCION)">Excluir</a></li>
+                                                        <li><a class="pointer" v-on:click.prevent="incluir(item,tipoAccion.SECCION)">Incluir</a></li>
+                                                        <li><a class="pointer" v-if="item.isEstadoActivo"  v-on:click.prevent="trasladar(item)">Mover</a></li>
                                                     </ul>
                                                 </div>
                                             </td>
@@ -121,7 +115,6 @@
                                     </template>
                                 </raptor-table>
 
-                            </div>
 
                         </section>
                     </section>

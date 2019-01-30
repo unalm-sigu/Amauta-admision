@@ -90,7 +90,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
     @Override
     @Transactional
     public void save(RolExamenes rolExamenes, DataSessionPivot ds) {
-        Assert.isTrue(rolExamenes.isSituacionConfigurarRol(), "No puede grabar en este momento.");
+        Assert.isTrue(rolExamenes.getId() == null || rolExamenes.isSituacionConfigurarRol(), "No puede grabar en este momento.");
         rolExamenes.setEstadoEnum(RolExamenesEstadoEnum.CRE);
         rolExamenes.setFechaRegistro(new Date());
         rolExamenes.setUserRegistro(ds.getUsuario());

@@ -48,11 +48,10 @@
                                                 </td>
 
                                                 <td class="v-middle text-center"> 
-                                                    <span style="display: none">{{item.situacion}}    </span>
-                                                    <span v-if="item.estado=='INA'" class="label label-danger" >Inactivo</span>
-                                                    <span v-if="item.estado=='ACT'" class="label label-primary" >Activo</span>
-                                                    <span v-if="item.estado=='CRE'" class="label label-default" >Creado</span>
-                                                    <span v-if="item.estado=='PUB'" class="label label-primary" >Publicado</span>
+                                                    <span v-if="item.isEstadoCreado" class="label label-default"> {{ item.estadoEnum.value }} </span>
+                                                    <span v-if="item.isEstadoModificando || item.isEstadoConfigurando" class="label label-warning"> {{ item.estadoEnum.value }}</span>
+                                                    <span v-if="item.isEstadoPublicado" class="label label-primary" > {{ item.estadoEnum.value }}</span>
+                                                    <span v-if="item.isEstadoCerrado" class="label label-success" > {{ item.estadoEnum.value }}</span>
                                                 </td>
                                                 <td>
 
@@ -103,17 +102,19 @@
                                                                     Configurar Secciones Especiales
                                                                 </a>
                                                             </li>
-                                                            <li class="divider"></li>  
-                                                            <li>
-                                                                <a v-bind:href="`/rolexamen/reporte/${item.id}/examenes`">
-                                                                    Reporte de Examenes
-                                                                </a> 
-                                                            </li>
-                                                            <li>
-                                                                <a v-bind:href="`/rolexamen/reporte/${item.id}/aulas`">
-                                                                    Reporte de Aulas
-                                                                </a>
-                                                            </li>
+                                                            <template v-if="item.isEstadoPublicado || item.isEstadoModificando || item.isEstadoCerrado">
+                                                                <li class="divider"></li>  
+                                                                <li>
+                                                                    <a v-bind:href="`/rolexamen/reporte/${item.id}/examenes`">
+                                                                        Reporte de Examenes
+                                                                    </a> 
+                                                                </li>
+                                                                <li>
+                                                                    <a v-bind:href="`/rolexamen/reporte/${item.id}/aulas`">
+                                                                        Reporte de Aulas
+                                                                    </a>
+                                                                </li>
+                                                            </template>
                                                             <li class="divider"></li> 
                                                             <li>
                                                                 <a v-on:click.prevent="eliminarAvanceConfiguracion(item)">
@@ -142,7 +143,7 @@
                         <form  id="formEvento"  data-parsley-validate="true">
                             <div class="form-group">
                                 <label> Evento Ciclo Académico </label>
-                                <div v-if="rolExamenes.estado !== 'PUB'">
+                                <div v-if="!rolExamenes.id || rolExamenes.isSituacionConfiguraRol">
                                     <multiselect v-model='rolExamenes.eventoCicloAcademico'                                                 
                                                  v-bind:custom-label="eventoAcademicoCustomLabel"
                                                  v-on:input="changeEventoCicloAcademico"
@@ -155,14 +156,14 @@
                                     </multiselect>
                                 </div>
                                 <div v-else="">
-                                    <input class="form-control" required="true" v-model="rolExamenes.eventoCicloAcademico.eventoAcademico.nombre" v-bind:readonly="rolExamenes.estado === 'PUB'"/>
+                                    <input class="form-control" required="true" v-model="rolExamenes.eventoCicloAcademico.eventoAcademico.nombre" v-bind:readonly="!rolExamenes.isSituacionConfigurarRol"/>
                                 </div>
                                 <input type="text" class="hide" required="" v-model="rolExamenes.eventoCicloAcademico.id"/>
                             </div>
 
                             <div class="form-group" >
                                 <label  class="control-label">Nombre</label>
-                                <input class="form-control" required="true" v-model="rolExamenes.nombre" v-bind:readonly="rolExamenes.estado === 'PUB'"/>
+                                <input class="form-control" required="true" v-model="rolExamenes.nombre" v-bind:readonly="!rolExamenes.isSituacionConfigurarRol"/>
                             </div>
 
                             <div class="row">
@@ -211,7 +212,7 @@
                                                     <span v-text="semana.fechaFin"></span>
                                                 </td>
                                                 <td class="v-middle text-center"> 
-                                                    <div v-if="rolExamenes.estado !== 'PUB'">
+                                                    <div v-if="!rolExamenes.id || rolExamenes.isSituacionConfigurarRol">
                                                         <multiselect 
                                                             v-model="semana.horaInicio"
                                                             placeholder=""
@@ -235,7 +236,7 @@
 
                                                 </td>
                                                 <td class="v-middle text-center"> 
-                                                    <div v-if="rolExamenes.estado !== 'PUB'">
+                                                    <div v-if="!rolExamenes.id ||rolExamenes.isSituacionConfiguraRol">
                                                         <multiselect 
                                                             v-model="semana.horaFin"
                                                             placeholder=""
