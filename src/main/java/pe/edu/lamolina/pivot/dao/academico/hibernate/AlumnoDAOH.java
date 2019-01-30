@@ -689,4 +689,17 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         return all(sql);
     }
 
+    @Override
+    public List<Alumno> findAconsejadosByCarrera(Long carrera, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query().selectDistinct("alu")
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "alu.modalidadEstudio me", "cicloAcademico ci", "alu.situacionAcademica sa")
+                .join("alu.consejero conse", "alu.carrera car")
+                .filter("ci.id", ciclo)
+                .isNotNull("conse.id")
+                .in("mr.estado", Arrays.asList(NMAT, MAT))      
+                .filter("car.id", carrera);
+        return all(sql);
+    }
+
 }
