@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -55,15 +56,18 @@ public class ConsejeriaController {
     }
 
     @ResponseBody
-    @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
+    @RequestMapping("list/{carrera}")
+    public DynatableResponse list(
+            @PathVariable("carrera") Long idCarrera,
+            DynatableFilter filter, HttpSession session, HttpServletRequest request) {
 
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
 
-            List<Consejero> consejeros = service.allConsejerosbyDynatableCarrera(filter);
+            Carrera carrera = new Carrera(idCarrera);
+            List<Consejero> consejeros = service.allByCarreraDynatable(carrera, filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 

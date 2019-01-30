@@ -58,7 +58,7 @@
                     <section class="wrapper-lg">
                         <section class="panel">
                             <section class="panel-body">
-                                <raptor-table v-bind:url="consjerosURL" v-bind:preload="false" ref="load">      
+                                <raptor-table v-bind:url="consjerosURL" v-bind:preload="false" ref="raptorConsejero">      
                                     <div slot="header">
                                         <div class="col-md-10 preguntas-col">
                                             <div class="row">
@@ -68,6 +68,8 @@
                                                                  label='nombre'
                                                                  track-by='id'
                                                                  placeholder="Seleccione una carrera"
+                                                                 deselect-label=""
+                                                                 select-label=""
                                                                  v-bind:allow-empty="false"
                                                                  v-bind:preselect="false"
                                                                  v-on:input="cargaConsejeros">

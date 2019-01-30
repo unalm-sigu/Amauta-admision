@@ -52,9 +52,8 @@
                                 <raptor-table v-bind:url="aconsejadosURL" v-bind:preload="false" ref="load">      
                                     <div slot="header">
                                         <div class="col-md-8 preguntas-col">
-                                            <small>Carreras </small>
                                             <div class="row">
-                                                <div class="col-md-8" >
+                                                <div class="col-md-6" >
                                                     <multiselect v-model="carreraSelect" 
                                                                  v-bind:options='carreras'
                                                                  label='nombre'
@@ -64,6 +63,26 @@
                                                                  v-on:select="cargaAconsejados">
                                                     </multiselect>
                                                 </div>
+                                                <div v-if='carreraSelect.id != null'>
+                                                    <div  class="col-md-2 text-center" v-bind:class="bgColorClass['activo']">
+                                                        <a  v-on:click="findAconsejado('activo')" class="text-success pointer" >
+                                                            <span class="h2 bold" v-text="count.activos"></span>
+                                                            <small class="block m-b-xs">Activos</small>
+                                                        </a>
+                                                    </div>
+                                                    <div  class="col-md-2 text-center" v-bind:class="bgColorClass['sinconsejero']">
+                                                        <a v-on:click="findAconsejado('sinconsejero')" class="text-black pointer" >
+                                                            <span class="h2 bold" v-text="count.sinConsejero"></span>
+                                                            <small class="block m-b-xs">Sin Consejeros</small>
+                                                        </a>
+                                                    </div>
+                                                    <div  class="col-md-2 text-center" >
+                                                        <a  class="text-primary pointer" >
+                                                            <span class="h2 bold" v-text="count.sinAsignar"></span>
+                                                            <small class="block m-b-xs">SinAsignar</small>
+                                                        </a>
+                                                    </div>
+                                                </div> 
                                             </div>
                                         </div>
                                     </div>
