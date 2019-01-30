@@ -36,7 +36,7 @@ new Vue({
                 eventoCicloAcademico: {},
                 semanasExamen: []
             };
-            this.confirmarModal.title = 'Crear Nuevo Rol Examen';
+            this.confirmarModal.title = 'Crear nuevo rol de examen';
             this.$refs.modalConfirmar.open();
 
         },
@@ -53,7 +53,7 @@ new Vue({
             }).then(response => {
                 if (response.success) {
                     $vue.rolExamenes = response.data;
-                    $vue.confirmarModal.title = 'Editar Rol Examen';
+                    $vue.confirmarModal.title = 'Editar rol de examenes';
                     $vue.$refs.modalConfirmar.open();
                 } else {
                     notify(response.message, 'error');
@@ -135,7 +135,7 @@ new Vue({
         }, eliminarAvanceConfiguracion(rolExamen) {
             let $vue = this;
             bootbox.confirm({
-                message: '¿Está seguro que desea eliminar la configuracion del rol examene?',
+                message: '¿Está seguro que desea eliminar la configuracion del rol examenes?',
                 buttons: {
                     confirm: {label: 'Si, eliminar', className: 'btn-success'},
                     cancel: {label: 'No', className: 'btn-link'}
@@ -148,6 +148,37 @@ new Vue({
                             contentType: "application/json",
                             url: APP.url("rolexamen/rolexamenes/eliminarconfiguracion"),
                             data: JSON.stringify(rolExamen)
+                        }).then(response => {
+                            if (response.success) {
+                                $vue.$refs.raptorRolExamenes.loadRemoteData();
+                                notify(response.message, "info")
+                            } else {
+                                notify(response.message, 'error');
+                            }
+                            MODAL.hideWait();
+                        }, error => {
+                            notify(MESSAGES.errorComunicacion, 'error');
+                        });
+                    }
+                }
+            });
+        },
+        fijarHorarioAula(rolExamen) {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea fijar el horario del aula?',
+                buttons: {
+                    confirm: {label: 'Si, fijar horario aula', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: "POST",
+                            contentType: "application/json",
+                            url: APP.url("rolexamen/rolexamenes/fijarhorarioaula"),
+                            data: {id:rolExamen.id}
                         }).then(response => {
                             if (response.success) {
                                 $vue.$refs.raptorRolExamenes.loadRemoteData();

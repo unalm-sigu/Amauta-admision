@@ -19,6 +19,15 @@ new Vue({
             this.changeRolExamen();
         }
     },
+    computed: {
+        calcularDisponible() {
+            return this.rolExamen && this.rolExamen.isEstadoConfigurando && (this.rolExamen.isSituacionAsignarHorarioCursosMasivos || this.rolExamen.isSituacionConfigurarGrupoEspecial);
+        },
+        accionesSeccionDisponibles() {
+            const situacionValida = this.rolExamen && this.rolExamen.isSituacionConfigurarGrupoEspecial;
+            return this.rolExamen && ((this.rolExamen.isEstadoConfigurando && situacionValida) || this.rolExamen.isEstadoModificando)
+        }
+    },
     methods: {
         rolExamenCustomLabel( { eventoCicloAcademico }) {
             if (eventoCicloAcademico == null || eventoCicloAcademico.eventoAcademico == null) {

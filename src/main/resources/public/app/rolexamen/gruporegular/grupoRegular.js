@@ -18,6 +18,13 @@ new Vue({
         gruposRegulares: [],
         alumnosGruposRegulares: []
     },
+    computed: {
+        generarDisponible() {
+            console.log(this.rolExamen.estado);
+            console.log(this.rolExamen.situacion);
+            return this.rolExamen && this.rolExamen.isEstadoConfigurando && (this.rolExamen.isSituacionConfigurarHorario  || this.rolExamen.isSituacionConfigurarCursoMasivo || this.rolExamen.isSituacionConfiguraGrupoRegular);
+        }
+    },
     mounted() {
         if (jRolExamenes != null) {
             this.rolExamen = JSON.parse(jRolExamenes);
