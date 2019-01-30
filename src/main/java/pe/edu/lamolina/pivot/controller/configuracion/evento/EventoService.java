@@ -7,5 +7,4 @@ public interface EventoService {
 
     EventoCiclo findEventoExamen(CicloPostula ciclo);
 
-
 }

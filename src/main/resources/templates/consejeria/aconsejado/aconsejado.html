@@ -92,9 +92,9 @@
                                                 <tr>
                                                     <th class="col-md-4 text-center v-middle"  colspan="2"></th>
                                                     <th class="col-md-3 v-middle"></th>
-                                                    <th class="col-md-4 v-middle"><span>Consejero</span></th>
-                                                    <th class="col-md-1 v-middle"><span>Estado Matricula</span></th>
-                                                    <th class="col-md-1 v-middle"></th>
+                                                    <th class="col-md-3 v-middle"><span>Consejero</span></th>
+                                                    <th class="col-md-2 v-middle"><span>Estado Matricula</span></th>
+                                                    <th ></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -160,7 +160,8 @@
                                                         <span  v-text="item.fechaAsigna"></span>
                                                     </td>
                                                     <td class="v-middle">
-                                                        <span  v-text="item.estadoMatriculable"></span>
+                                                        <span v-if="item.estadoMatriculableEnum.name == 'MAT'" v-text="item.estadoMatriculableEnum.value" class="label label-primary"></span>
+                                                        <span v-else="" v-text="item.estadoMatriculableEnum.value" class="label label-danger"></span>
                                                     </td>
                                                     <td class="v-middle">
                                                         <div class="dropdown actions">

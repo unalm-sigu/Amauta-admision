@@ -49,9 +49,29 @@
                     <section class="wrapper-lg">
                         <section class="panel">
                             <section class="panel-body">
-                                <raptor-table v-bind:url="aconsejadosURL" v-bind:preload="false" ref="load">      
+                                <raptor-table v-bind:url="aconsejadosURL" v-bind:preload="true" ref="load">      
                                     <div slot="header">
                                         <div class="col-md-8 preguntas-col">
+                                            <div >
+                                                <div  class="col-md-2 text-center" v-bind:class="bgColorClass['matriculado']">
+                                                    <a  v-on:click="findAconsejado('matriculado')" class="text-success pointer" >
+                                                        <span class="h2 bold" v-text="count.matriculados"></span>
+                                                        <small class="block m-b-xs">Matriculados</small>
+                                                    </a>
+                                                </div>
+                                                <div  class="col-md-2 text-center" v-bind:class="bgColorClass['noMatriculado']">
+                                                    <a v-on:click="findAconsejado('noMatriculado')" class="text-black pointer" >
+                                                        <span class="h2 bold" v-text="count.noMatriculados"></span>
+                                                        <small class="block m-b-xs">No Matriculados</small>
+                                                    </a>
+                                                </div>
+                                                <div  class="col-md-2 text-center"  v-bind:class="bgColorClass['retirado']" >
+                                                    <a  v-on:click="findAconsejado('retirado')" class="text-primary pointer" >
+                                                        <span class="h2 bold" v-text="count.retiroCiclo"></span>
+                                                        <small class="block m-b-xs">Retirado Ciclo</small>
+                                                    </a>
+                                                </div>
+                                            </div> 
                                         </div>
                                     </div>
                                     <template scope="props" >
@@ -121,7 +141,8 @@
                                                         </span>
                                                     </td>
                                                     <td class="v-middle">
-                                                        <span  v-text="item.estadoMatriculable"></span>
+                                                        <span v-if="item.estadoMatriculableEnum.name == 'MAT'" v-text="item.estadoMatriculableEnum.value" class="label label-primary"></span>
+                                                        <span v-else="" v-text="item.estadoMatriculableEnum.value" class="label label-danger"></span>
                                                     </td>
                                                     <td class="v-middle">
                                                         <div class="dropdown actions">
@@ -152,7 +173,6 @@
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
-                var carrerasJson = /*[[${carreras}]]*/ 'json';
                 /*]]>*/
             </script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>

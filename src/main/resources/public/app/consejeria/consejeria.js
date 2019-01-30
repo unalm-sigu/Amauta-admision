@@ -4,7 +4,7 @@ new Vue({
     el: '#consejeriaVUE',
     data: {
         bgColorClass: {activos: '', inactivos: ''},
-        consjerosURL: APP.url('consejeria/consejero/list'),
+        consjerosURL: APP.url('consejeria/consejeros/list'),
         añadirConsejeroModal: {
             id: 'añadirConsejeroModal',
             header: 'true',
@@ -85,7 +85,7 @@ new Vue({
             $vue.isLoading = true;
             $vue.estadoConsejero = estado;
             $vue.$refs.raptorConsejero.querie.push({name: 'status', value: estado});
-            $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejero/list/' + carrera);
+            $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejeros/list/' + carrera);
             $vue.$refs.raptorConsejero.loadRemoteData();
 
 //            let fondoColor = estado === 'ACT' ? 'activos' : 'inactivos';
@@ -103,7 +103,7 @@ new Vue({
             let idfacultad = $vue.carreraSelect.facultad.id;
             $vue.isLoading = true;
             $.ajax({
-                url: APP.url("consejeria/consejero/listDocente"),
+                url: APP.url("consejeria/consejeros/listDocente"),
                 data: {nombre: nombreDoc, idFacultad: idfacultad},
                 dataType: 'json',
                 type: 'post',
@@ -135,7 +135,7 @@ new Vue({
             $vue.listadoDocentes = '';
             $vue.docenteSelect = '';
             $vue.departamento = '';
-            $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejero/list/' + carrera);
+            $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejeros/list/' + carrera);
 
             if ($vue.carreraSelect === null) {
                 $vue.btndisabled = true;
@@ -153,7 +153,7 @@ new Vue({
         cantidadEstado(carrera) {
             let $vue = this;
             $.ajax({
-                url: APP.url("consejeria/consejero/filtroEstado"),
+                url: APP.url("consejeria/consejeros/filtroEstado"),
                 data: {carrera: carrera},
                 dataType: 'json',
                 type: 'post',
@@ -185,7 +185,7 @@ new Vue({
             //alert(JSON.stringify(item));
             $.ajax({
                 method: 'POST',
-                url: APP.url("consejeria/consejero/cambiarEstado"),
+                url: APP.url("consejeria/consejeros/cambiarEstado"),
                 data: JSON.stringify({
                     id: consejero.id,
                     estado: estado
@@ -195,7 +195,7 @@ new Vue({
                 this.isLoading = false;
                 notify(response.message, 'info');
                 $vue.cantidadEstado(carrera);
-                $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejero/list/' + carrera);
+                $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejeros/list/' + carrera);
                 $vue.$refs.raptorConsejero.loadRemoteData();
             });
         },
@@ -212,7 +212,7 @@ new Vue({
                     if (result) {
                         $.ajax({
                             method: 'POST',
-                            url: APP.url("consejeria/consejero/saveConsejero"),
+                            url: APP.url("consejeria/consejeros/saveConsejero"),
                             data: JSON.stringify({
                                 estado: $vue.docenteResquest.estado,
                                 persona: {id: $vue.docenteResquest.idPersona
@@ -233,7 +233,7 @@ new Vue({
                                     $vue.docenteSelect = '';
                                     $vue.departamento = '';
                                     $vue.cantidadEstado($vue.carreraSelect.id);
-                                    $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejero/list/' + $vue.carreraSelect.id);
+                                    $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejeros/list/' + $vue.carreraSelect.id);
                                     $vue.$refs.raptorConsejero.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
@@ -260,13 +260,13 @@ new Vue({
                     if (result) {
                         $.ajax({
                             method: 'POST',
-                            url: APP.url("consejeria/consejero/asignarAlumno"),
+                            url: APP.url("consejeria/consejeros/asignarAlumno"),
                             data: {carrera: carrera},
                             dataType: 'json',
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
-                                    $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejero/list/' + carrera);
+                                    $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejeros/list/' + carrera);
                                     $vue.$refs.raptorConsejero.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
@@ -295,13 +295,13 @@ new Vue({
                     if (result) {
                         $.ajax({
                             method: 'POST',
-                            url: APP.url("consejeria/consejero/desasignarAlumno"),
+                            url: APP.url("consejeria/consejeros/desasignarAlumno"),
                             data: {carrera: carrera},
                             dataType: 'json',
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
-                                    $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejero/list/' + carrera);
+                                    $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejeros/list/' + carrera);
                                     $vue.$refs.raptorConsejero.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
