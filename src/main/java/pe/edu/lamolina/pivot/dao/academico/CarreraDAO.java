@@ -60,10 +60,10 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
 
     List<Carrera> allPregradoByCicloMatriculables(CicloAcademico ciclo);
 
-    List<Carrera> allByIdFacultad(List<Facultad> facultades, CicloAcademico ciclo);
+    List<Carrera> allByMatriculablesCicloFacultades(List<Facultad> facultades, CicloAcademico ciclo);
 
     List<Carrera> allByCarreras(List<Carrera> carreras);
 
-    List<Carrera> allByIdAndCiclo(List<Carrera> carreras, CicloAcademico ciclo);
+    List<Carrera> allByMatriculablesCicloCarreras(List<Carrera> carreras, CicloAcademico ciclo);
 
 }

@@ -118,7 +118,7 @@ new Vue({
         }, trasladar(item) {
             this.$refs.moverSeccionComp.seccion = item.seccion;
             this.$refs.moverSeccionComp.tipoorigen = "GRU_ESP";
-            this.$refs.moverSeccionComp.loadComponent();
+            this.$refs.moverSeccionComp.loadComponent(this.rolExamen);
             this.$refs.moverSeccionModal.open();
         }
     }

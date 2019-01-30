@@ -29,15 +29,18 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
-    public List<Consejero> allByCarreraDynatable(DynatableFilter filter) {
+    public List<Consejero> allByCarreraDynatable(Carrera carrera, DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Consejero.class, "con")
                 .join("carrera car", "colaborador col", "col.persona per", "per.docente doc")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .filter("car.id", carrera)
                 .orderBy("con.id desc");
+
         sql.beginRelativeFilters();
         setCondicion(filter, sql);
+
         return all(sql);
     }
 
@@ -51,13 +54,18 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 continue;
             }
 
-            String values = (String) queries.get(key);
-            if (values.equals("ACT")) {
-                sql.filter("estado", ACT);
-            } else if (values.equals("INA")) {
-                sql.filter("estado", INA);
+//            if (key.equals("carrera")) {
+//                sql.filter("car.nombre", ACT);
+//            }
+
+            if (key.equals("status")) {
+                String values = (String) queries.get(key);
+                if (values.equals("Habilitado")) {
+                    sql.filter("estado", ACT);
+                } else if (values.equals("Inhabilitado")) {
+                    sql.filter("estado", INA);
+                }
             }
-            sql.filter(key, values);
         }
     }
 

@@ -16,8 +16,6 @@ public interface SeccionCursoMasivoDAO extends EasyDAO<SeccionCursoMasivo> {
 
     void deleteByCursoMasivo(CursoMasivoExamen cursoMasivoExamen);
 
-    SeccionCursoMasivo findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... estado);
-
     List<SeccionCursoMasivo> allByCursosMasivos(List<CursoMasivoExamen> cursosMasivos);
 
     List<SeccionCursoMasivo> allSeccionByCursoMasivo(CursoMasivoExamen cursosMasivo);
@@ -39,5 +37,8 @@ public interface SeccionCursoMasivoDAO extends EasyDAO<SeccionCursoMasivo> {
     Integer countDocenteByCursoMasivo(Docente docente, CursoMasivoExamen cursoMasivoExamen, SeccionRolExamenEstadoEnum... estados);
 
     List<SeccionCursoMasivo> allByDocenteAndEstados(Docente docente, SeccionRolExamenEstadoEnum... estados);
-    public List<SeccionCursoMasivo> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes);
+    
+    List<SeccionCursoMasivo> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes);
+
+    SeccionCursoMasivo findByRolExamenesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnum);
 }

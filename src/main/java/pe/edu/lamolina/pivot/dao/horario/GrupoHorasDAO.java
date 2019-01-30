@@ -10,7 +10,6 @@ import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
-import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 
 public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
@@ -49,5 +48,9 @@ public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
             Integer horasForDay);
 
     List<GrupoHoras> allByLetrasAndTipoGrupoHoras(List<String> letras, TipoSeccionEnum tipoSeccionEnum, TipoGrupoHorasEnum tipoGrupoHorasEnum);
+
+    List<GrupoHoras> allByTipoCiclo(TipoCicloEnum tipoCiclo);
+
+    List<GrupoHoras> allByTipoCiclo(String tipoCiclo);
 
 }

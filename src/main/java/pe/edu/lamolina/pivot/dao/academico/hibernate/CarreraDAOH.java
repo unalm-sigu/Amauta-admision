@@ -327,7 +327,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
-    public List<Carrera> allByIdFacultad(List<Facultad> facultades, CicloAcademico ciclo) {
+    public List<Carrera> allByMatriculablesCicloFacultades(List<Facultad> facultades, CicloAcademico ciclo) {
 
         Octavia sql = Octavia.query()
                 .selectDistinct("carr")
@@ -355,7 +355,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
-    public List<Carrera> allByIdAndCiclo(List<Carrera> carreras, CicloAcademico ciclo) {
+    public List<Carrera> allByMatriculablesCicloCarreras(List<Carrera> carreras, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .selectDistinct("carr")
                 .from(MatriculaResumen.class, "mr")

@@ -57,7 +57,7 @@
                                                 <th class="col-md-2">Docente</th>
                                                 <th class="col-md-3 text-center">Aula</th>
                                                 <th class="col-md-1 text-center">Estado</th>
-                                                <th class="text-center"></th>
+                                                <th class="text-center" v-if="accionesDisponibles"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -83,16 +83,15 @@
                                                         <v-estado v-bind:codigo="sec.estado" v-bind:valor="sec.estadoEnum.value"/> 
                                                     </div>
                                                 </td>
-                                                <td class="v-middle">
+                                                <td class="v-middle" v-if="accionesDisponibles">
                                                     <div class="dropdown actions pointer">
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
                                                             <i class="glyphicon glyphicon-option-vertical"></i>
                                                         </a> 
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li><a v-on:click.prevent="excluir(sec,tipoAccion.SECCION)">Excluir</a></li>
-                                                            <li><a v-on:click.prevent="incluir(sec,tipoAccion.SECCION)">Incluir</a></li>
-                                                            <li class="divider"></li> 
-                                                            <li><a v-if="sec.isEstadoActivo"  v-on:click.prevent="trasladar(sec)">Mover</a></li>
+                                                            <li v-if="sec.isEstadoActivo"><a v-on:click.prevent="excluir(sec,tipoAccion.SECCION)">Excluir</a></li>
+                                                            <li v-if="sec.isEstadoExcluido"><a v-on:click.prevent="incluir(sec,tipoAccion.SECCION)">Incluir</a></li>
+                                                            <li v-if="sec.isEstadoActivo"><a  v-on:click.prevent="trasladar(sec)">Mover</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>

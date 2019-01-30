@@ -36,7 +36,7 @@ public interface ConsejeriaService {
 
     Carrera findbByNombre(Long idcarrera);
 
-    List<Consejero> allConsejerosbyDynatableCarrera(DynatableFilter filter);
+    List<Consejero> allByCarreraDynatable(Carrera carrera, DynatableFilter filter);
 
     List<DepartamentoAcademico> allDeptByIdFacultad(String facultadid);
 
@@ -57,7 +57,7 @@ public interface ConsejeriaService {
     void asignarAlumnosAleatorio(Long carrera, DataSessionPivot ds);
 
     void desasignarAlumnos(Long carrera, DataSessionPivot ds);
-    
+
     List<Consejero> allByCarrera(String nombre, Carrera carrera);
 
 }
