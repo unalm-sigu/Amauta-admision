@@ -178,7 +178,7 @@ new Vue({
                             method: "POST",
                             contentType: "application/json",
                             url: APP.url("rolexamen/rolexamenes/fijarhorarioaula"),
-                            data: {id:rolExamen.id}
+                            data: {id: rolExamen.id}
                         }).then(response => {
                             if (response.success) {
                                 $vue.$refs.raptorRolExamenes.loadRemoteData();
@@ -193,6 +193,61 @@ new Vue({
                     }
                 }
             });
+        },
+        cerrarRolExamenes: function (rolExamenes) {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea cerrar el rol de exámenes?',
+                buttons: {
+                    confirm: {label: 'Sí, cerrar', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $vue.cerrar(rolExamenes);
+                    }
+                }
+            });
+
+        },
+        cerrar: async function (rolExamenes) {
+            try {
+                const response = await AXIOS.post('/rolexamen/rolexamenes/cerrar', rolExamenes);
+                const {data} = response;
+                if (data.success) {
+                    this.$refs.raptorRolExamenes.loadRemoteData();
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        modificarRolExamenes: function (rolExamenes) {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea modificar el rol de exámenes?',
+                buttons: {
+                    confirm: {label: 'Sí, seguro', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $vue.modificar(rolExamenes);
+                    }
+                }
+            });
+
+        },
+        modificar: async function (rolExamenes) {
+            try {
+                const response = await AXIOS.post('/rolexamen/rolexamenes/modificar', rolExamenes);
+                const {data} = response;
+                if (data.success) {
+                    this.$refs.raptorRolExamenes.loadRemoteData();
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }
+
     }
 });

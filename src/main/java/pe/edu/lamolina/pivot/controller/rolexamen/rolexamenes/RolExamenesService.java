@@ -30,5 +30,9 @@ public interface RolExamenesService {
     void eliminarConfiguracion(RolExamenes rolExamenes, DataSessionPivot ds);
 
     void fijarHorarioAula(RolExamenes rolExamenes, DataSessionPivot ds);
+    
+    void cerrar(RolExamenes rolExamenes, DataSessionPivot ds);
+    
+    void modificar(RolExamenes rolExamenes, DataSessionPivot ds);
 
 }

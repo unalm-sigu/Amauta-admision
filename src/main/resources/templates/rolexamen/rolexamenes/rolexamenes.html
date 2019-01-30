@@ -75,7 +75,7 @@
                                                             <li>
                                                                 <a href="#" 
                                                                    v-on:click.prevent="publicarRolExamen(item)"
-                                                                   v-if="item.isSituacionConfigurarGrupoEspecial"
+                                                                   v-if="item.isSituacionConfigurarGrupoEspecial &amp;&amp; (item.isEstadoModificando || item.isEstadoConfigurando)"
                                                                    >
                                                                     Publicar
                                                                 </a> 
@@ -128,12 +128,27 @@
                                                                     </a>
                                                                 </li>
                                                             </template>
-                                                            <li class="divider"></li> 
-                                                            <li>
-                                                                <a v-on:click.prevent="eliminarAvanceConfiguracion(item)">
-                                                                    Eliminar Configuración
-                                                                </a>
-                                                            </li>
+                                                            <template v-if="item.isEstadoConfigurando">
+                                                                <li class="divider"></li> 
+                                                                <li>
+                                                                    <a v-on:click.prevent="eliminarAvanceConfiguracion(item)">
+                                                                        Eliminar Configuración
+                                                                    </a>
+                                                                </li>
+                                                            </template>
+                                                            <template v-if="item.isEstadoPublicado">
+                                                                <li class="divider"></li> 
+                                                                <li>
+                                                                    <a href="#" v-on:click.prevent="modificarRolExamenes(item)">
+                                                                        Modificar
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#" v-on:click.prevent="cerrarRolExamenes(item)">
+                                                                        Cerrar
+                                                                    </a>
+                                                                </li>
+                                                            </template>
                                                         </ul>
 
                                                     </div>
