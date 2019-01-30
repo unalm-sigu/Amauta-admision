@@ -20,6 +20,7 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.consejeria.AlumnoConsejeroDAO;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.ID_CONSEJERO_NN;
 
 @Service
 public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implements AlumnoConsejeroDAO {
@@ -91,10 +92,10 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
     public List<AlumnoConsejero> allByCarrera(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoConsejero.class, "ac")
-                .join("alumno al", "consejero con", "con.colaborador col", "col.persona perc")
+                .join("alumno al", "consejero con")
                 .join("al.persona per", "al.carrera car")
-                .join("perc.tipoDocumento", "per.tipoDocumento", "al.situacionAcademica ")
-                .left("al.cicloIngreso")
+                .join("per.tipoDocumento", "al.situacionAcademica ")
+                .left("al.cicloIngreso", "con.colaborador col", "col.persona perc", "perc.tipoDocumento")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .filter("estado", EstadoEnum.ACT)
@@ -114,8 +115,18 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
                 continue;
             }
             String values = (String) queries.get(key);
-            sql.filter("car.id", values);
+            switch (key) {
+                case "carrera":
+                    sql.filter("car.id", values);
+                    break;
+                case "activo":
+                    sql.filter("con.id", "<>", ID_CONSEJERO_NN);
+                    break;
+                case "sinconsejero":
+                    sql.filter("con.id", ID_CONSEJERO_NN);
+                    break;
+            }
+
         }
     }
-
 }

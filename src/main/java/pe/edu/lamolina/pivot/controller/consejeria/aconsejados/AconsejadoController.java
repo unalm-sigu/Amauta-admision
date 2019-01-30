@@ -25,6 +25,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
@@ -122,6 +123,29 @@ public class AconsejadoController {
             }
             json.setData(array);
             json.setTotal(array.size());
+            json.setMessage("Búsqueda Exitosa");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("countData")
+    public JsonResponse countData(
+            @RequestParam Long idCarrera, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
+        try {
+
+            AconsejadoEstadoBean aconsejadoEstadoBean = service.allByCarrera(new Carrera(idCarrera), ds.getCicloAcademico());
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            json.setData(JsonHelper.createJson(aconsejadoEstadoBean, JsonNodeFactory.instance, new String[]{"*"}));
             json.setMessage("Búsqueda Exitosa");
 
         } catch (Exception e) {
