@@ -17,6 +17,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bean.RolExamenDocente;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import static pe.edu.lamolina.model.enums.TipoGestionEnum.PUB;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
@@ -174,6 +175,17 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
                 .filter("ca.id", cicloAcademico);
 
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<SeccionGrupoRegular> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes) {
+        
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("letraGrupoRegular lgr", "seccion sec", "lgr.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .join("lgr.rolExamenes rex")
+                .in("ghe.id", grupoHorasExamenes);
+        return all(sql);
     }
 
 }

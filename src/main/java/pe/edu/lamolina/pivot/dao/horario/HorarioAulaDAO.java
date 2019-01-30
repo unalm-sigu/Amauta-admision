@@ -48,8 +48,10 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allRangoDiaByDiasHoras(List<String> diashoras, Date fechainicio, Date fechafin);
 
-    public void deleteAllByReservaAula(ReservaAula reservaAulaForm);
+    void deleteAllByReservaAula(ReservaAula reservaAulaForm);
 
-    public List<HorarioAula> allByAulaFecha(Aula aulaFormFecha);
+    List<HorarioAula> allByAulaFecha(Aula aulaFormFecha);
+
+    List<HorarioAula> allHorarioClasesBySecciones(List<Seccion> secciones);
 
 }

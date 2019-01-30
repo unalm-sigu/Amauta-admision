@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
+import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -238,14 +239,14 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .beginBlock()
                 .__().between("ha.fechaInicio", fechainicio, fechafin)
                 .__().between("ha.fechaFin", fechainicio, fechafin)
-                    .beginBlock()
-                    .__().filter("ha.fechaInicio", "<=", fechainicio)
-                    .__().filter("ha.fechaFin", ">=", fechafin)
-                    .endBlock()
-                    .beginBlock()
-                    .__().filter("ha.fechaInicio", ">=", fechainicio)
-                    .__().filter("ha.fechaFin", "<=", fechafin)
-                    .endBlock()
+                .beginBlock()
+                .__().filter("ha.fechaInicio", "<=", fechainicio)
+                .__().filter("ha.fechaFin", ">=", fechafin)
+                .endBlock()
+                .beginBlock()
+                .__().filter("ha.fechaInicio", ">=", fechainicio)
+                .__().filter("ha.fechaFin", "<=", fechafin)
+                .endBlock()
                 .endBlock();
         return all(sql);
     }
@@ -273,15 +274,26 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .beginBlock()
                 .__().between("ha.fechaInicio", aulaFormFecha.getFechaInicio(), aulaFormFecha.getFechaFin())
                 .__().between("ha.fechaFin", aulaFormFecha.getFechaInicio(), aulaFormFecha.getFechaFin())
-                    .beginBlock()
-                    .__().filter("ha.fechaInicio", "<=", aulaFormFecha.getFechaInicio())
-                    .__().filter("ha.fechaFin", ">=", aulaFormFecha.getFechaFin())
-                    .endBlock()
-                    .beginBlock()
-                    .__().filter("ha.fechaInicio", ">=", aulaFormFecha.getFechaInicio())
-                    .__().filter("ha.fechaFin", "<=", aulaFormFecha.getFechaFin())
-                    .endBlock()
+                .beginBlock()
+                .__().filter("ha.fechaInicio", "<=", aulaFormFecha.getFechaInicio())
+                .__().filter("ha.fechaFin", ">=", aulaFormFecha.getFechaFin())
+                .endBlock()
+                .beginBlock()
+                .__().filter("ha.fechaInicio", ">=", aulaFormFecha.getFechaInicio())
+                .__().filter("ha.fechaFin", "<=", aulaFormFecha.getFechaFin())
+                .endBlock()
                 .endBlock();
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allHorarioClasesBySecciones(List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .filter("ha.tipo", TipoHorarioAulaEnum.DICT)
+                .in("sec.id", secciones);
         return all(sql);
     }
 
