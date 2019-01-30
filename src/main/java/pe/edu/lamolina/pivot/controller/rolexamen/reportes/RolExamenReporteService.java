@@ -11,8 +11,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 
 public interface RolExamenReporteService {
 
-    RolExamenes findRolExamenesActivo(CicloAcademico cicloAcademico);
-
     List<LetraGrupoRegular> allLetrasGrupoRegularByRolExamenes(RolExamenes rol);
 
     List<SeccionGrupoEspecial> allSeccionGrupoEspecialByRolExamenes(RolExamenes rol);

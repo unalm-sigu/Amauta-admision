@@ -22,7 +22,6 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
-import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 
 @Repository
@@ -222,7 +221,7 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .filter("ca.id", cicloAcademico)
                 .filter("tgh.tipo", tipoGrupoHorasEnum)
                 .filter("h.numero", ">=", semanaExamen.getHoraInicio().getNumero())
-                .filter("h.numero", "<=", semanaExamen.getHoraFin().getNumero())
+                .filter("h.numero", "<", semanaExamen.getHoraFin().getNumero())
                 .groupBy("gh.id", "d.id");
         List<Object[]> resultado = sql.all(getCurrentSession());
         Map<Long, Long> result = new HashMap();
@@ -232,5 +231,25 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
             }
         }
         return result;
+    }
+
+    @Override
+    public List<GrupoHoras> allByTipoCiclo(TipoCicloEnum tipoCiclo) {
+        Octavia sql = Octavia.query()
+                .from(GrupoHoras.class, "gh")
+                .filter("gh.tipoCiclo", tipoCiclo)
+                .orderBy("gh.codigo");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<GrupoHoras> allByTipoCiclo(String tipoCiclo) {
+        Octavia sql = Octavia.query()
+                .from(GrupoHoras.class, "gh")
+                .filter("gh.tipoCiclo", tipoCiclo)
+                .orderBy("gh.codigo");
+
+        return all(sql);
     }
 }

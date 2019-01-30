@@ -65,7 +65,7 @@ new Vue({
             return this.rolExamenes && this.rolExamenes.isEstadoConfigurando && this.rolExamenes.isSituacionConfigurarGrupoRegular;
         },
         verAulaHorarioDisponible() {
-            return this.rolExamenes && this.rolExamenes.isEstadoConfigurando && this.rolExamenes.isSituacionConfigurarGrupoRegular;
+            return this.rolExamenes && ((this.rolExamenes.isEstadoConfigurando && this.rolExamenes.isSituacionConfigurarGrupoEspecial) || !this.rolExamenes.isEstadoConfigurando);
         },
         incluirExcluirMoverDisponible() {
             let situacionesValidas = this.rolExamenes && (this.rolExamenes.isSituacionConfigurarGrupoRegular || this.rolExamenes.isSituacionConfigurarCursoMasivo || this.rolExamenes.isSituacionConfigurarGrupoEspecial);
@@ -375,12 +375,18 @@ new Vue({
             return true;
         },
         addAula(aula) {
+            if (!this.modificarAulaHorarioDisponible) {
+                return;
+            }
             let $vue = this;
             $vue.aulas.push({id: '', aula: aula});
             $vue.cursoMasivoExamen.aulas = $vue.cursoMasivoExamen.aulas + 1;
             $vue.cursoMasivoExamen.capacidadAulas = $vue.cursoMasivoExamen.capacidadAulas + aula.capacidadAula;
         },
         removeAula(aula, idx) {
+            if (!this.modificarAulaHorarioDisponible) {
+                return;
+            }
             let $vue = this;
             if (aula.id == '') {
                 $vue.aulas.splice(idx, 1);

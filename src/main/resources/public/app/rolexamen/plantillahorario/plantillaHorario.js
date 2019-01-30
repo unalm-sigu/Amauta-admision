@@ -156,9 +156,7 @@ new Vue({
                 }
             });
         }, selectFechaHoraGrupo(dia, hora, semExamen) {
-            if (!this.modificarHorarioDisponible) {
-                return;
-            }
+      
             if (this.grupoActivo == null) {
                 notify("Seleccione un grupo horas.", "error");
                 return;

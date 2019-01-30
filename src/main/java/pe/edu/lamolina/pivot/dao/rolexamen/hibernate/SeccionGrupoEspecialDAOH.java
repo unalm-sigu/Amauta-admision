@@ -28,17 +28,6 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
     }
 
     @Override
-    public SeccionGrupoEspecial findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnum) {
-        Octavia sql = Octavia.query()
-                .from(SeccionGrupoEspecial.class, "sce")
-                .join("seccion sec", "rolExamenes re", "aula au", "grupoHorasExamen ghe", "ghe.grupoHoras hg", "ghe.horaInicio hi", "ghe.horaFin hf")
-                .join("userRegistro ureg", "ureg.persona pureg")
-                .filter("sec.id", seccion)
-                .in("sce.estado", seccionRolExamenEstadoEnum);
-        return find(sql);
-    }
-
-    @Override
     public List<SeccionGrupoEspecial> allByDynatableAndRolExamenes(DynatableFilter filter, RolExamenes rolExamenes) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionGrupoEspecial.class, "sge")
@@ -49,7 +38,9 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .left("docente doc", "doc.persona dper", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras")
                 .searchFields("sec.codigo2", "cur.codigo", "cur.nombre", "au.codigo")
                 .searchComplexField("concat(coalesce(dper.paterno,''),' ',coalesce(dper.materno,''),' ',coalesce(dper.nombres,''))")
-                .searchComplexField("concat(coalesce(dper.nombres,''),' ',coalesce(dper.paterno,''),' ',coalesce(dper.materno,''))");
+                .searchComplexField("concat(coalesce(dper.nombres,''),' ',coalesce(dper.paterno,''),' ',coalesce(dper.materno,''))")
+                .filter("re.id", rolExamenes);
+
         return all(sql);
     }
 
@@ -86,6 +77,7 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .join("aula au")
                 .join("grupoHorasExamen ghe", "ghe.horaInicio", "ghe.horaFin")
                 .filter("re.id", rol)
+                .filter("sce.estado", SeccionRolExamenEstadoEnum.ACT)
                 .orderBy("cur.nombre asc", "sec.codigo2 asc");
 
         return all(sql);
@@ -158,6 +150,19 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .join("userRegistro ureg", "ureg.persona pureg")
                 .in("ghe.id", grupoHorasExamenes);
         return all(sql);
+    }
+
+    @Override
+    public SeccionGrupoEspecial findByRolExamanesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoEspecial.class, "sce")
+                .join("seccion sec", "rolExamenes re", "aula au", "grupoHorasExamen ghe", "ghe.grupoHoras hg", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .join("userRegistro ureg", "ureg.persona pureg")
+                .filter("sec.id", seccion)
+                .in("sce.estado", estados)
+                .filter("re.id", rol);
+
+        return find(sql);
     }
 
 }
