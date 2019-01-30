@@ -17,8 +17,8 @@ new Vue({
         cantidadActivo: 0,
         cantidadInactivo: 0,
         estadoConsejero: '',
-        ciclo: JSON.parse(cicloJson),
-        carreras: JSON.parse(carrerasJson),
+        ciclo: [],
+        carreras: [],
         btndisabled: '',
         listadoDocentes: [],
         listadoCarreras: [],
@@ -43,6 +43,12 @@ new Vue({
     },
     mounted: function () {
         let $vue = this;
+        $vue.ciclo = JSON.parse(cicloJson);
+        $vue.carreras = JSON.parse(carrerasJson);
+        if ($vue.carreras.length == 1) {
+            $vue.carreraSelect = $vue.carreras[0];
+            $vue.cargaConsejeros();
+        }
     },
     created: function () {
         let $vue = this;

@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +51,8 @@ public class ConsejeroServiceImp implements ConsejeroService {
 
     @Autowired
     AlumnoConsejeroDAO alumnoConsejeroDAO;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public List<Docente> allDocenteByNombreAndCarrera(String nombre, String facultadid) {
@@ -133,9 +137,9 @@ public class ConsejeroServiceImp implements ConsejeroService {
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(persona);
 
         for (Oficina oficina : oficinasMain) {
-             System.out.println("estatess " + oficina.getCodigoEnum());
-               System.out.println("estatess tipo " + oficina.getTipoOficina().getCodigoEnum());
-             
+            logger.debug("codigo oficina es {}", oficina.getCodigo());
+            logger.debug("tipo oficina es {} ", oficina.getTipoOficina().getCodigo());
+
             if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
                 return carreraDAO.allPregradoByCicloMatriculables(ciclo);
             }
@@ -146,22 +150,17 @@ public class ConsejeroServiceImp implements ConsejeroService {
                 carreras.add(new Carrera(oficina.getInstanciaOficina()));
             }
         }
-        System.out.println("test-facc :" + facultades);
-        System.out.println("test-carrera:" + carreras);
-
+        
+        logger.debug("Carreras previas es {} {} {}", carreras.size());
         if (!carreras.isEmpty()) {
-            List<Carrera> carrerasCiclo = carreraDAO.allByIdAndCiclo(carreras, ciclo);
-            System.out.println("test : fac " + carrerasCiclo);
+            List<Carrera> carrerasCiclo = carreraDAO.allByMatriculablesCicloCarreras(carreras, ciclo);
             carreras.addAll(carrerasCiclo);
         }
 
         if (!facultades.isEmpty()) {
-            List<Carrera> carrerasFac = carreraDAO.allByIdFacultad(facultades, ciclo);
-            System.out.println("test : esp " + carrerasFac);
+            List<Carrera> carrerasFac = carreraDAO.allByMatriculablesCicloFacultades(facultades, ciclo);
             carreras.addAll(carrerasFac);
         }
-
-        System.out.println("test : all " + carreras.getClass());
 
         return carreraDAO.allByCarreras(carreras);
     }
