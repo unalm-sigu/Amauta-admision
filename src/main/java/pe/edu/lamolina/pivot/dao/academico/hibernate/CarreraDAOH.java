@@ -326,4 +326,47 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         return all(sql);
     }
 
+    @Override
+    public List<Carrera> allByIdFacultad(List<Facultad> facultades, CicloAcademico ciclo) {
+
+        Octavia sql = Octavia.query()
+                .selectDistinct("carr")
+                .from(MatriculaResumen.class, "mr")
+                .join("mr.alumno al", "al.modalidadEstudio me", "al.carrera carr", "mr.cicloAcademico ci", "carr.facultad fac")
+                .filter("ci.id", ciclo)
+                .in("fac.id", facultades)
+                .filter("me.codigo", ModalidadEstudioEnum.PRE)
+                .orderBy("carr.nombre");
+
+        return all(sql);
+
+    }
+
+    @Override
+    public List<Carrera> allByCarreras(List<Carrera> carreras) {
+
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "carr")
+                .in("carr.id", carreras)
+                .orderBy("carr.nombre");
+
+        return all(sql);
+
+    }
+
+    @Override
+    public List<Carrera> allByIdAndCiclo(List<Carrera> carreras, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("carr")
+                .from(MatriculaResumen.class, "mr")
+                .join("mr.alumno al", "al.modalidadEstudio me", "al.carrera carr", "mr.cicloAcademico ci")
+                .filter("ci.id", ciclo)
+                .in("carr.id", carreras)
+                .filter("me.codigo", ModalidadEstudioEnum.PRE)
+                .orderBy("carr.nombre");
+
+        return all(sql);
+
+    }
+
 }
