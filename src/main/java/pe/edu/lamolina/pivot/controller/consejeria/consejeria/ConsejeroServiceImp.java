@@ -95,8 +95,8 @@ public class ConsejeroServiceImp implements ConsejeroService {
     }
 
     @Override
-    public List<Consejero> allConsejerosbyDynatableCarrera(DynatableFilter filter) {
-        return consejeroDAO.allByCarreraDynatable(filter);
+    public List<Consejero> allByCarreraDynatable(Carrera carrera, DynatableFilter filter) {
+        return consejeroDAO.allByCarreraDynatable(carrera, filter);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class ConsejeroServiceImp implements ConsejeroService {
                 carreras.add(new Carrera(oficina.getInstanciaOficina()));
             }
         }
-        
+
         logger.debug("Carreras previas es {} {} {}", carreras.size());
         if (!carreras.isEmpty()) {
             List<Carrera> carrerasCiclo = carreraDAO.allByMatriculablesCicloCarreras(carreras, ciclo);

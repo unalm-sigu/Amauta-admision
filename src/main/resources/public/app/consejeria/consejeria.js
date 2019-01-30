@@ -45,8 +45,21 @@ new Vue({
         let $vue = this;
         $vue.ciclo = JSON.parse(cicloJson);
         $vue.carreras = JSON.parse(carrerasJson);
-        if ($vue.carreras.length == 1) {
+
+        let carrera = $vue.$refs.raptorConsejero.getParameterByName('queries[carrera]');
+        carrera = (carrera == null) ? '' : carrera;
+
+        if ($vue.carreras.length == 1 && carrera == '') {
             $vue.carreraSelect = $vue.carreras[0];
+        } else if (carrera != '') {
+            for (var i = 0; i < $vue.carreras.length; i++) {
+                if ($vue.carreras[i].id == carrera) {
+                    $vue.carreraSelect = $vue.carreras[i];
+                }
+            }
+        }
+
+        if ($vue.carreraSelect != '') {
             $vue.cargaConsejeros();
         }
     },
@@ -68,8 +81,8 @@ new Vue({
             let $vue = this;
             $vue.isLoading = true;
             $vue.estadoConsejero = estado;
-            $vue.$refs.load.querie.push({name: 'estado', value: estado});
-            $vue.$refs.load.loadRemoteData();
+            $vue.$refs.raptorConsejero.querie.push({name: 'estado', value: estado});
+            $vue.$refs.raptorConsejero.loadRemoteData();
 
 //            let fondoColor = estado === 'ACT' ? 'activos' : 'inactivos';
             if (estado === 'ACT') {
@@ -112,18 +125,20 @@ new Vue({
             // listado de consejeros en dynatable
             let $vue = this;
             let carrera = $vue.carreraSelect.id;
-            $vue.$refs.load.querie = [];
+            $vue.$refs.raptorConsejero.querie = [];
             $vue.listadoDocentes = '';
             $vue.docenteSelect = '';
             $vue.departamento = '';
+            $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejero/list/' + carrera);
+
             if ($vue.carreraSelect === null) {
                 $vue.btndisabled = true;
-                //   $vue.$refs.load.loadRemoteData();
+                //   $vue.$refs.raptorConsejero.loadRemoteData();
             } else {
-                let carrera = $vue.carreraSelect.nombre;
-                $vue.$refs.load.querie.push({name: 'car.nombre', value: carrera});
+                //let carrera = $vue.carreraSelect.nombre;
+                $vue.$refs.raptorConsejero.querie.push({name: 'carrera', value: carrera});
                 $vue.btndisabled = false;
-                $vue.$refs.load.loadRemoteData();
+                $vue.$refs.raptorConsejero.loadRemoteData();
             }
             $vue.cantidadEstado(carrera);
         },
@@ -160,7 +175,7 @@ new Vue({
                 this.isLoading = false;
                 notify(response.message, 'info');
                 $vue.cantidadEstado(carrera);
-                $vue.$refs.load.loadRemoteData();
+                $vue.$refs.raptorConsejero.loadRemoteData();
             });
         },
         saveConsejero() {
@@ -195,7 +210,7 @@ new Vue({
                                     $vue.$refs.añadirConsejeroModal.close();
                                     $vue.docenteSelect = '';
                                     $vue.departamento = '';
-                                    $vue.$refs.load.loadRemoteData();
+                                    $vue.$refs.raptorConsejero.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
                                 }
@@ -227,7 +242,7 @@ new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
-                                    $vue.$refs.load.loadRemoteData();
+                                    $vue.$refs.raptorConsejero.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
                                 }
@@ -261,7 +276,7 @@ new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
-                                    $vue.$refs.load.loadRemoteData();
+                                    $vue.$refs.raptorConsejero.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
                                 }

@@ -12,7 +12,7 @@ import pe.edu.lamolina.pivot.controller.consejeria.consejeria.ConsejeroEstado;
 
 public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
-    List<Consejero> allByCarreraDynatable(DynatableFilter filter);
+    List<Consejero> allByCarreraDynatable(Carrera carrera, DynatableFilter filter);
 
     List<DepartamentoAcademico> allByIdFacultad(String facultadid);
 
@@ -24,8 +24,8 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
     ConsejeroEstado findByStateAndCarrera(Long carrera);
 
-    public List<Consejero> findConsejeroByEstado(Long carrera);
+    List<Consejero> findConsejeroByEstado(Long carrera);
 
-    public List<Consejero> allByNombreAndCarrera(String nombre, Carrera carrera);
+    List<Consejero> allByNombreAndCarrera(String nombre, Carrera carrera);
 
 }
