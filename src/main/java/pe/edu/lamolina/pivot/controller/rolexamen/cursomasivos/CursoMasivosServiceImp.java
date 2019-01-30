@@ -175,8 +175,8 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void save(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds) {
 
         RolExamenes rolExamenes = rolExamenesDAO.find(cursoMasivosExamen.getRolExamenes().getId());
-        this.checkNoPublicado(rolExamenes);
-        Assert.isTrue(rolExamenes.isSituacionConfigurarHorario() || rolExamenes.isSituacionConfigurarCursoMasivo(), "No puede agregar cursos masivos, en este momento.");
+        Assert.isTrue(rolExamenes.isEstadoConfigurando() && (rolExamenes.isSituacionConfigurarHorario() || rolExamenes.isSituacionConfigurarCursoMasivo()), "No puede agregar cursos masivos en este momento");
+        
         List<String> validationsHorariosExamen = this.validarHorariosExamen(rolExamenes);
         Assert.isTrue(validationsHorariosExamen.isEmpty(), String.join("\n", validationsHorariosExamen));
 
@@ -371,7 +371,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
-        Assert.isTrue(cursoMasivoBD.getRolExamenes().isSituacionConfiguraGrupoRegular(), "Debe configurar los grupos regulares previamente.");
+        Assert.isTrue(cursoMasivoBD.getRolExamenes().isSituacionConfigurarGrupoRegular(), "Debe configurar los grupos regulares previamente.");
 
         List<AulaCursoMasivo> aulasCurso = cursoMasivo.getAulasCursosMasivos();
         List<AulaCursoMasivo> aulasCursoBD = aulaCursoMasivoDAO.allByCursoMasivo(cursoMasivoBD);
@@ -654,7 +654,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
-        Assert.isTrue(rolExamenes.isSituacionConfiguraGrupoRegular(), "Debe configurar los grupos regulares previamente.");
+        Assert.isTrue(rolExamenes.isSituacionConfigurarGrupoRegular(), "Debe configurar los grupos regulares previamente.");
 
         this.rolExamenesLogger.iniciarCursoMasivo();
 

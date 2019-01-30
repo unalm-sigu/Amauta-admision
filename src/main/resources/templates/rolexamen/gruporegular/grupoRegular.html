@@ -8,7 +8,11 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <a href="/rolexamen/rolexamenes" class="btn btn-default btn-sm pull-right">Regresar</a>
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a href="/rolexamen/rolexamenes" class="btn btn-default btn-sm">Regresar</a>
+                        </div>
+                    </div>
                     <h2>Grupos Regulares <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
                 </header>
 
@@ -30,6 +34,7 @@
                                                 track-by="id"
                                                 v-bind:options="rolesExamenes"
                                                 v-bind:show-labels="false"
+                                                v-bind:allow-empty="false"
                                                 required="true"
                                                 >
                                             </multiselect>
@@ -39,7 +44,7 @@
                                                    required="true"
                                                    v-if="rolExamen" />
                                         </div>
-                                        <div class="col-md-4" v-if="rolExamen &amp;&amp; rolExamen.estado !== 'PUB'">
+                                        <div class="col-md-4" v-if="generarDisponible">
                                             <a class="btn btn-success m-l-sm"
                                                v-on:click.prevent="calcularGrupoRegular">
                                                 Calcular

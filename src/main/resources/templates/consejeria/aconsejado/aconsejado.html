@@ -52,6 +52,7 @@
                                 <raptor-table v-bind:url="aconsejadosURL" v-bind:preload="false" ref="load">      
                                     <div slot="header">
                                         <div class="col-md-8 preguntas-col">
+                                            <small>Carreras </small>
                                             <div class="row">
                                                 <div class="col-md-8" >
                                                     <multiselect v-model="carreraSelect" 
@@ -127,7 +128,7 @@
                                                             <span class=" bold"> PPA: </span>
                                                             {{item.alumno.promedioAcumulado}}
                                                         </span>
-                                                        <span class="block">                                                            
+                                                        <span class="block" v-if="item.alumno.cicloIngreso != null">                                                            
                                                             <span class=" bold"> Ciclo Ingreso: </span>
                                                             {{item.alumno.cicloIngreso.descripcion}}
                                                         </span>

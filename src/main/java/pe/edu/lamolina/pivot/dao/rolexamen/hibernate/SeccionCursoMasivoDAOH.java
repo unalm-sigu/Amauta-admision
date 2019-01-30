@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
@@ -183,6 +184,16 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .filter("doc.id", docente)
                 .filter("cme.id", cursoMasivoExamen);
         return TypesUtil.getInt(find(sql));
+    }
+    
+    @Override
+    public List<SeccionCursoMasivo> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "userRegistro ur", "seccion se", "cme.curso cur")
+                .join("cme.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .in("ghe.id", grupoHorasExamenes);
+        return all(sql);
     }
 
 }

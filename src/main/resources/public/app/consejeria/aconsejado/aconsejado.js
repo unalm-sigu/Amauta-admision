@@ -21,6 +21,13 @@ new Vue({
     },
     mounted: function () {
         let $vue = this;
+        let query = $vue.$refs.load.getParameterByName('queries[carrera]');
+        query = (query == null) ? '' : query;
+        if (query != '') {
+            $vue.carreraSelect = $vue.carreras.filter(value => value.id == query)[0];
+            $vue.$refs.load.querie.push({name: 'carrera', value: query});
+            $vue.$refs.load.repreload();
+        }
     },
     methods: {
         customLabel( { colaborador }) {
@@ -44,13 +51,13 @@ new Vue({
             let carrera = item.id;
             $vue.$refs.load.querie = [];
             if ($vue.carreraSelect != null) {
-                $vue.$refs.load.querie.push({name: 'car.id', value: carrera});
+                $vue.$refs.load.querie.push({name: 'carrera', value: carrera});
                 $vue.$refs.load.loadRemoteData();
             }
         },
         model(item) {
             let $vue = this;
-            $vue.alumnoConsejeroForm = item;
+            $vue.alumnoConsejeroForm = Object.assign({}, item);
             $vue.$refs.consejeroModal.open();
         },
         cambiarConsejero() {
