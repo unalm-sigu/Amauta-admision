@@ -207,12 +207,26 @@ public class ConsejeriaController {
         return json;
     }
 
-//    @ResponseBody
-//    @RequestMapping("cantidadAconsejados")
-//    public JsonResponse cantidadAconsejados(@RequestParam Long carrera, HttpSession session) {
-//
-//        return null;
-//    }
+    @ResponseBody
+    @RequestMapping("cantidadAconsejados")
+    public JsonResponse cantidadAconsejados(@RequestParam Long carrera, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
+        try {
+
+            AConsejeroEstado aConsejeroEstado = service.findAConsejadosByStateCarrera(carrera, ds);
+            ObjectNode consejeroJson = JsonHelper.createJson(aConsejeroEstado, JsonNodeFactory.instance, true, new String[]{
+                "*"
+            });
+            json.setData(consejeroJson);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
 
     @ResponseBody
     @RequestMapping("asignarAlumno")

@@ -60,4 +60,6 @@ public interface ConsejeriaService {
 
     List<Consejero> allByCarrera(String nombre, Carrera carrera);
 
+    AConsejeroEstado findAConsejadosByStateCarrera(Long carrera, DataSessionPivot ds);
+
 }

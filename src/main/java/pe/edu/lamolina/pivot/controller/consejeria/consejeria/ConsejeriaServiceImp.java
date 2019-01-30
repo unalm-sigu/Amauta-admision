@@ -229,17 +229,21 @@ public class ConsejeriaServiceImp implements ConsejeriaService {
             List<Alumno> alumos = alumnos.stream().filter((x) -> x.getIndex() > offset && x.getIndex() <= a).collect(Collectors.toList());
             alumnoConsejeroDAO.insertAlumnoConsejero(consejeros.get(numConsejero - 1), ds.getCicloAcademico(), ds.getUsuario(), new Carrera(carrera), alumos);
             Consejero consejero = consejeros.get(numConsejero - 1);
+            
+            for (Alumno alumo : alumos) {
+                alumo.setConsejero(consejero);
+                i++;
+            }
+            
             consejero.setAlumnosActivos(alumos.size());
             consejeroDAO.update(consejero);
         }
-
     }
 
     @Override
     @Transactional
     public void desasignarAlumnos(Long carrera, DataSessionPivot ds) {
         List<Consejero> consejeros = consejeroDAO.findConsejeroByEstado(carrera);
-        int cantidadConsejeros = consejeros.size();
         alumnoConsejeroDAO.desasignarAlumnosConsejero(consejeros, ds.getUsuario());
         for (Consejero consejero : consejeros) {
             consejero.setAlumnosActivos(0);
@@ -252,6 +256,15 @@ public class ConsejeriaServiceImp implements ConsejeriaService {
     @Override
     public List<Consejero> allByCarrera(String nombre, Carrera carrera) {
         return consejeroDAO.allByNombreAndCarrera(nombre, carrera);
+    }
+
+    @Override
+    public AConsejeroEstado findAConsejadosByStateCarrera(Long carrera, DataSessionPivot ds) {
+
+        List<Alumno> alumnos = alumnoService.findAconsejadosByCarrera(carrera, ds.getCicloAcademico());
+        int aconsejados = alumnos.size();
+        
+        return null;
     }
 
 }
