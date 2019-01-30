@@ -60,27 +60,40 @@
                             <section class="panel-body">
                                 <raptor-table v-bind:url="consjerosURL" v-bind:preload="false" ref="load">      
                                     <div slot="header">
-                                        <div class="col-md-8 preguntas-col">
+                                        <div class="col-md-10 preguntas-col">
                                             <div class="row">
-                                                <div class="col-md-8" >
+                                                <div class="col-md-5" >
                                                     <multiselect v-model="carreraSelect" 
                                                                  v-bind:options='carreras'
                                                                  label='nombre'
                                                                  track-by='id'
                                                                  placeholder="Seleccione una carrera"
                                                                  v-bind:allow-empty="false"
+                                                                 v-bind:preselect="false"
                                                                  v-on:input="cargaConsejeros">
                                                     </multiselect>
                                                 </div>
-                                                <div v-if="cantidadActivo != 0" class="col-md-2 text-center" v-bind:class="bgColorClass['visitante']">
+                                                <div v-if="cantidadActivo != 0" class="col-md-2 text-center" v-bind:class="bgColorClass['activos']">
                                                     <a v-on:click="filtroConsejeros('ACT')" class="text-success pointer" >
                                                         <span class="h2 bold" v-text="cantidadActivo"></span>
                                                         <small class="block m-b-xs">Activos</small>
                                                     </a>
                                                 </div>
-                                                <div v-if="cantidadInactivo != 0" class="col-md-2 text-center" v-bind:class="bgColorClass['postgrado']">
+                                                <div v-if="cantidadInactivo != 0" class="col-md-2 text-center" v-bind:class="bgColorClass['inactivos']">
                                                     <a v-on:click="filtroConsejeros('INA')" class="text-black pointer" >
                                                         <span class="h2 bold" v-text="cantidadInactivo"></span>
+                                                        <small class="block m-b-xs">Inactivos</small>
+                                                    </a>
+                                                </div>
+                                                <div class="col-md-2 text-center">
+                                                    <a class="text-default pointer" >
+                                                        <span class="h2 bold" v-text="cantidadActivoAlumno"></span>
+                                                        <small class="block m-b-xs">Activos</small>
+                                                    </a>
+                                                </div>
+                                                <div class="col-md-2 text-center">
+                                                    <a  class="text-default pointer" >
+                                                        <span class="h2 bold" v-text="cantidadInactivoAlumno"></span>
                                                         <small class="block m-b-xs">Inactivos</small>
                                                     </a>
                                                 </div>

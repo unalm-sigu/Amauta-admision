@@ -131,7 +131,11 @@ public class ConsejeroServiceImp implements ConsejeroService {
         List<Carrera> carreras = new ArrayList();
 
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(persona);
+
         for (Oficina oficina : oficinasMain) {
+             System.out.println("estatess " + oficina.getCodigoEnum());
+               System.out.println("estatess tipo " + oficina.getTipoOficina().getCodigoEnum());
+             
             if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
                 return carreraDAO.allPregradoByCicloMatriculables(ciclo);
             }
@@ -142,13 +146,24 @@ public class ConsejeroServiceImp implements ConsejeroService {
                 carreras.add(new Carrera(oficina.getInstanciaOficina()));
             }
         }
-        
-//        if(!facultades.isEmpty()){
-//            List<Carrera> carrerasFac = carreraDAO.allByFacultades(facultades);
-//            carreras.addAll(carrerasFac);
-//        }
-//        
-        return null;//carreraDAO.allByCarreras(carreras);
+        System.out.println("test-facc :" + facultades);
+        System.out.println("test-carrera:" + carreras);
+
+        if (!carreras.isEmpty()) {
+            List<Carrera> carrerasCiclo = carreraDAO.allByIdAndCiclo(carreras, ciclo);
+            System.out.println("test : fac " + carrerasCiclo);
+            carreras.addAll(carrerasCiclo);
+        }
+
+        if (!facultades.isEmpty()) {
+            List<Carrera> carrerasFac = carreraDAO.allByIdFacultad(facultades, ciclo);
+            System.out.println("test : esp " + carrerasFac);
+            carreras.addAll(carrerasFac);
+        }
+
+        System.out.println("test : all " + carreras.getClass());
+
+        return carreraDAO.allByCarreras(carreras);
     }
 
     @Override

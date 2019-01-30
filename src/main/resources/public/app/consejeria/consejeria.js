@@ -3,7 +3,7 @@ Vue.component("multiselect", window.VueMultiselect.default)
 new Vue({
     el: '#consejeriaVUE',
     data: {
-        bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''},
+        bgColorClass: {activos: '', inactivos: ''},
         consjerosURL: APP.url('consejeria/consejero/list'),
         añadirConsejeroModal: {
             id: 'añadirConsejeroModal',
@@ -12,6 +12,8 @@ new Vue({
             okbtn: 'Agregar',
             showaccept: true
         },
+        cantidadActivoAlumno: 0,
+        cantidadInactivoAlumno: 0,
         cantidadActivo: 0,
         cantidadInactivo: 0,
         estadoConsejero: '',
@@ -62,6 +64,15 @@ new Vue({
             $vue.estadoConsejero = estado;
             $vue.$refs.load.querie.push({name: 'estado', value: estado});
             $vue.$refs.load.loadRemoteData();
+
+//            let fondoColor = estado === 'ACT' ? 'activos' : 'inactivos';
+            if (estado === 'ACT') {
+                $vue.bgColorClass['activos'] = 'bg-light';
+                $vue.bgColorClass['inactivos'] = '';
+            } else {
+                $vue.bgColorClass['activos'] = '';
+                $vue.bgColorClass['inactivos'] = 'bg-light';
+            }
         },
         getDocentes(nombreDoc) {
             /// listado de docente por carrera
