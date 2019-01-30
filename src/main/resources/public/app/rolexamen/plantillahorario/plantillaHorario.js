@@ -13,8 +13,11 @@ new Vue({
         grupoActivo: null,
     },
     computed: {
-        rolPublicado() {
-            return this.rolExamen && this.rolExamen.estado === 'PUB';
+        generarDisponible() {
+            return this.rolExamen && this.rolExamen.isEstadoCreado && this.rolExamen.isSituacionConfigurarRol;
+        },
+        modificarHorarioDisponible() {
+            return this.rolExamen && this.rolExamen.isEstadoCreado && this.rolExamen.isSituacionConfigurarHorario;
         }
     },
     mounted() {
@@ -51,7 +54,7 @@ new Vue({
          // MODAL.hideWait();
          });
          },*/ calcularPlantillaHorario() {
-            if (this.rolPublicado) {
+            if (!this.generarDisponible) {
                 return;
             }
             let vue = this;
@@ -153,7 +156,7 @@ new Vue({
                 }
             });
         }, selectFechaHoraGrupo(dia, hora, semExamen) {
-            if (this.rolPublicado) {
+            if (!this.modificarHorarioDisponible) {
                 return;
             }
             if (this.grupoActivo == null) {

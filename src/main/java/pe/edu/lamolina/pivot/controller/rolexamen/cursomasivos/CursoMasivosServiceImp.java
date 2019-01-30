@@ -175,8 +175,8 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void save(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds) {
 
         RolExamenes rolExamenes = rolExamenesDAO.find(cursoMasivosExamen.getRolExamenes().getId());
-        this.checkNoPublicado(rolExamenes);
-        Assert.isTrue(rolExamenes.isSituacionConfigurarHorario() || rolExamenes.isSituacionConfigurarCursoMasivo(), "No puede agregar cursos masivos, en este momento.");
+        Assert.isTrue(rolExamenes.isEstadoConfigurando() && (rolExamenes.isSituacionConfigurarHorario() || rolExamenes.isSituacionConfigurarCursoMasivo()), "No puede agregar cursos masivos en este momento");
+        
         List<String> validationsHorariosExamen = this.validarHorariosExamen(rolExamenes);
         Assert.isTrue(validationsHorariosExamen.isEmpty(), String.join("\n", validationsHorariosExamen));
 

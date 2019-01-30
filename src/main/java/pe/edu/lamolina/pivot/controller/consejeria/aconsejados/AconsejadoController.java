@@ -76,7 +76,10 @@ public class AconsejadoController {
                         new String[]{
                             "*",
                             "alumno.*",
+                            "alumno.cicloIngreso.*",
+                            "alumno.situacionAcademica.*",
                             "alumno.persona.*",
+                            "alumno.persona.tipoDocumento.*",
                             "alumno.persona.tipoDocumento.*",
                             "consejero.*",
                             "consejero.colaborador.persona.*",

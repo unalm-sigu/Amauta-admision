@@ -43,7 +43,7 @@
                 <div v-cloak="">
 
                     <header class="header b-b padder-lg">
-                     
+
                         <h2>Listado de Aconsejados <span v-text='ciclo.descripcion'></span></h2>
                     </header>
                     <section class="wrapper-lg">
@@ -52,6 +52,7 @@
                                 <raptor-table v-bind:url="aconsejadosURL" v-bind:preload="false" ref="load">      
                                     <div slot="header">
                                         <div class="col-md-8 preguntas-col">
+                                            <small>Carreras </small>
                                             <div class="row">
                                                 <div class="col-md-8" >
                                                     <multiselect v-model="carreraSelect" 
@@ -71,9 +72,8 @@
                                             <thead class="panel panel-heading">
                                                 <tr>
                                                     <th class="col-md-4 text-center v-middle"  colspan="2"></th>
+                                                    <th class="col-md-4 v-middle"></th>
                                                     <th class="col-md-4 v-middle"><span>Consejero</span></th>
-                                                    <th class="col-md-2 v-middle text-center"><span>Fecha Asignación</span></th>
-                                                    <th class="col-md-1 v-middle text-center">Estado</th>
                                                     <th class="col-md-1 v-middle"></th>
                                                 </tr>
                                             </thead>
@@ -105,16 +105,39 @@
                                                         <small v-if="item.alumno.persona.numeroDocIdentidad != '' " class="block bold">
                                                             {{item.alumno.persona.tipoDocumento.simbolo}} {{item.alumno.persona.numeroDocIdentidad}}
                                                         </small>
+
+                                                    </td>
+                                                    <td class="v-middle">
+                                                        <span class="block">                                                            
+                                                            <span class=" bold"> Situación Academica: </span>
+                                                            {{item.alumno.situacionAcademica.nombre}}
+                                                        </span>
+                                                        <span class="block">                                                            
+                                                            <span class=" bold"> CCA: </span>
+                                                            {{item.alumno.creditosCursados}}
+                                                        </span>
+                                                        <span class="block">                                                            
+                                                            <span class=" bold"> CAPA: </span>
+                                                            {{item.alumno.creditosAprobados}}
+                                                        </span>
+                                                        <!--                                                     PONER LUEGO   <span class="block">                                                            
+                                                                                                                    <span class=" bold"> PA </span>
+                                                                                                                    {{item.alumno.situacionAcademica.nombre}}
+                                                                                                                </span>-->
+                                                        <span class="block">                                                            
+                                                            <span class=" bold"> PPA: </span>
+                                                            {{item.alumno.promedioAcumulado}}
+                                                        </span>
+                                                        <span class="block" v-if="item.alumno.cicloIngreso != null">                                                            
+                                                            <span class=" bold"> Ciclo Ingreso: </span>
+                                                            {{item.alumno.cicloIngreso.descripcion}}
+                                                        </span>
                                                     </td>
                                                     <td class="v-middle">
                                                         <a class="block text-primary bold ">{{item.consejero.colaborador.persona.apellidosNombres}}</a> 
                                                         <small class="block bold">DNI: {{item.consejero.colaborador.persona.numeroDocIdentidad}}</small>                                                    
-                                                    </td>
-                                                    <td class="v-middle ">
-                                                        <div class="text-center" v-text="item.fechaAsigna"></div>
-                                                    </td>
-                                                    <td class="v-middle text-center">
-                                                        <div class="label label-primary text-center" v-text="item.estadoEnum.value"></div>
+                                                        <span class=" bold"> Fecha Asignación: </span>
+                                                        <span  v-text="item.fechaAsigna"></span>
                                                     </td>
                                                     <td class="v-middle">
                                                         <div class="dropdown actions">
@@ -123,6 +146,7 @@
                                                             </a>
                                                             <ul class="dropdown-menu pull-right">
                                                                 <li  ><a v-on:click="model(item)">Cambiar Consejero</a></li>
+                                                                <li><a v-bind:href="urlAcademico(item.alumno)">Información académica</a></li>
                                                             </ul>
                                                         </div>
                                                     </td>
