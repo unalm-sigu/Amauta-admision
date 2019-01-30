@@ -17,7 +17,7 @@ import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.consejeria.consejeria.ConsejeroEstado;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeria.ConsejeriaEstado;
 import pe.edu.lamolina.pivot.dao.consejeria.ConsejeroDAO;
 
 @Service
@@ -109,10 +109,10 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
-    public ConsejeroEstado findByStateAndCarrera(Long carrera) {
+    public ConsejeriaEstado findByStateAndCarrera(Long carrera) {
         StringBuilder sql = new StringBuilder();
 
-        sql.append("select new ").append(ConsejeroEstado.class.getName());
+        sql.append("select new ").append(ConsejeriaEstado.class.getName());
         sql.append(" (   ");
         sql.append("   sum(case conse.estado when :ACT then 1 else 0 end),   ");
         sql.append("   sum(case conse.estado when :INA then 1 else 0 end)   ");
@@ -127,7 +127,7 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
         query.setString("INA", INA.name());
         query.setLong("CARRERA", carrera);
 
-        return (ConsejeroEstado) query.uniqueResult();
+        return (ConsejeriaEstado) query.uniqueResult();
     }
 
     @Override

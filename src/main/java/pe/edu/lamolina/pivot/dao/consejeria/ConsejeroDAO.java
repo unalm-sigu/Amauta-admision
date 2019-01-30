@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.consejeria.consejeria.ConsejeroEstado;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeria.ConsejeriaEstado;
 
 public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
@@ -22,7 +22,7 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
     List<Carrera> findAllCarreraByIdDocente(long idDocente);
 
-    ConsejeroEstado findByStateAndCarrera(Long carrera);
+    ConsejeriaEstado findByStateAndCarrera(Long carrera);
 
     public List<Consejero> findConsejeroByEstado(Long carrera);
 

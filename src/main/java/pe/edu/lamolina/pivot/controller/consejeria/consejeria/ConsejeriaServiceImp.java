@@ -31,7 +31,7 @@ import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
-public class ConsejeroServiceImp implements ConsejeroService {
+public class ConsejeriaServiceImp implements ConsejeriaService {
 
     @Autowired
     DocenteDAO docenteDAO;
@@ -203,7 +203,7 @@ public class ConsejeroServiceImp implements ConsejeroService {
     }
 
     @Override
-    public ConsejeroEstado findConsejeroByStateAndCarrera(Long carrera) {
+    public ConsejeriaEstado findConsejeroByStateAndCarrera(Long carrera) {
         return consejeroDAO.findByStateAndCarrera(carrera);
     }
 

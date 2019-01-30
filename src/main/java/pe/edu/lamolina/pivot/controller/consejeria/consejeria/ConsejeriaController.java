@@ -38,7 +38,7 @@ public class ConsejeriaController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ConsejeroService service;
+    ConsejeriaService service;
 
     @Autowired
     CarreraService carreraService;
@@ -51,7 +51,7 @@ public class ConsejeriaController {
         model.addAttribute("ciclo", createCicloJson(ds.getCicloAcademico()).toString());
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());
 
-        return "consejeria/consejero";
+        return "consejeria/consejeria";
     }
 
     @ResponseBody
@@ -190,7 +190,7 @@ public class ConsejeriaController {
         try {
 
             System.out.println("Probando : " + carrera);
-            ConsejeroEstado consejeroEstado = service.findConsejeroByStateAndCarrera(carrera);
+            ConsejeriaEstado consejeroEstado = service.findConsejeroByStateAndCarrera(carrera);
             ObjectNode consejeroJson = JsonHelper.createJson(consejeroEstado, JsonNodeFactory.instance, true, new String[]{
                 "*"
             });

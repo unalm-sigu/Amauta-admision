@@ -41,7 +41,7 @@ public class AconsejadoController {
     @Autowired
     AconsejadoService service;
     @Autowired
-    ConsejeroService consejeroService;
+    ConsejeriaService consejeroService;
 
     @Autowired
     CarreraService carreraService;
@@ -68,7 +68,7 @@ public class AconsejadoController {
 
         try {
 
-            List<AlumnoConsejero> consejeros = service.allAconsejadoByDynatableCarrera(filter);
+            List<AlumnoConsejero> consejeros = service.allAconsejadoByDynatableCarrera(filter, ds.getCicloAcademico());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 

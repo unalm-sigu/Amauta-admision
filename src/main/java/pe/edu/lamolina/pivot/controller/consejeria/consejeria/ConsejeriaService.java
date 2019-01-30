@@ -12,7 +12,7 @@ import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-public interface ConsejeroService {
+public interface ConsejeriaService {
 
     List<Docente> allDocenteByNombreAndCarrera(String nombre, String facultadid);
 
@@ -52,7 +52,7 @@ public interface ConsejeroService {
 
     List<Docente> allDocenteByNombreFacultad(String nombre, Facultad facultad);
 
-    ConsejeroEstado findConsejeroByStateAndCarrera(Long carrera);
+    ConsejeriaEstado findConsejeroByStateAndCarrera(Long carrera);
 
     void asignarAlumnosAleatorio(Long carrera, DataSessionPivot ds);
 
