@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 
@@ -38,4 +39,5 @@ public interface SeccionCursoMasivoDAO extends EasyDAO<SeccionCursoMasivo> {
     Integer countDocenteByCursoMasivo(Docente docente, CursoMasivoExamen cursoMasivoExamen, SeccionRolExamenEstadoEnum... estados);
 
     List<SeccionCursoMasivo> allByDocenteAndEstados(Docente docente, SeccionRolExamenEstadoEnum... estados);
+    public List<SeccionCursoMasivo> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes);
 }

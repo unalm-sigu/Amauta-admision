@@ -162,6 +162,37 @@ new Vue({
                     }
                 }
             });
+        },
+        fijarHorarioAula(rolExamen) {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea fijar el horario del aula?',
+                buttons: {
+                    confirm: {label: 'Si, fijar horario aula', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: "POST",
+                            contentType: "application/json",
+                            url: APP.url("rolexamen/rolexamenes/fijarhorarioaula"),
+                            data: {id:rolExamen.id}
+                        }).then(response => {
+                            if (response.success) {
+                                $vue.$refs.raptorRolExamenes.loadRemoteData();
+                                notify(response.message, "info")
+                            } else {
+                                notify(response.message, 'error');
+                            }
+                            MODAL.hideWait();
+                        }, error => {
+                            notify(MESSAGES.errorComunicacion, 'error');
+                        });
+                    }
+                }
+            });
         }
     }
 });

@@ -70,6 +70,9 @@
                                                                    >
                                                                     Editar
                                                                 </a> 
+                                                            </li>
+
+                                                            <li>
                                                                 <a href="#" 
                                                                    v-on:click.prevent="publicarRolExamen(item)"
                                                                    v-if="item.isSituacionConfigurarGrupoEspecial"
@@ -77,6 +80,16 @@
                                                                     Publicar
                                                                 </a> 
                                                             </li>
+
+                                                            <li v-if="item.estado=='PUB'">
+                                                                <a href="#" 
+                                                                   v-on:click.prevent="fijarHorarioAula(item)"
+                                                                   >
+                                                                    Fijar Horario Aula
+                                                                </a> 
+                                                            </li>
+
+
                                                             <li class="divider"></li>  
                                                             <li>                                                            
                                                                 <a href="#" 

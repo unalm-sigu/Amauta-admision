@@ -267,4 +267,24 @@ public class RolExamenesController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("fijarhorarioaula")
+    public JsonResponse fijarhorarioaula(RolExamenes rolExamenes, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds.setFechaAccionAudit(new Date());
+            service.fijarHorarioAula(rolExamenes, ds);
+            response.setSuccess(true);
+            response.setMessage("Rol examen publicado.");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }
