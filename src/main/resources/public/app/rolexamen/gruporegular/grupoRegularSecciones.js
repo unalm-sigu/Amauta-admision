@@ -21,6 +21,7 @@ new Vue({
                 const rolExamenes = this.letraGrupoRegular.rolExamenes;
                 return (rolExamenes.isEstadoConfigurando || rolExamenes.isEstadoModificando);
             } catch (error) {
+                console.error(error);
                 return false;
             }
         }
@@ -100,7 +101,8 @@ new Vue({
         }, trasladar(item) {
             this.$refs.moverSeccionComp.seccion = item.seccion;
             this.$refs.moverSeccionComp.tipoorigen = "GRU_REG";
-            this.$refs.moverSeccionComp.loadComponent();
+            const rolExamenes = this.letraGrupoRegular.rolExamenes;
+            this.$refs.moverSeccionComp.loadComponent(rolExamenes);
             this.$refs.moverSeccionModal.open();
         }
     }

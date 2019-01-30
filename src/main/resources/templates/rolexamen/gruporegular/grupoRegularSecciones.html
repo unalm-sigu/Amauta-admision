@@ -89,10 +89,9 @@
                                                             <i class="glyphicon glyphicon-option-vertical"></i>
                                                         </a> 
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li><a v-on:click.prevent="excluir(sec,tipoAccion.SECCION)">Excluir</a></li>
-                                                            <li><a v-on:click.prevent="incluir(sec,tipoAccion.SECCION)">Incluir</a></li>
-                                                            <li class="divider"></li> 
-                                                            <li><a v-if="sec.isEstadoActivo"  v-on:click.prevent="trasladar(sec)">Mover</a></li>
+                                                            <li v-if="sec.isEstadoActivo"><a v-on:click.prevent="excluir(sec,tipoAccion.SECCION)">Excluir</a></li>
+                                                            <li v-if="sec.isEstadoExcluido"><a v-on:click.prevent="incluir(sec,tipoAccion.SECCION)">Incluir</a></li>
+                                                            <li v-if="sec.isEstadoActivo"><a  v-on:click.prevent="trasladar(sec)">Mover</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>

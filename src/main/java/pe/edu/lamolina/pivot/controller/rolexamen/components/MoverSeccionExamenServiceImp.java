@@ -99,23 +99,6 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
     @Autowired
     AlumnoGrupoEspecialDAO alumnoGrupoEspecialDAO;
 
-    @Override
-    public SeccionCursoMasivo findSeccionCursoMasivoBySeccion(Seccion seccion) {
-        SeccionCursoMasivo seccionCursoMasivo = seccionCursoMasivoDAO.findBySeccion(seccion, SeccionRolExamenEstadoEnum.ACT);
-        return seccionCursoMasivo;
-    }
-
-    @Override
-    public SeccionGrupoRegular findSeccionGrupoRegularBySeccion(Seccion seccion) {
-        SeccionGrupoRegular seccionGrupoRegular = seccionGrupoRegularDAO.findBySeccion(seccion, SeccionRolExamenEstadoEnum.ACT);
-        return seccionGrupoRegular;
-    }
-
-    @Override
-    public SeccionGrupoEspecial findSeccionGrupoEspecialBySeccion(Seccion seccion) {
-        SeccionGrupoEspecial seccionGrupoEspecial = seccionGrupoEspecialDAO.findBySeccion(seccion, SeccionRolExamenEstadoEnum.ACT);
-        return seccionGrupoEspecial;
-    }
 
     @Override
     public List<CursoMasivoExamen> allActiveCursosMasivosByRolExamenes(RolExamenes rolExamenes) {
@@ -501,4 +484,19 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
         //todo remove aula and docente from tablas de masivos
     }
 
+    @Override
+    public SeccionCursoMasivo findSeccionCursoMasivoBySeccionRolExamenes(Seccion seccion, RolExamenes rol) {
+        return seccionCursoMasivoDAO.findByRolExamenesSeccion(rol, seccion, SeccionRolExamenEstadoEnum.ACT);
+    }
+
+    @Override
+    public SeccionGrupoEspecial findSeccionGrupoEspecialBySeccionRolExamenes(Seccion seccion, RolExamenes rol) {
+        return seccionGrupoEspecialDAO.findByRolExamanesSeccion(rol, seccion, SeccionRolExamenEstadoEnum.ACT);
+    }
+
+    @Override
+    public SeccionGrupoRegular findSeccionGrupoRegularBySeccionRolExamenes(Seccion seccion, RolExamenes rol) {
+        return seccionGrupoRegularDAO.findByRolExamenesSeccion(rol, seccion, SeccionRolExamenEstadoEnum.ACT);
+    }
+  
 }

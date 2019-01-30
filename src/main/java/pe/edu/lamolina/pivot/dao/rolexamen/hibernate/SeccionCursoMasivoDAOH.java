@@ -47,17 +47,6 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
     }
 
     @Override
-    public SeccionCursoMasivo findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... estado) {
-        Octavia sql = Octavia.query()
-                .from(SeccionCursoMasivo.class, "scm")
-                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "userRegistro ur", "seccion se", "cme.curso cur")
-                .join("cme.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
-                .filter("se.id", seccion)
-                .in("scm.estado", estado);
-        return find(sql);
-    }
-
-    @Override
     public List<SeccionCursoMasivo> allByCursosMasivos(List<CursoMasivoExamen> cursosMasivosExamenes) {
         Octavia sql = Octavia.query()
                 .from(SeccionCursoMasivo.class, "scm")
@@ -185,7 +174,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .filter("cme.id", cursoMasivoExamen);
         return TypesUtil.getInt(find(sql));
     }
-    
+
     @Override
     public List<SeccionCursoMasivo> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes) {
         Octavia sql = Octavia.query()
@@ -194,6 +183,19 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .join("cme.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
                 .in("ghe.id", grupoHorasExamenes);
         return all(sql);
+    }
+
+    @Override
+    public SeccionCursoMasivo findByRolExamenesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... estado) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "userRegistro ur", "seccion se", "cme.curso cur")
+                .join("cme.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .filter("se.id", seccion)
+                .in("scm.estado", estado)
+                .filter("rexa.id", rol);
+
+        return find(sql);
     }
 
 }

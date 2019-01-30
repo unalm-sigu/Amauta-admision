@@ -62,14 +62,17 @@ Vue.component("mover-seccion-examen", {
                     }
                 }
             });
-        }, loadComponent() {
+        }, loadComponent(rolExamenes) {
+            if(!rolExamenes){
+                console.error('INTENTADO CARGAR COMPONENTE SIN PASARLE ROL DE EXAMENES');
+            }
             this.tipoDestinoGrupoExamenes = null;
             this.gruposHorariosDestino = [];
             this.grupoHorarioDestino = null;
             let vue = this;
             $.ajax({
                 url: `${vue.URL}/loadComponent`,
-                data: {seccion: vue.seccion.id, tipoOrigen: vue.tipoorigen},
+                data: {seccion: vue.seccion.id, tipoOrigen: vue.tipoorigen, rolExamenes: rolExamenes.id},
                 success: function (response) {
                     if (response.success) {
                         vue.seccionRolExamenes = response.data.seccionRolExamenes;

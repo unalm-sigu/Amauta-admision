@@ -8,6 +8,16 @@ new Vue({
         this.$refs.tblSeccionesCursosMasivos.ajaxdata = {cursoMasivo: this.cursoMasivoExamen.id};
         this.$refs.tblSeccionesCursosMasivos.loadRemoteData();
     },
+    computed: {
+        accionesDisponibles() {
+            try {
+                return this.cursoMasivoExamen.rolExamenes.isEstadoModificando || this.cursoMasivoExamen.rolExamenes.isEstadoConfigurando;
+            } catch (error) {
+                console.error(error);
+                return false;
+            }
+        }
+    },
     methods: {
         excluir(item, tipoAccion) {
             item.cursoMasivoExamen = {id: this.cursoMasivoExamen.id};
@@ -58,7 +68,8 @@ new Vue({
         }, trasladar(item) {
             this.$refs.moverSeccionComp.seccion = item.seccion;
             this.$refs.moverSeccionComp.tipoorigen = "CUR_MAS";
-            this.$refs.moverSeccionComp.loadComponent();
+            const rolExamenes = this.cursoMasivoExamen.rolExamenes;
+            this.$refs.moverSeccionComp.loadComponent(rolExamenes);
             this.$refs.moverSeccionModal.open();
         }
     }

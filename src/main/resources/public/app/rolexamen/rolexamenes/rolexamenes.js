@@ -36,7 +36,7 @@ new Vue({
                 eventoCicloAcademico: {},
                 semanasExamen: []
             };
-            this.confirmarModal.title = 'Crear nuevo rol de examen';
+            this.confirmarModal.title = 'Crear nuevo rol de exámenes';
             this.$refs.modalConfirmar.open();
 
         },
@@ -53,7 +53,7 @@ new Vue({
             }).then(response => {
                 if (response.success) {
                     $vue.rolExamenes = response.data;
-                    $vue.confirmarModal.title = 'Editar rol de examenes';
+                    $vue.confirmarModal.title = 'Editar rol de exámenes';
                     $vue.$refs.modalConfirmar.open();
                 } else {
                     notify(response.message, 'error');
@@ -105,7 +105,7 @@ new Vue({
         }, publicarRolExamen(rolExamen) {
             let $vue = this;
             bootbox.confirm({
-                message: '¿Está seguro que desea publicar el rol examen?',
+                message: '¿Está seguro que desea publicar el rol de exámenes?',
                 buttons: {
                     confirm: {label: 'Si, publicar', className: 'btn-success'},
                     cancel: {label: 'No', className: 'btn-link'}
@@ -135,9 +135,9 @@ new Vue({
         }, eliminarAvanceConfiguracion(rolExamen) {
             let $vue = this;
             bootbox.confirm({
-                message: '¿Está seguro que desea eliminar la configuracion del rol examenes?',
+                message: '¿Está seguro que desea eliminar la configuracion del rol de exámenes?',
                 buttons: {
-                    confirm: {label: 'Si, eliminar', className: 'btn-success'},
+                    confirm: {label: 'Si, eliminar', className: 'btn-danger'},
                     cancel: {label: 'No', className: 'btn-link'}
                 },
                 callback: function (result) {
