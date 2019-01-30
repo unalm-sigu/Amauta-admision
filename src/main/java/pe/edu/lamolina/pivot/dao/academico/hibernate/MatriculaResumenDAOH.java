@@ -11,20 +11,21 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.enums.RolEnum;
-import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.ID_CONSEJERO_NN;
 
 @Repository
 public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> implements MatriculaResumenDAO {
@@ -528,6 +529,62 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         query.setParameter("ciclo", cicloAcademicoAnterior.getCodigo());
         query.setParameterList("codigos", situacionesPregrado);
         query.executeUpdate();
+    }
+
+    @Override
+    public Long allSinConsejero(Carrera carrera, CicloAcademico cicloAcademico) {
+        Octavia sqlSub = new Octavia()
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al1");
+
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al", "al.carrera car")
+                .join("cicloAcademico ca")
+                .notExists(sqlSub)
+                .linkedBy("al.id", "al1.id")
+                .filter("ca.id", cicloAcademico)
+                .filter("car.id", carrera);
+
+        return Long.parseLong(sql.all(getCurrentSession()).size() + "");
+    }
+
+    @Override
+    public Long allConConsejero(Carrera carrera, CicloAcademico cicloAcademico) {
+        Octavia sqlSub = new Octavia()
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al1", "consejero con")
+                .filter("con.id", "<>", ID_CONSEJERO_NN);
+
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al", "al.carrera car")
+                .join("cicloAcademico ca")
+                .exists(sqlSub)
+                .linkedBy("al.id", "al1.id")
+                .filter("ca.id", cicloAcademico)
+                .filter("car.id", carrera);
+
+        return Long.parseLong(sql.all(getCurrentSession()).size() + "");
+    }
+
+    @Override
+    public Long allConConsejeroNN(Carrera carrera, CicloAcademico cicloAcademico) {
+        Octavia sqlSub = new Octavia()
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al1", "consejero con")
+                .filter("con.id", ID_CONSEJERO_NN);
+
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al", "al.carrera car")
+                .join("cicloAcademico ca")
+                .exists(sqlSub)
+                .linkedBy("al.id", "al1.id")
+                .filter("ca.id", cicloAcademico)
+                .filter("car.id", carrera);
+
+        return Long.parseLong(sql.all(getCurrentSession()).size() + "");
     }
 
 }

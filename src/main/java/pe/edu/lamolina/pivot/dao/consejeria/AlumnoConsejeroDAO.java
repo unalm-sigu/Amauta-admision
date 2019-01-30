@@ -15,7 +15,7 @@ public interface AlumnoConsejeroDAO extends EasyDAO<AlumnoConsejero> {
 
     void insertAlumnoConsejero(Consejero get, CicloAcademico cicloAcademico, Usuario usuario, Carrera carrera, List<Alumno> alumno);
 
-    void desasignarAlumnosConsejero(List<Consejero> consejeros, Usuario usuario );
+    void desasignarAlumnosConsejero(List<Consejero> consejeros, Usuario usuario);
 
     public List<AlumnoConsejero> allByCarrera(DynatableFilter filter);
 

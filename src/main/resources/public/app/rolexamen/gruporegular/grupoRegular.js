@@ -20,7 +20,9 @@ new Vue({
     },
     computed: {
         generarDisponible() {
-            return this.rolExamen && this.rolExamen.isEstadoConfiguracion && (this.rolExamen.isSituacionConfigurarCursoMasivo || this.rolExamen.isSituacionConfiguraGrupoRegular);
+            console.log(this.rolExamen.estado);
+            console.log(this.rolExamen.situacion);
+            return this.rolExamen && this.rolExamen.isEstadoConfigurando && (this.rolExamen.isSituacionConfigurarHorario  || this.rolExamen.isSituacionConfigurarCursoMasivo || this.rolExamen.isSituacionConfiguraGrupoRegular);
         }
     },
     mounted() {

@@ -176,7 +176,7 @@
 
                             <div class="form-group" >
                                 <label  class="control-label">Nombre</label>
-                                <input class="form-control" required="true" v-model="rolExamenes.nombre" v-bind:readonly="!rolExamenes.isSituacionConfigurarRol"/>
+                                <input class="form-control" required="true" v-model="rolExamenes.nombre" v-bind:readonly="rolExamenes.id &amp;&amp; !rolExamenes.isSituacionConfigurarRol"/>
                             </div>
 
                             <div class="row">
