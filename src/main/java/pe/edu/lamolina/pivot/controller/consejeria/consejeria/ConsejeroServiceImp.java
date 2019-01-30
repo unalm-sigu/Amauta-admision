@@ -142,8 +142,13 @@ public class ConsejeroServiceImp implements ConsejeroService {
                 carreras.add(new Carrera(oficina.getInstanciaOficina()));
             }
         }
-
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+//        if(!facultades.isEmpty()){
+//            List<Carrera> carrerasFac = carreraDAO.allByFacultades(facultades);
+//            carreras.addAll(carrerasFac);
+//        }
+//        
+        return null;//carreraDAO.allByCarreras(carreras);
     }
 
     @Override
@@ -209,8 +214,30 @@ public class ConsejeroServiceImp implements ConsejeroService {
             int a = ult == numConsejero ? alumnos.size() : sum;
             List<Alumno> alumos = alumnos.stream().filter((x) -> x.getIndex() > offset && x.getIndex() <= a).collect(Collectors.toList());
             alumnoConsejeroDAO.insertAlumnoConsejero(consejeros.get(numConsejero - 1), ds.getCicloAcademico(), ds.getUsuario(), new Carrera(carrera), alumos);
+            Consejero consejero = consejeros.get(numConsejero - 1);
+            consejero.setAlumnosActivos(alumos.size());
+            consejeroDAO.update(consejero);
         }
 
+    }
+
+    @Override
+    @Transactional
+    public void desasignarAlumnos(Long carrera, DataSessionPivot ds) {
+        List<Consejero> consejeros = consejeroDAO.findConsejeroByEstado(carrera);
+        int cantidadConsejeros = consejeros.size();
+        alumnoConsejeroDAO.desasignarAlumnosConsejero(consejeros, ds.getUsuario());
+        for (Consejero consejero : consejeros) {
+            consejero.setAlumnosActivos(0);
+            consejero.setAlumnosInactivos(0);
+            consejeroDAO.update(consejero);
+        }
+
+    }
+
+    @Override
+    public List<Consejero> allByCarrera(String nombre, Carrera carrera) {
+        return consejeroDAO.allByNombreAndCarrera(nombre, carrera);
     }
 
 }

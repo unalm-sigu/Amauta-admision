@@ -3,16 +3,19 @@ package pe.edu.lamolina.pivot.dao.consejeria.hibernate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collector;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.springframework.stereotype.Service;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -67,6 +70,52 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
         query.setParameterList("idAlumno", ids);
 
         query.executeUpdate();
+    }
+
+    @Override
+    public void desasignarAlumnosConsejero(List<Consejero> consejeros, Usuario usuario) {
+        List<Long> ids = consejeros.stream().map(Consejero::getId).collect(Collectors.toList());
+        StringBuilder strb = new StringBuilder("");
+
+        strb.append("delete ");
+        strb.append(" from AlumnoConsejero ");
+        strb.append("where ");
+        strb.append("consejero.id in (:consejeros)");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameterList("consejeros", ids);
+
+        query.executeUpdate();
+    }
+
+    public List<AlumnoConsejero> allByCarrera(DynatableFilter filter) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al", "consejero con", "con.colaborador col", "col.persona perc")
+                .join("al.persona per", "al.carrera car")
+                .join("perc.tipoDocumento", "per.tipoDocumento", "al.situacionAcademica ")
+                .left("al.cicloIngreso")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .filter("estado", EstadoEnum.ACT)
+                .orderBy("al.id desc");
+        sql.beginRelativeFilters();
+        setCondicion(filter, sql);
+        return all(sql);
+    }
+
+    private void setCondicion(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+        for (String key : queries.keySet()) {
+            if (key.equals("search")) {
+                continue;
+            }
+            String values = (String) queries.get(key);
+            sql.filter("car.id", values);
+        }
     }
 
 }

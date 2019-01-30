@@ -12,8 +12,11 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.CargoTrabajadorEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 
@@ -293,10 +296,15 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
 //
 //        return all(sql);
 //    }
-    
-        @Override
+    @Override
     public List<Docente> allByNombreFacultad(String nombre, Facultad facultad) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia subQuery = new Octavia()
+                .from(Colaborador.class, "col")
+                .join("persona perc", "oficina ofi", "ofi.tipoOficina tip", "cargo carg")
+                .filter("carg.codigo", PerfilColaboradorEnum.DOC) //Docente
+                .filter("tip.codigo", TipoOficinaEnum.DPTO); //departamentoAcdemico
+        
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")
                 .join("persona per", "departamentoAcademico da", "da.facultad fa")
@@ -310,6 +318,8 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .__().filter("per.numeroDocIdentidad", "like", nombre)
                 .__().filter("doc.codigo", "like", nombre)
                 .endBlock()
+                .exists(subQuery)
+                .linkedBy("per.id", "perc.id")
                 .limit(15);
 
         return all(sql);

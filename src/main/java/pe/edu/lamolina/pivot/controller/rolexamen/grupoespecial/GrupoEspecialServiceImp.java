@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -29,6 +30,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
+import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
@@ -43,6 +45,7 @@ import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.controller.rolexamen.gruporegular.GrupoRegularConnector;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoCursoMasivoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoEspecialDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoRegularDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoMasivoExamenDAO;
@@ -104,6 +107,9 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
     @Autowired
     CursoMasivoExamenDAO cursoMasivoExamenDAO;
 
+    @Autowired
+    AlumnoCursoMasivoDAO alumnoCursoMasivoDAO;
+
     private void checkNoPublicado(RolExamenes rol) {
         Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de exámenes ya ha sido publicado");
     }
@@ -163,7 +169,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
     public void calcularExamenesGrupoEspecial(RolExamenes rolExamenes, DataSessionPivot ds) {
         rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
         this.checkNoPublicado(rolExamenes);
-        
+
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
         Assert.isTrue(rolExamenes.isSituacionAsignarHorarioCursosMasivos(), "Debe asignar horario de examen a los cursos masivos.");
@@ -451,15 +457,31 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         RolExamenes rolExamenes = alumnoGrupoEspecial.getSeccionGrupoEspecial().getRolExamenes();
         grupoRegularConnector.validarSituacion("excluir", "los grupos especiales", rolExamenes.isSituacionConfigurarGrupoEspecial());
         Assert.isTrue(alumnoGrupoEspecial.isEstadoExcluido(), "Solo se puede incluir los alumnos especiales excluidos");
-        
+
+        this.validarActivarAlumno(alumnoGrupoEspecial.getSeccionGrupoEspecial().getGrupoHorasExamen(), alumnoGrupoEspecial.getAlumno());
 
         AlumnoGrupoEspecial alumnoGrupoEspecialUpd = new AlumnoGrupoEspecial(alumnoGrupoEspecial.getId());
         alumnoGrupoEspecialUpd.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
         alumnoGrupoEspecialDAO.updateEstado(alumnoGrupoEspecialUpd);
     }
-    
-    public void validarActivarAlumno(){
-        
+
+    public void validarActivarAlumno(GrupoHorasExamen grupoHorasExamen, Alumno alumno) {
+        List<AlumnoCursoMasivo> alumnosCursosMasivos = alumnoCursoMasivoDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, AlumnoRolExamenEstadoEnum.ACT);
+        List<AlumnoGrupoEspecial> alumnosGrupoEspeciales = alumnoGrupoEspecialDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, AlumnoRolExamenEstadoEnum.ACT);
+        List<AlumnoGrupoRegular> alumnoGrupoRegulares = alumnoGrupoRegularDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, AlumnoRolExamenEstadoEnum.ACT);
+
+        List<AlumnoCursoMasivo> alumnosCursosMasivosConflicts = alumnosCursosMasivos.stream()
+                .filter(x -> x.getAlumno().equals(alumno))
+                .collect(Collectors.toList());
+        List<AlumnoGrupoEspecial> alumnosCursosEspecialesConflicts = alumnosGrupoEspeciales.stream()
+                .filter(x -> x.getAlumno().equals(alumno))
+                .collect(Collectors.toList());
+        List<AlumnoGrupoRegular> alumnosGrupoRegularesConflicts = alumnoGrupoRegulares.stream()
+                .filter(x -> x.getAlumno().equals(alumno))
+                .collect(Collectors.toList());
+        if (!alumnosCursosMasivosConflicts.isEmpty() || !alumnosCursosEspecialesConflicts.isEmpty() || !alumnosGrupoRegularesConflicts.isEmpty()) {
+            throw new PhobosException("Cruce de horario.");
+        }
     }
 
 }
