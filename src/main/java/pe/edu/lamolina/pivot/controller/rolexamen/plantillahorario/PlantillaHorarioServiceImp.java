@@ -86,9 +86,10 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     @Transactional(readOnly = false)
     public void calcularPlantillaHorario(RolExamenes rolExamenes) {
         RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
-        checkEstadoPublicado(rolBD);
+        Assert.isTrue(rolBD.isSituacionConfigurarRol(), "La plantilla de horarioas ya ha sido generada");
 
         this.deletePlantillaHorario(rolExamenes);
+        
         List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
         List<Hora> horas = horaDAO.all();
 
@@ -97,9 +98,11 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
             logger.debug("CALCULAR PLANTILLA HORARIO DE LA SEMANA " + semana.getNumeroSemana());
             this.calcularPlantillaHorario(semana, horas);
         }
+        
         RolExamenes rolExamenesUpd = new RolExamenes(rolExamenes.getId());
+        rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CON);
         rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR);
-        rolExamenesDAO.updateSituacion(rolExamenesUpd);
+        rolExamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
     }
 
     public void calcularPlantillaHorario(SemanaExamen semanaExamen, List<Hora> horas) {
