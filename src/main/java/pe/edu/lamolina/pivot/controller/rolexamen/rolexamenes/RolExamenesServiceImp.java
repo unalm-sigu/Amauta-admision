@@ -1,11 +1,14 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.rolexamenes;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -27,6 +31,8 @@ import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.rolexamen.AulaCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.FechaHoraGrupoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
@@ -41,6 +47,7 @@ import pe.edu.lamolina.pivot.controller.rolexamen.plantillahorario.PlantillaHora
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.AulaCursoMasivoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.FechaHoraGrupoExamenDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.GrupoHorasExamenDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
@@ -102,6 +109,9 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
     @Autowired
     SeccionGrupoEspecialDAO seccionGrupoEspecialDAO;
+
+    @Autowired
+    AulaCursoMasivoDAO aulaCursoMasivoDAO;
 
     @Override
     public RolExamenes findRolExamenes(long rolExamenId) {
@@ -253,165 +263,291 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
         for (SemanaExamen semanaExamen : semanaExamenes) {
 
-            logger.debug("semana seccion id {} # {} ", semanaExamen.getId(), semanaExamen.getNumeroSemana());
-            logger.debug("semanaExamen getFechaInicio {} getFechaFin {} ", semanaExamen.getFechaInicio(), semanaExamen.getFechaFin());
-            logger.debug("semanaExamen getHoraInicio {} getHoraFin {} ", semanaExamen.getHoraInicio(), semanaExamen.getHoraFin());
+            logger.debug("semana id {} # {} ", semanaExamen.getId(), semanaExamen.getNumeroSemana());
+            logger.debug("semana FechaInicio {} FechaFin {} ", semanaExamen.getFechaInicio(), semanaExamen.getFechaFin());
 
             List<FechaHoraGrupoExamen> fechaHoraGrupoExamenes = fechaHoraGrupoExamenDAO.allBySemanaExamen(semanaExamen);
-            logger.debug("fechaHoraGrupoExamenes {}", fechaHoraGrupoExamenes.size());
             List<GrupoHorasExamen> grupoHorasExamenes = fechaHoraGrupoExamenes.stream().map(x -> x.getGrupoHorasExamen()).collect(Collectors.toList());
-            logger.debug("grupoHorasExamenes {}", grupoHorasExamenes.size());
 
-            List<HorarioAula> horarioClasesCursoMasivo = this.allHorarioClasesCursoMasivo(grupoHorasExamenes);
-            logger.debug("horarioClasesCursoMasivo {}", horarioClasesCursoMasivo.size());
-            List<HorarioAula> horarioClasesCursoRegular = this.allHorarioClasesCursoRegular(grupoHorasExamenes);
-            logger.debug("horarioClasesCursoRegular {}", horarioClasesCursoRegular.size());
-            List<HorarioAula> horarioClasesCursoEspecial = this.allHorarioClasesCursoEspecial(grupoHorasExamenes);
-            logger.debug("horarioClasesCursoEspecial {}", horarioClasesCursoEspecial.size());
+            Map<Long, List<FechaHoraGrupoExamen>> fechaHoraGrupoExamenXgrupoExamen = TypesUtil.convertListToMapList("grupoHorasExamen.id", fechaHoraGrupoExamenes);
 
-            for (HorarioAula horarioAula : horarioClasesCursoMasivo) {
+            LocalDate fechainicioexamen = this.toLocal(semanaExamen.getFechaInicio());
+            LocalDate fechafinfirst = fechainicioexamen.minusDays(1L);
+            Date fechafin = this.toDate(fechafinfirst);
 
-                if (numerosemana % 2 == 0) {//8-13
-                    boolean test = horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8;
-                    if (test) {
-                        continue;
-                    }
-                } else {//14-18
-                    boolean test = horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
-                    if (test) {
-                        continue;
-                    }
-                }
+            LocalDate fechafinsemanaexamen = this.toLocal(semanaExamen.getFechaFin());
+            LocalDate fechainiciosecond = fechafinsemanaexamen.plusDays(1L);
+            Date fechainicio = this.toDate(fechainiciosecond);
 
-                HorarioAula horarioAulaNew = horarioAula.clone();
+            logger.debug("fecha para fines de nuevo horario inicio  {} fin {} ", fechainicio, fechafin);
 
-                LocalDate dateinicio = this.toLocal(horarioAula.getFechaInicio());
-                LocalDate diaInicio = dateinicio.minusDays(1L);
-                horarioAula.setFechaFin(this.toDate(diaInicio));
-                horarioAulaDAO.update(horarioAula);
+            this.allHorarioClasesCursoMasivo(semanaExamen, grupoHorasExamenes, numerosemana, fechaHoraGrupoExamenXgrupoExamen,fechainicio,fechafin);
 
-                LocalDate dateend = this.toLocal(horarioAula.getFechaFin());
-                LocalDate diafin = dateend.plusDays(1L);
-                horarioAulaNew.setFechaInicio(this.toDate(diafin));
-                horarioAulaDAO.save(horarioAulaNew);
+            this.allHorarioClasesCursoRegular(semanaExamen, grupoHorasExamenes, numerosemana, fechaHoraGrupoExamenXgrupoExamen,fechainicio,fechafin);
 
-            }
-
-            for (HorarioAula horarioAula : horarioClasesCursoRegular) {
-
-                if (numerosemana % 2 == 0) {//8-13
-                    boolean test = horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8;
-                    if (test) {
-                        continue;
-                    }
-                } else {//14-18
-                    boolean test = horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
-                    if (test) {
-                        continue;
-                    }
-                }
-
-                HorarioAula horarioAulaNew = horarioAula.clone();
-
-                LocalDate dateinicio = this.toLocal(horarioAula.getFechaInicio());
-                LocalDate diaInicio = dateinicio.minusDays(1L);
-                horarioAula.setFechaFin(this.toDate(diaInicio));
-                horarioAulaDAO.update(horarioAula);
-
-                LocalDate dateend = this.toLocal(horarioAula.getFechaFin());
-                LocalDate diafin = dateend.plusDays(1L);
-                horarioAulaNew.setFechaInicio(this.toDate(diafin));
-                horarioAulaDAO.save(horarioAulaNew);
-
-            }
-
-            for (HorarioAula horarioAula : horarioClasesCursoEspecial) {
-
-                if (numerosemana % 2 == 0) {//8-13
-                    boolean test = horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8;
-                    if (test) {
-                        continue;
-                    }
-                } else {//14-18
-                    boolean test = horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
-                    if (test) {
-                        continue;
-                    }
-                }
-
-                HorarioAula horarioAulaNew = horarioAula.clone();
-
-                LocalDate dateinicio = this.toLocal(horarioAula.getFechaInicio());
-                LocalDate diaInicio = dateinicio.minusDays(1L);
-                horarioAula.setFechaFin(this.toDate(diaInicio));
-                horarioAulaDAO.update(horarioAula);
-
-                LocalDate dateend = this.toLocal(horarioAula.getFechaFin());
-                LocalDate diafin = dateend.plusDays(1L);
-                horarioAulaNew.setFechaInicio(this.toDate(diafin));
-                horarioAulaDAO.save(horarioAulaNew);
-
-            }
-
-            for (FechaHoraGrupoExamen fechaHoraGrupoExamene : fechaHoraGrupoExamenes) {
-
-                GrupoHorasExamen grupoHorasExamen = fechaHoraGrupoExamene.getGrupoHorasExamen();
-
-                HorarioAula horarioAula = new HorarioAula();
-                horarioAula.setFechaInicio(semanaExamen.getFechaInicio());
-                horarioAula.setFechaFin(semanaExamen.getFechaFin());
-                horarioAula.setAula(null);
-                horarioAula.setCursoMasivoExamen(null);
-                horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-                horarioAula.setTipoEnum(TipoHorarioAulaEnum.EXAM);
-                horarioAula.setDia(fechaHoraGrupoExamene.getDia());
-                horarioAula.setHora(fechaHoraGrupoExamene.getHora());
-
-                horarioAulaDAO.save(horarioAula);
-
-            }
+            this.allHorarioClasesCursoEspecial(semanaExamen, grupoHorasExamenes, numerosemana, fechaHoraGrupoExamenXgrupoExamen,fechainicio,fechafin);
 
             numerosemana++;
         }
     }
 
     public Date toDate(LocalDate dateToConvert) {
-        return Date.from(dateToConvert.atStartOfDay()
-                .atZone(ZoneId.systemDefault())
-                .toInstant());
+
+        try {
+            return Date.from(dateToConvert.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public LocalDate toLocal(Date date) {
-        return date.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
+
+        try {
+            return LocalDateTime.ofInstant(Instant.ofEpochMilli(date.getTime()), ZoneId.systemDefault()).toLocalDate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    private List<HorarioAula> allHorarioClasesCursoMasivo(List<GrupoHorasExamen> grupoHorasExamenes) {
+    @Transactional
+    private void allHorarioClasesCursoMasivo(
+            SemanaExamen semanaExamen,
+            List<GrupoHorasExamen> grupoHorasExamenes,
+            Integer numerosemana,
+            Map<Long, List<FechaHoraGrupoExamen>> fechaHoraGrupoExamenXgrupoExamen,
+            Date fechainicio, Date fechafin) {
 
         List<SeccionCursoMasivo> seccionCursoMasivos = seccionCursoMasivoDAO.allByGrupoHorasExamen(grupoHorasExamenes);
-        logger.debug("seccionCursoMasivos {}", seccionCursoMasivos.size());
+
+        List<CursoMasivoExamen> cursoMasivoExamenes = seccionCursoMasivos.stream().map(x -> x.getCursoMasivoExamen()).collect(Collectors.toList());
+
+        List<AulaCursoMasivo> aulaCursoMasivos = aulaCursoMasivoDAO.allByCursosMasivos(cursoMasivoExamenes);
+
         List<Seccion> secciones = seccionCursoMasivos.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
-        logger.debug("secciones {}", secciones.size());
-        return horarioAulaDAO.allHorarioClasesBySecciones(secciones);
+
+        List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones);
+
+        for (HorarioAula horarioAula : horarioAulas) {
+
+
+            if (numerosemana % 2 == 0) {//8-13
+                boolean test = horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8;
+                if (test) {
+                    continue;
+                }
+            } else {//14-18
+                boolean test = horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
+                if (test) {
+                    continue;
+                }
+            }
+
+            HorarioAula horarioAulaNew = new HorarioAula();
+
+            horarioAulaNew.setFechaInicio(fechainicio);
+            horarioAulaNew.setFechaFin(horarioAula.getFechaFin());
+
+            horarioAulaNew.setAula(horarioAula.getAula());
+            horarioAulaNew.setEstado(horarioAula.getEstado());
+            horarioAulaNew.setReservado(horarioAula.getReservado());
+            horarioAulaNew.setTipo(horarioAula.getTipo());
+            horarioAulaNew.setDia(horarioAula.getDia());
+            horarioAulaNew.setHora(horarioAula.getHora());
+            horarioAulaNew.setSeccion(horarioAula.getSeccion());
+            horarioAulaNew.setReservaAula(horarioAula.getReservaAula());
+            horarioAulaNew.setCursoMasivoExamen(horarioAula.getCursoMasivoExamen());
+            horarioAulaDAO.save(horarioAulaNew);
+
+            horarioAula.setFechaFin(fechafin);
+            horarioAulaDAO.update(horarioAula);
+
+        }
+
+        for (AulaCursoMasivo aulaCursoMasivo : aulaCursoMasivos) {
+
+            GrupoHorasExamen grupoHorasExamen = aulaCursoMasivo.getCursoMasivoExamen().getGrupoHorasExamen();
+            List<FechaHoraGrupoExamen> fechaHoraGrupoExamenes = fechaHoraGrupoExamenXgrupoExamen.get(grupoHorasExamen.getId());
+            if (fechaHoraGrupoExamenes == null) {
+                continue;
+            }
+            for (FechaHoraGrupoExamen fechaHoraGrupoExamene : fechaHoraGrupoExamenes) {
+
+                HorarioAula horarioAula = new HorarioAula();
+                horarioAula.setFechaInicio(semanaExamen.getFechaInicio());
+                horarioAula.setFechaFin(semanaExamen.getFechaFin());
+
+                horarioAula.setAula(aulaCursoMasivo.getAula());
+                horarioAula.setCursoMasivoExamen(aulaCursoMasivo.getCursoMasivoExamen());
+                horarioAula.setSeccion(null);
+
+                horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                horarioAula.setTipoEnum(TipoHorarioAulaEnum.EXAM);
+                horarioAula.setDia(fechaHoraGrupoExamene.getDia());
+                horarioAula.setHora(fechaHoraGrupoExamene.getHora());
+                horarioAulaDAO.save(horarioAula);
+
+            }
+        }
+
     }
 
-    private List<HorarioAula> allHorarioClasesCursoRegular(List<GrupoHorasExamen> grupoHorasExamenes) {
+    @Transactional
+    private void allHorarioClasesCursoRegular(
+            SemanaExamen semanaExamen,
+            List<GrupoHorasExamen> grupoHorasExamenes,
+            Integer numerosemana,
+            Map<Long, List<FechaHoraGrupoExamen>> fechaHoraGrupoExamenXgrupoExamen,
+            Date fechainicio, Date fechafin) {
 
         List<SeccionGrupoRegular> seccionGrupoRegulares = seccionGrupoRegularDAO.allByGrupoHorasExamen(grupoHorasExamenes);
-        logger.debug("seccionGrupoRegulares {}", seccionGrupoRegulares.size());
+
         List<Seccion> secciones = seccionGrupoRegulares.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
-        logger.debug("secciones {}", secciones.size());
-        return horarioAulaDAO.allHorarioClasesBySecciones(secciones);
+
+        List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones);
+
+        for (HorarioAula horarioAula : horarioAulas) {
+
+            if (numerosemana % 2 == 0) {//8-13
+                boolean test = horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8;
+                if (test) {
+                    continue;
+                }
+            } else {//14-18
+                boolean test = horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
+                if (test) {
+                    continue;
+                }
+            }
+
+            HorarioAula horarioAulaNew = new HorarioAula();
+
+            horarioAulaNew.setFechaInicio(fechainicio);
+            horarioAulaNew.setFechaFin(horarioAula.getFechaFin());
+
+            horarioAulaNew.setAula(horarioAula.getAula());
+            horarioAulaNew.setEstado(horarioAula.getEstado());
+            horarioAulaNew.setReservado(horarioAula.getReservado());
+            horarioAulaNew.setTipo(horarioAula.getTipo());
+            horarioAulaNew.setDia(horarioAula.getDia());
+            horarioAulaNew.setHora(horarioAula.getHora());
+            horarioAulaNew.setSeccion(horarioAula.getSeccion());
+            horarioAulaNew.setReservaAula(horarioAula.getReservaAula());
+            horarioAulaNew.setCursoMasivoExamen(horarioAula.getCursoMasivoExamen());
+
+            horarioAulaDAO.save(horarioAulaNew);
+
+            horarioAula.setFechaFin(fechafin);
+            horarioAulaDAO.update(horarioAula);
+
+        }
+
+        for (SeccionGrupoRegular seccionGrupoRegulare : seccionGrupoRegulares) {
+
+            GrupoHorasExamen grupoHorasExamen = seccionGrupoRegulare.getLetraGrupoRegular().getGrupoHorasExamen();
+            List<FechaHoraGrupoExamen> fechaHoraGrupoExamenes = fechaHoraGrupoExamenXgrupoExamen.get(grupoHorasExamen.getId());
+            if (fechaHoraGrupoExamenes == null) {
+                continue;
+            }
+            for (FechaHoraGrupoExamen fechaHoraGrupoExamene : fechaHoraGrupoExamenes) {
+
+                HorarioAula horarioAula = new HorarioAula();
+                
+                horarioAula.setFechaInicio(semanaExamen.getFechaInicio());
+                horarioAula.setFechaFin(semanaExamen.getFechaFin());
+
+                horarioAula.setAula(seccionGrupoRegulare.getAula());
+                horarioAula.setCursoMasivoExamen(null);
+                horarioAula.setSeccion(seccionGrupoRegulare.getSeccion());
+
+                horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                horarioAula.setTipoEnum(TipoHorarioAulaEnum.EXAM);
+                horarioAula.setDia(fechaHoraGrupoExamene.getDia());
+                horarioAula.setHora(fechaHoraGrupoExamene.getHora());
+                horarioAulaDAO.save(horarioAula);
+
+            }
+
+        }
+
     }
 
-    private List<HorarioAula> allHorarioClasesCursoEspecial(List<GrupoHorasExamen> grupoHorasExamenes) {
+    @Transactional
+    private void allHorarioClasesCursoEspecial(
+            SemanaExamen semanaExamen,
+            List<GrupoHorasExamen> grupoHorasExamenes,
+            Integer numerosemana,
+            Map<Long, List<FechaHoraGrupoExamen>> fechaHoraGrupoExamenXgrupoExamen,
+            Date fechainicio, Date fechafin) {
 
         List<SeccionGrupoEspecial> seccionGrupoEspeciales = seccionGrupoEspecialDAO.allByGrupoHorasExamen(grupoHorasExamenes);
-        logger.debug("seccionGrupoEspeciales {}", seccionGrupoEspeciales.size());
-        List<Seccion> secciones = seccionGrupoEspeciales.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
-        logger.debug("secciones {}", secciones.size());
-        return horarioAulaDAO.allHorarioClasesBySecciones(secciones);
-    }
 
+        List<Seccion> secciones = seccionGrupoEspeciales.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+
+        List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones);
+
+        for (HorarioAula horarioAula : horarioAulas) {
+
+            if (numerosemana % 2 == 0) {//8-13
+                boolean test = horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8;
+                if (test) {
+                    continue;
+                }
+            } else {//14-18
+                boolean test = horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
+                if (test) {
+                    continue;
+                }
+            }
+
+            HorarioAula horarioAulaNew = new HorarioAula();
+
+            horarioAulaNew.setFechaInicio(fechainicio);
+            horarioAulaNew.setFechaFin(horarioAula.getFechaFin());
+
+            horarioAulaNew.setAula(horarioAula.getAula());
+            horarioAulaNew.setEstado(horarioAula.getEstado());
+            horarioAulaNew.setReservado(horarioAula.getReservado());
+            horarioAulaNew.setTipo(horarioAula.getTipo());
+            horarioAulaNew.setDia(horarioAula.getDia());
+            horarioAulaNew.setHora(horarioAula.getHora());
+            horarioAulaNew.setSeccion(horarioAula.getSeccion());
+            horarioAulaNew.setReservaAula(horarioAula.getReservaAula());
+            horarioAulaNew.setCursoMasivoExamen(horarioAula.getCursoMasivoExamen());
+
+            horarioAulaDAO.save(horarioAulaNew);
+
+            horarioAula.setFechaFin(fechafin);
+            horarioAulaDAO.update(horarioAula);
+
+        }
+
+        for (SeccionGrupoEspecial seccionGrupoEspeciale : seccionGrupoEspeciales) {
+
+            GrupoHorasExamen grupoHorasExamen = seccionGrupoEspeciale.getGrupoHorasExamen();
+            List<FechaHoraGrupoExamen> fechaHoraGrupoExamenes = fechaHoraGrupoExamenXgrupoExamen.get(grupoHorasExamen.getId());
+            if (fechaHoraGrupoExamenes == null) {
+                continue;
+            }
+
+            for (FechaHoraGrupoExamen fechaHoraGrupoExamene : fechaHoraGrupoExamenes) {
+
+                HorarioAula horarioAula = new HorarioAula();
+                horarioAula.setFechaInicio(semanaExamen.getFechaInicio());
+                horarioAula.setFechaFin(semanaExamen.getFechaFin());
+
+                horarioAula.setAula(seccionGrupoEspeciale.getAula());
+                horarioAula.setCursoMasivoExamen(null);
+                horarioAula.setSeccion(seccionGrupoEspeciale.getSeccion());
+
+                horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                horarioAula.setTipoEnum(TipoHorarioAulaEnum.EXAM);
+                horarioAula.setDia(fechaHoraGrupoExamene.getDia());
+                horarioAula.setHora(fechaHoraGrupoExamene.getHora());
+                horarioAulaDAO.save(horarioAula);
+
+            }
+        }
+    }
 }

@@ -174,22 +174,25 @@ new Vue({
                 callback: function (result) {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
+
                         $.ajax({
                             method: "POST",
-                            contentType: "application/json",
                             url: APP.url("rolexamen/rolexamenes/fijarhorarioaula"),
-                            data: {id:rolExamen.id}
-                        }).then(response => {
-                            if (response.success) {
-                                $vue.$refs.raptorRolExamenes.loadRemoteData();
-                                notify(response.message, "info")
-                            } else {
-                                notify(response.message, 'error');
+                            data: {id: rolExamen.id},
+                            success: function (response) {
+                                if (response.success) {
+                                    $vue.$refs.raptorRolExamenes.loadRemoteData();
+                                    notify(response.message, "info")
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                                MODAL.hideWait();
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, 'error');
                             }
-                            MODAL.hideWait();
-                        }, error => {
-                            notify(MESSAGES.errorComunicacion, 'error');
                         });
+
                     }
                 }
             });
