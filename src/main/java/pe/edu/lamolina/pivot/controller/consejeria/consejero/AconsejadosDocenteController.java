@@ -13,26 +13,24 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("consejero")
-public class ConsejeroController {
+@RequestMapping("consejeria/aconsejadosdocente")
+public class AconsejadosDocenteController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ConsejeroService service;
+    AconsejadosDocentesService service;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {

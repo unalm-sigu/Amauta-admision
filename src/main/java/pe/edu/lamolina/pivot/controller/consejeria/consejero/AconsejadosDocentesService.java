@@ -7,7 +7,7 @@ import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.general.Persona;
 
-public interface ConsejeroService {
+public interface AconsejadosDocentesService {
 
     public List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona persona);
 

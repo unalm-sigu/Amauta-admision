@@ -15,7 +15,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.consejeria.AlumnoConsejeroDAO;
 
 @Service
-public class ConsejeroServiceImp implements ConsejeroService {
+public class AconsejadosDocenteServiceImpl implements AconsejadosDocentesService {
 
     @Autowired
     AlumnoConsejeroDAO alumnoConsejeroDAO;
