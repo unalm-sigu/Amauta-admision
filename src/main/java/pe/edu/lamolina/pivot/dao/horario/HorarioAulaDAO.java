@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 
 public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
@@ -52,6 +53,6 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByAulaFecha(Aula aulaFormFecha);
 
-    List<HorarioAula> allHorarioClasesBySecciones(List<Seccion> secciones);
+    List<HorarioAula> allHorarioClasesBySecciones(List<Seccion> secciones, SemanaExamen semanaExamen);
 
 }

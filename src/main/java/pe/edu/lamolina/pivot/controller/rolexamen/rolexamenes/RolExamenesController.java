@@ -44,6 +44,7 @@ public class RolExamenesController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        logger.debug("cicloAcademico {}",ds.getCicloAcademico()!=null?ds.getCicloAcademico().getId():0);
 
         List<Hora> horas = service.allHoras();
         ArrayNode jHoras = new ArrayNode(jc);

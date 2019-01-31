@@ -39,9 +39,9 @@ public class ConsejeroServiceImp implements ConsejeroService {
         Long countNoMatriculados = matriculaResumenDAO.countNoMatriculablesByConsejero(persona, cicloAcademico);
         Long countRetiroCiclo = matriculaResumenDAO.countRetiroCicloByConsejero(persona, cicloAcademico);
         AconsejadoEstadoBean aconsejadoEstadoBean = new AconsejadoEstadoBean();
-        aconsejadoEstadoBean.setMatriculados(countMatriculable);
-        aconsejadoEstadoBean.setNoMatriculados(countNoMatriculados);
-        aconsejadoEstadoBean.setRetiroCiclo(countRetiroCiclo);
+//        aconsejadoEstadoBean.setMatriculados(countMatriculable);
+//        aconsejadoEstadoBean.setNoMatriculados(countNoMatriculados);
+//        aconsejadoEstadoBean.setRetiroCiclo(countRetiroCiclo);
         return aconsejadoEstadoBean;
     }
 
