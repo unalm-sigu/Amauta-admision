@@ -7,19 +7,24 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.springframework.stereotype.Service;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.consejeria.AlumnoConsejeroDAO;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.ID_CONSEJERO_NN;
 
 @Service
 public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implements AlumnoConsejeroDAO {
@@ -88,15 +93,17 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
         query.executeUpdate();
     }
 
+    @Override
     public List<AlumnoConsejero> allByCarrera(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoConsejero.class, "ac")
-                .join("alumno al", "consejero con", "con.colaborador col", "col.persona perc")
+                .join("alumno al", "consejero con")
                 .join("al.persona per", "al.carrera car")
-                .join("perc.tipoDocumento", "per.tipoDocumento", "al.situacionAcademica ")
-                .left("al.cicloIngreso")
+                .join("per.tipoDocumento", "al.situacionAcademica ")
+                .left("al.cicloIngreso", "con.colaborador col", "col.persona perc", "perc.tipoDocumento")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .searchFields("al.codigo")
                 .filter("estado", EstadoEnum.ACT)
                 .orderBy("al.id desc");
         sql.beginRelativeFilters();
@@ -114,8 +121,68 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
                 continue;
             }
             String values = (String) queries.get(key);
-            sql.filter("car.id", values);
+            switch (key) {
+                case "carrera":
+                    sql.filter("car.id", values);
+                    break;
+                case "activo":
+                    sql.filter("con.id", "<>", ID_CONSEJERO_NN);
+                    break;
+                case "sinconsejero":
+                    sql.filter("con.id", ID_CONSEJERO_NN);
+                    break;
+            }
+
         }
     }
 
+    @Override
+    public List<AlumnoConsejero> allByPersona(DynatableFilter filter, CicloAcademico cicloAcademico, Persona persona) {
+        Octavia sqlSub = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al1", "cicloAcademico ca1")
+                .filter("ca1.id", cicloAcademico);
+        setCondicionEstadoMatricula(filter, sqlSub);
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al", "consejero con")
+                .join("al.persona per", "al.carrera car")
+                .join("per.tipoDocumento", "al.situacionAcademica ", "cicloAcademico ca")
+                .left("al.cicloIngreso", "con.colaborador col", "col.persona perc", "perc.tipoDocumento")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .searchFields("al.codigo")
+                .exists(sqlSub)
+                .linkedBy("al.id", "al1.id")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("perc.id", persona)
+                .filter("ca.id", cicloAcademico)
+                .orderBy("al.id desc");
+        return all(sql);
+    }
+
+    private void setCondicionEstadoMatricula(DynatableFilter filter, Octavia sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+        for (String key : queries.keySet()) {
+            if (key.equals("estado")) {
+                String value = (String) queries.get(key);
+                switch (value) {
+                    case "matriculado":
+                        sql.filter("mr.estado", MAT);
+                        break;
+                    case "noMatriculado":
+                        sql.filter("mr.estado", NMAT);
+                        break;
+                    case "retirado":
+                        sql.filter("mr.estado", RCI);
+                        break;
+                }
+            }
+
+        }
+    }
 }

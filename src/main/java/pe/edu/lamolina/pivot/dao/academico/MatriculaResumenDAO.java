@@ -4,10 +4,12 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 
 public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
@@ -56,4 +58,15 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     List<MatriculaResumen> allByCicloFull(CicloAcademico ciclo);
 
+    public Long allSinConsejero(Carrera carrera, CicloAcademico cicloAcademico);
+
+    public Long allConConsejero(Carrera carrera, CicloAcademico cicloAcademico);
+
+    public Long allConConsejeroNN(Carrera carrera, CicloAcademico cicloAcademico);
+
+    public Long countMatriculablesByConsejero(Persona persona, CicloAcademico cicloAcademico);
+
+    public Long countNoMatriculablesByConsejero(Persona persona, CicloAcademico cicloAcademico);
+
+    public Long countRetiroCicloByConsejero(Persona persona, CicloAcademico cicloAcademico);
 }

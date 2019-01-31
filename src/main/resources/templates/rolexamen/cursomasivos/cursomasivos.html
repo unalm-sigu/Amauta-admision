@@ -158,15 +158,14 @@
                                                 <li><a class=" pointer btn-link bold" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>     
                                                 <li><a class=" pointer btn-link bold" v-on:click="verAsignarHorario(item)">Asignar Horario</a></li>  
                                             </template>
-                                            <template v-else="">
-                                                <li><a class=" pointer btn-link bold" v-on:click="verAsignarAulas(item)">Aulas</a></li>     
-                                                <li><a class=" pointer btn-link bold" v-on:click="verAsignarHorario(item)">Horario</a></li>  
+                                            <template v-if="verAulaHorarioDisponible">
+                                                <li><a class=" pointer btn-link bold" v-on:click="verAulasAsignadas(item)">Aulas</a></li>     
                                             </template>
                                             <li><a class=" pointer btn-link bold" v-on:click="cursoMasivoSecciones(item)"  >Secciones</a></li>   
                                             <template v-if="incluirExcluirMoverDisponible">
                                                 <li class="divider"></li>     
-                                                <li><a class=" pointer bold" v-on:click="excluir(item,tipoAccion.CURSO)"  >Excluir</a></li>
-                                                <li><a class=" pointer bold" v-on:click="incluir(item,tipoAccion.CURSO)"  >Incluir</a></li>
+                                                <li v-if="item.isEstadoActivo"><a class=" pointer bold" v-on:click="excluir(item,tipoAccion.CURSO)"  >Excluir</a></li>
+                                                <li v-if="item.isEstadoExcluido"><a class=" pointer bold" v-on:click="incluir(item,tipoAccion.CURSO)"  >Incluir</a></li>
                                                 <li><a class=" pointer bold" v-on:click="eliminar(item)">Eliminar</a></li>
                                             </template>
 

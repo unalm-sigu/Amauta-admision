@@ -550,4 +550,50 @@ public class RolExamenesServiceImp implements RolExamenesService {
             }
         }
     }
+    @Override
+    @Transactional(readOnly = false)
+    public void cerrar(RolExamenes rolExamenes, DataSessionPivot ds) {
+        RolExamenes rolBD = rolexamenesDAO.find(rolExamenes.getId());
+        if (rolBD.isEstadoCerrado()) {
+            return;
+        }
+
+        Assert.isTrue(rolBD.isEstadoPublicado(), "El rol de examenes aun no ha sido publicado");
+
+        List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
+
+        Date fechaMax = null;
+
+        for (SemanaExamen semana : semanas) {
+            if (fechaMax == null || fechaMax.compareTo(semana.getFechaFin()) < 0) {
+                fechaMax = semana.getFechaFin();
+            }
+        }
+
+        if (fechaMax == null) {
+            throw new PhobosException();
+        }
+
+        org.joda.time.LocalDate date = new org.joda.time.LocalDate(fechaMax);
+        org.joda.time.LocalDate today = org.joda.time.LocalDate.now();
+        logger.debug("Comparando {} con {}", date, today);
+
+        Assert.isTrue(date.isBefore(today), "La semana de examenes aun no ha finalizado");
+
+        rolBD.setEstadoEnum(RolExamenesEstadoEnum.CER);
+        rolexamenesDAO.update(rolBD);
+    }
+
+    @Override
+    @Transactional
+    public void modificar(RolExamenes rolExamenes, DataSessionPivot ds) {
+        RolExamenes rolBD = rolexamenesDAO.find(rolExamenes.getId());
+        if (rolBD.isEstadoCerrado()) {
+            return;
+        }
+
+        rolBD.setEstadoEnum(RolExamenesEstadoEnum.MOD);
+        rolexamenesDAO.update(rolBD);
+    }
+    
 }

@@ -287,4 +287,39 @@ public class RolExamenesController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("cerrar")
+    public JsonResponse cerrar(@RequestBody RolExamenes rolExamenes, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.cerrar(rolExamenes, ds);
+            response.setMessage("Rol de examenes cerrado");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException pex) {
+            ExceptionHandler.handlePhobosEx(pex, response);
+        } catch (Exception ex) {
+            ExceptionHandler.handleException(ex, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("modificar")
+    public JsonResponse modificar(@RequestBody RolExamenes rolExamenes, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.modificar(rolExamenes, ds);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException pex) {
+            ExceptionHandler.handlePhobosEx(pex, response);
+        } catch (Exception ex) {
+            ExceptionHandler.handleException(ex, response);
+        }
+
+        return response;
+    }
+
 }

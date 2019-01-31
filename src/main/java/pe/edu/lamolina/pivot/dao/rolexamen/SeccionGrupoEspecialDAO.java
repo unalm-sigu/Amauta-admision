@@ -28,12 +28,12 @@ public interface SeccionGrupoEspecialDAO extends EasyDAO<SeccionGrupoEspecial> {
 
     void updateEstado(SeccionGrupoEspecial seccionGrupoEspecialUpd);
 
-    SeccionGrupoEspecial findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnum);
-
     List<SeccionGrupoEspecial> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, SeccionRolExamenEstadoEnum... estados);
 
     public List<RolExamenDocente> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico);
     List<SeccionGrupoEspecial> allByRolExamenesForReporte(RolExamenes rol);
 
     public List<SeccionGrupoEspecial> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes);
+
+    SeccionGrupoEspecial findByRolExamanesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... estados);
 }

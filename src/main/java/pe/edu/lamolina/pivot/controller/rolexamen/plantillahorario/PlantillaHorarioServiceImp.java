@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
@@ -86,9 +88,10 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     @Transactional(readOnly = false)
     public void calcularPlantillaHorario(RolExamenes rolExamenes) {
         RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
-        checkEstadoPublicado(rolBD);
+        Assert.isTrue(rolBD.isSituacionConfigurarRol(), "La plantilla de horarioas ya ha sido generada");
 
         this.deletePlantillaHorario(rolExamenes);
+
         List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
         List<Hora> horas = horaDAO.all();
 
@@ -97,9 +100,30 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
             logger.debug("CALCULAR PLANTILLA HORARIO DE LA SEMANA " + semana.getNumeroSemana());
             this.calcularPlantillaHorario(semana, horas);
         }
+
+        this.agregarGrupoHorasFaltantes(rolBD);
+
         RolExamenes rolExamenesUpd = new RolExamenes(rolExamenes.getId());
+        rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CON);
         rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR);
-        rolExamenesDAO.updateSituacion(rolExamenesUpd);
+        rolExamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
+    }
+
+    public void agregarGrupoHorasFaltantes(RolExamenes rolExamenes) {
+        Set<GrupoHoras> gruposGenerados = grupoHorasExamenDAO.allByRolExamenes(rolExamenes).stream().map(GrupoHorasExamen::getGrupoHoras).collect(Collectors.toSet());
+        List<GrupoHoras> gruposFaltantes = grupoHorasDAO.allByTipoCiclo("REGULAR")
+                .stream()
+                .filter(grupo -> !gruposGenerados.contains(grupo))
+                .collect(Collectors.toList());
+
+        for (GrupoHoras grupoFaltante : gruposFaltantes) {
+            logger.debug("Generando grupo faltante {}", grupoFaltante.getCodigo());
+            GrupoHorasExamen grupoHorasExamen = new GrupoHorasExamen();
+            grupoHorasExamen.setGrupoHoras(grupoFaltante);
+            grupoHorasExamen.setRolExamenes(rolExamenes);
+            grupoHorasExamen.setVerificado(Boolean.FALSE);
+            grupoHorasExamenDAO.save(grupoHorasExamen);
+        }
     }
 
     public void calcularPlantillaHorario(SemanaExamen semanaExamen, List<Hora> horas) {

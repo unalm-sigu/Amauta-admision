@@ -13,12 +13,6 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface MoverSeccionExamenService {
 
-    SeccionCursoMasivo findSeccionCursoMasivoBySeccion(Seccion seccion);
-
-    SeccionGrupoRegular findSeccionGrupoRegularBySeccion(Seccion seccion);
-
-    SeccionGrupoEspecial findSeccionGrupoEspecialBySeccion(Seccion seccion);
-
     List<CursoMasivoExamen> allActiveCursosMasivosByRolExamenes(RolExamenes rolExamenes);
 
     List<LetraGrupoRegular> allLetrasGruposRegularesByRolExamenes(RolExamenes rolExamenes);
@@ -26,5 +20,11 @@ public interface MoverSeccionExamenService {
     GrupoHorasExamen findGrupoHorasExamen(GrupoHorasExamen grupoHorasExamen);
 
     void cambioHorarioExamenSeccion(CambioHorarioExamenSeccion cambioHorarioExamenSeccion, DataSessionPivot ds);
+
+    SeccionCursoMasivo findSeccionCursoMasivoBySeccionRolExamenes(Seccion seccion, RolExamenes rol);
+
+    SeccionGrupoEspecial findSeccionGrupoEspecialBySeccionRolExamenes(Seccion seccion, RolExamenes rol);
+
+    SeccionGrupoRegular findSeccionGrupoRegularBySeccionRolExamenes(Seccion seccion, RolExamenes rol);
 
 }

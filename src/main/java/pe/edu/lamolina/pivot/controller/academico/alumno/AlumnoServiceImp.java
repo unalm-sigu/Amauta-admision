@@ -645,4 +645,9 @@ public class AlumnoServiceImp implements AlumnoService {
         return alumnoDAO.findAlumnosByCarreraAndCiclo(carrera, cicloAcademico);
     }
 
+    @Override
+    public List<Alumno> findAconsejadosByCarrera(Long carrera, CicloAcademico cicloAcademico) {
+        return alumnoDAO.findAconsejadosByCarrera(carrera, cicloAcademico);
+    }
+
 }

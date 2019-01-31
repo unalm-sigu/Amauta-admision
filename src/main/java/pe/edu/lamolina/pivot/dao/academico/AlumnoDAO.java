@@ -103,4 +103,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> findAlumnosByCarreraAndCiclo(Long carrera, CicloAcademico ciclo);
 
+    List<Alumno> findAconsejadosByCarrera(Long carrera, CicloAcademico cicloAcademico);
+
 }

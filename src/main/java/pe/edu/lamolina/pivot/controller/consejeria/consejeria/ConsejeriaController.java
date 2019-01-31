@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,13 +33,13 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("consejeria/consejero")
+@RequestMapping("consejeria/consejeros")
 public class ConsejeriaController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ConsejeroService service;
+    ConsejeriaService service;
 
     @Autowired
     CarreraService carreraService;
@@ -51,19 +52,22 @@ public class ConsejeriaController {
         model.addAttribute("ciclo", createCicloJson(ds.getCicloAcademico()).toString());
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());
 
-        return "consejeria/consejero";
+        return "consejeria/consejeria";
     }
 
     @ResponseBody
-    @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
+    @RequestMapping("list/{carrera}")
+    public DynatableResponse list(
+            @PathVariable("carrera") Long idCarrera,
+            DynatableFilter filter, HttpSession session, HttpServletRequest request) {
 
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
 
-            List<Consejero> consejeros = service.allConsejerosbyDynatableCarrera(filter);
+            Carrera carrera = new Carrera(idCarrera);
+            List<Consejero> consejeros = service.allByCarreraDynatable(carrera, filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -190,8 +194,29 @@ public class ConsejeriaController {
         try {
 
             System.out.println("Probando : " + carrera);
-            ConsejeroEstado consejeroEstado = service.findConsejeroByStateAndCarrera(carrera);
+            ConsejeriaEstado consejeroEstado = service.findConsejeroByStateAndCarrera(carrera);
             ObjectNode consejeroJson = JsonHelper.createJson(consejeroEstado, JsonNodeFactory.instance, true, new String[]{
+                "*"
+            });
+            json.setData(consejeroJson);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("cantidadAconsejados")
+    public JsonResponse cantidadAconsejados(@RequestParam Long carrera, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
+        try {
+
+            AConsejeroEstado aConsejeroEstado = service.findAConsejadosByStateCarrera(carrera, ds);
+            ObjectNode consejeroJson = JsonHelper.createJson(aConsejeroEstado, JsonNodeFactory.instance, true, new String[]{
                 "*"
             });
             json.setData(consejeroJson);

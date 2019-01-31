@@ -1,11 +1,11 @@
 package pe.edu.lamolina.pivot.controller.consejeria.consejeria;
 
-public class ConsejeroEstado {
+public class ConsejeriaEstado {
     
     private Long activo;
     private Long inactivo;
 
-    public ConsejeroEstado(Long activo, Long inactivo) {
+    public ConsejeriaEstado(Long activo, Long inactivo) {
         this.activo = activo;
         this.inactivo = inactivo;
     }

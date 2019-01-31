@@ -3,7 +3,7 @@ Vue.component("multiselect", window.VueMultiselect.default)
 new Vue({
     el: '#consejeriaVUE',
     data: {
-        bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''},
+        bgColorClass: {sinconsejero: '', activo: ''},
         aconsejadosURL: APP.url('consejeria/aconsejado/list'),
         ciclo: JSON.parse(cicloJson),
         carreras: JSON.parse(carrerasJson),
@@ -17,7 +17,9 @@ new Vue({
         },
         carreraSelect: {},
         consejeros: [],
-        alumnoConsejeroForm: {}
+        seleccionado: '',
+        alumnoConsejeroForm: {},
+        count: {activos: 0, sinConsejero: 0, sinAsignar: 0}
     },
     mounted: function () {
         let $vue = this;
@@ -26,10 +28,45 @@ new Vue({
         if (query != '') {
             $vue.carreraSelect = $vue.carreras.filter(value => value.id == query)[0];
             $vue.$refs.load.querie.push({name: 'carrera', value: query});
+            $vue.countData();
             $vue.$refs.load.repreload();
         }
     },
     methods: {
+        findAconsejado(tipo) {
+            let $vue = this;
+            $vue.$refs.load.querie = [];
+
+            if ($vue.seleccionado === '') {
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
+                $vue.$refs.load.querie.push({name: tipo, value: tipo});
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
+                $vue.$refs.load.querie.push({name: tipo, value: tipo});
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.seleccionado = '';
+                $vue.$refs.load.changeUrl('queries[' + tipo + ' ]', null);
+            }
+            $vue.$refs.load.loadRemoteData();
+        },
+        countData() {
+            let $vue = this;
+            $vue.isLoading = true;
+            $.ajax({
+                url: APP.url("consejeria/aconsejado/countData"),
+                data: {idCarrera: $vue.carreraSelect.id},
+                dataType: 'json',
+                type: 'post',
+            }).then(response => {
+                $vue.count = response.data;
+            });
+        },
         customLabel( { colaborador }) {
             return `${colaborador.persona.nombreCompleto}`;
         },
@@ -48,10 +85,11 @@ new Vue({
         },
         cargaAconsejados(item) {
             let $vue = this;
-            let carrera = item.id;
+            $vue.carreraSelect = item;
             $vue.$refs.load.querie = [];
             if ($vue.carreraSelect != null) {
-                $vue.$refs.load.querie.push({name: 'carrera', value: carrera});
+                $vue.countData();
+                $vue.$refs.load.querie.push({name: 'carrera', value: $vue.carreraSelect.id});
                 $vue.$refs.load.loadRemoteData();
             }
         },

@@ -75,7 +75,7 @@
                                                             <li>
                                                                 <a href="#" 
                                                                    v-on:click.prevent="publicarRolExamen(item)"
-                                                                   v-if="item.isSituacionConfigurarGrupoEspecial"
+                                                                   v-if="item.isSituacionConfigurarGrupoEspecial &amp;&amp; (item.isEstadoModificando || item.isEstadoConfigurando)"
                                                                    >
                                                                     Publicar
                                                                 </a> 
@@ -128,12 +128,27 @@
                                                                     </a>
                                                                 </li>
                                                             </template>
-                                                            <li class="divider"></li> 
-                                                            <li>
-                                                                <a v-on:click.prevent="eliminarAvanceConfiguracion(item)">
-                                                                    Eliminar Configuración
-                                                                </a>
-                                                            </li>
+                                                            <template v-if="item.isEstadoConfigurando">
+                                                                <li class="divider"></li> 
+                                                                <li>
+                                                                    <a v-on:click.prevent="eliminarAvanceConfiguracion(item)">
+                                                                        Eliminar Configuración
+                                                                    </a>
+                                                                </li>
+                                                            </template>
+                                                            <template v-if="item.isEstadoPublicado">
+                                                                <li class="divider"></li> 
+                                                                <li>
+                                                                    <a href="#" v-on:click.prevent="modificarRolExamenes(item)">
+                                                                        Modificar
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="#" v-on:click.prevent="cerrarRolExamenes(item)">
+                                                                        Cerrar
+                                                                    </a>
+                                                                </li>
+                                                            </template>
                                                         </ul>
 
                                                     </div>
@@ -176,7 +191,7 @@
 
                             <div class="form-group" >
                                 <label  class="control-label">Nombre</label>
-                                <input class="form-control" required="true" v-model="rolExamenes.nombre" v-bind:readonly="!rolExamenes.isSituacionConfigurarRol"/>
+                                <input class="form-control" required="true" v-model="rolExamenes.nombre" v-bind:readonly="rolExamenes.id &amp;&amp; !rolExamenes.isSituacionConfigurarRol"/>
                             </div>
 
                             <div class="row">
@@ -249,7 +264,7 @@
 
                                                 </td>
                                                 <td class="v-middle text-center"> 
-                                                    <div v-if="!rolExamenes.id ||rolExamenes.isSituacionConfiguraRol">
+                                                    <div v-if="!rolExamenes.id || rolExamenes.isSituacionConfigurarRol">
                                                         <multiselect 
                                                             v-model="semana.horaFin"
                                                             placeholder=""
