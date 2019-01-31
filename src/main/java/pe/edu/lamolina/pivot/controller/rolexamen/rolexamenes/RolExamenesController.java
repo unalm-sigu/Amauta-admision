@@ -278,7 +278,7 @@ public class RolExamenesController {
             ds.setFechaAccionAudit(new Date());
             service.fijarHorarioAula(rolExamenes, ds);
             response.setSuccess(true);
-            response.setMessage("Rol examen publicado.");
+            response.setMessage("Horario Aula Fijado.");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
