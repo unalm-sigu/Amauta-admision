@@ -4,7 +4,7 @@ new Vue({
     el: '#consejeriaVUE',
     data: {
         bgColorClass: {sinconsejero: '', activo: ''},
-        aconsejadosURL: APP.url('consejero/list'),
+        aconsejadosURL: APP.url('consejeria/aconsejadosdocente/list'),
         ciclo: JSON.parse(cicloJson),
         isLoading: false,
         consejeroModal: {
@@ -57,7 +57,7 @@ new Vue({
             let $vue = this;
             $vue.isLoading = true;
             $.ajax({
-                url: APP.url("consejero/countData"),
+                url: APP.url("consejeria/aconsejadosdocente/countData"),
                 data: {idCarrera: $vue.carreraSelect.id},
                 dataType: 'json',
                 type: 'post',
