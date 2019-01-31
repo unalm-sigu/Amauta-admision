@@ -36,7 +36,7 @@ new Vue({
                 eventoCicloAcademico: {},
                 semanasExamen: []
             };
-            this.confirmarModal.title = 'Crear nuevo rol de examen';
+            this.confirmarModal.title = 'Crear nuevo rol de exámenes';
             this.$refs.modalConfirmar.open();
 
         },
@@ -53,7 +53,7 @@ new Vue({
             }).then(response => {
                 if (response.success) {
                     $vue.rolExamenes = response.data;
-                    $vue.confirmarModal.title = 'Editar rol de examenes';
+                    $vue.confirmarModal.title = 'Editar rol de exámenes';
                     $vue.$refs.modalConfirmar.open();
                 } else {
                     notify(response.message, 'error');
@@ -105,7 +105,7 @@ new Vue({
         }, publicarRolExamen(rolExamen) {
             let $vue = this;
             bootbox.confirm({
-                message: '¿Está seguro que desea publicar el rol examen?',
+                message: '¿Está seguro que desea publicar el rol de exámenes?',
                 buttons: {
                     confirm: {label: 'Si, publicar', className: 'btn-success'},
                     cancel: {label: 'No', className: 'btn-link'}
@@ -135,9 +135,9 @@ new Vue({
         }, eliminarAvanceConfiguracion(rolExamen) {
             let $vue = this;
             bootbox.confirm({
-                message: '¿Está seguro que desea eliminar la configuracion del rol examenes?',
+                message: '¿Está seguro que desea eliminar la configuracion del rol de exámenes?',
                 buttons: {
-                    confirm: {label: 'Si, eliminar', className: 'btn-success'},
+                    confirm: {label: 'Si, eliminar', className: 'btn-danger'},
                     cancel: {label: 'No', className: 'btn-link'}
                 },
                 callback: function (result) {
@@ -174,25 +174,83 @@ new Vue({
                 callback: function (result) {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
+
                         $.ajax({
                             method: "POST",
-                            contentType: "application/json",
                             url: APP.url("rolexamen/rolexamenes/fijarhorarioaula"),
-                            data: {id:rolExamen.id}
-                        }).then(response => {
-                            if (response.success) {
-                                $vue.$refs.raptorRolExamenes.loadRemoteData();
-                                notify(response.message, "info")
-                            } else {
-                                notify(response.message, 'error');
+                            data: {id: rolExamen.id},
+                            success: function (response) {
+                                if (response.success) {
+                                    $vue.$refs.raptorRolExamenes.loadRemoteData();
+                                    notify(response.message, "info")
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                                MODAL.hideWait();
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, 'error');
                             }
-                            MODAL.hideWait();
-                        }, error => {
-                            notify(MESSAGES.errorComunicacion, 'error');
                         });
+
                     }
                 }
             });
+        },
+        cerrarRolExamenes: function (rolExamenes) {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea cerrar el rol de exámenes?',
+                buttons: {
+                    confirm: {label: 'Sí, cerrar', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $vue.cerrar(rolExamenes);
+                    }
+                }
+            });
+
+        },
+        cerrar: async function (rolExamenes) {
+            try {
+                const response = await AXIOS.post('/rolexamen/rolexamenes/cerrar', rolExamenes);
+                const {data} = response;
+                if (data.success) {
+                    this.$refs.raptorRolExamenes.loadRemoteData();
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        modificarRolExamenes: function (rolExamenes) {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea modificar el rol de exámenes?',
+                buttons: {
+                    confirm: {label: 'Sí, seguro', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $vue.modificar(rolExamenes);
+                    }
+                }
+            });
+
+        },
+        modificar: async function (rolExamenes) {
+            try {
+                const response = await AXIOS.post('/rolexamen/rolexamenes/modificar', rolExamenes);
+                const {data} = response;
+                if (data.success) {
+                    this.$refs.raptorRolExamenes.loadRemoteData();
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }
+
     }
 });

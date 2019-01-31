@@ -11,7 +11,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AconsejadoService {
 
-    public List<AlumnoConsejero> allAconsejadoByDynatableCarrera(DynatableFilter filter);
+    public List<AlumnoConsejero> allAconsejadoByDynatableCarrera(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     public void updateAlumnoConsejero(AlumnoConsejero alumnoConsejeroForm, DataSessionPivot ds);
 

@@ -8,16 +8,20 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.consejeria.consejeria.ConsejeroEstado;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeria.AConsejeroEstado;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeria.ConsejeriaEstado;
 import pe.edu.lamolina.pivot.dao.consejeria.ConsejeroDAO;
 
 @Service
@@ -37,10 +41,10 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .filter("car.id", carrera)
                 .orderBy("con.id desc");
-        
+
         sql.beginRelativeFilters();
         setCondicion(filter, sql);
-        
+
         return all(sql);
     }
 
@@ -54,20 +58,17 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 continue;
             }
 
+//            if (key.equals("carrera")) {
+//                sql.filter("car.nombre", ACT);
+//            }
             if (key.equals("status")) {
                 String values = (String) queries.get(key);
-                if (values.equals("Activo")) {
+                if (values.equals("Habilitado")) {
                     sql.filter("estado", ACT);
+                } else if (values.equals("Inhabilitado")) {
+                    sql.filter("estado", INA);
                 }
             }
-
-            String values = (String) queries.get(key);
-            if (values.equals("ACT")) {
-                sql.filter("estado", ACT);
-            } else if (values.equals("INA")) {
-                sql.filter("estado", INA);
-            }
-            //sql.filter(key, values);
         }
     }
 
@@ -119,10 +120,10 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
-    public ConsejeroEstado findByStateAndCarrera(Long carrera) {
+    public ConsejeriaEstado findByStateAndCarrera(Long carrera) {
         StringBuilder sql = new StringBuilder();
 
-        sql.append("select new ").append(ConsejeroEstado.class.getName());
+        sql.append("select new ").append(ConsejeriaEstado.class.getName());
         sql.append(" (   ");
         sql.append("   sum(case conse.estado when :ACT then 1 else 0 end),   ");
         sql.append("   sum(case conse.estado when :INA then 1 else 0 end)   ");
@@ -137,7 +138,7 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
         query.setString("INA", INA.name());
         query.setLong("CARRERA", carrera);
 
-        return (ConsejeroEstado) query.uniqueResult();
+        return (ConsejeriaEstado) query.uniqueResult();
     }
 
     @Override
@@ -165,5 +166,27 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .endBlock()
                 .limit(15);
         return all(sql);
+    }
+
+    @Override
+    public AConsejeroEstado allByAconsejados(List<Alumno> alumnos) {
+
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("select new ").append(AConsejeroEstado.class.getName());
+        sql.append(" (   ");
+        sql.append("   sum(case conse.alumnos_activos when :ACT then 1 else 0 end),");
+        sql.append("   sum(case conse.estado when :INA then 1 else 0 end)   ");
+        sql.append(" )   ");
+        sql.append("  from ").append(AlumnoConsejero.class.getName()).append(" as alcon ");
+        sql.append(" inner join alcon.alumno al ");
+        sql.append(" inner join alcon.consejero conse ");
+        sql.append(" where al.id = :ALUMNO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameterList("ALUMNO", alumnos);
+
+        return (AConsejeroEstado) query.uniqueResult();
+
     }
 }

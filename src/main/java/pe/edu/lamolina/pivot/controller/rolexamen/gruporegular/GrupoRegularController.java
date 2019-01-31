@@ -102,7 +102,7 @@ public class GrupoRegularController {
 
         LetraGrupoRegular letraGrupoRegular = grupoRegularService.findLetraGrupoRegular(new LetraGrupoRegular(idLetraGrupoRegular));
         model.addAttribute("letraGrupoRegular", letraGrupoRegular);
-        model.addAttribute("jLetraGrupoRegular", JsonHelper.createJson(letraGrupoRegular, JsonNodeFactory.instance, true, new String[]{"*"}).toString());
+        model.addAttribute("jLetraGrupoRegular", JsonHelper.createJson(letraGrupoRegular, JsonNodeFactory.instance, true, new String[]{"*", "rolExamenes.*"}).toString());
         return "rolexamen/gruporegular/grupoRegularSecciones";
     }
 

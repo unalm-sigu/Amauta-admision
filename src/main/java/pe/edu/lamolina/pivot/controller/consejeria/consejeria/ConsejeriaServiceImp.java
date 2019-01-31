@@ -33,7 +33,7 @@ import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
-public class ConsejeroServiceImp implements ConsejeroService {
+public class ConsejeriaServiceImp implements ConsejeriaService {
 
     @Autowired
     DocenteDAO docenteDAO;
@@ -202,7 +202,7 @@ public class ConsejeroServiceImp implements ConsejeroService {
     }
 
     @Override
-    public ConsejeroEstado findConsejeroByStateAndCarrera(Long carrera) {
+    public ConsejeriaEstado findConsejeroByStateAndCarrera(Long carrera) {
         return consejeroDAO.findByStateAndCarrera(carrera);
     }
 
@@ -229,17 +229,21 @@ public class ConsejeroServiceImp implements ConsejeroService {
             List<Alumno> alumos = alumnos.stream().filter((x) -> x.getIndex() > offset && x.getIndex() <= a).collect(Collectors.toList());
             alumnoConsejeroDAO.insertAlumnoConsejero(consejeros.get(numConsejero - 1), ds.getCicloAcademico(), ds.getUsuario(), new Carrera(carrera), alumos);
             Consejero consejero = consejeros.get(numConsejero - 1);
+            
+            for (Alumno alumo : alumos) {
+                alumo.setConsejero(consejero);
+                i++;
+            }
+            
             consejero.setAlumnosActivos(alumos.size());
             consejeroDAO.update(consejero);
         }
-
     }
 
     @Override
     @Transactional
     public void desasignarAlumnos(Long carrera, DataSessionPivot ds) {
         List<Consejero> consejeros = consejeroDAO.findConsejeroByEstado(carrera);
-        int cantidadConsejeros = consejeros.size();
         alumnoConsejeroDAO.desasignarAlumnosConsejero(consejeros, ds.getUsuario());
         for (Consejero consejero : consejeros) {
             consejero.setAlumnosActivos(0);
@@ -252,6 +256,15 @@ public class ConsejeroServiceImp implements ConsejeroService {
     @Override
     public List<Consejero> allByCarrera(String nombre, Carrera carrera) {
         return consejeroDAO.allByNombreAndCarrera(nombre, carrera);
+    }
+
+    @Override
+    public AConsejeroEstado findAConsejadosByStateCarrera(Long carrera, DataSessionPivot ds) {
+
+        List<Alumno> alumnos = alumnoService.findAconsejadosByCarrera(carrera, ds.getCicloAcademico());
+        int aconsejados = alumnos.size();
+        
+        return null;
     }
 
 }

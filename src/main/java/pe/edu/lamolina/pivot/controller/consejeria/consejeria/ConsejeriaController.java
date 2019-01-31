@@ -33,13 +33,13 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("consejeria/consejero")
+@RequestMapping("consejeria/consejeros")
 public class ConsejeriaController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ConsejeroService service;
+    ConsejeriaService service;
 
     @Autowired
     CarreraService carreraService;
@@ -52,7 +52,7 @@ public class ConsejeriaController {
         model.addAttribute("ciclo", createCicloJson(ds.getCicloAcademico()).toString());
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());
 
-        return "consejeria/consejero";
+        return "consejeria/consejeria";
     }
 
     @ResponseBody
@@ -194,8 +194,29 @@ public class ConsejeriaController {
         try {
 
             System.out.println("Probando : " + carrera);
-            ConsejeroEstado consejeroEstado = service.findConsejeroByStateAndCarrera(carrera);
+            ConsejeriaEstado consejeroEstado = service.findConsejeroByStateAndCarrera(carrera);
             ObjectNode consejeroJson = JsonHelper.createJson(consejeroEstado, JsonNodeFactory.instance, true, new String[]{
+                "*"
+            });
+            json.setData(consejeroJson);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("cantidadAconsejados")
+    public JsonResponse cantidadAconsejados(@RequestParam Long carrera, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
+        try {
+
+            AConsejeroEstado aConsejeroEstado = service.findAConsejadosByStateCarrera(carrera, ds);
+            ObjectNode consejeroJson = JsonHelper.createJson(aConsejeroEstado, JsonNodeFactory.instance, true, new String[]{
                 "*"
             });
             json.setData(consejeroJson);
