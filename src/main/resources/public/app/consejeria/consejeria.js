@@ -38,7 +38,7 @@ new Vue({
         isLoading: false,
     },
     computed: {
-        btnAñadir() {
+        btndissabled() {
             let $vue = this;
             return $vue.btndisabled;
         }
@@ -176,7 +176,7 @@ new Vue({
             let consejero = item;
             let carrera = $vue.carreraSelect.id;
 
-            this.isLoading = true
+            this.isLoading = true;
 //            alert(JSON.stringify(consejero));
 //            if (consejero.estado == 'INA') {
 

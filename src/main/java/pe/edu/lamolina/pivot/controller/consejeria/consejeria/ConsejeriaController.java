@@ -139,10 +139,9 @@ public class ConsejeriaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse json = new JsonResponse();
 
-        System.out.println("estado" + docente.getEstadoEnum());
-        System.out.println("id_persona " + docente.getPersona().getId());
-        System.out.println("id_dep " + docente.getDepartamentoAcademico().getId());
-        System.out.println("carrera " + docente.getCarrera().getId());
+        logger.debug("id_persona " + docente.getPersona().getId());
+        logger.debug("id_dep " + docente.getDepartamentoAcademico().getId());
+        logger.debug("carrera " + docente.getCarrera().getId());
 
         try {
 
