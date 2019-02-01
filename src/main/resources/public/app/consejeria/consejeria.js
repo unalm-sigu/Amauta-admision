@@ -21,7 +21,7 @@ new Vue({
         estadoConsejero: '',
         ciclo: [],
         carreras: [],
-        btndisabled: '',
+        btndissabled: '',
         listadoDocentes: [],
         listadoCarreras: [],
         carreraSelect: '',
@@ -38,9 +38,9 @@ new Vue({
         isLoading: false,
     },
     computed: {
-        btndissabled() {
+        btnAñadir() {
             let $vue = this;
-            return $vue.btndisabled;
+            return $vue.btndissabled;
         }
     },
     mounted: function () {
@@ -49,25 +49,26 @@ new Vue({
         $vue.carreras = JSON.parse(carrerasJson);
 
         let carrera = $vue.$refs.raptorConsejero.getParameterByName('queries[carrera]');
-        carrera = (carrera === null) ? '' : carrera;
+        carrera = (carrera == null) ? '' : carrera;
 
-        if ($vue.carreras.length === 1 && carrera === '') {
+        if ($vue.carreras.length == 1 && carrera == '') {
             $vue.carreraSelect = $vue.carreras[0];
-        } else if (carrera !== '') {
+        } else if (carrera != '') {
             for (var i = 0; i < $vue.carreras.length; i++) {
-                if ($vue.carreras[i].id === carrera) {
+                if ($vue.carreras[i].id == carrera) {
                     $vue.carreraSelect = $vue.carreras[i];
                 }
             }
         }
 
-        if ($vue.carreraSelect !== '') {
+        if ($vue.carreraSelect != '') {
             $vue.cargaConsejeros();
         }
+
     },
     created: function () {
         let $vue = this;
-        $vue.btndisabled = true;
+        $vue.btndissabled = true;
     },
     methods: {
         nombreforShow(item) {
@@ -75,7 +76,7 @@ new Vue({
         },
         nuevoConsejero() {
             let $vue = this;
-            if ($vue.btndisabled === false) {
+            if ($vue.btndissabled === false) {
                 $vue.$refs.añadirConsejeroModal.open();
             } else {
                 notify("Primero debe seleccionar una carrera", 'default');
@@ -136,10 +137,10 @@ new Vue({
             $vue.departamento = '';
 
             if ($vue.carreraSelect === null) {
-                $vue.btndisabled = true;
+                $vue.btndissabled = true;
             } else {
                 $vue.$refs.raptorConsejero.querie.push({name: 'carrera', value: carrera});
-                $vue.btndisabled = false;
+                $vue.btndissabled = false;
                 $vue.actualizar();
             }
             $vue.getCantidadEstado(carrera);
@@ -176,62 +177,61 @@ new Vue({
             let consejero = item;
             let carrera = $vue.carreraSelect.id;
 
-            this.isLoading = true;
+            this.isLoading = true
 //            alert(JSON.stringify(consejero));
-//            if (consejero.estado == 'INA') {
+            if (consejero.estado == 'INA') {
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url("consejeria/consejeros/cambiarEstado"),
+                    data: JSON.stringify({
+                        id: consejero.id,
+                        estado: estado
+                    }),
+                    contentType: "application/json",
+                }).then(response => {
+                    this.isLoading = false;
+                    notify(response.message, 'info');
+                    $vue.getCantidadEstado(carrera);
+                    $vue.actualizar();
+                });
 
-            $.ajax({
-                method: 'POST',
-                url: APP.url("consejeria/consejeros/cambiarEstado"),
-                data: JSON.stringify({
-                    id: consejero.id,
-                    estado: estado
-                }),
-                contentType: "application/json",
-            }).then(response => {
-                this.isLoading = false;
-                notify(response.message, 'info');
-                $vue.getCantidadEstado(carrera);
-                $vue.actualizar();
-            });
+            } else {
 
-//                bootbox.confirm({
-//                    message: '¿Seguro que desea inhabilitar el consejero seleccionado? Si inhabilita el consejero seleccionado, todos los alumnos asociados a este seran movidos al consejero externo.',
-//                    buttons: {
-//                        confirm: {label: 'Si, inhabilitar', className: "btn-danger"},
-//                        cancel: {label: 'Cancelar', className: "btn-link"}
-//                    },
-//                    callback: function (result) {
-//                        if (result) {
-//                            $.ajax({
-//                                method: 'POST',
-//                                url: APP.url("consejeria/consejeros/cambiarEstado"),
-//                    data: JSON.stringify({
-//                        id: consejero.id,
-//                        estado: estado
-//                    }),
-//                                 contentType: "application/json",
-//                                success: function (response) {
-//                                    if (response.success) {
-//                                        notify(response.message, 'info');
-//                                        $vue.$refs.añadirConsejeroModal.close();
-//                                        $vue.docenteSelect = '';
-//                                        $vue.departamento = '';
-//                                        $vue.getcantidadEstado($vue.carreraSelect.id);
-//                                        $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejeros/list/' + $vue.carreraSelect.id);
-//                                        $vue.$refs.raptorConsejero.loadRemoteData();
-//                                    } else {
-//                                        notify(response.message, 'error');
-//                                    }
-//                                }, error: function () {
-//                                    notify(MESSAGES.errorComunicacion, "error");
-//                                }
-//                            });
-//                        }
-//                    }
-//                });
-
-//            }
+                bootbox.confirm({
+                    message: '¿Seguro que desea inhabilitar el consejero seleccionado? Si inhabilita al consejero seleccionado, todos los alumnos asociados a este seran transladados al consejero externo.',
+                    buttons: {
+                        confirm: {label: 'Si, inhabilitar', className: "btn-danger"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                method: 'POST',
+                                url: APP.url("consejeria/consejeros/cambiarEstado"),
+                                data: JSON.stringify({
+                                    id: consejero.id,
+                                    estado: estado
+                                }),
+                                contentType: "application/json",
+                                success: function (response) {
+                                    if (response.success) {
+                                        notify(response.message, 'info');
+                                        $vue.$refs.añadirConsejeroModal.close();
+                                        $vue.docenteSelect = '';
+                                        $vue.departamento = '';
+                                        $vue.getcantidadEstado($vue.carreraSelect.id);
+                                        $vue.actualizar();
+                                    } else {
+                                        notify(response.message, 'error');
+                                    }
+                                }, error: function () {
+                                    notify(MESSAGES.errorComunicacion, "error");
+                                }
+                            });
+                        }
+                    }
+                });
+            }
         },
         saveConsejero() {
             let $vue = this;
@@ -280,7 +280,7 @@ new Vue({
         },
         asignarAlummnos() {
             let $vue = this;
-            if ($vue.btndisabled === false) {
+            if ($vue.btndissabled === false) {
                 let carrera = $vue.carreraSelect.id;
                 $vue.isLoading = true;
                 bootbox.confirm({
@@ -318,7 +318,7 @@ new Vue({
         desasignarAlummnos() {
             let $vue = this;
             let carrera = $vue.carreraSelect.id;
-            if ($vue.btndisabled === false) {
+            if ($vue.btndissabled === false) {
                 $vue.isLoading = true;
                 bootbox.confirm({
                     message: '¿Esta seguro que desea desasignar todos los alumnos?',
