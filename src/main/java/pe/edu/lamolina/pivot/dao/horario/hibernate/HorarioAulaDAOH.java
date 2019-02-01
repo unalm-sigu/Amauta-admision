@@ -17,6 +17,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 
 @Repository
@@ -287,12 +288,14 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
-    public List<HorarioAula> allHorarioClasesBySecciones(List<Seccion> secciones) {
+    public List<HorarioAula> allHorarioClasesBySecciones(List<Seccion> secciones, SemanaExamen semanaExamen) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia d", "hora h", "aula au", "seccion sec")
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
                 .filter("ha.tipo", TipoHorarioAulaEnum.DICT)
+                .filter("ha.fechaInicio", "<=", semanaExamen.getFechaInicio())
+                .filter("ha.fechaFin", ">=", semanaExamen.getFechaFin())
                 .in("sec.id", secciones);
         return all(sql);
     }

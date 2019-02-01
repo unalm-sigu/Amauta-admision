@@ -281,11 +281,11 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
             logger.debug("fecha para fines de nuevo horario inicio  {} fin {} ", fechainicio, fechafin);
 
-            this.allHorarioClasesCursoMasivo(semanaExamen, grupoHorasExamenes, numerosemana, fechaHoraGrupoExamenXgrupoExamen,fechainicio,fechafin);
+            this.allHorarioClasesCursoMasivo(semanaExamen, grupoHorasExamenes, numerosemana, fechaHoraGrupoExamenXgrupoExamen, fechainicio, fechafin);
 
-            this.allHorarioClasesCursoRegular(semanaExamen, grupoHorasExamenes, numerosemana, fechaHoraGrupoExamenXgrupoExamen,fechainicio,fechafin);
+            this.allHorarioClasesCursoRegular(semanaExamen, grupoHorasExamenes, numerosemana, fechaHoraGrupoExamenXgrupoExamen, fechainicio, fechafin);
 
-            this.allHorarioClasesCursoEspecial(semanaExamen, grupoHorasExamenes, numerosemana, fechaHoraGrupoExamenXgrupoExamen,fechainicio,fechafin);
+            this.allHorarioClasesCursoEspecial(semanaExamen, grupoHorasExamenes, numerosemana, fechaHoraGrupoExamenXgrupoExamen, fechainicio, fechafin);
 
             numerosemana++;
         }
@@ -327,21 +327,22 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
         List<Seccion> secciones = seccionCursoMasivos.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
 
-        List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones);
+        List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones, semanaExamen);
 
         for (HorarioAula horarioAula : horarioAulas) {
 
+            boolean test = (numerosemana % 2 == 0) ? horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8
+                    : horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
 
-            if (numerosemana % 2 == 0) {//8-13
-                boolean test = horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8;
-                if (test) {
-                    continue;
-                }
-            } else {//14-18
-                boolean test = horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
-                if (test) {
-                    continue;
-                }
+            if (test) {
+                continue;
+            }
+
+            Date fechaFin = horarioAula.getFechaFin();
+            Date fechaInicio = horarioAula.getFechaInicio();
+
+            if (fechaInicio.after(semanaExamen.getFechaInicio()) && fechaFin.before(semanaExamen.getFechaFin())) {
+                continue;
             }
 
             HorarioAula horarioAulaNew = new HorarioAula();
@@ -405,20 +406,22 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
         List<Seccion> secciones = seccionGrupoRegulares.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
 
-        List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones);
+        List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones, semanaExamen);
 
         for (HorarioAula horarioAula : horarioAulas) {
 
-            if (numerosemana % 2 == 0) {//8-13
-                boolean test = horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8;
-                if (test) {
-                    continue;
-                }
-            } else {//14-18
-                boolean test = horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
-                if (test) {
-                    continue;
-                }
+            boolean test = (numerosemana % 2 == 0) ? horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8
+                    : horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
+
+            if (test) {
+                continue;
+            }
+
+            Date fechaFin = horarioAula.getFechaFin();
+            Date fechaInicio = horarioAula.getFechaInicio();
+
+            if (fechaInicio.after(semanaExamen.getFechaInicio()) && fechaFin.before(semanaExamen.getFechaFin())) {
+                continue;
             }
 
             HorarioAula horarioAulaNew = new HorarioAula();
@@ -453,7 +456,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
             for (FechaHoraGrupoExamen fechaHoraGrupoExamene : fechaHoraGrupoExamenes) {
 
                 HorarioAula horarioAula = new HorarioAula();
-                
+
                 horarioAula.setFechaInicio(semanaExamen.getFechaInicio());
                 horarioAula.setFechaFin(semanaExamen.getFechaFin());
 
@@ -485,20 +488,22 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
         List<Seccion> secciones = seccionGrupoEspeciales.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
 
-        List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones);
+        List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones, semanaExamen);
 
         for (HorarioAula horarioAula : horarioAulas) {
 
-            if (numerosemana % 2 == 0) {//8-13
-                boolean test = horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8;
-                if (test) {
-                    continue;
-                }
-            } else {//14-18
-                boolean test = horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
-                if (test) {
-                    continue;
-                }
+            boolean test = (numerosemana % 2 == 0) ? horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8
+                    : horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
+
+            if (test) {
+                continue;
+            }
+
+            Date fechaFin = horarioAula.getFechaFin();
+            Date fechaInicio = horarioAula.getFechaInicio();
+
+            if (fechaInicio.after(semanaExamen.getFechaInicio()) && fechaFin.before(semanaExamen.getFechaFin())) {
+                continue;
             }
 
             HorarioAula horarioAulaNew = new HorarioAula();
@@ -550,6 +555,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
             }
         }
     }
+
     @Override
     @Transactional(readOnly = false)
     public void cerrar(RolExamenes rolExamenes, DataSessionPivot ds) {
@@ -595,5 +601,5 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolBD.setEstadoEnum(RolExamenesEstadoEnum.MOD);
         rolexamenesDAO.update(rolBD);
     }
-    
+
 }
