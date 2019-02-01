@@ -9,9 +9,11 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
@@ -57,9 +59,10 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
             if (key.equals("search")) {
                 continue;
             }
-
+//
 //            if (key.equals("carrera")) {
-//                sql.filter("car.nombre", ACT);
+//                String values = (String) queries.get(key);
+//                sql.filter("car.nombre", values);
 //            }
             if (key.equals("status")) {
                 String values = (String) queries.get(key);
@@ -116,19 +119,16 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
 
     @Override
     public AConsejeroEstado allByAconsejados(Long carrera, CicloAcademico cicloacademico) {
-
         Octavia sql = Octavia.query()
-                .select("sum(case conse.alumnos_activos)")
+                .select(" sum(conse.alumnosActivos) ")
                 .into(AConsejeroEstado.class)
                 .from(MatriculaResumen.class, "mr")
-                .join("alumno al")
-                .join("al.consejero conse")
-                .join("cicloAcademico ci")
-                .join("al.carrera carr")
-                .filter("ci.id", cicloacademico)
-                .in("mr.estado", Arrays.asList(NMAT, MAT))
-                .filter("ci.id", cicloacademico)
-                .filter("carr.id", carrera);
+                .join(" alumno al ")
+                .join(" al.consejero conse ")
+                .join(" mr.cicloAcademico ci ")
+                .filter(" mr.cicloAcademico ", cicloacademico.getId())
+                .filter(" al.carrera ", carrera)
+                .in(" mr.estado ", Arrays.asList(NMAT, MAT));
 
         return (AConsejeroEstado) sql.find(getCurrentSession());
 
@@ -149,5 +149,14 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .endBlock()
                 .limit(15);
         return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allAlumnosByConsejero(Consejero consejero) {
+        Octavia sql = Octavia.query().selectDistinct("al")
+                .from(AlumnoConsejero.class, "alconse")
+                .join("alumno al", "consejero conse")
+                .filter("conse.id", consejero);
+        return sql.all(getCurrentSession());
     }
 }

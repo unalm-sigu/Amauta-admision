@@ -48,8 +48,8 @@
                                 Acciones &nbsp; <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a type="button" v-bind:disabled="btnAñadir" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Consejero</a></li>
-                                <li><a type="button" v-bind:disabled="btnAñadir" v-on:click.prevent="asignarAlummnos" >Asignar Alumnos aleatoriamente</a></li>
+                                <li><a type="button" v-bind:disabled="btndissabled" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Consejero</a></li>
+                                <li><a type="button" v-bind:disabled="btndissabled" v-on:click.prevent="asignarAlummnos" >Asignar Alumnos aleatoriamente</a></li>
                                 <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Desasignar Alumnos</a></li>
                             </ul>
                         </div>

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.consejeria.consejeria;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -38,4 +39,6 @@ public interface ConsejeriaService {
     List<Carrera> allCarreraByPersonaCiclo(Persona persona, CicloAcademico ciclo);
 
     List<Consejero> allByCarrera(String nombre, Carrera carrera);
+    
+    List<Alumno> allAlumnosByConsejero(Consejero consejero);
 }

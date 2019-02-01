@@ -17,6 +17,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -122,6 +123,22 @@ public class ConsejeriaServiceImp implements ConsejeriaService {
     public void updateEstado(Consejero consejero, DataSessionPivot ds) {
         Consejero cons = consejeroDAO.find(consejero.getId());
         cons.setEstado(consejero.getEstado());
+        if (consejero.getEstado().equals(INA.name())) {
+            /// en caso de desactivar al consejero, los alumnos asociados seran transaladados
+            /// al consejero comodin NN 
+            logger.debug("intentas inhabilitar {}", consejero.getEstado());
+            List<Alumno> alumnos = this.allAlumnosByConsejero(cons);
+            List<Consejero> consejeros = new ArrayList();
+            consejeros.add(cons);
+            alumnoConsejeroDAO.desasignarAlumnosConsejero(consejeros, ds.getUsuario());
+            for (Alumno alumno : alumnos) {
+                alumno.setConsejero(null);
+                AlumnoDAO.update(alumno);
+            }
+            //// mover los alumnos al consejero comodin
+            
+            
+        }
         consejeroDAO.update(cons);
     }
 
@@ -223,6 +240,11 @@ public class ConsejeriaServiceImp implements ConsejeriaService {
     @Override
     public List<Consejero> allByCarrera(String nombre, Carrera carrera) {
         return consejeroDAO.allByNombreAndCarrera(nombre, carrera);
+    }
+
+    @Override
+    public List<Alumno> allAlumnosByConsejero(Consejero consejero) {
+        return consejeroDAO.allAlumnosByConsejero(consejero);
     }
 
 }

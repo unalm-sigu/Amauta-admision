@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.consejeria;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.Consejero;
@@ -23,4 +24,6 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
     AConsejeroEstado allByAconsejados(Long carrera, CicloAcademico cicloacademico);
 
     List<Consejero> allByNombreAndCarrera(String nombre, Carrera carrera);
+
+    List<Alumno> allAlumnosByConsejero(Consejero consejero);
 }

@@ -6,11 +6,14 @@ public class AConsejeroEstado {
     private Long aconsejados;
     private Long sinConsejeros;
 
+    public AConsejeroEstado() {
+    }
+
     public AConsejeroEstado(Long aconsejados, Long sinConsejeros) {
         this.aconsejados = aconsejados;
         this.sinConsejeros = sinConsejeros;
     }
-
+    
     public Long getAconsejados() {
         return aconsejados;
     }
@@ -26,5 +29,4 @@ public class AConsejeroEstado {
     public void setSinConsejeros(Long sinConsejeros) {
         this.sinConsejeros = sinConsejeros;
     }
-    
 }

@@ -12,7 +12,9 @@ import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DSC;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.PER;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.VAC;
+import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
@@ -163,7 +165,10 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     public Colaborador findColaboradorByIdPersona(Long idPersona) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
-                .filter("co.persona", idPersona);
+                .join("persona per", "oficina ofi", "ofi.tipoOficina tip", "cargo carg")
+                .filter("carg.codigo", PerfilColaboradorEnum.DOC) //Docente
+                .filter("tip.codigo", TipoOficinaEnum.DPTO) //departamentoAcdemico
+                .filter("per.id", idPersona);
 
         return find(sql);
     }
