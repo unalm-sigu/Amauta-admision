@@ -11,13 +11,11 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoCarreraEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -25,7 +23,6 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraResumen;
 
@@ -285,31 +282,6 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .from(Carrera.class, "ca")
                 .join("facultad fa")
                 .in("fa.id", idEsp);
-        return all(sql);
-    }
-
-    @Override
-    public Carrera findCarreraByIdFacultad(Long idFacultad) {
-        Octavia sql = Octavia.query()
-                .from(Carrera.class, "ca")
-                .filter("ca.facultad", idFacultad);
-
-        return find(sql);
-
-    }
-
-    @Override
-    public List<Carrera> allByNombreCarrera(String nombre, List<Carrera> carreras) {
-        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
-        Octavia sql = Octavia.query().selectDistinct("carr")
-                .from(MatriculaResumen.class, "mr")
-                .join("mr.alumno al", "al.modalidadEstudio mod", "al.carrera carr", "mr.cicloAcademico ciclo")
-                .filter("ciclo.estado", CicloAcademicoEstadoEnum.ACT)
-                .filter("mod.codigo", ModalidadEstudioEnum.PRE)
-                .filter("carr.nombre", "like", nombre)
-                .in("carr.id", carreras)
-                .limit(15);
-
         return all(sql);
     }
 

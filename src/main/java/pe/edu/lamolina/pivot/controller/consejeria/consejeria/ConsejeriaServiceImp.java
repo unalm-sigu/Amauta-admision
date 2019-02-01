@@ -14,11 +14,9 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.consejeria.Consejero;
-import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -59,38 +57,8 @@ public class ConsejeriaServiceImp implements ConsejeriaService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<Docente> allDocenteByNombreAndCarrera(String nombre, String facultadid) {
-        return docenteDAO.allByNameAndCarrera(nombre, facultadid);
-    }
-
-    @Override
-    public List<Docente> allDocente() {
-        return docenteDAO.all();
-    }
-
-    @Override
-    public Docente findById(Long idDocente) {
-        return docenteDAO.find(idDocente);
-    }
-
-    @Override
-    public Carrera findCarreraByIdFacultad(Long idFaculta) {
-        return carreraDAO.findCarreraByIdFacultad(idFaculta);
-    }
-
-    @Override
     public Colaborador findColaboradorByIdPersona(Long idPersona) {
         return colaboradorDAO.findColaboradorByIdPersona(idPersona);
-    }
-
-    @Override
-    public List<Docente> allDocenteByCarrera(String nombre) {
-        return docenteDAO.allDocenteByCarrera(nombre);
-    }
-
-    @Override
-    public List<Carrera> allByCarreraByNombre(String nombre, List<Carrera> carreras) {
-        return carreraDAO.allByNombreCarrera(nombre, carreras);
     }
 
     @Override
@@ -104,33 +72,8 @@ public class ConsejeriaServiceImp implements ConsejeriaService {
     }
 
     @Override
-    public List<DepartamentoAcademico> allDeptByIdFacultad(String facultadid) {
-        return consejeroDAO.allByIdFacultad(facultadid);
-    }
-
-    @Override
-    public List<Docente> allDocenteByNombreAndCarreraAndDeparts(String nombre, List<DepartamentoAcademico> departs) {
-        return consejeroDAO.allByNombreAndDeparts(nombre, departs);
-    }
-
-    @Override
-    public Colaborador findColaboradorDocenteByIdPersona(Long idPersona, Long IdCargo) {
-        return colaboradorDAO.findColaboradorDocenteByIdPersona(idPersona, IdCargo);
-    }
-
-    @Override
-    public Consejero find(Long idConsejero) {
-        return consejeroDAO.find(idConsejero);
-    }
-
-    @Override
     public Consejero finByIdPersona(Persona persona) {
         return consejeroDAO.finByIdPersona(persona);
-    }
-
-    @Override
-    public List<Carrera> allCarreraByIdDocente(long idDocente) {
-        return consejeroDAO.findAllCarreraByIdDocente(idDocente);
     }
 
     @Override
@@ -177,11 +120,7 @@ public class ConsejeriaServiceImp implements ConsejeriaService {
     @Override
     @Transactional
     public void updateEstado(Consejero consejero, DataSessionPivot ds) {
-        Consejero cons = this.find(consejero.getId());
-//        if (consejero.getEstado().equals(INA)) {
-//            
-//        }
-
+        Consejero cons = consejeroDAO.find(consejero.getId());
         cons.setEstado(consejero.getEstado());
         consejeroDAO.update(cons);
     }
@@ -267,11 +206,6 @@ public class ConsejeriaServiceImp implements ConsejeriaService {
     }
 
     @Override
-    public List<Consejero> allByCarrera(String nombre, Carrera carrera) {
-        return consejeroDAO.allByNombreAndCarrera(nombre, carrera);
-    }
-
-    @Override
     public AConsejeroEstado findAConsejadosByStateCarrera(Long carrera, DataSessionPivot ds) {
 
 //        List<Alumno> aconsejados = alumnoService.findAconsejadosByCarrera(carrera, ds.getCicloAcademico());
@@ -284,6 +218,11 @@ public class ConsejeriaServiceImp implements ConsejeriaService {
 //        
 //        AConsejeroEstado aconsejero = new AConsejeroEstado(cantidadAconsejados, cantidadSinConsejeros);       
         return consejeroDAO.allByAconsejados(carrera, ds.getCicloAcademico());
+    }
+
+    @Override
+    public List<Consejero> allByCarrera(String nombre, Carrera carrera) {
+        return consejeroDAO.allByNombreAndCarrera(nombre, carrera);
     }
 
 }

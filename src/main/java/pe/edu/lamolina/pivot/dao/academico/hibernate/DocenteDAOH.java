@@ -194,36 +194,6 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     }
 
     @Override
-    public List<Docente> allDocenteByCarrera(String nombre) {
-        Octavia sql = Octavia.query()
-                .from(Docente.class, "doc")
-                .join("departamentoAcademico da", "da.facultad fa", "fa.carrera car")
-                .filter("car.nombre", nombre)
-                .orderBy("car.id desc");
-        return all(sql);
-
-    }
-
-    @Override
-    public List<Docente> allByNameAndCarrera(String nombre, String facultadid) {
-        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
-        Octavia sql = Octavia.query()
-                .from(Docente.class, "doc")
-                .join("persona per", "departamentoAcademico da", "da.facultad fa")
-                .filter("per.estado", PersonaEstadoEnum.ACT)
-                .filter("doc.estado", EstadoEnum.ACT)
-                .filter("fa.id", facultadid)
-                .beginBlock()
-                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
-                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
-                .__().filter("per.numeroDocIdentidad", "like", nombre)
-                .__().filter("doc.codigo", "like", nombre)
-                .endBlock()
-                .limit(15);
-        return sql.all(getCurrentSession());
-    }
-
-    @Override
     public List<Docente> allByNombreFacultad(String nombre, Facultad facultad) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia subQuery = new Octavia()

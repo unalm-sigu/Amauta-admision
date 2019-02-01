@@ -33,10 +33,6 @@ public interface DocenteDAO extends EasyDAO<Docente> {
 
     List<Docente> allByName(String nombre);
 
-    List<Docente> allDocenteByCarrera(String nombre);
-
-    List<Docente> allByNameAndCarrera(String nombre, String facultadid);
-
     List<Docente> allByNombreFacultad(String nombre, Facultad facultad);
 
 }

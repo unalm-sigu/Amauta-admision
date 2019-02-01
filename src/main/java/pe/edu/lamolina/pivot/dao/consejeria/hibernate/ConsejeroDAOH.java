@@ -9,13 +9,9 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
@@ -77,34 +73,6 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
-    public List<DepartamentoAcademico> allByIdFacultad(String facultadid) {
-        Octavia sql = Octavia.query()
-                .from(DepartamentoAcademico.class, "dep")
-                .join("dep.facultad fac")
-                .filter("fac.id", facultadid);
-        return sql.all(getCurrentSession());
-
-    }
-
-    @Override
-    public List<Docente> allByNombreAndDeparts(String nombre, List<DepartamentoAcademico> departs) {
-        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
-        Octavia sql = Octavia.query().selectDistinct("doc")
-                .from(Colaborador.class, "col")
-                .join("col.oficina ofi", "col.cargo carg", "ofi.tipoOficina tip", "col.persona per", "per.docente doc")
-                .filter("carg.id", 10) //Docente
-                .filter("tip.id", 8) //departamentoAcdemico
-                .in("ofi.instanciaOficina", departs)
-                .beginBlock()
-                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
-                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
-                .__().filter("per.numeroDocIdentidad", "like", nombre)
-                .endBlock()
-                .limit(15);
-        return sql.all(getCurrentSession());
-    }
-
-    @Override
     public Consejero finByIdPersona(Persona persona) {
         Octavia sql = Octavia.query()
                 .selectDistinct("con")
@@ -112,15 +80,6 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .join("persona per", "consejero con")
                 .filter("per.id", persona);
         return find(sql);
-    }
-
-    @Override
-    public List<Carrera> findAllCarreraByIdDocente(long idDocente) {
-        Octavia sql = Octavia.query().selectDistinct("carr")
-                .from(Docente.class, "doc")
-                .join("departamentoAcademico dep", "dep.facultad fac", "fac.carrera carr")
-                .filter("doc.id", idDocente);
-        return sql.all(getCurrentSession());
     }
 
     @Override
@@ -156,23 +115,6 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
-    public List<Consejero> allByNombreAndCarrera(String nombre, Carrera carrera) {
-        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
-        Octavia sql = Octavia.query()
-                .from(Consejero.class, "con")
-                .join("colaborador col", "col.persona per", "carrera carr")
-                .filter("carr.id", carrera)
-                .filter("con.estado", EstadoEnum.ACT)
-                .beginBlock()
-                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
-                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
-                .__().filter("per.numeroDocIdentidad", "like", nombre)
-                .endBlock()
-                .limit(15);
-        return all(sql);
-    }
-
-    @Override
     public AConsejeroEstado allByAconsejados(Long carrera, CicloAcademico cicloacademico) {
 
         Octavia sql = Octavia.query()
@@ -190,5 +132,22 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
 
         return (AConsejeroEstado) sql.find(getCurrentSession());
 
+    }
+
+    @Override
+    public List<Consejero> allByNombreAndCarrera(String nombre, Carrera carrera) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "con")
+                .join("colaborador col", "col.persona per", "carrera carr")
+                .filter("carr.id", carrera)
+                .filter("con.estado", EstadoEnum.ACT)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return all(sql);
     }
 }
