@@ -12,12 +12,12 @@ import pe.edu.lamolina.pivot.dao.rolexamen.FechaHoraGrupoExamenDAO;
 
 @Repository
 public class FechaHoraGrupoExamenDAOH extends AbstractEasyDAO<FechaHoraGrupoExamen> implements FechaHoraGrupoExamenDAO {
-    
+
     public FechaHoraGrupoExamenDAOH() {
         super();
         setClazz(FechaHoraGrupoExamen.class);
     }
-    
+
     @Override
     public FechaHoraGrupoExamen find(long id) {
         Octavia sql = Octavia.query()
@@ -26,7 +26,7 @@ public class FechaHoraGrupoExamenDAOH extends AbstractEasyDAO<FechaHoraGrupoExam
                 .filter("fhg.id", id);
         return find(sql);
     }
-    
+
     @Override
     public List<FechaHoraGrupoExamen> allByGrupoHorasExamen(GrupoHorasExamen grupoHorasExamen) {
         Octavia sql = Octavia.query()
@@ -35,7 +35,7 @@ public class FechaHoraGrupoExamenDAOH extends AbstractEasyDAO<FechaHoraGrupoExam
                 .filter("ghe.id", grupoHorasExamen);
         return all(sql);
     }
-    
+
     @Override
     public List<FechaHoraGrupoExamen> allByGrupoHorasExamen(List<GrupoHorasExamen> gruposHorasExamen) {
         Octavia sql = Octavia.query()
@@ -44,7 +44,7 @@ public class FechaHoraGrupoExamenDAOH extends AbstractEasyDAO<FechaHoraGrupoExam
                 .in("ghe.id", gruposHorasExamen);
         return all(sql);
     }
-    
+
     @Override
     public List<FechaHoraGrupoExamen> allByGrupoHorasExamenOrderByDiaHora(List<GrupoHorasExamen> gruposHorasExamen) {
         Octavia sql = Octavia.query()
@@ -54,7 +54,7 @@ public class FechaHoraGrupoExamenDAOH extends AbstractEasyDAO<FechaHoraGrupoExam
                 .in("ghe.id", gruposHorasExamen);
         return all(sql);
     }
-    
+
     @Override
     public List<FechaHoraGrupoExamen> allByGrupoHorasExamenOrderByDiaHora(GrupoHorasExamen grupoHorasExamen) {
         Octavia sql = Octavia.query()
@@ -64,7 +64,7 @@ public class FechaHoraGrupoExamenDAOH extends AbstractEasyDAO<FechaHoraGrupoExam
                 .filter("ghe.id", grupoHorasExamen);
         return all(sql);
     }
-    
+
     @Override
     public List<FechaHoraGrupoExamen> allBySemanaExamen(SemanaExamen semanaExamen) {
         Octavia sql = Octavia.query()
@@ -74,7 +74,7 @@ public class FechaHoraGrupoExamenDAOH extends AbstractEasyDAO<FechaHoraGrupoExam
                 .filter("se.id", semanaExamen);
         return all(sql);
     }
-    
+
     @Override
     public List<FechaHoraGrupoExamen> allByRolExamens(RolExamenes rolExamenes) {
         Octavia sql = Octavia.query()
@@ -84,7 +84,7 @@ public class FechaHoraGrupoExamenDAOH extends AbstractEasyDAO<FechaHoraGrupoExam
                 .filter("rex.id", rolExamenes);
         return all(sql);
     }
-    
+
     @Override
     public List<FechaHoraGrupoExamen> allBySemanaExamenAndGrupoHoraSecc(SemanaExamen semanaExamen, List<Long> ids) {
         Octavia sql = Octavia.query()

@@ -259,35 +259,19 @@ public class RolExamenesServiceImp implements RolExamenesService {
         List<SemanaExamen> semanaExamenes = semanaExamenDAO.allByRolExamenes(rolExamenes);
         logger.debug("all semana examen {}", semanaExamenes.size());
 
-        Integer numerosemana = 1;
-
         for (SemanaExamen semanaExamen : semanaExamenes) {
-
-            logger.debug("semana id {} # {} ", semanaExamen.getId(), semanaExamen.getNumeroSemana());
-            logger.debug("semana FechaInicio {} FechaFin {} ", semanaExamen.getFechaInicio(), semanaExamen.getFechaFin());
 
             List<FechaHoraGrupoExamen> fechaHoraGrupoExamenes = fechaHoraGrupoExamenDAO.allBySemanaExamen(semanaExamen);
             List<GrupoHorasExamen> grupoHorasExamenes = fechaHoraGrupoExamenes.stream().map(x -> x.getGrupoHorasExamen()).collect(Collectors.toList());
 
             Map<Long, List<FechaHoraGrupoExamen>> fechaHoraGrupoExamenXgrupoExamen = TypesUtil.convertListToMapList("grupoHorasExamen.id", fechaHoraGrupoExamenes);
 
-            LocalDate fechainicioexamen = this.toLocal(semanaExamen.getFechaInicio());
-            LocalDate fechafinfirst = fechainicioexamen.minusDays(1L);
-            Date fechafin = this.toDate(fechafinfirst);
+            this.allHorarioClasesCursoMasivo(semanaExamenes, semanaExamen, grupoHorasExamenes, fechaHoraGrupoExamenXgrupoExamen);
 
-            LocalDate fechafinsemanaexamen = this.toLocal(semanaExamen.getFechaFin());
-            LocalDate fechainiciosecond = fechafinsemanaexamen.plusDays(1L);
-            Date fechainicio = this.toDate(fechainiciosecond);
+            this.allHorarioClasesCursoRegular(semanaExamenes, semanaExamen, grupoHorasExamenes, fechaHoraGrupoExamenXgrupoExamen);
 
-            logger.debug("fecha para fines de nuevo horario inicio  {} fin {} ", fechainicio, fechafin);
+            this.allHorarioClasesCursoEspecial(semanaExamenes, semanaExamen, grupoHorasExamenes, fechaHoraGrupoExamenXgrupoExamen);
 
-            this.allHorarioClasesCursoMasivo(semanaExamen, grupoHorasExamenes, numerosemana, fechaHoraGrupoExamenXgrupoExamen, fechainicio, fechafin);
-
-            this.allHorarioClasesCursoRegular(semanaExamen, grupoHorasExamenes, numerosemana, fechaHoraGrupoExamenXgrupoExamen, fechainicio, fechafin);
-
-            this.allHorarioClasesCursoEspecial(semanaExamen, grupoHorasExamenes, numerosemana, fechaHoraGrupoExamenXgrupoExamen, fechainicio, fechafin);
-
-            numerosemana++;
         }
     }
 
@@ -313,11 +297,10 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
     @Transactional
     private void allHorarioClasesCursoMasivo(
+            List<SemanaExamen> semanaExamenes,
             SemanaExamen semanaExamen,
             List<GrupoHorasExamen> grupoHorasExamenes,
-            Integer numerosemana,
-            Map<Long, List<FechaHoraGrupoExamen>> fechaHoraGrupoExamenXgrupoExamen,
-            Date fechainicio, Date fechafin) {
+            Map<Long, List<FechaHoraGrupoExamen>> fechaHoraGrupoExamenXgrupoExamen) {
 
         List<SeccionCursoMasivo> seccionCursoMasivos = seccionCursoMasivoDAO.allByGrupoHorasExamen(grupoHorasExamenes);
 
@@ -327,42 +310,58 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
         List<Seccion> secciones = seccionCursoMasivos.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
 
-        List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones, semanaExamen);
+        Integer numerosemana = 1;
 
-        for (HorarioAula horarioAula : horarioAulas) {
+        for (SemanaExamen semanaExamenFree : semanaExamenes) {
 
-            boolean test = (numerosemana % 2 == 0) ? horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8
-                    : horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
+            List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones, semanaExamenFree);
 
-            if (test) {
-                continue;
+            for (HorarioAula horarioAula : horarioAulas) {
+
+                boolean test = (numerosemana % 2 == 0) ? 8<= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <=13
+                        :14<= horarioAula.getHora().getNumero()  && horarioAula.getHora().getNumero() <=18;
+
+                if (test) {
+                    continue;
+                }
+
+                Date fechaFin = horarioAula.getFechaFin();
+                Date fechaInicio = horarioAula.getFechaInicio();
+
+                if (fechaInicio.after(semanaExamenFree.getFechaInicio()) && fechaFin.before(semanaExamenFree.getFechaFin())) {
+                    continue;
+                }
+
+                LocalDate fechainicioexamen = this.toLocal(semanaExamenFree.getFechaInicio());
+                LocalDate fechafinfirst = fechainicioexamen.minusDays(1L);
+                Date fechafin = this.toDate(fechafinfirst);
+
+                LocalDate fechafinsemanaexamen = this.toLocal(semanaExamenFree.getFechaFin());
+                LocalDate fechainiciosecond = fechafinsemanaexamen.plusDays(1L);
+                Date fechainicio = this.toDate(fechainiciosecond);
+
+                HorarioAula horarioAulaNew = new HorarioAula();
+
+                horarioAulaNew.setFechaInicio(fechainicio);
+                horarioAulaNew.setFechaFin(horarioAula.getFechaFin());
+
+                horarioAulaNew.setAula(horarioAula.getAula());
+                horarioAulaNew.setEstado(horarioAula.getEstado());
+                horarioAulaNew.setReservado(horarioAula.getReservado());
+                horarioAulaNew.setTipo(horarioAula.getTipo());
+                horarioAulaNew.setDia(horarioAula.getDia());
+                horarioAulaNew.setHora(horarioAula.getHora());
+                horarioAulaNew.setSeccion(horarioAula.getSeccion());
+                horarioAulaNew.setReservaAula(horarioAula.getReservaAula());
+                horarioAulaNew.setCursoMasivoExamen(horarioAula.getCursoMasivoExamen());
+                horarioAulaDAO.save(horarioAulaNew);
+                
+                horarioAula.setFechaFin(fechafin);
+                horarioAulaDAO.update(horarioAula);
+
             }
 
-            Date fechaFin = horarioAula.getFechaFin();
-            Date fechaInicio = horarioAula.getFechaInicio();
-
-            if (fechaInicio.after(semanaExamen.getFechaInicio()) && fechaFin.before(semanaExamen.getFechaFin())) {
-                continue;
-            }
-
-            HorarioAula horarioAulaNew = new HorarioAula();
-
-            horarioAulaNew.setFechaInicio(fechainicio);
-            horarioAulaNew.setFechaFin(horarioAula.getFechaFin());
-
-            horarioAulaNew.setAula(horarioAula.getAula());
-            horarioAulaNew.setEstado(horarioAula.getEstado());
-            horarioAulaNew.setReservado(horarioAula.getReservado());
-            horarioAulaNew.setTipo(horarioAula.getTipo());
-            horarioAulaNew.setDia(horarioAula.getDia());
-            horarioAulaNew.setHora(horarioAula.getHora());
-            horarioAulaNew.setSeccion(horarioAula.getSeccion());
-            horarioAulaNew.setReservaAula(horarioAula.getReservaAula());
-            horarioAulaNew.setCursoMasivoExamen(horarioAula.getCursoMasivoExamen());
-            horarioAulaDAO.save(horarioAulaNew);
-
-            horarioAula.setFechaFin(fechafin);
-            horarioAulaDAO.update(horarioAula);
+            numerosemana++;
 
         }
 
@@ -396,54 +395,68 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
     @Transactional
     private void allHorarioClasesCursoRegular(
+            List<SemanaExamen> semanaExamenes,
             SemanaExamen semanaExamen,
             List<GrupoHorasExamen> grupoHorasExamenes,
-            Integer numerosemana,
-            Map<Long, List<FechaHoraGrupoExamen>> fechaHoraGrupoExamenXgrupoExamen,
-            Date fechainicio, Date fechafin) {
+            Map<Long, List<FechaHoraGrupoExamen>> fechaHoraGrupoExamenXgrupoExamen) {
 
         List<SeccionGrupoRegular> seccionGrupoRegulares = seccionGrupoRegularDAO.allByGrupoHorasExamen(grupoHorasExamenes);
 
         List<Seccion> secciones = seccionGrupoRegulares.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
 
-        List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones, semanaExamen);
+        Integer numerosemana = 1;
 
-        for (HorarioAula horarioAula : horarioAulas) {
+        for (SemanaExamen semanaExamenFree : semanaExamenes) {
 
-            boolean test = (numerosemana % 2 == 0) ? horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8
-                    : horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
+            List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones, semanaExamenFree);
 
-            if (test) {
-                continue;
+            for (HorarioAula horarioAula : horarioAulas) {
+
+                 boolean test = (numerosemana % 2 == 0) ? 8<= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <=13
+                        :14<= horarioAula.getHora().getNumero()  && horarioAula.getHora().getNumero() <=18;
+
+                if (test) {
+                    continue;
+                }
+
+                Date fechaFin = horarioAula.getFechaFin();
+                Date fechaInicio = horarioAula.getFechaInicio();
+
+                if (fechaInicio.after(semanaExamenFree.getFechaInicio()) && fechaFin.before(semanaExamenFree.getFechaFin())) {
+                    continue;
+                }
+
+                LocalDate fechainicioexamen = this.toLocal(semanaExamenFree.getFechaInicio());
+                LocalDate fechafinfirst = fechainicioexamen.minusDays(1L);
+                Date fechafin = this.toDate(fechafinfirst);
+
+                LocalDate fechafinsemanaexamen = this.toLocal(semanaExamenFree.getFechaFin());
+                LocalDate fechainiciosecond = fechafinsemanaexamen.plusDays(1L);
+                Date fechainicio = this.toDate(fechainiciosecond);
+
+                HorarioAula horarioAulaNew = new HorarioAula();
+
+                horarioAulaNew.setFechaInicio(fechainicio);
+                horarioAulaNew.setFechaFin(horarioAula.getFechaFin());
+
+                horarioAulaNew.setAula(horarioAula.getAula());
+                horarioAulaNew.setEstado(horarioAula.getEstado());
+                horarioAulaNew.setReservado(horarioAula.getReservado());
+                horarioAulaNew.setTipo(horarioAula.getTipo());
+                horarioAulaNew.setDia(horarioAula.getDia());
+                horarioAulaNew.setHora(horarioAula.getHora());
+                horarioAulaNew.setSeccion(horarioAula.getSeccion());
+                horarioAulaNew.setReservaAula(horarioAula.getReservaAula());
+                horarioAulaNew.setCursoMasivoExamen(horarioAula.getCursoMasivoExamen());
+
+                horarioAulaDAO.save(horarioAulaNew);
+
+                horarioAula.setFechaFin(fechafin);
+                horarioAulaDAO.update(horarioAula);
+
             }
 
-            Date fechaFin = horarioAula.getFechaFin();
-            Date fechaInicio = horarioAula.getFechaInicio();
-
-            if (fechaInicio.after(semanaExamen.getFechaInicio()) && fechaFin.before(semanaExamen.getFechaFin())) {
-                continue;
-            }
-
-            HorarioAula horarioAulaNew = new HorarioAula();
-
-            horarioAulaNew.setFechaInicio(fechainicio);
-            horarioAulaNew.setFechaFin(horarioAula.getFechaFin());
-
-            horarioAulaNew.setAula(horarioAula.getAula());
-            horarioAulaNew.setEstado(horarioAula.getEstado());
-            horarioAulaNew.setReservado(horarioAula.getReservado());
-            horarioAulaNew.setTipo(horarioAula.getTipo());
-            horarioAulaNew.setDia(horarioAula.getDia());
-            horarioAulaNew.setHora(horarioAula.getHora());
-            horarioAulaNew.setSeccion(horarioAula.getSeccion());
-            horarioAulaNew.setReservaAula(horarioAula.getReservaAula());
-            horarioAulaNew.setCursoMasivoExamen(horarioAula.getCursoMasivoExamen());
-
-            horarioAulaDAO.save(horarioAulaNew);
-
-            horarioAula.setFechaFin(fechafin);
-            horarioAulaDAO.update(horarioAula);
-
+            numerosemana++;
         }
 
         for (SeccionGrupoRegular seccionGrupoRegulare : seccionGrupoRegulares) {
@@ -478,54 +491,68 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
     @Transactional
     private void allHorarioClasesCursoEspecial(
+            List<SemanaExamen> semanaExamenes,
             SemanaExamen semanaExamen,
             List<GrupoHorasExamen> grupoHorasExamenes,
-            Integer numerosemana,
-            Map<Long, List<FechaHoraGrupoExamen>> fechaHoraGrupoExamenXgrupoExamen,
-            Date fechainicio, Date fechafin) {
+            Map<Long, List<FechaHoraGrupoExamen>> fechaHoraGrupoExamenXgrupoExamen) {
 
         List<SeccionGrupoEspecial> seccionGrupoEspeciales = seccionGrupoEspecialDAO.allByGrupoHorasExamen(grupoHorasExamenes);
 
         List<Seccion> secciones = seccionGrupoEspeciales.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
 
-        List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones, semanaExamen);
+        Integer numerosemana = 1;
 
-        for (HorarioAula horarioAula : horarioAulas) {
+        for (SemanaExamen semanaExamenFree : semanaExamenes) {
 
-            boolean test = (numerosemana % 2 == 0) ? horarioAula.getHora().getNumero() <= 13 && horarioAula.getHora().getNumero() >= 8
-                    : horarioAula.getHora().getNumero() <= 18 && horarioAula.getHora().getNumero() >= 14;
+            List<HorarioAula> horarioAulas = horarioAulaDAO.allHorarioClasesBySecciones(secciones, semanaExamenFree);
 
-            if (test) {
-                continue;
+            for (HorarioAula horarioAula : horarioAulas) {
+
+                boolean test = (numerosemana % 2 == 0) ? 8<= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <=13
+                        :14<= horarioAula.getHora().getNumero()  && horarioAula.getHora().getNumero() <=18;
+
+                if (test) {
+                    continue;
+                }
+
+                Date fechaFin = horarioAula.getFechaFin();
+                Date fechaInicio = horarioAula.getFechaInicio();
+
+                if (fechaInicio.after(semanaExamenFree.getFechaInicio()) && fechaFin.before(semanaExamenFree.getFechaFin())) {
+                    continue;
+                }
+
+                LocalDate fechainicioexamen = this.toLocal(semanaExamenFree.getFechaInicio());
+                LocalDate fechafinfirst = fechainicioexamen.minusDays(1L);
+                Date fechafin = this.toDate(fechafinfirst);
+
+                LocalDate fechafinsemanaexamen = this.toLocal(semanaExamenFree.getFechaFin());
+                LocalDate fechainiciosecond = fechafinsemanaexamen.plusDays(1L);
+                Date fechainicio = this.toDate(fechainiciosecond);
+
+                HorarioAula horarioAulaNew = new HorarioAula();
+
+                horarioAulaNew.setFechaInicio(fechainicio);
+                horarioAulaNew.setFechaFin(horarioAula.getFechaFin());
+
+                horarioAulaNew.setAula(horarioAula.getAula());
+                horarioAulaNew.setEstado(horarioAula.getEstado());
+                horarioAulaNew.setReservado(horarioAula.getReservado());
+                horarioAulaNew.setTipo(horarioAula.getTipo());
+                horarioAulaNew.setDia(horarioAula.getDia());
+                horarioAulaNew.setHora(horarioAula.getHora());
+                horarioAulaNew.setSeccion(horarioAula.getSeccion());
+                horarioAulaNew.setReservaAula(horarioAula.getReservaAula());
+                horarioAulaNew.setCursoMasivoExamen(horarioAula.getCursoMasivoExamen());
+
+                horarioAulaDAO.save(horarioAulaNew);
+
+                horarioAula.setFechaFin(fechafin);
+                horarioAulaDAO.update(horarioAula);
+
             }
 
-            Date fechaFin = horarioAula.getFechaFin();
-            Date fechaInicio = horarioAula.getFechaInicio();
-
-            if (fechaInicio.after(semanaExamen.getFechaInicio()) && fechaFin.before(semanaExamen.getFechaFin())) {
-                continue;
-            }
-
-            HorarioAula horarioAulaNew = new HorarioAula();
-
-            horarioAulaNew.setFechaInicio(fechainicio);
-            horarioAulaNew.setFechaFin(horarioAula.getFechaFin());
-
-            horarioAulaNew.setAula(horarioAula.getAula());
-            horarioAulaNew.setEstado(horarioAula.getEstado());
-            horarioAulaNew.setReservado(horarioAula.getReservado());
-            horarioAulaNew.setTipo(horarioAula.getTipo());
-            horarioAulaNew.setDia(horarioAula.getDia());
-            horarioAulaNew.setHora(horarioAula.getHora());
-            horarioAulaNew.setSeccion(horarioAula.getSeccion());
-            horarioAulaNew.setReservaAula(horarioAula.getReservaAula());
-            horarioAulaNew.setCursoMasivoExamen(horarioAula.getCursoMasivoExamen());
-
-            horarioAulaDAO.save(horarioAulaNew);
-
-            horarioAula.setFechaFin(fechafin);
-            horarioAulaDAO.update(horarioAula);
-
+            numerosemana++;
         }
 
         for (SeccionGrupoEspecial seccionGrupoEspeciale : seccionGrupoEspeciales) {
