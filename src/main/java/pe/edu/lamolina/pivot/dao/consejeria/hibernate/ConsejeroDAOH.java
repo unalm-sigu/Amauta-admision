@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.consejeria.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Query;
@@ -10,6 +11,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -18,6 +20,8 @@ import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeria.AConsejeroEstado;
@@ -169,24 +173,22 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
-    public AConsejeroEstado allByAconsejados(List<Alumno> alumnos) {
+    public AConsejeroEstado allByAconsejados(Long carrera, CicloAcademico cicloacademico) {
 
-        StringBuilder sql = new StringBuilder();
+        Octavia sql = Octavia.query()
+                .select("sum(case conse.alumnos_activos)")
+                .into(AConsejeroEstado.class)
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al")
+                .join("al.consejero conse")
+                .join("cicloAcademico ci")
+                .join("al.carrera carr")
+                .filter("ci.id", cicloacademico)
+                .in("mr.estado", Arrays.asList(NMAT, MAT))
+                .filter("ci.id", cicloacademico)
+                .filter("carr.id", carrera);
 
-        sql.append("select new ").append(AConsejeroEstado.class.getName());
-        sql.append(" (   ");
-        sql.append("   sum(case conse.alumnos_activos when :ACT then 1 else 0 end),");
-        sql.append("   sum(case conse.estado when :INA then 1 else 0 end)   ");
-        sql.append(" )   ");
-        sql.append("  from ").append(AlumnoConsejero.class.getName()).append(" as alcon ");
-        sql.append(" inner join alcon.alumno al ");
-        sql.append(" inner join alcon.consejero conse ");
-        sql.append(" where al.id = :ALUMNO ");
-
-        Query query = getCurrentSession().createQuery(sql.toString());
-        query.setParameterList("ALUMNO", alumnos);
-
-        return (AConsejeroEstado) query.uniqueResult();
+        return (AConsejeroEstado) sql.find(getCurrentSession());
 
     }
 }

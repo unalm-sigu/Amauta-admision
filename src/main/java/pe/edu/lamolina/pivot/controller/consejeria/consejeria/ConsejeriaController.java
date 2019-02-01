@@ -101,7 +101,6 @@ public class ConsejeriaController {
             @RequestParam String nombre,
             @RequestParam Long idFacultad, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse json = new JsonResponse();
         try {
 
@@ -215,11 +214,11 @@ public class ConsejeriaController {
         JsonResponse json = new JsonResponse();
         try {
 
-            AConsejeroEstado aConsejeroEstado = service.findAConsejadosByStateCarrera(carrera, ds);
-            ObjectNode consejeroJson = JsonHelper.createJson(aConsejeroEstado, JsonNodeFactory.instance, true, new String[]{
+            AConsejeroEstado aconsejeroEstado = service.findAConsejadosByStateCarrera(carrera, ds);
+            ObjectNode aconsejadoJson = JsonHelper.createJson(aconsejeroEstado, JsonNodeFactory.instance, true, new String[]{
                 "*"
             });
-            json.setData(consejeroJson);
+            json.setData(aconsejadoJson);
 
         } catch (Exception e) {
             e.printStackTrace();

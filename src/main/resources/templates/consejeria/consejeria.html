@@ -49,8 +49,8 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a type="button" v-bind:disabled="btnAñadir" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Consejero</a></li>
-                                <li><a v-if="" type="button" v-on:click.prevent="asignarAlummnos" >Asignar Alumno aleatoriamente</a></li>
-                                <li><a v-if="" type="button" v-on:click.prevent="desasignarAlummnos" >Desasignar Alumno</a></li>
+                                <li><a type="button" v-bind:disabled="btnAñadir" v-on:click.prevent="asignarAlummnos" >Asignar Alumnos aleatoriamente</a></li>
+                                <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Desasignar Alumnos</a></li>
                             </ul>
                         </div>
                         <h2>Listado de Consejeros <span v-text='ciclo.descripcion'></span></h2>
@@ -62,7 +62,7 @@
                                     <div slot="header">
                                         <div class="col-md-10 preguntas-col">
                                             <div class="row">
-                                                <div class="col-md-6" >
+                                                <div class="col-md-5" >
                                                     <multiselect v-model="carreraSelect" 
                                                                  v-bind:options='carreras'
                                                                  label='nombre'
@@ -88,16 +88,16 @@
                                                     </a>
                                                 </div>
                                                 <div class="col-md-2 text-center">
-                                                    <a class="text-info" >
+                                                    <div class="text-info" >
                                                         <span class="h2 bold" v-text="cantidadAconsejados"></span>
                                                         <small class="block m-b-xs">Aconsejados</small>
-                                                    </a>
+                                                    </div>
                                                 </div>
                                                 <div class="col-md-2 text-center">
-                                                    <a  class="text-danger" >
+                                                    <div  class="text-danger" >
                                                         <span class="h2 bold" v-text="cantidadSinAconsejados"></span>
                                                         <small class="block m-b-xs">Sin consejero</small>
-                                                    </a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

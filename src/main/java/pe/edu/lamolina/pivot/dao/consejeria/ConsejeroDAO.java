@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.consejeria.Consejero;
@@ -30,6 +31,6 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
     List<Consejero> allByNombreAndCarrera(String nombre, Carrera carrera);
 
-    AConsejeroEstado allByAconsejados(List<Alumno> alumnos);
+    AConsejeroEstado allByAconsejados(Long carrera, CicloAcademico cicloacademico);
 
 }

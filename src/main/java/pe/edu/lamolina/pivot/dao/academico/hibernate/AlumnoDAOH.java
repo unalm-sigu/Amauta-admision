@@ -681,25 +681,38 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> findAlumnosByCarreraAndCiclo(Long carrera, CicloAcademico ciclo) {
         Octavia sql = Octavia.query().selectDistinct("alu")
                 .from(MatriculaResumen.class, "mr")
-                .join("alumno alu", "alu.modalidadEstudio me", "cicloAcademico ci", "alu.situacionAcademica sa")
+                .join("alumno alu", "cicloAcademico ci")
                 .join("alu.persona per", "alu.carrera car")
                 .filter("ci.id", ciclo)
                 .in("mr.estado", Arrays.asList(NMAT, MAT))
                 .filter("car.id", carrera);
         return all(sql);
     }
-
+/////---
     @Override
     public List<Alumno> findAconsejadosByCarrera(Long carrera, CicloAcademico ciclo) {
         Octavia sql = Octavia.query().selectDistinct("alu")
                 .from(MatriculaResumen.class, "mr")
-                .join("alumno alu", "alu.modalidadEstudio me", "cicloAcademico ci", "alu.situacionAcademica sa")
+                .join("alumno alu", "cicloAcademico ci")
                 .join("alu.consejero conse", "alu.carrera car")
                 .filter("ci.id", ciclo)
                 .isNotNull("conse.id")
-                .in("mr.estado", Arrays.asList(NMAT, MAT))      
+                .in("mr.estado", Arrays.asList(NMAT, MAT))
                 .filter("car.id", carrera);
         return all(sql);
     }
 
+    @Override
+    public List<Alumno> findSinConsejeroByCarrera(Long carrera, List<Alumno> alumnos, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query().selectDistinct("alu")
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ci", "alu.carrera car")
+                .filter("ci.id", ciclo)
+                .in("mr.estado", Arrays.asList(NMAT, MAT))
+                .notIn("alu.id", alumnos)
+                .filter("car.id", carrera);
+        return all(sql);
+
+    }
+/////--
 }
