@@ -185,4 +185,12 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
 
         }
     }
+
+    @Override
+    public List<AlumnoConsejero> findAlumnoConsejeroByIdConsejero(Consejero consejero) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoConsejero.class, "alcon")
+                .filter("alcon.consejero", consejero);
+        return all(sql);
+    }
 }

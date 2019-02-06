@@ -20,6 +20,7 @@ import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeria.AConsejeroEstado;
@@ -59,7 +60,6 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
             if (key.equals("search")) {
                 continue;
             }
-//
 //            if (key.equals("carrera")) {
 //                String values = (String) queries.get(key);
 //                sql.filter("car.nombre", values);
@@ -118,23 +118,6 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
-    public AConsejeroEstado allByAconsejados(Long carrera, CicloAcademico cicloacademico) {
-        Octavia sql = Octavia.query()
-                .select(" sum(conse.alumnosActivos) ")
-                .into(AConsejeroEstado.class)
-                .from(MatriculaResumen.class, "mr")
-                .join(" alumno al ")
-                .join(" al.consejero conse ")
-                .join(" mr.cicloAcademico ci ")
-                .filter(" mr.cicloAcademico ", cicloacademico.getId())
-                .filter(" al.carrera ", carrera)
-                .in(" mr.estado ", Arrays.asList(NMAT, MAT));
-
-        return (AConsejeroEstado) sql.find(getCurrentSession());
-
-    }
-
-    @Override
     public List<Consejero> allByNombreAndCarrera(String nombre, Carrera carrera) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
@@ -153,10 +136,67 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
 
     @Override
     public List<Alumno> allAlumnosByConsejero(Consejero consejero) {
-        Octavia sql = Octavia.query().selectDistinct("al")
-                .from(AlumnoConsejero.class, "alconse")
-                .join("alumno al", "consejero conse")
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "al")
+                .join("consejero conse")
                 .filter("conse.id", consejero);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public Long findByMatriculaActivo(List<Alumno> alumnos, Long carrera, CicloAcademico cicloacademico) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al")
+                .filter("estado", MAT)
+                .join(" mr.cicloAcademico ci ")
+                .filter(" mr.cicloAcademico ", cicloacademico)
+                .filter(" al.carrera ", carrera)
+                .in("al.id", alumnos);
+
+        return Long.parseLong(sql.all(getCurrentSession()).size() + "");
+    }
+
+    @Override
+    public Long findByMatriculaInactivo(List<Alumno> alumnos, Long carrera, CicloAcademico cicloacademico) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno al")
+                .join(" mr.cicloAcademico ci ")
+                .filter(" mr.cicloAcademico ", cicloacademico)
+                .filter(" al.carrera ", carrera)
+                .in("mr.estado", Arrays.asList(NMAT, RCI))
+                .in("al.id", alumnos);
+
+        return Long.parseLong(sql.all(getCurrentSession()).size() + "");
+    }
+
+    @Override
+    public AConsejeroEstado findAconsejadosByMatricula(Long carrera, CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("select new ").append(AConsejeroEstado.class.getName());
+        sql.append(" (   ");
+        sql.append("   sum(case when conse.id = :CONSEJEROCOMODIN then 0 when conse.id is not null then 1 else 0 end),   ");
+        sql.append("   sum(case when conse.id = :CONSEJEROCOMODIN then 1 else 0 end),   ");
+        sql.append("   sum(case when conse.id is null then 1 else 0 end)   ");
+        sql.append(" )   ");
+        sql.append("  from ").append(MatriculaResumen.class.getName()).append(" as mr ");
+        sql.append(" inner join mr.cicloAcademico ci ");
+        sql.append(" inner join mr.alumno alm");
+        sql.append(" inner join alm.carrera carr");
+        sql.append(" left join alm.consejero conse on conse.id = alm.consejero ");
+        sql.append(" where carr.id = :CARRERA ");
+        sql.append(" and ci.id = :CICLO ");
+        sql.append(" and mr.estado in ( :ESTADOS )");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+
+        query.setInteger("CONSEJEROCOMODIN", 1);
+        query.setLong("CARRERA", carrera);
+        query.setLong("CICLO", cicloAcademico.getId());
+        query.setParameterList("ESTADOS", Arrays.asList(NMAT.name(), MAT.name(), RCI.name()));
+
+        return (AConsejeroEstado) query.uniqueResult();
     }
 }
