@@ -68,6 +68,7 @@ import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -129,6 +130,9 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
     @Autowired
     TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
+    
+    @Autowired
+    VacanteAlumnoDAO vacanteAlumnoDAO;
 
     @Override
     @Transactional
@@ -589,6 +593,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         restriccionCarreraDAO.deleteAllByCiclo(ciclo);
         docenteSeccionDAO.deleteAllByCiclo(ciclo);
         horarioSeccionDAO.deleteAllByCiclo(ciclo);
+        vacanteAlumnoDAO.deleteAllByCiclo(cicloDB);
         seccionDAO.deleteAllNotSuperiorByCiclo(ciclo);
         seccionDAO.deleteAllByCiclo(ciclo);
         grupoSeccionDAO.deleteAllByCiclo(ciclo);
