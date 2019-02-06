@@ -587,13 +587,13 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         cicloDB.setFechaOrdenHorarios(null);
         cicloAcademicoDAO.update(cicloDB);
 
+        vacanteAlumnoDAO.deleteAllByCiclo(ciclo);
         restriccionRepitenciaDAO.deleteAllByCiclo(ciclo);
         restriccionModalidadDAO.deleteAllByCiclo(ciclo);
         restriccionFacultadDAO.deleteAllByCiclo(ciclo);
         restriccionCarreraDAO.deleteAllByCiclo(ciclo);
         docenteSeccionDAO.deleteAllByCiclo(ciclo);
         horarioSeccionDAO.deleteAllByCiclo(ciclo);
-        vacanteAlumnoDAO.deleteAllByCiclo(cicloDB);
         seccionDAO.deleteAllNotSuperiorByCiclo(ciclo);
         seccionDAO.deleteAllByCiclo(ciclo);
         grupoSeccionDAO.deleteAllByCiclo(ciclo);
