@@ -97,7 +97,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allIngresantesByCiclos(List<CicloAcademico> ciclosIngresantes);
 
-    List<Alumno> allMatriculadosByCiclos(List<CicloAcademico> ciclosPrevios);
+    List<Alumno> allMatriculadosNoEgresadosByCiclos(List<CicloAcademico> ciclosPrevios);
 
     List<Alumno> allEstudiaronByCiclos(List<CicloAcademico> ciclosPrevios);
 

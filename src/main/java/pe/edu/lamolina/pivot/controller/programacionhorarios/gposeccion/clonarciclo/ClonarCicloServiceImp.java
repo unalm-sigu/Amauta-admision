@@ -130,7 +130,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
     @Autowired
     TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
-    
+
     @Autowired
     VacanteAlumnoDAO vacanteAlumnoDAO;
 
@@ -587,7 +587,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         cicloDB.setFechaOrdenHorarios(null);
         cicloAcademicoDAO.update(cicloDB);
 
-        vacanteAlumnoDAO.deleteAllByCiclo(ciclo);
         restriccionRepitenciaDAO.deleteAllByCiclo(ciclo);
         restriccionModalidadDAO.deleteAllByCiclo(ciclo);
         restriccionFacultadDAO.deleteAllByCiclo(ciclo);

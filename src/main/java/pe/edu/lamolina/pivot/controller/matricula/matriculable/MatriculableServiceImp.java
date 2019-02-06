@@ -172,7 +172,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<CicloAcademico> ciclosPreviosEpg = cicloAcademicoDAO.allActivosAnteriores(2, cicloEpg);
         ciclosPreviosEpg.addAll(ciclosPreviosPregrado);
 
-        List<Alumno> matriculados = alumnoDAO.allMatriculadosByCiclos(ciclosPreviosEpg);
+        List<Alumno> matriculados = alumnoDAO.allMatriculadosNoEgresadosByCiclos(ciclosPreviosEpg);
         List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPreviosEpg);
 
         for (Alumno matriculado : matriculados) {
@@ -236,7 +236,7 @@ public class MatriculableServiceImp implements MatriculableService {
         for (CicloAcademico ciclop : ciclosPrevios) {
             System.out.println(ciclop.getCodigo());
         }
-        List<Alumno> matriculados = alumnoDAO.allMatriculadosByCiclos(ciclosPrevios);
+        List<Alumno> matriculados = alumnoDAO.allMatriculadosNoEgresadosByCiclos(ciclosPrevios);
         System.out.println("=== vienen " + matriculados.size() + " matriculados de esos ciclos");
         List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPrevios);
         System.out.println("=== vienen " + estudiantes.size() + " estudiantes de esos ciclos");

@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -650,7 +651,11 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allMatriculadosByCiclos(List<CicloAcademico> ciclosPrevios) {
+    public List<Alumno> allMatriculadosNoEgresadosByCiclos(List<CicloAcademico> ciclosPrevios) {
+        Octavia sqlSub = new Octavia()
+                .from(Egresado.class,"egre")
+                .join("alumno alum");
+        
         Octavia sql = Octavia.query()
                 .selectDistinct("alu")
                 .from(MatriculaResumen.class, "mr")
@@ -658,6 +663,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("alu.persona per", "alu.carrera car")
                 .join("car.facultad fac")
                 .leftJoin("per.tipoDocumento td")
+                .notExists(sqlSub)
+                .linkedBy("alu.id", "alum.id")
                 .in("mr.estado", Arrays.asList(NMAT, MAT, RCI))
                 .in("ci.id", ciclosPrevios);
 
