@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Query;
@@ -661,6 +662,19 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .filter("estado", RCI);
 
         return Long.parseLong(sql.all(getCurrentSession()).size() + "");
+    }
+
+    @Override
+    public List<MatriculaResumen> allByCicloMATAndNMAT(CicloAcademico cicloBD) {
+
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .filter("ca.id", cicloBD)
+                .in("estad", Arrays.asList(MAT, NMAT));
+
+        return all(sql);
     }
 
 }

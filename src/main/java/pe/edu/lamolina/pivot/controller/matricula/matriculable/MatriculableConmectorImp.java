@@ -59,6 +59,8 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         BigDecimal cca = new BigDecimal(alumnoCiclo.getCreditosAcumulados());
         BigDecimal caps = new BigDecimal(alumnoCiclo.getCreditosAprobadosCiclo());
         BigDecimal ccs = new BigDecimal(alumnoCiclo.getCreditosCursadosCiclo());
+        BigDecimal pps = alumnoCiclo.getPromedioCiclo();
+        
 
         if (alumnoCiclo.getCreditosAcumulados().compareTo(BigDecimal.ZERO.intValue()) == 0
                 || alumnoCiclo.getCreditosCursadosCiclo().compareTo(BigDecimal.ZERO.intValue()) == 0) {
@@ -67,7 +69,7 @@ public class MatriculableConmectorImp implements MatriculableConnector {
 
         BigDecimal factor1 = capa.divide(cca, 12, RoundingMode.HALF_UP);
         BigDecimal factor2 = caps.divide(ccs, 12, RoundingMode.HALF_UP);
-        BigDecimal puntajePrioridad = factor1.multiply(factor2);
+        BigDecimal puntajePrioridad = factor1.multiply(factor2).multiply(pps);
         puntajePrioridad = puntajePrioridad.multiply(alumnoCiclo.getPromedioCiclo());
 
         matriculaResumen.setCreditosAprobadosAcumulados(Integer.parseInt(capa.toString()));

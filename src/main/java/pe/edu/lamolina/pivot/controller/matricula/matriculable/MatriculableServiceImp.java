@@ -342,7 +342,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allActivosRegularesByCicloResumen(cicloBD);
         Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumno.id", alumnosCiclos);
-        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloBD);
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCicloMATAndNMAT(cicloBD);
 
         int cachimbos = 8000;
         int escuela = 10000;

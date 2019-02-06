@@ -44,7 +44,6 @@ import static pe.edu.lamolina.model.enums.RolEnum.FAC;
 import static pe.edu.lamolina.model.enums.RolEnum.MOD;
 import static pe.edu.lamolina.model.enums.RolEnum.TODO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
