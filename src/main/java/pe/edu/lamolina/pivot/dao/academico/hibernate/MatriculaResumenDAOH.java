@@ -672,7 +672,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
                 .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
                 .filter("ca.id", cicloBD)
-                .in("estad", Arrays.asList(MAT, NMAT));
+                .in("estado", Arrays.asList(MAT, NMAT));
 
         return all(sql);
     }
