@@ -54,17 +54,16 @@ public class MatriculableConmectorImp implements MatriculableConnector {
 
     @Override
     @Transactional
-    public void procesarPrioridadAlumno(MatriculaResumen matriculaResumen, AlumnoCiclo alumnoCiclo) {
+    public MatriculaResumen procesarPrioridadAlumno(MatriculaResumen matriculaResumen, AlumnoCiclo alumnoCiclo) {
         BigDecimal capa = new BigDecimal(alumnoCiclo.getCreditosAprobadosAcumulados());
         BigDecimal cca = new BigDecimal(alumnoCiclo.getCreditosAcumulados());
         BigDecimal caps = new BigDecimal(alumnoCiclo.getCreditosAprobadosCiclo());
         BigDecimal ccs = new BigDecimal(alumnoCiclo.getCreditosCursadosCiclo());
         BigDecimal pps = alumnoCiclo.getPromedioCiclo();
-        
 
         if (alumnoCiclo.getCreditosAcumulados().compareTo(BigDecimal.ZERO.intValue()) == 0
                 || alumnoCiclo.getCreditosCursadosCiclo().compareTo(BigDecimal.ZERO.intValue()) == 0) {
-            return;
+            return matriculaResumen;
         }
 
         BigDecimal factor1 = capa.divide(cca, 12, RoundingMode.HALF_UP);
@@ -80,6 +79,7 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         }
         matriculaResumen.setCicloAcademicoInfo(alumnoCiclo.getCicloAcademico());
         matriculaResumen.setPuntajePrioridad(puntajePrioridad);
+        return matriculaResumen;
     }
 
     @Override

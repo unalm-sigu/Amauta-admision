@@ -6,7 +6,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 
 public interface MatriculableConnector {
 
-    void procesarPrioridadAlumno(MatriculaResumen matriculaResumen, AlumnoCiclo alumnoCiclo);
+    MatriculaResumen procesarPrioridadAlumno(MatriculaResumen matriculaResumen, AlumnoCiclo alumnoCiclo);
 
     void procesarEgresado(String codigoAlumno, String codigoCarrera, String codigoFacultad, String codigoCiclo, Egresado egresado);
 }

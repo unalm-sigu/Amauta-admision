@@ -368,7 +368,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
             AlumnoCiclo alumnoCiclo = mapAlumnoCiclo.get(matriculable.getAlumno().getId());
             if (alumnoCiclo != null) {
-                matriculableConector.procesarPrioridadAlumno(matriculable, alumnoCiclo);
+                matriculable = matriculableConector.procesarPrioridadAlumno(matriculable, alumnoCiclo);
             }
         }
 
