@@ -128,8 +128,9 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     }
 
     @Override
-    public List<Docente> allByNombreFilter(String nombre, Integer limit, String codigoDep) {
+    public List<Docente> allByNombreFilter(String nombre, Integer cantidad, String codigoDep) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        System.out.println("nombre = <<" + nombre + ">>");
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")
                 .join("persona per", "departamentoAcademico da")
@@ -138,12 +139,14 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
                 .__().filter("doc.codigo", "like", nombre)
                 .__().filter("da.nombre", "like", nombre)
-                .endBlock();
+                .endBlock()
+                .limit(cantidad);
+
         if (codigoDep != null) {
             sql.filter("da.codigo", codigoDep);
         }
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -201,7 +204,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .join("persona perc", "oficina ofi", "ofi.tipoOficina tip", "cargo carg")
                 .filter("carg.codigo", PerfilColaboradorEnum.DOC) //Docente
                 .filter("tip.codigo", TipoOficinaEnum.DPTO); //departamentoAcdemico
-        
+
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")
                 .join("persona per", "departamentoAcademico da", "da.facultad fa")
