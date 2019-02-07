@@ -665,7 +665,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td")
                 .notExists(sqlSub)
                 .linkedBy("alu.id", "alum.id")
-                .in("mr.estado", Arrays.asList(NMAT, MAT, RCI))
+                .in("mr.estado", Arrays.asList( MAT, RCI))
                 .in("ci.id", ciclosPrevios);
 
         return all(sql);
@@ -680,7 +680,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("alu.persona per", "alu.carrera car")
                 .join("car.facultad fac")
                 .leftJoin("per.tipoDocumento td")
-                .in("ac.estado", Arrays.asList(NMAT, MAT, RCI))
+                .in("ac.estado", Arrays.asList( MAT, RCI))
                 .in("ci.id", ciclosPrevios);
 
         return all(sql);

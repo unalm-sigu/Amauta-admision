@@ -598,6 +598,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         sql.append("            select 1 ");
         sql.append("              from aca_matricula_resumen as mr ");
         sql.append("             where mr.id_alumno = a.id ");
+        sql.append("             and mr.estado = :MAT");
         sql.append("               and mr.id_ciclo_academico = :CICLO ");
         sql.append("     ) ");
 

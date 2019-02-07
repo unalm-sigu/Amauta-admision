@@ -568,7 +568,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .from(CicloAcademico.class, "ca")
                 .join("modalidadEstudio me")
                 .filter("tipo", "REG")
-                .filter("ca.codigo", "<=", ciclo.getCodigo())
+                .filter("ca.codigo", "<", ciclo.getCodigo())
                 .filter("estado", "<>", DES)
                 .filter("me.id", ciclo.getModalidadEstudio())
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
