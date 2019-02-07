@@ -378,7 +378,7 @@ public class MatriculableServiceImp implements MatriculableService {
         Collections.sort(matriculablesConPuntaje, new MatriculaResumen.ComparePrioridadCapa());
 
         List<MatriculaResumen> matriculablesUltimoCiclo = matriculablesConPuntaje.stream()
-                .filter(x -> x.getAlumno().getCreditosAprobados() > CAPA_ULTIMO_CICLO)
+                .filter(x -> x.getAlumno().getCreditosAprobados() >= CAPA_ULTIMO_CICLO)
                 .collect(Collectors.toList());
 
         int indice = 0;
