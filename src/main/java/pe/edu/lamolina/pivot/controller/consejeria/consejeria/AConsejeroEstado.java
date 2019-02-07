@@ -1,25 +1,23 @@
-
 package pe.edu.lamolina.pivot.controller.consejeria.consejeria;
 
 public class AConsejeroEstado {
-    
-    private Long aconsejados;
+
+    private Long conConsejados;
+    private Long consejeroRetirado;
     private Long sinConsejeros;
 
-    public AConsejeroEstado() {
+    public AConsejeroEstado(Long conConsejados, Long consejeroRetirado, Long sinConsejero) {
+        this.conConsejados = conConsejados;
+        this.consejeroRetirado = consejeroRetirado;
+        this.sinConsejeros = sinConsejero;
     }
 
-    public AConsejeroEstado(Long aconsejados, Long sinConsejeros) {
-        this.aconsejados = aconsejados;
-        this.sinConsejeros = sinConsejeros;
-    }
-    
-    public Long getAconsejados() {
-        return aconsejados;
+    public Long getConConsejados() {
+        return conConsejados;
     }
 
-    public void setAconsejados(Long aconsejados) {
-        this.aconsejados = aconsejados;
+    public void setConConsejados(Long conConsejados) {
+        this.conConsejados = conConsejados;
     }
 
     public Long getSinConsejeros() {
@@ -29,4 +27,13 @@ public class AConsejeroEstado {
     public void setSinConsejeros(Long sinConsejeros) {
         this.sinConsejeros = sinConsejeros;
     }
+
+    public Long getConsejeroRetirado() {
+        return consejeroRetirado;
+    }
+
+    public void setConsejeroRetirado(Long consejeroRetirado) {
+        this.consejeroRetirado = consejeroRetirado;
+    }
+
 }

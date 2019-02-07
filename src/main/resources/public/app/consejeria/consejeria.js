@@ -16,8 +16,9 @@ new Vue({
         cantidadInactivoAlumno: 0,
         cantidadActivo: 0,
         cantidadInactivo: 0,
-        cantidadAconsejados: 0,
-        cantidadSinAconsejados: 0,
+        cantidadConConnsejo: 0,
+        cantidadSinConsejero: 0,
+        cantidadConsejeroRetirado: 0,
         estadoConsejero: '',
         ciclo: [],
         carreras: [],
@@ -144,7 +145,7 @@ new Vue({
                 $vue.actualizar();
             }
             $vue.getCantidadEstado(carrera);
-            //$vue.getAconsejados(carrera);
+            $vue.getAconsejados(carrera);
         },
         getCantidadEstado(carrera) {
             let $vue = this;
@@ -167,15 +168,18 @@ new Vue({
                 dataType: 'json',
                 type: 'post',
             }).then(response => {
-                $vue.cantidadAconsejados = response.data.aconsejados;
-                $vue.cantidadSinAconsejados = response.data.sinConsejeros;
+                $vue.cantidadConConnsejo = response.data.conConsejados;
+                ;
+                $vue.cantidadConsejeroRetirado = response.data.consejeroRetirado;
+                ;
+                $vue.cantidadSinConsejero = response.data.sinConsejeros;
+                ;
                 this.isLoading = false;
             });
         },
         cambiarEstado(item, estado) {
             let $vue = this;
             let consejero = item;
-            let carrera = $vue.carreraSelect.id;
 
             this.isLoading = true
 //            alert(JSON.stringify(consejero));
@@ -191,7 +195,6 @@ new Vue({
                 }).then(response => {
                     this.isLoading = false;
                     notify(response.message, 'info');
-                    $vue.getCantidadEstado(carrera);
                     $vue.actualizar();
                 });
 
@@ -216,11 +219,11 @@ new Vue({
                                 success: function (response) {
                                     if (response.success) {
                                         notify(response.message, 'info');
-                                        $vue.$refs.añadirConsejeroModal.close();
+                                        $vue.actualizar();
                                         $vue.docenteSelect = '';
                                         $vue.departamento = '';
-                                        $vue.getcantidadEstado($vue.carreraSelect.id);
-                                        $vue.actualizar();
+                                        $vue.$refs.añadirConsejeroModal.close();
+
                                     } else {
                                         notify(response.message, 'error');
                                     }
@@ -265,7 +268,6 @@ new Vue({
                                     $vue.$refs.añadirConsejeroModal.close();
                                     $vue.docenteSelect = '';
                                     $vue.departamento = '';
-                                    $vue.getCantidadEstado($vue.carreraSelect.id);
                                     $vue.actualizar();
                                 } else {
                                     notify(response.message, 'error');
@@ -280,39 +282,43 @@ new Vue({
         },
         asignarAlummnos() {
             let $vue = this;
-            if ($vue.btndissabled === false) {
-                let carrera = $vue.carreraSelect.id;
-                $vue.isLoading = true;
-                bootbox.confirm({
-                    message: '¿Está seguro que desea asignar aleatoriamente tutores a los alumnos sin consejero?',
-                    buttons: {
-                        confirm: {label: 'Si, Asignar aleatoriamente', className: "btn-success"},
-                        cancel: {label: 'Cancelar', className: "btn-link"}
-                    },
-                    callback: function (result) {
-                        if (result) {
-                            $.ajax({
-                                method: 'POST',
-                                url: APP.url("consejeria/consejeros/asignarAlumno"),
-                                data: {carrera: carrera},
-                                dataType: 'json',
-                                success: function (response) {
-                                    if (response.success) {
-                                        notify(response.message, 'info');
-                                        $vue.actualizar();
-                                    } else {
-                                        notify(response.message, 'error');
+            let carrera = $vue.carreraSelect.id;
+            $vue.isLoading = true;
+            if (0 || $vue.cantidadActivo) {
+                if ($vue.cantidadSinConsejero > 0 || $vue.cantidadConsejeroRetirado > 0) {
+                    bootbox.confirm({
+                        message: '¿Está seguro que desea asignar aleatoriamente tutores a los alumnos sin consejero?',
+                        buttons: {
+                            confirm: {label: 'Si, Asignar aleatoriamente', className: "btn-success"},
+                            cancel: {label: 'Cancelar', className: "btn-link"}
+                        },
+                        callback: function (result) {
+                            if (result) {
+                                $.ajax({
+                                    method: 'POST',
+                                    url: APP.url("consejeria/consejeros/asignarAlumno"),
+                                    data: {carrera: carrera},
+                                    dataType: 'json',
+                                    success: function (response) {
+                                        if (response.success) {
+                                            notify(response.message, 'info');
+                                            $vue.actualizar();
+                                        } else {
+                                            notify(response.message, 'error');
+                                        }
+                                    }, error: function () {
+                                        notify(MESSAGES.errorComunicacion, "error");
                                     }
-                                }, error: function () {
-                                    notify(MESSAGES.errorComunicacion, "error");
-                                }
-                            });
+                                });
+                            }
                         }
-                    }
-                });
-                $vue.isLoading = false;
+                    });
+                    $vue.isLoading = false;
+                } else {
+                    notify("Actualmente no cuenta con alumnos disponibles", 'default');
+                }
             } else {
-                notify("Primero debe seleccionar una carrera", 'default');
+                notify("Actualmente no cuenta con consejero en estado activo", 'default');
             }
         },
         desasignarAlummnos() {
@@ -355,6 +361,8 @@ new Vue({
         actualizar() {
             let $vue = this;
             let carrera = $vue.carreraSelect.id;
+            $vue.getCantidadEstado(carrera);
+            $vue.getAconsejados(carrera);
             $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejeros/list/' + carrera);
             $vue.$refs.raptorConsejero.loadRemoteData();
         }

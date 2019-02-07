@@ -172,7 +172,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<CicloAcademico> ciclosPreviosEpg = cicloAcademicoDAO.allActivosAnteriores(2, cicloEpg);
         ciclosPreviosEpg.addAll(ciclosPreviosPregrado);
 
-        List<Alumno> matriculados = alumnoDAO.allMatriculadosByCiclos(ciclosPreviosEpg);
+        List<Alumno> matriculados = alumnoDAO.allMatriculadosNoEgresadosByCiclos(ciclosPreviosEpg);
         List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPreviosEpg);
 
         for (Alumno matriculado : matriculados) {
@@ -236,7 +236,7 @@ public class MatriculableServiceImp implements MatriculableService {
         for (CicloAcademico ciclop : ciclosPrevios) {
             System.out.println(ciclop.getCodigo());
         }
-        List<Alumno> matriculados = alumnoDAO.allMatriculadosByCiclos(ciclosPrevios);
+        List<Alumno> matriculados = alumnoDAO.allMatriculadosNoEgresadosByCiclos(ciclosPrevios);
         System.out.println("=== vienen " + matriculados.size() + " matriculados de esos ciclos");
         List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPrevios);
         System.out.println("=== vienen " + estudiantes.size() + " estudiantes de esos ciclos");
@@ -342,7 +342,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allActivosRegularesByCicloResumen(cicloBD);
         Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumno.id", alumnosCiclos);
-        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloBD);
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCicloMATAndNMAT(cicloBD);
 
         int cachimbos = 8000;
         int escuela = 10000;
@@ -368,7 +368,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
             AlumnoCiclo alumnoCiclo = mapAlumnoCiclo.get(matriculable.getAlumno().getId());
             if (alumnoCiclo != null) {
-                matriculableConector.procesarPrioridadAlumno(matriculable, alumnoCiclo);
+                matriculable = matriculableConector.procesarPrioridadAlumno(matriculable, alumnoCiclo);
             }
         }
 

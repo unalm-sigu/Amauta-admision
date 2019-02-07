@@ -270,7 +270,9 @@ var app = new Vue({
         },
         docenteSelected(item) {
             let $vue = this;
+            console.log($vue.docenteSelect)
             $vue.docenteSelect = item;
+            console.log($vue.docenteSelect)
         },
         getClassTab(tabBuscar) {
             let $vue = this;

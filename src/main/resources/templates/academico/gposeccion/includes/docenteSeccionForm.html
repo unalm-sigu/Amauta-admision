@@ -21,7 +21,7 @@
                         label="apellidosNombres"
                         track-by='id'
                         placeholder="Desconocido"
-                        :show-labels="true"
+                        v-bind:internal-search="false"
                         v-on:search-change="buscarDocente"
                         v-on:input="indexSelect(index)"
                         v-on:select="docenteSelected"

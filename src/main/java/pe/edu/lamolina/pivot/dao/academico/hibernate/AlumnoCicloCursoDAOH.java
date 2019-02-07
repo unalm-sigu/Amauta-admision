@@ -61,7 +61,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .from(AlumnoCicloCurso.class, "acc")
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
                 .filter("al.id", alumno)
-                .filter("registroActivo", 1);
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
 
         return sql.all(getCurrentSession());
     }
@@ -74,7 +74,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .left("cu.departamentoAcademico")
                 .filter("al.id", alumno)
                 .filter("estaAprobado", 1)
-                .filter("registroActivo", 1);
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
 
         return all(sql);
     }
@@ -151,7 +151,8 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
-                .filter("al.id", alumno);
+                .filter("al.id", alumno)
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
 
         return sql.all(getCurrentSession());
     }
@@ -164,6 +165,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("ac.carrera", "ac.situacionInicio")
                 .left("ac.situacionFinal", "ac.orientacionCarrera")
                 .filter("al.id", alumno)
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
                 .orderBy("ca.codigo desc", "cu.nombre");
 
         return sql.all(getCurrentSession());
@@ -344,6 +346,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
                 .join("ac.carrera", "ac.situacionInicio")
                 .left("ac.situacionFinal", "ac.orientacionCarrera")
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
                 .filter("al.id", alumno)
                 .orderBy("cu.nombre");
 
@@ -361,6 +364,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .filter("ca.codigo", "<", cicloAcademico.getCodigo())
                 .filter("al.id", alumno)
                 .filter("cu.id", curso)
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
                 .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name());
 
@@ -378,6 +382,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .filter("ca.codigo", "<", cicloAcademico.getCodigo())
                 .filter("al.id", alumno)
                 .filter("cu.id", curso)
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
                 .filter("ca.tipo", TipoCicloEnum.REG)
                 .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name());
@@ -477,6 +482,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("ac.carrera", "ac.situacionInicio")
                 .left("ac.situacionFinal", "ac.orientacionCarrera")
                 .filter("al.id", alumno)
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
                 .orderBy("ca.codigo asc", "cu.nombre");
 
         return sql.all(getCurrentSession());
