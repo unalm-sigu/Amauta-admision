@@ -74,6 +74,7 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         matriculaResumen.setCreditosAcumulados(Integer.parseInt(cca.toString()));
         matriculaResumen.setCreditosAprobadosCiclo(Integer.parseInt(caps.toString()));
         matriculaResumen.setCreditosCursadosCiclo(Integer.parseInt(ccs.toString()));
+        matriculaResumen.setPromedioSemestral(pps);
         if (matriculaResumen.getCreditosAprobadosAcumulados() >= CAPA_ULTIMO_CICLO) {
             matriculaResumen.setEsUltimoCiclo(Boolean.TRUE);
         }
