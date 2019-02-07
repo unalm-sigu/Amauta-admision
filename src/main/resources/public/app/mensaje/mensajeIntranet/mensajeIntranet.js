@@ -35,7 +35,7 @@ new Vue({
         },
         nuevo() {
             let $vue = this;
-            $vue.mensajeria = {esObligatorio: 0, porFecha: false};
+            $vue.mensajeria = {esObligatorio: 0, porFecha: false, esMensajeMovil: false};
             $vue.addMensajeria.okbtn = "Guardar";
             $vue.addMensajeria.title = "Nuevo Mensaje Intranet";
             $("#formMensajeria").parsley().destroy();
@@ -150,6 +150,14 @@ new Vue({
             let $vue = this;
             if ($vue.mensajeria.porFecha) {
                 $vue.mensajeria.vecesVisible = 0;
+            }
+        },
+        chkbIsMovil() {
+            let $vue = this;
+            if ($vue.mensajeria.esMensajeMovil) {
+                console.log($vue.mensajeria.esMensajeMovil);
+            } else {
+                console.log($vue.mensajeria.esMensajeMovil);
             }
         }
     }
