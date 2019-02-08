@@ -44,6 +44,7 @@ var app = new Vue({
             header: true,
             title: 'Buscar Grupo Disponible',
             okbtn: 'Aceptar',
+            showaccept: true,
             modalsize: 'modal-lg'
         },
         aulaModal: {
@@ -51,6 +52,7 @@ var app = new Vue({
             header: true,
             title: 'Buscar Aula/Ambiente Disponible',
             okbtn: 'Aceptar',
+            showaccept: true,
             modalsize: 'modal-lg'
         },
         aulaHorarioModal: {
@@ -65,6 +67,7 @@ var app = new Vue({
             header: true,
             title: 'Restricciones Modalidad / Facultad / Especialidad',
             okbtn: 'Aceptar',
+            showaccept: true,
             modalsize: 'modal-lg'
         },
         tipoRepitenciaModal: {
@@ -72,6 +75,7 @@ var app = new Vue({
             header: true,
             title: 'Aplicar restricción repitencia / retirados / ingresantes',
             okbtn: 'Aceptar',
+            showaccept: true,
             modalsize: 'modal-lg'
         },
         fecha: null,
@@ -785,6 +789,11 @@ var app = new Vue({
 
             let $vue = this;
             $global.$emit('loadGrupoComponent', seccion.id);
+            if (seccion.matriculados > 0) {
+                $vue.grupoModal.showaccept = false;
+            } else {
+                $vue.grupoModal.showaccept = true;
+            }
             this.$refs.modalGrupo.open();
         },
         saveGrupo() {
@@ -922,11 +931,17 @@ var app = new Vue({
             });
         },
         showModalAula(seccion) {
+            let $vue = this;
             var tabs = $("#tab-aula");
             tabs.find("li").removeClass("active");
             tabs.find(".tab-pane").removeClass("active");
 
             this.$refs.aulaComponent.loadAula(seccion);
+            if (seccion.matriculados > 0) {
+                $vue.aulaModal.showaccept = false;
+            } else {
+                $vue.aulaModal.showaccept = true;
+            }
             this.$refs.modalAula.open();
 
 
@@ -971,6 +986,11 @@ var app = new Vue({
         showModalRestriccion(seccion) {
             let $vue = this;
             $global.$emit('loadRestriccionComponent', seccion.id);
+            if (seccion.matriculados > 0) {
+                $vue.restriccionModal.showaccept = false;
+            } else {
+                $vue.restriccionModal.showaccept = true;
+            }
             this.$refs.modalRestriccion.open();
         },
         saveRestriccion() {
@@ -979,6 +999,11 @@ var app = new Vue({
         showModalTipoRepitencia(seccion) {
             let $vue = this;
             $global.$emit('loadRepitenciaComponent', seccion.id);
+            if (seccion.matriculados > 0) {
+                $vue.tipoRepitenciaModal.showaccept = false;
+            } else {
+                $vue.tipoRepitenciaModal.showaccept = true;
+            }
             this.$refs.modalTipoRepitencia.open();
         },
         saveTipoRepRestriccion() {
