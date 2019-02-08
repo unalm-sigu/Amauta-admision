@@ -653,9 +653,10 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     @Override
     public List<Alumno> allMatriculadosNoEgresadosByCiclos(List<CicloAcademico> ciclosPrevios) {
         Octavia sqlSub = new Octavia()
-                .from(Egresado.class,"egre")
-                .join("alumno alum");
-        
+                .from(Egresado.class, "egre")
+                .join("alumno alum")
+                .in("cicloAcademico", ciclosPrevios);
+
         Octavia sql = Octavia.query()
                 .selectDistinct("alu")
                 .from(MatriculaResumen.class, "mr")
@@ -665,7 +666,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td")
                 .notExists(sqlSub)
                 .linkedBy("alu.id", "alum.id")
-                .in("mr.estado", Arrays.asList( MAT, RCI))
+                .in("mr.estado", Arrays.asList(MAT, RCI))
                 .in("ci.id", ciclosPrevios);
 
         return all(sql);
@@ -673,6 +674,11 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
     @Override
     public List<Alumno> allEstudiaronByCiclos(List<CicloAcademico> ciclosPrevios) {
+        Octavia sqlSub = new Octavia()
+                .from(Egresado.class, "egre")
+                .join("alumno alum")
+                .in("cicloAcademico", ciclosPrevios);
+
         Octavia sql = Octavia.query()
                 .selectDistinct("alu")
                 .from(AlumnoCiclo.class, "ac")
@@ -680,7 +686,9 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("alu.persona per", "alu.carrera car")
                 .join("car.facultad fac")
                 .leftJoin("per.tipoDocumento td")
-                .in("ac.estado", Arrays.asList( MAT, RCI))
+                .notExists(sqlSub)
+                .linkedBy("alu.id", "alum.id")
+                .in("ac.estado", Arrays.asList(MAT, RCI))
                 .in("ci.id", ciclosPrevios);
 
         return all(sql);
@@ -702,7 +710,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .__().isNull("alu.consejero")
                 .__().filter("alu.consejero", consejeroNN)
                 .endBlock();
-        
+
         return all(sql);
     }
 
