@@ -73,8 +73,8 @@
                                                 <th class="col-md-4" colspan="2"></th>
                                                 <th class="col-md-2 text-center">Puntaje <br/> Situación</th>
                                                 <th class="col-md-2 text-center v-middle">Prioridad <br/> Turno</th>
-                                                <th class="col-md-2 text-center v-middle">Cursos</th>
-                                                <th class="col-md-2 text-center v-middle">Créditos</th>
+                                                <th class="col-md-2 text-center v-middle">Datos Puntaje</th>
+                                                <th class="col-md-2 text-center v-middle">Matrícula</th>
                                                 <th class="col-md-1 text-center v-middle">Estado</th>
                                                 <th></th>
                                             </tr>
@@ -134,14 +134,22 @@
                                                     <span class="block" v-if="item.turnoAtencion.fecha != ''">Turno: {{item.turnoAtencion.fechaHoraInicio}}</span>
                                                 </td>
 
-                                                <td class='v-middle text-center'>
-                                                    <span class="block">Mat: {{item.cursosMatriculados}}</span>
-                                                    <span class="block">Ret: {{item.cursosRetirados}}</span>
+                                                <td class='v-middle '>
+                                                    <div v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null">
+                                                        <span class="block" ><span class="bold">Ciclo:</span> {{item.cicloAcademicoInfo.descripcion}}</span>
+                                                        <span class="block"><span class="bold">pps:</span> {{item.promedioSemestral}}</span>
+                                                        <span class="block"><span class="bold">capa:</span> {{item.creditosAprobadosAcumulados}}</span>
+                                                        <span class="block"><span class="bold">caps:</span> {{item.creditosAprobadosCiclo}}</span>
+                                                        <span class="block"><span class="bold">cca:</span> {{item.creditosAcumulados}}</span>
+                                                        <span class="block"><span class="bold">ccs:</span> {{item.creditosCursadosCiclo}}</span>
+                                                    </div>
                                                 </td>
 
                                                 <td class='v-middle text-center'>
-                                                    <span class="block">Mat: {{item.creditosMatriculados}}</span>
-                                                    <span class="block">Ret: {{item.creditosRetirados}}</span>
+                                                    <span class="block">Cursos Mat: {{item.cursosMatriculados}}</span>
+                                                    <span class="block">Cursos Ret: {{item.cursosRetirados}}</span>
+                                                    <span class="block">Créditos Mat: {{item.creditosMatriculados}}</span>
+                                                    <span class="block">Créditos Ret: {{item.creditosRetirados}}</span>
                                                 </td>
 
                                                 <td class="text-center v-middle">

@@ -32,7 +32,6 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -61,6 +60,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
@@ -222,7 +222,7 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     private void generarPregrado(CicloAcademico ciclo) {
-        List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU);
+        List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
 
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
         CicloAcademico cicloAntes = cicloAcademicoDAO.findAnteriorActivo(cicloBD);
@@ -378,7 +378,7 @@ public class MatriculableServiceImp implements MatriculableService {
         Collections.sort(matriculablesConPuntaje, new MatriculaResumen.ComparePrioridadCapa());
 
         List<MatriculaResumen> matriculablesUltimoCiclo = matriculablesConPuntaje.stream()
-                .filter(x -> x.getAlumno().getCreditosAprobados() > CAPA_ULTIMO_CICLO)
+                .filter(x -> x.getAlumno().getCreditosAprobados() >= CAPA_ULTIMO_CICLO)
                 .collect(Collectors.toList());
 
         int indice = 0;
@@ -671,7 +671,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         if (!sitEnum.contains(sit.getCodigo()) && !modEnum.contains(modalidad.getCodigo()) && ds.getCicloAcademico().getFechaPrioridades() != null) {
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alum.getCicloActivoRegular(), alumnoForm);
-            matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
+            matri = matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
 
             MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ds.getCicloAcademico(), alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
             MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matri, ds.getCicloAcademico(), alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);

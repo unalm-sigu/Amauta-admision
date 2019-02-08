@@ -177,13 +177,13 @@
 
                                             <td class="text-center v-middle">
 
-                                                <a v-if="seccion.aula.id=='' &amp;&amp; !directEditSecciones"
+                                                <a v-if="seccion.aula.id=='' &amp;&amp;  ( seccion.matriculados > 0 || !directEditSecciones)"
                                                    v-on:click="showModalAula(seccion)" 
                                                    style="cursor:pointer;">
                                                     Sin Aula
                                                 </a>
 
-                                                <div v-if="seccion.aula.id!='' &amp;&amp; !directEditSecciones">
+                                                <div v-if="seccion.aula.id!='' &amp;&amp;  ( seccion.matriculados > 0 || !directEditSecciones)">
                                                     <div class="block">
                                                         <a v-on:click="showModalAula(seccion)" 
                                                            style="cursor:pointer;">{{seccion.aula.codigo}}</a>
@@ -201,7 +201,7 @@
                                                     </div>
                                                 </div>
 
-                                                <input v-if="directEditSecciones"
+                                                <input v-if="directEditSecciones &amp;&amp; seccion.matriculados == 0"
                                                        v-on:blur="directEditAula(seccion,$event)"
                                                        v-on:keyup.enter="directEditAula(seccion,$event)"
                                                        v-bind:value="seccion.aula!=null ? seccion.aula.codigo : ''"
@@ -210,18 +210,18 @@
                                             <td class="text-center v-middle">
 
                                                 <a v-on:click="showModalGrupos(seccion)" 
-                                                   v-if="seccion.grupoHoras.id=='' &amp;&amp; !directEditSecciones"
+                                                   v-if="seccion.grupoHoras.id=='' &amp;&amp; ( seccion.matriculados > 0 || !directEditSecciones)"
                                                    style="cursor:pointer;">
                                                     Sin Grupo
                                                 </a>
 
                                                 <a v-on:click="showModalGrupos(seccion)" 
-                                                   v-if="seccion.grupoHoras.id &amp;&amp; !directEditSecciones"
+                                                   v-if="seccion.grupoHoras.id &amp;&amp; ( seccion.matriculados > 0 || !directEditSecciones)"
                                                    style="cursor:pointer;">
                                                     {{ seccion.grupoHoras.codigo }} 
                                                 </a>
 
-                                                <input v-if="directEditSecciones"
+                                                <input v-if="directEditSecciones &amp;&amp; seccion.matriculados == 0"
                                                        v-on:blur="directEditGrupoHor(seccion,$event)"
                                                        v-on:keyup.enter="directEditGrupoHor(seccion,$event)"
                                                        v-bind:value="seccion.grupoHoras.id!=null ? seccion.grupoHoras.codigo : ''"
@@ -307,43 +307,53 @@
                                                         </span>
                                                     </a>  
                                                 </div>
+                                            </td>
+                                            <td class="text-center v-middle">
+                                                <div v-if="seccion.matriculados >0">
 
+
+                                                    <div v-if="!seccion.isTipoSeccionTCUR &amp;&amp; seccion.restriccionCapa!='' " >
+                                                        <span class="pointer"> {{ seccion.restriccionCapa }} </span>
+                                                    </div>
+                                                    <div v-if="!seccion.isTipoSeccionTCUR &amp;&amp; seccion.restriccionCapa=='' " >
+                                                        <span class="pointer">  {{SIN_RESTRICCION_TEXT}}</span>
+                                                    </div>
+                                                </div>
+                                                <div v-else="">
+                                                    <div v-if="!seccion.isTipoSeccionTCUR &amp;&amp; seccion.restriccionCapa!='' " 
+                                                         v-show="!seccion.editRestriccionCapa &amp;&amp; !directEditSecciones">
+                                                        <a v-on:click="seccion.editRestriccionCapa=true" class="pointer"> 
+                                                            {{ seccion.restriccionCapa }} 
+                                                        </a>
+                                                    </div>
+                                                    <div v-if="!seccion.isTipoSeccionTCUR &amp;&amp; seccion.restriccionCapa=='' " 
+                                                         v-show="!seccion.editRestriccionCapa &amp;&amp; !directEditSecciones">
+                                                        <a v-on:click="seccion.editRestriccionCapa=true" class="pointer"> 
+                                                            {{SIN_RESTRICCION_TEXT}}
+                                                        </a>
+                                                    </div>
+
+                                                    <input v-if="!seccion.isTipoSeccionTCUR" 
+                                                           v-show="seccion.editRestriccionCapa || directEditSecciones" 
+                                                           size="5"
+                                                           class="form-control"
+                                                           v-model="seccion.restriccionCapa"
+                                                           v-on:blur="changeRestriccionCapa(seccion,$event)"
+                                                           v-on:keyup.enter="changeRestriccionCapa(seccion,$event)">
+                                                    </input>   
+                                                </div>
 
                                             </td>
                                             <td class="text-center v-middle">
-
-                                                <div v-if="!seccion.isTipoSeccionTCUR &amp;&amp; seccion.restriccionCapa!='' " 
-                                                     v-show="!seccion.editRestriccionCapa &amp;&amp; !directEditSecciones">
-                                                    <a v-on:click="seccion.editRestriccionCapa=true" class="pointer"> 
-                                                        {{ seccion.restriccionCapa }} 
-                                                    </a>
-                                                </div>
-                                                <div v-if="!seccion.isTipoSeccionTCUR &amp;&amp; seccion.restriccionCapa=='' " 
-                                                     v-show="!seccion.editRestriccionCapa &amp;&amp; !directEditSecciones">
-                                                    <a v-on:click="seccion.editRestriccionCapa=true" class="pointer"> 
-                                                        {{SIN_RESTRICCION_TEXT}}
-                                                    </a>
-                                                </div>
-
-                                                <input v-if="!seccion.isTipoSeccionTCUR" 
-                                                       v-show="seccion.editRestriccionCapa || directEditSecciones" 
-                                                       size="5"
-                                                       class="form-control"
-                                                       v-model="seccion.restriccionCapa"
-                                                       v-on:blur="changeRestriccionCapa(seccion,$event)"
-                                                       v-on:keyup.enter="changeRestriccionCapa(seccion,$event)">
-                                                </input>   
-                                            </td>
-                                            <td class="text-center v-middle">
-                                                <div v-if="seccion.isTipoSeccionTCUR || seccion.estado == 'INA' " >
+                                                <div v-if="seccion.isTipoSeccionTCUR || seccion.estado == 'INA' || seccion.matriculados >0" >
                                                     {{ seccion.vacantes }}
                                                 </div>
                                                 <div v-else="" 
                                                      v-show="!seccion.editVacantes &amp;&amp; !directEditSecciones">
-                                                    <a v-on:click="seccion.editVacantes=true" class="pointer"> {{ seccion.vacantes }} </a>
+                                                    <a v-on:click="seccion.editVacantes=true" class="pointer" > {{ seccion.vacantes }} </a>
                                                 </div>
 
-                                                <template v-if="seccion.isTipoSeccionTCUR || seccion.estado == 'INA' " ></template>
+                                                <template v-if="seccion.isTipoSeccionTCUR || seccion.estado == 'INA' || seccion.matriculados >0" ></template>
                                                 <input v-else="" 
                                                        v-show="seccion.editVacantes || directEditSecciones" 
                                                        size="5"
