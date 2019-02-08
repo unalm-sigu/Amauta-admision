@@ -650,20 +650,22 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public void addDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico) {
         seccion = seccionDAO.find(seccion.getId());
         Curso curso = seccion.getGrupoSeccion().getCurso();
-
-        EventoAcademicoEnum eventoEnum = cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
-        if (cicloAcademico.getTipoEnum() == TipoCicloEnum.REG && curso.getModalidadEstudio().isPostgrado()) {
-            eventoEnum = CLASES_EPG;
-        }
-
-        EventoCicloAcademico eventoDictadoClases = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoEnum);
+        EventoCicloAcademico eventoDictadoClases = getEventoDictadoClases(cicloAcademico, curso);
 
         Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
         List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allActivosBySeccion(seccion);
         BigDecimal porcentaj = BigDecimal.ZERO;
 
-        for (DocenteSeccion x : docenteSeccions) {
-            porcentaj = porcentaj.add(x.getPorcentajeCarga());
+        Date fechaInicio = null;
+        for (DocenteSeccion profeSecc : docenteSeccions) {
+            porcentaj = porcentaj.add(profeSecc.getPorcentajeCarga());
+            fechaInicio = profeSecc.getFechaFin();
+        }
+
+        if (fechaInicio == null) {
+            fechaInicio = eventoDictadoClases.getFechaInicio();
+        } else {
+            fechaInicio = new DateTime(fechaInicio).plusDays(1).toDate();
         }
 
         BigDecimal rest = BigDecimal.valueOf(100).subtract(porcentaj);
@@ -671,7 +673,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccion.setDocente(docenteDefault);
         docenteSeccion.setCodigoSeccion(seccion.getCodigo());
         docenteSeccion.setEstado(EstadoEnum.ACT.name());
-        docenteSeccion.setFechaInicio(eventoDictadoClases.getFechaInicio());
+        docenteSeccion.setFechaInicio(fechaInicio);
         docenteSeccion.setFechaFin(eventoDictadoClases.getFechaFin());
         docenteSeccion.setPrincipal(BigDecimal.ZERO.intValue());
         docenteSeccion.setSeccion(seccion);
@@ -721,7 +723,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccionDAO.updateFechaInicio(profeSeccDB);
         evaluateSeccion(profeSeccDB.getSeccion());
         this.actualizarBoletin();
-        
+
         EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, profeSeccDB.getSeccion().getGrupoSeccion().getCurso());
         this.analizedDocenteSeccion(profeSeccDB.getSeccion(), profesSecc, eventoClases);
     }
@@ -1011,7 +1013,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccionDAO.delete(docenteSeccion);
 
         List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
-        
+
         EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, docenteSeccion.getSeccion().getGrupoSeccion().getCurso());
         this.analizedDocenteSeccion(docenteSeccion.getSeccion(), docentesSec, eventoClases);
     }
@@ -1180,7 +1182,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccionDAO.updateDocente(docenteSeccion);
 
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
-        
+
         EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, docenteSeccion.getSeccion().getGrupoSeccion().getCurso());
         this.analizedDocenteSeccion(docenteSeccion.getSeccion(), docentesSeccion, eventoClases);
     }
@@ -1411,9 +1413,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     private void analizedDocenteSeccion(
-            Seccion seccion, List<DocenteSeccion> docentesSeccion, 
+            Seccion seccion, List<DocenteSeccion> docentesSeccion,
             EventoCicloAcademico eventoClases) {
-        
+
         Boolean errorPorcentajeCarga = Boolean.FALSE;
         Boolean errorPeriodoClases = Boolean.FALSE;
 
