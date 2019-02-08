@@ -606,7 +606,7 @@ public class GpoSeccionController {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
             String ids = "";
-            List<GrupoSeccion> gpoSecciones = service.saveGpoSeccionHeader(grupoSeccion, ds.getCicloAcademico());
+            List<GrupoSeccion> gpoSecciones = service.saveGpoSeccionHeader(grupoSeccion, ds.getCicloAcademico(), ds);
             for (GrupoSeccion gpoSecc : gpoSecciones) {
                 if (ids.equals("")) {
                     node.put("primero", gpoSecc.getId());

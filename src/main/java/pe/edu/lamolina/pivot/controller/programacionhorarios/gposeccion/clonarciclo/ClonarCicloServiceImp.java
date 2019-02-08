@@ -287,19 +287,16 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             }
 
             String codigo = StringUtils.leftPad(CodeGenerator.getNextCode(codigos, 0), 3, '0');
+            codigos.add(codigo);
 
             GrupoSeccion gpoSeccNew = new GrupoSeccion();
             gpoSeccNew.setCicloAcademico(cicloDestino);
             gpoSeccNew.setCurso(gpoSeccOrigen.getCurso());
             gpoSeccNew.setCodigo(codigo);
             gpoSeccNew.setCodigo2(codigo);
-
-            codigos.add(codigo);
-
             gpoSeccNew.setVersion(BigDecimal.ONE.toString());
             gpoSeccNew.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
             gpoSeccNew.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
-
             gpoSeccNew.setHorasPractica(horasPractica);
             gpoSeccNew.setHorasTeoria(horasTeoria);
             gpoSeccNew.setAnexoBoletin(gpoSeccOrigen.getAnexoBoletin());
@@ -316,22 +313,21 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
                 Seccion seccNew = new Seccion();
                 seccNew.setGrupoSeccion(gpoSeccNew);
-
                 seccNew.setEstado(seccOrigen.getEstado());
                 seccNew.setTipoSeccion(seccOrigen.getTipoSeccion());
                 seccNew.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
                 seccNew.setHorasSemanales(seccOrigen.getHorasSemanales());
                 seccNew.setVacantes(seccOrigen.getVacantes());
-                seccNew.setFechaRegistro(today);
-                seccNew.setUserRegistro(ds.getUsuario());
                 seccNew.setMatriculados(0);
                 seccNew.setReservados(0);
                 seccNew.setPrematriculados(0);
                 seccNew.setRetirados(0);
                 seccNew.setGrupoHoras(seccOrigen.getGrupoHoras());
                 seccNew.setRestriccionCapa(seccOrigen.getRestriccionCapa());
-
+                seccNew.setFechaRegistro(today);
+                seccNew.setUserRegistro(ds.getUsuario());
                 seccNew.setSeccionSuperior(seccionSup);
+
 
                 if (seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.TEO || seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
                     seccNew.setCodigo(codigo + "0");
