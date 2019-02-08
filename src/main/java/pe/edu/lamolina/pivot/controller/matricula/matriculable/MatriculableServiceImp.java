@@ -671,7 +671,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         if (!sitEnum.contains(sit.getCodigo()) && !modEnum.contains(modalidad.getCodigo()) && ds.getCicloAcademico().getFechaPrioridades() != null) {
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alum.getCicloActivoRegular(), alumnoForm);
-            matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
+            matri = matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
 
             MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ds.getCicloAcademico(), alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
             MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matri, ds.getCicloAcademico(), alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
