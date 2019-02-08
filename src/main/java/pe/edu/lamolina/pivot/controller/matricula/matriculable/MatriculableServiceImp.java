@@ -679,17 +679,19 @@ public class MatriculableServiceImp implements MatriculableService {
 
                 BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
                 matri.setPrioridad(prioridad);
+                if (ds.getCicloAcademico().getFechaTurnosAsignados() != null) {
+                    TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
+                    BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
+                    Integer cantAlum = turnosAtencion.getAlumnos() + 1;
+                    turnosAtencion.setAlumnos(cantAlum);
+                    turnosAtencion.setPrioridadFin(numPrioridad);
+                    turnoAtencionDAO.update(turnosAtencion);
 
-                TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
-                BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
-                Integer cantAlum = turnosAtencion.getAlumnos() + 1;
-                turnosAtencion.setAlumnos(cantAlum);
-                turnosAtencion.setPrioridadFin(numPrioridad);
-                turnoAtencionDAO.update(turnosAtencion);
+                    configuracionMatriculaService.updateTurnos(turnosAtencion.getId(), cantAlum.toString());
 
-                configuracionMatriculaService.updateTurnos(turnosAtencion.getId(), cantAlum.toString());
+                    matri.setTurnoAtencion(turnosAtencion);
 
-                matri.setTurnoAtencion(turnosAtencion);
+                }
             }
         }
         matriculaResumenDAO.save(matri);
