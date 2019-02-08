@@ -52,18 +52,20 @@
                                         <table class="table table-striped">
                                             <thead>
                                                 <tr>
-                                                    <th class="col-md-2 text-center">Sección</th>
+                                                    <th class="col-md-5">Sección</th>
                                                     <th class="col-md-2 v-middle text-center">Fecha / Hora</th>
                                                     <th class="col-md-2">Docente</th>
-                                                    <th class="col-md-2 text-center">Aula</th>
-                                                    <th class="col-md-2 text-center">Alumnos</th>
-                                                    <th class="col-md-2 text-center">Estado</th>
+                                                    <th class="col-md-1 text-center">Aula</th>
+                                                    <th class="col-md-1 text-center">Alumnos</th>
+                                                    <th class="col-md-1 text-center">Estado</th>
                                                     <th class="text-center" v-if="accionesSeccionDisponibles"></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr v-for="item in props.data">
-                                                    <td class="v-middle text-center">
+                                                    <td class="v-middle">
+                                                        <span class="block h4 m-t-xs m-b-xs" v-text="item.seccion.grupoSeccion.curso.nombre"></span>
+                                                        <span class="block">{{item.seccion.grupoSeccion.curso.codigo}} {{item.seccion.grupoSeccion.curso.tpc}} </span>
                                                         <span class="text-md bold text-primary">
                                                             {{item.seccion.codigo2}}
                                                             ({{item.seccion.grupoHoras.codigo}})
