@@ -654,8 +654,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allMatriculadosNoEgresadosByCiclos(List<CicloAcademico> ciclosPrevios) {
         Octavia sqlSub = new Octavia()
                 .from(Egresado.class, "egre")
-                .join("alumno alum", "cicloAcademico ca")
-                .in("ca.id", ciclosPrevios);
+                .join("alumno alum");
 
         Octavia sql = Octavia.query()
                 .selectDistinct("alu")
@@ -676,8 +675,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allEstudiaronByCiclos(List<CicloAcademico> ciclosPrevios) {
         Octavia sqlSub = new Octavia()
                 .from(Egresado.class, "egre")
-                .join("alumno alum", "cicloAcademico ca")
-                .in("ca.id", ciclosPrevios);
+                .join("alumno alum");
 
         Octavia sql = Octavia.query()
                 .selectDistinct("alu")
