@@ -207,21 +207,21 @@ public class PromedioServiceImp implements PromedioService {
             this.analizarEgresado(alumno, ds);
             this.analizarDesertor(alumno, cicloActivo, ciclos, ds);
 
-            if (alumno.getSituacionAcademica().isTrikeado()) {
+            if (alumno.getSituacionAcademica().isTrikeado() || alumno.getSituacionAcademica().isCodigoS6()) {
                 CicloAcademico ultimoCicloRegular = alumno.getCicloActivoRegular();
                 CicloAcademico cicloSuspendido = cicloAcademicoDAO.findSiguienteRegularActivo(ultimoCicloRegular, ModalidadEstudioEnum.PRE);
                 AlumnoCiclo alumnoCicloTrika = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloSuspendido);
 
-                CicloAcademico siguienteCicloRegular = cicloAcademicoDAO.findSiguienteRegularActivo(cicloSuspendido, ModalidadEstudioEnum.PRE);
-                CicloAcademico siguienteCicloNiv = cicloAcademicoDAO.findSiguienteNivelacionActivo(cicloActivo, ModalidadEstudioEnum.PRE);
+                CicloAcademico siguienteCicloRegularHabil = cicloAcademicoDAO.findSiguienteRegularActivo(cicloSuspendido, ModalidadEstudioEnum.PRE);
+                CicloAcademico siguienteCicloNivHabil = cicloAcademicoDAO.findSiguienteNivelacionActivo(cicloActivo, ModalidadEstudioEnum.PRE);
 
-                if (siguienteCicloRegular.equals(cicloActivo)) {
+                if (siguienteCicloRegularHabil.equals(cicloActivo)) {
                     Alumno alumnoUpd = new Alumno(alumno.getId());
                     alumnoUpd.setSituacionAcademica(alumnoCicloTrika.getSituacionFinal());
                     alumnoDAO.updateSituacionAcad(alumnoUpd);
                 }
-                if (siguienteCicloNiv.getCodigoInt() < siguienteCicloRegular.getCodigoInt()) {
-                    if (siguienteCicloNiv.equals(cicloActivo)) {
+                if (siguienteCicloNivHabil.getCodigoInt() < siguienteCicloRegularHabil.getCodigoInt()) {
+                    if (siguienteCicloNivHabil.equals(cicloActivo)) {
                         Alumno alumnoUpd = new Alumno(alumno.getId());
                         alumnoUpd.setSituacionAcademica(alumnoCicloTrika.getSituacionFinal());
                         alumnoDAO.updateSituacionAcad(alumnoUpd);
