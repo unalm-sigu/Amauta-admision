@@ -211,11 +211,21 @@ public class PromedioServiceImp implements PromedioService {
                 CicloAcademico ultimoCicloRegular = alumno.getCicloActivoRegular();
                 CicloAcademico cicloSuspendido = cicloAcademicoDAO.findSiguienteRegularActivo(ultimoCicloRegular, ModalidadEstudioEnum.PRE);
                 AlumnoCiclo alumnoCicloTrika = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloSuspendido);
+
                 CicloAcademico siguienteCicloRegular = cicloAcademicoDAO.findSiguienteRegularActivo(cicloSuspendido, ModalidadEstudioEnum.PRE);
+                CicloAcademico siguienteCicloNiv = cicloAcademicoDAO.findSiguienteNivelacionActivo(cicloActivo, ModalidadEstudioEnum.PRE);
+
                 if (siguienteCicloRegular.equals(cicloActivo)) {
                     Alumno alumnoUpd = new Alumno(alumno.getId());
                     alumnoUpd.setSituacionAcademica(alumnoCicloTrika.getSituacionFinal());
                     alumnoDAO.updateSituacionAcad(alumnoUpd);
+                }
+                if (siguienteCicloNiv.getCodigoInt() < siguienteCicloRegular.getCodigoInt()) {
+                    if (siguienteCicloNiv.equals(cicloActivo)) {
+                        Alumno alumnoUpd = new Alumno(alumno.getId());
+                        alumnoUpd.setSituacionAcademica(alumnoCicloTrika.getSituacionFinal());
+                        alumnoDAO.updateSituacionAcad(alumnoUpd);
+                    }
                 }
             }
 
