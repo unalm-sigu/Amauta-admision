@@ -310,6 +310,9 @@ public class PromedioServiceImp implements PromedioService {
             }
             alumnoCiclo.setEstadoEnum(estadoMatriculaEnum);
             alumnoCicloDAO.update(alumnoCiclo);
+            
+            logger.debug("Situación Inicio {}", alumnoCiclo.getSituacionInicio().getCodigo());
+            logger.debug("Situación Final {}", alumnoCiclo.getSituacionFinal().getCodigo());
             idx++;
             alumnoCicloAnterior = (AlumnoCiclo) alumnoCiclo.clone();
         }

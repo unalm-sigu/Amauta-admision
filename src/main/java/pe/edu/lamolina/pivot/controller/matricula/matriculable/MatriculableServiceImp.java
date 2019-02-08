@@ -346,6 +346,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         int cachimbos = 8000;
         int escuela = 10000;
+        
         for (MatriculaResumen matriculable : matriculables) {
             matriculable.setPrioridad(null);
             matriculable.setPuntajePrioridad(null);
