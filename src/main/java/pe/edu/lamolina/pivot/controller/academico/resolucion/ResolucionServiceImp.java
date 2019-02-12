@@ -254,7 +254,7 @@ public class ResolucionServiceImp implements ResolucionService {
         resolucionUpd.setFechaActualizacion(today.toDate());
         resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.ACT);
         resolucionDAO.updateResolucionFile(resolucionUpd);
-        /*
+        
         if (resolucion.getEsEstadoCre()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucion);
             for (Reincorporacion reincorporacion : reincorporaciones) {
@@ -265,7 +265,7 @@ public class ResolucionServiceImp implements ResolucionService {
                 }
                 flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today);
             }
-        }*/
+        }
     }
 
     @Override

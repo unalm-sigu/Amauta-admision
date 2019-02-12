@@ -57,7 +57,6 @@ public class ResolucionController {
 
     private MultipartFile resolucionFile;
 
-//    Oficina oficinaAux = new Oficina(8L);
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
 
