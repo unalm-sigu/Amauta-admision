@@ -18,6 +18,8 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
@@ -324,23 +326,23 @@ public class ResolucionServiceImp implements ResolucionService {
                     throw new PhobosException("Error al procesar el tramite");
                 }
 
-                if (!reincorporacion.getEstadoTramite().getEsResolucionFacultad()) {
-                    throw new PhobosException("Estado tramite incorrecto");
-                }
+//                if (!reincorporacion.getEstadoTramite().getEsResolucionFacultad()) {
+//                    throw new PhobosException("Estado tramite incorrecto");
+//                }
                 if (reincorporacion.getEstaAceptado()) {
                     tramiteUpd.setEstadoEnum(TramiteEstadoEnum.ACEP);
 
-                    /*
+                    
                     Alumno alumno = alumnoDAO.find(tramite.getAlumno());
                     AlumnoCiclo lastAlumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
                     if (lastAlumnoCiclo.getSituacionFinal().isCodigoD()) {
                         alumno.setSituacionAcademica(lastAlumnoCiclo.getSituacionInicio());
                     } else {
                         alumno.setSituacionAcademica(lastAlumnoCiclo.getSituacionFinal());
-                    }*/
+                    }
                     reincorporacion.setCicloReincorporacion(cicloReincorporacion);
                     reincorporacionDAO.update(reincorporacion);
-                    //  alumnoDAO.update(alumno);
+                     alumnoDAO.update(alumno);
 
                 } else {
                     tramiteUpd.setEstadoEnum(TramiteEstadoEnum.RCHR);
