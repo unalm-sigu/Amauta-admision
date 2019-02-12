@@ -315,6 +315,13 @@ public class PromedioServiceImp implements PromedioService {
                     .filter(x -> x.getAlumnoCiclo().equals(alumnoCiclo))
                     .collect(Collectors.toList());
             alumnosCiclosCursosByAluCic = this.analizedAlumnoCicloCursosByCiclo(alumnosCiclosCursosByAluCic);
+            if (alumnosCiclosCursosByAluCic.isEmpty()) {
+                Long count = alumnoCicloCursoDAO.countByAlumnoCiclo(alumnoCiclo);
+                if (count == 0) {
+                    alumnoCicloDAO.delete(alumnoCiclo);
+                }
+                continue;
+            }
 
             logger.debug("Ciclo {}, Cursos {}", alumnoCiclo.getCicloAcademico().getCodigo(), alumnosCiclosCursosByAluCic.size());
 
@@ -331,7 +338,7 @@ public class PromedioServiceImp implements PromedioService {
             }
             alumnoCiclo.setEstadoEnum(estadoMatriculaEnum);
             alumnoCicloDAO.update(alumnoCiclo);
-            
+
             logger.debug("Situación Inicio {}", alumnoCiclo.getSituacionInicio().getCodigo());
             logger.debug("Situación Final {}", alumnoCiclo.getSituacionFinal().getCodigo());
             idx++;
