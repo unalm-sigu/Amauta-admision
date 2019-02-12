@@ -1815,6 +1815,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
             return;
         }
+        
+        Assert.isNotNull(aula.getCapacidadAula(), "Esta aula no tiene configurado la capacidad");
 
         Aula aulaAntes = seccion.getAula();
         if (aulaAntes != null) {
