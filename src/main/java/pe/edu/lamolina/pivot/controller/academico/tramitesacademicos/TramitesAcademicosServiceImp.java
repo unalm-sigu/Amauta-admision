@@ -330,11 +330,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
 
         this.saveFlujoTramite(tramite, accionTramiteAcademico, ds.getUsuario(), today);
-        if (accionTramiteAcademico.getEstadoTramiteFinal().getEsPreparado()) {
-            logger.debug("Entre a aceptado por victor");
-            matriculableService.revisarSituacionAcademica(tramite.getAlumno(), ds);
-            matriculableService.saveMatriculable(tramite.getAlumno(), ds);
-        }
+     
     }
 
     private void crearAutorizacionRegistro(Alumno alumno, Tramite tramite, DataSessionPivot ds) {
