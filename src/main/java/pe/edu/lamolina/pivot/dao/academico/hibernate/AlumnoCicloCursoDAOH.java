@@ -147,6 +147,16 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     }
 
     @Override
+    public Long countByAlumnoCiclo(AlumnoCiclo alumnoCiclo) {
+        Octavia sql = Octavia.query()
+                .selectCount()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
+                .filter("ac.id", alumnoCiclo);
+        return (Long) sql.find(getCurrentSession());
+    }
+
+    @Override
     public List<AlumnoCicloCurso> findHistorial(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
