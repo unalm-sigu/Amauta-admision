@@ -78,6 +78,7 @@ import pe.edu.lamolina.pivot.zelper.pdf.PdfGenerator;
 import pe.edu.lamolina.pivot.zelper.pdf.TipoPdfEnum;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 
 @Service
 @Transactional(readOnly = true)
@@ -159,6 +160,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Autowired
     PromedioService promedioService;
+   
+    @Autowired
+    MatriculableService matriculableService;
 
     private DateTime today = new DateTime();
 
@@ -210,7 +214,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     }
 
     @Override
-    public List<ReunionConsejo> allReunionConsejoByDyna(DynatableFilter filter, Oficina oficina) {
+    public List<ReunionConsejo> allReunionConsejoByDyna(DynatableFilter filter, List<Oficina> oficina) {
         List<ReunionConsejo> reunionesConsejo = reunionConsejoDAO.allByDynatable(filter, oficina);
         return reunionesConsejo;
     }
@@ -326,6 +330,11 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
 
         this.saveFlujoTramite(tramite, accionTramiteAcademico, ds.getUsuario(), today);
+        if (accionTramiteAcademico.getEstadoTramiteFinal().getEsPreparado()) {
+            logger.debug("Entre a aceptado por victor");
+            matriculableService.revisarSituacionAcademica(tramite.getAlumno(), ds);
+            matriculableService.saveMatriculable(tramite.getAlumno(), ds);
+        }
     }
 
     private void crearAutorizacionRegistro(Alumno alumno, Tramite tramite, DataSessionPivot ds) {

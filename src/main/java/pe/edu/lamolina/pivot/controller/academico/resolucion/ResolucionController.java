@@ -141,7 +141,7 @@ public class ResolucionController {
 
             ArrayNode ciclosJson = new ArrayNode(jc);
             for (CicloAcademico ciclo : ciclos) {
-                ciclosJson.add(JsonHelper.createJson(ciclo, jc));
+                ciclosJson.add(JsonHelper.createJson(ciclo, jc, new String[]{"*"}));
             }
 
             ObjectNode data = new ObjectNode(jc);

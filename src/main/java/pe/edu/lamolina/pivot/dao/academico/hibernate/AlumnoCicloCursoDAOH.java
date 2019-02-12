@@ -460,7 +460,10 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cur")
                 .left("autorizacionRegistro areg", "acc.alumnoCicloCursoOrigen")
                 .filter("ac.id", alumnoCiclo);
-        sql.filter("areg.id", autorizacionRegistro);
+        if (autorizacionRegistro != null) {
+            sql.filter("areg.id", autorizacionRegistro);
+        }
+        sql.orderBy("cur.codigo", "cur.nombre");
         return all(sql);
     }
 
