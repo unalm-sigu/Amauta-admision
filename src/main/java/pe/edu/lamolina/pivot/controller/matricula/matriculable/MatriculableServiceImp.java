@@ -648,15 +648,15 @@ public class MatriculableServiceImp implements MatriculableService {
         MatriculaResumen matri = new MatriculaResumen();
 
         Alumno alumno = alumnoDAO.find(alumnoForm);
-        if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_D) {            
+        /*        if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_D) {            
             AlumnoCiclo lastAlumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
             if (lastAlumnoCiclo.getSituacionFinal().isCodigoD()) {
                 alumno.setSituacionAcademica(lastAlumnoCiclo.getSituacionInicio());
             } else {
                 alumno.setSituacionAcademica(lastAlumnoCiclo.getSituacionFinal());
             }
-        }
-        
+        }*/
+
         SituacionAcademica sit = alumno.getSituacionAcademica();
         ModalidadEstudio modalidad = alumno.getModalidadEstudio();
         List<SituacionAcademicaEnum> sitEnum = Arrays.asList(S_8, S_9);
