@@ -13,6 +13,8 @@ public interface ReunionConsejoDAO extends EasyDAO<ReunionConsejo> {
 
     List<ReunionConsejo> allByOficina(Oficina oficina);
 
-    List<ReunionConsejo> allByDynatable(DynatableFilter filter, Oficina oficina);
+    List<ReunionConsejo> allByDynatable(DynatableFilter filter, List<Oficina> oficina);
+
+    public List<ReunionConsejo> allByOficinas(List<Oficina> oficinas);
 
 }

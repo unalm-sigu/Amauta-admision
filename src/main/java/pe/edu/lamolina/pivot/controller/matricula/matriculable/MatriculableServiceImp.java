@@ -346,6 +346,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         int cachimbos = 8000;
         int escuela = 10000;
+
         for (MatriculaResumen matriculable : matriculables) {
             matriculable.setPrioridad(null);
             matriculable.setPuntajePrioridad(null);
@@ -646,15 +647,24 @@ public class MatriculableServiceImp implements MatriculableService {
     public void saveMatriculable(Alumno alumnoForm, DataSessionPivot ds) {
         MatriculaResumen matri = new MatriculaResumen();
 
-        Alumno alum = alumnoDAO.find(alumnoForm);
-        SituacionAcademica sit = alum.getSituacionAcademica();
-        ModalidadEstudio modalidad = alum.getModalidadEstudio();
+        Alumno alumno = alumnoDAO.find(alumnoForm);
+        if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_D) {            
+            AlumnoCiclo lastAlumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
+            if (lastAlumnoCiclo.getSituacionFinal().isCodigoD()) {
+                alumno.setSituacionAcademica(lastAlumnoCiclo.getSituacionInicio());
+            } else {
+                alumno.setSituacionAcademica(lastAlumnoCiclo.getSituacionFinal());
+            }
+        }
+        
+        SituacionAcademica sit = alumno.getSituacionAcademica();
+        ModalidadEstudio modalidad = alumno.getModalidadEstudio();
         List<SituacionAcademicaEnum> sitEnum = Arrays.asList(S_8, S_9);
         List<ModalidadEstudioEnum> modEnum = Arrays.asList(EPG, ESP);
 
-        matri.setAlumno(alum);
+        matri.setAlumno(alumno);
         matri.setCicloAcademico(ds.getCicloAcademico());
-        matri.setSituacionInicio(alum.getSituacionAcademica());
+        matri.setSituacionInicio(alumno.getSituacionAcademica());
 
         matri.setCreditosMatriculados(0);
         matri.setCreditosRetirados(0);
@@ -670,11 +680,11 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
 
         if (!sitEnum.contains(sit.getCodigo()) && !modEnum.contains(modalidad.getCodigo()) && ds.getCicloAcademico().getFechaPrioridades() != null) {
-            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alum.getCicloActivoRegular(), alumnoForm);
+            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumnoForm);
             matri = matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
 
-            MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ds.getCicloAcademico(), alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
-            MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matri, ds.getCicloAcademico(), alum.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+            MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+            MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matri, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
             if (matriculaAnt != null && matriculaDes != null) {
 
                 BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
