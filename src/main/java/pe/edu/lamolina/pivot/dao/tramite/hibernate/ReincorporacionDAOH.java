@@ -8,7 +8,9 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
+import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 
@@ -40,11 +42,22 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
     }
 
     @Override
-    public List<Reincorporacion> allAceptadasByAlumnoRei(Alumno alumno) {
+    public List<Reincorporacion> allByResolucion(Resolucion resolucion) {
+        Octavia sql = Octavia.query()
+                .from(Reincorporacion.class, "rei")
+                .join("tramite tra", "resolucion res", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
+                .filter("res.id", resolucion);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Reincorporacion> allByEstadoTramiteAndAlumnoRei(Alumno alumno, EstadoTramite estadoTramite) {
         Octavia sql = Octavia.query()
                 .from(Reincorporacion.class, "rei")
                 .join("alumno alu", "resolucion res", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
                 .left("tramite tra")
+                .filter("et.id", estadoTramite)
                 .filter("alu.id", alumno);
         return all(sql);
     }
