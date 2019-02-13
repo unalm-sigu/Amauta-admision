@@ -20,11 +20,13 @@ import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoResolucionDAO;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
@@ -47,6 +49,9 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
     @Autowired
     EstadoTramiteDAO estadoTramiteDAO;
 
+    @Autowired
+    MatriculableService matriculableService;
+
     @Override
     public List<Alumno> allAlumnoDesertorByNombre(String nombre, Long instanciaOficina) {
         return alumnoDAO.allDesertorByName(nombre, instanciaOficina);
@@ -54,7 +59,7 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
 
     @Override
     @Transactional
-    public void save(Resolucion resolucionForm, Usuario usuario) {
+    public void save(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.REIC);
         Resolucion resolucion = new Resolucion();
         resolucion.setOficina(resolucionForm.getOficina());
@@ -84,6 +89,8 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
             reincorporacione.setUserRegistro(usuario);
             reincorporacione.setFacultad(facultad);
             reincorporacionDAO.save(reincorporacione);
+            matriculableService.saveMatriculable(reincorporacione.getAlumno(), ds);
+            matriculableService.revisarSituacionAcademica(reincorporacione.getAlumno(), ds);
         }
     }
 

@@ -38,20 +38,20 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("academico/resolucion")
 public class ResolucionReincorporacionController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     ResolucionReincorporacionService service;
-    
+
     @Autowired
     ResolucionService resolucionService;
-    
+
     private MultipartFile resolucionFile;
-    
+
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
-        
+
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -62,7 +62,7 @@ public class ResolucionReincorporacionController {
                 }
             }
         });
-        
+
         dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -74,7 +74,7 @@ public class ResolucionReincorporacionController {
             }
         });
     }
-    
+
     @RequestMapping(value = "reincorporacion", method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -95,7 +95,7 @@ public class ResolucionReincorporacionController {
         model.addAttribute("ciclos", ciclosJson);
         return "academico/resolucion/resolucionreincorporacion/resolucionReincorporacion";
     }
-    
+
     @ResponseBody
     @RequestMapping("findAlumno")
     public JsonResponse findAlumno(
@@ -105,7 +105,7 @@ public class ResolucionReincorporacionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            
+
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
             List<Alumno> alumnos = service.allAlumnoDesertorByNombre(nombre, instanciaOficina);
             for (Alumno alumno : alumnos) {
@@ -128,7 +128,7 @@ public class ResolucionReincorporacionController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody Resolucion resolucion,
@@ -136,9 +136,9 @@ public class ResolucionReincorporacionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            
+
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
-            service.save(resolucion, ds.getUsuario());
+            service.save(resolucion, ds.getUsuario(), ds);
             response.setMessage("Se realizó el registro satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
             response.setData(data);

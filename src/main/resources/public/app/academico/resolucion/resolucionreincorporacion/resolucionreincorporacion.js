@@ -60,9 +60,10 @@ var app = new Vue({
         },
         oficinaSelect(ofi) {
             let $vue = this;
-            if ($vue.resolucion.oficina != null) {                
+            if ($vue.resolucion.oficina != null) {
                 if (ofi.id != $vue.resolucion.oficina.id) {
                     $vue.resolucion.reincorporaciones = [];
+                    $vue.alumnos = [];
                 }
             }
         },
@@ -86,6 +87,7 @@ var app = new Vue({
                     if (response.success) {
                         notify(response.message, 'info');
                         $vue.resolucion = {reincorporaciones: []};
+                        $vue.alumnos = [];
                     } else {
                         notify(response.message, 'error');
                     }
