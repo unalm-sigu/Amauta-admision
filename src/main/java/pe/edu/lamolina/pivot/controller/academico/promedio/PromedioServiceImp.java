@@ -31,8 +31,8 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
-import pe.edu.lamolina.model.croacia.HistoMy;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
@@ -43,6 +43,8 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.EstadoTramite;
+import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.pivot.controller.academico.situacionacademica.SituacionAcademicaService;
 import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
@@ -59,6 +61,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -117,6 +120,9 @@ public class PromedioServiceImp implements PromedioService {
 
     @Autowired
     ContadorComponent contadorComponent;
+
+    @Autowired
+    ReincorporacionDAO reincorporacionDAO;
 
     private final Integer VECES_TRIKA = 3;
 
@@ -206,6 +212,7 @@ public class PromedioServiceImp implements PromedioService {
             this.promediarAlumno(alumno, cicloActivo, allOperativesByModalidadEstudio, ds);
             this.analizarEgresado(alumno, ds);
             this.analizarDesertor(alumno, cicloActivo, ciclos, ds);
+            this.analizeReincorporacion(alumno, cicloActivo);
 
             if (alumno.getSituacionAcademica().isTrikeado() || alumno.getSituacionAcademica().isCodigoS6()) {
                 CicloAcademico ultimoCicloRegular = alumno.getCicloActivoRegular();
@@ -246,6 +253,26 @@ public class PromedioServiceImp implements PromedioService {
             contadorComponent.reporte();
         }
 
+    }
+
+    private void analizeReincorporacion(Alumno alumno, CicloAcademico cicloActivo) {
+        List<Reincorporacion> reincorporacionesByAlumno = reincorporacionDAO.allByEstadoTramiteAndAlumnoRei(alumno, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
+        if (!reincorporacionesByAlumno.isEmpty()) {
+            Collections.sort(reincorporacionesByAlumno, (p1, p2) -> p1.getCicloReincorporacion().getCodigo().compareTo(p2.getCicloReincorporacion().getCodigo()));
+            CicloAcademico cicloAcademicoRei = reincorporacionesByAlumno.get(0).getCicloReincorporacion();
+
+            if (cicloActivo.equals(cicloAcademicoRei)) {
+                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
+
+                Alumno alumnoUpd = new Alumno(alumno.getId());
+                if (alumnoCiclo.getSituacionFinal().isCodigoD()) {
+                    alumno.setSituacionAcademica(alumnoCiclo.getSituacionInicio());
+                } else {
+                    alumno.setSituacionAcademica(alumnoCiclo.getSituacionFinal());
+                }
+                alumnoDAO.updateSituacionAcad(alumno);
+            }
+        }
     }
 
     private void analizeAlumnoCiclos(Alumno alumno, List<AlumnoCicloCurso> alumnoCicloCursos) {

@@ -8,12 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
+import pe.edu.lamolina.model.medico.HistoriaClinica;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 import pe.edu.lamolina.pivot.dao.academico.RecorridoIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.laboratorio.HistoriaLaboratorioDAO;
+import pe.edu.lamolina.pivot.dao.medico.HistoriaClinicaDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,6 +30,9 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     @Autowired
     RecorridoIngresanteDAO recorridoIngresanteDAO;
 
+    @Autowired
+    HistoriaClinicaDAO historiaClinicaDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -35,7 +43,14 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     @Override
     public HistoriaLaboratorio findLaboratorioByRecorridoIngresante(RecorridoIngresante recorrido) {
-        return historiaLaboratorioDAO.findByRecorridoIngresante(recorrido);
+        Alumno alumno = recorrido.getAlumno();
+        Persona persona = alumno.getPersona();
+        HistoriaClinica historia = historiaClinicaDAO.findByPersona(persona);
+        if (historia != null) {
+            return historiaLaboratorioDAO.findByHistoriaClinica(historia);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -43,11 +58,49 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         List<RecorridoIngresante> listaRecorridos = recorridoIngresanteDAO.allByCiclo(ciclo);
         List<TurnoEntrevistaObuae> turnos = new ArrayList();
         for (RecorridoIngresante recorrido : listaRecorridos) {
-            if (!turnos.contains(recorrido.getTurnoEntrevistaObuae()) && recorrido.getTurnoEntrevistaObuae()!=null) {
+            if (!turnos.contains(recorrido.getTurnoEntrevistaObuae()) && recorrido.getTurnoEntrevistaObuae() != null) {
                 turnos.add(recorrido.getTurnoEntrevistaObuae());
             }
         }
         return turnos;
+    }
+
+    @Override
+    public HistoriaClinica findHistoriaClinica(RecorridoIngresante recorrido) {
+        Alumno alumno = recorrido.getAlumno();
+        Persona persona = alumno.getPersona();
+        HistoriaClinica historia = historiaClinicaDAO.findByPersona(persona);
+        return historia;
+    }
+
+    @Override
+    public long findNumLab(CicloAcademico ciclo) {
+        List<RecorridoIngresante> listaRecorridos = recorridoIngresanteDAO.allByCiclo(ciclo);
+        List<Persona> listaPersonas = new ArrayList();
+        for (RecorridoIngresante elem : listaRecorridos) {
+            listaPersonas.add(elem.getAlumno().getPersona());
+        }
+
+        List<HistoriaLaboratorio> laboratorios = historiaLaboratorioDAO.allByPersona(listaPersonas);
+
+        long numLab = 1;
+        for (HistoriaLaboratorio laboratorio : laboratorios) {
+            if (laboratorio.getNumeroLaboratorio() != null && laboratorio.getNumeroLaboratorio() > numLab) {
+                numLab = laboratorio.getNumeroLaboratorio();
+            }
+        }
+
+        return numLab;
+    }
+
+    @Override
+    @Transactional
+    public void saveLaboratorio(HistoriaLaboratorio laboratorio) {
+        if (laboratorio.getId() != null) {
+            historiaLaboratorioDAO.update(laboratorio);
+        } else {
+            historiaLaboratorioDAO.save(laboratorio);
+        }
     }
 
 }
