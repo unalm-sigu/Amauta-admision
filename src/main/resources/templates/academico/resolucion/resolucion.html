@@ -17,12 +17,16 @@
 <body>
     <div layout:fragment="main">
         <div id="resoluciones" >
-            <header class="header b-b padder-lg">
-                <div class="pull-right panel-body" >
-                    <a class="btn btn-success" 
-                       th:href="@{/academico/resolucion/nuevo}" 
-                       >Nueva Resolución
-                    </a>
+            <header class="header b-b padder-lg m-b-xs">
+
+                <div class="btn-group pull-right">
+                    <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                        Acciones &nbsp; <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li> <a th:href="@{/academico/resolucion/nuevo}" >Nueva Resolución</a></li>
+                        <li> <a th:href="@{/academico/resolucion/reincorporacion}"  >Resolución Reincorporación</a></li>                        
+                    </ul>
                 </div>
                 <h2 >Resoluciones</h2>
             </header>
@@ -84,12 +88,12 @@
                                             <li role="presentation">
                                                 <a class="aceptar-expandir-sistema"  
                                                    v-on:click="editarResolucion(item,$event)" href="#"
-                                                   v-if="item.esEstadoCre">
+                                                   v-if="item.esEstadoCre &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )">
                                                     Editar
                                                 </a>
-                                                <a class="aceptar-expandir-sistema" v-if="item.esEstadoCre || item.esEstadoAct" v-on:click="loadModalSubirDoc(item,$event)" href="#">Subir Pdf</a>
-                                                <a v-if="item.esEstadoAct"  v-on:click="loadModalConfirmar(item,$event)" href="#">Confirmar</a>
-                                                <a v-if="item.isEstadoDocConf"  v-on:click="editarResolucion(item,$event)" href="#">V.B. Resolución</a>
+                                                <a class="aceptar-expandir-sistema" v-if="item.esEstadoCre || item.esEstadoAct || item.aplicacionDirecta == 1" v-on:click="loadModalSubirDoc(item,$event)" href="#">Subir Pdf</a>
+                                                <a v-if="item.esEstadoAct &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )"  v-on:click="loadModalConfirmar(item,$event)" href="#">Confirmar</a>
+                                                <a v-if="item.isEstadoDocConf &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )"  v-on:click="editarResolucion(item,$event)" href="#">V.B. Resolución</a>
                                             </li>
                                         </ul>
                                     </td>
