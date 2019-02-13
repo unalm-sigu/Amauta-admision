@@ -43,6 +43,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.pivot.controller.academico.situacionacademica.SituacionAcademicaService;
 import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
@@ -59,6 +60,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -117,6 +119,9 @@ public class PromedioServiceImp implements PromedioService {
 
     @Autowired
     ContadorComponent contadorComponent;
+
+    @Autowired
+    ReincorporacionDAO reincorporacionDAO;
 
     private final Integer VECES_TRIKA = 3;
 
@@ -246,6 +251,10 @@ public class PromedioServiceImp implements PromedioService {
             contadorComponent.reporte();
         }
 
+    }
+
+    private void analizedReincorporacion() {
+        List<Reincorporacion> reincorporacionesByAlumno = reincorporacionDAO.allByResolucion(resolucion)
     }
 
     private void analizeAlumnoCiclos(Alumno alumno, List<AlumnoCicloCurso> alumnoCicloCursos) {

@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.tramite;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
@@ -21,5 +22,7 @@ public interface ReincorporacionDAO extends EasyDAO<Reincorporacion> {
     void updateEstado(Reincorporacion reincorporacion);
 
     void updateAceptado(Reincorporacion reincorporacion);
+
+    List<Reincorporacion> allAceptadasByAlumnoRei(Alumno alumno);
 
 }
