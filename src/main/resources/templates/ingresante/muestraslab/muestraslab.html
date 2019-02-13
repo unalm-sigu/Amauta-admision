@@ -80,13 +80,14 @@
     </head>
 
     <body>
-        <section layout:fragment="main">
+        <section layout:fragment="main">            
 
             <div id="ingresantesVUE">
                 <div v-cloak="">
 
                     <header class="header b-b padder-lg">
-                        <h2 th:inline="text"> Muestras de Laboratorio</h2>            
+                        <h2 th:inline="text"> Muestras de Laboratorio</h2>    
+                        <h4 style="text-align: right">Laboratorio Actual: {{laboratorioActual.numero}}</h4>
                     </header>
 
                     <section class="wrapper-lg">
@@ -100,6 +101,17 @@
                                                      v-bind:options='turnos'
                                                      placeholder="Seleccione un turno"
                                                      label='id'
+                                                     v-bind:allow-empty="false"
+                                                     v-on:input="cambiarTurno">
+                                        </multiselect>
+                                    </div>
+                                    <div class="col-md-3" slot="header">
+                                        <multiselect v-model='turnoSelected'
+                                                     v-bind:internal-search='false'
+                                                     v-bind:limit='15'
+                                                     v-bind:options='turnos'
+                                                     placeholder="Seleccione un turno"
+                                                     label='fecha'
                                                      v-bind:allow-empty="false"
                                                      v-on:input="cambiarTurno">
                                         </multiselect>
@@ -160,7 +172,7 @@
                                                             </div>
 
                                                             <div class="form-group col-md-6">
-                                                                <a type="button" class="btn btn-success" v-on:click="asignarNumLab(item)">Asignar</a>
+                                                                <a v-if="item.laboratorio.numeroLaboratorio==''" type="button" class="btn btn-success" v-on:click="asignarNumLab(item)">Asignar</a>
                                                             </div>
                                                         </td>
 
@@ -180,6 +192,11 @@
         </section>
 
         <div layout:fragment="js" th:remove="tag">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var laboratorioActual = /*[[${laboratorioActual.toString()}]]*/ 'json';
+                /*]]>*/
+            </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/ingresante/muestraslab/muestraslab.js}" charset="utf-8"></script>
         </div>

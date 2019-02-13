@@ -39,7 +39,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
     public List<RecorridoIngresante> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(RecorridoIngresante.class, "ri")
-                .join("cicloAcademico ci")
+                .join("cicloAcademico ci","alumno a","a.persona per")
                 .leftJoin("turnoEntrevistaObuae tu")
                 .filter("ci.id", ciclo)
                 .orderBy("ri.numeroAtencion asc");
