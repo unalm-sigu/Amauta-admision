@@ -55,8 +55,8 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
     public List<Reincorporacion> allByEstadoTramiteAndAlumnoRei(Alumno alumno, EstadoTramite estadoTramite) {
         Octavia sql = Octavia.query()
                 .from(Reincorporacion.class, "rei")
-                .join("alumno alu", "resolucion res", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
-                .left("tramite tra")
+                .join("alumno alu", "estadoTramite et", "cicloReincorporacion cr")
+                .left("tramite tra", "facultad fac", "resolucion res")
                 .filter("et.id", estadoTramite)
                 .filter("alu.id", alumno);
         return all(sql);
