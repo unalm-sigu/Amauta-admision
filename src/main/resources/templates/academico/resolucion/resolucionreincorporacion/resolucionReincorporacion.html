@@ -51,6 +51,7 @@
                                                 deselect-label="No se puede eliminar este valor"
                                                 track-by="id" 
                                                 required="true"
+                                                v-on:select="oficinaSelect"
                                                 >
                                             </multiselect>
                                             <input v-model="resolucion.oficina" required="true" type="text" class="hide"/>

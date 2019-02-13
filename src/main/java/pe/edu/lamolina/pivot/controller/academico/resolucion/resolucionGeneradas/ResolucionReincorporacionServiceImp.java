@@ -2,12 +2,14 @@ package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionGenerada
 
 import java.util.Date;
 import java.util.List;
-import org.apache.poi.hssf.record.chart.DatRecord;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
@@ -66,8 +68,12 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
         resolucion.setAplicacionDirecta(1l);
         resolucionDAO.save(resolucion);
 
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACP);
-        logger.debug("estadp {}" , estadoTramite.getId());
+        Map<Long, Long> couterMap = resolucionForm.getReincorporaciones().stream().collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
+        for (Long count : couterMap.values()) {
+            Assert.isFalse(count > 1, "Está repitiendo alumno");
+        }
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+        logger.debug("estadp {}", estadoTramite.getId());
         System.out.println("Estado" + estadoTramite.getId());
         for (Reincorporacion reincorporacione : resolucionForm.getReincorporaciones()) {
             Facultad facultad = reincorporacione.getAlumno().getCarrera().getFacultad();

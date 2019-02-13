@@ -58,6 +58,14 @@ var app = new Vue({
             let $vue = this;
             $vue.resolucion.reincorporaciones.splice(index, 1);
         },
+        oficinaSelect(ofi) {
+            let $vue = this;
+            if ($vue.resolucion.oficina != null) {                
+                if (ofi.id != $vue.resolucion.oficina.id) {
+                    $vue.resolucion.reincorporaciones = [];
+                }
+            }
+        },
         save() {
             let $vue = this;
             var valid = $('#form').parsley().validate();
