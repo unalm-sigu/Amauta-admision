@@ -361,7 +361,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .endBlock()
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .filter("sa.codigo", SituacionAcademicaEnum.S_D.getValue())
-                .filter("me.codigo", ModalidadEstudioEnum.PRE)
                 .filter("fa.id", idInstancia)
                 .limit(15);
         return sql.all(getCurrentSession());
