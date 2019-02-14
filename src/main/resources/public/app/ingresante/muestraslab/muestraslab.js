@@ -24,12 +24,13 @@ new Vue({
             }).then(response => {
                 console.log("turnos", response);
                 $vue.turnos = response.data;
-                if ($vue.turnos.length > 1) {
+                if ($vue.turnos.length > 0) {
                     $vue.turnoSelected = $vue.turnos[0];
                     $vue.ingresantesURL = APP.url('ingresante/muestraslab/list/' + $vue.turnoSelected.id);
 
                     setTimeout(function () {
                         $vue.$refs.raptorML.loadRemoteData();
+                        console.log(" $vue.$refs.raptorML", $vue.$refs.raptorML._props);
                     }, 50);
                 }
             })
@@ -56,9 +57,9 @@ new Vue({
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
-                        console.log(response);
-                        $vue.laboratorioActual.numero = response.numeroLaboratorio;
-                        item.laboratorio.numeroLaboratorio = response.numeroLaboratorio;
+                        console.log("response", response.data);
+                        $vue.laboratorioActual.numero = response.data.numeroLaboratorio+1;
+                        $vue.$refs.raptorML.loadRemoteData();
                         notify(response.message, 'info');
                     } else {
                         notify(response.message, 'error');

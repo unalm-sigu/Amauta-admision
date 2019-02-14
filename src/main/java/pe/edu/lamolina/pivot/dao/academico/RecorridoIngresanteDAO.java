@@ -14,5 +14,6 @@ public interface RecorridoIngresanteDAO extends EasyDAO<RecorridoIngresante> {
     List<RecorridoIngresante> allByCiclo( CicloAcademico ciclo);
 
     List<RecorridoIngresante> allByDynatableCicloTurno(DynatableFilter filter, CicloAcademico ciclo, TurnoEntrevistaObuae turno);
+    
 
 }

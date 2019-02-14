@@ -1,31 +1,26 @@
-package pe.edu.lamolina.pivot.controller.ingresante.muestraslab;
+package pe.edu.lamolina.pivot.controller.ingresante.resultadoslab;
 
-import java.util.Date;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
+import pe.edu.lamolina.model.medico.DiarioLaboratorio;
 import pe.edu.lamolina.model.medico.HistoriaClinica;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 
-public interface MuestrasLabService {
+public interface ResultadosLabService {
 
-//    List<HistoriaLaboratorio> laboratorioDynatableFecha(DynatableFilter filter, Date fecha);
-    List<RecorridoIngresante> ingresantesDynatableTurno(DynatableFilter filter, TurnoEntrevistaObuae turno, CicloAcademico ciclo);
-
-    List<TurnoEntrevistaObuae> allTurnos(CicloAcademico ciclo);
-
-    HistoriaLaboratorio findLaboratorioByRecorridoIngresante(RecorridoIngresante recorrido);
+    List<RecorridoIngresante> ingresantesDynatableCiclo(DynatableFilter filter, CicloAcademico ciclo);
 
     HistoriaClinica findHistoriaClinica(RecorridoIngresante recorrido);
-
-    long findNumLab(CicloAcademico ciclo);
 
     void saveLaboratorio(HistoriaLaboratorio laboratorio);
 
     List<HistoriaLaboratorio> allLabByPersonas(List<Persona> personas);
 
     List<HistoriaClinica> allHistoriaByPersonas(List<Persona> personas);
+
+    DiarioLaboratorio getDiarioLabActual();
 }

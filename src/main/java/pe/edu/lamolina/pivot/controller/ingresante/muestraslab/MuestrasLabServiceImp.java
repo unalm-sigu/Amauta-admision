@@ -36,7 +36,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<RecorridoIngresante> laboratorioDynatableTurno(DynatableFilter filter, TurnoEntrevistaObuae turno, CicloAcademico ciclo) {
+    public List<RecorridoIngresante> ingresantesDynatableTurno(DynatableFilter filter, TurnoEntrevistaObuae turno, CicloAcademico ciclo) {
 
         return recorridoIngresanteDAO.allByDynatableCicloTurno(filter, ciclo, turno);
     }
@@ -83,14 +83,21 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
         List<HistoriaLaboratorio> laboratorios = historiaLaboratorioDAO.allByPersona(listaPersonas);
 
-        long numLab = 1;
+        long numLab = 0;
         for (HistoriaLaboratorio laboratorio : laboratorios) {
             if (laboratorio.getNumeroLaboratorio() != null && laboratorio.getNumeroLaboratorio() > numLab) {
                 numLab = laboratorio.getNumeroLaboratorio();
             }
         }
 
-        return numLab;
+        return numLab + 1;
+    }
+
+    @Override
+    public List<HistoriaLaboratorio> allLabByPersonas(List<Persona> personas) {
+
+        return historiaLaboratorioDAO.allByPersona(personas);
+
     }
 
     @Override
@@ -101,6 +108,11 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         } else {
             historiaLaboratorioDAO.save(laboratorio);
         }
+    }
+
+    @Override
+    public List<HistoriaClinica> allHistoriaByPersonas(List<Persona> personas) {
+        return historiaClinicaDAO.allByPersona(personas);
     }
 
 }
