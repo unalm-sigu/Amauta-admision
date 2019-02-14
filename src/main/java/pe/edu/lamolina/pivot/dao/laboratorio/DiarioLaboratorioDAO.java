@@ -6,5 +6,5 @@ import pe.edu.lamolina.model.medico.DiarioLaboratorio;
 
 public interface DiarioLaboratorioDAO extends EasyDAO<DiarioLaboratorio> {
 
-    List<DiarioLaboratorio> allFechaAsc();
+    List<DiarioLaboratorio> allFechaDesc();
 }

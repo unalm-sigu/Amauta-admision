@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.ingresante.muestraslab;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
@@ -19,6 +19,7 @@ import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 import pe.edu.lamolina.pivot.dao.academico.RecorridoIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.laboratorio.HistoriaLaboratorioDAO;
 import pe.edu.lamolina.pivot.dao.medico.HistoriaClinicaDAO;
+import pe.edu.lamolina.pivot.dao.sip.TurnoEntrevistaObuaeDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,6 +33,9 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     @Autowired
     HistoriaClinicaDAO historiaClinicaDAO;
+
+    @Autowired
+    TurnoEntrevistaObuaeDAO turnoEntrevistaObuaeDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -85,8 +89,8 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
         long numLab = 0;
         for (HistoriaLaboratorio laboratorio : laboratorios) {
-            if (laboratorio.getNumeroLaboratorio() != null && laboratorio.getNumeroLaboratorio() > numLab) {
-                numLab = laboratorio.getNumeroLaboratorio();
+            if (laboratorio.getNumeroMuestra() != null && laboratorio.getNumeroMuestra() > numLab) {
+                numLab = laboratorio.getNumeroMuestra();
             }
         }
 
@@ -115,4 +119,35 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         return historiaClinicaDAO.allByPersona(personas);
     }
 
+    @Override
+    @Transactional
+    public void deleteLaboratorio(HistoriaLaboratorio laboratorio) {
+        historiaLaboratorioDAO.delete(laboratorio);
+    }
+
+    @Override
+    public List<RecorridoIngresante> ingresantesDynatable(DynatableFilter filter, CicloAcademico ciclo) {
+        return recorridoIngresanteDAO.allByDynatableCiclo(filter, ciclo);
+    }
+
+    @Override
+    public TurnoEntrevistaObuae findTurno(long idTurno) {
+        return turnoEntrevistaObuaeDAO.find(idTurno);
+    }
+
+    @Override
+    public List<HistoriaLaboratorio> allLabByPersonasFilterFecha(List<Persona> personas, Date fecha) {
+        return historiaLaboratorioDAO.allByPersonaFilterFecha(personas, fecha);
+    }
+
+    @Override
+    public List<RecorridoIngresante> allIngresantesCiclo(CicloAcademico ciclo) {
+        return recorridoIngresanteDAO.allByCiclo(ciclo);
+    }
+
+    @Override
+    public List<RecorridoIngresante> allIngresantesDynatableByPersona(DynatableFilter filter, List<Persona> personas) {
+        return recorridoIngresanteDAO.allIngresantesDynatableByPersona(filter, personas);
+    }    
+    
 }

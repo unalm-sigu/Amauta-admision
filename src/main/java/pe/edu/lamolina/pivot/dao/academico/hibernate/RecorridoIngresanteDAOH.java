@@ -8,6 +8,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.pivot.dao.academico.RecorridoIngresanteDAO;
 
@@ -30,7 +31,23 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .orderBy("ri.id desc");
+                .orderBy("ri.numeroAtencion asc");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<RecorridoIngresante> allIngresantesDynatableByPersona(DynatableFilter filter, List<Persona> personas) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(RecorridoIngresante.class, "ri")
+                .join("cicloAcademico ci", "alumno al")
+                .join("al.persona per", "al.carrera car")
+                .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
+                .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .in("per.id", personas)
+                .orderBy("ri.numeroAtencion asc");
 
         return all(sql);
     }
@@ -60,7 +77,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .orderBy("ri.id desc");
+                .orderBy("ri.numeroAtencion asc");
 
         return all(sql);
     }

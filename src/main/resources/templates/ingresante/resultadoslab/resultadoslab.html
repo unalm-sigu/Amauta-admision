@@ -102,8 +102,8 @@
 
                                                     <tr>
                                                         <th class="col-xs-2">Alumno</th>
-                                                        <th class="col-xs-6">Resultado de Laboratorio</th>
-                                                        <th class="col-xs-4 v-middle"></th>
+                                                        <th class="col-xs-6"></th>
+                                                        <th class="col-xs-4 v-middle">Resultado de Laboratorio</th>
                                                     </tr> 
 
                                                 </thead>
@@ -138,18 +138,24 @@
                                                             <small class="block bold">
                                                                 Especialidad: {{item.alumno.carrera.nombre}}
                                                             </small>
+                                                            <br/>
+                                                            <span class="block bold">
+                                                                Número de Atención: {{item.numeroAtencion}}
+                                                            </span>
                                                             <!--                                                            <span class="block text-primary bold" v-if="item.turnoEntrevistaObuae.id != '' ">
                                                                                                                             Turno: {{item.numeroAtencion}} &nbsp;|&nbsp; Fecha: {{item.turnoEntrevistaObuae.fecha}}
                                                                                                                         </span>-->
                                                         </td>
 
-                                                        <td  class="v-middle"> 
-                                                            <div class="form-group col-md-6">
-                                                                <input v-model="item.laboratorio.numeroMuestra" type="text" class="form-control decimal" />        
-                                                            </div>
+                                                        <td  class="v-middle" >       
+                                                            <div v-if="item.laboratorio.id != ''">
+                                                                <div class="form-group col-md-6">
+                                                                    <input v-model="item.laboratorio.valorMuestra" type="text" class="form-control decimal" />        
+                                                                </div>
 
-                                                            <div class="form-group col-md-6">
-                                                                <a type="button" class="btn btn-success" v-on:click="guardarNumeroMuestra(item)">Guardar</a>
+                                                                <div class="form-group col-md-6">
+                                                                    <a type="button" class="btn btn-success" v-on:click="guardarNumeroMuestra(item)">Guardar</a>
+                                                                </div>      
                                                             </div>
                                                         </td>
 
@@ -169,7 +175,7 @@
         </section>
 
         <div layout:fragment="js" th:remove="tag">
-           
+
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/ingresante/resultadoslab/resultadoslab.js}" charset="utf-8"></script>
         </div>

@@ -15,6 +15,14 @@ public interface MuestrasLabService {
 //    List<HistoriaLaboratorio> laboratorioDynatableFecha(DynatableFilter filter, Date fecha);
     List<RecorridoIngresante> ingresantesDynatableTurno(DynatableFilter filter, TurnoEntrevistaObuae turno, CicloAcademico ciclo);
 
+    List<RecorridoIngresante> ingresantesDynatable(DynatableFilter filter, CicloAcademico ciclo);
+    
+    List<RecorridoIngresante> allIngresantesDynatableByPersona(DynatableFilter filter, List<Persona> personas);
+    
+    List<RecorridoIngresante> allIngresantesCiclo(CicloAcademico ciclo);
+    
+    TurnoEntrevistaObuae findTurno (long idTurno);
+    
     List<TurnoEntrevistaObuae> allTurnos(CicloAcademico ciclo);
 
     HistoriaLaboratorio findLaboratorioByRecorridoIngresante(RecorridoIngresante recorrido);
@@ -27,5 +35,9 @@ public interface MuestrasLabService {
 
     List<HistoriaLaboratorio> allLabByPersonas(List<Persona> personas);
 
+    List<HistoriaLaboratorio> allLabByPersonasFilterFecha(List<Persona> personas,Date fecha);
+
     List<HistoriaClinica> allHistoriaByPersonas(List<Persona> personas);
+
+    void deleteLaboratorio(HistoriaLaboratorio laboratorio);
 }

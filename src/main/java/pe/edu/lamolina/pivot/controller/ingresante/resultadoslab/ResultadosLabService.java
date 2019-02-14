@@ -12,7 +12,7 @@ import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 
 public interface ResultadosLabService {
 
-    List<RecorridoIngresante> ingresantesDynatableCiclo(DynatableFilter filter, CicloAcademico ciclo);
+    List<RecorridoIngresante> ingresantesCiclo( CicloAcademico ciclo);
 
     HistoriaClinica findHistoriaClinica(RecorridoIngresante recorrido);
 
@@ -22,5 +22,7 @@ public interface ResultadosLabService {
 
     List<HistoriaClinica> allHistoriaByPersonas(List<Persona> personas);
 
-    DiarioLaboratorio getDiarioLabActual();
+    DiarioLaboratorio getDiarioLabActual();    
+    
+    List<RecorridoIngresante> allIngresantesDynatableByPersona(DynatableFilter filter, List<Persona> personas);
 }

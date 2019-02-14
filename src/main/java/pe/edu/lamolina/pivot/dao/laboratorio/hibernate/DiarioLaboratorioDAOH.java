@@ -16,10 +16,10 @@ public class DiarioLaboratorioDAOH extends AbstractEasyDAO<DiarioLaboratorio> im
     }
 
     @Override
-    public List<DiarioLaboratorio> allFechaAsc() {
+    public List<DiarioLaboratorio> allFechaDesc() {
         Octavia sql = Octavia.query()
                 .from(DiarioLaboratorio.class, "dl")
-                .orderBy("dl.fecha asc");
+                .orderBy("dl.fecha desc");
         return all(sql);    
     }
 

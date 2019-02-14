@@ -8,16 +8,18 @@ new Vue({
         ingresantesURL: APP.url('ingresante/resultadoslab/list'),
     },
     mounted: function () {
-        $(".decimal").numeric({decimal: '.'});
+        let $vue = this;
+        $(".decimal").numeric({negative: false});
+        
+        $vue.$refs.raptorRL.afterProcess = () => {
+            $(".decimal").numeric({negative: false});
+        };
     },
     methods: {
 
         guardarNumeroMuestra(item) {
             console.log("item selected", item)
             let $vue = this;
-            if (item.laboratorio.historiaClinica.id === "") {
-                item.laboratorio.historiaClinica = null;
-            }
 
             $.ajax({
                 method: 'POST',

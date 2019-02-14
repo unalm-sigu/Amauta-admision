@@ -39,9 +39,9 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<RecorridoIngresante> ingresantesDynatableCiclo(DynatableFilter filter, CicloAcademico ciclo) {
+    public List<RecorridoIngresante> ingresantesCiclo(CicloAcademico ciclo) {
 
-        return recorridoIngresanteDAO.allByDynatableCiclo(filter, ciclo);
+        return recorridoIngresanteDAO.allByCiclo(ciclo);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
             HistoriaLaboratorio labBd = historiaLaboratorioDAO.find(laboratorio.getId());
             labBd.setDiarioLaboratorio(laboratorio.getDiarioLaboratorio());
             labBd.setFechaMuestra(laboratorio.getFechaMuestra());
-            labBd.setNumeroMuestra(laboratorio.getNumeroMuestra());
+            labBd.setValorMuestra(laboratorio.getValorMuestra());
             historiaLaboratorioDAO.update(labBd);
         } else {
             historiaLaboratorioDAO.save(laboratorio);
@@ -80,12 +80,17 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
 
     @Override
     public DiarioLaboratorio getDiarioLabActual() {
-        List<DiarioLaboratorio> diarioLabs = diarioLaboratorioDAO.allFechaAsc();
+        List<DiarioLaboratorio> diarioLabs = diarioLaboratorioDAO.allFechaDesc();
         if (diarioLabs.size() > 0) {
             return diarioLabs.get(0);
         } else {
             return null;
         }
+    }
+
+    @Override
+    public List<RecorridoIngresante> allIngresantesDynatableByPersona(DynatableFilter filter, List<Persona> personas) {
+        return recorridoIngresanteDAO.allIngresantesDynatableByPersona(filter, personas);
     }
 
 }
