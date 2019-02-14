@@ -46,6 +46,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
 
         return all(sql);
     }
+    
 
     @Override
     public List<RecorridoIngresante> allByDynatableCicloTurno(DynatableFilter filter, CicloAcademico ciclo, TurnoEntrevistaObuae turno) {

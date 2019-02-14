@@ -4,7 +4,6 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.medico.HistoriaClinica;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
