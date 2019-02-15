@@ -29,7 +29,7 @@ public interface MuestrasLabService {
 
     HistoriaClinica findHistoriaClinica(RecorridoIngresante recorrido);
 
-    long findNumLab(CicloAcademico ciclo);
+    void inicializarVisor();
 
     void saveLaboratorio(HistoriaLaboratorio laboratorio);
 
