@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
@@ -46,6 +47,8 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
@@ -57,6 +60,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
+import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 
 @Controller
 @RequestMapping("academico/tramiteacademico")
@@ -72,6 +76,8 @@ public class TramitesAcademicosController {
     ReunionConsejoService reunionConsejoService;
     @Autowired
     InfoAcademicoService infoAcademicoService;
+    @Autowired
+    OficinaService oficinaService;
 
     private String[] alumnoCicloMapper = new String[]{"*",
         "alumno.id",
@@ -162,6 +168,8 @@ public class TramitesAcademicosController {
                 "*",
                 "persona.*",
                 "alumno.*",
+                "alumno.carrera.*",
+                "alumno.carrera.facultad.*",
                 "compania.*",
                 "cicloAcademico.*",
                 "tipoTramite.codigo",
@@ -233,7 +241,12 @@ public class TramitesAcademicosController {
     @RequestMapping("agendareuniones")
     public String agendareuniones(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        List<Oficina> oficinas = new ArrayList();
+        oficinas = findOficina(oficinas, ds);
+        if (oficinas.isEmpty()) {
+            return "/";
+        }
+        model.addAttribute("oficinas", jsonArrayNode(oficinas));
         return "academico/reunionconsejo/reunionconsejo";
     }
 
@@ -274,15 +287,20 @@ public class TramitesAcademicosController {
     }
 
     @ResponseBody
-    @RequestMapping("listReunionesConsejo")
-    public DynatableResponse listReunionesConsejo(DynatableFilter filter, HttpSession session) {
+    @RequestMapping("listReunionesConsejo/{idOficina}")
+    public DynatableResponse listReunionesConsejo(@PathVariable Long idOficina, DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
 
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-            List<ReunionConsejo> reunionesConsejo = tramitesAcademicosService.allReunionConsejoByDyna(filter, oficinaAux);
+            List<Oficina> oficinas = new ArrayList();
+            oficinas = findOficina(oficinas, ds);
+            if (idOficina != 0) {
+                oficinas.clear();
+                oficinas.add(new Oficina(idOficina));
+            }
+            List<ReunionConsejo> reunionesConsejo = tramitesAcademicosService.allReunionConsejoByDyna(filter, oficinas);
 
             JsonNodeFactory nf = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(nf);
@@ -759,6 +777,33 @@ public class TramitesAcademicosController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    private List<Oficina> findOficina(List<Oficina> oficinas, DataSessionPivot ds) {
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+
+        for (Oficina oficina : oficinasMain) {
+            logger.debug("codigo oficina es {}", oficina.getCodigo());
+            logger.debug("tipo oficina es {} ", oficina.getTipoOficina().getCodigo());
+
+            if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
+                oficinas.addAll(reunionConsejoService.allOficinaFac());
+                break;
+            }
+            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.FAC) {
+                oficinas.add(oficina);
+            }
+
+        }
+        return oficinas;
+    }
+
+    private ArrayNode jsonArrayNode(List<Oficina> oficinas) {
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (Oficina oficina : oficinas) {
+            arrayNode.add(JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"}));
+        }
+        return arrayNode;
     }
 
 }

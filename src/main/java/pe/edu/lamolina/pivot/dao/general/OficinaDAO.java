@@ -52,4 +52,6 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
 
     List<Oficina> allOficinaByName(String nombre, Compania compania);
 
+    public List<Oficina> allFac();
+
 }

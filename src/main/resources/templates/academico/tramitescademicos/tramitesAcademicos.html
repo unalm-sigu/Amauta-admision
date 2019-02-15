@@ -52,7 +52,16 @@
                                                 <small class="block text-muted">Número: {{item.numero}}</small>
                                             </td>
                                             <td class="v-middle text-left">
+                                                <div class="bock ">
                                                 {{ item.persona.apellidosNombres}}
+                                                    
+                                                </div>
+                                                <div class="bock " v-if="item.alumno.carrera != null">
+                                                    <span class="bold">Facultad</span>
+                                                {{ item.alumno.carrera.facultad.nombre}}
+                                                    
+                                                </div>
+                                                    
                                             </td>
                                             <td class="v-middle text-left">
                                                 {{ item.tipoTramite.nombre}}

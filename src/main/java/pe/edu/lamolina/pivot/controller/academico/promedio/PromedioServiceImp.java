@@ -31,8 +31,8 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
-import pe.edu.lamolina.model.croacia.HistoMy;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
@@ -43,6 +43,8 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.EstadoTramite;
+import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.pivot.controller.academico.situacionacademica.SituacionAcademicaService;
 import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
@@ -59,6 +61,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -117,6 +120,9 @@ public class PromedioServiceImp implements PromedioService {
 
     @Autowired
     ContadorComponent contadorComponent;
+
+    @Autowired
+    ReincorporacionDAO reincorporacionDAO;
 
     private final Integer VECES_TRIKA = 3;
 
@@ -206,6 +212,7 @@ public class PromedioServiceImp implements PromedioService {
             this.promediarAlumno(alumno, cicloActivo, allOperativesByModalidadEstudio, ds);
             this.analizarEgresado(alumno, ds);
             this.analizarDesertor(alumno, cicloActivo, ciclos, ds);
+            this.analizeReincorporacion(alumno, cicloActivo);
 
             if (alumno.getSituacionAcademica().isTrikeado() || alumno.getSituacionAcademica().isCodigoS6()) {
                 CicloAcademico ultimoCicloRegular = alumno.getCicloActivoRegular();
@@ -246,6 +253,26 @@ public class PromedioServiceImp implements PromedioService {
             contadorComponent.reporte();
         }
 
+    }
+
+    private void analizeReincorporacion(Alumno alumno, CicloAcademico cicloActivo) {
+        List<Reincorporacion> reincorporacionesByAlumno = reincorporacionDAO.allByEstadoTramiteAndAlumnoRei(alumno, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
+        if (!reincorporacionesByAlumno.isEmpty()) {
+            Collections.sort(reincorporacionesByAlumno, (p1, p2) -> Integer.valueOf(p2.getCicloReincorporacion().getCodigo()).compareTo(Integer.valueOf(p1.getCicloReincorporacion().getCodigo())));
+            CicloAcademico cicloAcademicoRei = reincorporacionesByAlumno.get(0).getCicloReincorporacion();
+
+            if (cicloActivo.equals(cicloAcademicoRei)) {
+                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
+
+                Alumno alumnoUpd = new Alumno(alumno.getId());
+                if (alumnoCiclo.getSituacionFinal().isCodigoD()) {
+                    alumno.setSituacionAcademica(alumnoCiclo.getSituacionInicio());
+                } else {
+                    alumno.setSituacionAcademica(alumnoCiclo.getSituacionFinal());
+                }
+                alumnoDAO.updateSituacionAcad(alumno);
+            }
+        }
     }
 
     private void analizeAlumnoCiclos(Alumno alumno, List<AlumnoCicloCurso> alumnoCicloCursos) {
@@ -315,6 +342,13 @@ public class PromedioServiceImp implements PromedioService {
                     .filter(x -> x.getAlumnoCiclo().equals(alumnoCiclo))
                     .collect(Collectors.toList());
             alumnosCiclosCursosByAluCic = this.analizedAlumnoCicloCursosByCiclo(alumnosCiclosCursosByAluCic);
+            if (alumnosCiclosCursosByAluCic.isEmpty()) {
+                Long count = alumnoCicloCursoDAO.countByAlumnoCiclo(alumnoCiclo);
+                if (count == 0) {
+                    alumnoCicloDAO.delete(alumnoCiclo);
+                }
+                continue;
+            }
 
             logger.debug("Ciclo {}, Cursos {}", alumnoCiclo.getCicloAcademico().getCodigo(), alumnosCiclosCursosByAluCic.size());
 
@@ -331,17 +365,15 @@ public class PromedioServiceImp implements PromedioService {
             }
             alumnoCiclo.setEstadoEnum(estadoMatriculaEnum);
             alumnoCicloDAO.update(alumnoCiclo);
+
+            logger.debug("Situación Inicio {}", alumnoCiclo.getSituacionInicio().getCodigo());
+            logger.debug("Situación Final {}", alumnoCiclo.getSituacionFinal().getCodigo());
             idx++;
             alumnoCicloAnterior = (AlumnoCiclo) alumnoCiclo.clone();
         }
     }
 
     private void analizarEgresado(Alumno alumno, DataSessionPivot ds) {
-        /*    AlumnoCiclo lastAlumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
-        lastAlumnoCiclo.getCreditosAcumulados();
-        lastAlumnoCiclo.getCreditosAprobadosAcumulados();*/
-
-        //    if (alumno.getSituacionAcademica().isCodigoEM()) {
         Egresado egresado = egresadoDAO.findByAlumno(alumno);
         if (egresado != null && egresado.getCicloAcademico() != null) {
 
@@ -354,25 +386,12 @@ public class PromedioServiceImp implements PromedioService {
             AlumnoCiclo alumnoCicloActiveAntrior = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, egresado.getCicloAcademico());
             if (alumnoCicloActiveAntrior != null) {
                 alumnoCicloActiveAntrior.setSituacionFinal(situacionAcademicaEM);
-                //alumnoCicloDAO.updateSituacionFinal(alumnoCiclo);
                 alumnoCicloDAO.update(alumnoCicloActiveAntrior);
-            } else {
-                /*
-                AlumnoCiclo alumnoCicloAnterior = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, egresado.getCicloAcademico());
-                alumnoCicloActiveAntrior = new AlumnoCiclo();
-                alumnoCicloActiveAntrior.defaultValuesToCreate(alumno, egresado.getCicloAcademico(), ds.getUsuario(), new DateTime(ds.getFechaAccionAudit()));
-                alumnoCicloActiveAntrior.setSituacionInicio(alumnoCicloAnterior.getSituacionInicio());
-                alumnoCicloActiveAntrior.setSituacionFinal(situacionAcademicaEM);
-                alumnoCicloDAO.save(alumnoCicloActiveAntrior);
-                 */
             }
-            //    alumno.setSituacionAcademica(situacionAcademicaEM);
             Alumno alumnoUpd = new Alumno(alumno.getId());
             alumnoUpd.setSituacionAcademica(situacionAcademicaEM);
             alumnoDAO.updateSituacionAcad(alumnoUpd);
-
         }
-        //  }
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,9 +31,15 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
+import pe.edu.lamolina.pivot.controller.academico.facultad.FacultadService;
+import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -43,7 +51,13 @@ public class ReunionConsejoController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    OficinaService oficinaService;
+
+    @Autowired
     ReunionConsejoService reunionConsejoService;
+
+    @Autowired
+    FacultadService facultadService;
 
     Oficina oficinaAux = new Oficina(8L);
 
@@ -76,8 +90,13 @@ public class ReunionConsejoController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<Oficina> oficinas = new ArrayList();
+        oficinas = findOficina(oficinas, ds);
+        if (oficinas.isEmpty()) {
+            return "/";
+        }
         model.addAttribute("ciclo", ds.getCicloAcademico());
-
+        model.addAttribute("oficinas", jsonArrayNode(oficinas));
         return "academico/reunionconsejo/reunionconsejo";
     }
 
@@ -127,10 +146,12 @@ public class ReunionConsejoController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("fecha " + reunionConsejo.getFecha());
+            List<Oficina> oficinas = new ArrayList();
+
             if (reunionConsejo.getId() == null) {
                 reunionConsejoService.saveReunionConsejo(reunionConsejo, oficinaAux, ds);
             } else {
-                reunionConsejo.setOficina(oficinaAux);
+//                reunionConsejo.setOficina(oficinaAux);
                 reunionConsejoService.updateReunionConsejo(reunionConsejo, ds);
             }
             String message = "Reunion consejo grabada correctamente.";
@@ -148,8 +169,8 @@ public class ReunionConsejoController {
     }
 
     @ResponseBody
-    @RequestMapping("allcalendar")
-    public JsonResponse allcalendar(HttpSession session) {
+    @RequestMapping("allcalendar/{idOficina}")
+    public JsonResponse allcalendar(@PathVariable Long idOficina, HttpSession session) {
 
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
@@ -160,7 +181,13 @@ public class ReunionConsejoController {
             CicloAcademico ciclo = ds.getCicloAcademico();
 
             ArrayNode jsonList = new ArrayNode(jsonFactory);
-            List<EventCalendar> eventos = reunionConsejoService.allcalendar(ciclo, oficinaAux);
+            List<Oficina> oficinas = new ArrayList();
+            oficinas = findOficina(oficinas, ds);
+            if (idOficina != 0) {
+                oficinas.clear();
+                oficinas.add(new Oficina(idOficina));
+            }
+            List<EventCalendar> eventos = reunionConsejoService.allcalendar(ciclo, oficinas);
             for (EventCalendar evento : eventos) {
                 jsonList.add(evento.toJson());
             }
@@ -177,15 +204,20 @@ public class ReunionConsejoController {
     }
 
     @ResponseBody
-    @RequestMapping("listReunionesConsejo")
-    public DynatableResponse listGrupoHorariosZetas(DynatableFilter filter, HttpSession session) {
+    @RequestMapping("listReunionesConsejo/{idOficina}")
+    public DynatableResponse listGrupoHorariosZetas(@PathVariable Long idOficina, DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
 
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-            List<ReunionConsejo> reunionesConsejo = reunionConsejoService.allReunionConsejoByDyna(filter, oficinaAux);
+            List<Oficina> oficinas = new ArrayList();
+            oficinas = findOficina(oficinas, ds);
+            if (idOficina != 0) {
+                oficinas.clear();
+                oficinas.add(new Oficina(idOficina));
+            }
+            List<ReunionConsejo> reunionesConsejo = reunionConsejoService.allReunionConsejoByDyna(filter, oficinas);
 
             JsonNodeFactory nf = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(nf);
@@ -206,6 +238,33 @@ public class ReunionConsejoController {
         }
 
         return json;
+    }
+
+    private List<Oficina> findOficina(List<Oficina> oficinas, DataSessionPivot ds) {
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+
+        for (Oficina oficina : oficinasMain) {
+            logger.debug("codigo oficina es {}", oficina.getCodigo());
+            logger.debug("tipo oficina es {} ", oficina.getTipoOficina().getCodigo());
+
+            if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
+                oficinas.addAll(reunionConsejoService.allOficinaFac());
+                break;
+            }
+            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.FAC) {
+                oficinas.add(oficina);
+            }
+
+        }
+        return oficinas;
+    }
+
+    private ArrayNode jsonArrayNode(List<Oficina> oficinas) {
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (Oficina oficina : oficinas) {
+            arrayNode.add(JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"}));
+        }
+        return arrayNode;
     }
 
 }

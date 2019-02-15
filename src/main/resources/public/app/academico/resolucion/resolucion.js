@@ -6,7 +6,7 @@ var app = new Vue({
     data: {
         URL_RESOLUCIONES: APP.url('academico/resolucion/listResoluciones'),
         URL_TRAMITES: APP.url('academico/resolucion/listTramitesToConfirm'),
-        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning", DOC_CONF: "success"},
+        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning", DOC_CONF: "success",VB_RES:"primary"},
         resolucionModal: {
             id: 'modalResolucion',
             header: true,

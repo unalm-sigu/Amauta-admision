@@ -136,7 +136,7 @@ public class OAuthController {
                 serviceProvider.asignarRolActivo(rolActivo, ds, session);
             }
         } catch (Exception e) {
-            e.printStackTrace();;
+            e.printStackTrace();
         }
         if (ds.getCicloAcademico() == null) {
             List<CicloAcademico> cicloAcademicos = serviceProvider.findCiclosVisibles();

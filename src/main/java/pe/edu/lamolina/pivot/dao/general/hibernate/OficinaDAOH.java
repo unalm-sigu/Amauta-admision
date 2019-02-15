@@ -312,4 +312,14 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
 
     }
 
+    @Override
+    public List<Oficina> allFac() {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "o")
+                .join("tipoOficina to")
+                .filter("to.codigo", TipoOficinaEnum.FAC);
+        
+        return all(sql);
+    }
+
 }
