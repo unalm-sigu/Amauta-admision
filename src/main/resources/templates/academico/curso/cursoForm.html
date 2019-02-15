@@ -9,7 +9,7 @@
 
             <header class="header b-b padder-lg">
                 <div class="pull-right m-t-xs">
-                    <a class="btn btn-default" th:href="@{'/academico/curso'}">Regresar</a>
+                    <a class="btn btn-default" th:href="${origen}">Regresar</a>
                 </div>
 
                 <h2 v-if="curso.id=='' ">Nuevo Curso</h2>

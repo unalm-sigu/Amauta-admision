@@ -46,6 +46,15 @@
             font-size: 18px;
             color: #0275D8;
         }
+        .col-md-0 {
+            width: 75px;
+            float: left;
+            position: relative;
+            min-height: 1px;
+            padding-right: 5px;
+            padding-left: 15px;
+        }
+
     </style>
 </head>
 
@@ -379,24 +388,25 @@
                                             <td class="v-middle">
                                                 <input type="hidden" v-bind:value="seccion.id"/>
 
-                                                <div class="dropdown actions" 
-                                                     >
+                                                <div class="dropdown actions">
 
-                                                    <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-option-vertical"></i></a>
-                                                    <ul class="dropdown-menu pull-right" >
+                                                    <a class="dropdown-toggle" href="#" data-toggle="dropdown"
+                                                       v-if="!seccion.isTipoSeccionTCUR"><i class="glyphicon glyphicon-option-vertical"></i></a>
+                                                    <ul class="dropdown-menu pull-right" 
+                                                        v-if="!seccion.isTipoSeccionTCUR">
                                                         <li role="presentation">
                                                             <a href="#"
                                                                v-on:click="activarSeccion(seccion)"
-                                                               v-if="seccion.isEstadoBloqueado || seccion.isEstadoAnulado || seccion.isEstadoCreado">
+                                                               v-if="seccion.isEstadoBloqueado || seccion.isEstadoAnulado || seccion.isEstadoCreado ">
                                                                 Activar
                                                             </a>
                                                             <a href="#"
-                                                               v-if="seccion.isEstadoActivo || seccion.isEstadoCreado"
+                                                               v-if="seccion.isEstadoActivo || seccion.isEstadoCreado "
                                                                v-on:click="anularSeccion(seccion)">
                                                                 Anular
                                                             </a>
                                                             <a href="#"
-                                                               v-if="seccion.isEstadoActivo"
+                                                               v-if="seccion.isEstadoActivo "
                                                                v-on:click="bloquearSeccion(seccion)">
                                                                 Bloquear
                                                             </a>
@@ -424,7 +434,7 @@
                                     <header class="page-header m-t-xs m-b-xs" style="border-bottom: 1px solid white;">
 
                                         <h4 class="text-primary">Configuración sección {{seccionSeleccionada.codigo2}}
-                                            
+
 
                                         </h4>
 
@@ -433,7 +443,7 @@
                                                 <li v-bind:class="getClassTab('DOCENTES')" v-on:click="verTab('DOCENTES')">
                                                     <a href="#1Conte" data-toggle="tab">Docentes</a>
                                                 </li>
-                                                <li v-if="seccionSeleccionada.estado == 'ACT' "
+                                                <li v-if="seccionSeleccionada.estado == 'ACT' &amp;&amp; seccionSeleccionada.matriculados > 0"
                                                     v-bind:class="getClassTab('AMPLIACIONES')" v-on:click="verTab('AMPLIACIONES')">
                                                     <a href="#2Conte" data-toggle="tab">Ampliación Vacantes</a>
                                                 </li>

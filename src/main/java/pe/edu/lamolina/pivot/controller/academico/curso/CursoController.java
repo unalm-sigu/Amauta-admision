@@ -9,10 +9,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +33,6 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -40,7 +41,6 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.NombreCurso;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCarreraEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
@@ -106,23 +106,7 @@ public class CursoController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Curso curso : cursos) {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-                node.put("id", curso.getId());
-                node.put("curso", curso.getNombre());
-                node.put("codigo", curso.getCodigo());
-                node.put("codigo2", curso.getCodigoAnterior1());
-                node.put("tpc", curso.getTpc());
-                node.put("tipoCurso", curso.getTipoCurso() != null ? curso.getTipoCursoEnum().getValue() : "");
-                node.put("facultad", curso.getDepartamentoAcademico().getFacultad().getNombre());
-                node.put("departamento", curso.getDepartamentoAcademico().getNombre());
-                node.put("especialidad", (String) ObjectUtil.getParentTree(curso, "carrera.nombre"));
-                node.put("tipoEspecialidad", (String) ObjectUtil.getParentTree(curso, "carrera.tipoEnum.value"));
-                node.put("coordinador", curso.getCoordinador() != null ? curso.getCoordinador().getPersona().getNombreCompleto() : "");
-                node.put("estado", curso.getEstado());
-                node.put("estadoName", EstadoEnum.valueOf(curso.getEstado()).getValue());
-                node.put("motivo", curso.getMotivoAnulacion());
-
+                ObjectNode node = getCursoSimpleJson(curso);
                 array.add(node);
             }
 
@@ -212,22 +196,41 @@ public class CursoController {
     }
 
     @RequestMapping("nuevo")
-    public String nuevo(Model model, HttpSession session) {
+    public String nuevo(@RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Curso curso = new Curso();
         Compania cia = ds.getCompania();
 
         settingJson(curso, cia, model);
+        System.out.println("origen ::: " + origen);
+        System.out.println("getOrigen(origen) ::: " + getOrigen(origen));
+        model.addAttribute("origen", getOrigen(origen));
         return "academico/curso/cursoForm";
     }
 
+    private String getOrigen(String origen) {
+        System.out.println("1111");
+        if (StringUtils.isEmpty(origen)) {
+            System.out.println("2222");
+            return "/academico/curso";
+        }
+        System.out.println("3333");
+        byte[] decoded = Base64.getMimeDecoder().decode(origen);
+        String output = new String(decoded);
+        return output;
+    }
+
     @RequestMapping("{id}/editar")
-    public String editar(@PathVariable("id") Long id, Model model, HttpSession session) {
+    public String editar(
+            @PathVariable("id") Long id,
+            @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Compania cia = ds.getCompania();
         Curso curso = service.find(id);
 
         settingJson(curso, cia, model);
+        System.out.println("getOrigen(origen) ::: " + getOrigen(origen));
+        model.addAttribute("origen", getOrigen(origen));
         return "academico/curso/cursoForm";
     }
 
@@ -250,7 +253,7 @@ public class CursoController {
             "departamentoAcademico.codigo",
             "departamentoAcademico.nombre",
             "coordinador.codigo",
-             "coordinador.id",
+            "coordinador.id",
             "coordinador.persona.nombreCompleto",
             "coordinador.persona.apellidosNombres",
             "coordinador.departamentoAcademico.id",
@@ -268,6 +271,25 @@ public class CursoController {
             "nombreCurso.idioma.id",
             "nombreCurso.idioma.codigo",
             "nombreCurso.idioma.nombre"
+        });
+        return cursoJson;
+    }
+
+    private ObjectNode getCursoSimpleJson(Curso curso) {
+        ObjectNode cursoJson = JsonHelper.createJson(curso, JsonNodeFactory.instance, true, new String[]{
+            "id", "codigo", "codigoAnterior1", "nombre", "tpc", "tipoCurso", "tipoCursoEnum", "motivoAnulacion", "estado", "estadoEnum",
+            "departamentoAcademico.codigo",
+            "departamentoAcademico.nombre",
+            "departamentoAcademico.facultad.codigo",
+            "departamentoAcademico.facultad.nombre",
+            "coordinador.persona.apellidosNombres",
+            "coordinador.departamentoAcademico.id",
+            "modalidadEstudio.codigo",
+            "modalidadEstudio.nombre",
+            "carrera.id",
+            "carrera.tipoEnum",
+            "carrera.codigo",
+            "carrera.nombre"
         });
         return cursoJson;
     }

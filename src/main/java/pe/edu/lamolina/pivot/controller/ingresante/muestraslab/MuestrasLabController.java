@@ -55,7 +55,7 @@ public class MuestrasLabController {
                 HistoriaLaboratorio lab = service.findLaboratorioByRecorridoIngresante(reco);
                 if (lab == null) {
                     lab = new HistoriaLaboratorio();
-                    lab.setRecorridoIngresante(reco);
+                    //lab.setRecorridoIngresante(reco);
                 }
                 reco.setLaboratorio(lab);
 
