@@ -494,7 +494,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
     @Override
     public List<CicloAcademico> findCiclosVisibles() {
-        return cicloAcademicoDAO.findCiclosVisibles(ModalidadEstudioEnum.PRE);
+        return cicloAcademicoDAO.allVisibles(ModalidadEstudioEnum.PRE);
     }
 
 }

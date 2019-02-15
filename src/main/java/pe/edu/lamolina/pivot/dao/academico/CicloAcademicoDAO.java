@@ -34,17 +34,17 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findSiguienteNivelacionActivo(CicloAcademico ciclo);
 
-    CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico);
+    CicloAcademico findByCiclo(CicloAcademico cicloAcademico);
 
     List<CicloAcademico> allByDynatable(DynatableFilter filter);
 
-    CicloAcademico findCicloAcademicoActivo();
+    CicloAcademico findActivo();
 
-    CicloAcademico findCicloAcademicoActivoPRE();
+    CicloAcademico findActivoPregrado();
 
     void updateActualizarBoletin(CicloAcademico cicloAcademico);
 
-    CicloAcademico findCicloAcademicoActivoByModalidad(ModalidadEstudio modalidadEstudio);
+    CicloAcademico findActivoByModalidad(ModalidadEstudio modalidadEstudio);
 
     void updateFechaMatriculables(CicloAcademico cicloAcademico);
 
@@ -86,11 +86,11 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findSiguienteConfOrAct(CicloAcademico cicloAcademico);
 
-    List<CicloAcademico> findAnteriorRegActivo(int count, CicloAcademico cicloAcademico);
+    List<CicloAcademico> allAnteriorRegistroActivo(int count, CicloAcademico cicloAcademico);
 
     CicloAcademico findSiguienteRegularActivo(CicloAcademico ciclo, ModalidadEstudioEnum modalidadEstudioEnum);
 
-    List<CicloAcademico> findCiclosVisibles(ModalidadEstudioEnum modalidadEstudioEnum);
+    List<CicloAcademico> allVisibles(ModalidadEstudioEnum modalidadEstudioEnum);
 
     List<CicloAcademico> allActivosAnteriores(int i, CicloAcademico ciclo);
 

@@ -220,8 +220,8 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
     @Override
     @Transactional
     public void clonar(CicloAcademico cicloOrigenForm, CicloAcademico cicloDestinoForm) {
-        CicloAcademico cicloDestino = cicloAcademicoDAO.findCicloAcademico(cicloDestinoForm);
-        CicloAcademico cicloOrigen = cicloAcademicoDAO.findCicloAcademico(cicloOrigenForm);
+        CicloAcademico cicloDestino = cicloAcademicoDAO.findByCiclo(cicloDestinoForm);
+        CicloAcademico cicloOrigen = cicloAcademicoDAO.findByCiclo(cicloOrigenForm);
 
         List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByCiclo(cicloOrigen);
         Assert.isTrue(cicloDestino.getId() != cicloOrigen.getId(), "No puede clonar del mismo ciclo");

@@ -503,7 +503,7 @@ public class PromedioServiceImp implements PromedioService {
         try {
             logger.debug("generar historial notas, alumno {} ciclo {}", alumno.getId(), cicloAcademico.getId());
             AlumnoCiclo alumnoCicloAnterior = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, cicloAcademico);
-            CicloAcademico cicloActivo = cicloAcademicoDAO.findCicloAcademicoActivoByModalidad(alumno.getModalidadEstudio());
+            CicloAcademico cicloActivo = cicloAcademicoDAO.findActivoByModalidad(alumno.getModalidadEstudio());
             //    AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCicloEstado(alumno, cicloAcademico, Arrays.asList(EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.INH, EstadoMatriculaEnum.RCI));
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             //   alumnoCicloDAO.findLock(alumnoCiclo.getId());

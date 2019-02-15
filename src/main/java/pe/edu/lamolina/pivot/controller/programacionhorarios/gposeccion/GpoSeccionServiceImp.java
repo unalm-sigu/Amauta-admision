@@ -2596,7 +2596,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional(readOnly = false)
     public void actualizarBoletin() {
-        CicloAcademico cicloActivo = cicloAcademicoDAO.findCicloAcademicoActivoPRE();
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivoPregrado();
         CicloAcademico cicloUpd = new CicloAcademico();
         cicloUpd.setId(cicloActivo.getId());
         cicloUpd.setActualizarBoletin(Boolean.TRUE);
