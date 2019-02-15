@@ -28,6 +28,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.ContadorComponent;
@@ -319,19 +320,18 @@ public class TestController {
         List<String> ciclosStr = ciclos.stream().map(x -> x.toString()).collect(Collectors.toList());
         logger.info("ciclos encontrados {}", String.join(",", String.join(",", ciclosStr)));
 
+        List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivosAlModalidades();
+
         for (CicloAcademico cicloAcademico : ciclos) {
-            if (!cicloAcademico.getModalidadEstudio().isPregrado()) {
-                continue;
-            }
+            CicloAcademico cicloActivoByModalidad = ciclosActivos.stream()
+                    .filter(x -> x.getModalidadEstudio().equals(cicloAcademico.getModalidadEstudio()))
+                    .findFirst().orElse(null);
             List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
             logger.info("matriculas resumen encontradas {}, del ciclo {}", matriculasResumen.size(), cicloAcademico.toString());
 
             for (MatriculaResumen mResumen : matriculasResumen) {
                 Alumno alumno = mResumen.getAlumno();
-                if (!alumno.isPregrado()) {
-                    continue;
-                }
-                promedioService.promediarAllCicloAsync(alumno, cicloAcademico, ciclosAll, null, ds);
+                promedioService.promediarAllCicloAsync(alumno, cicloActivoByModalidad, ciclosAll, null, ds);
             }
         }
         return "yeah";

@@ -191,13 +191,17 @@ public class PromedioServiceImp implements PromedioService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     public void promediarAllCicloAsync(Alumno alumno, CicloAcademico cicloActivo, List<CicloAcademico> ciclos, List<AlumnoCicloCurso> allOperativesCicloCurso, DataSessionPivot ds) {
-        List<AlumnoCicloCurso> alumnoCicloCursos = null;
+        /*  List<AlumnoCicloCurso> alumnoCicloCursos = null;
         if (allOperativesCicloCurso == null) {
             alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
         } else {
             alumnoCicloCursos = allOperativesCicloCurso.stream().filter(x -> x.getAlumnoCiclo().getAlumno().equals(alumno)).collect(Collectors.toList());
         }
-        promediarAllCicloSync(alumno, cicloActivo, ciclos, alumnoCicloCursos, ds);
+        promediarAllCicloSync(alumno, cicloActivo, ciclos, alumnoCicloCursos, ds);*/
+
+        //  List<CicloAcademico> allCiclosActivos = cicloAcademicoDAO.allActivesByModalidad(alumno.getModalidadEstudio(), new String[]{"ca.year asc", "ca.numeroCiclo asc"});
+        ds.setFechaAccionAudit(new Date());
+        this.calulcarSituacionAcademica(alumno, ds);
     }
 
     @Override

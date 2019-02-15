@@ -96,4 +96,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findSiguienteNivelacionActivo(CicloAcademico cicloActivo, ModalidadEstudioEnum modalidadEstudioEnum);
 
+    List<CicloAcademico> allActivosAlModalidades();
+
 }
