@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.NumeroCicloAcademicoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.controller.ingresante.muestraslab.MuestrasLabService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -42,6 +43,9 @@ public class CicloAcademicoController {
 
     @Autowired
     CicloAcademicoService service;
+
+    @Autowired
+    MuestrasLabService muestrasLabService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -181,6 +185,7 @@ public class CicloAcademicoController {
         JsonResponse response = new JsonResponse();
         try {
             service.activar(cicloAcademico);
+            muestrasLabService.inicializarVisor();
             response.setMessage("Ciclo académico activado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -270,7 +275,7 @@ public class CicloAcademicoController {
         }
         return response;
     }
-  
+
     @ResponseBody
     @RequestMapping("changeVisiblelogin")
     public JsonResponse changeVisiblelogin(@RequestBody CicloAcademico cicloAcademico) {
