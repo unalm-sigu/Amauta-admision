@@ -132,7 +132,6 @@ var app = new Vue({
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/reunionconsejo/allcalendar/' + data),
-                sync: true,
                 success: function (response) {
                     if (response.success) {
                         vue.$refs.fullcalendar.addEventSource(response.data);
