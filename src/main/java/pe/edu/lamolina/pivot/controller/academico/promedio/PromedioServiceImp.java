@@ -130,7 +130,7 @@ public class PromedioServiceImp implements PromedioService {
 
     private final int MAX_INTERCALADOS_NMAT = 6;
 
-    //@Async
+//    @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     public void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, boolean calcularSituacion) {
