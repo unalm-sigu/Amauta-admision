@@ -45,7 +45,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("academico/reunionconsejoa")
+@RequestMapping("academico/reunionconsejo")
 public class ReunionConsejoController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
