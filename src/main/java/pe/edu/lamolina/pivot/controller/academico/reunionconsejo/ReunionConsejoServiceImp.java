@@ -47,7 +47,7 @@ public class ReunionConsejoServiceImp implements ReunionConsejoService {
         reunionConsejo.setFechaRegistro(today.toDate());
         reunionConsejo.setUsuarioActualizacion(ds.getUsuario());
         reunionConsejo.setFechaActualizacion(today.toDate());
-//        reunionConsejo.setOficina(oficina);
+        reunionConsejo.setOficina(oficina);
         reunionConsejoDAO.save(reunionConsejo);
     }
 
