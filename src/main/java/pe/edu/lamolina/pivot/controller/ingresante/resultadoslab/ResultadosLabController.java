@@ -25,6 +25,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
+import pe.edu.lamolina.model.enums.TipoSangreEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.model.medico.DiarioLaboratorio;
@@ -49,86 +50,12 @@ public class ResultadosLabController {
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse listIngresantes(DynatableFilter filter, HttpSession session) {
-//        DynatableResponse json = new DynatableResponse();
-//        try {
-//            
-//            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-//            
-//            List<RecorridoIngresante> lista = service.ingresantesDynatableCiclo(filter, ds.getCicloAcademico());
-//            
-//            List<Alumno> alumnos = lista.stream()
-//                    .map(RecorridoIngresante::getAlumno)
-//                    .collect(Collectors.toList());
-//            
-//            List<Persona> personas = alumnos.stream()
-//                    .map(Alumno::getPersona)
-//                    .collect(Collectors.toList());
-//            
-//            List<HistoriaLaboratorio> laboratorios = service.allLabByPersonas(personas);
-//            
-//            List<HistoriaClinica> historias = service.allHistoriaByPersonas(personas);
-//            
-//            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-//            
-//            for (RecorridoIngresante reco : lista) {
-//                //busqueda historia clinica
-//                List<HistoriaClinica> resultHistoria = historias.stream()
-//                        .filter(item -> item.getPaciente().getPersona().getId().equals(reco.getAlumno().getPersona().getId()))
-//                        .collect(Collectors.toList());
-//                
-//                HistoriaLaboratorio laboratorio = new HistoriaLaboratorio();
-//                
-//                if (resultHistoria.size() > 0) {
-//                    HistoriaClinica historiaCli = resultHistoria.get(0);
-//                    //busqueda laboratorio
-//                    List<HistoriaLaboratorio> resultLaboratorio = laboratorios.stream()
-//                            .filter(item -> item.getHistoriaClinica().getId().equals(historiaCli.getId()))
-//                            .collect(Collectors.toList());
-//                    if (resultLaboratorio.size() > 0) {
-//                        laboratorio = resultLaboratorio.get(0);
-//                    } else {
-//                        laboratorio.setHistoriaClinica(historiaCli);
-//                    }
-//                } else {
-//                    //buscar paciente
-//                    //si no existe, crearlo
-//                    //crear historia clinica                    
-//                    //poner historia creada en laboratorio
-//                }
-//                
-//                reco.setLaboratorio(laboratorio);
-//                
-//                ObjectNode node = JsonHelper.createJson(reco, JsonNodeFactory.instance, true,
-//                        new String[]{
-//                            "*",
-//                            "alumno.*",
-//                            "alumno.carrera.nombre",
-//                            "alumno.persona.*",
-//                            "alumno.persona.tipoDocumento.simbolo",
-//                            "turnoEntrevistaObuae.*",
-//                            "laboratorio.id",
-//                            "laboratorio.valorMuestra",
-//                            "laboratorio.numeroMuestra",
-//                            "laboratorio.historiaClinica.id"
-//                        });
-//                array.add(node);
-//            }
-//            
-//            json.setData(array);
-//            json.setTotal(filter.getTotal());
-//            json.setFiltered(filter.getFiltered());
-//            
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            json.setTotal(0);
-//        }
-//        return json;
+
         DynatableResponse json = new DynatableResponse();
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-//            List<RecorridoIngresante> lista = service.ingresantesDynatable(filter,  ds.getCicloAcademico());
             List<RecorridoIngresante> lista = service.ingresantesCiclo(ds.getCicloAcademico());
 
             List<Alumno> alumnos = lista.stream()
@@ -171,7 +98,10 @@ public class ResultadosLabController {
                                 "laboratorio.id",
                                 "laboratorio.numeroMuestra",
                                 "laboratorio.valorMuestra",
-                                "laboratorio.fechaRegistro",
+                                "laboratorio.tipoSangreEnum",
+                                "laboratorio.factorRH",
+                                "laboratorio.estandar",
+                                "laboratorio.hemoglobina",
                                 "laboratorio.historiaClinica.id"
                             });
                     array.add(node);
@@ -213,6 +143,26 @@ public class ResultadosLabController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping("tipoSangreList")
+    public JsonResponse tipoAtencionExternaList(HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode json = JsonHelper.enumToJson(TipoSangreEnum.values());
+            response.setData(json);
+            response.setTotal(json.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
         return response;
     }
 }
