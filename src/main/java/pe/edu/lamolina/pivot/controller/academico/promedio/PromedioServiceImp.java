@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -331,6 +332,7 @@ public class PromedioServiceImp implements PromedioService {
                         }
                     }
                 } else {
+                    //EPG
                     alumnoCiclo.setSituacionInicio(situacionN);
                     alumnoCiclo.setSituacionFinal(situacionN);
                     alumnoCicloAnterior = (AlumnoCiclo) alumnoCiclo.clone();
@@ -352,9 +354,11 @@ public class PromedioServiceImp implements PromedioService {
                 Long count = alumnoCicloCursoDAO.countByAlumnoCiclo(alumnoCiclo);
                 if (count == 0) {
                     alumnoCicloDAO.delete(alumnoCiclo);
+                    if (idx > 0) {
+                        idx++;
+                    }
+                    continue;
                 }
-                idx++;
-                continue;
             }
 
             logger.debug("Ciclo {}, Cursos {}", alumnoCiclo.getCicloAcademico().getCodigo(), alumnosCiclosCursosByAluCic.size());
@@ -377,8 +381,8 @@ public class PromedioServiceImp implements PromedioService {
             alumnoCiclo.setEstadoEnum(estadoMatriculaEnum);
             alumnoCicloDAO.update(alumnoCiclo);
 
-            logger.debug("Situación Inicio {}", alumnoCiclo.getSituacionInicio().getCodigo());
-            logger.debug("Situación Final {}", alumnoCiclo.getSituacionFinal().getCodigo());
+            logger.debug("Situación Inicio {}", ObjectUtil.getParent(alumnoCiclo, "situacionInicio.codigo"));
+            logger.debug("Situación Final {}", ObjectUtil.getParent(alumnoCiclo, "situacionFinal.codigo"));
             idx++;
             alumnoCicloAnterior = (AlumnoCiclo) alumnoCiclo.clone();
         }
