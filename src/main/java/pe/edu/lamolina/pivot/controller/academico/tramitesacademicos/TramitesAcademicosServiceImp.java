@@ -302,7 +302,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             tramiteDAO.updateObservacion(tramite);
         }
         if (accionTramiteAcademico.getEstadoTramiteFinal().getEsAgendadoConsejoFacultad()) {
-            this.agendarSolicitud(tramite, tramite.getTramiteReunionConsejo().getReunionConsejo(), today, ds.getUsuario());
+            this.agendarSolicitud(tramite, tramiteForm.getTramiteReunionConsejo().getReunionConsejo(), today, ds.getUsuario());
         }
         if (accionTramiteAcademico.getEstadoTramiteFinal().getEsVistoBuenoUR()) {
             this.vistoBuenoUR(tramite, accionTramiteAcademico, autorizacionRegistro, ds.getUsuario(), today);

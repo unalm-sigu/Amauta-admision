@@ -1,5 +1,7 @@
 package pe.edu.lamolina.pivot.controller.ingresante.resultadoslab;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
@@ -62,13 +65,26 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
     @Override
     @Transactional
     public void saveLaboratorio(HistoriaLaboratorio laboratorio) {
+        if (laboratorio.getValorMuestra() == null && laboratorio.getEstandar() == null) {
+            throw new PhobosException("Datos incompletos");
+        }
+
+        BigDecimal valorMuestra = laboratorio.getValorMuestra();
+        BigDecimal estandar = laboratorio.getEstandar();
+        BigDecimal hemoglobina = valorMuestra.multiply(new BigDecimal(15)).divide(estandar, 4, RoundingMode.HALF_UP).setScale(2, RoundingMode.DOWN);;
+
         if (laboratorio.getId() != null) {
             HistoriaLaboratorio labBd = historiaLaboratorioDAO.find(laboratorio.getId());
             labBd.setDiarioLaboratorio(laboratorio.getDiarioLaboratorio());
             labBd.setFechaMuestra(laboratorio.getFechaMuestra());
             labBd.setValorMuestra(laboratorio.getValorMuestra());
+            labBd.setHemoglobina(hemoglobina);
+            labBd.setEstandar(estandar);
+            labBd.setFactorRH(laboratorio.getFactorRH());
+            labBd.setTipoSangre(laboratorio.getTipoSangreEnum().name());
             historiaLaboratorioDAO.update(labBd);
         } else {
+            laboratorio.setHemoglobina(hemoglobina);
             historiaLaboratorioDAO.save(laboratorio);
         }
     }
