@@ -247,7 +247,7 @@ public class PromedioServiceImp implements PromedioService {
             contadorComponent.incrementarProcesados();
         } catch (Exception e) {
             String excepcion = this.messageException(e);
-            String error = "####Error en el hilo alumno " + alumno.getId() + " ciclo activo " + alumno.getCicloActivo().getCodigo();
+            String error = "####Error en el hilo alumno " + alumno.getCodigo() + " ciclo activo " + alumno.getCicloActivo().getCodigo();
             logger.error(error);
             e.printStackTrace();
             auditorService.auditPromediarAlumno(alumno, cicloActivo, ds, e);
@@ -331,7 +331,9 @@ public class PromedioServiceImp implements PromedioService {
                         }
                     }
                 } else {
+                    alumnoCiclo.setSituacionInicio(situacionN);
                     alumnoCiclo.setSituacionFinal(situacionN);
+                    alumnoCicloAnterior = (AlumnoCiclo) alumnoCiclo.clone();
                     alumnoCicloDAO.update(alumnoCiclo);
                 }
             }
@@ -351,6 +353,7 @@ public class PromedioServiceImp implements PromedioService {
                 if (count == 0) {
                     alumnoCicloDAO.delete(alumnoCiclo);
                 }
+                idx++;
                 continue;
             }
 
@@ -366,6 +369,10 @@ public class PromedioServiceImp implements PromedioService {
             }
             if (!rci.isEmpty()) {
                 estadoMatriculaEnum = EstadoMatriculaEnum.RCI;
+            }
+            if (alumno.isPostgrado()) {
+                alumnoCiclo.setSituacionInicio(alumnoCicloAnterior.getSituacionFinal());
+                alumnoCiclo.setSituacionFinal(alumnoCicloAnterior.getSituacionFinal());
             }
             alumnoCiclo.setEstadoEnum(estadoMatriculaEnum);
             alumnoCicloDAO.update(alumnoCiclo);
@@ -569,7 +576,7 @@ public class PromedioServiceImp implements PromedioService {
 
             String excepcion = this.messageException(e);
 
-            logger.error("####Error en el hilo alumno " + alumno.getId()
+            logger.error("####Error en el hilo alumno " + alumno.getCodigo()
                     + " ciclo " + cicloAcademico.getId());//, e 
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
