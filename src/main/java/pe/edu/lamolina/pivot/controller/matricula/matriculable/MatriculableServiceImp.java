@@ -646,7 +646,7 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional
     public void saveMatriculable(Alumno alumnoForm, DataSessionPivot ds) {
         MatriculaResumen matri = new MatriculaResumen();
-
+        CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         Alumno alumno = alumnoDAO.find(alumnoForm);
         /*        if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_D) {            
             AlumnoCiclo lastAlumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
@@ -679,7 +679,7 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
         matri.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
 
-        if (!sitEnum.contains(sit.getCodigo()) && !modEnum.contains(modalidad.getCodigo()) && ds.getCicloAcademico().getFechaPrioridades() != null) {
+        if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumnoForm);
             matri = matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
 
@@ -689,7 +689,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
                 BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
                 matri.setPrioridad(prioridad);
-                if (ds.getCicloAcademico().getFechaTurnosAsignados() != null) {
+                if (ciclo.getFechaTurnosAsignados() != null) {
                     TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
                     BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
                     Integer cantAlum = turnosAtencion.getAlumnos() + 1;
