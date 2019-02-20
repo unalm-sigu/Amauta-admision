@@ -104,4 +104,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
     public List<Alumno> findAlumnosConsejeria(Long carrera, CicloAcademico cicloAcademico);
 
     List<Alumno> allDesertorByName(String nombre, Long oficinaCode);
+
+    List<Alumno> allPendingEpgPromedioByCicloYear(String year);
 }

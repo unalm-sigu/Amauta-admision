@@ -309,6 +309,29 @@ public class TestController {
     }
 
     @ResponseBody
+    @RequestMapping("promediarepgfull")
+    public String promediarepgfull(HttpSession session) {
+        logger.info("promediarepgfull");
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<String> allYears = alumnoDAO.allYearsCiclos();
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
+
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(new ModalidadEstudio(2));
+        List<Alumno> alumnosAcumulados = new ArrayList<>();
+        for (String year : allYears) {
+            List<Alumno> alumnos = alumnoDAO.allPendingEpgPromedioByCicloYear(year);
+            alumnosAcumulados.addAll(alumnos);
+            logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
+        }
+        contadorComponent.iniciar(alumnosAcumulados.size());
+        for (Alumno alumno : alumnosAcumulados) {
+            promedioService.promediarAllCicloAsync(alumno, cicloActivo, ciclos, null, ds);
+        }
+
+        return "yeah";
+    }
+
+    @ResponseBody
     @RequestMapping("promediarciclocod/{ciclo}")
     public String promediarAll(@PathVariable("ciclo") String cicloCod, HttpSession session) {
         logger.info("promediarciclocod {}", cicloCod);
