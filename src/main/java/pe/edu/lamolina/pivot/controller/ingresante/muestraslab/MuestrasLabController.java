@@ -46,11 +46,9 @@ public class MuestrasLabController {
     public String postulante(Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        long numeroLabMayor = service.findNumLab(ds.getCicloAcademico());
-        visorMuestrasLab.setNumeroLab(numeroLabMayor);
 
         ObjectNode jsonLab = new ObjectNode(JsonNodeFactory.instance);
-        jsonLab.put("numero", numeroLabMayor);
+        jsonLab.put("numero", visorMuestrasLab.getNumeroLab());
 
         model.addAttribute("laboratorioActual", jsonLab);
 

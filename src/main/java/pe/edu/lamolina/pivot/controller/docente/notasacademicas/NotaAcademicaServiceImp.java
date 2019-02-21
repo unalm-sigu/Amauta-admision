@@ -29,6 +29,7 @@ import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacionElim;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -67,6 +68,7 @@ import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
@@ -175,6 +177,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     AuditorService auditorService;
     @Autowired
     CalculoNotasService calculoNotasService;
+
+    @Autowired
+    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -2025,12 +2030,16 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenCurso(matriculasResumen, grupoSeccion.getCurso());//falta enviar el curso
         for (MatriculaCurso matriculaCurso : matriculasCurso) {
             Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
-            if (alumno.getId().equals(80803L)) {
-                logger.debug("");
-            }
             this.trasladarMatriculaCursoForHistorial(alumno, grupoSeccion.getCicloAcademico(), ds);
             alumnos.add(alumno);
         }
+        for (Alumno alumno : alumnos) {
+            CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio());
+            List<AlumnoCicloCurso> allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+            promedioService.promediarAllCicloSync(alumno, cicloActivo, cicloAcademicoDAO.all(), allOperativesByModalidadEstudio, ds);
+        }
+
+        //calcular alumnos
         return alumnos;
     }
 
@@ -2048,7 +2057,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         visorCalculoNotas.iniciar();
         visorCalculoNotas.setCantidadTotal(1);
         logger.debug("##################Ciclo padre {} ", cicloAcademico.getCodigo());
-        promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, true);
+        promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, false);
     }
 
     @Override

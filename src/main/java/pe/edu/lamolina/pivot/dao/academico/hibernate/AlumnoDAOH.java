@@ -660,6 +660,22 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
+    public List<Alumno> allPendingEpgPromedioByCicloYear(String year) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("alu.modalidadEstudio me")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .join("alu.persona aluPer", "alu.carrera alucar")
+                .join("alucar.facultad fac")
+                .leftJoin("aluPer.tipoDocumento td", "alu.cicloIngreso ci")
+                .filter("alu.promedioProcesado", 0)
+                .filter("me.codigo", ModalidadEstudioEnum.EPG.name())
+                .complexFilter("SUBSTRING(alu.codigo,1,4)", year);
+
+        return all(sql);
+    }
+
+    @Override
     public List<Alumno> allIngresantesByCiclos(List<CicloAcademico> ciclosIngresantes) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")

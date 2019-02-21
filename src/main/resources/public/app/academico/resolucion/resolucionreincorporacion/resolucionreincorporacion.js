@@ -74,9 +74,6 @@ var app = new Vue({
             if (!valid) {
                 return;
             }
-            if ($vue.resolucion.reincorporaciones.length == 0) {
-                notify("Debe agregar alumos ha reincorporar.", "error");
-            }
             $.ajax({
                 url: APP.url('academico/resolucion/save'),
                 dataType: "json",

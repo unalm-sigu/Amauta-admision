@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.model.medico.HistoriaClinica;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.RecorridoIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.laboratorio.HistoriaLaboratorioDAO;
 import pe.edu.lamolina.pivot.dao.medico.HistoriaClinicaDAO;
@@ -36,6 +37,12 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     @Autowired
     TurnoEntrevistaObuaeDAO turnoEntrevistaObuaeDAO;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+    
+    @Autowired
+    VisorMuestrasLab visorMuestrasLab;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -78,7 +85,8 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     }
 
     @Override
-    public long findNumLab(CicloAcademico ciclo) {
+    public void inicializarVisor() {
+        CicloAcademico ciclo = cicloAcademicoDAO.findActivoPregrado();
         List<RecorridoIngresante> listaRecorridos = recorridoIngresanteDAO.allByCiclo(ciclo);
         List<Persona> listaPersonas = new ArrayList();
         for (RecorridoIngresante elem : listaRecorridos) {
@@ -93,8 +101,10 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
                 numLab = laboratorio.getNumeroMuestra();
             }
         }
-
-        return numLab + 1;
+        numLab++;
+        
+        visorMuestrasLab.setNumeroLab(numLab);
+        
     }
 
     @Override
