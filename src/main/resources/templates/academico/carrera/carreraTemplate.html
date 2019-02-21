@@ -18,6 +18,11 @@
     </td>
     <td class=" v-middle text-center">
         <span class="clear">
+            <span class="label label-{{:colorEstadoAdmision}}">{{:estadoAdmisionEnum}} </span>
+        </span>
+    </td> 
+    <td class=" v-middle text-center">
+        <span class="clear">
             {{if !esInactivo}}
             <span class="label label-{{:colorEstado}}">{{:estadoEnum}} </span>
             {{/if}}
@@ -42,6 +47,12 @@
                 {{/if}}
                 {{if esActivo}}
                 <li><a class="btn-link pointer change-estado" rel="{{:id}}" rev="{{:estado}}">Desactivar</a></li>
+                {{/if}}
+                {{if esActivoAdmision}}
+                <li><a class="btn-link pointer change-estado-admision" rel="{{:id}}" rev="{{:estadoAdmision}}">Desactivar Admisión</a></li>
+                {{/if}}
+                {{if esInactivoAdmision}}
+                <li><a class="btn-link pointer change-estado-admision" rel="{{:id}}" rev="{{:estadoAdmision}}">Activar Admisión</a></li>
                 {{/if}}
             </ul>
         </div>

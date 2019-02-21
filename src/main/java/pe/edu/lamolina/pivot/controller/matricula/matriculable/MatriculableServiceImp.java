@@ -62,6 +62,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
@@ -248,7 +249,13 @@ public class MatriculableServiceImp implements MatriculableService {
                 continue;
             }
             if (!situaciones.contains(matriculado.getSituacionAcademica().getCodigoEnum())) {
-                System.out.println("Se bota porque su situacion es  " + matriculado.getSituacionAcademica().getCodigo());
+//                if (matriculado.getSituacionAcademica().getCodigoEnum() == S_T && alumno.getCreditosAprobados() > 180) {
+                    System.out.println("Es Trika pero no se bota porque tiene  " + alumno.getCreditosAprobados() + " creditos aprobados");
+//                } else {
+//                    System.out.println("Se bota porque su situacion es  " + matriculado.getSituacionAcademica().getCodigo());
+//
+//                    continue;
+//                }
                 continue;
             }
             if (modalidad.getCodigoEnum() != matriculado.getModalidadEstudio().getCodigoEnum()) {

@@ -18,9 +18,12 @@ $(function () {
         var labelColor = {CRE: 'default', ACT: 'success', INA: 'danger'};
         record.index = rowIndex;
         record.esActivo = record.estado == 'ACT';
+        record.esActivoAdmision = record.estadoAdmision == 'ACT';
         record.esCreado = record.estado == 'CRE';
         record.esInactivo = record.estado == 'INA';
+        record.esInactivoAdmision = record.estadoAdmision == 'INA';
         record.colorEstado = labelColor[record.estado];
+        record.colorEstadoAdmision = labelColor[record.estadoAdmision];
         var html = $.templates("#carreraTemplate").render(record);
         return html;
     }
@@ -80,6 +83,25 @@ $(function () {
                 }
             });
         },
+        cambioEstadoAdmision: function ($this) {
+            var id = $this.attr("rel");
+            $.ajax({
+                url: APP.url('academico/carrera/cambiarEstadoAdmision'),
+                type: 'POST',
+                data: {carreraId: id},
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        dynatable.process();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
         viewCount: function ($this, e) {
             e.preventDefault();
             var div = $this.closest("div");
@@ -106,6 +128,9 @@ $(function () {
 
     $("body").delegate(".change-estado", "click", function (e) {
         Carrera.viewModal(e, $(this));
+    });
+    $("body").delegate(".change-estado-admision", "click", function (e) {
+        Carrera.cambioEstadoAdmision($(this));
     });
     $("body").delegate(".cambio-estado-carrera", "click", function (e) {
         Carrera.cambioEstado(e);
