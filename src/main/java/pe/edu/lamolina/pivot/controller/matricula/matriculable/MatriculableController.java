@@ -150,7 +150,9 @@ public class MatriculableController {
                             "turnoAtencion.fecha",
                             "turnoAtencion.fechaHoraInicio",
                             "alumno.situacionAcademica.codigo",
-                            "alumno.situacionAcademica.nombre",});
+                            "alumno.situacionAcademica.nombre",
+                            "alumno.situacionAcademica.descripcion",
+                        });
                 if (matriculable.getPuntajePrioridad() != null) {
                     node.put("puntajePrioridad", NumberFormat.notaDecimalXDecimals(matriculable.getPuntajePrioridad(), 6));
                 }

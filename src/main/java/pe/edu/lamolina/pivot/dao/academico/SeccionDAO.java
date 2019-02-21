@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 
 public interface SeccionDAO extends EasyDAO<Seccion> {
@@ -94,5 +95,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
     List<Seccion> allByCicloAndGrupoHoras(CicloAcademico ciclo, GrupoHoras grupoHoras);
 
     List<Seccion> allByCicloAndCurso(CicloAcademico ciclo, Curso curso);
+
+    Seccion findByGpoSeccionTipoSeccion(GrupoSeccion gpoSecc, TipoSeccionEnum tipoSeccion);
 
 }

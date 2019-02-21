@@ -72,7 +72,9 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
         resolucion.setUserRegistro(usuario);
         resolucion.setAplicacionDirecta(1l);
         resolucionDAO.save(resolucion);
-
+        
+        Assert.isFalse(resolucionForm.getReincorporaciones().isEmpty(), "Debe Agregar alumnos.");
+        
         Map<Long, Long> couterMap = resolucionForm.getReincorporaciones().stream().collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
         for (Long count : couterMap.values()) {
             Assert.isFalse(count > 1, "Está repitiendo alumno");
