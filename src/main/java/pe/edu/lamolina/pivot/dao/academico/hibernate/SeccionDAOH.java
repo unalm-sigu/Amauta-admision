@@ -565,4 +565,17 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         this.update(octavia);
     }
 
+    @Override
+    public Seccion findByGpoSeccionTipoSeccion(GrupoSeccion gpoSecc, TipoSeccionEnum tipoSeccion) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur")
+                .leftJoin("grupoHoras gh", "aula au")
+                .leftJoin("seccionSuperior")
+                .filter("gs.id", gpoSecc)
+                .filter("sec.tipoSeccion", tipoSeccion.name());
+
+        return find(sql);
+    }
+
 }
