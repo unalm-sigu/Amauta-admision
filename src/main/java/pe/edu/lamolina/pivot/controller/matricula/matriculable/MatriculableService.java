@@ -56,4 +56,6 @@ public interface MatriculableService {
 
     void inhabilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
+    public void verificarAlumnosNmat(DataSessionPivot ds);
+
 }

@@ -204,21 +204,24 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         List<Alumno> alumnos = new ArrayList(mapMatriculable.values());
-        for (Alumno alumno : alumnos) {
-            MatriculaResumen matriculable = new MatriculaResumen();
-            matriculable.setAlumno(alumno);
-            matriculable.setCicloAcademico(cicloBD);
-            matriculable.setCreditosMatriculados(0);
-            matriculable.setCreditosRetirados(0);
-            matriculable.setCreditosTrikaPagados(0);
-            matriculable.setCreditosTrikaSeparados(0);
-            matriculable.setCursosMatriculados(0);
-            matriculable.setCursosRetirados(0);
-            matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
-            matriculable.setSituacionInicio(alumno.getSituacionAcademica());
-            matriculable.setEsUltimoCiclo(false);
-            matriculaResumenDAO.save(matriculable);
-        }
+        List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
+        System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos EPG para ser matriculables");
+        matriculaResumenDAO.saveMatriculables(alumnosIds, ciclo);
+//        for (Alumno alumno : alumnos) {
+//            MatriculaResumen matriculable = new MatriculaResumen();
+//            matriculable.setAlumno(alumno);
+//            matriculable.setCicloAcademico(cicloBD);
+//            matriculable.setCreditosMatriculados(0);
+//            matriculable.setCreditosRetirados(0);
+//            matriculable.setCreditosTrikaPagados(0);
+//            matriculable.setCreditosTrikaSeparados(0);
+//            matriculable.setCursosMatriculados(0);
+//            matriculable.setCursosRetirados(0);
+//            matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+//            matriculable.setSituacionInicio(alumno.getSituacionAcademica());
+//            matriculable.setEsUltimoCiclo(false);
+//            matriculaResumenDAO.save(matriculable);
+//        }
 
     }
 
@@ -249,10 +252,10 @@ public class MatriculableServiceImp implements MatriculableService {
                 continue;
             }
             if (!situaciones.contains(matriculado.getSituacionAcademica().getCodigoEnum())) {
-//                if (matriculado.getSituacionAcademica().getCodigoEnum() == S_T && alumno.getCreditosAprobados() > 180) {
-                    System.out.println("Es Trika pero no se bota porque tiene  " + alumno.getCreditosAprobados() + " creditos aprobados");
+//                if (matriculado.getSituacionAcademica().getCodigoEnum() == S_T && matriculado.getCreditosAprobados() > 180) {
+//                System.out.println("Es Trika pero no se bota porque tiene  " + matriculado.getCreditosAprobados() + " creditos aprobados");
 //                } else {
-//                    System.out.println("Se bota porque su situacion es  " + matriculado.getSituacionAcademica().getCodigo());
+                System.out.println("Se bota porque su situacion es  " + matriculado.getSituacionAcademica().getCodigo());
 //
 //                    continue;
 //                }
@@ -279,23 +282,25 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         List<Alumno> alumnos = new ArrayList(mapMatriculable.values());
-        System.out.println("Finalmente quedan " + alumnos.size() + " alumnos para ser matriculables");
-
-        for (Alumno alumno : alumnos) {
-            MatriculaResumen matriculable = new MatriculaResumen();
-            matriculable.setAlumno(alumno);
-            matriculable.setCicloAcademico(cicloBD);
-            matriculable.setCreditosMatriculados(0);
-            matriculable.setCreditosRetirados(0);
-            matriculable.setCreditosTrikaPagados(0);
-            matriculable.setCursosMatriculados(0);
-            matriculable.setCursosRetirados(0);
-            matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
-            matriculable.setSituacionInicio(alumno.getSituacionAcademica());
-            matriculable.setEsUltimoCiclo(alumno.getCreditosAprobados() >= 172);
-            matriculable.setCreditosTrikaSeparados(0);
-            matriculaResumenDAO.save(matriculable);
-        }
+        List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
+        System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos Reg para ser matriculables");
+        matriculaResumenDAO.saveMatriculables(alumnosIds, ciclo);
+        
+//        for (Alumno alumno : alumnos) {
+//            MatriculaResumen matriculable = new MatriculaResumen();
+//            matriculable.setAlumno(alumno);
+//            matriculable.setCicloAcademico(cicloBD);
+//            matriculable.setCreditosMatriculados(0);
+//            matriculable.setCreditosRetirados(0);
+//            matriculable.setCreditosTrikaPagados(0);
+//            matriculable.setCursosMatriculados(0);
+//            matriculable.setCursosRetirados(0);
+//            matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+//            matriculable.setSituacionInicio(alumno.getSituacionAcademica());
+//            matriculable.setEsUltimoCiclo(alumno.getCreditosAprobados() >= 172);
+//            matriculable.setCreditosTrikaSeparados(0);
+//            matriculaResumenDAO.save(matriculable);
+//        }
 
     }
 
@@ -787,5 +792,20 @@ public class MatriculableServiceImp implements MatriculableService {
                 asignarPprioridad(alumno, cicloSgte);
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public void verificarAlumnosNmat(DataSessionPivot ds) {
+
+        CicloAcademico cicloActivo = ds.getCicloAcademico();
+        CicloAcademico cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
+        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+            this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
+        }
+        cicloActivo.setFechaVerificaNmat(new Date());
+        cicloAcademicoDAO.update(cicloActivo);
+
     }
 }
