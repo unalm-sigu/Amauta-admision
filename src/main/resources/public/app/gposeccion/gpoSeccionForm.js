@@ -171,6 +171,9 @@ var app = new Vue({
         aulas: [],
         grupos: [],
         docenteSelect: {},
+        dataModalAgregarHorasAdicionales: {
+            id: 'idModalAgregarHorasAdicionales',
+        },
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -1941,6 +1944,45 @@ var app = new Vue({
                 }
             });
 
+        },
+        asignarHorasAdicionales(seccion) {
+            let $vue = this;
+            $vue.$refs.modalAgregarHorasAdicionales.open();
+            $vue.$refs.modalHorasAdicionalesComponent.seccion = seccion;
+            if (seccion.grupoHoras.id) {
+                $vue.$refs.modalAgregarHorasAdicionales.showaccept = false;
+            }else{
+                $vue.$refs.modalAgregarHorasAdicionales.showaccept = true;
+            }
+        },
+        saveModalAgregarHorasAdicionales() {
+            let $vue = this;
+            let horasAsignadas = $vue.$refs.modalHorasAdicionalesComponent.seccion.horasAdicionales;
+            if (horasAsignadas == '') {
+                notify("Tiene que asignar un valor", "error");
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/asignarHorasAdicionales'),
+                data: {id: $vue.$refs.modalHorasAdicionalesComponent.seccion.id,
+                    horasAdicionales: $vue.$refs.modalHorasAdicionalesComponent.seccion.horasAdicionales
+                },
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $vue.$refs.modalAgregarHorasAdicionales.close();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        showHorasSemanales(seccion) {
+            return seccion.horasAdicionales > 0;
         }
     }
 });

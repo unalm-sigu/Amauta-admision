@@ -156,8 +156,9 @@
                                             <th class="col-md-1 text-center v-middle">Sección</th>
                                             <th class="col-md-1 text-center v-middle">Aula</th>
                                             <th class="col-md-1 text-center v-middle">Grupo</th>
+                                            <th class="col-md-1 text-center v-middle">Horas Adicionales</th>
                                             <th class="col-md-2 text-center v-middle">Restricción modalidad facultad especialidad</th>
-                                            <th class="col-md-2 text-center v-middle">Restricción repitencia</th>
+                                            <th class="col-md-1 text-center v-middle">Restricción repitencia</th>
                                             <th class="col-md-1 text-center v-middle">Restricción CAPA</th>
                                             <th class="col-md-1 text-center v-middle">Vac</th>
                                             <th class="col-md-1 text-center v-middle">Mat</th>
@@ -238,6 +239,11 @@
                                                        class="form-control"/>
 
                                             </td>
+
+                                            <td class="text-center v-middle">
+                                                <span v-if="showHorasSemanales(seccion)">{{seccion.horasAdicionales}}</span>
+                                            </td>
+
                                             <td class="text-center v-middle">
                                                 <a v-on:click="showModalRestriccion(seccion)" 
                                                    v-if="!seccion.isTieneRestriccion &amp;&amp; !seccion.isTipoSeccionTCUR"
@@ -411,6 +417,14 @@
                                                                 Bloquear
                                                             </a>
                                                         </li>
+
+                                                        <li role="presentation">
+                                                            <a href="#"
+                                                               v-on:click="asignarHorasAdicionales(seccion)">
+                                                                Asignar Horas Adicionales
+                                                            </a>
+                                                        </li>
+
                                                     </ul>
                                                 </div>
 
@@ -504,7 +518,7 @@
         <div th:substituteby="academico/gposeccion/components/restriccionComponent"/>
         <div th:substituteby="academico/gposeccion/components/repitenciaComponent"/>
         <div th:substituteby="academico/gposeccion/components/grupoRegularAulaComponent"/>
-
+        <div th:substituteby="academico/gposeccion/components/horaAdicionalComponente"/>
     </section>
 
     <div layout:fragment="js">
@@ -527,6 +541,7 @@
         <!--<script th:src="@{/app/gposeccion/gpoSolicitarIncremento.js}" charset="utf-8"></script>-->
         <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/grupoRegularAulaComponet.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/horaAdicionalComponente.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
     </div>
 </body>
