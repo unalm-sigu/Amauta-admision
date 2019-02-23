@@ -1,0 +1,61 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Aulas</title>
+        <link th:substituteby="_layout/includes :: styles-dynatable" />
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div  id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <h2>Tipo Carpetas </h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <raptor-table v-bind:url="carpetaUrl" ref="load">
+
+                                <div slot="header">
+
+                                </div>
+
+                                <template scope="props" >
+
+                                    <table class="table table-striped table-hover">
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle col-sm-12">
+                                                    <span class="block text-primary bold">{{item.nombre}}</span>
+                                                </td>
+                                                <td  v-for="hijo in  item.tipoCarpetas" class="v-middle col-sm-12">
+                                                    <span class="block m-l-lg">{{hijo.nombre}}</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                </template>
+                            </raptor-table>
+
+
+                        </section>
+                    </section>
+                </section>
+
+            </div>
+
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/general/tipocarpeta/tipocarpeta.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
