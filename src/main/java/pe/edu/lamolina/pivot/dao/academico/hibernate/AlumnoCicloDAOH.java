@@ -24,6 +24,7 @@ import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
@@ -670,7 +671,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .from(AlumnoCiclo.class, "ac")
                 .join("cicloAcademico ca", "alumno alu")
                 .filter("ca.id", cicloAnt)
-                .in("estado", Arrays.asList(NMAT, INH));
+                .in("estado", Arrays.asList(NMAT, INH, MAT));
 
         return sql.all(getCurrentSession());
     }
