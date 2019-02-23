@@ -800,6 +800,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
         CicloAcademico cicloActivo = ds.getCicloAcademico();
         CicloAcademico cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
+        
+        logger.debug("Ciclo Anterior {}", cicloAnt.getCodigo());
+        
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
         logger.debug("Cantidad de alumnos {}", alumnoCiclos.size());
         for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
