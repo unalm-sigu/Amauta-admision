@@ -49,7 +49,8 @@ public class TipoCarpetaController {
 
             for (TipoCarpeta tipoCarpeta : tipoCarpetas) {
                 ObjectNode json = JsonHelper.createJson(tipoCarpeta, factory, true, new String[]{
-                    "*"
+                    "*",
+                    "tipoCarpetas"
                 });
                 array.add(json);
             }
