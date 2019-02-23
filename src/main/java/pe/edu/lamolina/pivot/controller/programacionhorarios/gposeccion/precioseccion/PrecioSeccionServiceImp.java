@@ -59,4 +59,12 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
         seccionDAO.updatePrecioBySeccion(seccionForm);
     }
 
+    @Override
+    @Transactional
+    public void asignarHorasAdicionales(Seccion seccionForm, DataSessionPivot ds) {
+        Seccion seccion=seccionDAO.find(seccionForm);
+        seccion.setHorasAdicionales(seccionForm.getHorasAdicionales());
+        seccionDAO.update(seccion);
+    }
+
 }

@@ -1549,7 +1549,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<GrupoHoras> allGrupoHorasBySeccionAndTipoGrupoHoras(Seccion seccion, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
-        if (seccion.getHorasSemanales() == 0) {
+        if (seccion.getTotalHorasSemanales()== 0) {
             return new ArrayList();
         }
 
@@ -1576,7 +1576,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
             Map<Long, Object> mapDias = TypesUtil.convertListToMapList("dia.id", grupo.getDiaHoraGrupo());
             loop++;
-            if (existeCoincidencia(mapDias, seccion.getHorasSemanales())) {
+            if (existeCoincidencia(mapDias, seccion.getTotalHorasSemanales())) {
                 grupoHorasFiltrado.add(grupo);
             }
 //            List<Map<Long, Object>> busquedas = Commutator.create(mapDias);
