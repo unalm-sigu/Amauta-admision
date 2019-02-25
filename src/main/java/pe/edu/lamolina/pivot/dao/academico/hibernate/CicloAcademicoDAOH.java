@@ -101,8 +101,10 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     public CicloAcademico findAnteriorRegular(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
                 .filter("tipo", "REG")
                 .filter("codigo", "<", ciclo.getCodigo())
+                .filter("me.codigo", PRE)
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(1);
 

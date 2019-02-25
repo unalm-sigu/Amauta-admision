@@ -32,6 +32,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -46,6 +47,9 @@ public class ResolucionReincorporacionController {
 
     @Autowired
     ResolucionService resolucionService;
+  
+    @Autowired
+    MatriculableService matriculableService;
 
     private MultipartFile resolucionFile;
 
@@ -138,7 +142,13 @@ public class ResolucionReincorporacionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
-            service.save(resolucion, ds.getUsuario(), ds);
+            List<Alumno> alumnos = service.save(resolucion, ds.getUsuario(), ds);
+
+            for (Alumno alumno : alumnos) {
+
+                matriculableService.saveMatriculable(alumno, ds);
+                matriculableService.revisarSituacionAcademica(alumno, ds);
+            }
             response.setMessage("Se realizó el registro satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
             response.setData(data);

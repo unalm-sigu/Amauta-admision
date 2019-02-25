@@ -11,6 +11,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -26,7 +27,7 @@ public class PrecioSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);           
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.savePrecioSeccion(precioSeccion, ds);
             response.setMessage(" Guardado satisfactoriamnente");
             response.setSuccess(true);
@@ -39,5 +40,24 @@ public class PrecioSeccionController {
 
         return response;
     }
-   
+
+    @ResponseBody
+    @RequestMapping("asignarHorasAdicionales")
+    public JsonResponse asignarHorasAdicionales(Seccion seccion, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.asignarHorasAdicionales(seccion, ds);
+            response.setMessage(Messages.UPDATED);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        
+        return response;
+    }
+
 }

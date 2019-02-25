@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
@@ -22,6 +23,9 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
 @Repository
@@ -659,5 +663,16 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         alu.setSituacionAcademica(sit);
 
         return ac;
+    }
+
+    @Override
+    public List<AlumnoCiclo> allByNmatAndInh(CicloAcademico cicloAnt) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("cicloAcademico ca", "alumno alu")
+                .filter("ca.id", cicloAnt)
+                .in("estado", Arrays.asList(NMAT, INH, MAT));
+
+        return sql.all(getCurrentSession());
     }
 }
