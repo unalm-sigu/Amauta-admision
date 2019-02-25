@@ -833,7 +833,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
         logger.debug("Cantidad de alumnos {}", alumnoCiclos.size());
         for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-            logger.debug("Alumno codigo {}", alumnoCiclo.getAlumno().getCodigo());
+            logger.info("Alumno codigo {}", alumnoCiclo.getAlumno().getCodigo());
             this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
         }
         cicloActivo.setFechaVerificaNmat(new Date());
