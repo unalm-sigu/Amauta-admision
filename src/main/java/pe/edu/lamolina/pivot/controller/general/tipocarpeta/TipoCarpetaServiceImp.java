@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
@@ -23,8 +22,8 @@ public class TipoCarpetaServiceImp implements TipoCarpetaService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     @Override
-    public List<TipoCarpeta> allByDynatable(DynatableFilter filter, DataSessionPivot ds) {
-        List<TipoCarpeta> tipoCarpetas = tipoCarpetaDAO.allByDynatable(filter);
+    public List<TipoCarpeta> allTipoCarpeta(DataSessionPivot ds) {
+        List<TipoCarpeta> tipoCarpetas = tipoCarpetaDAO.allTipoCarpeta();
         List<TipoCarpeta> tipoCarpetasHijas = tipoCarpetaDAO.allByTipoCarpetas(tipoCarpetas);
         Map<Long, List<TipoCarpeta>> tipoCarpetasHijasMap = TypesUtil.convertListToMapList("tipoCarpetaSuperior.id", tipoCarpetasHijas);
         for (TipoCarpeta tipoCarpeta : tipoCarpetas) {
