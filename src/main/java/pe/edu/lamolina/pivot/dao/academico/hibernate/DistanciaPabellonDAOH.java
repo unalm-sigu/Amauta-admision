@@ -50,4 +50,5 @@ public class DistanciaPabellonDAOH extends AbstractEasyDAO<DistanciaPabellon> im
                 .orderBy("dpa.id desc");
         return all(sql);
     }
+
 }
