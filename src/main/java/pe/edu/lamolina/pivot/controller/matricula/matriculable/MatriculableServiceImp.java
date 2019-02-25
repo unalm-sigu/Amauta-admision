@@ -166,13 +166,14 @@ public class MatriculableServiceImp implements MatriculableService {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(EPG);
         CicloAcademico cicloEpg = cicloAcademicoDAO.findByCodigoModalidadEstudio(cicloBD.getCodigo(), modalidad);
-        
+
         Map<Long, Alumno> mapMatriculable = new LinkedHashMap();
+        Map<Long, Alumno> mapMatriculableExist = new LinkedHashMap();
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCiclo(ciclo);
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
-            mapMatriculable.put(matriculaResumen.getAlumno().getId(), matriculaResumen.getAlumno());
+            mapMatriculableExist.put(matriculaResumen.getAlumno().getId(), matriculaResumen.getAlumno());
         }
-        
+
         List<CicloAcademico> ciclosPreviosPregrado = cicloAcademicoDAO.allActivosAnteriores(2, cicloBD);
         List<CicloAcademico> ciclosPreviosEpg = cicloAcademicoDAO.allActivosAnteriores(2, cicloEpg);
         ciclosPreviosEpg.addAll(ciclosPreviosPregrado);
@@ -181,6 +182,10 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPreviosEpg);
 
         for (Alumno matriculado : matriculados) {
+            Alumno alumnoExist = mapMatriculableExist.get(matriculado.getId());
+            if (alumnoExist != null) {
+                continue;
+            }
             Alumno alumno = mapMatriculable.get(matriculado.getId());
             if (alumno != null) {
                 continue;
@@ -194,6 +199,10 @@ public class MatriculableServiceImp implements MatriculableService {
             mapMatriculable.put(matriculado.getId(), matriculado);
         }
         for (Alumno estudiante : estudiantes) {
+            Alumno alumnoExist = mapMatriculableExist.get(estudiante.getId());
+            if (alumnoExist != null) {
+                continue;
+            }
             Alumno alumno = mapMatriculable.get(estudiante.getId());
             if (alumno != null) {
                 continue;
@@ -244,12 +253,23 @@ public class MatriculableServiceImp implements MatriculableService {
         for (CicloAcademico ciclop : ciclosPrevios) {
             System.out.println(ciclop.getCodigo());
         }
+        Map<Long, Alumno> mapMatriculableExist = new LinkedHashMap();
+        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCiclo(ciclo);
+        for (MatriculaResumen matriculaResumen : matriculaResumens) {
+            mapMatriculable.remove(matriculaResumen.getAlumno().getId());
+            mapMatriculableExist.put(matriculaResumen.getAlumno().getId(), matriculaResumen.getAlumno());
+        }
+
         List<Alumno> matriculados = alumnoDAO.allMatriculadosNoEgresadosByCiclos(ciclosPrevios);
         System.out.println("=== vienen " + matriculados.size() + " matriculados de esos ciclos");
         List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPrevios);
         System.out.println("=== vienen " + estudiantes.size() + " estudiantes de esos ciclos");
 
         for (Alumno matriculado : matriculados) {
+            Alumno alumnoExist = mapMatriculableExist.get(matriculado.getId());
+            if (alumnoExist != null) {
+                continue;
+            }
             Alumno alumno = mapMatriculable.get(matriculado.getId());
             if (alumno != null) {
                 System.out.println("Ya existe el " + matriculado.getCodigo());
@@ -272,6 +292,10 @@ public class MatriculableServiceImp implements MatriculableService {
             mapMatriculable.put(matriculado.getId(), matriculado);
         }
         for (Alumno estudiante : estudiantes) {
+            Alumno alumnoExist = mapMatriculableExist.get(estudiante.getId());
+            if (alumnoExist != null) {
+                continue;
+            }
             Alumno alumno = mapMatriculable.get(estudiante.getId());
             if (alumno != null) {
                 continue;
@@ -289,7 +313,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
         System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos Reg para ser matriculables");
         matriculaResumenDAO.saveMatriculables(alumnosIds, ciclo);
-        
+
 //        for (Alumno alumno : alumnos) {
 //            MatriculaResumen matriculable = new MatriculaResumen();
 //            matriculable.setAlumno(alumno);
@@ -305,7 +329,6 @@ public class MatriculableServiceImp implements MatriculableService {
 //            matriculable.setCreditosTrikaSeparados(0);
 //            matriculaResumenDAO.save(matriculable);
 //        }
-
     }
 
     @Override
@@ -804,13 +827,13 @@ public class MatriculableServiceImp implements MatriculableService {
 
         CicloAcademico cicloActivo = ds.getCicloAcademico();
         CicloAcademico cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
-        
+
         logger.debug("Ciclo Anterior {}", cicloAnt.getCodigo());
-        
+
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
         logger.debug("Cantidad de alumnos {}", alumnoCiclos.size());
         for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-        logger.debug("Alumno codigo {}", alumnoCiclo.getAlumno().getCodigo());
+            logger.debug("Alumno codigo {}", alumnoCiclo.getAlumno().getCodigo());
             this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
         }
         cicloActivo.setFechaVerificaNmat(new Date());
