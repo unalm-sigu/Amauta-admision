@@ -9,6 +9,16 @@ new Vue({
             header: true,
             title: 'Cantidad mínima de alumnos por Curso'
         },
+        modalPreciocursociclo: {
+            id: 'modalPreciocursociclo',
+            header: true,
+            title: '',
+            okbtn: 'Crear',
+            cancelbtn: 'Cancelar',
+            cancelclass: 'btn btn-link',
+            showaccept: true,
+            modalsize: 'modal-lg',
+        },
         cantidadalumno: {general: null, carrera: null}
     },
     mounted() {
@@ -75,7 +85,7 @@ new Vue({
         saveCantidadAlumno() {
             let $vue = this;
             if($("#formcfgCantidadAlumno").parsley().validate()!=true){
-               return; 
+               return;
             }
             swal('¿Seguro que desea registrar la cantidad mínima de alumnos requerido por curso?', {
                 icon: "warning",
@@ -117,6 +127,15 @@ new Vue({
                     swal.close();
                 }
             });
+        },
+        editarmodal() {
+            let $vue = this;
+            $vue.modalPreciocursociclo.title = "Nueva Carpeta";
+            $vue.modalPreciocursociclo.okbtn = "Crear";
+            $vue.$refs.modalPreciocursociclo.open();
+        },
+        saveModal() {
+            let $vue = this;
         }
     }
 });
