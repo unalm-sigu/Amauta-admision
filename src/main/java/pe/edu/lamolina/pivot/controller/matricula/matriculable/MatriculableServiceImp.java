@@ -166,9 +166,13 @@ public class MatriculableServiceImp implements MatriculableService {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(EPG);
         CicloAcademico cicloEpg = cicloAcademicoDAO.findByCodigoModalidadEstudio(cicloBD.getCodigo(), modalidad);
-
+        
         Map<Long, Alumno> mapMatriculable = new LinkedHashMap();
-
+        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCiclo(ciclo);
+        for (MatriculaResumen matriculaResumen : matriculaResumens) {
+            mapMatriculable.put(matriculaResumen.getAlumno().getId(), matriculaResumen.getAlumno());
+        }
+        
         List<CicloAcademico> ciclosPreviosPregrado = cicloAcademicoDAO.allActivosAnteriores(2, cicloBD);
         List<CicloAcademico> ciclosPreviosEpg = cicloAcademicoDAO.allActivosAnteriores(2, cicloEpg);
         ciclosPreviosEpg.addAll(ciclosPreviosPregrado);
