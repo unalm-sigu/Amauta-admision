@@ -131,6 +131,15 @@ public class PromedioServiceImp implements PromedioService {
 
     private final int MAX_INTERCALADOS_NMAT = 6;
 
+    @Override
+    @Async
+    @Transactional
+    public void saveCerrarActaAsync(List<Alumno> alumnos, DataSessionPivot ds) {
+        for (Alumno alumno : alumnos) {
+            this.calulcarSituacionAcademica(new Alumno(alumno.getId()), ds);
+        }
+    }
+
 //    @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
@@ -416,7 +425,9 @@ public class PromedioServiceImp implements PromedioService {
     @Transactional(readOnly = false)
     public void calulcarSituacionAcademica(Alumno alumno, DataSessionPivot ds) {
         contadorComponent.iniciar(1);
-        ds.setFechaAccionAudit(new Date());
+        if (ds.getFechaAccionAudit() == null) {
+            ds.setFechaAccionAudit(new Date());
+        }
         alumno = alumnoDAO.findAllInfo(alumno.getId());
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio());
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);

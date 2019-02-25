@@ -37,4 +37,6 @@ public interface PromedioService {
 
     Integer evaluateEstaAprobado(MatriculaCurso matriculaCurso, Alumno alumno);
 
+    void saveCerrarActaAsync(List<Alumno> alumnos, DataSessionPivot ds);
+
 }
