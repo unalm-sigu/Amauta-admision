@@ -15,9 +15,12 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.TipoAula;
 
 @Repository
 public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
@@ -121,6 +124,16 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .from(Aula.class, "au")
                 .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
                 .filter("ofi.id", oficina);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Aula> allPabellonesByOficina(OficinaEnum oficinaEnum) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("aus")
+                .from(Aula.class, "au")
+                .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
+                .filter("ofi.codigo", oficinaEnum);
         return sql.all(getCurrentSession());
     }
 
@@ -278,7 +291,27 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .from(Aula.class, "au")
                 .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
                 .filter("ofi.id", oficinaEstudios);
-        
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Aula> allByOficinaSupervisora(OficinaEnum oficinaEnum) {
+        Octavia sql = Octavia.query()
+                .from(Aula.class, "au")
+                .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
+                .filter("ofi.codigo", oficinaEnum);
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Aula> allByTipoAula(TipoAulaEnum tipoAulaEnum) {
+        Octavia sql = Octavia.query()
+                .from(Aula.class, "au")
+                .join("tipoAula ta")
+                .filter("ta.codigo", tipoAulaEnum)
+                .orderBy("au.nombre");
         return sql.all(getCurrentSession());
     }
 
