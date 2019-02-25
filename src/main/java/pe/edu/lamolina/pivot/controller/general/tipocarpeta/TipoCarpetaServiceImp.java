@@ -1,0 +1,36 @@
+package pe.edu.lamolina.pivot.controller.general.tipocarpeta;
+
+import java.util.List;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.general.TipoCarpeta;
+import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+
+@Service
+@Transactional(readOnly = true)
+public class TipoCarpetaServiceImp implements TipoCarpetaService {
+    
+    @Autowired
+    TipoCarpetaDAO tipoCarpetaDAO;
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
+    @Override
+    public List<TipoCarpeta> allByDynatable(DynatableFilter filter, DataSessionPivot ds) {
+        List<TipoCarpeta> tipoCarpetas = tipoCarpetaDAO.allByDynatable(filter);
+        List<TipoCarpeta> tipoCarpetasHijas = tipoCarpetaDAO.allByTipoCarpetas(tipoCarpetas);
+        Map<Long, List<TipoCarpeta>> tipoCarpetasHijasMap = TypesUtil.convertListToMapList("tipoCarpetaSuperior.id", tipoCarpetasHijas);
+        for (TipoCarpeta tipoCarpeta : tipoCarpetas) {
+            tipoCarpeta.setTipoCarpetas(tipoCarpetasHijasMap.get(tipoCarpeta.getId()));
+        }
+        return tipoCarpetas;
+    }
+    
+}

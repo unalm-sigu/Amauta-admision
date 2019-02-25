@@ -306,7 +306,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     public void revisarSituacionAcademica(Alumno alumno, DataSessionPivot ds) {
-        promedioService.calulcarSituacionAcademicaNewSession(alumno, ds);
+        promedioService.calulcarSituacionAcademica(alumno, ds);
     }
 
     @Override
@@ -800,8 +800,13 @@ public class MatriculableServiceImp implements MatriculableService {
 
         CicloAcademico cicloActivo = ds.getCicloAcademico();
         CicloAcademico cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
+        
+        logger.debug("Ciclo Anterior {}", cicloAnt.getCodigo());
+        
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
+        logger.debug("Cantidad de alumnos {}", alumnoCiclos.size());
         for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+        logger.debug("Alumno codigo {}", alumnoCiclo.getAlumno().getCodigo());
             this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
         }
         cicloActivo.setFechaVerificaNmat(new Date());

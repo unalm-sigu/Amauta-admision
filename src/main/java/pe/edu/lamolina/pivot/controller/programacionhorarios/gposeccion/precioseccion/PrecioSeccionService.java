@@ -7,4 +7,6 @@ public interface PrecioSeccionService {
 
     void savePrecioSeccion(Seccion precioSeccion, DataSessionPivot ds);
 
+    void asignarHorasAdicionales(Seccion seccion, DataSessionPivot ds);
+
 }
