@@ -210,7 +210,6 @@ public class PromedioServiceImp implements PromedioService {
         promediarAllCicloSync(alumno, cicloActivo, ciclos, alumnoCicloCursos, ds);*/
 
         //  List<CicloAcademico> allCiclosActivos = cicloAcademicoDAO.allActivesByModalidad(alumno.getModalidadEstudio(), new String[]{"ca.year asc", "ca.numeroCiclo asc"});
-        ds.setFechaAccionAudit(new Date());
         this.calulcarSituacionAcademica(alumno, ds);
     }
 
