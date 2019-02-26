@@ -218,7 +218,7 @@
                         <span class="bold datos_alumno">Sangre: </span>
                         <span class="datos_alumno" th:text="${ingresante.laboratorio.tipoSangreEnum.value}" ></span>
                         <span>&nbsp;</span>
-                        <span class="datos_alumno" th:text="${ingresante.laboratorio.factorRHEnum.value}" ></span> <br/>
+                        <span class="datos_alumno"  th:if="${ingresante.laboratorio.tipoSangreEnum.value != 'Por Confirmar'}" th:text="${ingresante.laboratorio.factorRHEnum.value}" ></span> <br/>
 
                     </td>
                 </tr>
