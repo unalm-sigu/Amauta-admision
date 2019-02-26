@@ -25,6 +25,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
+import pe.edu.lamolina.model.enums.FactorRhEnum;
 import pe.edu.lamolina.model.enums.TipoSangreEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
@@ -99,9 +100,10 @@ public class ResultadosLabController {
                                 "laboratorio.numeroMuestra",
                                 "laboratorio.valorMuestra",
                                 "laboratorio.tipoSangreEnum",
-                                "laboratorio.factorRH",
+                                "laboratorio.factorRHEnum",
                                 "laboratorio.estandar",
                                 "laboratorio.hemoglobina",
+                                "laboratorio.observaciones",
                                 "laboratorio.historiaClinica.id"
                             });
                     array.add(node);
@@ -129,7 +131,7 @@ public class ResultadosLabController {
             DiarioLaboratorio diario = service.getDiarioLabActual();
             laboratorio.setDiarioLaboratorio(diario);
             laboratorio.setFechaMuestra(new Date());
-            
+
             service.saveLaboratorio(laboratorio);
 
             ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{
@@ -145,7 +147,7 @@ public class ResultadosLabController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("tipoSangreList")
     public JsonResponse tipoAtencionExternaList(HttpSession session) {
@@ -155,6 +157,26 @@ public class ResultadosLabController {
 
         try {
             ArrayNode json = JsonHelper.enumToJson(TipoSangreEnum.values());
+            response.setData(json);
+            response.setTotal(json.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("factorRhList")
+    public JsonResponse factorRhList(HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode json = JsonHelper.enumToJson(FactorRhEnum.values());
             response.setData(json);
             response.setTotal(json.size());
             response.setSuccess(true);
