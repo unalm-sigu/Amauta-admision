@@ -1,0 +1,47 @@
+<modal-vik ref="modalnuevoTipocarpeta"
+           v-bind="modalnuevoTipocarpeta"
+           v-bind:okaction="tipoCarpeta.id == null ?  save : update">
+
+    <div slot="body">   
+        <form  method="post" id="formTipocarpeta"   data-parsley-validate="true">
+            <div class="row m-t-md">      
+                <div class="row col-md-12 m-b-sm">
+                    <div class="col-md-1">
+                    </div>
+                    <div class="col-md-2">
+                        <span>Código</span>
+                    </div>
+                    <div class="col-md-7">
+                        <input type="text" required="true" v-model="tipoCarpeta.codigo" class="form-control capitalizes" />
+                    </div>
+                    <div class="col-md-1">
+                    </div>
+                </div>
+                <div class="row col-md-12 m-b-sm">
+                    <div class="col-md-1">
+                    </div>
+                    <div class="col-md-2">
+                        <span>Nombre</span>
+                    </div>
+                    <div class="col-md-7">
+                        <input type="text" required="true" v-model="tipoCarpeta.nombre" class="form-control col-md-12 capitalizes" />
+                    </div>
+                    <div class="col-md-1">
+                    </div>
+                </div>
+                <div class="row col-md-12">
+                    <div class="col-md-1">
+                    </div>
+                    <div class="col-md-2">
+                        <span>Busqueda</span>
+                    </div>
+                    <div class="col-md-7">
+                        <input type="number" required="true" v-model="tipoCarpeta.buscarAula" class="form-control col-md-12 capitalizes" />
+                    </div>
+                    <div class="col-md-1">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</modal-vik>

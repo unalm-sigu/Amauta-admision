@@ -8,4 +8,6 @@ public interface TipoCarpetaService {
 
     List<TipoCarpeta> allTipoCarpeta(DataSessionPivot ds);
 
+    void save(TipoCarpeta tipoCarpeta, DataSessionPivot ds);
+
 }

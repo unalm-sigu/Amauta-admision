@@ -174,6 +174,9 @@ var app = new Vue({
         dataModalAgregarHorasAdicionales: {
             id: 'idModalAgregarHorasAdicionales',
         },
+        tipocarpetas: [],
+        isSearchingTipoCarpeta: false,
+        tipoCarpetaTemporal: {}
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -1951,7 +1954,7 @@ var app = new Vue({
             $vue.$refs.modalHorasAdicionalesComponent.seccion = seccion;
             if (seccion.grupoHoras.id) {
                 $vue.$refs.modalAgregarHorasAdicionales.showaccept = false;
-            }else{
+            } else {
                 $vue.$refs.modalAgregarHorasAdicionales.showaccept = true;
             }
         },
@@ -1983,6 +1986,76 @@ var app = new Vue({
         },
         showHorasSemanales(seccion) {
             return seccion.horasAdicionales > 0;
+        },
+        buscarTipoCarpeta(search) {
+            let $vue = this;
+            $vue.isSearchingTipoCarpeta = true;
+            $.ajax({
+                url: APP.url('academico/gposeccion/allTipoCarpeta'),
+                dataType: 'json',
+                type: 'POST',
+                async: true,
+                data: {nombre: search},
+                success(response) {
+                    if (response.success) {
+                        $vue.tipocarpetas = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                    $vue.isSearchingTipoCarpeta = false;
+                },
+                error() {
+                    $vue.isSearchingTipoCarpeta = false;
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        saveTipoCarpeta(tipoCarpeta) {
+
+            let $vue = this;
+
+            var mm = bootbox.confirm({
+                message: "¿Desea cambiar el tipo de carpeta de la sección seleccionada?",
+                buttons: {
+                    confirm: {
+                        label: 'Si, cambiar',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'cancelar',
+                        className: 'btn-link'
+                    }
+                },
+                callback: function (aceptar) {
+                    if (aceptar) {
+
+                        $.ajax({
+                            url: APP.url('academico/gposeccion/saveTipoCarpetaSeccion'),
+                            dataType: 'json',
+                            type: 'POST',
+                            async: true,
+                            data: {
+                                id: $vue.seccionSeleccionada.id,
+                                "tipoCarpeta.id": tipoCarpeta.id,
+                            },
+                            success(response) {
+                                if (response.success) {
+                                    $vue.seccionSeleccionada.tipoCarpeta = $vue.tipoCarpetaTemporal;
+                                    mm.modal('hide');
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error() {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                        return false;
+                    } else {
+                        $vue.tipoCarpetaTemporal = $vue.seccionSeleccionada.tipoCarpeta;
+                    }
+                }
+            });
         }
     }
 });

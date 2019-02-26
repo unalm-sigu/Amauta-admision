@@ -27,6 +27,7 @@ import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
+import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -36,6 +37,7 @@ import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.general.SedeDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoAulaDAO;
+import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -66,6 +68,9 @@ public class AulaServiceImp implements AulaService {
 
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
+
+    @Autowired
+    TipoCarpetaDAO tipoCarpetaDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -125,6 +130,7 @@ public class AulaServiceImp implements AulaService {
         aula.setCodigo(aula.getCodigo().toUpperCase().replaceAll("\\s+", ""));
         Aula aulaTmp = aulaDAO.findByCode(aula.getCodigo());
         Assert.isNull(aulaTmp, "Este código ya fue asignado a otro ambiente");
+//        TipoCarpeta tipocarpeta = tipoCarpetaDAO.find(aula.getTipoCarpeta().getId());
 
         if (aula.getTipoAmbienteEnum() == TipoAmbienteEnum.EDI) {
             aula.setAforo(0);
@@ -144,7 +150,9 @@ public class AulaServiceImp implements AulaService {
         revisarNombre(aula);
         aula.setEstadoEnum(EstadoEnum.CRE);
         aula.setUserRegistro(usuario);
+//        aula.setTipoCarpeta(tipocarpeta);
         aula.setFechaRegistro(new Date());
+        ObjectUtil.printAttr(aula);
         aulaDAO.save(aula);
     }
 
@@ -260,7 +268,7 @@ public class AulaServiceImp implements AulaService {
     public Aula findAulaFull(Aula aulaFormFecha) {
 
         Aula aula = aulaDAO.find(aulaFormFecha.getId());
-        List<HorarioAula > horariosAulas = horarioAulaDAO.allByAulaFecha(aulaFormFecha);
+        List<HorarioAula> horariosAulas = horarioAulaDAO.allByAulaFecha(aulaFormFecha);
         this.completarDocentes(horariosAulas);
         aula.setHorariosAula(horariosAulas);
         return aula;
@@ -272,12 +280,12 @@ public class AulaServiceImp implements AulaService {
     }
 
     private void completarDocentes(List<HorarioAula> horariosAulas) {
-        
-        List<Seccion> secciones = horariosAulas.stream().filter(x->x.getSeccion()!=null).map(x -> x.getSeccion()).collect(Collectors.toList());
-       
+
+        List<Seccion> secciones = horariosAulas.stream().filter(x -> x.getSeccion() != null).map(x -> x.getSeccion()).collect(Collectors.toList());
+
         List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allActivosBySeccionesOrderPrincipalLimit(secciones);
         Map<Long, List<DocenteSeccion>> docenteSeccionesMap = TypesUtil.convertListToMapList("seccion.id", docenteSecciones);
-        
+
         for (HorarioAula horariosAula : horariosAulas) {
             Seccion seccion = horariosAula.getSeccion();
             if (seccion != null) {
@@ -295,6 +303,11 @@ public class AulaServiceImp implements AulaService {
                 seccion.setDocenteSeccion(docenteSeccioness);
             }
         }
+    }
+
+    @Override
+    public List<TipoCarpeta> allTipoCarpeta() {
+        return tipoCarpetaDAO.all();
     }
 
 }
