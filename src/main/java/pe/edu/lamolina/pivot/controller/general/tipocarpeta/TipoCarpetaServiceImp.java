@@ -15,12 +15,12 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class TipoCarpetaServiceImp implements TipoCarpetaService {
-    
+
     @Autowired
     TipoCarpetaDAO tipoCarpetaDAO;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Override
     public List<TipoCarpeta> allTipoCarpeta(DataSessionPivot ds) {
         List<TipoCarpeta> tipoCarpetas = tipoCarpetaDAO.allTipoCarpeta();
@@ -31,5 +31,11 @@ public class TipoCarpetaServiceImp implements TipoCarpetaService {
         }
         return tipoCarpetas;
     }
-    
+
+    @Override
+    @Transactional
+    public void save(TipoCarpeta tipoCarpeta, DataSessionPivot ds) {
+        tipoCarpetaDAO.save(tipoCarpeta);
+    }
+
 }
