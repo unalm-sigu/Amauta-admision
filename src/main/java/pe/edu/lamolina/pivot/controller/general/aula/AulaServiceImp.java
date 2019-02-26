@@ -194,6 +194,7 @@ public class AulaServiceImp implements AulaService {
         aulaBD.setAulaSuperior(aula.getAulaSuperior());
         aulaBD.setSede(aula.getSede());
         aulaBD.setTipoAula(aula.getTipoAula());
+        aulaBD.setTipoCarpeta(aula.getTipoCarpeta());
         aulaBD.setOficinaSupervisora(aula.getOficinaSupervisora());
 
         aulaBD.setAforo(aula.getAforo());

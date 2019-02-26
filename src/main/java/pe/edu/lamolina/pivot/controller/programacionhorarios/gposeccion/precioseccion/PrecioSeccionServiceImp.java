@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
@@ -87,6 +88,50 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
         ObjectUtil.eliminarAttrSinId(seccionForm, "tipoCarpeta");
         seccion.setTipoCarpeta(seccionForm.getTipoCarpeta());
         seccionDAO.update(seccion);
+    }
+
+    @Override
+    @Transactional
+    public TipoCarpeta findTipoCarpetaSeccion(Seccion seccionForm) {
+
+        Seccion seccion = seccionDAO.find(seccionForm);
+        
+        TipoCarpeta tipoCarpeta = seccion.getTipoCarpeta();
+
+        if (tipoCarpeta != null) {
+            return tipoCarpeta;
+        }
+
+        CicloAcademico cicloAcademico = seccion.getGrupoSeccion().getCicloAcademico();
+        logger.debug("cicloAcademico {}", cicloAcademico != null ? cicloAcademico.getId() : 0);
+
+        Curso curso = seccion.getGrupoSeccion().getCurso();
+        logger.debug("curso {}", curso != null ? curso.getId() : 0);
+
+        TipoSeccionEnum tipoSeccionEnum = seccion.getTipoSeccionEnum();
+        logger.debug("tipoSeccionEnum {}", tipoSeccionEnum != null ? tipoSeccionEnum.name() : "");
+
+        CursoCicloAcademico cursoCicloAcademico = cursoCicloAcademicoDAO.findByCursoCiclo(curso, cicloAcademico);
+        logger.debug("cursoCicloAcademico {}", cursoCicloAcademico != null ? cursoCicloAcademico.getId() : 0);
+
+        if (tipoSeccionEnum == TipoSeccionEnum.PCUR || tipoSeccionEnum == TipoSeccionEnum.PRA) {
+
+            tipoCarpeta = cursoCicloAcademico != null ? cursoCicloAcademico.getTipoCarpetaPractica() : null;
+            tipoCarpeta = tipoCarpeta != null ? tipoCarpeta : curso.getTipoCarpetaPractica();
+
+        } else if (tipoSeccionEnum == TipoSeccionEnum.TCUR || tipoSeccionEnum == TipoSeccionEnum.TEO) {
+
+            tipoCarpeta = cursoCicloAcademico != null ? cursoCicloAcademico.getTipoCarpetaTeoria() : null;
+            tipoCarpeta = tipoCarpeta != null ? tipoCarpeta : curso.getTipoCarpetaTeoria();
+
+        }
+
+        if (tipoCarpeta != null && seccion.getTipoCarpeta() == null) {
+            seccion.setTipoCarpeta(tipoCarpeta);
+            seccionDAO.update(seccion);
+        }
+
+        return tipoCarpeta;
     }
 
 }

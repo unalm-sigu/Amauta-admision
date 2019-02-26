@@ -15,4 +15,6 @@ public interface PrecioSeccionService {
 
     void saveTipoCarpetaSeccion(Seccion seccion, DataSessionPivot ds);
 
+    TipoCarpeta findTipoCarpetaSeccion(Seccion seccion);
+
 }
