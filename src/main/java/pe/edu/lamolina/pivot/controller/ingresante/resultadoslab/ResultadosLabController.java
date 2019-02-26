@@ -223,6 +223,15 @@ public class ResultadosLabController {
 
         List<RecorridoIngresante> listaFiltrada = service.allIngresantesByPersona(personasFiltro);
 
+        for (RecorridoIngresante reco : listaFiltrada) {
+            List<HistoriaLaboratorio> resultLab = laboratorios.stream()
+                    .filter(item -> item.getHistoriaClinica().getPaciente().getPersona().getId().equals(reco.getAlumno().getPersona().getId()))
+                    .collect(Collectors.toList());
+            if (resultLab.size() > 0) {
+                reco.setLaboratorio(resultLab.get(0));
+            }
+        }
+
         model.addAttribute("formatoEnum", PDFFormatoEnum.RESULTADOS_LAB);
         model.addAttribute("nombrePdf", String.format("Resultados de Laboratorio - %s", ds.getCicloAcademico().getDescripcion2()));
         model.addAttribute("ingresantes", listaFiltrada);

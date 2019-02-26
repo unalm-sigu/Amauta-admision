@@ -198,46 +198,29 @@
                         Datos Generales 
                     </th>
                     <th width="450" class="izquierda bold datos_alumno">
-                        Profesión y/o Ocupación 
+                        Resultados
                     </th>
                 </tr>
 
                 <tr class="border_bottom" th:each="ingresante : ${ingresantes}" >
                     <td>
-                        <span class="bold nombre-familiar" th:text="${ingresante.alumno.persona.nombreCompleto}"></span> <br/>         
+                        <span class="bold nombre-familiar" th:text="${ingresante.alumno.persona.apellidosNombres}"></span> <br/>         
                         <span class="bold datos_alumno">DNI: </span><span class="datos_alumno" th:text="${ingresante.alumno.persona.numeroDocIdentidad}" ></span> <br/>
-                        <span class="bold datos_alumno">Codigo: </span><span class="datos_alumno" th:text="${ingresante.alumno.persona.numeroDocIdentidad}" ></span> <br/>
-                        <span class="bold datos_alumno">Especialidad: </span><span class="datos_alumno" th:text="${ingresante.alumno.persona.numeroDocIdentidad}" ></span> <br/>
+                        <span class="bold datos_alumno">C&oacute;digo: </span><span class="datos_alumno" th:text="${ingresante.alumno.codigo}" ></span> <br/>
+                        <span class="bold datos_alumno">Especialidad: </span><span class="datos_alumno" th:text="${ingresante.alumno.carrera.nombre}" ></span> <br/>
 
                     </td>                            
 
-<!--                    <td>
-                        <span th:if="${familiar.gradoInstruccion != null}"> 
-                            <span th:if="${familiar.gradoInstruccion.conComentario == 0}" class="datos_alumno" th:text="${familiar.gradoInstruccion.nombre}"></span><br th:if="${familiar.gradoInstruccion.conComentario == 0}"/> 
-                            <span th:if="${familiar.gradoInstruccion.conComentario == 1}" class="datos_alumno" th:text="${familiar.especificaGradoInstruccion}"></span><br  th:if="${familiar.gradoInstruccion.conComentario == 1}"/> 
-                        </span>
+                    <td>      
+                        <span class="bold datos_alumno">Muestra Abs: </span><span class="datos_alumno" th:text="${ingresante.laboratorio.valorMuestra}" ></span> <br/>
+                        <span class="bold datos_alumno">Est&aacute;ndar Abs: </span><span class="datos_alumno" th:text="${ingresante.laboratorio.estandar}" ></span> <br/>
+                        <span class="bold datos_alumno">Hemoglobina(g/dL): </span><span class="datos_alumno" th:text="${ingresante.laboratorio.hemoglobina}" ></span> <br/>
+                        <span class="bold datos_alumno">Sangre: </span>
+                        <span class="datos_alumno" th:text="${ingresante.laboratorio.tipoSangreEnum.value}" ></span>
+                        <span>&nbsp;</span>
+                        <span class="datos_alumno" th:text="${ingresante.laboratorio.factorRHEnum.value}" ></span> <br/>
 
-                        <span th:if="${familiar.profesion != null}"> 
-                            <span th:if="${familiar.profesion.conComentario == 0}" class="datos_alumno" th:text="${familiar.profesion.nombre}"></span><br th:if="${familiar.profesion.conComentario == 0}"/> 
-                            <span th:if="${familiar.profesion.conComentario == 1}" class="datos_alumno" th:text="${familiar.especificaProfesion}"></span><br  th:if="${familiar.profesion.conComentario == 1}"/> 
-                        </span>
-
-                        <span th:if="${familiar.ocupacion != null}"> 
-                            <span th:if="${familiar.ocupacion.conComentario == 0}" class="datos_alumno" th:text="${familiar.ocupacion.nombre}"></span><br th:if="${familiar.ocupacion.conComentario == 0}"/> 
-                            <span th:if="${familiar.ocupacion.conComentario == 1}" class="datos_alumno" th:text="${familiar.especificaOcupacion}"></span><br  th:if="${familiar.ocupacion.conComentario == 1}"/> 
-                        </span>
-
-                        <span th:if="${familiar.centroTrabajo != null}"> 
-                            <span class="bold datos_alumno">Labora:</span>
-                            <span class="datos_alumno" th:text="${familiar.centroTrabajo}"></span><br/>
-                        </span>
-                        <span th:if="${familiar.ingreso != null}"> 
-                            <span class="bold datos_alumno">Ingreso:</span>
-                            <span>S/ </span>
-                            <span class="datos_alumno" th:text="${familiar.ingreso}"></span>
-                            <br/>
-                        </span>
-                    </td>-->
+                    </td>
                 </tr>
             </table>
 
