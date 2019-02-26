@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,12 +16,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
@@ -28,12 +30,13 @@ import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.enums.FactorRhEnum;
 import pe.edu.lamolina.model.enums.TipoSangreEnum;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.model.medico.DiarioLaboratorio;
-import pe.edu.lamolina.model.medico.HistoriaClinica;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.zelper.pdf.TipoPdfEnum;
+import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
+import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
 
 @Controller
 @RequestMapping("ingresante/resultadoslab")
@@ -41,6 +44,9 @@ public class ResultadosLabController {
 
     @Autowired
     ResultadosLabService service;
+
+    @Autowired
+    PdfHtmlView pdfHtmlView;
 
     @RequestMapping(method = RequestMethod.GET)
     public String postulante(Model model, HttpSession session) {
@@ -186,5 +192,42 @@ public class ResultadosLabController {
         }
 
         return response;
+    }
+
+    @RequestMapping("reporte")
+    public ModelAndView reporte(HttpSession session, HttpServletResponse respons, RedirectAttributes redirectAttr, Model model) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        List<RecorridoIngresante> lista = service.ingresantesCiclo(ds.getCicloAcademico());
+
+        List<Alumno> alumnos = lista.stream()
+                .map(RecorridoIngresante::getAlumno)
+                .collect(Collectors.toList());
+
+        List<Persona> personas = alumnos.stream()
+                .map(Alumno::getPersona)
+                .collect(Collectors.toList());
+
+        List<HistoriaLaboratorio> laboratorios = service.allLabByPersonas(personas);
+
+        List<Persona> personasFiltro = new ArrayList();
+        for (RecorridoIngresante reco : lista) {
+            List<HistoriaLaboratorio> resultLab = laboratorios.stream()
+                    .filter(item -> item.getHistoriaClinica().getPaciente().getPersona().getId().equals(reco.getAlumno().getPersona().getId()))
+                    .collect(Collectors.toList());
+            if (resultLab.size() > 0) {
+                personasFiltro.add(reco.getAlumno().getPersona());
+            }
+        }
+
+        List<RecorridoIngresante> listaFiltrada = service.allIngresantesByPersona(personasFiltro);
+
+        model.addAttribute("formatoEnum", PDFFormatoEnum.RESULTADOS_LAB);
+        model.addAttribute("nombrePdf", String.format("Resultados de Laboratorio - %s", ds.getCicloAcademico().getDescripcion2()));
+        model.addAttribute("ingresantes", listaFiltrada);
+        model.addAttribute("ciclo", ds.getCicloAcademico());
+
+        return new ModelAndView(pdfHtmlView);
     }
 }
