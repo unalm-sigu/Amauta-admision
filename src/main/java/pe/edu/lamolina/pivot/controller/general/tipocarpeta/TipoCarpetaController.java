@@ -11,9 +11,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -33,15 +34,13 @@ public class TipoCarpetaController {
 
     @ResponseBody
     @RequestMapping("allTipoCarpeta")
-    public DynatableResponse allTipoCarpeta(DynatableFilter filter, HttpSession session) {
-
-        DynatableResponse responce = new DynatableResponse();
-
+    public JsonResponse allTipoCarpeta(HttpSession session) {
+        JsonResponse response = new JsonResponse();
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            List<TipoCarpeta> tipoCarpetas = service.allByDynatable(filter, ds);
+            List<TipoCarpeta> tipoCarpetas = service.allTipoCarpeta(ds);
 
             JsonNodeFactory factory = JsonNodeFactory.instance;
 
@@ -50,21 +49,20 @@ public class TipoCarpetaController {
             for (TipoCarpeta tipoCarpeta : tipoCarpetas) {
                 ObjectNode json = JsonHelper.createJson(tipoCarpeta, factory, true, new String[]{
                     "*",
-                    "tipoCarpetas"
+                    "tipoCarpetas.*"
                 });
                 array.add(json);
             }
 
-            responce.setData(array);
-            responce.setTotal(filter.getTotal());
-            responce.setFiltered(filter.getFiltered());
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
 
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
-            e.printStackTrace();
-            responce.setTotal(0);
+            ExceptionHandler.handleException(e, response);
         }
-
-        return responce;
+        return response;
     }
 
 }

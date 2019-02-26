@@ -1,0 +1,51 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Asignación Automatica Aulas</title>
+    </head>
+
+    <body>
+
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">                 
+                        <a class="btn btn-success" type="button" th:href="@{/tramite/aula/nuevo}" >Procesar</a>
+                    </div>  
+                    <h2>Asignación Aulas</h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+
+                            raptor
+
+                        </section>
+
+                    </section>
+
+                </section>
+
+
+                <!-- 
+                modals
+                 <div th:substituteby="programacion/tramiteaula/tramiteaularesumen"></div>
+                -->
+            </div>
+
+            <div th:substituteby="_modules/vue-modal"></div>
+
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_layout/includes :: vue-loader"/>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/programacion/asignacionaula/asignacionaula.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
