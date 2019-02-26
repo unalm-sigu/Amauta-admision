@@ -89,4 +89,10 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
         seccionDAO.update(seccion);
     }
 
+    @Override
+    public TipoCarpeta findTipoCarpetaSeccion(Seccion seccionForm) {
+        TipoCarpeta tipo = tipoCarpetaDAO.findTipoCarpetaBySeccion(seccionForm);
+        return tipo;
+    }
+
 }

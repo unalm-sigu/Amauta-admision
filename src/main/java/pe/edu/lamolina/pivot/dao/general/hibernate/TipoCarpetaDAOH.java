@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
 
@@ -48,6 +48,16 @@ public class TipoCarpetaDAOH extends AbstractEasyDAO<TipoCarpeta> implements Tip
                 .endBlock()
                 .limit(15);
         return all(sql);
+    }
+
+    @Override
+    public TipoCarpeta findTipoCarpetaBySeccion(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .select("tc")
+                .from(Seccion.class, "secc")
+                .join("secc.tipoCarpeta tc")
+                .filter("secc.id", seccion);
+        return find(sql);
     }
 
 }

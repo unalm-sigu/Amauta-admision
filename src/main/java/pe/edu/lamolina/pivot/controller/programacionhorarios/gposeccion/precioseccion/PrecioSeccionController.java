@@ -106,10 +106,36 @@ public class PrecioSeccionController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.saveTipoCarpetaSeccion(seccion,ds);
+            service.saveTipoCarpetaSeccion(seccion, ds);
             response.setMessage(Messages.UPDATED);
             response.setSuccess(true);
 
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("findtipocarpeta")
+    public JsonResponse findtipocarpeta(Seccion seccion, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            TipoCarpeta tipoCarpeta = service.findTipoCarpetaSeccion(seccion);
+            
+            ObjectNode json = JsonHelper.createJson(tipoCarpeta, jsonFactory, true,
+                    new String[]{"*", "tipoCarpetaSuperior.*"});
+            
+            response.setData(json);
+            response.setMessage(Messages.UPDATED);
+            response.setSuccess(true);
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
