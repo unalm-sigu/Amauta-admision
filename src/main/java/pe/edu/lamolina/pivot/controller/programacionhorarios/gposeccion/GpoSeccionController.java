@@ -808,7 +808,6 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             GrupoSeccion grupoSeccion = service.anularSeccion(new Seccion(seccionId), ds.getUsuario());
-            TypesUtil.delay(1000);
             String message = "redirect";
             response.setData(grupoSeccion.getCurso().getId());
             if (grupoSeccion.getId() != null) {
