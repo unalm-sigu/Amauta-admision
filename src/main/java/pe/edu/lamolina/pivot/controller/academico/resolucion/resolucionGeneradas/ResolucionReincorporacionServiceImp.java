@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionGeneradas;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,10 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
 
     @Override
     @Transactional
-    public void save(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+    public List<Alumno> save(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+
+        List<Alumno> alumnos = new ArrayList<>();
+
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.REIC);
         Resolucion resolucion = new Resolucion();
         resolucion.setOficina(resolucionForm.getOficina());
@@ -72,9 +76,9 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
         resolucion.setUserRegistro(usuario);
         resolucion.setAplicacionDirecta(1l);
         resolucionDAO.save(resolucion);
-        
+
         Assert.isFalse(resolucionForm.getReincorporaciones().isEmpty(), "Debe Agregar alumnos.");
-        
+
         Map<Long, Long> couterMap = resolucionForm.getReincorporaciones().stream().collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
         for (Long count : couterMap.values()) {
             Assert.isFalse(count > 1, "Está repitiendo alumno");
@@ -91,9 +95,10 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
             reincorporacione.setUserRegistro(usuario);
             reincorporacione.setFacultad(facultad);
             reincorporacionDAO.save(reincorporacione);
-            matriculableService.saveMatriculable(reincorporacione.getAlumno(), ds);
-            matriculableService.revisarSituacionAcademica(reincorporacione.getAlumno(), ds);
+            alumnos.add(reincorporacione.getAlumno());
         }
+
+        return alumnos;
     }
 
 }

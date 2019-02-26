@@ -30,4 +30,6 @@ public interface DepartamentoAcademicoDAO extends EasyDAO<DepartamentoAcademico>
 
     List<DepartamentoAcademico> allActivos();
 
+    public List<DepartamentoAcademico> allDynatableFilter(DynatableFilter filter);
+
 }

@@ -24,11 +24,13 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -51,6 +53,9 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
 
     @Autowired
     TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
+
+    @Autowired
+    TipoCarpetaDAO tipoCarpetaDAO;
 
     @Override
     public List<CursoCicloAcademico> allCursoCiclo(DynatableFilter filter, CicloAcademico ciclo) {
@@ -174,5 +179,20 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
 
             cursoCicloAcademicoDAO.update(cursoCicloBD);
         }
+    }
+
+    @Override
+    public List<TipoCarpeta> allTipoCarpeta() {
+        return tipoCarpetaDAO.all();
+    }
+
+    @Override
+    @Transactional
+    public void update(CursoCicloAcademico cursoCicloAcademicoForm, DataSessionPivot ds) {
+
+        CursoCicloAcademico cursoCicloAcademicoBD = cursoCicloAcademicoDAO.find(cursoCicloAcademicoForm.getId());
+        cursoCicloAcademicoBD.setTipoCarpetaTeoria(cursoCicloAcademicoForm.getTipoCarpetaTeoria());
+        cursoCicloAcademicoBD.setTipoCarpetaPractica(cursoCicloAcademicoForm.getTipoCarpetaPractica());
+        cursoCicloAcademicoDAO.update(cursoCicloAcademicoBD);
     }
 }

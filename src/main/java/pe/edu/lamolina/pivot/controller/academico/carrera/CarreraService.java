@@ -37,6 +37,8 @@ public interface CarreraService {
     
     List<Carrera> all();
 
+    public void cambiarEstadoAdmision(Carrera carrera);
+
 
 
 }

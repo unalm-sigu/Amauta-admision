@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.persistence.Column;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,6 +118,7 @@ public class AulaController {
                 node.put("capacidad", aula.getCapacidadAula());
                 node.put("sede", aula.getSede() != null ? aula.getSede().getNombre() : "");
                 node.put("tipoAula", aula.getTipoAula() != null ? aula.getTipoAula().getNombre() : "");
+                node.put("tipoCarpeta", aula.getTipoCarpeta() != null ? aula.getTipoCarpeta().getNombre() : "");
                 node.put("gestor", aula.getOficinaSupervisora() != null ? aula.getOficinaSupervisora().getNombre() : "");
                 node.put("estado", aula.getEstado());
                 node.put("estadoEnum", aula.getEstadoEnum().getValue());
@@ -232,6 +232,7 @@ public class AulaController {
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
         model.addAttribute("tiposAula", service.allTiposAula());
+        model.addAttribute("tiposCarpeta", service.allTipoCarpeta());
         model.addAttribute("sedes", service.allSedes());
         return "general/aula/aulaForm";
     }
@@ -242,6 +243,9 @@ public class AulaController {
         try {
             String mensaje = aula.getId() != null ? Messages.UPDATED : Messages.CREATED;
             if (aula.getId() == null) {
+                logger.debug(" tipo carpeta  {}", aula.getTipoCarpeta().getId());
+                logger.debug(" tipo AMBIENTE  {}", aula.getTipoAmbiente());
+
                 service.save(aula, ds.getUsuario());
             } else {
                 service.update(aula, ds.getUsuario());
@@ -268,6 +272,7 @@ public class AulaController {
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
         model.addAttribute("tiposAula", service.allTiposAula());
+        model.addAttribute("tiposCarpeta", service.allTipoCarpeta());
         model.addAttribute("sedes", service.allSedes());
         return "general/aula/aulaForm";
     }
@@ -418,7 +423,7 @@ public class AulaController {
             for (Hora horasEncontrada : horasEncontradas) {
                 List<Dia> diass = new ArrayList();
                 for (Dia dia : dias) {
-                    Dia diaClone=dia.clone();
+                    Dia diaClone = dia.clone();
                     diaClone.setMainHorarioAula(null);
                     String key = horasEncontrada.getId() + "-" + dia.getId();
                     HorarioAula horarioAula = diasHoras.get(key);

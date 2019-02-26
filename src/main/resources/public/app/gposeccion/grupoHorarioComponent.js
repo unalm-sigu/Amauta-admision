@@ -326,7 +326,7 @@ Vue.component("grupohorario-component", {
                     }
                 }
             }
-            if (parseInt(cantGruposSelec) > parseInt(this.seccionModal.horasSemanales)) {
+            if (parseInt(cantGruposSelec) > parseInt(this.seccionModal.totalHorasSemanales)) {
                 notify("No se puede asignar mas horas, verifique.", "error");
                 return;
             }
@@ -478,9 +478,9 @@ Vue.component("grupohorario-component", {
             }
 
             let errorCantHoras = false;
-            console.log($vue.seccionModal.horasSemanales)
+            console.log($vue.seccionModal.totalHorasSemanales)
             console.log(diasHorasGrupo.length)
-            if ($vue.seccionModal.horasSemanales != diasHorasGrupo.length) {
+            if ($vue.seccionModal.totalHorasSemanales != diasHorasGrupo.length) {
                 errorCantHoras = true;
             }
             if ($vue.tabGrupos.grupoHorarioSel.permiteCeroHoras) {

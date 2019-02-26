@@ -284,6 +284,7 @@ public class TestController {
     public String promediarfull(HttpSession session) {
         logger.info("promediarful");
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
         List<String> allYears = alumnoDAO.allYearsCiclos();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
 
@@ -295,8 +296,7 @@ public class TestController {
                 continue;
             }
              */
-            List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYear(year);
-            alumnos = alumnos.stream().filter(x -> x.getModalidadEstudio().isPregrado()).collect(Collectors.toList());
+            List<Alumno> alumnos = alumnoDAO.allPendingPREPromedioByCicloYear(year);
             alumnosAcumulados.addAll(alumnos);
             logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
         }
@@ -346,6 +346,9 @@ public class TestController {
         List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivosAlModalidades();
 
         for (CicloAcademico cicloAcademico : ciclos) {
+            if (!cicloAcademico.getModalidadEstudio().isPregrado()) {
+                continue;
+            }
             CicloAcademico cicloActivoByModalidad = ciclosActivos.stream()
                     .filter(x -> x.getModalidadEstudio().equals(cicloAcademico.getModalidadEstudio()))
                     .findFirst().orElse(null);

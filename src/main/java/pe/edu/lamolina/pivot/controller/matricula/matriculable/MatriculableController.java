@@ -491,4 +491,25 @@ public class MatriculableController {
         return response;
 
     }
+  
+    @ResponseBody
+    @RequestMapping("verificarAlumnosNmat")
+    public JsonResponse verificarAlumnosNmat( HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.verificarAlumnosNmat(ds);
+            response.setMessage("Se verificó satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
 }

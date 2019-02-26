@@ -1549,7 +1549,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<GrupoHoras> allGrupoHorasBySeccionAndTipoGrupoHoras(Seccion seccion, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
-        if (seccion.getHorasSemanales() == 0) {
+        if (seccion.getTotalHorasSemanales()== 0) {
             return new ArrayList();
         }
 
@@ -1576,7 +1576,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
             Map<Long, Object> mapDias = TypesUtil.convertListToMapList("dia.id", grupo.getDiaHoraGrupo());
             loop++;
-            if (existeCoincidencia(mapDias, seccion.getHorasSemanales())) {
+            if (existeCoincidencia(mapDias, seccion.getTotalHorasSemanales())) {
                 grupoHorasFiltrado.add(grupo);
             }
 //            List<Map<Long, Object>> busquedas = Commutator.create(mapDias);
@@ -1826,7 +1826,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         if (aula == null) {
-            seccion.setAula(aula);
+//            seccion.setAula(aula);
             seccionDAO.update(seccion);
 
             List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
@@ -1857,12 +1857,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<HorarioAula> horariosAulas = horarioAulaDAO.allByAula(aula, cicloAcademico);
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
 
-        HorarioAula horarioAula = null;
-        for (HorarioSeccion horarioSeccionEach : horariosSeccion) {
-            for (HorarioAula horarioAulaEach : horariosAulas) {
-                if (horarioSeccionEach.getHoraDia().equals(horarioAulaEach.getHoraDia())) {
-                    if (horarioAulaEach.getSeccion().getId().compareTo(seccion.getId()) != 0) {
-                        throw new PhobosException("Aula ocupada para el grupo seleccionado");
+        if (aula.getPermiteCruce() == 0) {
+            logger.debug("no permite cruce horario");
+            for (HorarioSeccion horarioSeccionEach : horariosSeccion) {
+                for (HorarioAula horarioAulaEach : horariosAulas) {
+                    if (horarioSeccionEach.getHoraDia().equals(horarioAulaEach.getHoraDia())) {
+                        if (horarioAulaEach.getSeccion().getId().compareTo(seccion.getId()) != 0) {
+                            throw new PhobosException("Aula ocupada para el grupo seleccionado");
+                        }
                     }
                 }
             }
@@ -1875,6 +1877,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         ModalidadEstudio modalidadCurso = seccion.getGrupoSeccion().getCurso().getModalidadEstudio();
         EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(cicloAcademico, modalidadCurso);
+
+        HorarioAula horarioAula = null;
 
         LOOP_HORARIO_SECCION:
         for (HorarioSeccion horarioSeccionEach : horariosSeccion) {

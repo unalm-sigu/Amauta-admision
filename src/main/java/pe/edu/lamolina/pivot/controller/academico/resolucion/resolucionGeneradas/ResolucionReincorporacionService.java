@@ -10,6 +10,6 @@ public interface ResolucionReincorporacionService {
 
     public List<Alumno> allAlumnoDesertorByNombre(String nombre, Long instanciaOficina);
 
-    public void save(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+    public List<Alumno> save(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
 }

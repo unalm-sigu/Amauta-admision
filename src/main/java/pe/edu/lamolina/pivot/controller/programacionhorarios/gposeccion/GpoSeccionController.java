@@ -1151,7 +1151,7 @@ public class GpoSeccionController {
             ObjectNode node = new ObjectNode(jsonFactory);
 
             node.set("seccion", JsonHelper.createJson(seccion, jsonFactory, true, new String[]{
-                "id", "codigo2", "vacantes", "horasSemanales",
+                "id", "codigo2", "vacantes", "horasSemanales","horasAdicionales","totalHorasSemanales",
                 "tieneRestriccion", "tieneRestriccionCarrera", "tieneRestriccionFacultad", "tieneRestriccionModalidad", "tieneRestriccionRepitencia",
                 "aula.id",
                 "aula.codigo",
@@ -1235,7 +1235,7 @@ public class GpoSeccionController {
 
             ObjectNode nodeResult = new ObjectNode(jsonFactory);
             nodeResult.putPOJO("seccion", JsonHelper.createJson(seccion, jsonFactory, true, new String[]{
-                "id", "codigo2", "vacantes", "horasSemanales",
+                "id", "codigo2", "vacantes", "horasSemanales","horasAdicionales","totalHorasSemanales",
                 "tieneRestriccion", "tieneRestriccionCarrera", "tieneRestriccionFacultad", "tieneRestriccionModalidad", "tieneRestriccionRepitencia",
                 "aula.id",
                 "aula.codigo",

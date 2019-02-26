@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8"/>
+        <title>Informe Socioecon&oacute;mico</title>
+        <style>
+            .title1{
+                text-align:center;
+                font-size:18px !important;
+                font-weight: bold;
+            }
+
+            .subtitle1{
+                text-align:left;
+                font-size:14px;
+                font-weight: bold;
+                padding-bottom: 10px;
+                padding-top: 10px;
+                color:#6666ff;
+                padding-right: 10px;
+            }
+
+            .subtitle2{
+                text-align:left;
+                font-size:13px;
+                font-weight: bold;
+                padding-right: 15px;
+                padding-bottom: 5px;
+                padding-top: 15px;
+            }
+
+            .subtitle3{
+                text-align:left;
+                font-size:13px;
+                font-weight: normal;
+                padding-bottom: 10px;
+                padding-left: 5px;
+                padding-top: 10px;
+                padding-right: 20px;
+            }
+
+            table {
+
+                font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+                border-collapse: collapse;
+                border-spacing: 0;
+                width: 100%;
+            }
+
+            table td{
+                padding: 4px !important;
+                font-size: 10px;
+            }
+
+            tr { 
+                border: solid;
+            }
+
+            tr.border_bottom td {
+                border-bottom:10pt solid white;
+            }
+
+            th {
+                padding-top: 11px;
+                padding-bottom: 11px;
+                background-color: #e6e8e8;
+                color: #000003;
+                text-align: center;
+                font-size: 11px;
+            } 
+
+            .centrado {
+                text-align: center;
+            } 
+
+            .izquierda {
+                padding-left: 5px;
+                text-align: left;
+            } 
+            .even_css_class{
+                background-color: white;
+            }
+            .odd_css_class{
+                background-color: #f1f1f1;
+            }
+
+            .datos_alumno{
+                text-align:left;
+                font-size:13px;
+                padding-bottom: 5px;
+                padding-top: 5px;
+            }
+            .bold {
+                font-weight: bold;
+            }
+            .col-md-6 {
+                width: 50%;
+            } 
+            .fondo{
+                background-image: url('fondo.jpg');
+                background-position: top;
+                height: 100%;
+                background-repeat: no-repeat;
+            }
+            .seccion {
+                display: block;
+                height: 100px;
+            }
+            .seccion-ultima {
+                display: block;
+                height: 400px;
+            }
+            .seccion-titulo {
+                font-weight: bold;
+                display: box;
+                padding-bottom: 10rem;
+                font-size: 16px;
+                color:blue;
+            }
+            .seccion-contenido {
+                text-align: justify;
+                font-size: 12px;
+            }.fecha {
+                padding-top: 20px;
+                text-align: left;
+            }
+            .firma{
+                padding-top: 20px;
+                text-align: right;
+            }.footer {
+                position: fixed;
+                left: 0;
+                bottom: 0;
+                width: 100%;
+            }
+            .nombre-familiar{
+                text-align:left;
+                font-size:13px;
+                padding-bottom: 5px;
+                padding-top: 5px;
+                color: #003399;
+            }
+
+            .datos_seccion{
+                text-align:left;
+                font-size:13px;
+                padding-bottom: 5px;
+                padding-top: 5px;
+            }
+
+            .datos_observacion{
+                text-align:left;
+                font-size:14px;
+                padding-bottom: 5px;
+                padding-top: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="fondo">
+
+            <table>
+                <tr>
+                    <td style="width: 15%; text-align: center">
+                        <img src="logo-min.jpg" height="80"/>
+                    </td>
+                    <td style="text-align: center;font-size:18px !important;font-weight: bold;" class="title1">
+                        <span >UNIVERSIDAD NACIONAL AGRARIA LA MOLINA</span><br/>
+                        <span style="font-weight: normal;font-size:17px">CENTRO MÉDICO</span><br/>
+                        <!--<span style="font-weight: normal;font-size:16px">SERVICIO SOCIAL</span><br/>-->
+
+
+                    </td>
+                    <td style="width: 15%; text-align: center">
+                        <!--<img src="escudoUnalm.png"  height="55" width="55"/>-->
+                    </td>
+                </tr>
+
+            </table>
+
+            <table>
+                <td style="text-align: center;font-size:18px !important;font-weight: bold;" class="title1">
+                    <span >&nbsp; RESULTADOS DE LABORATORIO CICLO </span>
+                    <span th:text="${ciclo.descripcion}"></span>
+                </td>
+                <td>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                </td>
+            </table>
+
+            <table>
+                <tr>                            
+                    <th width="450" class="izquierda bold datos_alumno">
+                        Datos Generales 
+                    </th>
+                    <th width="450" class="izquierda bold datos_alumno">
+                        Resultados
+                    </th>
+                </tr>
+
+                <tr class="border_bottom" th:each="ingresante : ${ingresantes}" >
+                    <td>
+                        <span class="bold nombre-familiar" th:text="${ingresante.alumno.persona.apellidosNombres}"></span> <br/>         
+                        <span class="bold datos_alumno">DNI: </span><span class="datos_alumno" th:text="${ingresante.alumno.persona.numeroDocIdentidad}" ></span> <br/>
+                        <span class="bold datos_alumno">C&oacute;digo: </span><span class="datos_alumno" th:text="${ingresante.alumno.codigo}" ></span> <br/>
+                        <span class="bold datos_alumno">Especialidad: </span><span class="datos_alumno" th:text="${ingresante.alumno.carrera.nombre}" ></span> <br/>
+
+                    </td>                            
+
+                    <td>      
+                        <span class="bold datos_alumno">Muestra Abs: </span><span class="datos_alumno" th:text="${ingresante.laboratorio.valorMuestra}" ></span> <br/>
+                        <span class="bold datos_alumno">Est&aacute;ndar Abs: </span><span class="datos_alumno" th:text="${ingresante.laboratorio.estandar}" ></span> <br/>
+                        <span class="bold datos_alumno">Hemoglobina(g/dL): </span><span class="datos_alumno" th:text="${ingresante.laboratorio.hemoglobina}" ></span> <br/>
+                        <span class="bold datos_alumno">Sangre: </span>
+                        <span class="datos_alumno" th:text="${ingresante.laboratorio.tipoSangreEnum.value}" ></span>
+                        <span>&nbsp;</span>
+                        <span class="datos_alumno"  th:if="${ingresante.laboratorio.tipoSangreEnum.value != 'Por Confirmar'}" th:text="${ingresante.laboratorio.factorRHEnum.value}" ></span> <br/>
+
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </body>
+</html>

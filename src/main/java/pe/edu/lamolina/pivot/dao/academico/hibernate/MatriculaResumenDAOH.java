@@ -299,7 +299,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
-    public void savePosGrado(List<String> situacionesPosgrado, CicloAcademico academico) {
+    public void saveMatriculables(List<Long> alumnos, CicloAcademico academico) {
         StringBuilder strb = new StringBuilder("");
         strb.append("insert into ");
         strb.append("MatriculaResumen ");
@@ -316,6 +316,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("notaAvance,");
         strb.append("notaFinal,");
         strb.append("estado, ");
+        strb.append("esUltimoCiclo, ");
         strb.append("creditosTrikaPagados ");
         strb.append(")");
         strb.append("select ");
@@ -331,66 +332,18 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("'0', ");
         strb.append("'0', ");
         strb.append("'NMAT', ");
+        strb.append("CASE WHEN alum.creditosAprobados  >= ").append(Constantine.CAPA_ULTIMO_CICLO);
+        strb.append(" THEN ").append(true).append(" ELSE ").append(false).append(" END, ");
         strb.append("0 ");
-        strb.append("from Alumno alum ");
+        strb.append("from Alumno as alum ");
         strb.append("inner join alum.modalidadEstudio me ");
         strb.append("inner join alum.situacionAcademica sit, ");
         strb.append("CicloAcademico cic ");
-        strb.append("where sit.codigo in ( :codigos ) and me.codigo = 'EPG' ");
-        strb.append("and cic.id = :ciclo ");
-        strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");
+        strb.append("where alum.id in (:alumnos) and cic.id = :ciclo ");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("ciclo", academico.getId());
-        query.setParameterList("codigos", situacionesPosgrado);
-        query.executeUpdate();
-    }
-
-    @Override
-    public void savePreGrado(List<String> situacionesPregrado, CicloAcademico academico) {
-        StringBuilder strb = new StringBuilder("");
-        strb.append("insert into ");
-        strb.append("MatriculaResumen ");
-        strb.append("(");
-        strb.append("alumno,");
-        strb.append("cicloAcademico,");
-        strb.append("situacionInicio,");
-        strb.append("creditosRetirados,");
-        strb.append("creditosMatriculados,");
-        strb.append("cursosMatriculados,");
-        strb.append("cursosRetirados,");
-        strb.append("porcentajeAvance,");
-        strb.append("notaAcumulada,");
-        strb.append("notaAvance,");
-        strb.append("notaFinal,");
-        strb.append("estado, ");
-        strb.append("creditosTrikaPagados ");
-        strb.append(")");
-        strb.append("select ");
-        strb.append("alum,");
-        strb.append("cic, ");
-        strb.append("sit, ");
-        strb.append("0, ");
-        strb.append("0, ");
-        strb.append("0, ");
-        strb.append("0, ");
-        strb.append("0, ");
-        strb.append("'0', ");
-        strb.append("'0', ");
-        strb.append("'0', ");
-        strb.append("'NMAT', ");
-        strb.append("0 ");
-        strb.append("from Alumno alum ");
-        strb.append("inner join alum.modalidadEstudio me ");
-        strb.append("inner join alum.situacionAcademica sit, ");
-        strb.append("CicloAcademico cic ");
-        strb.append("where sit.codigo in ( :codigos ) and me.codigo = 'PRE'");
-        strb.append("and cic.id = :ciclo ");
-        strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");
-
-        Query query = getCurrentSession().createQuery(strb.toString());
-        query.setParameter("ciclo", academico.getId());
-        query.setParameterList("codigos", situacionesPregrado);
+        query.setParameterList("alumnos", alumnos);
         query.executeUpdate();
     }
 
