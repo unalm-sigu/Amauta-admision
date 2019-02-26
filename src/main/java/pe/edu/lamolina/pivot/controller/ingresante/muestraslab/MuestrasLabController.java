@@ -91,6 +91,10 @@ public class MuestrasLabController {
 
                 if (resultHistoria.size() > 0) {
                     HistoriaClinica historiaCli = resultHistoria.get(0);
+                    //riesgo alumno
+                    Boolean riesgo = service.findRiesgoAlumno(historiaCli);                    
+                    reco.setTieneRiesgo(riesgo);
+                    
                     //busqueda laboratorio
                     List<HistoriaLaboratorio> resultLaboratorio = laboratorios.stream()
                             .filter(item -> item.getHistoriaClinica().getId().equals(historiaCli.getId()))
@@ -120,7 +124,8 @@ public class MuestrasLabController {
                             "laboratorio.id",
                             "laboratorio.numeroMuestra",
                             "laboratorio.fechaRegistro",
-                            "laboratorio.historiaClinica.id"
+                            "laboratorio.historiaClinica.id",
+                            "tieneRiesgo"
                         });
                 array.add(node);
             }

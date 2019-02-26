@@ -1,0 +1,17 @@
+<modal-vik ref="modalObservacion"
+           v-bind="newObservacionModal"
+           v-bind:okaction="cerrarObservacion">
+
+    <div slot="body">      
+
+        <div class="row m-t-md">             
+            <div class="col-md-12">
+                <textarea v-model="itemSelected.laboratorio.observaciones" class="form-control col-md-10" rows="5"></textarea>
+            </div>
+        </div>
+    </div>
+
+</modal-vik>
+
+
+

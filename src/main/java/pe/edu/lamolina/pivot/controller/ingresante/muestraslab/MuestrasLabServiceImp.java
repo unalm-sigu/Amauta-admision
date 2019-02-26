@@ -15,11 +15,13 @@ import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.model.medico.HistoriaClinica;
+import pe.edu.lamolina.model.medico.HistoriaEnfermedad;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.RecorridoIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.laboratorio.HistoriaLaboratorioDAO;
 import pe.edu.lamolina.pivot.dao.medico.HistoriaClinicaDAO;
+import pe.edu.lamolina.pivot.dao.medico.HistoriaEnfermedadDAO;
 import pe.edu.lamolina.pivot.dao.sip.TurnoEntrevistaObuaeDAO;
 
 @Service
@@ -40,7 +42,10 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-    
+
+    @Autowired
+    HistoriaEnfermedadDAO historiaEnfermedadDAO;
+
     @Autowired
     VisorMuestrasLab visorMuestrasLab;
 
@@ -102,9 +107,9 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
             }
         }
         numLab++;
-        
+
         visorMuestrasLab.setNumeroLab(numLab);
-        
+
     }
 
     @Override
@@ -158,6 +163,17 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     @Override
     public List<RecorridoIngresante> allIngresantesDynatableByPersona(DynatableFilter filter, List<Persona> personas) {
         return recorridoIngresanteDAO.allIngresantesDynatableByPersona(filter, personas);
-    }    
-    
+    }
+
+    @Override
+    public Boolean findRiesgoAlumno(HistoriaClinica historia) {
+        List<HistoriaEnfermedad> enfermedadesAntecedente = historiaEnfermedadDAO.allByHistoriaClinica(historia);
+        for (HistoriaEnfermedad enfermedad : enfermedadesAntecedente) {
+            if (enfermedad.getEnfermedad().getTieneRiesgo()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
