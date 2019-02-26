@@ -50,4 +50,4 @@ public class TipoCarpetaDAOH extends AbstractEasyDAO<TipoCarpeta> implements Tip
         return all(sql);
     }
 
-}
+    }
