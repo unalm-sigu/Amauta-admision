@@ -209,9 +209,9 @@
                                     <label v-if="curso.tipoCredito == 'FIJO' ">Créditos</label>
                                     <label v-if="curso.tipoCredito == 'VAR' ">Créditos Máximo</label>
                                     <div class="form-group">
-                                        <input name="creditos" class="form-control text-right numerico" required="true" maxlength="2" data-trigger="change"
+                                        <input name="creditos" v-model="curso.creditos" class="form-control text-right numerico" required="true" maxlength="2" data-trigger="change"
                                                v-if="curso.tipoCredito == 'FIJO' " v-bind:readonly="curso.tipoCredito == 'FIJO' || tipoCurriculaEnum.name != 'REG' " v-bind:value="curso.creditos" />
-                                        <input name="creditosVariables" class="form-control text-right numerico" required="true" maxlength="2" data-trigger="change"
+                                        <input name="creditosVariables" v-model="curso.creditosVariables" class="form-control text-right numerico" required="true" maxlength="2" data-trigger="change"
                                                v-if="curso.tipoCredito == 'VAR' " v-bind:readonly="tipoCurriculaEnum.name != 'REG' " v-bind:value="curso.creditosVariables" />
                                     </div>
                                 </div>
