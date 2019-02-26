@@ -50,14 +50,4 @@ public class TipoCarpetaDAOH extends AbstractEasyDAO<TipoCarpeta> implements Tip
         return all(sql);
     }
 
-    @Override
-    public TipoCarpeta findTipoCarpetaBySeccion(Seccion seccion) {
-        Octavia sql = Octavia.query()
-                .select("tc")
-                .from(Seccion.class, "secc")
-                .join("secc.tipoCarpeta tc")
-                .filter("secc.id", seccion);
-        return find(sql);
-    }
-
 }
