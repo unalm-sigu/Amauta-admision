@@ -1,0 +1,20 @@
+<div class="form-group">
+    <label class="bold text-primary control-label col-md-12">Tipo Carpeta</label>
+    <div class="col-md-5">
+        <multiselect 
+            v-model="seccionSeleccionada.tipoCarpeta" 
+            v-bind:options='tipocarpetas'
+            select-label=''
+            deselect-label=''
+            label='nombre'
+            track-by='id'
+            v-bind:allow-empty="false" 
+            placeholder=" "
+            v-on:search-change="buscarTipoCarpeta"
+            v-on:input="saveTipoCarpeta">
+            <template slot="option" slot-scope="props">
+                {{props.option.codigo}} - {{props.option.nombre}}
+            </template>
+        </multiselect>
+    </div>
+</div>

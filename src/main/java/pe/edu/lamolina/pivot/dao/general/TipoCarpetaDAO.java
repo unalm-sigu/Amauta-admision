@@ -10,4 +10,6 @@ public interface TipoCarpetaDAO extends EasyDAO<TipoCarpeta> {
 
     public List<TipoCarpeta> allTipoCarpeta();
 
+    public List<TipoCarpeta> allByNombre(String nombre);
+
 }
