@@ -687,15 +687,23 @@ public class MatriculableServiceImp implements MatriculableService {
         MatriculaResumen matri = new MatriculaResumen();
         CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         Alumno alumno = alumnoDAO.find(alumnoForm);
-        /*        if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_D) {            
-            AlumnoCiclo lastAlumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
-            if (lastAlumnoCiclo.getSituacionFinal().isCodigoD()) {
-                alumno.setSituacionAcademica(lastAlumnoCiclo.getSituacionInicio());
-            } else {
-                alumno.setSituacionAcademica(lastAlumnoCiclo.getSituacionFinal());
-            }
-        }*/
+        AlumnoCiclo alumnoCicloSituacion = alumnoCicloDAO.findByAlumnoCiclo(alumno, ciclo);
+        SituacionAcademica situacionAcademica = null;
+        if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_3) {
+            situacionAcademica = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_3U.name());
 
+        } else if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_6) {
+            situacionAcademica = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_6U.name());
+        }
+        if (situacionAcademica != null) {            
+            alumno.setSituacionAcademica(situacionAcademica);
+            alumnoDAO.update(alumno);
+            if (alumnoCicloSituacion != null) {
+                
+                alumnoCicloSituacion.setSituacionFinal(situacionAcademica);
+                alumnoCicloDAO.update(alumnoCicloSituacion);
+            }
+        }
         SituacionAcademica sit = alumno.getSituacionAcademica();
         ModalidadEstudio modalidad = alumno.getModalidadEstudio();
         List<SituacionAcademicaEnum> sitEnum = Arrays.asList(S_8, S_9);
