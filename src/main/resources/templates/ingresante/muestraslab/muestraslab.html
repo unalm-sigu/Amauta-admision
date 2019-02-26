@@ -161,7 +161,7 @@
                                                     <tr>
                                                         <th class="col-xs-2">Alumno</th>
                                                         <th class="col-xs-3"></th>
-                                                        <th class="col-xs-2">Fecha Atención</th>
+                                                        <th class="col-xs-2">Fecha Atención</th>z
                                                         <th class="col-xs-3">Número de Laboratorio</th>
                                                     </tr> 
 
@@ -196,8 +196,10 @@
                                                             </span>
                                                             <small class="block bold">
                                                                 Especialidad: {{item.alumno.carrera.nombre}}
-                                                            </small>
-                                                            <br/>
+                                                            </small>                                                       
+
+                                                            <br/> 
+
                                                             <span class="block bold">
                                                                 Número de Atención: {{item.numeroAtencion}}
                                                             </span>
@@ -207,7 +209,12 @@
                                                         <td class="v-middle">
                                                             <span class="block">
                                                                 {{item.laboratorio.fechaRegistro}}
+
+                                                                <span v-if="item.tieneRiesgo" class="text-primary bold">
+                                                                    R
+                                                                </span>
                                                             </span>
+
 
                                                         </td>
 

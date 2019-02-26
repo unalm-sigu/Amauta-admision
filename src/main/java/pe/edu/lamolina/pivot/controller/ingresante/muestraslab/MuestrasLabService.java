@@ -40,4 +40,6 @@ public interface MuestrasLabService {
     List<HistoriaClinica> allHistoriaByPersonas(List<Persona> personas);
 
     void deleteLaboratorio(HistoriaLaboratorio laboratorio);
+    
+    Boolean findRiesgoAlumno(HistoriaClinica historia);
 }
