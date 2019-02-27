@@ -473,6 +473,10 @@
                                                     v-bind:class="getClassTab('PRECIOS')" v-on:click="verTab('PRECIOS')">
                                                     <a href="#5Conte" data-toggle="tab">Precios</a>
                                                 </li>
+                                                <li v-if="seccionSeleccionada.estado == 'ACT' " 
+                                                    v-bind:class="getClassTab('CARPETA')" v-on:click="verTab('CARPETA')">
+                                                    <a href="#6Conte" data-toggle="tab">Tipo Carpeta</a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </header>
@@ -493,6 +497,9 @@
                                         <div v-if="ciclo.tipo == 'NIV' " 
                                              class="tab-pane" v-bind:class="getClassTab('PRECIOS')" id="5Conte">
                                             <div th:substituteby="academico/gposeccion/includes/precioSeccionForm"/>
+                                        </div>
+                                        <div class="tab-pane" v-bind:class="getClassTab('CARPETA')" id="6Conte">
+                                            <div th:substituteby="academico/gposeccion/includes/tipocarpetaform"/>
                                         </div>
                                     </div>
 
@@ -519,6 +526,7 @@
         <div th:substituteby="academico/gposeccion/components/repitenciaComponent"/>
         <div th:substituteby="academico/gposeccion/components/grupoRegularAulaComponent"/>
         <div th:substituteby="academico/gposeccion/components/horaAdicionalComponente"/>
+        <div th:substituteby="academico/gposeccion/components/tipocarpetacomponent"/>
     </section>
 
     <div layout:fragment="js">
@@ -542,6 +550,7 @@
         <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/grupoRegularAulaComponet.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/horaAdicionalComponente.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/tipocarpetacomponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
     </div>
 </body>

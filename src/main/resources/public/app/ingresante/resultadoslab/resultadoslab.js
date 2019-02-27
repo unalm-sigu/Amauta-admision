@@ -2,12 +2,21 @@
 Vue.component("multiselect", window.VueMultiselect.default)
 
 new Vue({
-    el: '#ingresantesVUE',
+    el: '#resultadosVUE',
     data: {
         turnoSelected: {},
         ingresantesURL: APP.url('ingresante/resultadoslab/list'),
         tipoSangreList: [],
-        rhList: [1, -1]
+        rhList: [],
+        itemSelected: {laboratorio:''},
+        newObservacionModal: {
+            id: 'modalObservacion',
+            header: true,
+            title: 'Observaciones',
+            okbtn: 'Aceptar',
+            showaccept: true
+        },
+
     },
     mounted: function () {
         let $vue = this;
@@ -18,6 +27,7 @@ new Vue({
         };
 
         $vue.loadTipoSangre();
+        $vue.loadFactorRh();
         console.log(" $vue.$refs.raptorRL", $vue.$refs.raptorRL._props);
     },
     methods: {
@@ -28,6 +38,11 @@ new Vue({
                 item.laboratorio.tipoSangre = item.laboratorio.tipoSangreEnum.name;
             }
             delete item.laboratorio.tipoSangreEnum;
+
+            if (item.laboratorio.factorRHEnum != null) {
+                item.laboratorio.factorRH = item.laboratorio.factorRHEnum.name;
+            }
+            delete item.laboratorio.factorRHEnum;
 
             console.log("item selected", item)
 
@@ -60,13 +75,27 @@ new Vue({
             })
         },
 
-        labelrh(item) {
-            if (item == -1) {
-                return "Negativo"
-            } else {
-                return "Positivo"
-            }
+        loadFactorRh() {
+            let $vue = this;
+            $.ajax({
+                url: APP.url("ingresante/resultadoslab/factorRhList"),
+                dataType: 'json',
+                type: 'post',
+            }).then(response => {
+                console.log("factorRhList", response);
+                $vue.rhList = response.data;
+            })
         },
+        abrirObservaciones(item) {
+            let $vue = this;
+            $vue.itemSelected = item;            
+            $vue.$refs.modalObservacion.open();
+        },
+        cerrarObservacion() {
+            let $vue = this;
+            $vue.$refs.modalObservacion.close();
+
+        }
     }
 });
 

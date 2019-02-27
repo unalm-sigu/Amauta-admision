@@ -1,3 +1,5 @@
+Vue.component("multiselect", window.VueMultiselect.default)
+
 new Vue({
     el: '#preciocursocicloVUE',
     data: {
@@ -19,11 +21,14 @@ new Vue({
             showaccept: true,
             modalsize: 'modal-lg',
         },
-        cantidadalumno: {general: null, carrera: null}
+        cantidadalumno: {general: null, carrera: null},
+        cursoCicloAcademico: '',
+        tipoCarpetas: []
     },
     mounted() {
         let $vue = this;
         $(".numerico").numeric({negative: false});
+        $vue.tipoCarpetas = JSON.parse(tipoCarpetasJson);
     },
     updated() {
         let $vue = this;
@@ -31,8 +36,6 @@ new Vue({
     },
     methods: {
         verGuardar() {
-
-
             let $vue = this;
             this.guardaPrecio = true;
 
@@ -54,8 +57,6 @@ new Vue({
         guardar() {
             this.guardaPrecio = true;
             let $vue = this;
-            //console.dir($vue.$refs.raptorPrecioCursoCiclo);
-            //console.dir($vue.$refs.raptorPrecioCursoCiclo.data);
             $.ajax({
                 method: "POST",
                 contentType: "application/json",
@@ -63,7 +64,6 @@ new Vue({
                 data: JSON.stringify($vue.$refs.raptorPrecioCursoCiclo.data)
             }).then(response => {
                 if (response.success) {
-//                    console.log("entro aquí")
                     $vue.verTabla = false;
                     $vue.guardaPrecio = false;
                     $vue.$refs.raptorPrecioCursoCiclo.loadRemoteData();
@@ -84,8 +84,8 @@ new Vue({
         },
         saveCantidadAlumno() {
             let $vue = this;
-            if($("#formcfgCantidadAlumno").parsley().validate()!=true){
-               return;
+            if ($("#formcfgCantidadAlumno").parsley().validate() != true) {
+                return;
             }
             swal('¿Seguro que desea registrar la cantidad mínima de alumnos requerido por curso?', {
                 icon: "warning",
@@ -128,14 +128,37 @@ new Vue({
                 }
             });
         },
-        editarmodal() {
+        editarmodal(item) {
             let $vue = this;
-            $vue.modalPreciocursociclo.title = "Nueva Carpeta";
-            $vue.modalPreciocursociclo.okbtn = "Crear";
+            $vue.cursoCicloAcademico = item;
+            $vue.modalPreciocursociclo.title = "Configuración Tipo Carpeta : " + item.cicloAcademico.descripcion + " - " + item.curso.codigo;
+            $vue.modalPreciocursociclo.okbtn = "Actualizar";
             $vue.$refs.modalPreciocursociclo.open();
+
+            $vue.tipoCarpetasTeorias = [];
+            $vue.isLoading = true;
         },
-        saveModal() {
+        updateModal() {
             let $vue = this;
+            $.ajax({
+                method: 'POST',
+                async: false,
+                url: APP.url('academico/preciocursociclo/update'),
+                contentType: "application/json",
+                data: JSON.stringify($vue.cursoCicloAcademico),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.modalPreciocursociclo.close();
+                        $vue.$refs.raptorPrecioCursoCiclo.loadRemoteData();
+                        return  swal({text: response.message, icon: "success", button: false, timer: 1000});
+                    } else {
+                        return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                    }
+                },
+                error: function () {
+                    return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                }
+            });
         }
     }
 });

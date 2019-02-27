@@ -148,7 +148,7 @@ $(function () {
             aulaHorarioVue.horas = [];
             var component = aulaHorarioVue.$mount();
 
-            MODAL.title("Horario Ambiente " + codigo  );
+            MODAL.title("Horario Ambiente " + codigo);
             MODAL.buttons('');
             MODAL.body(component.$el);
             MODAL.show();

@@ -1951,7 +1951,7 @@ var app = new Vue({
             $vue.$refs.modalHorasAdicionalesComponent.seccion = seccion;
             if (seccion.grupoHoras.id) {
                 $vue.$refs.modalAgregarHorasAdicionales.showaccept = false;
-            }else{
+            } else {
                 $vue.$refs.modalAgregarHorasAdicionales.showaccept = true;
             }
         },
@@ -1983,7 +1983,7 @@ var app = new Vue({
         },
         showHorasSemanales(seccion) {
             return seccion.horasAdicionales > 0;
-        }
+        },
     }
 });
 

@@ -21,6 +21,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
+import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -38,7 +39,10 @@ public class PrecioCursoCicloController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
+        List<TipoCarpeta> tipoCarpeta = service.allTipoCarpeta();
+
         model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("tipoCarpetas", createTipoCarpetaJson(tipoCarpeta).toString());
 
         return "academico/preciocursociclo/precioCursoCiclo";
     }
@@ -58,13 +62,17 @@ public class PrecioCursoCicloController {
             for (CursoCicloAcademico cursoCiclo : cursosCiclo) {
                 ObjectNode node = JsonHelper.createJson(cursoCiclo, JsonNodeFactory.instance, true,
                         new String[]{
-                            "curso.id", "curso.estado", "curso.codigo", 
+                            "curso.id", "curso.estado", "curso.codigo",
                             "curso.nombre", "curso.tpc", "curso.departamentoAcademico.nombre",
                             "cicloAcademico.descripcion",
                             "id", "cantidadGpoSecc", "estado", "precio",
                             "precioPersonalizado", "precioFormato", "precioAdicional", "precioAdicionalFormato", "minimoAlumnos",
                             "tipoCursoCurricula.id",
-                            "tipoCursoCurricula.nombre"
+                            "tipoCursoCurricula.nombre",
+                            "tipoCarpetaPractica.id",
+                            "tipoCarpetaPractica.nombre",
+                            "tipoCarpetaTeoria.id",
+                            "tipoCarpetaTeoria.nombre"
                         });
 
                 array.add(node);
@@ -98,13 +106,31 @@ public class PrecioCursoCicloController {
         }
         return response;
     }
+    
+    @ResponseBody
+    @RequestMapping("update")
+    public JsonResponse update(@RequestBody CursoCicloAcademico cursoCicloAcademico, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.update(cursoCicloAcademico, ds);
+            response.setMessage("El registro fue actualizado satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 
     @ResponseBody
     @RequestMapping("configurarcantidad")
     public JsonResponse configurarcantidad(@RequestBody CantidadAlumno cantidadAlumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.configurarcantidad(cantidadAlumno, ds.getCicloAcademico());
             response.setMessage(Messages.UPDATED);
@@ -118,4 +144,14 @@ public class PrecioCursoCicloController {
         return response;
     }
 
+    private ArrayNode createTipoCarpetaJson(List<TipoCarpeta> tipocarpetas) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoCarpeta tipocarpeta : tipocarpetas) {
+            ObjectNode node = JsonHelper.createJson(tipocarpeta, JsonNodeFactory.instance, true, new String[]{
+                "id", "nombre", "codigo"
+            });
+            array.add(node);
+        }
+        return array;
+    }
 }
