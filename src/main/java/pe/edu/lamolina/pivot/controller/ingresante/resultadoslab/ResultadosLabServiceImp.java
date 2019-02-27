@@ -120,4 +120,9 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
         return recorridoIngresanteDAO.allIngresantesDynatableByPersona(filter, personas);
     }
 
+    @Override
+    public List<RecorridoIngresante> allIngresantesByPersona(List<Persona> personas) {
+        return recorridoIngresanteDAO.allIngresantesByPersonas(personas);
+    }
+
 }

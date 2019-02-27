@@ -51,19 +51,31 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
 
         return all(sql);
     }
-    
+
+    @Override
+    public List<RecorridoIngresante> allIngresantesByPersonas(List<Persona> personas) {
+        Octavia sql = Octavia.query()
+                .from(RecorridoIngresante.class, "ri")
+                .join("cicloAcademico ci", "alumno al")
+                .join("al.persona per", "al.carrera car")
+                .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
+                .in("per.id", personas)
+                .orderBy("per.paterno asc","per.materno asc","per.nombres asc");
+
+        return all(sql);
+    }
+
     @Override
     public List<RecorridoIngresante> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(RecorridoIngresante.class, "ri")
-                .join("cicloAcademico ci","alumno a","a.persona per")
+                .join("cicloAcademico ci", "alumno a", "a.persona per")
                 .leftJoin("turnoEntrevistaObuae tu")
                 .filter("ci.id", ciclo)
                 .orderBy("ri.numeroAtencion asc");
 
         return all(sql);
     }
-    
 
     @Override
     public List<RecorridoIngresante> allByDynatableCicloTurno(DynatableFilter filter, CicloAcademico ciclo, TurnoEntrevistaObuae turno) {
@@ -78,6 +90,19 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("ri.numeroAtencion asc");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<RecorridoIngresante> allConTurno(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(RecorridoIngresante.class, "ri")
+                .join("cicloAcademico ci", "alumno a", "a.persona per")
+                .leftJoin("turnoEntrevistaObuae tu")
+                .filter("ci.id", ciclo)
+                .isNotNull("turnoEntrevistaObuae")
+                .orderBy("per.paterno asc", "per.materno asc", "per.nombres asc");
 
         return all(sql);
     }

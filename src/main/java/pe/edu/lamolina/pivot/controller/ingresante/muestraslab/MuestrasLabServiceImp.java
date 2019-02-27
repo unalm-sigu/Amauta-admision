@@ -56,6 +56,12 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
         return recorridoIngresanteDAO.allByDynatableCicloTurno(filter, ciclo, turno);
     }
+    
+    @Override
+    public List<RecorridoIngresante> allIngresantesConTurno(CicloAcademico ciclo) {
+
+        return recorridoIngresanteDAO.allConTurno(ciclo);
+    }
 
     @Override
     public HistoriaLaboratorio findLaboratorioByRecorridoIngresante(RecorridoIngresante recorrido) {

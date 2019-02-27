@@ -40,24 +40,15 @@ public class TipoCarpetaDAOH extends AbstractEasyDAO<TipoCarpeta> implements Tip
     public List<TipoCarpeta> allByNombre(String nombre) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
-                .from(TipoCarpeta.class, "ca")
+                .from(TipoCarpeta.class, "tip")
                 .leftJoin("tipoCarpetaSuperior sup")
                 .beginBlock()
-                .__().filter("ca.codigo", "like", nombre)
-                .__().filter("ca.nombre", "like", nombre)
+                .__().filter("tip.codigo", "like", nombre)
+                .__().filter("tip.nombre", "like", nombre)
                 .endBlock()
+                .orderBy("tip.nombre")
                 .limit(15);
         return all(sql);
     }
 
-    @Override
-    public TipoCarpeta findTipoCarpetaBySeccion(Seccion seccion) {
-        Octavia sql = Octavia.query()
-                .select("tc")
-                .from(Seccion.class, "secc")
-                .join("secc.tipoCarpeta tc")
-                .filter("secc.id", seccion);
-        return find(sql);
     }
-
-}

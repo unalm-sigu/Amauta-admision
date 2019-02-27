@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.ingresante.muestraslab;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -29,6 +31,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.model.medico.HistoriaClinica;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
+import pe.edu.lamolina.pivot.controller.reporte.view.IngresanteMuestraLabView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -40,7 +43,10 @@ public class MuestrasLabController {
     MuestrasLabService service;
 
     @Autowired
-    VisorMuestrasLab visorMuestrasLab;
+    VisorMuestrasLab visorMuestrasLab;    
+    
+    @Autowired
+    IngresanteMuestraLabView ingresanteMuestraLabView;
 
     @RequestMapping(method = RequestMethod.GET)
     public String postulante(Model model, HttpSession session) {
@@ -289,6 +295,21 @@ public class MuestrasLabController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+    
+    @RequestMapping("listaExcel")
+    public ModelAndView listaExcel(Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        
+        List<RecorridoIngresante> ingresantes = service.allIngresantesConTurno(ds.getCicloAcademico());
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoIngresanteMuestraLab.xlsx");
+
+        model.addAttribute("formato", formato);
+        model.addAttribute("ingresantes", ingresantes);
+        
+        return new ModelAndView(ingresanteMuestraLabView);
     }
 
 }

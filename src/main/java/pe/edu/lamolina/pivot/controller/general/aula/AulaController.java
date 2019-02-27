@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.persistence.Column;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,7 +41,6 @@ import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -251,13 +248,13 @@ public class AulaController {
 
                 service.save(aula, ds.getUsuario());
             } else {
-//                service.update(aula, ds.getUsuario());
+                service.update(aula, ds.getUsuario());
             }
             Notificaciones.crearMsg(mensaje, redirectAttr);
 
         } catch (PhobosException ex) {
             ExceptionHandler.handleException(ex, redirectAttr);
-    
+
         } catch (Exception e) {
             ExceptionHandler.handleException(e, redirectAttr);
 
@@ -275,6 +272,7 @@ public class AulaController {
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
         model.addAttribute("tiposAula", service.allTiposAula());
+        model.addAttribute("tiposCarpeta", service.allTipoCarpeta());
         model.addAttribute("sedes", service.allSedes());
         return "general/aula/aulaForm";
     }
@@ -493,17 +491,6 @@ public class AulaController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
-    }
-
-    private ArrayNode createTipoCarpetaJson(List<TipoCarpeta> tipocarpetas) {
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-        for (TipoCarpeta tipocarpeta : tipocarpetas) {
-            ObjectNode node = JsonHelper.createJson(tipocarpeta, JsonNodeFactory.instance, true, new String[]{
-                "id", "nombre", "codigo"
-            });
-            array.add(node);
-        }
-        return array;
     }
 
 }

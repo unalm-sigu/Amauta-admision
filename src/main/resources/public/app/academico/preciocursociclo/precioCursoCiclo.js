@@ -57,8 +57,6 @@ new Vue({
         guardar() {
             this.guardaPrecio = true;
             let $vue = this;
-            //console.dir($vue.$refs.raptorPrecioCursoCiclo);
-            //console.dir($vue.$refs.raptorPrecioCursoCiclo.data);
             $.ajax({
                 method: "POST",
                 contentType: "application/json",
@@ -66,7 +64,6 @@ new Vue({
                 data: JSON.stringify($vue.$refs.raptorPrecioCursoCiclo.data)
             }).then(response => {
                 if (response.success) {
-//                    console.log("entro aquí")
                     $vue.verTabla = false;
                     $vue.guardaPrecio = false;
                     $vue.$refs.raptorPrecioCursoCiclo.loadRemoteData();
@@ -133,9 +130,8 @@ new Vue({
         },
         editarmodal(item) {
             let $vue = this;
-            console.log(JSON.stringify(item))
             $vue.cursoCicloAcademico = item;
-            $vue.modalPreciocursociclo.title = "Editar Carpeta";
+            $vue.modalPreciocursociclo.title = "Configuración Tipo Carpeta : " + item.cicloAcademico.descripcion + " - " + item.curso.codigo;
             $vue.modalPreciocursociclo.okbtn = "Actualizar";
             $vue.$refs.modalPreciocursociclo.open();
 
@@ -144,7 +140,6 @@ new Vue({
         },
         updateModal() {
             let $vue = this;
-            console.log("save");
             $.ajax({
                 method: 'POST',
                 async: false,

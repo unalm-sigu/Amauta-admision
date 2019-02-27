@@ -47,6 +47,7 @@ import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
+import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -242,13 +243,16 @@ public class CursoController {
         model.addAttribute("idiomasJson", getIdiomasJson().toString());
         model.addAttribute("departamentosJson", getDptosAcademicosJson(cia).toString());
         model.addAttribute("carrerasJson", getCarrerasJson().toString());
+        model.addAttribute("tiposCarpetaJson", getTipoCarpetaJson().toString());
     }
 
     private ObjectNode getCursoJson(Curso curso) {
         ObjectNode cursoJson = JsonHelper.createJson(curso, JsonNodeFactory.instance, true, new String[]{
             "id", "codigo", "codigoAnterior1", "nombre", "tpc", "creditos", "creditosVariables", "creditosTeoria", "creditosPractica",
             "horasTeoria", "horasPractica", "horasTeoriaVerano", "horasPracticaVerano", "tipoCurso", "tipoCursoEnum", "tipoCredito", "tipoCreditoEnum",
-            "tipoCurricula", "tipoCurriculaEnum", "nivel", "noEncuestar", "noCargaAdicional",
+            "tipoCurricula", "tipoCurriculaEnum", "nivel", "noEncuestar", "noCargaAdicional", 
+            "tipoCarpetaTeoria.id", "tipoCarpetaTeoria.nombre",  "tipoCarpetaTeoria.codigo", 
+            "tipoCarpetaPractica.id", "tipoCarpetaPractica.nombre", "tipoCarpetaPractica.codigo",
             "departamentoAcademico.id",
             "departamentoAcademico.codigo",
             "departamentoAcademico.nombre",
@@ -312,6 +316,7 @@ public class CursoController {
     private ArrayNode getCarrerasJson() {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         List<Carrera> carreras = service.allCarrerasByPostgrado();
+        logger.debug("carreras {}", carreras.size());
         Collections.sort(carreras, new Carrera.CompareNombrePosgrado());
         for (Carrera carr : carreras) {
             ObjectNode node = JsonHelper.createJson(carr, JsonNodeFactory.instance, true, new String[]{
@@ -330,6 +335,18 @@ public class CursoController {
         List<Idioma> idiomas = service.allIdiomas();
         for (Idioma idioma : idiomas) {
             ObjectNode node = JsonHelper.createJson(idioma, JsonNodeFactory.instance, true, new String[]{"*"});
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ArrayNode getTipoCarpetaJson() {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<TipoCarpeta> tiposCarpeta = service.allTiposCarpeta();
+        logger.debug("tipo carpeta {}", tiposCarpeta.size());
+
+        for (TipoCarpeta tipoCarpeta : tiposCarpeta) {
+            ObjectNode node = JsonHelper.createJson(tipoCarpeta, JsonNodeFactory.instance, true, new String[]{"*"});
             array.add(node);
         }
         return array;

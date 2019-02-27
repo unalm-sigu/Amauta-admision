@@ -2,7 +2,6 @@ package pe.edu.lamolina.pivot.dao.general;
 
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
-import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.TipoCarpeta;
 
 public interface TipoCarpetaDAO extends EasyDAO<TipoCarpeta> {
@@ -12,7 +11,5 @@ public interface TipoCarpetaDAO extends EasyDAO<TipoCarpeta> {
     public List<TipoCarpeta> allTipoCarpeta();
 
     public List<TipoCarpeta> allByNombre(String nombre);
-
-    public TipoCarpeta findTipoCarpetaBySeccion(Seccion seccion);
 
 }
