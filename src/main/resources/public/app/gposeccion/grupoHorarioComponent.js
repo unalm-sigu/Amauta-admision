@@ -24,16 +24,18 @@ Vue.component("grupohorario-component", {
     mounted: function () {
 
         let $vue = this;
-        $global.$on("loadGrupoComponent", function (seccion) {
-            $vue.loadGruposHorario($vue, seccion);
-        });
-
+        /*
+         $global.$on("loadGrupoComponent", function (seccion) {
+         $vue.loadGruposHorario($vue, seccion);
+         });
+         */
         $global.$on("saveGrupoHorario", function () {
             $vue.saveGrupoHorario($vue);
         });
     },
     methods: {
-        loadGruposHorario($vue, seccion) {
+        loadGruposHorario(seccion) {
+            let $vue = this;
             $vue.tabGrupos = {
                 grupoHorarioSel: {},
                 regulares: {
@@ -99,6 +101,7 @@ Vue.component("grupohorario-component", {
 
         },
         cambiarCboTipoGrupoHorReg() {
+            console.log("cambiarCboTipoGrupoHorReg");
             let $vue = this;
             $.ajax({
                 url: APP.url('academico/gposeccion/horariosRegulares'),
@@ -424,7 +427,6 @@ Vue.component("grupohorario-component", {
                 for (let key in this.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo) {
                     let diaHoraGrupoEach = this.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[key];
                     if (diaHoraGrupoEach.seleccionado) {
-                        console.dir(diaHoraGrupoEach);
                         let diaHoraGrupo = diaHoraGrupoEach.id;
                         let grupoHorario = diaHoraGrupoEach.grupoHorario.id;
                         let dia = diaHoraGrupoEach.dia;

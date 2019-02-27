@@ -1691,7 +1691,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         Map<String, DiaHoraGrupo> mapHDiaGpo = TypesUtil.convertListToMap("horaDia", grupoHorario.getDiaHoraGrupo());
-        if (seccion.getAula() != null) {
+        if (seccion.getAula() != null && seccion.getAula().getPermiteCruce() == BigDecimal.ZERO.intValue()) {
             List<HorarioAula> horarioTotalAula = horarioAulaDAO.allByAulaCiclo(seccion.getAula(), cicloAcademico);
             for (HorarioAula hdiaAula : horarioTotalAula) {
                 Seccion secc = hdiaAula.getSeccion();
