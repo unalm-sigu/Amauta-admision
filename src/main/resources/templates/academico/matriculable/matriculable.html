@@ -18,6 +18,7 @@
                             <li v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="limpiarMatriculables" >Limpiar matriculable</a></li>
                             <li v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="finalizarMatriculable" >Finalizar matriculable</a></li>
                             <li ><a  v-on:click="modal">Agregar Matriculable</a></li>
+                            <li ><a  v-on:click="modalCondicional">Agregar Matriculable Condicional</a></li>
                             <!--<li><a  id="agregarMatriculable">Modal Matriculable</a></li>-->
                             <li v-if="ciclo.fechaPrioridades == null &amp;&amp; ciclo.fechaCierrePrioridades==null &amp;&amp; ciclo.fechaCierreMatriculable != null" ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
                             <li v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="eliminarPrioridad">Limpiar Prioridades</a></li>
@@ -186,6 +187,8 @@
                         <div id="matriculableModal"></div>
                         <div id="cursosModal"></div>-->
                 <div th:substituteby="academico/matriculable/modalAsignarTurno">
+                </div>
+                <div th:substituteby="academico/matriculable/modalCondicional">
                 </div>
                 <div th:substituteby="academico/matriculable/matriculableModal">
                 </div>

@@ -22,4 +22,6 @@ public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
     AlumnoCursoCurricula findByAlumnoCurso(Alumno alumno, Curso curso);
 
     void updateEstado(AlumnoCursoCurricula alumnoCursoCurricula);
+
+    public List<AlumnoCursoCurricula> allByAlumnoCicloRegularAct(Alumno alumno);
 }

@@ -151,8 +151,7 @@ public class MatriculableController {
                             "turnoAtencion.fechaHoraInicio",
                             "alumno.situacionAcademica.codigo",
                             "alumno.situacionAcademica.nombre",
-                            "alumno.situacionAcademica.descripcion",
-                        });
+                            "alumno.situacionAcademica.descripcion",});
                 if (matriculable.getPuntajePrioridad() != null) {
                     node.put("puntajePrioridad", NumberFormat.notaDecimalXDecimals(matriculable.getPuntajePrioridad(), 6));
                 }
@@ -453,12 +452,70 @@ public class MatriculableController {
     }
 
     @ResponseBody
+    @RequestMapping("allAlumnoCondicionalByNombre")
+    public JsonResponse allAlumnoCondicionalByNombre(@RequestParam("nombre") String nombre, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            List<Alumno> lista = service.allAlumnoCondicionalByNombre(nombre, ds);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Alumno alum : lista) {
+                jsonList.add(JsonHelper.createJson(alum, jsonFactory, true,
+                        new String[]{
+                            "id",
+                            "id",
+                            "codigo",
+                            "modalidadEstudio.nombre",
+                            "carrera.codigo",
+                            "carrera.nombre",
+                            "carrera.facultad.codigo",
+                            "carrera.facultad.nombre",
+                            "persona.numeroDocIdentidad",
+                            "persona.apellidosNombres",
+                            "persona.nombreCompleto",
+                            "persona.rutaFoto",
+                            "persona.tipoDocumento.*"}));
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("saveMatriculable")
     public JsonResponse saveMatriculable(@RequestBody Alumno alumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.revisarSituacionAcademica(alumno, ds);
+            service.saveMatriculable(alumno, ds);
+
+            response.setMessage("Se agregó al alumno satisfactoriamente.");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping("saveMatriculableCondicional")
+    public JsonResponse saveMatriculableCondicional(@RequestBody Alumno alumno, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.saveMatriculable(alumno, ds);
 
             response.setMessage("Se agregó al alumno satisfactoriamente.");
@@ -491,10 +548,10 @@ public class MatriculableController {
         return response;
 
     }
-  
+
     @ResponseBody
     @RequestMapping("verificarAlumnosNmat")
-    public JsonResponse verificarAlumnosNmat( HttpSession session) {
+    public JsonResponse verificarAlumnosNmat(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 

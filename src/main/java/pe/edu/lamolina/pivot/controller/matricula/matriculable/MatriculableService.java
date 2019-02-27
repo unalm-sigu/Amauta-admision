@@ -58,4 +58,6 @@ public interface MatriculableService {
 
     public void verificarAlumnosNmat(DataSessionPivot ds);
 
+    public List<Alumno> allAlumnoCondicionalByNombre(String nombre, DataSessionPivot ds);
+
 }
