@@ -81,7 +81,7 @@
                                         <a class="label label-primary m-t-xs" v-on:click="openClonar"> Clonar </a>
                                     </div>
 
-                                    <div class="col-md-9">
+                                    <div class="col-md-7">
                                         <div class="row m-b-xs">
                                             <div class="col-md-1 bold">Anexo</div>
                                             <div class="col-md-11">
@@ -110,6 +110,46 @@
                                                 
                                             </div>
                                         </div-->
+                                    </div>
+
+                                    <div class="col-md-2">
+
+                                        <div class="row m-b-xs">
+                                            
+                                            
+                                            <div class="col-md-12 bold">Modular</div>
+                                            
+                                            <div class="col-md-12">
+                                                <span class="v-middle"> 
+                                                    <label class="switch">
+                                                        <input type="checkbox"
+                                                               v-on:change="cambiarFechaModular()"
+                                                               v-model="grupoSeccion.tipoDictadoCheck" />
+                                                        <span></span>
+                                                    </label>
+                                                </span>
+                                            </div>
+
+                                            <div v-if="grupoSeccion.tipoDictadoCheck" class="col-md-12 m-t-xs">
+
+                                                <v-date-picker v-model="grupoSeccion.fechaInicioModular"
+                                                               ref="inputFechaInicioModular"
+                                                               v-on:changedate="cambiarFechaModular()"
+                                                               ></v-date-picker>
+
+                                            </div>
+                                            
+                                            <div v-if="grupoSeccion.tipoDictadoCheck" class="col-md-12 m-t-xs">
+
+                                                <v-date-picker v-model="grupoSeccion.fechaFinModular"
+                                                               ref="inputFechaFinModular"
+                                                               v-on:changedate="cambiarFechaModular()"
+                                                               ></v-date-picker>
+
+                                            </div>
+
+                                        </div>
+
                                     </div>
 
                                     <div class="col-md-2">

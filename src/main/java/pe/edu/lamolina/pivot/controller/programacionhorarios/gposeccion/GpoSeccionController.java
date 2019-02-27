@@ -61,6 +61,7 @@ import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
@@ -2308,6 +2309,7 @@ public class GpoSeccionController {
     private ObjectNode createGpoSeccionJson(GrupoSeccion gpoSeccion, String fechaMin, String fechaMax, DataSessionPivot ds) {
         ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
             "id", "estado", "estadoEnum", "codigo2", "cursoDirigido",
+            "tipoDictado","fechaInicioModular","fechaFinModular",
             "curso.id",
             "curso.codigo",
             "curso.nombre",
@@ -2325,6 +2327,9 @@ public class GpoSeccionController {
             "anexoBoletin.anexoSuperior.codigo",
             "anexoBoletin.anexoSuperior.nombre"
         });
+        
+        nodeGpoSecc.put("tipoDictadoCheck",TipoDictadoGrupoSeccionEnum.MOD.name().equalsIgnoreCase(gpoSeccion.getTipoDictado()));
+        
 
         CursoCicloAcademico cca = service.findCursoCicloAcademico(gpoSeccion.getCurso(), ds.getCicloAcademico());
 
