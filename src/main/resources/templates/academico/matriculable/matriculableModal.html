@@ -30,6 +30,22 @@
                     </div>
                     <div class="form-group">
                         <div class="col-md-12">
+                            <label>Tipo Condicional</label>
+                            <multiselect v-model="tipoCondicional" 
+                                         v-bind:options='tiposCondicionales'
+                                         label="value"
+                                         track-by='name'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Seleccione un tipo condicional"
+                                         required="true" >
+                            </multiselect>
+                            <input v-model="tipoCondicional.name" required="true" type="text" class="hide"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-12">
                             <label>Motivo</label>
                             <textarea class="form-control textarea" v-model="alumno.motivoMatriculable" minlength="15" required=""></textarea>
                         </div>
