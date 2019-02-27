@@ -2,6 +2,8 @@ package pe.edu.lamolina.pivot.controller.consejeria.consejero;
 
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -17,6 +19,8 @@ import pe.edu.lamolina.pivot.dao.consejeria.AlumnoConsejeroDAO;
 @Service
 public class AconsejadosDocenteServiceImpl implements AconsejadosDocentesService {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     AlumnoConsejeroDAO alumnoConsejeroDAO;
     @Autowired
@@ -27,6 +31,7 @@ public class AconsejadosDocenteServiceImpl implements AconsejadosDocentesService
         List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByCiclo(cicloAcademico);
         Map<Long, MatriculaResumen> alumnoResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
         List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByPersona(filter, cicloAcademico, persona);
+        logger.debug(" alumno consejero{}", alumnoConsejeros.size());
         alumnoConsejeros.forEach(x -> {
             x.setEstadoMatriculableEnum(alumnoResumen.get(x.getAlumno().getId()).getEstadoEnum());
         });

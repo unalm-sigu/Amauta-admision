@@ -72,6 +72,18 @@ new Vue({
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
+        },
+        matriculatAutoriazacion(item) {
+            let $vue = this;
+            console.log(JSON.stringify(item));
+//            $.ajax({
+//                url: APP.url("consejeria/aconsejadosdocente/autorizarMatricula"),
+//                data: {alumno: item},
+//                dataType: 'json',
+//                type: 'post',
+//            }).then(response => {
+//                $vue.count = response.data;
+//            });
         }
     }
 });

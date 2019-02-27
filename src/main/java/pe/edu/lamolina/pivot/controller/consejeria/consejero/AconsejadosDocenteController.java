@@ -50,7 +50,10 @@ public class AconsejadosDocenteController {
 
         try {
 
-            List< AlumnoConsejero> consejeros = service.allByDynatable(filter, ds.getCicloAcademico(), ds.getPersona());
+            logger.debug("imprimiendo ::: {} ", ds.getCicloAcademico());
+            logger.debug("imprimiendo ::: {} ", ds.getPersona().getId());
+
+            List<AlumnoConsejero> consejeros = service.allByDynatable(filter, ds.getCicloAcademico(), ds.getPersona());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -83,7 +86,7 @@ public class AconsejadosDocenteController {
 
     @ResponseBody
     @RequestMapping("countData")
-    public JsonResponse countData( HttpSession session) {
+    public JsonResponse countData(HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse json = new JsonResponse();

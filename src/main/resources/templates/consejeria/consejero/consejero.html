@@ -79,7 +79,8 @@
                                             <thead class="panel panel-heading">
                                                 <tr>
                                                     <th class="col-md-4 text-center v-middle"  colspan="2"></th>
-                                                    <th class="col-md-3 v-middle"></th>
+                                                    <th class="col-md-2 v-middle"></th>
+                                                    <th class="col-md-1 v-middle"></th>
                                                     <th class="col-md-1 v-middle"><span>Estado Matricula</span></th>
                                                     <th class="col-md-1 v-middle"></th>
                                                 </tr>
@@ -139,6 +140,9 @@
                                                             <span class=" bold"> Ciclo Ingreso: </span>
                                                             {{item.alumno.cicloIngreso.descripcion}}
                                                         </span>
+                                                    </td>
+                                                    <td class="v-middle">
+                                                        <input type="checkbox" v-on:click="matriculatAutoriazacion(item.alumno)"/>
                                                     </td>
                                                     <td class="v-middle">
                                                         <span v-if="item.estadoMatriculableEnum.name == 'MAT'" v-text="item.estadoMatriculableEnum.value" class="label label-primary"></span>
