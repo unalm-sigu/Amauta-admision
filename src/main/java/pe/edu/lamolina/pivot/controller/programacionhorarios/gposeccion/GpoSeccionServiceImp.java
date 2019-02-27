@@ -1549,7 +1549,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<GrupoHoras> allGrupoHorasBySeccionAndTipoGrupoHoras(Seccion seccion, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
-        if (seccion.getTotalHorasSemanales()== 0) {
+        if (seccion.getTotalHorasSemanales() == 0) {
             return new ArrayList();
         }
 
@@ -2662,7 +2662,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             cca.setPrecioAdicional(BigDecimal.ZERO);
             cca.setPrecioPersonalizado(false);
             cca.setEstado("ACT");
-
+            /*
+            cca.setTipoCarpetaPractica(cursoBD.getTipoCarpetaPractica());
+            cca.setTipoCarpetaTeoria(cursoBD.getTipoCarpetaTeoris());
+             */
             if (cicloBD.getTipoEnum() == TipoCicloEnum.REG) {
                 cca.setHorasSemanalesTeoria(cursoBD.getHorasTeoria());
                 cca.setHorasSemanalesPractica(cursoBD.getHorasPractica());
