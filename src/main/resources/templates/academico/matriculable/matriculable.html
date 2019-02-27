@@ -187,6 +187,7 @@
                         <div id="cursosModal"></div>-->
                 <div th:substituteby="academico/matriculable/modalAsignarTurno">
                 </div>
+              
                 <div th:substituteby="academico/matriculable/matriculableModal">
                 </div>
                 <div th:substituteby="academico/matriculable/inhabilitarMatriculable">
@@ -200,6 +201,7 @@
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 var resumenJson = /*[[${resumen.toString()}]]*/ 'json';
+                var tipoCondicionalJson = /*[[${tipoCondicional.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
             <div th:substituteby="_layout/includes :: javascript-upload"></div>

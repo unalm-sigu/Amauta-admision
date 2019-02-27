@@ -6,6 +6,7 @@ new Vue({
         matriculaURL: APP.url('academico/matriculable/list'),
         ciclo: JSON.parse(cicloJson),
         resumen: JSON.parse(resumenJson),
+        tiposCondicionales: JSON.parse(tipoCondicionalJson),
         configTurno: [],
         alumno: {},
         alumnos: [],
@@ -15,6 +16,13 @@ new Vue({
             title: 'Asignar Turno',
             okbtn: "Guardar",
             showaccept: false
+        },
+        modalCondicion: {
+            id: 'modalCondicion',
+            header: true,
+            title: 'Agregar Alumno ',
+            okbtn: "Guardar",
+            showaccept: true
         },
         modalMatriculable: {
             id: 'modalMatriculable',
@@ -30,7 +38,8 @@ new Vue({
             okbtn: "Aceptar",
             showaccept: true
         },
-        matriculableSelected: {}
+        matriculableSelected: {},
+        tipoCondicional:{}
 
     },
     mounted: function () {
@@ -275,7 +284,7 @@ new Vue({
             }
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/saveMatriculable'),
+                url: APP.url('academico/matriculable/saveMatriculable/'+$vue.tipoCondicional.name),
                 contentType: "application/json",
                 data: JSON.stringify($vue.alumno),
                 success: function (response) {
@@ -331,8 +340,8 @@ new Vue({
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
         },
-        verificarAlumnosNmat(){
-             let $vue = this;
+        verificarAlumnosNmat() {
+            let $vue = this;
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
