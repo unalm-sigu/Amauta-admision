@@ -44,36 +44,36 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class AulaServiceImp implements AulaService {
-
+    
     @Autowired
     AulaDAO aulaDAO;
-
+    
     @Autowired
     TipoAulaDAO tipoAulaDAO;
-
+    
     @Autowired
     SedeDAO sedeDAO;
-
+    
     @Autowired
     OficinaDAO oficinaDAO;
-
+    
     @Autowired
     HorarioAulaDAO horarioAulaDAO;
-
+    
     @Autowired
     DiaDAO diaDAO;
-
+    
     @Autowired
     ResumenInventarioDAO resumenInventarioDAO;
-
+    
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
-
+    
     @Autowired
     TipoCarpetaDAO tipoCarpetaDAO;
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Override
     public List<Aula> allByDynatable(DynatableFilter filter) {
         List<Aula> aulas = aulaDAO.allByDynatable(filter);
@@ -90,7 +90,7 @@ public class AulaServiceImp implements AulaService {
         }
         return aulas;
     }
-
+    
     @Override
     public List<TipoAula> allTiposAula() {
         List<TipoAula> tipox = new ArrayList();
@@ -104,26 +104,26 @@ public class AulaServiceImp implements AulaService {
         }
         return tipox;
     }
-
+    
     private String forLike(String nombre) {
         return "%" + nombre.replaceAll(" ", "%") + "%";
     }
-
+    
     @Override
     public List<Aula> allAulasSuperioresByName(String nombre) {
         return aulaDAO.allAulasSuperioresByName(this.forLike(nombre));
     }
-
+    
     @Override
     public List<Sede> allSedes() {
         return sedeDAO.all();
     }
-
+    
     @Override
     public List<Oficina> allOficinasByName(String nombre) {
         return oficinaDAO.allOficinasByName(this.forLike(nombre));
     }
-
+    
     @Override
     @Transactional
     public void save(Aula aula, Usuario usuario) {
@@ -135,18 +135,18 @@ public class AulaServiceImp implements AulaService {
         if (aula.getTipoAmbienteEnum() == TipoAmbienteEnum.EDI) {
             aula.setAforo(0);
         }
-
+        
         ObjectUtil.eliminarAttrSinId(aula, "aulaSuperior");
         ObjectUtil.eliminarAttrSinId(aula, "sede");
         ObjectUtil.eliminarAttrSinId(aula, "tipoAula");
         ObjectUtil.eliminarAttrSinId(aula, "oficinaSupervisora");
-
+        
         Aula aulaSup = aula.getAulaSuperior();
         if (aulaSup != null) {
             aulaSup = aulaDAO.find(aulaSup.getId());
             Assert.isTrue(aulaSup.getTipoAmbienteEnum() == TipoAmbienteEnum.EDI, "Un ambiente solo debería pertenecer a otro del tipo Edificio");
         }
-
+        
         revisarNombre(aula);
         aula.setEstadoEnum(EstadoEnum.CRE);
         aula.setUserRegistro(usuario);
@@ -155,7 +155,7 @@ public class AulaServiceImp implements AulaService {
         ObjectUtil.printAttr(aula);
         aulaDAO.save(aula);
     }
-
+    
     @Override
     @Transactional
     public void update(Aula aula, Usuario usuario) {
@@ -166,16 +166,19 @@ public class AulaServiceImp implements AulaService {
         } else {
             aulaBD = aulaDAO.find(aula.getId());
         }
-
+        
         ObjectUtil.eliminarAttrSinId(aula, "aulaSuperior");
         ObjectUtil.eliminarAttrSinId(aula, "sede");
         ObjectUtil.eliminarAttrSinId(aula, "tipoAula");
         ObjectUtil.eliminarAttrSinId(aula, "oficinaSupervisora");
-
+        if (ObjectUtil.getParentTree(aula, "tipoCarpeta.id") == null) {
+            aula.setTipoCarpeta(null);
+        }
+        
         Aula aulaSup = aula.getAulaSuperior();
         if (aula.getTipoAmbienteEnum() == TipoAmbienteEnum.EDI) {
             Assert.isTrue(aulaSup == null, "Un ambiente tipo Edificio no puede pertenecer parte de otro Ambiente");
-
+            
             Integer aforoTotal = 0;
             List<Aula> aulasHijo = aulaDAO.allByAulaSuperior(aula);
             for (Aula aulaHijo : aulasHijo) {
@@ -189,14 +192,14 @@ public class AulaServiceImp implements AulaService {
             aulaSup = aulaDAO.find(aulaSup.getId());
             Assert.isTrue(aulaSup.getTipoAmbienteEnum() == TipoAmbienteEnum.EDI, "Un ambiente solo debería pertenecer a otro del tipo Edificio");
         }
-
+        
         revisarNombre(aula);
         aulaBD.setAulaSuperior(aula.getAulaSuperior());
         aulaBD.setSede(aula.getSede());
         aulaBD.setTipoAula(aula.getTipoAula());
         aulaBD.setTipoCarpeta(aula.getTipoCarpeta());
         aulaBD.setOficinaSupervisora(aula.getOficinaSupervisora());
-
+        
         aulaBD.setAforo(aula.getAforo());
         aulaBD.setCapacidadAula(aula.getCapacidadAula());
         aulaBD.setCodigo(aula.getCodigo());
@@ -205,10 +208,10 @@ public class AulaServiceImp implements AulaService {
         aulaBD.setPiso(aula.getPiso());
         aulaBD.setPisos(aula.getPisos());
         aulaBD.setTipoAmbiente(aula.getTipoAmbiente());
-
+        
         aulaDAO.update(aulaBD);
     }
-
+    
     private void revisarNombre(Aula aula) {
         String nom = aula.getNombre();
         if (nom == null) {
@@ -220,21 +223,21 @@ public class AulaServiceImp implements AulaService {
         }
         aula.setNombre(nom);
     }
-
+    
     @Override
     public Aula findAulaById(Long id) {
         return aulaDAO.find(id);
     }
-
+    
     @Override
     @Transactional
     public void cambioEstado(Aula aula, DataSessionPivot ds) {
         Aula aulaBD = aulaDAO.find(aula.getId());
-
+        
         if (aula.getEstadoEnum() == EstadoEnum.ACT) {
             Assert.isFalse(aulaBD.getEstadoEnum() == EstadoEnum.ACT, "Este ambiente ya se encuentra activo");
             aulaBD.setEstadoEnum(EstadoEnum.ACT);
-
+            
         } else if (aula.getEstadoEnum() == EstadoEnum.INA) {
             Assert.isFalse(aulaBD.getEstadoEnum() == EstadoEnum.INA, "Este ambiente ya se encuentra desactivado");
             aulaBD.setEstadoEnum(EstadoEnum.INA);
@@ -242,12 +245,12 @@ public class AulaServiceImp implements AulaService {
             aulaBD.setFechaAnulacion(new Date());
             aulaBD.setUserAnulacion(ds.getUsuario());
         }
-
+        
         JsonHelper.createJson(ds, JsonNodeFactory.instance);
-
+        
         aulaDAO.update(aulaBD);
     }
-
+    
     @Override
     @Transactional
     public void eliminarAula(Aula aula, DataSessionPivot ds) {
@@ -258,35 +261,35 @@ public class AulaServiceImp implements AulaService {
             aulaSup.setAforo(aulaSup.getAforo() - aforo);
             aulaDAO.update(aulaSup);
         }
-
+        
         List<Aula> aulasHijas = aulaDAO.allByAulaSuperior(aula);
         Assert.isTrue(aulasHijas.isEmpty(), "Este ambiente es tipo Edificio que agrupa otros ambientes. Desvincule primero esos ambientes e intente eliminar");
-
+        
         aulaDAO.delete(aulaBD);
     }
-
+    
     @Override
     public Aula findAulaFull(Aula aulaFormFecha) {
-
+        
         Aula aula = aulaDAO.find(aulaFormFecha.getId());
         List<HorarioAula> horariosAulas = horarioAulaDAO.allByAulaFecha(aulaFormFecha);
         this.completarDocentes(horariosAulas);
         aula.setHorariosAula(horariosAulas);
         return aula;
     }
-
+    
     @Override
     public List<Dia> allDia() {
         return diaDAO.allDia();
     }
-
+    
     private void completarDocentes(List<HorarioAula> horariosAulas) {
-
+        
         List<Seccion> secciones = horariosAulas.stream().filter(x -> x.getSeccion() != null).map(x -> x.getSeccion()).collect(Collectors.toList());
-
+        
         List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allActivosBySeccionesOrderPrincipalLimit(secciones);
         Map<Long, List<DocenteSeccion>> docenteSeccionesMap = TypesUtil.convertListToMapList("seccion.id", docenteSecciones);
-
+        
         for (HorarioAula horariosAula : horariosAulas) {
             Seccion seccion = horariosAula.getSeccion();
             if (seccion != null) {
@@ -305,10 +308,10 @@ public class AulaServiceImp implements AulaService {
             }
         }
     }
-
+    
     @Override
     public List<TipoCarpeta> allTipoCarpeta() {
         return tipoCarpetaDAO.all();
     }
-
+    
 }

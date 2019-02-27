@@ -27,6 +27,7 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 
 @Repository
 public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements AlumnoCicloDAO {
@@ -666,6 +667,44 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
+    public AlumnoCiclo findActivosRegularesByCiclo(CicloAcademico ciclo, Alumno alumno) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select {ac.*},{a.*},{sa.*} ");
+        sql.append("   from aca_alumno_ciclo as ac ");
+        sql.append("   join aca_ciclo_academico as ca on ca.id = ac.id_ciclo_academico ");
+        sql.append("   join aca_alumno a on a.id = ac.id_alumno  ");
+        sql.append("   join aca_situacion_academica sa on sa.id = a.id_situacion_academica ");
+        sql.append("   join ( ");
+        sql.append("            select aacc.id_alumno as id_alumno, ccaa.codigo as codigo ");
+        sql.append("              from aca_alumno_ciclo as aacc ");
+        sql.append("              join aca_ciclo_academico as ccaa on ccaa.id = :ciclo ");
+        sql.append("             where aacc.estado = :MAT ");
+        sql.append("               and ccaa.tipo = :REG and aacc.id_alumno = :alumno");
+        sql.append("             group by aacc.id_alumno ");
+        sql.append("     ) wac on wac.id_alumno = a.id and wac.codigo = ca.codigo ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addEntity("ac", AlumnoCiclo.class)
+                .addEntity("a", Alumno.class)
+                .addEntity("sa", SituacionAcademica.class);
+
+        query.setParameter("MAT", "MAT");
+        query.setParameter("REG", "REG");
+        query.setParameter("alumno", alumno.getId());
+        query.setParameter("ciclo", ciclo.getId());
+
+        Object[] row = (Object[]) query.uniqueResult();
+        AlumnoCiclo ac = (AlumnoCiclo) row[0];
+        Alumno alu = (Alumno) row[1];
+        SituacionAcademica sit = (SituacionAcademica) row[2];
+
+        ac.setAlumno(alu);
+        alu.setSituacionAcademica(sit);
+
+        return ac;
+    }
+
+    @Override
     public List<AlumnoCiclo> allByNmatAndInh(CicloAcademico cicloAnt) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
@@ -674,5 +713,20 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .in("estado", Arrays.asList(NMAT, INH, MAT));
 
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCiclo> allByAlumnoDescRegular(Alumno alumno) {
+
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca")
+                .leftJoin("situacionInicio si", "situacionFinal sf", "userRegistro ur")
+                .leftJoin("userModificacion um")
+                .filter("alu.id", alumno)
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("ca.tipo", REG)
+                .orderBy("ca.codigo desc");
+        return all(sql);
     }
 }

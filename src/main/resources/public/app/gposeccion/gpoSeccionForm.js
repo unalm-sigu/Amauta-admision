@@ -791,7 +791,8 @@ var app = new Vue({
             tabs.find(".tab-pane").removeClass("active");
 
             let $vue = this;
-            $global.$emit('loadGrupoComponent', seccion.id);
+            // $global.$emit('loadGrupoComponent', seccion.id);
+            $vue.$refs.grupoHorarioComponentRef.loadGruposHorario(seccion.id);
             if (seccion.matriculados > 0) {
                 $vue.grupoModal.showaccept = false;
             } else {
