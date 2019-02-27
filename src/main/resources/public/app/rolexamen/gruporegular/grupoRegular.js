@@ -18,8 +18,20 @@ new Vue({
         gruposRegulares: [],
         alumnosGruposRegulares: []
     },
+    computed: {
+        generarDisponible() {
+            try {
+                return this.rolExamen && this.rolExamen.isEstadoConfigurando && (this.rolExamen.isSituacionConfigurarCursoMasivo || this.rolExamen.isSituacionConfiguraGrupoRegular);
+            } catch (error) {
+                return false;
+            }
+        }
+    },
     mounted() {
-
+        if (jRolExamenes != null) {
+            this.rolExamen = JSON.parse(jRolExamenes);
+            this.listGruposRegulares(this.rolExamen);
+        }
     },
     methods: {
         rolExamenCustomLabel( { eventoCicloAcademico }) {
@@ -31,16 +43,13 @@ new Vue({
             $('#frmCalcular').find(".multiselect__input").each(function () {
                 $(this).attr("required", true);
             });
-
             $('#frmCalcular').find('.multiselect__input').each(function () {
                 var input = $(this);
                 let element = input.closest('.multiselect').find('.multiselect__single');
-
                 if (element.css('display') != 'none' && element.html() != "") {
                     $(this).removeAttr("required");
                 }
             });
-
             var form = $("[id='frmCalcular']");
             form.parsley().destroy();
             form.parsley();
@@ -51,7 +60,7 @@ new Vue({
             if (this.letrasGruposRegulares.length > 0) {
                 let vue = this;
                 bootbox.confirm({
-                    message: "¿Si continua se perdera el avance de los grupos regulares?",
+                    message: "Si continua se perdera el avance de los grupos regulares. Esta seguro que desea continuar?",
                     buttons: {
                         confirm: {label: 'Si', className: "btn-warning"},
                         cancel: {label: 'Cancelar', className: "btn-link"}
@@ -89,6 +98,28 @@ new Vue({
 
         }, changeRolExamen() {
             this.listGruposRegulares(this.rolExamen);
+        }, eliminarGruposRegulares() {
+            let vue = this;
+            bootbox.confirm({
+                message: "¿Si continua se perdera el avance de los grupos regulares y especiales?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/eliminarGruposRegulares`, vue.rolExamen)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        // notify(response.data.message, 'info');
+                                        vue.listGruposRegulares(vue.rolExamen);
+                                    }
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
         }, listGruposRegulares(rolExamen) {
             MODAL.showWait("Espere un momento por favor");
             AXIOS.post(`${this.URL}/listGruposRegulares`, rolExamen)
@@ -106,11 +137,9 @@ new Vue({
             this.$refs.tblSeccionesGrupoRegular.ajaxdata = {letraGrupoRegular: letraGrupoRegular.id};
             this.$refs.tblSeccionesGrupoRegular.loadRemoteData();
             this.$refs.seccionModal.open();
-
         }, loadModalGrupos(letraGrupoRegular) {
             this.letraSelected = letraGrupoRegular;
             this.$refs.gruposModal.title = "Letra Grupo Horario " + letraGrupoRegular.letra + " | Grupo Horarios";
-            MODAL.showWait("Espere un momento por favor");
             AXIOS.post(`${this.URL}/${this.tipoAccion.GRUPO}/loadLetraGrupoRegularInfo`, letraGrupoRegular)
                     .then(response => {
                         if (response.data.success) {
@@ -120,7 +149,6 @@ new Vue({
                         } else {
                             //   notify(response.data.message, 'error');
                         }
-                        MODAL.hideWait();
                     });
         }, loadModalAlumnos(letraGrupoRegular) {
             this.letraSelected = letraGrupoRegular;
@@ -128,7 +156,6 @@ new Vue({
             this.$refs.tblAlumnosGrupoRegular.loadRemoteData();
             this.$refs.alumnosModal.title = "Letra Grupo Horario " + letraGrupoRegular.letra + " | Alumnos";
             this.$refs.alumnosModal.open();
-
         }, excluir(obj, tipoAccion) {
             let vue = this;
             bootbox.confirm({

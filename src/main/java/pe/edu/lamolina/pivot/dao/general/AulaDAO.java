@@ -3,9 +3,12 @@ package pe.edu.lamolina.pivot.dao.general;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.TipoAula;
 
 public interface AulaDAO extends EasyDAO<Aula> {
 
@@ -27,6 +30,8 @@ public interface AulaDAO extends EasyDAO<Aula> {
 
     List<Aula> allPabellonesByOficina(Oficina oficina);
 
+    List<Aula> allPabellonesByOficina(OficinaEnum oficinaEnum);
+
     List<Aula> allByPabellon(Aula aula);
 
     List<Aula> allAulasSuperiorByTipoOficina(TipoOficinaEnum tipoOficinaEnum);
@@ -34,7 +39,17 @@ public interface AulaDAO extends EasyDAO<Aula> {
     List<Aula> allPabellonesByOficinasNoOera(List<Oficina> oficinas);
 
     List<Aula> searchByNombreFilter(String nombre, Integer limit);
-    
+
     List<Aula> allByOficinaModulo(Oficina oficina, Aula modulo);
+
+    List<Aula> allByDynatableFilterTramite(DynatableFilter filter, List<Aula> aulasNoIncluidas, Oficina oficina);
+
+    List<Aula> allAulaModuloByName(String nombre, Integer limit, Oficina oficina);
+
+    List<Aula> allByOficinaSupervisora(Oficina oficinaEstudios);
+
+    List<Aula> allByTipoAula(TipoAulaEnum tipoAulaEnum);
+
+    List<Aula> allByOficinaSupervisora(OficinaEnum oficinaEnum);
 
 }

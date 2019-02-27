@@ -8,8 +8,8 @@
     <div layout:fragment="main">
         <header class="header b-b padder-lg">        
             <h2>Mis Notas Académicas - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+            <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>
             <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
-            <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>          
         </header>
         <section class="wrapper-lg">
             <section class="panel">

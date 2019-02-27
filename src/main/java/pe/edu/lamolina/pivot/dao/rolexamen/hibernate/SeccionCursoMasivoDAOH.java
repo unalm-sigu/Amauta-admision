@@ -10,9 +10,12 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.dao.rolexamen.*;
 
@@ -25,22 +28,21 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
     }
 
     @Override
-    public SeccionCursoMasivo find(long id) {
-        Octavia sql = Octavia.query()
-                .from(SeccionCursoMasivo.class, "scm")
-                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "userRegistro ur", "seccion se")
-                .filter("scm.id", id);
-        return find(sql);
+    public void deleteByCursoMasivo(CursoMasivoExamen cursoMasivoExamen) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  SeccionCursoMasivo scm where scm.cursoMasivoExamen.id = :CURSO_MASIVO ");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("CURSO_MASIVO", cursoMasivoExamen.getId());
+        query.executeUpdate();
     }
 
     @Override
-    public SeccionCursoMasivo findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... estado) {
+    public SeccionCursoMasivo find(long id) {
         Octavia sql = Octavia.query()
                 .from(SeccionCursoMasivo.class, "scm")
-                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "userRegistro ur", "seccion se", "cme.curso cur")
-                .join("cme.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
-                .filter("se.id", seccion)
-                .in("scm.estado", estado);
+                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "scm.docente doc", "userRegistro ur", "seccion se")
+                .filter("scm.id", id);
         return find(sql);
     }
 
@@ -49,6 +51,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
         Octavia sql = Octavia.query()
                 .from(SeccionCursoMasivo.class, "scm")
                 .join("cursoMasivoExamen cme", "userRegistro ur", "seccion se")
+                .join("se.grupoSeccion gs", "gs.curso")
                 .in("cme.id", cursosMasivosExamenes);
         return all(sql);
     }
@@ -83,6 +86,30 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .left("usuarioExclusion uexl", "uexl.persona puexl")
                 .in("scm.estado", estados)
                 .filter("cme.id", cursoMasivo);
+        return all(sql);
+    }
+
+    @Override
+    public List<SeccionCursoMasivo> allByDocenteAndEstados(Docente docente, SeccionRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme")
+                .join("userRegistro ureg", "ureg.persona pureg", "docente doc")
+                .left("usuarioExclusion uexl", "uexl.persona puexl")
+                .in("scm.estado", estados)
+                .filter("doc.id", docente);
+        return all(sql);
+    }
+
+    @Override
+    public List<SeccionCursoMasivo> allByRolExamenes(RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme")
+                .join("userRegistro ureg", "ureg.persona pureg", "cme.rolExamenes rex")
+                .left("usuarioExclusion uexl", "uexl.persona puexl")
+                .in("scm.estado", estados)
+                .filter("rex.id", rolExamenes);
         return all(sql);
     }
 
@@ -128,12 +155,47 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
     public List<SeccionCursoMasivo> allByDynatableAndCursoMasivo(DynatableFilter filter, CursoMasivoExamen cursoMasivoExamen) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionCursoMasivo.class, "scm")
-                .join("seccion sec", "cursoMasivoExamen cm", "cm.rolExamenes re", "userRegistro ur", "ur.persona urPer")
-                .join("usuarioExclusion uex", "uex.persona uexPer")
+                .join("seccion sec", "cursoMasivoExamen cm", "cm.rolExamenes re", "userRegistro ur", "ur.persona urPer", "sec.grupoHoras gh")
+                .left("usuarioExclusion uex", "uex.persona uexPer")
                 .filter("cm.id", cursoMasivoExamen.getId())
                 .searchFields("sec.codigo");
 
         return all(sql);
+    }
+
+    @Override
+    public Integer countDocenteByCursoMasivo(Docente docente, CursoMasivoExamen cursoMasivoExamen, SeccionRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .select("count(scm)")
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme", "docente doc")
+                .in("scm.estado", estados)
+                .filter("doc.id", docente)
+                .filter("cme.id", cursoMasivoExamen);
+        return TypesUtil.getInt(find(sql));
+    }
+
+    @Override
+    public List<SeccionCursoMasivo> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "userRegistro ur", "seccion se", "cme.curso cur")
+                .join("cme.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .in("ghe.id", grupoHorasExamenes);
+        return all(sql);
+    }
+
+    @Override
+    public SeccionCursoMasivo findByRolExamenesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... estado) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "userRegistro ur", "seccion se", "cme.curso cur")
+                .join("cme.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .filter("se.id", seccion)
+                .in("scm.estado", estado)
+                .filter("rexa.id", rol);
+
+        return find(sql);
     }
 
 }

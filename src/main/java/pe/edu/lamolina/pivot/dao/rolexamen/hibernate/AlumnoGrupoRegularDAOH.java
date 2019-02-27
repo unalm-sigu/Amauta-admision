@@ -15,6 +15,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -51,6 +52,16 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
                 .join("agr.seccionGrupoRegular sgr", "sgr.letraGruposRegulares gs", "userRegistro cur")
                 .filter("agr.estado", estadoEnum)
                 .filter("gs.id", letraGrupoRegular);
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoGrupoRegular> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, AlumnoRolExamenEstadoEnum estadoEnum) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoGrupoRegular.class, "agr")
+                .join("agr.seccionGrupoRegular sgr", "sgr.letraGruposRegulares gs", "userRegistro cur", "gs.grupoHorasExamen ghe")
+                .filter("agr.estado", estadoEnum)
+                .filter("ghe.id", grupoHorasExamen);
         return all(sql);
     }
 

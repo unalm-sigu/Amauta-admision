@@ -47,7 +47,6 @@ import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.academico.CursoEquivalenteElectivo;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
-import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
@@ -1607,9 +1606,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-
-            boolean existe = visorAsignaCurricula.existeCarrera(carrera);
-            response.setSuccess(existe);
+            response.setSuccess(visorAsignaCurricula.existeCarrera(carrera));
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -1645,4 +1642,6 @@ public class PlanCurricularController {
         return response;
     }
 
+    
+    
 }

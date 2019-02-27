@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import javax.websocket.server.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,6 +116,8 @@ public class CarreraController {
                 node.put("estado", carrera.getEstado());
                 node.put("estadoEnum", carrera.getEstadoEnum().getValue());
                 node.put("motivo", carrera.getMotivoAnulacion());
+                node.put("estadoAdmision", carrera.getEstadoAdmision());
+                node.put("estadoAdmisionEnum", carrera.getEstadoAdmisionEnum().getValue());
 
                 array.add(node);
             }
@@ -146,6 +149,26 @@ public class CarreraController {
             service.cambiarEstadoCarrera(carrera);
 
             response.setMessage("Se cambio de estado satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarEstadoAdmision")
+    public JsonResponse cambiarEstadoAdmision(@RequestParam("carreraId") Long carreraId ) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        try {
+            service.cambiarEstadoAdmision(new Carrera(carreraId));
+
+            response.setMessage("Se cambio de estado admisión satisfactoriamente.");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

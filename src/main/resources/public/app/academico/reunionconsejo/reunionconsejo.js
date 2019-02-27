@@ -1,7 +1,8 @@
+Vue.component("multiselect", window.VueMultiselect.default);
 var app = new Vue({
     el: '#reunionConsejo',
     data: {
-        URL_REUNIONES: APP.url('academico/reunionconsejo/listReunionesConsejo'),
+        URL_REUNIONES: APP.url('academico/reunionconsejo/listReunionesConsejo/0'),
         reunionConsejo: null,
         btnActive: 'lista',
         onlyOne: true,
@@ -11,7 +12,10 @@ var app = new Vue({
             title: 'Reunion Consejo',
             okbtn: 'Aceptar',
             modalsize: 'modal-lg'
-        }
+        },
+        oficinas: JSON.parse(oficinasJson),
+        oficina: {}
+
     }, created: function () {
 
     }, mounted: function () {
@@ -26,9 +30,28 @@ var app = new Vue({
             }
         }
     }, methods: {
+        oficinaSelect(item) {
+            let $vue = this;
+            $vue.$refs.tblReunionesConsejo.url = APP.url('academico/reunionconsejo/listReunionesConsejo/' + item.id);
+            $vue.$refs.tblReunionesConsejo.loadRemoteData();
+            $vue.oficina = item;
+            $vue.renderEventos();
+        },
+        removeOficina(item) {
+            let $vue = this;
+            $vue.$refs.tblReunionesConsejo.url = APP.url('academico/reunionconsejo/listReunionesConsejo/0');
+            $vue.$refs.tblReunionesConsejo.loadRemoteData();
+            $vue.oficina = {};
+            $vue.renderEventos();
+        },
         saveReunionConsejo: function (event) {
             event.preventDefault();
             let $vue = this;
+            if ($vue.oficina == null || $vue.oficina.id == null) {
+                notify("Debe selecionar una oficina", "error");
+                return;
+            }
+            $vue.reunionConsejo.oficina = $vue.oficina;
             bootbox.confirm({
                 message: "¿Está seguro que desea grabar?",
                 buttons: {
@@ -105,10 +128,10 @@ var app = new Vue({
             this.$refs.modalReunionConsejo.open();
         }, renderEventos: function () {
             var vue = this;
+            var data = vue.oficina.id == null ? 0 : vue.oficina.id;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/reunionconsejo/allcalendar'),
-                sync: true,
+                url: APP.url('academico/reunionconsejo/allcalendar/' + data),
                 success: function (response) {
                     if (response.success) {
                         vue.$refs.fullcalendar.addEventSource(response.data);

@@ -1,0 +1,135 @@
+<html layout:decorator="_layout/layout"> 
+    <head> 
+        <title> Cursos Masivos </title>  
+    </head>
+    <body>
+        <section layout:fragment="main">
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <h2>{{nombreExamen}} <span th:text="${cicloAcademico.descripcion}"></span></h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <header class="page-header m-t-xs m-b-xs" style="border-bottom: 1px solid white;">
+                                <div class="tabbable-line" style="margin-top: 8px;">	
+                                    <div class="col-xs-12 text-center">
+
+                                        <form class="form-inline m-b-lg">
+                                            <button type="button" class="btn btn-default" v-on:click="backweek()"><i class="fa fa-backward" aria-hidden="true"></i></button>
+                                            <div class="form-group">
+                                                <label for="1">De</label>
+                                                <input readonly="true" type="text" v-bind:value="fechaInicio" class="form-control" id="1" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="2">al</label>
+                                                <input readonly="true" type="text" v-bind:value="fechaFin" class="form-control" id="2"  />
+                                            </div>
+                                            <button type="button" class="btn btn-default" v-on:click="nextweek()"><i class="fa fa-forward" aria-hidden="true"></i></button>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </header>
+                            <div v-for="semExamen in semanasExamen">
+                                <section class="panel-body" v-if="semExamen.selected">
+                                    <div >
+                                        <table  class="table table-bordered m-b-xs">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 10%" class="text-center">Hora</th>
+                                                    <th style="width: 12.85%" class="text-center" 
+                                                        v-for="dia in semExamen.tblHorarioSeamanaExamen.dias" v-text="dia.nombre" >
+                                                    </th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody >
+                                                <tr v-for="hora in semExamen.tblHorarioSeamanaExamen.horas">
+                                                    <td style="width: 10%" class="v-middle">
+                                                        <span 
+                                                            class="form-control"
+                                                            th:style="'border-color:#fff;'">
+                                                            {{hora.descripcion}}
+                                                        </span>
+
+                                                    </td>
+                                                    <td v-for="dia in semExamen.tblHorarioSeamanaExamen.dias">   
+                                                        <div v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id]" 
+                                                             class="form-control pointer dropdown notas-cepre"
+                                                             v-bind:style="fechaGrupoHoraItem(semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id])"
+                                                             >
+
+                                                            <a v-on:mouseover="onmousein($event)" v-on:mouseleave="onmouseout($event)" class="dropdown-toggle " href="#" data-toggle="dropdown" >
+                                                                <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].rolExamenDocente.secciones == null">
+                                                                    {{semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].rolExamenDocente.seccion.codigo2}}
+                                                                </span>
+                                                                <span v-else="">
+                                                                    {{semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].rolExamenDocente.curso.codigo}}
+                                                                </span>
+                                                                <b class="caret"></b> 
+                                                            </a>
+                                                            {{semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].grupoHorasExamen.grupoHoras.codigo}}
+                                                            <div class="dropdown-menu dropdown-box">
+                                                                <div class="row m-l-xs m-r-xs">
+                                                                    <span   class="disabled block docente-uno">                                                                     
+                                                                        {{semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].rolExamenDocente.curso.nombre}}
+                                                                    </span>
+                                                                    <span class="block">
+                                                                        {{semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].rolExamenDocente.curso.codigo}}&nbsp;
+                                                                        <i class="fa fa-bookmark text-primary"></i>
+                                                                        {{semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].rolExamenDocente.curso.tpc}}
+                                                                    </span>
+                                                                    <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].rolExamenDocente.secciones == null" class="block">
+                                                                        Sección {{semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].rolExamenDocente.seccion.codigo2}}
+                                                                    </span>
+                                                                    <span v-else="" class="block">
+                                                                        Varias Secciones
+                                                                    </span>
+                                                                    <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].rolExamenDocente.aulas == null" class="block">
+                                                                        Aula  {{semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].rolExamenDocente.aula.codigo}}
+                                                                    </span>
+                                                                    <span v-else="" class="block">
+                                                                        Varias Aulas
+                                                                    </span>
+                                                                    <span v-text="'Grupo ' + semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].grupoHorasExamen.grupoHoras.codigo" class="block"></span>
+                                                                    <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].rolExamenDocente.secciones != null" class="block">
+                                                                        Examen Masivo
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id]==null" 
+                                                              class="form-control pointer"
+                                                              >
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+
+                                </section>
+                            </div>
+
+                        </section>
+                    </section>
+                </section>
+
+
+            </div>
+        </section>
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var docenteJson = /*[[${docente.toString()}]]*/ '';
+                /*]]>*/
+            </script>
+            <script th:src="@{/app/rolexamen/docente/horario/horarioexamen.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
+import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface GrupoRegularConnector {
@@ -67,5 +68,9 @@ public interface GrupoRegularConnector {
     SeccionGrupoRegular crearObjectSeccionGrupoRegular(Seccion seccion, LetraGrupoRegular letraGrupoRegular, DataSessionPivot ds);
 
     AlumnoGrupoRegular crearObjectAlumnoGrupoRegular(Alumno alumno, SeccionGrupoRegular seccionGrupoRegular, DataSessionPivot ds);
+
+    RolExamenesLogger validacionActivarDocente(GrupoHorasExamen grupoHorasExamen, Docente docente);
+
+    RolExamenesLogger validacionActivarAlumno(GrupoHorasExamen grupoHorasExamen, Alumno alumno);
 
 }

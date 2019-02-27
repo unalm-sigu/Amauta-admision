@@ -18,10 +18,14 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
@@ -36,9 +40,11 @@ import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.TramitesAcademicosService;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.flujo.FlujoTramiteAcademicoService;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteDAO;
@@ -104,10 +110,16 @@ public class ResolucionServiceImp implements ResolucionService {
     OficinaDAO oficinaDAO;
 
     @Autowired
+    MatriculaResumenDAO matriculaResumenDAO;
+
+    @Autowired
     TramitesAcademicosService tramitesAcademicosService;
 
     @Autowired
     OficinaService oficinaService;
+
+    @Autowired
+    MatriculableService matriculableService;
 
     @Override
     public List<Resolucion> allResolucionesByFilter(DynatableFilter filter) {
@@ -254,7 +266,7 @@ public class ResolucionServiceImp implements ResolucionService {
         resolucionUpd.setFechaActualizacion(today.toDate());
         resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.ACT);
         resolucionDAO.updateResolucionFile(resolucionUpd);
-        /*
+
         if (resolucion.getEsEstadoCre()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucion);
             for (Reincorporacion reincorporacion : reincorporaciones) {
@@ -265,7 +277,7 @@ public class ResolucionServiceImp implements ResolucionService {
                 }
                 flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today);
             }
-        }*/
+        }
     }
 
     @Override
@@ -330,18 +342,19 @@ public class ResolucionServiceImp implements ResolucionService {
                 if (reincorporacion.getEstaAceptado()) {
                     tramiteUpd.setEstadoEnum(TramiteEstadoEnum.ACEP);
 
-                    /*
                     Alumno alumno = alumnoDAO.find(tramite.getAlumno());
                     AlumnoCiclo lastAlumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
                     if (lastAlumnoCiclo.getSituacionFinal().isCodigoD()) {
                         alumno.setSituacionAcademica(lastAlumnoCiclo.getSituacionInicio());
                     } else {
                         alumno.setSituacionAcademica(lastAlumnoCiclo.getSituacionFinal());
-                    }*/
+                    }
                     reincorporacion.setCicloReincorporacion(cicloReincorporacion);
                     reincorporacionDAO.update(reincorporacion);
-                    //  alumnoDAO.update(alumno);
+                    alumnoDAO.update(alumno);
 
+                    matriculableService.revisarSituacionAcademica(tramite.getAlumno(), ds);
+                    matriculableService.saveMatriculable(tramite.getAlumno(), TipoCondicionalEnum.OTRO.name(), ds);
                 } else {
                     tramiteUpd.setEstadoEnum(TramiteEstadoEnum.RCHR);
                 }

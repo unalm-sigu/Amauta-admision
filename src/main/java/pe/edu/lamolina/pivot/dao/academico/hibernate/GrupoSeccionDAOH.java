@@ -53,8 +53,8 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     public GrupoSeccion find(Long idGrupoSeccion) {
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
-                .join("anexoBoletin ab", "curso cur")
-                .leftJoin("ab.anexoSuperior asup", "planCalificacion pc", "pc.sistemaNotas", "secciones s", "cicloAcademico ca")
+                .join("anexoBoletin ab", "curso cur", "cicloAcademico ca")
+                .leftJoin("ab.anexoSuperior asup", "planCalificacion pc", "pc.sistemaNotas", "secciones s")
                 .filter("gs.id", idGrupoSeccion);
         return find(sql);
     }
@@ -235,6 +235,17 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         return all(sql);
     }
 
+    public List<GrupoSeccion> allAbiertasByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("curso cur", "cicloAcademico ca")
+                .leftJoin("planCalificacion pc", "secciones s")
+                .filter("gs.estado", EstadoGrupoSeccionEnum.ABI)
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
     public List<GrupoSeccion> allCerradasByCiclo(List<CicloAcademico> ciclo) {
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
@@ -363,6 +374,15 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         octavia.set(grupoSeccion, "usuarioModificacion");
         octavia.set(grupoSeccion, "fechaModificacion");
         this.update(grupoSeccion);
+    }
+
+    @Override
+    public void deleteGrupoSeccion(GrupoSeccion gpoSeccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  GrupoSeccion where id=:prm_id");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_id", gpoSeccion.getId());
+        query.executeUpdate();
     }
 
     @Override

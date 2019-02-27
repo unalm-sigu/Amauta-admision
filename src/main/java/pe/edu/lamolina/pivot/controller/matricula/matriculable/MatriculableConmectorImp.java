@@ -54,31 +54,33 @@ public class MatriculableConmectorImp implements MatriculableConnector {
 
     @Override
     @Transactional
-    public void procesarPrioridadAlumno(MatriculaResumen matriculaResumen, AlumnoCiclo alumnoCiclo) {
+    public MatriculaResumen procesarPrioridadAlumno(MatriculaResumen matriculaResumen, AlumnoCiclo alumnoCiclo) {
         BigDecimal capa = new BigDecimal(alumnoCiclo.getCreditosAprobadosAcumulados());
         BigDecimal cca = new BigDecimal(alumnoCiclo.getCreditosAcumulados());
         BigDecimal caps = new BigDecimal(alumnoCiclo.getCreditosAprobadosCiclo());
         BigDecimal ccs = new BigDecimal(alumnoCiclo.getCreditosCursadosCiclo());
+        BigDecimal pps = alumnoCiclo.getPromedioCiclo();
 
         if (alumnoCiclo.getCreditosAcumulados().compareTo(BigDecimal.ZERO.intValue()) == 0
                 || alumnoCiclo.getCreditosCursadosCiclo().compareTo(BigDecimal.ZERO.intValue()) == 0) {
-            return;
+            return matriculaResumen;
         }
 
         BigDecimal factor1 = capa.divide(cca, 12, RoundingMode.HALF_UP);
         BigDecimal factor2 = caps.divide(ccs, 12, RoundingMode.HALF_UP);
-        BigDecimal puntajePrioridad = factor1.multiply(factor2);
-        puntajePrioridad = puntajePrioridad.multiply(alumnoCiclo.getPromedioCiclo());
+        BigDecimal puntajePrioridad = factor1.multiply(factor2).multiply(pps);
 
         matriculaResumen.setCreditosAprobadosAcumulados(Integer.parseInt(capa.toString()));
         matriculaResumen.setCreditosAcumulados(Integer.parseInt(cca.toString()));
         matriculaResumen.setCreditosAprobadosCiclo(Integer.parseInt(caps.toString()));
         matriculaResumen.setCreditosCursadosCiclo(Integer.parseInt(ccs.toString()));
+        matriculaResumen.setPromedioSemestral(pps);
         if (matriculaResumen.getCreditosAprobadosAcumulados() >= CAPA_ULTIMO_CICLO) {
             matriculaResumen.setEsUltimoCiclo(Boolean.TRUE);
         }
         matriculaResumen.setCicloAcademicoInfo(alumnoCiclo.getCicloAcademico());
         matriculaResumen.setPuntajePrioridad(puntajePrioridad);
+        return matriculaResumen;
     }
 
     @Override

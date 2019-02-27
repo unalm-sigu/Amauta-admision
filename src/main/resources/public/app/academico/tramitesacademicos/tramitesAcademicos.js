@@ -2,7 +2,7 @@ var app = new Vue({
     el: '#tramitesAcademicos',
     data: {
         URL_TRAMITES: APP.url('academico/tramiteacademico/listTramites'),
-        URL_REUNIONES: APP.url('academico/tramiteacademico/listReunionesConsejo'),
+        URL_REUNIONES: APP.url('academico/tramiteacademico/listReunionesConsejo/0'),
         agendarModal: {
             id: 'modalAgendar',
             header: true,

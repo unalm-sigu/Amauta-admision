@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.NombreCurso;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
+import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CursoService {
@@ -39,5 +40,7 @@ public interface CursoService {
     NombreCurso updateIdioma(NombreCurso nombreCurso, DataSessionPivot ds);
 
     void deleteIdioma(NombreCurso nombreCurso, DataSessionPivot ds);
+
+    List<TipoCarpeta> allTiposCarpeta();
 
 }

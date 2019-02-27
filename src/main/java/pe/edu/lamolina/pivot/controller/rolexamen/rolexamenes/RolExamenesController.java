@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.rolexamen.rolexamenes;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -43,6 +44,7 @@ public class RolExamenesController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        logger.debug("cicloAcademico {}",ds.getCicloAcademico()!=null?ds.getCicloAcademico().getId():0);
 
         List<Hora> horas = service.allHoras();
         ArrayNode jHoras = new ArrayNode(jc);
@@ -221,6 +223,103 @@ public class RolExamenesController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("publicarrolexamen")
+    public JsonResponse publicarrolexamen(@RequestBody RolExamenes rolExamenes, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds.setFechaAccionAudit(new Date());
+            service.publicarRolExamen(rolExamenes, ds);
+            response.setSuccess(true);
+            response.setMessage("Rol examen publicado.");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("eliminarconfiguracion")
+    public JsonResponse eliminarconfiguracion(@RequestBody RolExamenes rolExamenes, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds.setFechaAccionAudit(new Date());
+            service.eliminarConfiguracion(rolExamenes, ds);
+            response.setSuccess(true);
+            response.setMessage("Rol examen publicado.");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("fijarhorarioaula")
+    public JsonResponse fijarhorarioaula(RolExamenes rolExamenes, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds.setFechaAccionAudit(new Date());
+            service.fijarHorarioAula(rolExamenes, ds);
+            response.setSuccess(true);
+            response.setMessage("Horario Aula Fijado.");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cerrar")
+    public JsonResponse cerrar(@RequestBody RolExamenes rolExamenes, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.cerrar(rolExamenes, ds);
+            response.setMessage("Rol de examenes cerrado");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException pex) {
+            ExceptionHandler.handlePhobosEx(pex, response);
+        } catch (Exception ex) {
+            ExceptionHandler.handleException(ex, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("modificar")
+    public JsonResponse modificar(@RequestBody RolExamenes rolExamenes, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.modificar(rolExamenes, ds);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException pex) {
+            ExceptionHandler.handlePhobosEx(pex, response);
+        } catch (Exception ex) {
+            ExceptionHandler.handleException(ex, response);
+        }
+
         return response;
     }
 

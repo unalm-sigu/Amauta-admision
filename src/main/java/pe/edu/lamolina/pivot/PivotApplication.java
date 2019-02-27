@@ -10,6 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.resource.AppCacheManifestTransformer;
 import org.springframework.web.servlet.resource.GzipResourceResolver;
 import org.springframework.web.servlet.resource.VersionResourceResolver;
+import pe.edu.lamolina.pivot.controller.ingresante.muestraslab.MuestrasLabService;
 import pe.edu.lamolina.pivot.controller.seguridad.menu.MenuService;
 
 @EnableAsync
@@ -20,6 +21,7 @@ public class PivotApplication extends WebMvcConfigurerAdapter {
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(PivotApplication.class, args);
         context.getBean(MenuService.class).inicializarMenus();
+        context.getBean(MuestrasLabService.class).inicializarVisor();
     }
 
     @Override

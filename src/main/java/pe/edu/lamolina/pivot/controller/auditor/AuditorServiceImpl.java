@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import pe.edu.lamolina.pivot.controller.interceptor.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -37,6 +37,41 @@ public class AuditorServiceImpl implements AuditorService {
 
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
+
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Override
+    @Async
+    public void auditTrasladoNotasToHistorial(Alumno alumno, Curso curso, CicloAcademico ciclo, MatriculaCurso matriculaCurso, DataSessionPivot ds, Exception exc) {
+        JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
+        ObjectNode objNode = new ObjectNode(jsonNodeFactory);
+
+        ObjectNode data = new ObjectNode(jsonNodeFactory);
+        data.put("alumnoId", alumno.getId());
+        data.put("cursoId", curso.getId());
+        data.put("cicloEvaluando", ciclo.toString());
+        data.put("matriculaCursoId", matriculaCurso.getId());
+
+        objNode.put("tipo", LoggerAccionEnum.TRASLADO_NOTAS_A_HISTORIAL.name());
+        objNode.set("data", data);
+        interceptorService.saveInterceptor(objNode, exc, ds);
+    }
+
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Override
+    @Async
+    public void auditPromediarAlumno(Alumno alumno, CicloAcademico cicloAcademico, DataSessionPivot ds, Exception exc) {
+        JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
+        ObjectNode objNode = new ObjectNode(jsonNodeFactory);
+
+        ObjectNode data = new ObjectNode(jsonNodeFactory);
+        data.put("alumnoId", alumno.getId());
+        data.put("alumnoCodigo", alumno.getCodigo());
+        data.put("cicloEvaluando", cicloAcademico.toString());
+
+        objNode.put("tipo", LoggerAccionEnum.PROMEDIAR_ALUMNO.name());
+        objNode.set("data", data);
+        interceptorService.saveInterceptor(objNode, exc, ds);
+    }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     @Override

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -32,6 +33,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.NumeroCicloAcademicoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.controller.ingresante.muestraslab.MuestrasLabService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -41,6 +43,9 @@ public class CicloAcademicoController {
 
     @Autowired
     CicloAcademicoService service;
+
+    @Autowired
+    MuestrasLabService muestrasLabService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -180,6 +185,7 @@ public class CicloAcademicoController {
         JsonResponse response = new JsonResponse();
         try {
             service.activar(cicloAcademico);
+            muestrasLabService.inicializarVisor();
             response.setMessage("Ciclo académico activado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -261,6 +267,22 @@ public class CicloAcademicoController {
         try {
             service.configurar(cicloAcademico);
             response.setMessage("Se ha iniciado la configuración del ciclo académico satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("changeVisiblelogin")
+    public JsonResponse changeVisiblelogin(@RequestBody CicloAcademico cicloAcademico) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.changeVisiblelogin(cicloAcademico);
+            response.setMessage("Se actualizó el ciclo satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

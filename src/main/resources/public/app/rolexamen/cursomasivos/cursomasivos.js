@@ -52,6 +52,25 @@ new Vue({
     mounted() {
         let $vue = this;
         $vue.loadModulos();
+        if (jRolExamenes != null) {
+            this.rolExamenes = JSON.parse(jRolExamenes);
+            this.loadCursosMasivosByRoleExamen();
+        }
+    },
+    computed: {
+        agregarCursoDisponible() {
+            return this.rolExamenes && this.rolExamenes.isEstadoConfigurando && (this.rolExamenes.isSituacionConfigurarHorario || this.rolExamenes.isSituacionConfigurarCursoMasivo)
+        },
+        modificarAulaHorarioDisponible() {
+            return this.rolExamenes && this.rolExamenes.isEstadoConfigurando && this.rolExamenes.isSituacionConfigurarGrupoRegular;
+        },
+        verAulaHorarioDisponible() {
+            return this.rolExamenes && ((this.rolExamenes.isEstadoConfigurando && this.rolExamenes.isSituacionConfigurarGrupoEspecial) || !this.rolExamenes.isEstadoConfigurando);
+        },
+        incluirExcluirMoverDisponible() {
+            let situacionesValidas = this.rolExamenes && (this.rolExamenes.isSituacionConfigurarGrupoRegular || this.rolExamenes.isSituacionConfigurarCursoMasivo || this.rolExamenes.isSituacionConfigurarGrupoEspecial);
+            return this.rolExamenes && (this.rolExamenes.isEstadoModificando || (this.rolExamenes.isEstadoConfigurando && situacionesValidas));
+        }
     },
     methods: {
         loadCurso(nombre) {
@@ -129,6 +148,30 @@ new Vue({
             }, error => {
                 notify(MESSAGES.errorComunicacion, 'error');
             });
+        }, eliminarGruposMasivos() {
+            let vue = this;
+            bootbox.confirm({
+                message: "¿Si continua se perdera el avance de los cursos masivos, grupos regulares y especiales?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/eliminarCursosMasivos`, vue.rolExamenes)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        // notify(response.data.message, 'info');
+                                        vue.loadCursosMasivosByRoleExamen();
+                                    }
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
+
+
         },
         loadCursosMasivosByRoleExamen() {
             let $vue = this;
@@ -332,12 +375,18 @@ new Vue({
             return true;
         },
         addAula(aula) {
+            if (!this.modificarAulaHorarioDisponible) {
+                return;
+            }
             let $vue = this;
             $vue.aulas.push({id: '', aula: aula});
             $vue.cursoMasivoExamen.aulas = $vue.cursoMasivoExamen.aulas + 1;
             $vue.cursoMasivoExamen.capacidadAulas = $vue.cursoMasivoExamen.capacidadAulas + aula.capacidadAula;
         },
         removeAula(aula, idx) {
+            if (!this.modificarAulaHorarioDisponible) {
+                return;
+            }
             let $vue = this;
             if (aula.id == '') {
                 $vue.aulas.splice(idx, 1);

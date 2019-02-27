@@ -1,0 +1,85 @@
+<html layout:decorator="_layout/layout"> 
+    <head> 
+        <title> Cursos Masivos </title>  
+    </head>
+    <body>
+        <section layout:fragment="main">
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <h2>{{nombreExamen}} <span th:text="${cicloAcademico.descripcion}">2018-II</span></h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <table class="table table-striped">
+                                <thead> 
+                                    <tr> 
+                                        <th class="col-md-3 v-middle ">Curso</th>
+                                        <th class="col-md-2 v-middle text-center">Fecha / Hora </th>
+                                        <th class="col-md-2 v-middle text-center">Secciones</th>
+                                        <th class="col-md-2 v-middle text-center">Aulas</th>
+                                        <th class="col-md-1 v-middle text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="exam in rolExamen">
+                                        <td class="col-md-3 v-middle ">
+                                            <a class="block text-primary bold h5 m-b-xs m-t-xs" v-text="exam.curso.nombre"></a>
+                                            <span class="block">
+                                                {{exam.curso.codigo}}&nbsp;
+                                                <i class="fa fa-bookmark text-primary"></i>
+                                                {{exam.curso.tpc}}</span>
+                                            <span v-text="'Grupo ' +  exam.grupoHorasExamen.grupoHoras.codigo"></span>
+                                        </td>
+                                        <td class="col-md-2 v-middle text-center">
+                                            <a class="block text-primary  h5 m-b-xs m-t-xs" v-text="'Grupo ' +  exam.grupoHorasExamen.grupoHoras.codigo" v-on:click="model(exam.grupoHorasExamen.id)"></a>
+                                            <span class="block"> <span v-text="exam.grupoHorasExamen.dia.nombre"></span> - <span v-text="exam.grupoHorasExamen.fecha" ></span> </span>
+                                            <span v-text="exam.grupoHorasExamen.horaInicio.descripcion"></span> - <span v-text="exam.grupoHorasExamen.horaFin.descripcion"></span>
+                                        </td>
+                                        <td v-if="exam.secciones == null" class="col-md-2 v-middle text-center">
+                                            <span  class="label label-default " v-text="exam.seccion.codigo2"></span>
+                                        </td>
+                                        <td v-else="" class="col-md-2 v-middle text-center">
+                                            <div v-for="seccion in exam.secciones" class="col-md-4">                                                 
+                                                <span  class="label label-default col-md-12 m-b-xs" v-text="seccion.codigo2"></span>
+                                            </div> 
+                                        </td>
+                                        <td v-if="exam.aulas == null" class="col-md-2 v-middle text-center">
+                                            <span  class="label label-primary " v-text="exam.aula.codigo"></span>
+                                        </td>
+                                        <td v-else="" class="col-md-2 v-middle text-center">
+                                            <div v-for="aula in exam.aulas" class="col-md-3">                                                 
+                                                <span  class="label label-primary col-md-12 m-b-xs" v-text="aula.codigo"></span>
+                                            </div> 
+                                        </td>
+                                        <td class="col-md-2 v-middle text-center">
+                                            <span class="label label-primary" v-text="exam.estadoEnum.value"></span> 
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </section>
+                    </section>
+                </section>
+
+                <div th:substituteby="rolexamen/docente/horarioCursoMasivoModals"/>
+
+            </div>
+            <div th:substituteby="_modules/vue-modal"/>
+        </section>
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var docenteJson = /*[[${docente.toString()}]]*/ '';
+                /*]]>*/
+            </script>
+            <script th:src="@{/phobos/modules/vue-generalComponents.js}" charset="utf-8"></script>
+            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
+            <script th:src="@{/app/rolexamen/docente/rolExamenDocente.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

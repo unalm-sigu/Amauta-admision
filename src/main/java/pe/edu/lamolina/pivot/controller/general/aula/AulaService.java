@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
+import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -33,8 +34,10 @@ public interface AulaService {
 
     void eliminarAula(Aula aula, DataSessionPivot ds);
 
-    Aula findAulaFull(Long aulaId, CicloAcademico cicloAcademico);
-
     List<Dia> allDia();
+
+    Aula findAulaFull(Aula aulaForm);
+
+    List<TipoCarpeta> allTipoCarpeta();
 
 }

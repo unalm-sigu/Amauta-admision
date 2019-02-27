@@ -16,7 +16,9 @@ Vue.component('raptor-table', {
         preload: {type: Boolean, default: true},
         page: {type: Object, default: {currentPage: 1}},
         pagination: {type: Object, default: {'total-items': 0, 'items-per-page': 10, 'max-size': 3, 'boundary-link-numbers': true}},
-        querie: {type: Object, default: []}
+        querie: {type: Object, default: []},
+        afterProcess: {type: Function, default: () => {
+            }}
     },
     mounted() {
         if (this.preload) {
@@ -143,6 +145,9 @@ Vue.component('raptor-table', {
             }
 
             $vue.footer = info;
+            setTimeout(function () {
+                $vue.afterProcess();
+            }, 500);
         },
         generateParams() {
             let $vue = this;

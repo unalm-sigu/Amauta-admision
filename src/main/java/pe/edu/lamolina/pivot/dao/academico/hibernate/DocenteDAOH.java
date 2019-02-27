@@ -7,11 +7,17 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.CargoTrabajadorEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
+import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 
 @Repository
@@ -122,8 +128,9 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     }
 
     @Override
-    public List<Docente> allByNombreFilter(String nombre, Integer limit, String codigoDep) {
+    public List<Docente> allByNombreFilter(String nombre, Integer cantidad, String codigoDep) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        System.out.println("nombre = <<" + nombre + ">>");
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")
                 .join("persona per", "departamentoAcademico da")
@@ -132,12 +139,14 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
                 .__().filter("doc.codigo", "like", nombre)
                 .__().filter("da.nombre", "like", nombre)
-                .endBlock();
+                .endBlock()
+                .limit(cantidad);
+
         if (codigoDep != null) {
             sql.filter("da.codigo", codigoDep);
         }
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -166,6 +175,54 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .limit(limit);
 
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Docente> allByName(String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Docente.class, "doc")
+                .join("persona per", "departamentoAcademico da", "da.facultad fa")
+                .leftJoin("per.tipoDocumento tdoc")
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("doc.estado", EstadoEnum.ACT)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .__().filter("doc.codigo", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Docente> allByNombreFacultad(String nombre, Facultad facultad) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia subQuery = new Octavia()
+                .from(Colaborador.class, "col")
+                .join("persona perc", "oficina ofi", "ofi.tipoOficina tip", "cargo carg")
+                .filter("carg.codigo", PerfilColaboradorEnum.DOC) //Docente
+                .filter("tip.codigo", TipoOficinaEnum.DPTO); //departamentoAcdemico
+
+        Octavia sql = Octavia.query()
+                .from(Docente.class, "doc")
+                .join("persona per", "departamentoAcademico da", "da.facultad fa")
+                .leftJoin("per.tipoDocumento")
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("doc.estado", EstadoEnum.ACT)
+                .filter("fa.id", facultad)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .__().filter("doc.codigo", "like", nombre)
+                .endBlock()
+                .exists(subQuery)
+                .linkedBy("per.id", "perc.id")
+                .limit(15);
+
+        return all(sql);
     }
 
 }

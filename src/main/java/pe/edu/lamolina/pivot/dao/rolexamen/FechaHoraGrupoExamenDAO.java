@@ -20,4 +20,6 @@ public interface FechaHoraGrupoExamenDAO extends EasyDAO<FechaHoraGrupoExamen> {
     List<FechaHoraGrupoExamen> allBySemanaExamen(SemanaExamen semanaExamen);
 
     List<FechaHoraGrupoExamen> allByRolExamens(RolExamenes rolExamenes);
+
+    public List<FechaHoraGrupoExamen> allBySemanaExamenAndGrupoHoraSecc(SemanaExamen semanaExamen, List<Long> ids);
 }

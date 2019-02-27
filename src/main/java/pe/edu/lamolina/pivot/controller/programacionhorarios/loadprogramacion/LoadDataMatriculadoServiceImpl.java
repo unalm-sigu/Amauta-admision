@@ -226,6 +226,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             resumen.setNotaAvance("0");
             resumen.setNotaFinal("0");
             resumen.setPorcentajeAvance(0);
+            resumen.setCreditosTrikaPagados(0);
             matriculaResumenDAO.save(resumen);
             //System.out.println("\t" + rr + " mat-resumen es " + resumen.getId());
 

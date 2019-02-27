@@ -97,4 +97,15 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
         this.update(octavia);
     }
 
+    @Override
+    public List<AlumnoCursoCurricula> allByAlumnoCicloRegularAct(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoCurricula.class, "acc")
+                .join("cicloAprobado ca", "curso cu")
+                .filter("acc.alumno", alumno)
+                .filter("ca.id", alumno.getCicloActivoRegular())
+                .orderBy("acc.numeroCiclo");
+        return all(sql);
+    }
+
 }

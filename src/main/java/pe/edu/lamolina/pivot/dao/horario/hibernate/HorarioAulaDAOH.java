@@ -1,17 +1,23 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
+import java.util.Date;
 import java.util.List;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoAulaEnum;
+import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 
 @Repository
@@ -35,6 +41,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia", "hora", "aula au", "seccion sec", "sec.grupoSeccion gs")
+                .left("gs.curso cur")
                 .left("sec.grupoHoras gh")
                 .join("gs.cicloAcademico ca")
                 .filter("au.id", aula)
@@ -111,26 +118,28 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
-    public List<HorarioAula> allByPabellonCicloDiasHoras(Aula pabellon, CicloAcademico cicloAcademico, List<String> hdias) {
+    public List<HorarioAula> allByPabellonCicloDiasHoras(Aula pabellon, EventoCicloAcademico eventoAcademico, List<String> hdias) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia d", "hora h", "aula au", "au.aulaSuperior aus", "seccion sec")
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
                 .filter("aus.id", pabellon)
-                .filter("ca.id", cicloAcademico)
+                .filter("ha.fechaInicio", ">=", eventoAcademico.getFechaInicio())
+                .filter("ha.fechaFin", "<=", eventoAcademico.getFechaFin())
                 .complexFilter("concat(h.codigo,'-',d.id)", "in", hdias);
 
         return all(sql);
     }
 
     @Override
-    public List<HorarioAula> allByAulasCicloDiasHoras(List<Aula> aulas, CicloAcademico cicloAcademico, List<String> hdias) {
+    public List<HorarioAula> allByAulasCicloDiasHoras(List<Aula> aulas, EventoCicloAcademico eventoAcademico, List<String> hdias) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia d", "hora h", "aula au", "seccion sec")
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
                 .in("au.id", aulas)
-                .filter("ca.id", cicloAcademico)
+                .filter("ha.fechaInicio", ">=", eventoAcademico.getFechaInicio())
+                .filter("ha.fechaFin", "<=", eventoAcademico.getFechaFin())
                 .complexFilter("concat(h.codigo,'-',d.id)", "in", hdias);
 
         return all(sql);
@@ -192,6 +201,102 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .join("dia", "hora", "aula au", "seccion sec")
                 .filter("sec.id", seccion);
 
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByFilterAulaTramite(List<Aula> aulas) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .in("au.id", aulas);
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allSoloDiaByDiasHoras(List<String> diashoras, Date fechainicio) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au")
+                .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
+                .filter("tip.codigo", TipoAulaEnum.MOD)
+                .filter("au.estado", EstadoEnum.ACT)
+                .filter("ha.fechaInicio", "<=", fechainicio)
+                .filter("ha.fechaFin", ">=", fechainicio)
+                .complexFilter("concat(d.id,'-',h.id)", "in", diashoras);
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allRangoDiaByDiasHoras(List<String> diashoras, Date fechainicio, Date fechafin) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au")
+                .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
+                .filter("tip.codigo", TipoAulaEnum.MOD)
+                .filter("au.estado", EstadoEnum.ACT)
+                .complexFilter("concat(d.id,'-',h.id)", "in", diashoras)
+                .beginBlock()
+                .__().between("ha.fechaInicio", fechainicio, fechafin)
+                .__().between("ha.fechaFin", fechainicio, fechafin)
+                .beginBlock()
+                .__().filter("ha.fechaInicio", "<=", fechainicio)
+                .__().filter("ha.fechaFin", ">=", fechafin)
+                .endBlock()
+                .beginBlock()
+                .__().filter("ha.fechaInicio", ">=", fechainicio)
+                .__().filter("ha.fechaFin", "<=", fechafin)
+                .endBlock()
+                .endBlock();
+        return all(sql);
+    }
+
+    @Override
+    public void deleteAllByReservaAula(ReservaAula reservaAula) {
+        String strQuery = "delete from HorarioAula ha where ha.reservaAula.id=:IDRESERVAAULA";
+        Query query = getCurrentSession().createQuery(strQuery);
+        query.setLong("IDRESERVAAULA", reservaAula.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public List<HorarioAula> allByAulaFecha(Aula aulaFormFecha) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia", "hora", "aula au")
+                .left("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "sec.grupoHoras gh")
+                .left("gs.cicloAcademico ca")
+                .left("reservaAula ra", "ra.tramite tra")
+                .left("tra.docente do", "do.persona")
+                .left("tra.alumno al", "al.persona")
+                .left("tra.oficina ofi", "tra.empresa emp")
+                .filter("au.id", aulaFormFecha)
+                .beginBlock()
+                .__().between("ha.fechaInicio", aulaFormFecha.getFechaInicio(), aulaFormFecha.getFechaFin())
+                .__().between("ha.fechaFin", aulaFormFecha.getFechaInicio(), aulaFormFecha.getFechaFin())
+                .beginBlock()
+                .__().filter("ha.fechaInicio", "<=", aulaFormFecha.getFechaInicio())
+                .__().filter("ha.fechaFin", ">=", aulaFormFecha.getFechaFin())
+                .endBlock()
+                .beginBlock()
+                .__().filter("ha.fechaInicio", ">=", aulaFormFecha.getFechaInicio())
+                .__().filter("ha.fechaFin", "<=", aulaFormFecha.getFechaFin())
+                .endBlock()
+                .endBlock();
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allHorarioClasesBySecciones(List<Seccion> secciones, SemanaExamen semanaExamen) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .filter("ha.tipo", TipoHorarioAulaEnum.DICT)
+                .filter("ha.fechaInicio", "<=", semanaExamen.getFechaInicio())
+                .filter("ha.fechaFin", ">=", semanaExamen.getFechaFin())
+                .in("sec.id", secciones);
         return all(sql);
     }
 

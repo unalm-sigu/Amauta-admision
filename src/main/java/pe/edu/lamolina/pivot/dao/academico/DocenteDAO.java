@@ -25,10 +25,14 @@ public interface DocenteDAO extends EasyDAO<Docente> {
 
     List<Docente> allCoordinadoresByIdDptoName(Long idDpto, String nombre);
 
-    List<Docente> allByNombreFilter(String nombre, Integer limit, String codigoDep);
+    List<Docente> allByNombreFilter(String nombre, Integer cantidad, String codigoDep);
 
     List<Docente> allByDptoEstado(Long idDpto, String estado);
 
     List<Docente> allByNombreDepartamento(String nombre, DepartamentoAcademico departamento, int limit);
+
+    List<Docente> allByName(String nombre);
+
+    List<Docente> allByNombreFacultad(String nombre, Facultad facultad);
 
 }

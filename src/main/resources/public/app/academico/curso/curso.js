@@ -1,86 +1,91 @@
-$(function () {
-
-    var dynatable = $('#dynaTable').dynatable({
-        dataset: {
-            ajaxUrl: APP.url('academico/curso/list'),
-            perPageDefault: 10
-        },
-        writers: {
-            _rowWriter: ulWriter
-        },
-        table: {
-            bodyRowSelector: 'tbody tr'
+new Vue({
+    el: '#cursosVUE',
+    data: {
+        inicioURL: 'academico/curso',
+        cursoURL: APP.url('academico/curso/list'),
+        estadoClass: {ACT: 'label-success', CRE: 'label-default', INA: 'label-danger'},
+        configEstado: {
+            id: 'modalCambioEstado',
+            header: true,
+            title: 'Cambio de estado',
+            okclass: 'btn-success',
+            okbtn: 'Si, cambiar',
+            showaccept: true,
+            disabledBtns: false,
+            message: "Nada",
+            accion: "Nada",
+            motivo: "",
+            idCurso: 0
         }
-    }).bind('dynatable:afterUpdate', function (e, dynatable) {
-        $('[data-toggle="tooltip"]').tooltip();
-    }).data('dynatable');
-
-    function ulWriter(rowIndex, record, columns, cellWriter) {
-        var labelColor = {CRE: 'default', ACT: 'success', INA: 'danger'};
-        record.index = rowIndex;
-        record.esActivo = (record.estado == 'ACT') || (record.estado = 'CRE');
-        record.esInactivo = record.estado == 'INA';
-        record.colorEstado = labelColor[record.estado];
-        var html = $.templates("#cursoTemplate").render(record);
-        return html;
-    }
-
-
-    var Curso = {
-        formCambioEstadoCurso: $("#formCambioEstado"),
-        modalCurso: $("#modalCambioEstado"),
-        init: function () {
-
+    },
+    mounted: function () {
+    },
+    methods: {
+        urlNuevoCurso() {
+            let $vue = this;
+            location.href = APP.url($vue.inicioURL + '/nuevo') + $vue.getOrigenURL();
         },
-        viewModal: function (e, $this) {
-            e.preventDefault();
-            Curso.formCambioEstadoCurso.parsley().destroy();
-            var modal = Curso.modalCurso;
-
-            modal.modal("show");
-            modal.find('[name="motivo"]').val("");
-            modal.find('[name="id"]').val($this.attr("rel"));
-            var estado = $this.attr("rev");
-            estado == 'INA' ? $(".tituloCambioEstado").text("Activar Curso") : $(".tituloCambioEstado").text("¿Por qué motivo desea desactivar el curso?");
-            estado == 'INA' ?
-                    $(".campoMotivo").html('¿Desea realmente activar el curso?') :
-                    $(".campoMotivo").html("<textarea class='form-control' name='motivoAnulacion' required='true'></textarea>");
+        urlEditar(item) {
+            let $vue = this;
+            return APP.url($vue.inicioURL + '/' + item.id + '/editar') + $vue.getOrigenURL();
         },
-        cambioEstado: function (e) {
-            e.preventDefault();
-            var form = Curso.formCambioEstadoCurso;
-            if (!form.parsley().validate()) {
-                return;
+        activar(item, accion) {
+            let $vue = this;
+            $vue.configEstado.accion = accion;
+            $vue.configEstado.idCurso = item.id;
+            $vue.configEstado.motivo = "";
+            $vue.configEstado.disabledBtns = false;
+
+            if (accion == "activar") {
+                $vue.configEstado.title = "Activar Curso";
+                $vue.configEstado.okbtn = "Si, activar";
+                $vue.configEstado.okclass = "btn-success";
+                $vue.configEstado.message = '¿Está seguro que desea activar el curso <b class="text-primary">' + item.codigo + ' ' + item.nombre + '</b>?';
+            } else {
+                $vue.configEstado.title = "Desactivar Curso";
+                $vue.configEstado.okbtn = "Si, desactivar";
+                $vue.configEstado.okclass = "btn-warning";
+                $vue.configEstado.message = '¿Está seguro que desea desactivar el curso <b class="text-primary">' + item.codigo + ' ' + item.nombre + '</b>?';
             }
+            $vue.$refs.modalEstado.open();
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
+        },
+        saveEstado() {
+            let $vue = this;
+            let okBtn = $vue.configEstado.okbtn;
+            let estado = $vue.configEstado.accion == 'activar' ? 'ACT' : 'INA';
+            $vue.configEstado.disabledBtns = true;
+            $vue.configEstado.okbtn = '<i class="fa fa-spinner fa-spin"></i> Procesando petición..';
 
             $.ajax({
                 url: APP.url('academico/curso/cambiarEstadoCurso'),
                 type: 'POST',
                 async: true,
-                data: form.serialize(),
+                data: {
+                    id: $vue.configEstado.idCurso,
+                    estado: estado,
+                    motivoAnulacion: $vue.configEstado.motivo
+                },
                 success: function (response) {
+                    $vue.configEstado.okbtn = okBtn;
                     if (response.success) {
-                        Curso.modalCurso.modal("hide");
+                        $vue.$refs.modalEstado.close();
                         notify(response.message, "info");
-                        dynatable.process();
+                        $vue.$refs.raptorCursos.loadRemoteData();
                     } else {
+                        $vue.configEstado.disabledBtns = false;
                         notify(response.message, "error");
                     }
                 },
                 error: function () {
+                    $vue.configEstado.okbtn = okBtn;
+                    $vue.configEstado.disabledBtns = false;
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         }
     }
-
-    Curso.init();
-
-    $("body").delegate(".change-estado", "click", function (e) {
-        Curso.viewModal(e, $(this));
-    });
-    $("body").delegate(".cambio-estado-curso", "click", function (e) {
-        Curso.cambioEstado(e);
-    });
-
-});
+})

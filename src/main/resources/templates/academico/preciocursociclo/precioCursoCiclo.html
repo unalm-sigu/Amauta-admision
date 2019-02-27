@@ -1,23 +1,24 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Precios Cursos Nivelación</title>
+        <title>Curso Ciclo Académico</title>
     </head>
 
     <body>
         <div layout:fragment="main">
             <div id="preciocursocicloVUE">
                 <header class="header b-b padder-lg">
-                    <h2 th:text="|Precios Cursos Nivelación ${ciclo.descripcion}|">Precios Cursos Nivelación</h2> 
+                    <h2 th:text="|Curso Ciclo Académico ${ciclo.descripcion}|">Curso Ciclo Académico</h2> 
                 </header>
 
 
                 <section class="wrapper-lg" >
                     <section class="panel">
-                        <section class="panel-body" th:unless="${ciclo.tipo == 'NIV' }">
-                            No se configura precios en este ciclo
-                        </section>
+                        <!--                        <section class="panel-body" th:unless="${ciclo.tipo == 'NIV' }">
+                                                    No se configura precios en este ciclo
+                                                </section>-->
 
-                        <section class="panel-body" th:if="${ciclo.tipo == 'NIV' }">
+                        <!--                        <section class="panel-body" th:if="${ciclo.tipo == 'NIV' }">-->
+                        <section class="panel-body" >
 
                             <raptor-table v-bind:url="preciocursocicloURL" ref="raptorPrecioCursoCiclo">
 
@@ -59,6 +60,7 @@
                                                 <th class="col-md-1 v-middle text-center">Precio</th>
                                                 <th class="col-md-2 v-middle text-center">Precio Adicional</th>
                                                 <th class="col-md-2 v-middle text-center">Mínimo Requerido Alumnos por Curso</th>
+                                                <th class="col-md-1 v-middle"></th>
 
                                             </tr>
                                         </thead>
@@ -98,6 +100,15 @@
                                                            class="form-control" v-model="item.minimoAlumnos"/>
                                                     <span v-else="" v-text="item.minimoAlumnos"></span>
                                                 </td> 
+                                                <td class="v-middle col-md-1">
+                                                    <div class="actions">
+                                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a v-on:click="editarmodal(item)">Configuración curso</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+
                                             </tr>
                                         </tbody>
                                     </table>
@@ -107,6 +118,8 @@
                         </section>
                     </section>
                 </section>
+
+                <th:block th:substituteby="academico/preciocursociclo/precioCursoCicloModal" />
 
                 <modal-vik ref="cfgCantidadAlumnoModal"
                            v-bind="cfgCantidadAlumno"
@@ -147,6 +160,11 @@
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var tipoCarpetasJson = /*[[${tipoCarpetas}]]*/ 'json';
+                /*]]>*/
+            </script>
             <div th:substituteby="_layout/includes :: sweetalert"/>
             <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/preciocursociclo/precioCursoCiclo.js}" charset="utf-8"></script>

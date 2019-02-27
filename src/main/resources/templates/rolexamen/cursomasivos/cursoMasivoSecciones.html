@@ -38,6 +38,23 @@
                                     </div>
                                 </div>
 
+                                <div class="row"  v-if="cursoMasivoExamen.grupoHorasExamen">
+                                    <div class="form-group">
+                                        <label class="m col-md-2 bold">Fecha Examen</label>
+                                        <div class="m-t-md col-md-4">
+                                            <template v-if="cursoMasivoExamen.grupoHorasExamen.fecha">
+                                            {{cursoMasivoExamen.grupoHorasExamen.fecha }}
+                                            (Grupo {{cursoMasivoExamen.grupoHorasExamen.grupoHoras.codigo}})
+                                            <label >Hora Inicio: {{cursoMasivoExamen.grupoHorasExamen.horaInicio.descripcion}}</label>
+                                            <label >Hora Fin: {{cursoMasivoExamen.grupoHorasExamen.horaFin.descripcion}}</label>
+                                            </template>
+                                            <template v-else="">
+                                               Sin Asignar Horario
+                                            </template>
+                                        </div>
+
+                                    </div>
+                                </div>
                             </div>
 
                         </section>
@@ -52,35 +69,25 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th class="col-md-3 text-center">Codigo</th>
-                                                <th>Alumnos</th>
-                                                <th class="col-md-3 text-center">Registro</th>
-                                                <th class="col-md-3 text-center">Exclusión</th>
-                                                <th class="col-md-2 text-center">Estado</th>
-                                                <th class="col-md-1 text-center"></th>
+                                                <th class="col-md-4 text-center">Sección</th>
+                                                <th class="col-md-4 text-center">Alumnos</th>
+                                                <th class="col-md-4 text-center">Estado</th>
+                                                <th v-if="accionesDisponibles" class="text-center"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="sec in props.data">
-                                                <td>
-                                                    <span v-text="sec.seccion.codigo2"></span>
+                                                <td class="text-center">
+                                                    <span class="text-md bold text-primary">  {{sec.seccion.codigo2}} ({{sec.seccion.grupoHoras.codigo}}) </span>
                                                 </td>
                                                 <td class="text-center">
                                                     <span class="badge pointer"
                                                           >{{ sec.alumnosCount }}</span>
                                                 </td>
-                                                <td>
-                                                    <span class="block" v-text="sec.userRegistro.persona.apellidosNombres"></span>
-                                                    <small v-text="sec.fechaRegistro"></small>
-                                                </td>
-                                                <td>
-                                                    <span class="block" v-text="sec.usuarioExclusion.persona.apellidosNombres"></span>
-                                                    <small v-text="sec.fechaExclusion"></small>
-                                                </td>
-                                                <td>
+                                                <td class="text-center">
                                         <v-estado v-bind:codigo="sec.estado" v-bind:valor="sec.estadoEnum.value"/> 
                                         </td>
-                                        <td>
+                                        <td v-if="accionesDisponibles">
                                             <div class="dropdown actions pointer">
                                                 <a class="dropdown-toggle" data-toggle="dropdown">
                                                     <i class="glyphicon glyphicon-option-vertical"></i>

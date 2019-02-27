@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -12,6 +13,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoCursoMasivoDAO;
@@ -22,6 +24,16 @@ public class AlumnoCursoMasivoDAOH extends AbstractEasyDAO<AlumnoCursoMasivo> im
     public AlumnoCursoMasivoDAOH() {
         super();
         setClazz(AlumnoCursoMasivo.class);
+    }
+
+    @Override
+    public void deleteByCursoMasivo(CursoMasivoExamen cursoMasivoExamen) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  AlumnoCursoMasivo acm where acm.cursoMasivoExamen.id = :CURSO_MASIVO ");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("CURSO_MASIVO", cursoMasivoExamen.getId());
+        query.executeUpdate();
     }
 
     @Override
@@ -39,6 +51,15 @@ public class AlumnoCursoMasivoDAOH extends AbstractEasyDAO<AlumnoCursoMasivo> im
                 .from(AlumnoCursoMasivo.class, "acm")
                 .join("cursoMasivoExamen cme", "userRegistro ur")
                 .filter("cme.id", cursoMasivo)
+                .in("acm.estado", estados);
+        return all(sql);
+    }
+
+    public List<AlumnoCursoMasivo> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, AlumnoRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoMasivo.class, "acm")
+                .join("cursoMasivoExamen cme", "cme.grupoHorasExamen ghe", "userRegistro ur")
+                .filter("ghe.id", grupoHorasExamen)
                 .in("acm.estado", estados);
         return all(sql);
     }

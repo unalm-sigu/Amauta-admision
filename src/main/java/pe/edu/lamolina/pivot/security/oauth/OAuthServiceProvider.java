@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.security.oauth;
 
 import com.github.scribejava.core.oauth.OAuth20Service;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -20,5 +21,7 @@ public interface OAuthServiceProvider {
     //List<Menu> allMenuRolActivo(Rol rolAsignar, Sistema sistema);
 
     void asignarRolActivo(Rol asignar, DataSessionPivot ds, HttpSession session);
+
+    public List<CicloAcademico> findCiclosVisibles();
 
 }

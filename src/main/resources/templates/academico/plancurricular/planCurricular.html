@@ -8,7 +8,7 @@
     <div layout:fragment="main">
 
 
-        <div id="main">
+        <div id="main" v-cloak="">
 
             <header class="header b-b padder-lg">
 
@@ -54,7 +54,7 @@
 
             <modal-vik ref="modalAsignacionMasiva"
                        v-bind="modalAsignacionMasiva"
-                       
+
                        v-bind:cancelaction="closeAsignacion"
                        v-bind:okaction="saveAsignacionMasiva">
 

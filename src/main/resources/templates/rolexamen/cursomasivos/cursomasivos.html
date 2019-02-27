@@ -7,6 +7,7 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
+                    <a href="/rolexamen/rolexamenes" class="btn btn-default btn-sm pull-right">Regresar</a>
                     <h2>Cursos Masivos <span th:text="${cicloAcademico.descripcion}">2018-II</span></h2>
                 </header>
 
@@ -35,7 +36,7 @@
                                     </div>
                                 </div>                                   
 
-                                <div class="row">
+                                <div class="row" v-if="agregarCursoDisponible">
                                     <div class="form-group">
                                         <label class="m col-md-2 bold">Cursos</label>
                                         <div class="m-t-md col-md-4">
@@ -69,7 +70,10 @@
                                             </multiselect>
                                         </div>
                                         <div class="m-t-md col-md-4">
-                                            <a type="button" class="btn btn-success pull-right" v-on:click.prevent="agregarCursoMasivo">Agregar Curso</a>  
+
+                                            <a type="button" class="btn btn-success pull-right  " v-on:click.prevent="agregarCursoMasivo">Agregar Curso</a>  
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -84,8 +88,8 @@
                             <table class="table table-striped">
                                 <thead> 
                                     <tr> 
-                                        <th class="col-md-4 v-middle text-center">Curso</th>
-                                        <th class="col-md-2 v-middle text-center">Fecha / Hora</th>
+                                        <th class="col-md-3 v-middle">Curso</th>
+                                        <th class="col-md-3 v-middle text-center">Fecha / Hora</th>
                                         <th class="col-md-1 v-middle text-center">Secciones</th>
                                         <th class="col-md-1 v-middle text-center">Docentes</th>
                                         <th class="col-md-1 v-middle text-center">Alumnos</th>
@@ -120,7 +124,8 @@
                                         </td>
                                         <td class="v-middle text-center"> 
                                             <span class="badge pointer"
-                                                  v-on:click="verSeccionesAsignadas(item)">{{ item.seccionesCount }}</span>
+                                                  v-on:click="cursoMasivoSecciones(item)"
+                                                  >{{ item.seccionesCount }}</span>
                                         </td>
                                         <td class="v-middle text-center">
                                             <span class="badge pointer" 
@@ -146,16 +151,24 @@
                                 </td>
                                 <td class="v-middle">
                                     <div class="actions">
-                                        <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="glyphicon glyphicon-cog"> </i></a>
+                                        <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="glyphicon glyphicon-option-vertical"> </i></a>
 
                                         <ul class="dropdown-menu pull-right" >
-                                            <li><a class=" pointer btn-link bold" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>     
-                                            <li><a class=" pointer btn-link bold" v-on:click="verAsignarHorario(item)">Asignar Horario</a></li>  
+                                            <template v-if="modificarAulaHorarioDisponible">
+                                                <li><a class=" pointer btn-link bold" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>     
+                                                <li><a class=" pointer btn-link bold" v-on:click="verAsignarHorario(item)">Asignar Horario</a></li>  
+                                            </template>
+                                            <template v-if="verAulaHorarioDisponible">
+                                                <li><a class=" pointer btn-link bold" v-on:click="verAulasAsignadas(item)">Aulas</a></li>     
+                                            </template>
                                             <li><a class=" pointer btn-link bold" v-on:click="cursoMasivoSecciones(item)"  >Secciones</a></li>   
-                                            <li class="divider"></li>     
-                                            <li><a class=" pointer bold" v-on:click="excluir(item,tipoAccion.CURSO)"  >Excluir</a></li>
-                                            <li><a class=" pointer bold" v-on:click="incluir(item,tipoAccion.CURSO)"  >Incluir</a></li>
-                                            <li><a class=" pointer bold" v-on:click="eliminar(item)">Eliminar</a></li>
+                                            <template v-if="incluirExcluirMoverDisponible">
+                                                <li class="divider"></li>     
+                                                <li v-if="item.isEstadoActivo"><a class=" pointer bold" v-on:click="excluir(item,tipoAccion.CURSO)"  >Excluir</a></li>
+                                                <li v-if="item.isEstadoExcluido"><a class=" pointer bold" v-on:click="incluir(item,tipoAccion.CURSO)"  >Incluir</a></li>
+                                                <li><a class=" pointer bold" v-on:click="eliminar(item)">Eliminar</a></li>
+                                            </template>
+
                                         </ul>
                                     </div>
                                 </td>
@@ -176,6 +189,7 @@
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var jRolexamenes = /*[[${jRolexamenes}]]*/ '';
+                var jRolExamenes = /*[[${jRolExamenes}]]*/ {};
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>

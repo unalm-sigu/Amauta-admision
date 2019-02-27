@@ -32,4 +32,6 @@ public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
     public Colaborador findByPersonaAndEstado(Persona persona);
 
+    public Colaborador findColaboradorByIdPersona(Long idPersona);
+    
 }

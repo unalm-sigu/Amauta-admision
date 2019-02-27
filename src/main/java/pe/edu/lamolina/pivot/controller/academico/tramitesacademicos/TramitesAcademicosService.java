@@ -23,7 +23,7 @@ public interface TramitesAcademicosService {
 
     void agendarSolicitud(Tramite tramite, ReunionConsejo reunionConsejo, DateTime today, Usuario usuario);
 
-    List<ReunionConsejo> allReunionConsejoByDyna(DynatableFilter filter, Oficina oficina);
+    List<ReunionConsejo> allReunionConsejoByDyna(DynatableFilter filter, List<Oficina> oficina);
 
     void revertTramiteAcademico(Tramite tramite, DataSessionPivot ds);
 

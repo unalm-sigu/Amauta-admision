@@ -83,7 +83,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Override
     @Transactional
     public void update(CicloAcademico cicloAcademico, Usuario usuario) {
-        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findByCiclo(cicloAcademico);
         ObjectUtil.eliminarAttrSinId(cicloAcademico, "modalidadEstudio");
         if (cicloAcademico.getModalidadEstudio() == null) {
             throw new PhobosException("Tiene que especificar la modalidad de estudio.");
@@ -101,7 +101,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
 
     @Override
     public CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico) {
-        return cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        return cicloAcademicoDAO.findByCiclo(cicloAcademico);
     }
 
     @Override
@@ -123,7 +123,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Transactional
     public void anular(CicloAcademico cicloAcademico) {
 
-        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findByCiclo(cicloAcademico);
 
         if (!(CicloAcademicoEstadoEnum.CFG.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
                 || CicloAcademicoEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
@@ -143,7 +143,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Override
     @Transactional
     public void desactivar(CicloAcademico cicloAcademico) {
-        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findByCiclo(cicloAcademico);
 
         if (!(CicloAcademicoEstadoEnum.CRE.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
             throw new PhobosException("Su estado previo debe ser CREADO");
@@ -163,7 +163,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Override
     @Transactional
     public void configurar(CicloAcademico cicloAcademico) {
-        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findByCiclo(cicloAcademico);
 
         if (!(CicloAcademicoEstadoEnum.CRE.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
             throw new PhobosException("Su estado previo debe ser CREADO");
@@ -176,14 +176,14 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Override
     @Transactional
     public void activar(CicloAcademico cicloAcademico) {
-        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findByCiclo(cicloAcademico);
 
         if (!(CicloAcademicoEstadoEnum.CFG.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
                 || CicloAcademicoEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
             throw new PhobosException("Su estado previo debe ser CONFIGURADO o ACTIVO");
         }
 
-        CicloAcademico cicloAcademicoActivo = cicloAcademicoDAO.findCicloAcademicoActivoByModalidad(cicloAcademicoDB.getModalidadEstudio());
+        CicloAcademico cicloAcademicoActivo = cicloAcademicoDAO.findActivoByModalidad(cicloAcademicoDB.getModalidadEstudio());
         if (cicloAcademicoActivo != null) {
             cicloAcademicoActivo.setEstadoEnum(CicloAcademicoEstadoEnum.PEND);
             cicloAcademicoDAO.update(cicloAcademicoActivo);
@@ -197,7 +197,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Override
     @Transactional
     public void cerrar(CicloAcademico cicloAcademico) {
-        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findByCiclo(cicloAcademico);
 
         if (!(CicloAcademicoEstadoEnum.PEND.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
                 || CicloAcademicoEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
@@ -217,7 +217,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Override
     @Transactional
     public void pendiente(CicloAcademico cicloAcademico) {
-        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findByCiclo(cicloAcademico);
 
         if (!(CicloAcademicoEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
             throw new PhobosException("Su estado previo debe ser ACTIVO");
@@ -240,6 +240,14 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         margen.add(year + 1);
         margen.add(year + 2);
         return margen;
+    }
+
+    @Override
+    @Transactional
+    public void changeVisiblelogin(CicloAcademico cicloAcademico) {
+        CicloAcademico academico = cicloAcademicoDAO.find(cicloAcademico);
+        academico.setVisibleLogin(academico.getVisibleLogin() ? false : true);
+        cicloAcademicoDAO.update(academico);
     }
 
 }

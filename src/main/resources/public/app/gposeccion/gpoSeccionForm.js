@@ -44,6 +44,7 @@ var app = new Vue({
             header: true,
             title: 'Buscar Grupo Disponible',
             okbtn: 'Aceptar',
+            showaccept: true,
             modalsize: 'modal-lg'
         },
         aulaModal: {
@@ -51,6 +52,7 @@ var app = new Vue({
             header: true,
             title: 'Buscar Aula/Ambiente Disponible',
             okbtn: 'Aceptar',
+            showaccept: true,
             modalsize: 'modal-lg'
         },
         aulaHorarioModal: {
@@ -65,6 +67,7 @@ var app = new Vue({
             header: true,
             title: 'Restricciones Modalidad / Facultad / Especialidad',
             okbtn: 'Aceptar',
+            showaccept: true,
             modalsize: 'modal-lg'
         },
         tipoRepitenciaModal: {
@@ -72,6 +75,7 @@ var app = new Vue({
             header: true,
             title: 'Aplicar restricción repitencia / retirados / ingresantes',
             okbtn: 'Aceptar',
+            showaccept: true,
             modalsize: 'modal-lg'
         },
         fecha: null,
@@ -167,6 +171,9 @@ var app = new Vue({
         aulas: [],
         grupos: [],
         docenteSelect: {},
+        dataModalAgregarHorasAdicionales: {
+            id: 'idModalAgregarHorasAdicionales',
+        },
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -270,7 +277,9 @@ var app = new Vue({
         },
         docenteSelected(item) {
             let $vue = this;
+            console.log($vue.docenteSelect)
             $vue.docenteSelect = item;
+            console.log($vue.docenteSelect)
         },
         getClassTab(tabBuscar) {
             let $vue = this;
@@ -675,10 +684,23 @@ var app = new Vue({
         },
         anularSeccion: function (seccion) {
             let $vue = this;
+            let messageAlert = "¿Está seguro que desea anular la sección?";
+            let classButton = "btn-warning btn-modal btn-procesar";
+            let classMessage = "";
+            let minSecciones = 1;
+            if ($vue.grupoSeccion.curso.tipoCursoTEOPRA) {
+                minSecciones = 2;
+            }
+            if ($vue.grupoSeccion.secciones.length == minSecciones) {
+                classButton = "btn-danger btn-modal btn-procesar";
+                messageAlert = "¿Al anular esta sección, se eliminara el grupo, desea continuar?";
+                classMessage = "bold danger h3 text-danger";
+            }
             let mm = bootbox.confirm({
-                message: "¿Está seguro que desea anular la sección?",
+                message: messageAlert,
+                className: classMessage,
                 buttons: {
-                    confirm: {label: 'Si', className: "btn-warning btn-modal btn-procesar"},
+                    confirm: {label: 'Si', className: classButton},
                     cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
                 },
                 callback: function (result) {
@@ -692,9 +714,13 @@ var app = new Vue({
                             data: {seccion: seccion.id},
                             success: function (response) {
                                 if (response.success) {
-                                    notify(response.message, "info");
-                                    $vue.loadGpoSeccionFlash(mm);
-
+                                    if (response.message == 'redirect') {
+                                        //location.href = APP.url('academico/gposeccion/deleteGrupoSeccion?curso=' + response.data);
+                                        location.href = $vue.navega.origen;
+                                    } else {
+                                        notify(response.message, "info");
+                                        $vue.loadGpoSeccionFlash(mm);
+                                    }
                                 } else {
                                     $(".btn-modal").prop('disabled', false);
                                     $(".btn-procesar").html('Si');
@@ -765,7 +791,13 @@ var app = new Vue({
             tabs.find(".tab-pane").removeClass("active");
 
             let $vue = this;
-            $global.$emit('loadGrupoComponent', seccion.id);
+            // $global.$emit('loadGrupoComponent', seccion.id);
+            $vue.$refs.grupoHorarioComponentRef.loadGruposHorario(seccion.id);
+            if (seccion.matriculados > 0) {
+                $vue.grupoModal.showaccept = false;
+            } else {
+                $vue.grupoModal.showaccept = true;
+            }
             this.$refs.modalGrupo.open();
         },
         saveGrupo() {
@@ -903,11 +935,17 @@ var app = new Vue({
             });
         },
         showModalAula(seccion) {
+            let $vue = this;
             var tabs = $("#tab-aula");
             tabs.find("li").removeClass("active");
             tabs.find(".tab-pane").removeClass("active");
 
             this.$refs.aulaComponent.loadAula(seccion);
+            if (seccion.matriculados > 0) {
+                $vue.aulaModal.showaccept = false;
+            } else {
+                $vue.aulaModal.showaccept = true;
+            }
             this.$refs.modalAula.open();
 
 
@@ -952,6 +990,11 @@ var app = new Vue({
         showModalRestriccion(seccion) {
             let $vue = this;
             $global.$emit('loadRestriccionComponent', seccion.id);
+            if (seccion.matriculados > 0) {
+                $vue.restriccionModal.showaccept = false;
+            } else {
+                $vue.restriccionModal.showaccept = true;
+            }
             this.$refs.modalRestriccion.open();
         },
         saveRestriccion() {
@@ -960,6 +1003,11 @@ var app = new Vue({
         showModalTipoRepitencia(seccion) {
             let $vue = this;
             $global.$emit('loadRepitenciaComponent', seccion.id);
+            if (seccion.matriculados > 0) {
+                $vue.tipoRepitenciaModal.showaccept = false;
+            } else {
+                $vue.tipoRepitenciaModal.showaccept = true;
+            }
             this.$refs.modalTipoRepitencia.open();
         },
         saveTipoRepRestriccion() {
@@ -1897,7 +1945,46 @@ var app = new Vue({
                 }
             });
 
-        }
+        },
+        asignarHorasAdicionales(seccion) {
+            let $vue = this;
+            $vue.$refs.modalAgregarHorasAdicionales.open();
+            $vue.$refs.modalHorasAdicionalesComponent.seccion = seccion;
+            if (seccion.grupoHoras.id) {
+                $vue.$refs.modalAgregarHorasAdicionales.showaccept = false;
+            } else {
+                $vue.$refs.modalAgregarHorasAdicionales.showaccept = true;
+            }
+        },
+        saveModalAgregarHorasAdicionales() {
+            let $vue = this;
+            let horasAsignadas = $vue.$refs.modalHorasAdicionalesComponent.seccion.horasAdicionales;
+            if (horasAsignadas == '') {
+                notify("Tiene que asignar un valor", "error");
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/asignarHorasAdicionales'),
+                data: {id: $vue.$refs.modalHorasAdicionalesComponent.seccion.id,
+                    horasAdicionales: $vue.$refs.modalHorasAdicionalesComponent.seccion.horasAdicionales
+                },
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $vue.$refs.modalAgregarHorasAdicionales.close();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        showHorasSemanales(seccion) {
+            return seccion.horasAdicionales > 0;
+        },
     }
 });
 

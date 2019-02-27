@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -52,5 +53,13 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
     List<Carrera> allActivasByModalidadEnum(ModalidadEstudioEnum modalidadEstudioEnum);
 
     List<Carrera> allOficinaAndIds(List<Long> idEsp);
+
+    List<Carrera> allPregradoByCicloMatriculables(CicloAcademico ciclo);
+
+    List<Carrera> allByMatriculablesCicloFacultades(List<Facultad> facultades, CicloAcademico ciclo);
+
+    List<Carrera> allByCarreras(List<Carrera> carreras);
+
+    List<Carrera> allByMatriculablesCicloCarreras(List<Carrera> carreras, CicloAcademico ciclo);
 
 }

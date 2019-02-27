@@ -6,6 +6,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 
@@ -24,4 +25,6 @@ public interface AlumnoGrupoEspecialDAO extends EasyDAO<AlumnoGrupoEspecial> {
     void updateEstadoExclusion(AlumnoGrupoEspecial alumnoGrupoEspecial);
 
     void updateEstado(AlumnoGrupoEspecial alumnoGrupoEspecial);
+
+    List<AlumnoGrupoEspecial> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, AlumnoRolExamenEstadoEnum... estados);
 }

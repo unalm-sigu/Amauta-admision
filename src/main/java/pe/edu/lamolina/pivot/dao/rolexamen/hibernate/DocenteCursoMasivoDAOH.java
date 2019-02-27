@@ -10,9 +10,13 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.DocenteRolExamenEstadoEnum;
+import static pe.edu.lamolina.model.enums.TipoGestionEnum.PUB;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.DocenteCursoMasivoDAO;
 
@@ -22,6 +26,17 @@ public class DocenteCursoMasivoDAOH extends AbstractEasyDAO<DocenteCursoMasivo> 
     public DocenteCursoMasivoDAOH() {
         super();
         setClazz(DocenteCursoMasivo.class);
+    }
+
+    @Override
+    public DocenteCursoMasivo find(long id) {
+        Octavia sql = Octavia.query()
+                .from(DocenteCursoMasivo.class, "dcm")
+                .join("cursoMasivoExamen cm", "docente d", "userRegistro ur")
+                .join("cm.rolExamenes re")
+                .left("ur.persona urPer", "cm.grupoHorasExamen ghe")
+                .filter("dcm.id", id);
+        return find(sql);
     }
 
     @Override
@@ -55,6 +70,19 @@ public class DocenteCursoMasivoDAOH extends AbstractEasyDAO<DocenteCursoMasivo> 
                 .join("cm.rolExamenes re")
                 .left("ur.persona urPer")
                 .filter("cm.id", cursoMasivoExamen)
+                .in("dcm.estado", estados)
+                .orderBy("cm.id desc");
+        return all(sql);
+    }
+
+    @Override
+    public List<DocenteCursoMasivo> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, DocenteRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(DocenteCursoMasivo.class, "dcm")
+                .join("cursoMasivoExamen cm", "docente d", "userRegistro ur")
+                .join("cm.rolExamenes re")
+                .left("ur.persona urPer", "cm.grupoHorasExamen ghe")
+                .filter("ghe.id", grupoHorasExamen)
                 .in("dcm.estado", estados)
                 .orderBy("cm.id desc");
         return all(sql);
@@ -120,6 +148,34 @@ public class DocenteCursoMasivoDAOH extends AbstractEasyDAO<DocenteCursoMasivo> 
         sql.searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
 
+        return all(sql);
+    }
+
+    @Override
+    public List<DocenteCursoMasivo> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico) {
+
+        Octavia sql = new Octavia()
+                .from(DocenteCursoMasivo.class, "dcm")
+                .join("docente dc", "cursoMasivoExamen cme", "cme.rolExamenes re", "re.eventoCicloAcademico eca")
+                .join("eca.cicloAcademico ca", "cme.grupoHorasExamen ghe")
+                .join("ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras")
+                .filter("ca.id", cicloAcademico)
+                .filter("re.estado", PUB)
+                .filter("dc.id", docente);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<DocenteCursoMasivo> allByCursoMasivoAndDocenteAndEstados(CursoMasivoExamen cursoMasivoExamen, Docente docente, DocenteRolExamenEstadoEnum... estados) {
+        Octavia sql = new Octavia()
+                .from(DocenteCursoMasivo.class, "dcm")
+                .join("docente dc", "cursoMasivoExamen cme", "cme.rolExamenes re", "re.eventoCicloAcademico eca")
+                .join("eca.cicloAcademico ca", "cme.grupoHorasExamen ghe")
+                .join("ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras")
+                .filter("cme.id", cursoMasivoExamen)
+                .in("re.estado", estados)
+                .filter("dc.id", docente);
         return all(sql);
     }
 

@@ -14,7 +14,19 @@ new Vue({
         },
     },
     mounted() {
-
+        if (jRolExamenes != null) {
+            this.rolExamen = JSON.parse(jRolExamenes);
+            this.changeRolExamen();
+        }
+    },
+    computed: {
+        calcularDisponible() {
+            return this.rolExamen && this.rolExamen.isEstadoConfigurando && (this.rolExamen.isSituacionAsignarHorarioCursosMasivos || this.rolExamen.isSituacionConfigurarGrupoEspecial);
+        },
+        accionesSeccionDisponibles() {
+            const situacionValida = this.rolExamen && this.rolExamen.isSituacionConfigurarGrupoEspecial;
+            return this.rolExamen && ((this.rolExamen.isEstadoConfigurando && situacionValida) || this.rolExamen.isEstadoModificando)
+        }
     },
     methods: {
         rolExamenCustomLabel( { eventoCicloAcademico }) {
@@ -42,7 +54,7 @@ new Vue({
             //    this.letraSelected = letraGrupoRegular;
             this.$refs.tblAlumnosGrupoEspecial.ajaxdata = {seccionGrupoEspecial: seccionGrupoEspecial.id};
             this.$refs.tblAlumnosGrupoEspecial.loadRemoteData();
-            this.$refs.alumnosModal.title = "Seccion Grupo Especial " + seccionGrupoEspecial.seccion.codigo2 + " | Alumnos";
+            this.$refs.alumnosModal.title = "Sección Grupo Especial " + seccionGrupoEspecial.seccion.codigo2 + " | Alumnos";
             this.$refs.alumnosModal.open();
 
         }, excluir(obj, tipoAccion) {
@@ -50,7 +62,7 @@ new Vue({
             bootbox.confirm({
                 message: "¿Está seguro que desea excluir?",
                 buttons: {
-                    confirm: {label: 'Si', className: "btn-warning"},
+                    confirm: {label: 'Sí', className: "btn-warning"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
@@ -79,7 +91,7 @@ new Vue({
             bootbox.confirm({
                 message: "¿Está seguro que desea incluir?",
                 buttons: {
-                    confirm: {label: 'Si', className: "btn-warning"},
+                    confirm: {label: 'Sí', className: "btn-warning"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
@@ -106,7 +118,7 @@ new Vue({
         }, trasladar(item) {
             this.$refs.moverSeccionComp.seccion = item.seccion;
             this.$refs.moverSeccionComp.tipoorigen = "GRU_ESP";
-            this.$refs.moverSeccionComp.loadComponent();
+            this.$refs.moverSeccionComp.loadComponent(this.rolExamen);
             this.$refs.moverSeccionModal.open();
         }
     }

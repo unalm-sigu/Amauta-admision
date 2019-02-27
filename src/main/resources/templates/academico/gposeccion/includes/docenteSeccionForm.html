@@ -1,3 +1,17 @@
+<div class="row">
+    <div class="col-md-0">
+        <span class="v-middle"> 
+            <label class="switch">
+                <input type="checkbox" v-model="habilDep" />
+                <span></span>
+            </label>
+        </span>
+    </div>
+    <div class="col-md-2 bold">Busqueda por departamento</div>
+</div>
+
+
+
 <table class="table">
     <thead> 
         <tr > 
@@ -21,7 +35,7 @@
                         label="apellidosNombres"
                         track-by='id'
                         placeholder="Desconocido"
-                        :show-labels="true"
+                        v-bind:internal-search="false"
                         v-on:search-change="buscarDocente"
                         v-on:input="indexSelect(index)"
                         v-on:select="docenteSelected"

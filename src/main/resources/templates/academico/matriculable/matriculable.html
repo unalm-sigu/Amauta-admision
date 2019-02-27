@@ -13,9 +13,10 @@
                             <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li v-if="ciclo.fechaMatriculables == null"><a  v-on:click="generarMatriculables" >Generar</a></li>
+                            <li v-if="ciclo.fechaVerificaNmat == null"><a  v-on:click="verificarAlumnosNmat" >Verificar alumnos NMAT</a></li>
+                            <li v-if="ciclo.fechaVerificaNmat == null"><a  v-on:click="generarMatriculables" >Generar</a></li>
                             <li v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="limpiarMatriculables" >Limpiar matriculable</a></li>
-                            <li v-if="ciclo.fechaCierreMatriculable == null"><a  v-on:click="finalizarMatriculable" >Finalizar matriculable</a></li>
+                            <li v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="finalizarMatriculable" >Finalizar matriculable</a></li>
                             <li ><a  v-on:click="modal">Agregar Matriculable</a></li>
                             <!--<li><a  id="agregarMatriculable">Modal Matriculable</a></li>-->
                             <li v-if="ciclo.fechaPrioridades == null &amp;&amp; ciclo.fechaCierrePrioridades==null &amp;&amp; ciclo.fechaCierreMatriculable != null" ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
@@ -73,8 +74,8 @@
                                                 <th class="col-md-4" colspan="2"></th>
                                                 <th class="col-md-2 text-center">Puntaje <br/> Situación</th>
                                                 <th class="col-md-2 text-center v-middle">Prioridad <br/> Turno</th>
-                                                <th class="col-md-2 text-center v-middle">Cursos</th>
-                                                <th class="col-md-2 text-center v-middle">Créditos</th>
+                                                <th class="col-md-2 text-center v-middle">Datos Puntaje</th>
+                                                <th class="col-md-2 text-center v-middle">Matrícula</th>
                                                 <th class="col-md-1 text-center v-middle">Estado</th>
                                                 <th></th>
                                             </tr>
@@ -111,6 +112,9 @@
                                                         <small class="block">
                                                             {{item.alumno.persona.emailCompania}}
                                                         </small>
+                                                        <small class="block">
+                                                            <smal>DNI: </smal>{{item.alumno.persona.numeroDocIdentidad}}
+                                                        </small>
                                                         <a v-if="item.motivoMatriculable != '' " class="text-danger " data-toggle="tooltip" v-bind:title="item.motivoMatriculable" href="#">
                                                             <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                                                         </a>
@@ -131,14 +135,22 @@
                                                     <span class="block" v-if="item.turnoAtencion.fecha != ''">Turno: {{item.turnoAtencion.fechaHoraInicio}}</span>
                                                 </td>
 
-                                                <td class='v-middle text-center'>
-                                                    <span class="block">Mat: {{item.cursosMatriculados}}</span>
-                                                    <span class="block">Ret: {{item.cursosRetirados}}</span>
+                                                <td class='v-middle '>
+                                                    <div v-if="ciclo.fechaPrioridades != null ">
+                                                        <span class="block" ><span class="bold">Ciclo:</span> {{item.cicloAcademicoInfo.descripcion}}</span>
+                                                        <span class="block"><span class="bold">pps:</span> {{item.promedioSemestral}}</span>
+                                                        <span class="block"><span class="bold">capa:</span> {{item.creditosAprobadosAcumulados}}</span>
+                                                        <span class="block"><span class="bold">caps:</span> {{item.creditosAprobadosCiclo}}</span>
+                                                        <span class="block"><span class="bold">cca:</span> {{item.creditosAcumulados}}</span>
+                                                        <span class="block"><span class="bold">ccs:</span> {{item.creditosCursadosCiclo}}</span>
+                                                    </div>
                                                 </td>
 
                                                 <td class='v-middle text-center'>
-                                                    <span class="block">Mat: {{item.creditosMatriculados}}</span>
-                                                    <span class="block">Ret: {{item.creditosRetirados}}</span>
+                                                    <span class="block">Cursos Mat: {{item.cursosMatriculados}}</span>
+                                                    <span class="block">Cursos Ret: {{item.cursosRetirados}}</span>
+                                                    <span class="block">Créditos Mat: {{item.creditosMatriculados}}</span>
+                                                    <span class="block">Créditos Ret: {{item.creditosRetirados}}</span>
                                                 </td>
 
                                                 <td class="text-center v-middle">
@@ -175,6 +187,7 @@
                         <div id="cursosModal"></div>-->
                 <div th:substituteby="academico/matriculable/modalAsignarTurno">
                 </div>
+              
                 <div th:substituteby="academico/matriculable/matriculableModal">
                 </div>
                 <div th:substituteby="academico/matriculable/inhabilitarMatriculable">
@@ -188,6 +201,7 @@
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 var resumenJson = /*[[${resumen.toString()}]]*/ 'json';
+                var tipoCondicionalJson = /*[[${tipoCondicional.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
             <div th:substituteby="_layout/includes :: javascript-upload"></div>

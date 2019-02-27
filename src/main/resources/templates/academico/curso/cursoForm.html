@@ -9,7 +9,7 @@
 
             <header class="header b-b padder-lg">
                 <div class="pull-right m-t-xs">
-                    <a class="btn btn-default" th:href="@{'/academico/curso'}">Regresar</a>
+                    <a class="btn btn-default" th:href="${origen}">Regresar</a>
                 </div>
 
                 <h2 v-if="curso.id=='' ">Nuevo Curso</h2>
@@ -147,21 +147,24 @@
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         <label>Tipo Dictado</label>
-                                        <template v-if="curso.id == '' || curso.tipoCursoEnum.name == 'NINGUNO' ">
-                                            <multiselect v-model='tipoCursoEnum'
-                                                         v-bind:options='tiposCurso'
-                                                         v-bind:allow-empty="false"
-                                                         label='value'
-                                                         placeholder="Seleccione un tipo"
-                                                         deselect-label=""
-                                                         select-label="Seleccione este tipo"
-                                                         track-by='name'
-                                                         v-on:input="setTipoCurso">
-                                            </multiselect>
-                                            <input name="tipoCurso" class="hide" v-model="curso.tipoCursoEnum.name" required=""/>
-                                        </template>
-                                        <span v-else="" class='form-control' v-text="curso.tipoCursoEnum.value"></span>
-
+                                        <!-- 
+                                  <template v-if="curso.id == '' || curso.tipoCursoEnum.name == 'NINGUNO' ">
+                                        -->
+                                        <multiselect v-model='tipoCursoEnum'
+                                                     v-bind:options='tiposCurso'
+                                                     v-bind:allow-empty="false"
+                                                     label='value'
+                                                     placeholder="Seleccione un tipo"
+                                                     deselect-label=""
+                                                     select-label="Seleccione este tipo"
+                                                     track-by='name'
+                                                     v-on:input="setTipoCurso">
+                                        </multiselect>
+                                        <input name="tipoCurso" class="hide" v-model="curso.tipoCursoEnum.name" required=""/>
+                                        <!-- 
+                                    </template>
+                                    <span v-else="" class='form-control' v-text="curso.tipoCursoEnum.value"></span>
+                                        -->
 
                                     </div>
                                 </div>
@@ -179,8 +182,45 @@
                                                v-on:change="setHorasPractica()" v-bind:readonly="!isPractica()" v-model="curso.horasPractica" />
                                     </div>
                                 </div>
-                            </div>  
+                            </div>
 
+                            <div class="row">
+                                <div class="col-lg-6" v-if="isTeoria() == true">
+                                    <div class="form-group">
+                                        <label>Tipo carpeta Teórica</label>
+                                        <template>
+                                            <multiselect v-model='tipoCarpetaTeoria'
+                                                         v-bind:options='tiposCarpeta'
+                                                         v-bind:allow-empty="false"
+                                                         label='nombre'
+                                                         placeholder="Seleccione una carpeta"
+                                                         deselect-label=""
+                                                         select-label="Seleccionar"
+                                                         track-by='id'
+                                                         >
+                                            </multiselect>
+
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6" v-if="isPractica() == true">
+                                    <div class="form-group">
+                                        <label>Tipo carpeta Práctica</label>
+                                        <template>
+                                            <multiselect v-model='tipoCarpetaPractica'
+                                                         v-bind:options='tiposCarpeta'
+                                                         v-bind:allow-empty="false"
+                                                         label='nombre'
+                                                         placeholder="Seleccione una carpeta"
+                                                         deselect-label=""
+                                                         select-label="Seleccionar"
+                                                         track-by='id'>
+                                            </multiselect>
+
+                                        </template>
+                                    </div>
+                                </div>
+                            </div> 
 
                             <div class="row" v-if="tipoCurriculaEnum.name == 'REG' ">
                                 <div class="col-lg-3">
@@ -209,9 +249,9 @@
                                     <label v-if="curso.tipoCredito == 'FIJO' ">Créditos</label>
                                     <label v-if="curso.tipoCredito == 'VAR' ">Créditos Máximo</label>
                                     <div class="form-group">
-                                        <input name="creditos" class="form-control text-right numerico" required="true" maxlength="2" data-trigger="change"
+                                        <input name="creditos" v-model="curso.creditos" class="form-control text-right numerico" required="true" maxlength="2" data-trigger="change"
                                                v-if="curso.tipoCredito == 'FIJO' " v-bind:readonly="curso.tipoCredito == 'FIJO' || tipoCurriculaEnum.name != 'REG' " v-bind:value="curso.creditos" />
-                                        <input name="creditosVariables" class="form-control text-right numerico" required="true" maxlength="2" data-trigger="change"
+                                        <input name="creditosVariables" v-model="curso.creditosVariables" class="form-control text-right numerico" required="true" maxlength="2" data-trigger="change"
                                                v-if="curso.tipoCredito == 'VAR' " v-bind:readonly="tipoCurriculaEnum.name != 'REG' " v-bind:value="curso.creditosVariables" />
                                     </div>
                                 </div>
@@ -307,7 +347,7 @@
                                 <a v-if="curso.id == '' " class="btn btn-primary " v-on:click="save()">Crear Curso</a>
                                 <a v-else="" class="btn btn-primary save-update-curso" v-on:click="save()" >Actualizar Curso</a>
                             </div>
-                            
+
                             <!--<pre>{{idiomaCurso}}</pre>-->
 
                             <div class="row" v-if="curso.id != '' &amp;&amp; !isComodinAdicionalExterno(tipoCurriculaEnum.name) ">
@@ -400,6 +440,7 @@
                 var idiomasJson = /*[[${idiomasJson}]]*/ {};
                 var departamentosJson = /*[[${departamentosJson}]]*/ {};
                 var carrerasJson = /*[[${carrerasJson}]]*/ {};
+                var tiposCarpetaJson = /*[[${tiposCarpetaJson}]]*/ {};
             </script>
             <script th:src="@{/app/academico/curso/cursoForm.js}" charset="utf-8"></script>
         </div>

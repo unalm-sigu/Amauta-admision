@@ -12,8 +12,11 @@ import pe.albatross.zelpers.calendar.EventCalendar;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
+import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
+import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReunionConsejoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteReunionConsejoDAO;
@@ -27,6 +30,9 @@ public class ReunionConsejoServiceImp implements ReunionConsejoService {
 
     @Autowired
     TramiteReunionConsejoDAO alumnoReunionConsejoDAO;
+
+    @Autowired
+    OficinaDAO oficinaDAO;
 
     @Override
     public ReunionConsejo findReunionConsejoByFechaAndOficina(Date fecha, Oficina oficina) {
@@ -61,9 +67,9 @@ public class ReunionConsejoServiceImp implements ReunionConsejoService {
     }
 
     @Override
-    public List<EventCalendar> allcalendar(CicloAcademico ciclo, Oficina oficinas) {
+    public List<EventCalendar> allcalendar(CicloAcademico ciclo, List<Oficina> oficinas) {
         List<EventCalendar> eventoss = new ArrayList<>();
-        List<ReunionConsejo> eventos = reunionConsejoDAO.all();
+        List<ReunionConsejo> eventos = reunionConsejoDAO.allByOficinas(oficinas);
         for (ReunionConsejo reunionConsejo : eventos) {
             EventCalendar eventCalendar = new EventCalendar();
             eventCalendar.setTitle("Reunión Programada");
@@ -78,9 +84,14 @@ public class ReunionConsejoServiceImp implements ReunionConsejoService {
     }
 
     @Override
-    public List<ReunionConsejo> allReunionConsejoByDyna(DynatableFilter filter, Oficina oficina) {
+    public List<ReunionConsejo> allReunionConsejoByDyna(DynatableFilter filter, List<Oficina> oficina) {
         List<ReunionConsejo> reunionesConsejo = reunionConsejoDAO.allByDynatable(filter, oficina);
         return reunionesConsejo;
+    }
+
+    @Override
+    public List<Oficina> allOficinaFac() {
+        return oficinaDAO.allFac();
     }
 
 }

@@ -4,17 +4,35 @@ new Vue({
     el: '#main',
     data: {
         URL: APP.url('rolexamen/gruporegular'),
-        letraGrupoRegular: JSON.parse(jLetraGrupoRegular)
+        letraGrupoRegular: JSON.parse(jLetraGrupoRegular),
+        tipoAccion: {
+            LETRA: "LETRA",
+            GRUPO: "GRUPO",
+            SECCION: "SECCION",
+            ALUMNO: "ALUMNO"
+        },
     },
     mounted() {
         this.loadModalSecciones(this.letraGrupoRegular);
+    },
+    computed: {
+        accionesDisponibles() {
+            try {
+                const rolExamenes = this.letraGrupoRegular.rolExamenes;
+                return (rolExamenes.isEstadoConfigurando || rolExamenes.isEstadoModificando);
+            } catch (error) {
+                console.error(error);
+                return false;
+            }
+        }
     },
     methods: {
         loadModalSecciones(letraGrupoRegular) {
             this.letraSelected = letraGrupoRegular;
             this.$refs.tblSeccionesGrupoRegular.ajaxdata = {letraGrupoRegular: letraGrupoRegular.id};
             this.$refs.tblSeccionesGrupoRegular.loadRemoteData();
-        }, excluir(obj, tipoAccion) {
+        },
+        excluir(obj, tipoAccion) {
             let vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea excluir?",
@@ -83,7 +101,8 @@ new Vue({
         }, trasladar(item) {
             this.$refs.moverSeccionComp.seccion = item.seccion;
             this.$refs.moverSeccionComp.tipoorigen = "GRU_REG";
-            this.$refs.moverSeccionComp.loadComponent();
+            const rolExamenes = this.letraGrupoRegular.rolExamenes;
+            this.$refs.moverSeccionComp.loadComponent(rolExamenes);
             this.$refs.moverSeccionModal.open();
         }
     }

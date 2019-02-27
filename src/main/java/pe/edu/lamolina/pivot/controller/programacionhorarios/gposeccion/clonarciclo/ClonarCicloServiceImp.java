@@ -23,7 +23,6 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
-import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
@@ -35,6 +34,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
+import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_EPG;
@@ -42,6 +42,7 @@ import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Dia;
@@ -67,6 +68,7 @@ import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -128,6 +130,9 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
     @Autowired
     TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
+
+    @Autowired
+    VacanteAlumnoDAO vacanteAlumnoDAO;
 
     @Override
     @Transactional
@@ -213,7 +218,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             factorHoras = 3;
         }
 
-        EventoCicloAcademico eventoDictadoPregrado = this.getEventoCicloAcademico(cicloDestino);
+        EventoCicloAcademico eventoDictadoVeranoPregrado = this.getEventoDictadoClases(cicloDestino);
         EventoCicloAcademico eventoDictadoPosgrado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloDestino, CLASES_EPG);
         EventoCicloAcademico eventoDictadoClases = null;
 
@@ -222,9 +227,9 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         TipoCursoCurricula tipocursogeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         TipoCursoCurricula tipocursoobligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
 
-        for (GrupoSeccion ggss : gsOrigenes) {
-            Curso curso = ggss.getCurso();
-            eventoDictadoClases = eventoDictadoPregrado;
+        for (GrupoSeccion gpoSeccOrigen : gsOrigenes) {
+            Curso curso = gpoSeccOrigen.getCurso();
+            eventoDictadoClases = eventoDictadoVeranoPregrado;
             if (cicloDestino.getTipoEnum() == TipoCicloEnum.REG && curso.getModalidadEstudio().isPostgrado()) {
                 eventoDictadoClases = eventoDictadoPosgrado;
             }
@@ -233,8 +238,10 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             int horasPractica = 0;
 
             try {
-                horasTeoria = curso.getHorasTeoria() * factorHoras;
-                horasPractica = curso.getHorasPractica() * factorHoras;
+                if (curso.getTipoCreditoEnum() == TipoCreditoEnum.FIJO) {
+                    horasTeoria = curso.getHorasTeoria() * factorHoras;
+                    horasPractica = curso.getHorasPractica() * factorHoras;
+                }
             } catch (Exception e) {
                 throw new PhobosException("Error en la estructura del curso " + curso.getCodigo() + " " + curso.getNombre());
             }
@@ -242,121 +249,117 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             if (!cursos.contains(curso)) {
                 cursos.add(curso);
 
-                CursoCicloAcademico cca = new CursoCicloAcademico();
-                cca.setCicloAcademico(cicloDestino);
-                cca.setPrecio(BigDecimal.ZERO);
-                cca.setPrecioAdicional(BigDecimal.ZERO);
-                cca.setEstado(EstadoEnum.ACT.name());
+                CursoCicloAcademico cursoCiclo = new CursoCicloAcademico();
+                cursoCiclo.setCicloAcademico(cicloDestino);
+                cursoCiclo.setPrecio(BigDecimal.ZERO);
+                cursoCiclo.setPrecioAdicional(BigDecimal.ZERO);
+                cursoCiclo.setEstado(EstadoEnum.ACT.name());
 
-                cca.setHorasSemanalesTeoria(horasTeoria);
-                cca.setHorasSemanalesPractica(horasPractica);
-                cca.setCurso(curso);
-                cca.setMinimoAlumnos(BigDecimal.ZERO);
+                cursoCiclo.setHorasSemanalesTeoria(horasTeoria);
+                cursoCiclo.setHorasSemanalesPractica(horasPractica);
+                cursoCiclo.setCurso(curso);
+                cursoCiclo.setMinimoAlumnos(BigDecimal.ZERO);
 
-                cca.setTipoCursoCurricula(tipocursoobligatorio);
+                cursoCiclo.setTipoCursoCurricula(tipocursoobligatorio);
                 if (curCurriculaMap.get(curso.getId()) != null) {
-                    cca.setTipoCursoCurricula(tipocursogeneral);
+                    cursoCiclo.setTipoCursoCurricula(tipocursogeneral);
                 }
-                cursoCicloAcademicoDAO.save(cca);
+                cursoCicloAcademicoDAO.save(cursoCiclo);
             }
 
-            String tpc = ggss.getCurso().getTpc();
-            Integer creditos = ggss.getCurso().getCreditos();
+            String tpc = gpoSeccOrigen.getCurso().getTpc();
+            Integer creditos = gpoSeccOrigen.getCurso().getCreditos();
 
             if (cicloDestino.getNumeroCiclo().equals("0") && tpc != null && !tpcs.contains(tpc)) {
                 tpcs.add(tpc);
 
-                PrecioCursoEstructura pce = new PrecioCursoEstructura();
+                PrecioCursoEstructura precioCurso = new PrecioCursoEstructura();
 
-                pce.setCicloAcademico(cicloDestino);
-                pce.setFechaPrecio(new Date());
-                pce.setPrecio(BigDecimal.ZERO);
-                pce.setTpc(tpc);
-                pce.setCreditos(creditos);
-                pce.setUserPrecio(ds.getUsuario());
-                pce.setEstado(EstadoEnum.ACT.name());
+                precioCurso.setCicloAcademico(cicloDestino);
+                precioCurso.setFechaPrecio(new Date());
+                precioCurso.setPrecio(BigDecimal.ZERO);
+                precioCurso.setTpc(tpc);
+                precioCurso.setCreditos(creditos);
+                precioCurso.setUserPrecio(ds.getUsuario());
+                precioCurso.setEstado(EstadoEnum.ACT.name());
 
-                precioCursoEstructuraDAO.save(pce);
+                precioCursoEstructuraDAO.save(precioCurso);
             }
 
             String codigo = StringUtils.leftPad(CodeGenerator.getNextCode(codigos, 0), 3, '0');
-
-            GrupoSeccion gs = new GrupoSeccion();
-            gs.setCicloAcademico(cicloDestino);
-            gs.setCurso(ggss.getCurso());
-            gs.setCodigo(codigo);
-            gs.setCodigo2(codigo);
-
             codigos.add(codigo);
 
-            gs.setVersion(BigDecimal.ONE.toString());
-            gs.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
-            gs.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
+            GrupoSeccion gpoSeccNew = new GrupoSeccion();
+            gpoSeccNew.setCicloAcademico(cicloDestino);
+            gpoSeccNew.setCurso(gpoSeccOrigen.getCurso());
+            gpoSeccNew.setCodigo(codigo);
+            gpoSeccNew.setCodigo2(codigo);
+            gpoSeccNew.setVersion(BigDecimal.ONE.toString());
+            gpoSeccNew.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
+            gpoSeccNew.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
+            gpoSeccNew.setHorasPractica(horasPractica);
+            gpoSeccNew.setHorasTeoria(horasTeoria);
+            gpoSeccNew.setAnexoBoletin(gpoSeccOrigen.getAnexoBoletin());
+            gpoSeccNew.setEstado(gpoSeccOrigen.getEstado());
 
-            gs.setHorasPractica(horasPractica);
-            gs.setHorasTeoria(horasTeoria);
-            gs.setAnexoBoletin(ggss.getAnexoBoletin());
-            gs.setEstado(ggss.getEstado());
+            grupoSeccionDAO.save(gpoSeccNew);
 
-            grupoSeccionDAO.save(gs);
-
-            List<Seccion> seccionesOrigen = ggss.getSecciones();
+            List<Seccion> seccionesOrigen = gpoSeccOrigen.getSecciones();
             List<HorarioSeccion> horarioTCUR = new ArrayList();
 
             int loopPCUR = 1;
             Seccion seccionSup = null;
             for (Seccion seccOrigen : seccionesOrigen) {
 
-                Seccion seccClone = new Seccion();
-                seccClone.setGrupoSeccion(gs);
+                Seccion seccNew = new Seccion();
+                seccNew.setGrupoSeccion(gpoSeccNew);
+                seccNew.setEstado(seccOrigen.getEstado());
+                seccNew.setTipoSeccion(seccOrigen.getTipoSeccion());
+                seccNew.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
+                seccNew.setHorasSemanales(seccOrigen.getHorasSemanales());
+                seccNew.setVacantes(seccOrigen.getVacantes());
+                seccNew.setMatriculados(0);
+                seccNew.setReservados(0);
+                seccNew.setPrematriculados(0);
+                seccNew.setRetirados(0);
+                seccNew.setGrupoHoras(seccOrigen.getGrupoHoras());
+                seccNew.setRestriccionCapa(seccOrigen.getRestriccionCapa());
+                seccNew.setFechaRegistro(today);
+                seccNew.setUserRegistro(ds.getUsuario());
+                seccNew.setSeccionSuperior(seccionSup);
 
-                seccClone.setEstado(seccOrigen.getEstado());
-                seccClone.setTipoSeccion(seccOrigen.getTipoSeccion());
-                seccClone.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
-                seccClone.setHorasSemanales(seccOrigen.getHorasSemanales());
-                seccClone.setVacantes(seccOrigen.getVacantes());
-                seccClone.setFechaRegistro(today);
-                seccClone.setUserRegistro(ds.getUsuario());
-                seccClone.setMatriculados(0);
-                seccClone.setReservados(0);
-                seccClone.setPrematriculados(0);
-                seccClone.setRetirados(0);
-                seccClone.setGrupoHoras(seccOrigen.getGrupoHoras());
-                seccClone.setRestriccionCapa(seccOrigen.getRestriccionCapa());
-
-                seccClone.setSeccionSuperior(seccionSup);
 
                 if (seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.TEO || seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
-                    seccClone.setCodigo(codigo + "0");
-                    seccClone.setCodigo2(codigo + "0");
-                    seccionSup = seccClone;
+                    seccNew.setCodigo(codigo + "0");
+                    seccNew.setCodigo2(codigo + "0");
+                    seccionSup = seccNew;
                 } else if (seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.PRA) {
-                    seccClone.setCodigo(codigo + "1");
-                    seccClone.setCodigo2(codigo + "1");
+                    seccNew.setCodigo(codigo + "1");
+                    seccNew.setCodigo2(codigo + "1");
                 } else if (seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
-                    seccClone.setCodigo(codigo + loopPCUR);
-                    seccClone.setCodigo2(codigo + loopPCUR);
+                    seccNew.setCodigo(codigo + loopPCUR);
+                    seccNew.setCodigo2(codigo + loopPCUR);
                     loopPCUR++;
                 }
 
-                GrupoHoras gpoNew = seccClone.getGrupoHoras();
+                GrupoHoras gpoNew = seccNew.getGrupoHoras();
                 List<DiaHoraGrupo> diasHorasSecc = new ArrayList();
 
                 try {
                     if (gpoNew != null) {
                         List<DiaHoraGrupo> diasHorasGpo = mapGrupoHorario.get(gpoNew.getId());
                         diasHorasGpo = (diasHorasGpo == null) ? new ArrayList() : diasHorasGpo;
-                        diasHorasSecc = gpoSeccionService.searchDiasHorasByHorasSemanales(diasHorasGpo, seccClone.getHorasSemanales(), dias);
+                        diasHorasSecc = gpoSeccionService.searchDiasHorasByHorasSemanales(diasHorasGpo, seccNew.getHorasSemanales(), dias);
                     }
                 } catch (Exception e) {
                     gpoNew = null;
-                    seccClone.setGrupoHoras(null);
+                    seccNew.setGrupoHoras(null);
                 }
 
                 if (gpoNew != null) {
                     boolean hayCruce = false;
                     Map<String, HorarioSeccion> mapHorarioTCUR = TypesUtil.convertListToMap("horaDia", horarioTCUR);
-                    if (seccClone.getIsTipoSeccionPCUR()) { // si es PCUR
+                    if (seccNew.getIsTipoSeccionPCUR()) { // si es PCUR
                         for (DiaHoraGrupo diaHoraSecc : diasHorasSecc) {
                             String horaDia = diaHoraSecc.getHoraDia();
                             HorarioSeccion hs = mapHorarioTCUR.get(horaDia);
@@ -367,11 +370,11 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     }
                     if (hayCruce) {
                         gpoNew = null;
-                        seccClone.setGrupoHoras(null);
+                        seccNew.setGrupoHoras(null);
                         System.out.println("Cruzado");
                     }
                 }
-                seccionDAO.save(seccClone);
+                seccionDAO.save(seccNew);
 
                 if (gpoNew != null) {
 
@@ -379,12 +382,13 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                         HorarioSeccion horarioSecc = new HorarioSeccion();
                         horarioSecc.setDia(diaHoraSecc.getDia());
                         horarioSecc.setHora(diaHoraSecc.getHora());
-                        horarioSecc.setSeccion(seccClone);
+                        horarioSecc.setSeccion(seccNew);
                         horarioSecc.setFechaInicio(eventoDictadoClases.getFechaInicio());
                         horarioSecc.setFechaFin(eventoDictadoClases.getFechaFin());
+                        horarioSecc.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
                         horarioSeccionDAO.save(horarioSecc);
 
-                        if (seccClone.getIsTipoSeccionTCUR()) { // is es TCUR
+                        if (seccNew.getIsTipoSeccionTCUR()) { // is es TCUR
                             horarioTCUR.add(horarioSecc);
                         }
                     }
@@ -394,78 +398,78 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 List<DocenteSeccion> docenteSeccion = seccOrigen.getDocenteSeccion();
                 docenteSeccion = (docenteSeccion == null) ? new ArrayList() : docenteSeccion;
 
-                for (DocenteSeccion dsOrigen : docenteSeccion) {
-                    DocenteSeccion dsClone = new DocenteSeccion();
-                    dsClone.setDocente(dsOrigen.getDocente());
-                    dsClone.setEstado(dsOrigen.getEstado());
-                    dsClone.setFechaInicio(eventoDictadoClases.getFechaInicio());
-                    dsClone.setFechaFin(eventoDictadoClases.getFechaFin());
-                    dsClone.setPrincipal(dsOrigen.getPrincipal());
-                    dsClone.setSeccion(seccClone);
-                    dsClone.setPorcentajeCarga(dsOrigen.getPorcentajeCarga());
+                for (DocenteSeccion profeSeccOrigen : docenteSeccion) {
+                    DocenteSeccion profeSeccNew = new DocenteSeccion();
+                    profeSeccNew.setDocente(profeSeccOrigen.getDocente());
+                    profeSeccNew.setEstado(profeSeccOrigen.getEstado());
+                    profeSeccNew.setFechaInicio(eventoDictadoClases.getFechaInicio());
+                    profeSeccNew.setFechaFin(eventoDictadoClases.getFechaFin());
+                    profeSeccNew.setPrincipal(profeSeccOrigen.getPrincipal());
+                    profeSeccNew.setSeccion(seccNew);
+                    profeSeccNew.setPorcentajeCarga(profeSeccOrigen.getPorcentajeCarga());
 
-                    docenteSeccionDAO.save(dsClone);
+                    docenteSeccionDAO.save(profeSeccNew);
                 }
 
                 if (docenteSeccion.size() == 1) {
-                    seccClone.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
-                    seccionDAO.update(seccClone);
+                    seccNew.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
+                    seccionDAO.update(seccNew);
                 }
 
                 List<RestriccionCarrera> restriccionCarreras = seccOrigen.getRestriccionesCarrera();
                 if (restriccionCarreras == null) {
                     restriccionCarreras = new ArrayList();
                 }
-                for (RestriccionCarrera rc : restriccionCarreras) {
-                    RestriccionCarrera rcClon = new RestriccionCarrera();
-                    rcClon.setCarrera(rc.getCarrera());
-                    rcClon.setEstado(rc.getEstado());
-                    rcClon.setFechaRegistro(today);
-                    rcClon.setSeccion(seccClone);
-                    rcClon.setUsuarioRegistro(ds.getUsuario());
-                    restriccionCarreraDAO.save(rcClon);
+                for (RestriccionCarrera restriccCarrOrigen : restriccionCarreras) {
+                    RestriccionCarrera restriccCarrNew = new RestriccionCarrera();
+                    restriccCarrNew.setCarrera(restriccCarrOrigen.getCarrera());
+                    restriccCarrNew.setEstado(restriccCarrOrigen.getEstado());
+                    restriccCarrNew.setFechaRegistro(today);
+                    restriccCarrNew.setSeccion(seccNew);
+                    restriccCarrNew.setUsuarioRegistro(ds.getUsuario());
+                    restriccionCarreraDAO.save(restriccCarrNew);
                 }
 
                 List<RestriccionFacultad> restriccionFacultads = seccOrigen.getRestriccionesFacultad();
                 if (restriccionFacultads == null) {
                     restriccionFacultads = new ArrayList();
                 }
-                for (RestriccionFacultad rf : restriccionFacultads) {
-                    RestriccionFacultad rfClon = new RestriccionFacultad();
-                    rfClon.setEstado(rf.getEstado());
-                    rfClon.setFacultad(rf.getFacultad());
-                    rfClon.setFechaRegistro(today);
-                    rfClon.setSeccion(seccClone);
-                    rfClon.setUsuarioRegistro(ds.getUsuario());
-                    restriccionFacultadDAO.save(rfClon);
+                for (RestriccionFacultad restriccFacOrigen : restriccionFacultads) {
+                    RestriccionFacultad restriccFacNew = new RestriccionFacultad();
+                    restriccFacNew.setEstado(restriccFacOrigen.getEstado());
+                    restriccFacNew.setFacultad(restriccFacOrigen.getFacultad());
+                    restriccFacNew.setFechaRegistro(today);
+                    restriccFacNew.setSeccion(seccNew);
+                    restriccFacNew.setUsuarioRegistro(ds.getUsuario());
+                    restriccionFacultadDAO.save(restriccFacNew);
                 }
 
                 List<RestriccionModalidad> restriccionModalidads = seccOrigen.getRestriccionesModalidad();
                 if (restriccionModalidads == null) {
                     restriccionModalidads = new ArrayList();
                 }
-                for (RestriccionModalidad rm : restriccionModalidads) {
-                    RestriccionModalidad rmClon = new RestriccionModalidad();
-                    rmClon.setEstado(rm.getEstado());
-                    rmClon.setFechaRegistro(today);
-                    rmClon.setModalidadEstudio(rm.getModalidadEstudio());
-                    rmClon.setSeccion(seccClone);
-                    rmClon.setUsuarioRegistro(ds.getUsuario());
-                    restriccionModalidadDAO.save(rmClon);
+                for (RestriccionModalidad restriccModalOrigen : restriccionModalidads) {
+                    RestriccionModalidad restriccModalNew = new RestriccionModalidad();
+                    restriccModalNew.setEstado(restriccModalOrigen.getEstado());
+                    restriccModalNew.setFechaRegistro(today);
+                    restriccModalNew.setModalidadEstudio(restriccModalOrigen.getModalidadEstudio());
+                    restriccModalNew.setSeccion(seccNew);
+                    restriccModalNew.setUsuarioRegistro(ds.getUsuario());
+                    restriccionModalidadDAO.save(restriccModalNew);
                 }
 
                 List<RestriccionRepitencia> restriccionRepitencias = seccOrigen.getRestriccionesRepitencia();
                 if (restriccionRepitencias == null) {
                     restriccionRepitencias = new ArrayList();
                 }
-                for (RestriccionRepitencia rp : restriccionRepitencias) {
-                    RestriccionRepitencia rpClon = new RestriccionRepitencia();
-                    rpClon.setEstado(rp.getEstado());
-                    rpClon.setFechaRegistro(today);
-                    rpClon.setSeccion(seccClone);
-                    rpClon.setTipoRepitencia(rp.getTipoRepitencia());
-                    rpClon.setUsuarioRegistro(ds.getUsuario());
-                    restriccionRepitenciaDAO.save(rpClon);
+                for (RestriccionRepitencia restriccRepiteOrigen : restriccionRepitencias) {
+                    RestriccionRepitencia restriccRepiteNew = new RestriccionRepitencia();
+                    restriccRepiteNew.setEstado(restriccRepiteOrigen.getEstado());
+                    restriccRepiteNew.setFechaRegistro(today);
+                    restriccRepiteNew.setSeccion(seccNew);
+                    restriccRepiteNew.setTipoRepitencia(restriccRepiteOrigen.getTipoRepitencia());
+                    restriccRepiteNew.setUsuarioRegistro(ds.getUsuario());
+                    restriccionRepitenciaDAO.save(restriccRepiteNew);
                 }
 
             }
@@ -477,17 +481,15 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
     private void validarClonacion(CicloAcademico cicloAnalisis) {
         EventoAcademicoEnum eventoEnum = cicloAnalisis.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
 
-        EventoCicloAcademico eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAnalisis, eventoEnum);
-
-        Assert.isNotNull(eventoCiclo, "No se configuró el evento " + eventoEnum.getValue() + " para el ciclo " + cicloAnalisis.getDescripcion());
+        EventoCicloAcademico eventoClases1 = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAnalisis, eventoEnum);
+        Assert.isNotNull(eventoClases1, "No se configuró el evento " + eventoEnum.getValue() + " para el ciclo " + cicloAnalisis.getDescripcion());
 
         if (eventoEnum == CLASES_PRE) {
-            eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAnalisis, CLASES_EPG);
-            Assert.isNotNull(eventoCiclo, "No se configuró el evento " + CLASES_EPG.getValue() + " para el ciclo " + cicloAnalisis.getDescripcion());
+            EventoCicloAcademico eventoClases2 = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAnalisis, CLASES_EPG);
+            Assert.isNotNull(eventoClases2, "No se configuró el evento " + CLASES_EPG.getValue() + " para el ciclo " + cicloAnalisis.getDescripcion());
         }
 
         List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByCicloAndTipoCiclo(cicloAnalisis);
-
         Assert.isNotNull(diaHoraGrupos, "No existe grupo horarios para el ciclo " + cicloAnalisis.getDescripcion());
         Assert.isFalse(diaHoraGrupos.isEmpty(), "No existe grupo horarios para el ciclo " + cicloAnalisis.getDescripcion());
     }
@@ -631,9 +633,9 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         cicloAcademicoDAO.update(cicloProgDB);
     }
 
-    private EventoCicloAcademico getEventoCicloAcademico(CicloAcademico cicloAcademico) {
-        EventoAcademicoEnum eventoEnum = cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
-        EventoCicloAcademico eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoEnum);
+    private EventoCicloAcademico getEventoDictadoClases(CicloAcademico cicloAcademico) {
+        EventoAcademicoEnum eventoClasesEnum = cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
+        EventoCicloAcademico eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoClasesEnum);
         return eventoCiclo;
     }
 

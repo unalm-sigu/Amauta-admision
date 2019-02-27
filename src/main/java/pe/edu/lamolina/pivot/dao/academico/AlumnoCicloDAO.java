@@ -96,4 +96,9 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     void updateSituacionFinalOnly(AlumnoCiclo alumnoCiclo);
 
+    public List<AlumnoCiclo> allByNmatAndInh(CicloAcademico cicloAnt);
+
+    AlumnoCiclo findActivosRegularesByCiclo(CicloAcademico ciclo, Alumno alumno);
+
+    public List<AlumnoCiclo> allByAlumnoDescRegular(Alumno alumno);
 }

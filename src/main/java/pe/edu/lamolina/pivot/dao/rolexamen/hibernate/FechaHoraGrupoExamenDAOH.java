@@ -84,4 +84,15 @@ public class FechaHoraGrupoExamenDAOH extends AbstractEasyDAO<FechaHoraGrupoExam
                 .filter("rex.id", rolExamenes);
         return all(sql);
     }
+
+    @Override
+    public List<FechaHoraGrupoExamen> allBySemanaExamenAndGrupoHoraSecc(SemanaExamen semanaExamen, List<Long> ids) {
+        Octavia sql = Octavia.query()
+                .from(FechaHoraGrupoExamen.class, "fhg")
+                .join("grupoHorasExamen ghe", "semanaExamen se", "dia d", "hora h")
+                .join("ghe.grupoHoras gh", "gh.tipoGrupoHoras tgh")
+                .in("ghe.id", ids)
+                .filter("se.id", semanaExamen);
+        return all(sql);
+    }
 }

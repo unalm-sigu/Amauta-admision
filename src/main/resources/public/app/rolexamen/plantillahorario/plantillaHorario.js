@@ -1,5 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default);
-new Vue({ 
+new Vue({
     el: '#main',
     data: {
         URL: APP.url('rolexamen/plantillahorario'),
@@ -11,6 +11,14 @@ new Vue({
         semanasExamen: [],
         semanaExamenActiva: null,
         grupoActivo: null,
+    },
+    computed: {
+        generarDisponible() {
+            return this.rolExamen && this.rolExamen.isEstadoCreado && this.rolExamen.isSituacionConfigurarRol;
+        },
+        modificarHorarioDisponible() {
+            return this.rolExamen && this.rolExamen.isEstadoCreado && this.rolExamen.isSituacionConfigurarHorario;
+        }
     },
     mounted() {
         if (jRolExamenes != null) {
@@ -46,11 +54,13 @@ new Vue({
          // MODAL.hideWait();
          });
          },*/ calcularPlantillaHorario() {
-
+            if (!this.generarDisponible) {
+                return;
+            }
             let vue = this;
             if (this.hasGruposHorasExamen()) {
                 bootbox.confirm({
-                    message: "¿Si continua se perdera el avance de su plantilla de horarios?",
+                    message: "Si continua se perdera el avance de su plantilla de horarios. Seguro que desea continuar?",
                     buttons: {
                         confirm: {label: 'Si', className: "btn-warning"},
                         cancel: {label: 'Cancelar', className: "btn-link"}
@@ -146,6 +156,7 @@ new Vue({
                 }
             });
         }, selectFechaHoraGrupo(dia, hora, semExamen) {
+      
             if (this.grupoActivo == null) {
                 notify("Seleccione un grupo horas.", "error");
                 return;

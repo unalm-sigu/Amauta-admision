@@ -23,6 +23,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
@@ -74,17 +75,20 @@ public class MoverSeccionExamenController {
     @RequestMapping(value = "loadComponent", method = RequestMethod.GET)
     public JsonResponse loadComponent(HttpSession session, HttpServletRequest request,
             @RequestParam("seccion") Long seccionId,
-            @RequestParam("tipoOrigen") String tipoOrigen) {
+            @RequestParam("tipoOrigen") String tipoOrigen,
+            @RequestParam("rolExamenes") Long rolExamenesId) {
+        
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             Seccion seccion = new Seccion(seccionId);
+            RolExamenes rol = new RolExamenes(rolExamenesId);
             TipoGrupoRolExamenesEnum tipoGrupoRolExamenesEnumDefault = tipoGrupoRolExamenesEnumDefault = TipoGrupoRolExamenesEnum.GRU_REG;
             JsonNodeFactory jc = JsonNodeFactory.instance;
             ObjectNode data = new ObjectNode(jc);
             if (TipoGrupoRolExamenesEnum.CUR_MAS.name().equals(tipoOrigen)) {
-                SeccionCursoMasivo seccionCursoMasivo = moverSeccionExamenService.findSeccionCursoMasivoBySeccion(seccion);
+                SeccionCursoMasivo seccionCursoMasivo = moverSeccionExamenService.findSeccionCursoMasivoBySeccionRolExamenes(seccion, rol);
                 ObjectNode jSeccionRolExamenes = JsonHelper.createJson(seccionCursoMasivo, jc, false, new String[]{
                     "*",
                     "seccion.*",
@@ -101,7 +105,7 @@ public class MoverSeccionExamenController {
                 data.set("seccionRolExamenes", jSeccionRolExamenes);
                 tipoGrupoRolExamenesEnumDefault = null;
             } else if (TipoGrupoRolExamenesEnum.GRU_ESP.name().equals(tipoOrigen)) {
-                SeccionGrupoEspecial seccionGrupoEspecial = moverSeccionExamenService.findSeccionGrupoEspecialBySeccion(seccion);
+                SeccionGrupoEspecial seccionGrupoEspecial = moverSeccionExamenService.findSeccionGrupoEspecialBySeccionRolExamenes(seccion, rol);
                 ObjectNode jSeccionRolExamenes = JsonHelper.createJson(seccionGrupoEspecial, jc, false, new String[]{
                     "*",
                     "seccion.*",
@@ -112,7 +116,7 @@ public class MoverSeccionExamenController {
                 });
                 data.set("seccionRolExamenes", jSeccionRolExamenes);
             } else if (TipoGrupoRolExamenesEnum.GRU_REG.name().equals(tipoOrigen)) {
-                SeccionGrupoRegular seccionGrupoRegular = moverSeccionExamenService.findSeccionGrupoRegularBySeccion(seccion);
+                SeccionGrupoRegular seccionGrupoRegular = moverSeccionExamenService.findSeccionGrupoRegularBySeccionRolExamenes(seccion, rol);
                 ObjectNode jSeccionRolExamenes = JsonHelper.createJson(seccionGrupoRegular, jc, false, new String[]{
                     "*",
                     "seccion.*",

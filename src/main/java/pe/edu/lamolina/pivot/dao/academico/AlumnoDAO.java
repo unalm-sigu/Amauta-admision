@@ -87,4 +87,27 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     void updatePlanCurricular(Alumno alumno);
 
+    List<String> allYearsCiclos();
+
+    void updateFields(Alumno alumno, String[] fields);
+
+    List<Alumno> allPendingPromedioByCicloYear(String year);
+
+    List<Alumno> allPendingPREPromedioByCicloYear(String year);
+
+    void updatePromedioProcesado(Alumno alumno);
+
+    List<Alumno> allIngresantesByCiclos(List<CicloAcademico> ciclosIngresantes);
+
+    List<Alumno> allMatriculadosNoEgresadosByCiclos(List<CicloAcademico> ciclosPrevios);
+
+    List<Alumno> allEstudiaronByCiclos(List<CicloAcademico> ciclosPrevios);
+
+    public List<Alumno> findAlumnosConsejeria(Long carrera, CicloAcademico cicloAcademico);
+
+    List<Alumno> allDesertorByName(String nombre, Long oficinaCode);
+
+    List<Alumno> allPendingEpgPromedioByCicloYear(String year);
+
+    public List<Alumno> allByNameCondicional(String nombre, CicloAcademico cicloAcademico);
 }

@@ -176,7 +176,9 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         ds.setPersona(usuario.getPersona());
         ds.setRoles(roles);
         ds.setRolesMain(rolesMain);
-        ds.setCicloAcademico(cicloAcademico);
+        if (findCiclosVisibles().isEmpty()) {
+            ds.setCicloAcademico(cicloAcademico);
+        }
 
         ds.setColaborador(colaboradores);
         ds.setOficinas(oficinasMain);
@@ -488,6 +490,11 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         List<Menu> menusBD = menuDAO.allByRolSistema(roles, sistema);
         return menuService.allMenuOrdered(menusBD);
+    }
+
+    @Override
+    public List<CicloAcademico> findCiclosVisibles() {
+        return cicloAcademicoDAO.allVisibles(ModalidadEstudioEnum.PRE);
     }
 
 }

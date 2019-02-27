@@ -21,6 +21,7 @@ Vue.component('modal-vik', {
         styleModal: {type: Object, default: null},
         dataBackdrop: {type: String, default: null},
         dataKeyboard: {type: String, default: null},
+        disabledBtns: {type: Boolean, default: false},
     },
     methods: {
         open() {

@@ -15,18 +15,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.GrupoHorasRolExamenEstadoEnum;
+import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
@@ -36,9 +42,11 @@ import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoRegularExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.rolexamen.grupoespecial.GrupoEspecialService;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
@@ -57,6 +65,7 @@ import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionExcluidoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoEspecialDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoRegularDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.SemanaExamenDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -125,6 +134,13 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     @Autowired
     CursoMasivoExamenDAO cursoMasivoExamenDAO;
 
+    @Autowired
+    SemanaExamenDAO semanaExamenDAO;
+
+    private void checkNoPublicado(RolExamenes rol) {
+        Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de exámenes ya ha sido publicado");
+    }
+
     @Override
     public List<RolExamenes> allRolExamenesActives(CicloAcademico cicloAcademico) {
         return rolExamenesDAO.allActiveByCiclo(cicloAcademico);
@@ -136,16 +152,53 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     }
 
     @Override
-    @Transactional(readOnly = false)
-    public void calcularExamenesGrupoRegular(RolExamenes rolExamenes, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+    public RolExamenes findRolExamenes(long rolExamenId) {
+        RolExamenes rolExamenes = rolExamenesDAO.find(rolExamenId);
+        List<SemanaExamen> semanaExamens = semanaExamenDAO.allByRolExamenes(rolExamenes);
+        rolExamenes.setSemanasExamen(semanaExamens);
+        return rolExamenes;
+    }
+
+    @Override
+    public void eliminarGruposRegulares(RolExamenes rolExamenes) {
+        rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
+        this.checkNoPublicado(rolExamenes);
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
-        Assert.isTrue(rolExamenes.isSituacionConfigurarCursoMasivo(), "Debe configurar los grupos masivos previamente.");
+        Assert.isTrue(rolExamenes.isSituacionConfigurarGrupoRegular(), "No puede eliminar los grupos regulares.");
+
+        grupoEspecialService.deleteGrupoEspecial(rolExamenes);
+        this.deleteGrupoRegular(rolExamenes);
+
+        RolExamenes rolExamenesUpd = new RolExamenes();
+        rolExamenesUpd.setId(rolExamenes.getId());
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_MAS);
+        rolExamenesDAO.updateSituacion(rolExamenesUpd);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void calcularExamenesGrupoRegular(RolExamenes rolExamenes, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
+        this.checkNoPublicado(rolBD);
+        Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
+                rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
+        Assert.isTrue(rolExamenes.isSituacionConfigurarCursoMasivo() || rolExamenes.isSituacionConfigurarGrupoRegular(), "Debe configurar los grupos masivos previamente.");
 
         List<CursoMasivoExamen> cursosMasivosByRolExamenes = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
+        if (cursosMasivosByRolExamenes.isEmpty()) {
+            throw new PhobosException("Debe configurar los cursos masivos.");
+        }
         grupoRegularConnector.fillActiveInfoCursosMasivos(cursosMasivosByRolExamenes);
         List<String> cursosMasivosValidations = this.validarCursosMasivos(cursosMasivosByRolExamenes);
         Assert.isTrue(cursosMasivosValidations.isEmpty(), String.join("\n", cursosMasivosValidations));
+
+        List<Seccion> seccionesCursosMasivos = new ArrayList<>();
+        for (CursoMasivoExamen cursosMasivosByRolExamene : cursosMasivosByRolExamenes) {
+            for (SeccionCursoMasivo seccionesCursosMasivo : cursosMasivosByRolExamene.getSeccionesCursosMasivos()) {
+                seccionesCursosMasivos.add(seccionesCursosMasivo.getSeccion());
+            }
+        }
 
         List<SeccionGrupoEspecial> seccionesGrupoEspecial = seccionGrupoEspecialDAO.allByRolExamenesAndEstados(rolExamenes, SeccionRolExamenEstadoEnum.ACT);
         grupoRegularConnector.fillActiveInfoGrupoEspecial(seccionesGrupoEspecial);
@@ -165,7 +218,12 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<Seccion> seccionesEspecialesRecolected = new ArrayList<>();
 
         logger.debug("Crear grupos regulares");
-        List<Seccion> secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.REGULAR); //grupo horas regulares
+        //secciones de los grupos regulares
+        List<Seccion> secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.REGULAR);
+        for (Seccion seccionCursoMasivo : seccionesCursosMasivos) {
+            secciones.removeIf(x -> x.equals(seccionCursoMasivo));
+        }
+
         for (SeccionExcluido seccionExcluido : seccionesExcluidasByRolExamen) {
             secciones.removeIf(x -> x.equals(seccionExcluido.getSeccion()));
         }
@@ -194,7 +252,11 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         }
 
         logger.debug("Grupos Especiales");
+        //secciones grupos especiales
         secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.ESPECIAL);
+        for (Seccion seccionCursoMasivo : seccionesCursosMasivos) {
+            secciones.removeIf(x -> x.equals(seccionCursoMasivo));
+        }
         for (SeccionExcluido seccionExcluido : seccionesExcluidasByRolExamen) {
             secciones.removeIf(x -> x.equals(seccionExcluido.getSeccion()));
         }
@@ -250,10 +312,10 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<String> validations = new ArrayList<>();
         for (CursoMasivoExamen cursosMasivosByRolExamene : cursosMasivosByRolExamenes) {
             List<String> errors = new ArrayList<>();
-            if (cursosMasivosByRolExamene.getAulasCursosMasivos() == null || cursosMasivosByRolExamene.getAulasCursosMasivos().isEmpty()) {
+            /*  if (cursosMasivosByRolExamene.getAulasCursosMasivos() == null || cursosMasivosByRolExamene.getAulasCursosMasivos().isEmpty()) {
                 String msg = "Sin aulas asignadas.";
                 errors.add(msg);
-            }
+            }*/
             if (cursosMasivosByRolExamene.getAlumnosCursosMasivos() == null || cursosMasivosByRolExamene.getAlumnosCursosMasivos().isEmpty()) {
                 String msg = "\t Sin alumnos asignados.";
                 errors.add(msg);
@@ -382,15 +444,26 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     }
 
     @Transactional(readOnly = false)
+    @Override
     public void deleteGrupoRegular(RolExamenes rolExamenes) {
+        RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
+        this.checkNoPublicado(rolBD);
+
         List<LetraGrupoRegular> letrasGruposRegular = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
         logger.debug("Letras Grupos Regulares a eliminar {}", letrasGruposRegular.size());
+
+        List<SeccionGrupoRegular> seccionesGruposRegularesExc = seccionGrupoRegularDAO.allByRolExamenes(rolExamenes, SeccionRolExamenEstadoEnum.EXC);
+        List<Seccion> seccionesExcluidas = seccionesGruposRegularesExc.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+        if (!seccionesExcluidas.isEmpty()) {
+            seccionExcluidoDAO.deleteBySecciones(seccionesExcluidas);
+        }
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegular) {
             alumnoGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
             seccionGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
             grupoRegularExamenDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
-            letraGrupoRegularDAO.delete(letraGrupoRegular);
+            //    letraGrupoRegularDAO.delete(letraGrupoRegular);
         }
+        letraGrupoRegularDAO.deleteByRolExamenes(rolExamenes);
     }
 
     @Override
@@ -468,7 +541,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         seccionGrupoRegular = seccionGrupoRegularDAO.find(seccionGrupoRegular.getId());
 
         RolExamenes rolExamenes = seccionGrupoRegular.getLetraGrupoRegular().getRolExamenes();
-        grupoRegularConnector.validarSituacion("excluir", "los grupos regulares", rolExamenes.isSituacionConfiguraGrupoRegular());
+        grupoRegularConnector.validarSituacion("excluir", "los grupos regulares", rolExamenes.isSituacionConfigurarGrupoRegular());
         Assert.isTrue(seccionGrupoRegular.isEstadoActivo(), "Solo se puede excluir las secciones regulares activas");
 
         SeccionGrupoRegular seccionGrupoRegularUpd = new SeccionGrupoRegular(seccionGrupoRegular.getId());
@@ -496,12 +569,14 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         seccionGrupoRegular = seccionGrupoRegularDAO.find(seccionGrupoRegular.getId());
 
         RolExamenes rolExamenes = seccionGrupoRegular.getLetraGrupoRegular().getRolExamenes();
-        grupoRegularConnector.validarSituacion("incluir", "los grupos regulares", rolExamenes.isSituacionConfiguraGrupoRegular());
+        grupoRegularConnector.validarSituacion("incluir", "los grupos regulares", rolExamenes.isSituacionConfigurarGrupoRegular());
         Assert.isTrue(seccionGrupoRegular.isEstadoExcluido(), "Solo se puede incluir las secciones regulares excluidas");
 
         SeccionGrupoRegular seccionGrupoRegularUpd = new SeccionGrupoRegular(seccionGrupoRegular.getId());
         seccionGrupoRegularUpd.setEstadoEnum(SeccionRolExamenEstadoEnum.ACT);
         seccionGrupoRegularDAO.updateEstado(seccionGrupoRegularUpd);
+
+        this.activarValidarCruce(seccionGrupoRegular);
 
         SeccionExcluido seccionExcluido = seccionExcluidoDAO.findBySeccion(seccionGrupoRegular.getSeccion(), EstadoEnum.ACT);
         if (seccionExcluido != null) {
@@ -514,12 +589,33 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         }
     }
 
+    public void activarValidarCruce(SeccionGrupoRegular seccionGrupoRegular) {
+        rolExamenesLogger.activarGrupoRegular();
+        GrupoHorasExamen grupoHorasExamen = seccionGrupoRegular.getLetraGrupoRegular().getGrupoHorasExamen();
+        Seccion seccion = seccionDAO.find(seccionGrupoRegular.getSeccion());
+        seccion = seccion.clone();
+        List<Aula> aulas = Arrays.asList(seccion.getAula());
+
+        List<Docente> docentesOrigen = Arrays.asList(seccionGrupoRegular.getDocente());
+
+        List<AlumnoGrupoRegular> alumnosSeccionRegularOrigen = alumnoGrupoRegularDAO.allBySeccionGrupoRegularAndEstados(seccionGrupoRegular, AlumnoRolExamenEstadoEnum.EXC);
+        List<Alumno> alumnosOrigen = alumnosSeccionRegularOrigen.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+
+        boolean validacionCursosMasivos = grupoRegularConnector.validarCursosMasivos(grupoHorasExamen, docentesOrigen, aulas, alumnosOrigen);
+        boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(grupoHorasExamen, alumnosOrigen, docentesOrigen, aulas);
+        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(grupoHorasExamen, docentesOrigen, aulas, alumnosOrigen);
+
+        if (!validacionCursosMasivos || !validacionGruposRegulares || !validacionSeccionesEspeciales) {
+            throw new PhobosException("Conflictos encontrados.");
+        }
+    }
+
     @Override
     @Transactional(readOnly = false)
     public void excluirGrupoRegular(AlumnoGrupoRegular alumnoGrupoRegular, DataSessionPivot ds) {
         alumnoGrupoRegular = alumnoGrupoRegularDAO.find(alumnoGrupoRegular.getId());
         RolExamenes rolExamenes = alumnoGrupoRegular.getSeccionGrupoRegular().getLetraGrupoRegular().getRolExamenes();
-        grupoRegularConnector.validarSituacion("incluir", "los grupos regulares", rolExamenes.isSituacionConfiguraGrupoRegular());
+        grupoRegularConnector.validarSituacion("incluir", "los grupos regulares", rolExamenes.isSituacionConfigurarGrupoRegular());
         Assert.isTrue(alumnoGrupoRegular.isEstadoExcluido(), "Solo se puede incluir las alumnos regulares excluidos");
 
         AlumnoGrupoRegular alumnoGrupoRegularUpd = new AlumnoGrupoRegular(alumnoGrupoRegular.getId());
@@ -541,6 +637,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         for (SeccionGrupoRegular seccionGrupoRegular : seccionesLetraGrupoRegular) {
             seccionGrupoRegular.setAlumnosCount(mapCountAlumnosBySeccion.get(seccionGrupoRegular.getId()) != null ? mapCountAlumnosBySeccion.get(seccionGrupoRegular.getId()) : 0);
         }
+
         return seccionesLetraGrupoRegular;
     }
 

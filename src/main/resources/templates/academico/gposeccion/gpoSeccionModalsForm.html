@@ -21,7 +21,7 @@
            v-bind="grupoModal"
            v-bind:okaction="saveGrupo">
     <div slot="body">
-        <grupohorario-component></grupohorario-component>
+        <grupohorario-component ref="grupoHorarioComponentRef"></grupohorario-component>
     </div>
 </modal-vik>
 
@@ -171,7 +171,7 @@
             <div class="row">
                 <div class="col-md-12" >
                     <label>Horas</label>
-                    <span>{{seccionSeleccionada.horasSemanales}}</span>
+                    <span>{{seccionSeleccionada.totalHorasSemanales}}</span>
                 </div>
                 <div class="col-md-6" >
                     <div class="form-group">
@@ -309,6 +309,22 @@
             </div>
 
         </form>
+
+    </div>
+</modal-vik>
+
+
+<modal-vik ref="modalAgregarHorasAdicionales"
+           v-bind="dataModalAgregarHorasAdicionales"
+           v-bind:okaction="saveModalAgregarHorasAdicionales">
+
+    <div slot="body">
+
+        <hora-adicional-component
+            ref="modalHorasAdicionalesComponent"
+            v-bind:gruposeccion="grupoSeccion"
+            >
+        </hora-adicional-component>
 
     </div>
 </modal-vik>

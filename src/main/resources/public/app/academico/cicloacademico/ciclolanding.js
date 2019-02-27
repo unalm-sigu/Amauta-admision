@@ -1,14 +1,18 @@
 new Vue({
     el: '#main',
     data: {
-        ciclo: {id: idciclo,descripcion2:nameciclo},
+        ciclo: {id: idciclo, descripcion2: nameciclo},
+        ciclosVisibles: cicloVisible == "" ? "" : JSON.parse(cicloVisible)
     },
     mounted: function () {
         let vue = this;
     },
     methods: {
-        activarCiclo() {
+        activarCiclo(item) {
             let vue = this;
+            if (item != null) {
+                vue.ciclo = item;
+            }
             $.ajax({
                 url: APP.url('cicloland'),
                 method: 'post',

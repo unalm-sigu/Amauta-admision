@@ -32,6 +32,10 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     List<AlumnoCicloCurso> allAprobadoActivoByAlumno(Alumno alumno);
 
+    List<AlumnoCicloCurso> allAprobadoActivoByAlumnos(List<Alumno> alumnos);
+
+    List<AlumnoCicloCurso> allVecesLlevadoByAlumnos(List<Alumno> alumnos);
+
     List<AlumnoCicloCurso> allDesaprobadoActivoByAlumno(Alumno alumno);
 
     Long countByCursoAlumnoAnterioresCicloReg(Curso curso, Alumno alumno, CicloAcademico cicloAcademico);
@@ -78,4 +82,7 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     void updateEstadoRegistroActivo(AlumnoCicloCurso alumnoCicloCurso);
 
+    List<AlumnoCicloCurso> allOperativesPendingByYear(String year);
+
+    Long countByAlumnoCiclo(AlumnoCiclo alumnoCiclo);
 }

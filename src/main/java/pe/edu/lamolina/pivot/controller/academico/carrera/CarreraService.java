@@ -34,5 +34,11 @@ public interface CarreraService {
     OrientacionCarrera editarOrientacion(Long id);
 
     CarreraResumen resumen();
+    
+    List<Carrera> all();
+
+    public void cambiarEstadoAdmision(Carrera carrera);
+
+
 
 }

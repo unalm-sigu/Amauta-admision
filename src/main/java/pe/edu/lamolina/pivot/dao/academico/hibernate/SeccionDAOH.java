@@ -131,6 +131,17 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
+    public List<Seccion> allByGpoSeccion(GrupoSeccion gruposSeccion) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .leftJoin("aula", "grupoHoras")
+                .filter("gs.id", gruposSeccion);
+
+        return all(sql);
+    }
+
+    @Override
     public List<Seccion> allOperativesByGpoSeccion(GrupoSeccion grupoSeccion) {
         List<SeccionEstadoEnum> estados = Arrays.asList(SeccionEstadoEnum.ACT, SeccionEstadoEnum.BLO, SeccionEstadoEnum.CRE);
         return this.allByGpoSeccionEstados(grupoSeccion, estados);
@@ -176,7 +187,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     public List<Seccion> allByGposSeccionOrderedByCodigo2(GrupoSeccion gruposSeccion) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
-                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "grupoHoras gh","aula au", "docenteSeccion ds")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "grupoHoras gh", "aula au", "docenteSeccion ds")
                 .filter("gs.id", gruposSeccion)
                 .orderBy("sec.codigo2");
 
@@ -356,6 +367,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
                 .leftJoin("grupoHoras gh", "aula au", "au.oficinaSupervisora", "au.aulaSuperior")
                 .leftJoin("seccionSuperior")
+                .leftJoin("tipoCarpeta tc","tc.tipoCarpetaSuperior tcsu")
                 .filter("sec.id", seccion.getId());
 
         return find(sql);
@@ -552,6 +564,19 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         Octavia octavia = Octavia.update(Seccion.class);
         octavia.set(seccion, "codigo2");
         this.update(octavia);
+    }
+
+    @Override
+    public Seccion findByGpoSeccionTipoSeccion(GrupoSeccion gpoSecc, TipoSeccionEnum tipoSeccion) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur")
+                .leftJoin("grupoHoras gh", "aula au")
+                .leftJoin("seccionSuperior")
+                .filter("gs.id", gpoSecc)
+                .filter("sec.tipoSeccion", tipoSeccion.name());
+
+        return find(sql);
     }
 
 }

@@ -106,4 +106,5 @@ public interface Constantine {
     Long ID_PERU = 178l;
 
     Long BOLS_TRABAJO_ID = 1l;
+    Long ID_CONSEJERO_NN = 1l;
 }

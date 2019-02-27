@@ -1,14 +1,19 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
 import java.util.List;
+
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.bean.RolExamenDocente;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
+import static pe.edu.lamolina.model.enums.TipoGestionEnum.PUB;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
@@ -23,24 +28,18 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
     }
 
     @Override
-    public SeccionGrupoEspecial findBySeccion(Seccion seccion, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnum) {
-        Octavia sql = Octavia.query()
-                .from(SeccionGrupoEspecial.class, "sce")
-                .join("seccion sec", "rolExamenes re", "aula au", "grupoHorasExamen ghe", "ghe.grupoHoras hg", "ghe.horaInicio hi", "ghe.horaFin hf")
-                .join("userRegistro ureg", "ureg.persona pureg")
-                .filter("sec.id", seccion)
-                .in("sce.estado", seccionRolExamenEstadoEnum);
-        return find(sql);
-    }
-
-    @Override
     public List<SeccionGrupoEspecial> allByDynatableAndRolExamenes(DynatableFilter filter, RolExamenes rolExamenes) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionGrupoEspecial.class, "sge")
                 .join("rolExamenes re", "seccion sec", "userRegistro ur", "aula au")
+                .join("sec.grupoSeccion gpo", "gpo.curso cur")
                 .join("ur.persona per")
+                .left("sec.grupoHoras ghsec")
                 .left("docente doc", "doc.persona dper", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras")
-                .searchFields("sec.codigo", "sec.codigo2");
+                .searchFields("sec.codigo2", "cur.codigo", "cur.nombre", "au.codigo")
+                .searchComplexField("concat(coalesce(dper.paterno,''),' ',coalesce(dper.materno,''),' ',coalesce(dper.nombres,''))")
+                .searchComplexField("concat(coalesce(dper.nombres,''),' ',coalesce(dper.paterno,''),' ',coalesce(dper.materno,''))")
+                .filter("re.id", rolExamenes);
 
         return all(sql);
     }
@@ -66,6 +65,21 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .left("aula au", "grupoHorasExamen ghe")
                 .filter("ghe.id", grupoHorasExamen)
                 .in("sce.estado", estados);
+        return all(sql);
+    }
+
+    @Override
+    public List<SeccionGrupoEspecial> allByRolExamenesForReporte(RolExamenes rol) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoEspecial.class, "sce")
+                .join("docente doc", "doc.persona")
+                .join("seccion sec", "rolExamenes re", "sec.grupoSeccion gs", "gs.curso cur")
+                .join("aula au")
+                .join("grupoHorasExamen ghe", "ghe.horaInicio", "ghe.horaFin")
+                .filter("re.id", rol)
+                .filter("sce.estado", SeccionRolExamenEstadoEnum.ACT)
+                .orderBy("cur.nombre asc", "sec.codigo2 asc");
+
         return all(sql);
     }
 
@@ -110,6 +124,45 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
         Octavia octavia = Octavia.update(SeccionGrupoEspecial.class);
         octavia.set(seccionGrupoEspecialUpd, "estado");
         this.update(octavia);
+    }
+
+    @Override
+    public List<RolExamenDocente> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico) {
+        Octavia sql = new Octavia()
+                .select("cur", "ghe", "au", "sec", "re.estado", "re.id", "re.nombre")
+                .into(RolExamenDocente.class)
+                .from(SeccionGrupoEspecial.class, "sge")
+                .join("docente doc", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "aula au")
+                .join("rolExamenes re", "re.eventoCicloAcademico eca", "eca.cicloAcademico ca")
+                .join("grupoHorasExamen ghe", "ghe.dia di", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .filter("doc.id", docente)
+                .filter("re.estado", PUB)
+                .filter("ca.id", cicloAcademico);
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<SeccionGrupoEspecial> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoEspecial.class, "sce")
+                .join("seccion sec", "rolExamenes re", "aula au", "grupoHorasExamen ghe", "ghe.grupoHoras hg", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .join("userRegistro ureg", "ureg.persona pureg")
+                .in("ghe.id", grupoHorasExamenes);
+        return all(sql);
+    }
+
+    @Override
+    public SeccionGrupoEspecial findByRolExamanesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoEspecial.class, "sce")
+                .join("seccion sec", "rolExamenes re", "aula au", "grupoHorasExamen ghe", "ghe.grupoHoras hg", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .join("userRegistro ureg", "ureg.persona pureg")
+                .filter("sec.id", seccion)
+                .in("sce.estado", estados)
+                .filter("re.id", rol);
+
+        return find(sql);
     }
 
 }

@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.seguridad.rol;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface RolService {
 
-    void save(Rol rol);
+    void save(Rol rol, Sistema sistema);
 
     void update(Rol rol);
 
@@ -24,11 +23,11 @@ public interface RolService {
 
     List<Menu> allMenuSystemByRol(Sistema sistema, Long idRol);
 
-    void delete(Rol rol);
+    void delete(Rol rol, Sistema sistema);
 
     Rol findRol(Rol rol);
 
-    List<Rol> allRolByDynatable(DynatableFilter filter);
+    List<Rol> allRolByDynatable(DynatableFilter filter, Sistema sistema);
 
     void cambiarEstado(FuncionRol funcionRol, Usuario usuario);
 

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.interceptor;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import javax.servlet.http.HttpSession;
@@ -9,6 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.interceptor.UserLogger;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.Rol;
@@ -20,13 +22,13 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class InterceptorServiceImpl implements InterceptorService {
-    
+
     @Autowired
     UserLoggerDAO userLogger;
-    
+
     @Autowired
     DespliegueConfig despliegueConfig;
-    
+
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -34,11 +36,18 @@ public class InterceptorServiceImpl implements InterceptorService {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         this.saveInterceptor(objNode, ds);
     }
-    
+
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveInterceptor(ObjectNode objNode, DataSessionPivot ds) {
+        this.saveInterceptor(objNode, null, ds);
+    }
+
+    @Async
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveInterceptor(ObjectNode objNode, Exception exception, DataSessionPivot ds) {
         System.err.println("SERVLET --->");
         UserLogger obj = new UserLogger();
         String[] ls = new String[ds.getRoles().size()];
@@ -59,7 +68,9 @@ public class InterceptorServiceImpl implements InterceptorService {
         obj.setRoles(Arrays.toString(ls).toString());
         obj.setUsuario(ds.getPersona().getNombreCompleto());
         obj.setSistema(objSis);
+        if (exception != null) {
+            obj.fillExcepcion(exception);
+        }
         userLogger.save(obj);
     }
-    
 }

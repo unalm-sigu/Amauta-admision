@@ -75,6 +75,26 @@ public class GrupoRegularController {
         return "rolexamen/gruporegular/grupoRegular";
     }
 
+    @RequestMapping("{rolExamen}")
+    public String indexWithRolExamen(
+            @PathVariable("rolExamen") Long rolExamenId,
+            Model model,
+            HttpSession session) {
+
+        RolExamenes rolExamenes = grupoRegularService.findRolExamenes(rolExamenId);
+        ObjectNode jRolExamenes = JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, false,
+                new String[]{
+                    "*",
+                    "eventoCicloAcademico.eventoAcademico.*",
+                    "semanasExamen.rolExamenes.*",
+                    "semanasExamen.*",
+                    "semanasExamen.horaFin",
+                    "semanasExamen.horaInicio"
+                });
+        model.addAttribute("jRolExamenes", jRolExamenes.toString());
+        return this.index(model, session);
+    }
+
     @RequestMapping("secciones/{letraGrupoRegular}")
     public String secciones(@PathVariable("letraGrupoRegular") Long idLetraGrupoRegular, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -82,7 +102,7 @@ public class GrupoRegularController {
 
         LetraGrupoRegular letraGrupoRegular = grupoRegularService.findLetraGrupoRegular(new LetraGrupoRegular(idLetraGrupoRegular));
         model.addAttribute("letraGrupoRegular", letraGrupoRegular);
-        model.addAttribute("jLetraGrupoRegular", JsonHelper.createJson(letraGrupoRegular, JsonNodeFactory.instance, true, new String[]{"*"}).toString());
+        model.addAttribute("jLetraGrupoRegular", JsonHelper.createJson(letraGrupoRegular, JsonNodeFactory.instance, true, new String[]{"*", "rolExamenes.*"}).toString());
         return "rolexamen/gruporegular/grupoRegularSecciones";
     }
 
@@ -103,6 +123,25 @@ public class GrupoRegularController {
             ExceptionHandler.handleException(e, response);
         } finally {
             rolExamenesLogger.finalizeLog();
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "eliminarGruposRegulares", method = RequestMethod.POST)
+    public JsonResponse eliminarGruposRegulares(@RequestBody RolExamenes rolExamenes,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        try {
+            grupoRegularService.eliminarGruposRegulares(rolExamenes);
+            response.setMessage("Grupos regulares eliminados corretamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
         }
         return response;
     }
@@ -157,6 +196,11 @@ public class GrupoRegularController {
             array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "*",
                 "seccion.*",
+                "seccion.grupoSeccion.id",
+                "seccion.grupoSeccion.curso.id",
+                "seccion.grupoSeccion.curso.nombre",
+                "seccion.grupoSeccion.curso.codigo",
+                "seccion.grupoSeccion.curso.tpc",
                 "docente.*",
                 "docente.persona.*",
                 "aula.*",

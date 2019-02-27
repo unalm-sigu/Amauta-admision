@@ -38,17 +38,17 @@
         <div>
             <table width="100%">
                 <tr>
-                    <td width="70">
+                    <td width="10%">
                         <img 
                             width="60px" 
                             height= "58px" 
                             src="logo-min.jpg" />
                     </td>
-                    <td width="100%">
+                    <td width="80%">
                         <div  style="font-size: 10px;font-weight: bold;width: 100%;">UNIVERSIDAD NACIONAL AGRARIA LA MOLINA</div>
                         <div style="font-size: 8px;width: 100%;">Oficina Académica de Estudios</div>
                     </td>
-                    <td width="65">
+                    <td width="10%">
                         <table class="min-table">
                             <tr>
                                 <td >
@@ -122,7 +122,7 @@
                         </tr>
                         <tr>
                             <td  >
-                                Pofesor:
+                                Profesor:
                             </td>
                             <td>
                                 <span th:text="${docente.codigo +' '+ docente.persona.apellidosNombres}">xxx</span>
@@ -149,7 +149,7 @@
                         </tr>
                         <tr>
                             <td>
-                                Creditos:
+                                Créditos:
                             </td>
                             <td >
                                 <span th:text="${curso.creditos}">xxx</span>
@@ -224,9 +224,13 @@
                               th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id].notaFinal}"
                               th:text="${matriculaCurso[matSec.matriculaResumen.alumno.id].notaFinal}" > 04.18 </span>
                     </span>
-                    <span  th:if="${planCalificacion.sistemaNotas.letras}" >
+                    <span  th:if="${planCalificacion.sistemaNotas.letras}" > 
                         <span class="nota-academica" 
-                              th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id].creditos}"
+                              th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id].curso.tieneCreditosFijos}"
+                              th:text="${matriculaCurso[matSec.matriculaResumen.alumno.id].creditos}" > 04.18 </span>
+
+                        <span class="nota-academica" 
+                              th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id].curso.tieneCreditosVariables}"
                               th:text="${matriculaCurso[matSec.matriculaResumen.alumno.id].creditosAprobados}" > 04.18 </span>
                     </span>
                 </td>
