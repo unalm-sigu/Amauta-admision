@@ -16,6 +16,13 @@ new Vue({
             okbtn: "Guardar",
             showaccept: false
         },
+        modalCondicion: {
+            id: 'modalCondicion',
+            header: true,
+            title: 'Agregar Alumno ',
+            okbtn: "Guardar",
+            showaccept: true
+        },
         modalMatriculable: {
             id: 'modalMatriculable',
             header: true,
@@ -317,6 +324,27 @@ new Vue({
 
             }
         },
+        loadAlumnoCondicional(nombre) {
+            let $vue = this;
+            this.isLoading = true
+
+            if (nombre != '' || nombre != null || nombre != undefined) {
+
+                $.ajax({
+                    url: APP.url("academico/matriculable/allAlumnoCondicionalByNombre"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: {nombre: nombre}
+                }).then(response => {
+                    if (response.success) {
+                        $vue.alumnos = response.data;
+                    }
+
+                    this.isLoading = false;
+                })
+
+            }
+        },
         customLabel( {persona, codigo}){
             if (persona != null) {
                 return  codigo + " - " + persona.nombreCompleto;
@@ -331,8 +359,8 @@ new Vue({
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
         },
-        verificarAlumnosNmat(){
-             let $vue = this;
+        verificarAlumnosNmat() {
+            let $vue = this;
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
@@ -343,6 +371,43 @@ new Vue({
                         $vue.$refs.load.loadRemoteData();
                         MODAL.hideWait();
                         notify(response.message, "success");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
+        modalCondicional() {
+            let $vue = this;
+            $vue.alumno = {};
+            $vue.alumnos = [];
+            $vue.$refs.modalCondicion.open();
+        },
+        saveMatriculableCondicional() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+//            $('#formMatriculable').parsley().destroy();
+            if (!$("#formCondicional").parsley().validate()) {
+                MODAL.hideWait();
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/saveMatriculableCondicional'),
+                contentType: "application/json",
+                data: JSON.stringify($vue.alumno),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.findCiclo();
+                        $vue.$refs.load.loadRemoteData();
+                        $vue.$refs.modalCondicion.close();
+                        MODAL.hideWait();
+                        notify(response.message, "success");
+                    } else {
+                        MODAL.hideWait();
+                        notify(response.message, "error");
                     }
                 },
                 error: function () {

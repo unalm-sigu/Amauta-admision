@@ -44,6 +44,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
+import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
@@ -54,22 +55,25 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
@@ -124,6 +128,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Autowired
     PromedioService promedioService;
+
+    @Autowired
+    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
 
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
@@ -695,11 +702,11 @@ public class MatriculableServiceImp implements MatriculableService {
         } else if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_6) {
             situacionAcademica = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_6U.name());
         }
-        if (situacionAcademica != null) {            
+        if (situacionAcademica != null) {
             alumno.setSituacionAcademica(situacionAcademica);
             alumnoDAO.update(alumno);
             if (alumnoCicloSituacion != null) {
-                
+
                 alumnoCicloSituacion.setSituacionFinal(situacionAcademica);
                 alumnoCicloDAO.update(alumnoCicloSituacion);
             }
@@ -726,6 +733,11 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
         matri.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
 
+        if (Arrays.asList(S_6, S_4).contains(alumno.getSituacionAcademica().getCodigoEnum())) {
+            matri.setEsCondicional(true);
+            matri.setFechaCondicional(new Date());
+            updateCursoApro(alumno);
+        }
         if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumnoForm);
             matri = matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
@@ -752,6 +764,14 @@ public class MatriculableServiceImp implements MatriculableService {
             }
         }
         matriculaResumenDAO.save(matri);
+    }
+
+    private void updateCursoApro(Alumno alumno) {
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno);
+        for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
+            alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
+            alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
+        }
     }
 
     @Override
@@ -847,5 +867,10 @@ public class MatriculableServiceImp implements MatriculableService {
         cicloActivo.setFechaVerificaNmat(new Date());
         cicloAcademicoDAO.update(cicloActivo);
 
+    }
+
+    @Override
+    public List<Alumno> allAlumnoCondicionalByNombre(String nombre, DataSessionPivot ds) {
+        return alumnoDAO.allByNameCondicional(nombre, ds.getCicloAcademico());
     }
 }
