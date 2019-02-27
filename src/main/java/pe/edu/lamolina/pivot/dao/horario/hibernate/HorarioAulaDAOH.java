@@ -310,4 +310,9 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         return all(sql);
     }
 
+    @Override
+    public List<HorarioAula> allByFechas(Date fechaInicioModular, Date fechaFinModular) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }
