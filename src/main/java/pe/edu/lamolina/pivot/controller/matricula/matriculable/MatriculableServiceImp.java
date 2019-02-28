@@ -68,6 +68,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
+import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
@@ -690,7 +691,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     @Transactional
-    public void saveMatriculable(Alumno alumnoForm, DataSessionPivot ds) {
+    public void saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
         MatriculaResumen matri = new MatriculaResumen();
         CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         Alumno alumno = alumnoDAO.find(alumnoForm);
@@ -733,13 +734,20 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
         matri.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
 
-        if (Arrays.asList(S_6, S_4).contains(alumno.getSituacionAcademica().getCodigoEnum())) {
+        if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {
             matri.setEsCondicional(true);
             matri.setFechaCondicional(new Date());
             updateCursoApro(alumno);
         }
         if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
-            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumnoForm);
+            AlumnoCiclo alumnoCiclo = null;
+            if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {
+                List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumno);
+                AlumnoCiclo alumnoCicloPenultimo = alumnoCiclos.get(1);
+                alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumnoForm);
+            } else {
+                alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumnoForm);
+            }
             matri = matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
 
             MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
@@ -869,8 +877,4 @@ public class MatriculableServiceImp implements MatriculableService {
 
     }
 
-    @Override
-    public List<Alumno> allAlumnoCondicionalByNombre(String nombre, DataSessionPivot ds) {
-        return alumnoDAO.allByNameCondicional(nombre, ds.getCicloAcademico());
-    }
 }

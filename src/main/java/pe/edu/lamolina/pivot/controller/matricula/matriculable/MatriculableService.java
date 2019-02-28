@@ -48,7 +48,7 @@ public interface MatriculableService {
 
     List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
-    void saveMatriculable(Alumno alumno, DataSessionPivot ds);
+    void saveMatriculable(Alumno alumno, String tipoCondicional, DataSessionPivot ds);
 
     void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
@@ -57,7 +57,5 @@ public interface MatriculableService {
     void inhabilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     public void verificarAlumnosNmat(DataSessionPivot ds);
-
-    public List<Alumno> allAlumnoCondicionalByNombre(String nombre, DataSessionPivot ds);
 
 }

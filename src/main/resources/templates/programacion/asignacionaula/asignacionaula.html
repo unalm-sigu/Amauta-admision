@@ -11,7 +11,7 @@
                 <header class="header b-b padder-lg">
 
                     <div class="pull-right m-t-md">                 
-                        <a class="btn btn-success" type="button" th:href="@{/tramite/aula/nuevo}" >Procesar</a>
+                        <a class="btn btn-success" type="button" v-on:click="procesarAsignacionAulas">Procesar</a>
                     </div>  
                     <h2>Asignación Aulas</h2>
                 </header>
@@ -41,6 +41,11 @@
         </div>
 
         <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var jAsignacionAula = /*[[${jAsignacionAula}]]*/ '';
+                /*]]>*/
+            </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vue-loader"/>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>

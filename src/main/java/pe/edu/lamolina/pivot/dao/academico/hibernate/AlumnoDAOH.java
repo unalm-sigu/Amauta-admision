@@ -476,7 +476,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .__().filter("per.numeroDocIdentidad", "like", nombre)
                 .__().filter("alu.codigo", "like", nombre)
                 .endBlock()
-                .notIn("sa.id", Arrays.asList(SituacionAcademicaEnum.S_6, SituacionAcademicaEnum.S_4))
                 .notExists(subQuery)
                 .linkedBy("alu.id", "alum.id")
                 .limit(15);

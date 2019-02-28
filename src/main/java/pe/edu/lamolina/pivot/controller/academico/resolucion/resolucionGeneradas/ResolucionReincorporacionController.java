@@ -29,6 +29,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
@@ -146,7 +147,7 @@ public class ResolucionReincorporacionController {
 
             for (Alumno alumno : alumnos) {
 
-                matriculableService.saveMatriculable(alumno, ds);
+                matriculableService.saveMatriculable(alumno,TipoCondicionalEnum.OTRO.name(), ds);
                 matriculableService.revisarSituacionAcademica(alumno, ds);
             }
             response.setMessage("Se realizó el registro satisfactoriamente.");

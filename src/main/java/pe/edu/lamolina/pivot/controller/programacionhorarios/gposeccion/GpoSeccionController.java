@@ -1153,7 +1153,7 @@ public class GpoSeccionController {
             ObjectNode node = new ObjectNode(jsonFactory);
 
             node.set("seccion", JsonHelper.createJson(seccion, jsonFactory, true, new String[]{
-                "id", "codigo2", "vacantes", "horasSemanales","horasAdicionales","totalHorasSemanales",
+                "id", "codigo2", "vacantes", "horasSemanales", "horasAdicionales", "totalHorasSemanales",
                 "tieneRestriccion", "tieneRestriccionCarrera", "tieneRestriccionFacultad", "tieneRestriccionModalidad", "tieneRestriccionRepitencia",
                 "aula.id",
                 "aula.codigo",
@@ -1185,13 +1185,13 @@ public class GpoSeccionController {
 
             List<TipoGrupoHoras> tiposGrupoHoras = service.allGrupoHorasActivosTipoAndCiclo(cicloAcademico, TipoGrupoHorasEnum.REGULAR);
 
-            ArrayNode tiposGrupoaHoras = new ArrayNode(jsonFactory);
+            ArrayNode jTiposGrupoHoras = new ArrayNode(jsonFactory);
             for (TipoGrupoHoras tiposGrupoHoraEach : tiposGrupoHoras) {
                 ObjectNode tipoGrupoHorasNode = JsonHelper.createJson(tiposGrupoHoraEach, jsonFactory, true, new String[]{"*"});
                 tipoGrupoHorasNode.put("texto", tiposGrupoHoraEach.getCodigo() + " - " + tiposGrupoHoraEach.getDescripcion());
-                tiposGrupoaHoras.add(tipoGrupoHorasNode);
+                jTiposGrupoHoras.add(tipoGrupoHorasNode);
             }
-            node.set("tiposGruposHorasOpt", tiposGrupoaHoras);
+            node.set("tiposGruposHorasOpt", jTiposGrupoHoras);
 
             response.setData(node);
             response.setSuccess(Boolean.TRUE);
@@ -1237,7 +1237,7 @@ public class GpoSeccionController {
 
             ObjectNode nodeResult = new ObjectNode(jsonFactory);
             nodeResult.putPOJO("seccion", JsonHelper.createJson(seccion, jsonFactory, true, new String[]{
-                "id", "codigo2", "vacantes", "horasSemanales","horasAdicionales","totalHorasSemanales",
+                "id", "codigo2", "vacantes", "horasSemanales", "horasAdicionales", "totalHorasSemanales",
                 "tieneRestriccion", "tieneRestriccionCarrera", "tieneRestriccionFacultad", "tieneRestriccionModalidad", "tieneRestriccionRepitencia",
                 "aula.id",
                 "aula.codigo",
@@ -1654,6 +1654,7 @@ public class GpoSeccionController {
             @RequestParam(name = "seccionId", required = true) Long seccionId,
             @RequestParam(name = "aulaId", required = false) Long aulaId,
             Model model, HttpSession session) {
+        //cargar horarios de acuerdo a la seccion o al tipo grupo horas
         JsonResponse response = new JsonResponse();
         try {
             long t1 = System.currentTimeMillis();
@@ -1666,14 +1667,14 @@ public class GpoSeccionController {
             Seccion seccion = service.findSeccion(seccionId);
             TipoGrupoHoras tipoGrupo = service.findTipoGrupoHoras(tipoGrupoHorasId);
             List<GrupoHoras> gruposHoras = service.allGrupoHorasBySeccionAndTipoGrupoHoras(seccion, tipoGrupo, cicloAcademico);
-            List<HorarioAula> horariosAulas = null;
+            List<HorarioAula> horariosAulasByCiclo = null;
 
             if (aulaId != null) {
                 Aula aula = service.findAula(aulaId);
-                horariosAulas = service.allHorariosAula(aula, ds.getCicloAcademico());
+                horariosAulasByCiclo = service.allHorariosAula(aula, ds.getCicloAcademico());
             } else {
                 if (seccion.getAula() != null) {
-                    horariosAulas = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
+                    horariosAulasByCiclo = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
                 }
             }
 
@@ -1689,7 +1690,9 @@ public class GpoSeccionController {
 
             Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
 
-            Map<String, HorarioSeccion> mapHorario = TypesUtil.convertListToMap("horaDia", service.allHorarioSeccion(seccion));
+            Map<String, HorarioSeccion> mapHorarioBySeccion = TypesUtil.convertListToMap("idDiaHora", service.allHorarioSeccion(seccion));
+
+            //Dias Horas Grupos de todos los grupos, de acuerdo al tipo seleccionado y se marcan los dia hora grupo de la seccion
             ObjectNode jsonDiaHoraGrupo = new ObjectNode(factory);
             for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
                 ObjectNode jsonDiaHoraGrupoEach = JsonHelper.createJson(diaHoraGrupo, factory, true,
@@ -1699,21 +1702,28 @@ public class GpoSeccionController {
                             "grupoHorario.codigo", "grupoHorario.id",
                             "grupoHorario.tipoGrupoHoras.*"});
                 jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
-                String horaDia = diaHoraGrupo.getHoraDia();
-                HorarioSeccion hSecc = mapHorario.get(horaDia);
+                String diaHora = diaHoraGrupo.getIdDiaHora();
+                HorarioSeccion hSecc = mapHorarioBySeccion.get(diaHora);
                 if (hSecc != null) {
                     jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
                 }
                 jsonDiaHoraGrupo.putPOJO(diaHoraGrupo.getIdDiaHora(), jsonDiaHoraGrupoEach);
             }
-
+            //
             ObjectNode jsonHorarioAula = new ObjectNode(factory);
-            if (horariosAulas != null) {
-                for (HorarioAula horarioAulaEach : horariosAulas) {
+            if (horariosAulasByCiclo != null) {
+                for (HorarioAula horarioAulaEach : horariosAulasByCiclo) {
                     if (!horarioAulaEach.getSeccion().getId().equals(seccion.getId())) {
+
+                        HorarioSeccion hSeccCruce = mapHorarioBySeccion.get(horarioAulaEach.getIdDiaHora());
+                        if (hSeccCruce != null) {
+                            horarioAulaEach.setTieneCruce(Boolean.TRUE);
+                        }
+
                         jsonHorarioAula.putPOJO(horarioAulaEach.getIdDiaHora(),
                                 JsonHelper.createJson(horarioAulaEach, factory, true,
                                         new String[]{"id",
+                                            "tieneCruce",
                                             "dia.id", "dia.nombre",
                                             "hora.id", "hora.codigo", "hora.descripcion",
                                             "seccion.id",

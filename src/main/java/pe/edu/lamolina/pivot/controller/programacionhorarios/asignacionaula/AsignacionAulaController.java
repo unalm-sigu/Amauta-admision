@@ -7,15 +7,24 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.AsignacionAula;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -23,6 +32,8 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("academico/asignacionaula")
 public class AsignacionAulaController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     AsignacionAulaService asignacionAulaService;
@@ -56,10 +67,40 @@ public class AsignacionAulaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico ciclo = asignacionAulaService.findCiclo(ds.getCicloAcademico());
-        model.addAttribute("ciclo", ciclo);
-        model.addAttribute("cicloJson", createCicloJson(ciclo).toString());
+        AsignacionAula asignacionAula = asignacionAulaService.findAsignacionAulaByCiclo(ds.getCicloAcademico());
+
+        if (asignacionAula != null) {
+            ObjectNode jAsignacionAula = JsonHelper.createJson(asignacionAula,
+                    JsonNodeFactory.instance, true,
+                    new String[]{
+                        "*",
+                        "cicloAcademico.*"
+                    });
+            model.addAttribute("jAsignacionAula", jAsignacionAula.toString());
+        }
+        model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("cicloJson", createCicloJson(ds.getCicloAcademico()).toString());
+
         return "programacion/asignacionaula/asignacionaula";
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "procesarAsignacionAulas", method = RequestMethod.POST)
+    public JsonResponse procesarAsignacionAulas(@RequestBody AsignacionAula asignacionAula,
+            HttpSession session, HttpServletRequest request) {
+        logger.debug("procesarAsignacionAulas");
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            asignacionAulaService.procesarAsignacionAulas(asignacionAula, ds);
+            response.setMessage("Aulas asignadas correctamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     private ObjectNode createCicloJson(CicloAcademico ciclo) {
