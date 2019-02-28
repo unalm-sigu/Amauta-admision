@@ -58,4 +58,6 @@ public interface MatriculableService {
 
     public void verificarAlumnosNmat(DataSessionPivot ds);
 
+    public void beneficiar(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
 }

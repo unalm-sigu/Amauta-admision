@@ -889,4 +889,12 @@ public class MatriculableServiceImp implements MatriculableService {
 
     }
 
+    @Override
+    @Transactional
+    public void beneficiar(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        matriculaResumen.setEsBeneficiadoUltimoCiclo(true);
+        matriculaResumen.setFechaBeneficiadoUtlCiclo(new Date());
+        matriculaResumenDAO.update(matriculaResumen);
+    }
+
 }
