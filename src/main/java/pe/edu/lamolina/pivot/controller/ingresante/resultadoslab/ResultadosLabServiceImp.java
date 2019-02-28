@@ -72,7 +72,7 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
 
         BigDecimal valorMuestra = laboratorio.getValorMuestra();
         BigDecimal estandar = laboratorio.getEstandar();
-        BigDecimal hemoglobina = valorMuestra.multiply(new BigDecimal(15)).divide(estandar, 2, RoundingMode.DOWN);
+        BigDecimal hemoglobina = valorMuestra.multiply(new BigDecimal(18)).divide(estandar, 2, RoundingMode.DOWN);
         BigDecimal tope = new BigDecimal(0.5);
         BigDecimal decimalRevisar = hemoglobina.multiply(new BigDecimal(10)).remainder( BigDecimal.ONE );
         if (decimalRevisar.compareTo(tope) == 1) {

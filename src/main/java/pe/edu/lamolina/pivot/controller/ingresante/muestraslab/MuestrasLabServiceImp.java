@@ -17,12 +17,16 @@ import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.model.medico.HistoriaClinica;
 import pe.edu.lamolina.model.medico.HistoriaEnfermedad;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
+import pe.edu.lamolina.model.medico.Paciente;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.RecorridoIngresanteDAO;
+import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.laboratorio.HistoriaLaboratorioDAO;
 import pe.edu.lamolina.pivot.dao.medico.HistoriaClinicaDAO;
 import pe.edu.lamolina.pivot.dao.medico.HistoriaEnfermedadDAO;
+import pe.edu.lamolina.pivot.dao.medico.PacienteDAO;
 import pe.edu.lamolina.pivot.dao.sip.TurnoEntrevistaObuaeDAO;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
@@ -49,6 +53,12 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     @Autowired
     VisorMuestrasLab visorMuestrasLab;
 
+    @Autowired
+    PacienteDAO pacienteDAO;
+
+    @Autowired
+    PersonaDAO personaDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -56,7 +66,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
         return recorridoIngresanteDAO.allByDynatableCicloTurno(filter, ciclo, turno);
     }
-    
+
     @Override
     public List<RecorridoIngresante> allIngresantesConTurno(CicloAcademico ciclo) {
 
@@ -180,6 +190,35 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
             }
         }
         return false;
+    }
+
+    @Override
+    public HistoriaClinica crearHistoriaClinica(RecorridoIngresante recorrido, DataSessionPivot ds) {
+        //buscar paciente
+        //si no existe, crearlo
+        //crear historia clinica 
+
+        Persona persona = personaDAO.find(recorrido.getAlumno().getPersona().getId());
+        Paciente pacienteDB = pacienteDAO.findByPersona(persona);
+
+        Paciente paciente = new Paciente();
+        if (pacienteDB == null) {
+            paciente.setPersona(persona);
+            paciente.setUserRegistro(ds.getUsuario());
+            paciente.setFechaRegistro(new Date());
+            pacienteDAO.save(paciente);
+        } else {
+            paciente = pacienteDB;
+        }
+
+        HistoriaClinica hc = new HistoriaClinica();
+        hc.setPaciente(paciente);
+        hc.setUserRegistro(ds.getUsuario());
+        hc.setFechaRegistro(new Date());
+        hc.setTieneSeguro(Boolean.FALSE);
+        historiaClinicaDAO.save(hc);
+
+        return hc;
     }
 
 }
