@@ -70,6 +70,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
@@ -85,6 +86,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
+import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CAPA_ULTIMO_CICLO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -132,6 +134,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+
+    @Autowired
+    RetiroCicloDAO retiroCicloDAO;
 
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
@@ -413,8 +418,15 @@ public class MatriculableServiceImp implements MatriculableService {
                 escuela++;
                 continue;
             }
-
-            AlumnoCiclo alumnoCiclo = mapAlumnoCiclo.get(matriculable.getAlumno().getId());
+            AlumnoCiclo alumnoCiclo = null;
+            RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumno(matriculable.getAlumno(), ciclo);
+            if (retiroCiclo != null) {
+                List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(matriculable.getAlumno());
+                AlumnoCiclo alumnoCicloPenultimo = alumnoCiclos.get(1);
+                alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), matriculable.getAlumno());
+            } else {
+                alumnoCiclo = mapAlumnoCiclo.get(matriculable.getAlumno().getId());
+            }
             if (alumnoCiclo != null) {
                 matriculable = matriculableConector.procesarPrioridadAlumno(matriculable, alumnoCiclo);
             }

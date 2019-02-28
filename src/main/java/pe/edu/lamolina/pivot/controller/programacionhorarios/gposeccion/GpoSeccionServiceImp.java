@@ -1826,7 +1826,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         if (aula == null) {
-//            seccion.setAula(aula);
+            //don't touch  
+            seccion.setAula(aula);
             seccionDAO.update(seccion);
 
             List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);

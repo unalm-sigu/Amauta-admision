@@ -70,14 +70,15 @@ public class CarreraServiceImp implements CarreraService {
         }
         carreraDAO.update(carrreraBD);
     }
+
     @Override
     @Transactional
     public void cambiarEstadoAdmision(Carrera carrera) {
         Carrera carrreraBD = carreraDAO.find(carrera.getId());
-        if (carrreraBD.getEstadoAdmision().equals(EstadoEnum.ACT.name())) {
-            carrreraBD.setEstadoAdmisionEnum(EstadoEnum.INA);
+        if (carrreraBD.getEstadoAdmision().equals(EstadoCarreraEnum.ACT.name())) {
+            carrreraBD.setEstadoAdmisionEnum(EstadoCarreraEnum.INA);
         } else {
-            carrreraBD.setEstadoAdmisionEnum(EstadoEnum.ACT);
+            carrreraBD.setEstadoAdmisionEnum(EstadoCarreraEnum.ACT);
         }
         carreraDAO.update(carrreraBD);
     }
