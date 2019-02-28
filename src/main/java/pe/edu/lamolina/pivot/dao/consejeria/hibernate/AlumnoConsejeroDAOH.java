@@ -165,7 +165,7 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
     private void setCondicionEstadoMatricula(DynatableFilter filter, Octavia sql) {
         Map<String, Object> queries = filter.getQueries();
         if (queries == null) {
-            return;
+            return; 
         }
         for (String key : queries.keySet()) {
             if (key.equals("estado")) {

@@ -83,8 +83,10 @@ public class ConsejeriaServiceImp implements ConsejeriaService {
     public List<Carrera> allCarreraByPersonaCiclo(Persona persona, CicloAcademico ciclo) {
         List<Facultad> facultades = new ArrayList();
         List<Carrera> carreras = new ArrayList();
+        logger.debug("***ciclo academico {}", ciclo.getDescripcion());
 
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(persona);
+        logger.debug("***cantidad oficina es {}", oficinasMain.size());
 
         for (Oficina oficina : oficinasMain) {
             logger.debug("codigo oficina es {}", oficina.getCodigo());

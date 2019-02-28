@@ -1,9 +1,13 @@
 package pe.edu.lamolina.pivot.controller.consejeria.consejero;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -13,9 +17,12 @@ import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.consejeria.AlumnoConsejeroDAO;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 public class AconsejadosDocenteServiceImpl implements AconsejadosDocentesService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     AlumnoConsejeroDAO alumnoConsejeroDAO;
@@ -27,9 +34,12 @@ public class AconsejadosDocenteServiceImpl implements AconsejadosDocentesService
         List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByCiclo(cicloAcademico);
         Map<Long, MatriculaResumen> alumnoResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
         List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByPersona(filter, cicloAcademico, persona);
+        logger.debug(" alumno consejero{}", alumnoConsejeros.size());
         alumnoConsejeros.forEach(x -> {
             x.setEstadoMatriculableEnum(alumnoResumen.get(x.getAlumno().getId()).getEstadoEnum());
-        });
+            x.setEstadoMatriculaAutorizacion(alumnoResumen.get(x.getAlumno().getId()).getAutorizacionMatricula());
+        }
+        );
         return alumnoConsejeros;
     }
 
@@ -39,10 +49,19 @@ public class AconsejadosDocenteServiceImpl implements AconsejadosDocentesService
         Long countNoMatriculados = matriculaResumenDAO.countNoMatriculablesByConsejero(persona, cicloAcademico);
         Long countRetiroCiclo = matriculaResumenDAO.countRetiroCicloByConsejero(persona, cicloAcademico);
         AconsejadoEstadoBean aconsejadoEstadoBean = new AconsejadoEstadoBean();
-//        aconsejadoEstadoBean.setMatriculados(countMatriculable);
-//        aconsejadoEstadoBean.setNoMatriculados(countNoMatriculados);
-//        aconsejadoEstadoBean.setRetiroCiclo(countRetiroCiclo);
+        aconsejadoEstadoBean.setMatriculados(countMatriculable);
+        aconsejadoEstadoBean.setNoMatriculados(countNoMatriculados);
+        aconsejadoEstadoBean.setRetiroCiclo(countRetiroCiclo);
         return aconsejadoEstadoBean;
     }
 
+    @Override
+    @Transactional
+    public void matriculaAutorizacion(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        MatriculaResumen matriculaResumenBD = matriculaResumenDAO.findByAlumnoCiclo(matriculaResumen.getAlumno(), ds.getCicloAcademico());
+        matriculaResumenBD.setAutorizacionMatricula(matriculaResumen.getAutorizacionMatricula());
+        matriculaResumenBD.setFechaAutorizacionMatricula(new Date());
+        matriculaResumenBD.setUserConsejero(ds.getUsuario());
+        matriculaResumenDAO.update(matriculaResumenBD);
+    }
 }

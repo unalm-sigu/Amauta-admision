@@ -47,7 +47,12 @@ public class ConsejeriaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        logger.debug("ciclo academico {}", ds.getCicloAcademico());
+        logger.debug("persona id {}", ds.getPersona().getId());
+
         List<Carrera> carreras = service.allCarreraByPersonaCiclo(ds.getPersona(), ds.getCicloAcademico());
+        logger.debug("carrera cantiad {}", carreras.size());
 
         model.addAttribute("ciclo", createCicloJson(ds.getCicloAcademico()).toString());
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());

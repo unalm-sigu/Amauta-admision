@@ -1,14 +1,14 @@
-<modal-vik ref="modalMatriculable"
-           v-bind="modalMatriculable"
-           v-bind:okaction="saveMatriculable">
+<modal-vik ref="modalRetiroCiclo"
+           v-bind="modalRetiroCiclo"
+           v-bind:okaction="saveTramiteRetiroCiclo">
     <div slot="body">
         <div class="modal-body">
-            <form id="formMatriculable" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
+            <form id="form" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
                 <div class="row m-b-md">
                     <div class="form-group row">
                         <div class="col-md-12">
                             <label>Alumno</label>
-                            <multiselect v-model="alumno" 
+                            <multiselect v-model="tramiteRetiroCiclo.alumno" 
                                          v-bind:options='alumnos'
                                          v-on:search-change="loadAlumno"
                                          v-bind:custom-label='customLabel'
@@ -25,31 +25,31 @@
                                     </div>
                                 </template>
                             </multiselect>
-                            <input v-model="alumno.id" required="true" type="text" class="hide"/>
+                            <input v-model="tramiteRetiroCiclo.alumno" required="true" type="text" class="hide"/>
                         </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-md-12">
-                            <label>Tipo Condicional</label>
-                            <multiselect v-model="tipoCondicional" 
-                                         v-bind:options='tiposCondicionales'
-                                         label="value"
-                                         track-by='name'
+                            <label>Ciclo de Retiro</label>
+                            <multiselect v-model="tramiteRetiroCiclo.cicloAcademico" 
+                                         v-bind:options='ciclos'
+                                         label="descripcion"
+                                         track-by='id'
                                          v-bind:show-labels="false"
                                          v-bind:allow-empty="false"
                                          v-bind:internal-search='false'
-                                         placeholder="Seleccione un tipo condicional"
+                                         placeholder="Seleccione un ciclo"
                                          required="true" >
                             </multiselect>
-                            <input v-model="tipoCondicional.name" required="true" type="text" class="hide"/>
+                            <input v-model="tramiteRetiroCiclo.cicloAcademico" required="true" type="text" class="hide"/>
                         </div>
                     </div>
-                    <div class="form-group row">
+<!--                    <div class="form-group row">
                         <div class="col-md-12">
                             <label>Motivo</label>
-                            <textarea class="form-control textarea" v-model="alumno.motivoMatriculable" minlength="15" required=""></textarea>
+                            <textarea class="form-control textarea" v-model="tramiteRetiroCiclo.motivo" minlength="15" required=""></textarea>
                         </div>
-                    </div>
+                    </div>-->
                     <hr/>
                 </div>
             </form>

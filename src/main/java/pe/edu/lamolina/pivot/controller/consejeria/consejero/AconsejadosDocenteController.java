@@ -11,13 +11,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -50,7 +53,10 @@ public class AconsejadosDocenteController {
 
         try {
 
-            List< AlumnoConsejero> consejeros = service.allByDynatable(filter, ds.getCicloAcademico(), ds.getPersona());
+            logger.debug("imprimiendo ::: {} ", ds.getCicloAcademico());
+            logger.debug("imprimiendo ::: {} ", ds.getPersona().getId());
+
+            List<AlumnoConsejero> consejeros = service.allByDynatable(filter, ds.getCicloAcademico(), ds.getPersona());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -83,7 +89,7 @@ public class AconsejadosDocenteController {
 
     @ResponseBody
     @RequestMapping("countData")
-    public JsonResponse countData( HttpSession session) {
+    public JsonResponse countData(HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse json = new JsonResponse();
@@ -95,6 +101,24 @@ public class AconsejadosDocenteController {
 
             json.setData(JsonHelper.createJson(aconsejadoEstadoBean, JsonNodeFactory.instance, new String[]{"*"}));
             json.setMessage("Búsqueda Exitosa");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("matriculaAutorizacion")
+    public JsonResponse matriculaAutorizacion(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
+        try {
+            service.matriculaAutorizacion(matriculaResumen, ds);
+            json.setMessage("La autorización de matricula fue modificada satisfactoriamente");
+            json.setSuccess(true);
 
         } catch (Exception e) {
             e.printStackTrace();
