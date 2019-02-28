@@ -524,4 +524,25 @@ public class MatriculableController {
         return response;
 
     }
+
+    @ResponseBody
+    @RequestMapping("beneficiar")
+    public JsonResponse beneficiar(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.beneficiar(matriculaResumen, ds);
+            response.setMessage("Se verificó satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
 }

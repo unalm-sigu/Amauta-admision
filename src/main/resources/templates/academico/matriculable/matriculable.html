@@ -115,6 +115,10 @@
                                                         <small class="block">
                                                             <smal>DNI: </smal>{{item.alumno.persona.numeroDocIdentidad}}
                                                         </small>
+                                                        <small class="block" v-if="item.esBeneficiadoUltimoCiclo == 1">
+                                                            <smal>Beneficiado Ult Ciclo: </smal>
+                                                        </small>
+                                                        
                                                         <a v-if="item.motivoMatriculable != '' " class="text-danger " data-toggle="tooltip" v-bind:title="item.motivoMatriculable" href="#">
                                                             <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                                                         </a>
@@ -168,6 +172,7 @@
                                                             <li v-if="item.estado == 'INH'"><a v-on:click="inhabilitarModal(item)" href="#">Habilitar</a></li>
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li><a class="modificar-datos" href="#">Modificar datos</a></li>
+                                                            <li  v-if="item.esBeneficiadoUltimoCiclo == 0" ><a v-on:click="beneficiar(item)" href="#">Beneficiar Ult. Ciclo</a></li>
                                                             <li><a v-bind:href="urlMatricula(item)">Matricula</a></li>
                                                         </ul>
                                                     </div>
