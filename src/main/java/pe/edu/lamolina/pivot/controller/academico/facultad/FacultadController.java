@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -90,7 +91,7 @@ public class FacultadController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<Facultad> facultadUser = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
-            
+
             List<Facultad> facultades = service.allFacultad(filter, facultadUser);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -103,6 +104,7 @@ public class FacultadController {
                 node.put("codigoCurso", facultad.getCodigoCurso());
                 node.put("estado", facultad.getEstado());
                 node.put("estadoEnum", facultad.getEstadoEnum().getValue());
+                node.put("consejeroRequerido", facultad.getConsejeroRequerido());
                 node.put("motivoDesactivacion", facultad.getMotivoDesactivacion());
                 node.put("fecha", new DateTime(facultad.getFechaRegistro()).toString("dd/MM/yyyy"));
                 array.add(node);
@@ -192,6 +194,29 @@ public class FacultadController {
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("consejeroRequeridoEstado")
+    public JsonResponse consejeroRequeridoEstado(@RequestBody Facultad facultadForm, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            logger.debug("Estado consejero requerido  {}", facultadForm.getConsejeroRequerido());
+            logger.debug("facultad  {}", facultadForm.getId());
+
+            service.updateConsejeroRequerido(facultadForm);
+            response.setMessage("La facultad seleccionada fue modificada satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException ex) {
+            ExceptionHandler.handleException(ex, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
