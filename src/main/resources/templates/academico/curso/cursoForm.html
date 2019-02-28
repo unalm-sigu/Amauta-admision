@@ -147,21 +147,24 @@
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         <label>Tipo Dictado</label>
-                                        <template v-if="curso.id == '' || curso.tipoCursoEnum.name == 'NINGUNO' ">
-                                            <multiselect v-model='tipoCursoEnum'
-                                                         v-bind:options='tiposCurso'
-                                                         v-bind:allow-empty="false"
-                                                         label='value'
-                                                         placeholder="Seleccione un tipo"
-                                                         deselect-label=""
-                                                         select-label="Seleccione este tipo"
-                                                         track-by='name'
-                                                         v-on:input="setTipoCurso">
-                                            </multiselect>
-                                            <input name="tipoCurso" class="hide" v-model="curso.tipoCursoEnum.name" required=""/>
-                                        </template>
-                                        <span v-else="" class='form-control' v-text="curso.tipoCursoEnum.value"></span>
-
+                                        <!-- 
+                                  <template v-if="curso.id == '' || curso.tipoCursoEnum.name == 'NINGUNO' ">
+                                        -->
+                                        <multiselect v-model='tipoCursoEnum'
+                                                     v-bind:options='tiposCurso'
+                                                     v-bind:allow-empty="false"
+                                                     label='value'
+                                                     placeholder="Seleccione un tipo"
+                                                     deselect-label=""
+                                                     select-label="Seleccione este tipo"
+                                                     track-by='name'
+                                                     v-on:input="setTipoCurso">
+                                        </multiselect>
+                                        <input name="tipoCurso" class="hide" v-model="curso.tipoCursoEnum.name" required=""/>
+                                        <!-- 
+                                    </template>
+                                    <span v-else="" class='form-control' v-text="curso.tipoCursoEnum.value"></span>
+                                        -->
 
                                     </div>
                                 </div>
@@ -196,7 +199,7 @@
                                                          track-by='id'
                                                          >
                                             </multiselect>
-                                            <input name="tipoCarpetaTeoria" class="hide" v-model="tipoCarpetaTeoria.id" required=""/>
+
                                         </template>
                                     </div>
                                 </div>
@@ -213,7 +216,7 @@
                                                          select-label="Seleccionar"
                                                          track-by='id'>
                                             </multiselect>
-                                            <input name="tipoCarpetaPractica" class="hide" v-model="tipoCarpetaPractica.id" required=""/>
+
                                         </template>
                                     </div>
                                 </div>

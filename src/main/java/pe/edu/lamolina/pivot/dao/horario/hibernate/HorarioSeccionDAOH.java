@@ -11,6 +11,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -164,6 +165,17 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
             }
         }
         return result;
+    }
+
+    @Override
+    public List<HorarioSeccion> allByGrupoSeccion(GrupoSeccion grupoSeccion) {
+        Octavia sql = Octavia.query()
+                .from(HorarioSeccion.class, "hs")
+                .join("dia di", "hora ho", "seccion sec", "sec.grupoSeccion gs")
+                .join("gs.curso cur", "gs.cicloAcademico ca")
+                .leftJoin("aula au","cur.modalidadEstudio me")
+                .filter("gs.id", grupoSeccion);
+        return all(sql);
     }
 
 }
