@@ -41,7 +41,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .join("grupoSeccion gs", "gs.curso cur")
                 .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
                 .leftJoin("grupoHoras gh", "aula au", "au.oficinaSupervisora", "au.aulaSuperior")
-                .leftJoin("seccionSuperior")
+                .leftJoin("seccionSuperior", "cur.departamentoAcademico daca")
                 .filter("sec.id", id);
 
         return find(sql);
@@ -367,7 +367,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
                 .leftJoin("grupoHoras gh", "aula au", "au.oficinaSupervisora", "au.aulaSuperior")
                 .leftJoin("seccionSuperior")
-                .leftJoin("tipoCarpeta tc","tc.tipoCarpetaSuperior tcsu")
+                .leftJoin("tipoCarpeta tc", "tc.tipoCarpetaSuperior tcsu")
                 .filter("sec.id", seccion.getId());
 
         return find(sql);

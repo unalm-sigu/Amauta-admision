@@ -1158,6 +1158,7 @@ public class GpoSeccionController {
                 "aula.codigo",
                 "aula.nombre",
                 "aula.capacidadAula",
+                "aula.permiteCruceBool",
                 "aula.aforo",
                 "grupoHoras.codigo",
                 "grupoSeccion.curso.codigo",
@@ -1659,6 +1660,7 @@ public class GpoSeccionController {
             long t1 = System.currentTimeMillis();
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            Aula aula = null;
 
             JsonNodeFactory factory = JsonNodeFactory.instance;
 
@@ -1669,12 +1671,20 @@ public class GpoSeccionController {
             List<HorarioAula> horariosAulasByCiclo = null;
 
             if (aulaId != null) {
-                Aula aula = service.findAula(aulaId);
+                aula = service.findAula(aulaId);
                 horariosAulasByCiclo = service.allHorariosAula(aula, ds.getCicloAcademico());
             } else {
                 if (seccion.getAula() != null) {
+                    aula = seccion.getAula();
                     horariosAulasByCiclo = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
                 }
+            }
+            Map<String, List<HorarioAula>> mapHorariosAulaByCiclo = new HashMap<>();
+            if (horariosAulasByCiclo != null) {
+                mapHorariosAulaByCiclo = TypesUtil.convertListToMapList("idDiaHora",
+                        horariosAulasByCiclo.stream()
+                                .filter(x -> !x.getSeccion().equals(seccion))
+                                .collect(Collectors.toList()));
             }
 
             List<DiaHoraGrupo> diaHoraGrupos = new ArrayList();
@@ -1694,21 +1704,34 @@ public class GpoSeccionController {
             //Dias Horas Grupos de todos los grupos, de acuerdo al tipo seleccionado y se marcan los dia hora grupo de la seccion
             ObjectNode jsonDiaHoraGrupo = new ObjectNode(factory);
             for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
+                String diaHora = diaHoraGrupo.getIdDiaHora();
+                List<HorarioAula> horarioAulaCruce = mapHorariosAulaByCiclo.get(diaHora);
+                if (horarioAulaCruce != null) {
+                    diaHoraGrupo.setTieneCruce(Boolean.TRUE);
+                    diaHoraGrupo.setHorariosAula(horarioAulaCruce);
+                }
                 ObjectNode jsonDiaHoraGrupoEach = JsonHelper.createJson(diaHoraGrupo, factory, true,
-                        new String[]{"id",
+                        new String[]{"id", "tieneCruce",
                             "dia.id", "dia.nombre",
                             "hora.id", "hora.codigo", "hora.descripcion",
                             "grupoHorario.codigo", "grupoHorario.id",
-                            "grupoHorario.tipoGrupoHoras.*"});
+                            "grupoHorario.tipoGrupoHoras.*",
+                            "horariosAula.seccion.codigo",
+                            "horariosAula.seccion.codigo2"
+                        });
                 jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
-                String diaHora = diaHoraGrupo.getIdDiaHora();
-                HorarioSeccion hSecc = mapHorarioBySeccion.get(diaHora);
-                if (hSecc != null) {
-                    jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
+
+                if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
+                    if (seccion.getGrupoHoras().equals(diaHoraGrupo.getGrupoHorario())) {
+                        HorarioSeccion hSecc = mapHorarioBySeccion.get(diaHora);
+                        if (hSecc != null) {
+                            jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
+                        }
+                    }
                 }
                 jsonDiaHoraGrupo.putPOJO(diaHoraGrupo.getIdDiaHora(), jsonDiaHoraGrupoEach);
             }
-            //
+            //horarios del aula
             ObjectNode jsonHorarioAula = new ObjectNode(factory);
             if (horariosAulasByCiclo != null) {
                 for (HorarioAula horarioAulaEach : horariosAulasByCiclo) {
@@ -1742,7 +1765,6 @@ public class GpoSeccionController {
             for (Hora horasEncontrada : horasEncontradas) {
                 horasJson.add(JsonHelper.createJson(horasEncontrada, factory, true, new String[]{"*"}));
             }
-
             data.set("dias", diasJson);
             data.set("horas", horasJson);
             data.set("jsonDiaHoraGrupo", jsonDiaHoraGrupo);
@@ -1773,14 +1795,21 @@ public class GpoSeccionController {
             Seccion seccion = service.findSeccion(seccionId);
             List<Dia> dias = service.allDia();
 
-            List<HorarioAula> horariosAulas = null;
+            List<HorarioAula> horariosAulasByCiclo = null;
             if (aulaId == null) {
                 if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
-                    horariosAulas = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
+                    horariosAulasByCiclo = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
                 }
             } else {
                 Aula aula = service.findAula(aulaId);
-                horariosAulas = service.allHorariosAula(aula, ds.getCicloAcademico());
+                horariosAulasByCiclo = service.allHorariosAula(aula, ds.getCicloAcademico());
+            }
+            Map<String, List<HorarioAula>> mapHorariosAulaByCiclo = new HashMap<>();
+            if (horariosAulasByCiclo != null) {
+                mapHorariosAulaByCiclo = TypesUtil.convertListToMapList("idDiaHora",
+                        horariosAulasByCiclo.stream()
+                                .filter(x -> !x.getSeccion().equals(seccion))
+                                .collect(Collectors.toList()));
             }
 
             List<Hora> horasEncontradas = new ArrayList<>();
@@ -1792,11 +1821,20 @@ public class GpoSeccionController {
                 }
             }
             Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
+
+            Map<String, HorarioSeccion> mapHorarioBySeccion = TypesUtil.convertListToMap("idDiaHora", service.allHorarioSeccion(seccion));
+
             ObjectNode jsonDiaHoraGrupo = new ObjectNode(factory);
             for (DiaHoraGrupo diaHoraGrupoEach : grupoHoras.getDiaHoraGrupo()) {
-                Long diaId = diaHoraGrupoEach.getDia().getId();
-                Long horaId = diaHoraGrupoEach.getHora().getId();
+                //   Long diaId = diaHoraGrupoEach.getDia().getId();
+                //    Long horaId = diaHoraGrupoEach.getHora().getId();
+                String diaHora = diaHoraGrupoEach.getIdDiaHora();
 
+                List<HorarioAula> horarioAulaCruce = mapHorariosAulaByCiclo.get(diaHora);
+                if (horarioAulaCruce != null) {
+                    diaHoraGrupoEach.setTieneCruce(Boolean.TRUE);
+                    diaHoraGrupoEach.setHorariosAula(horarioAulaCruce);
+                }
                 ObjectNode jsonDiaHoraGrupoEach = JsonHelper.createJson(diaHoraGrupoEach, factory, true,
                         new String[]{"*",
                             "dia.id", "dia.nombre",
@@ -1807,6 +1845,11 @@ public class GpoSeccionController {
 
                 if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
                     if (seccion.getGrupoHoras().getId().compareTo(grupoHoras.getId()) == 0) {
+                        HorarioSeccion hSecc = mapHorarioBySeccion.get(diaHora);
+                        if (hSecc != null) {
+                            jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
+                        }
+                        /*
                         if (seccion.getHorarioSeccion() != null && !seccion.getHorarioSeccion().isEmpty()) {
                             for (HorarioSeccion horarioSeccionEach : seccion.getHorarioSeccion()) {
                                 if (horarioSeccionEach.getDia().getId().compareTo(diaId) == 0
@@ -1814,15 +1857,15 @@ public class GpoSeccionController {
                                     jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
                                 }
                             }
-                        }
+                        }*/
                     }
                 }
                 jsonDiaHoraGrupo.putPOJO(diaHoraGrupoEach.getIdDiaHora(), jsonDiaHoraGrupoEach);
             }
 
             ObjectNode jsonHorarioAula = new ObjectNode(factory);
-            if (horariosAulas != null) {
-                for (HorarioAula horarioAulaEach : horariosAulas) {
+            if (horariosAulasByCiclo != null) {
+                for (HorarioAula horarioAulaEach : horariosAulasByCiclo) {
                     if (!horarioAulaEach.getSeccion().getId().equals(seccion.getId())) {
                         jsonHorarioAula.putPOJO(horarioAulaEach.getIdDiaHora(),
                                 JsonHelper.createJson(horarioAulaEach, factory, true,
@@ -1874,12 +1917,21 @@ public class GpoSeccionController {
             GrupoHoras grupoHoras = service.findGrupoHoras(new GrupoHoras(grupoHorarioId), ds.getCicloAcademico());
             Seccion seccion = service.findSeccion(seccionId);
 
+            Map<String, HorarioSeccion> mapHorarioBySeccion = TypesUtil.convertListToMap("idDiaHora", service.allHorarioSeccion(seccion));
+
             List<Dia> dias = service.allDia();
             List<Hora> horasEncontradas = service.allHora();
 
-            List<HorarioAula> horariosAulas = null;
+            List<HorarioAula> horariosAulasByCiclo = null;
             if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
-                horariosAulas = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
+                horariosAulasByCiclo = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
+            }
+            Map<String, List<HorarioAula>> mapHorariosAulaByCiclo = new HashMap<>();
+            if (horariosAulasByCiclo != null) {
+                mapHorariosAulaByCiclo = TypesUtil.convertListToMapList("idDiaHora",
+                        horariosAulasByCiclo.stream()
+                                .filter(x -> !x.getSeccion().equals(seccion))
+                                .collect(Collectors.toList()));
             }
 
             ObjectNode jsonDiaHoraGrupo = new ObjectNode(factory);
@@ -1890,22 +1942,45 @@ public class GpoSeccionController {
                 for (Hora horaEach : horasEncontradas) {
                     Long diaId = diaEach.getId();
                     Long horaId = horaEach.getId();
+                    String diaHora = diaId + "_" + horaId;
 
                     ObjectNode jsonDiaHoraGrupoEach = new ObjectNode(factory);
                     jsonDiaHoraGrupoEach.putPOJO("dia", JsonHelper.createJson(diaEach, factory));
                     jsonDiaHoraGrupoEach.putPOJO("hora", JsonHelper.createJson(horaEach, factory));
                     jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
+                    jsonDiaHoraGrupoEach.put("tieneCruce", Boolean.FALSE);
+                    List<HorarioAula> horarioAulaCruce = mapHorariosAulaByCiclo.get(diaHora);
+                    if (horarioAulaCruce != null) {
+                        jsonDiaHoraGrupoEach.put("tieneCruce", Boolean.TRUE);
+                        ArrayNode jHorariosAulasCruce = new ArrayNode(factory);
+                        for (HorarioAula horarioAulaEach : horarioAulaCruce) {
+                            ObjectNode jHorarioAula = JsonHelper.createJson(horarioAulaEach, factory, false, new String[]{
+                                "*",
+                                "seccion.id",
+                                "seccion.codigo",
+                                "seccion.codigo2"
+                            });
+                            jHorariosAulasCruce.add(jHorarioAula);
+                        }
+                        jsonDiaHoraGrupoEach.set("horariosAula", jHorariosAulasCruce);
+                    }
 
                     jsonDiaHoraGrupoEach.putPOJO("grupoHorario", jspnGrupoHoras);
                     if (seccion.getHorarioSeccion() != null && !seccion.getHorarioSeccion().isEmpty()) {
                         if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
                             if (seccion.getGrupoHoras().getId().compareTo(grupoHoras.getId()) == 0) {
+                                HorarioSeccion hSecc = mapHorarioBySeccion.get(diaHora);
+                                if (hSecc != null) {
+                                    jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
+                                }
+                                /*
                                 for (HorarioSeccion horarioSeccionEach : seccion.getHorarioSeccion()) {
                                     if (horarioSeccionEach.getDia().getId().compareTo(diaEach.getId()) == 0
                                             && horarioSeccionEach.getHora().getId().compareTo(horaEach.getId()) == 0) {
                                         jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
                                     }
                                 }
+                                 */
                             }
                         }
                     }
@@ -1915,8 +1990,8 @@ public class GpoSeccionController {
             }
 
             ObjectNode jsonHorarioAula = new ObjectNode(factory);
-            if (horariosAulas != null) {
-                for (HorarioAula horarioAulaEach : horariosAulas) {
+            if (horariosAulasByCiclo != null) {
+                for (HorarioAula horarioAulaEach : horariosAulasByCiclo) {
                     if (!horarioAulaEach.getSeccion().getId().equals(seccion.getId())) {
                         jsonHorarioAula.putPOJO(horarioAulaEach.getIdDiaHora(),
                                 JsonHelper.createJson(horarioAulaEach, factory, true,
