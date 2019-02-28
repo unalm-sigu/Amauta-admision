@@ -80,7 +80,7 @@
                                                 <tr>
                                                     <th class="col-md-4 text-center v-middle"  colspan="2"></th>
                                                     <th class="col-md-2 v-middle"></th>
-                                                    <th class="col-md-1 v-middle"></th>
+                                                    <th class="col-md-1 v-middle text-center"><span>Autorización Matricula</span></th>
                                                     <th class="col-md-1 v-middle"><span>Estado Matricula</span></th>
                                                     <th class="col-md-1 v-middle"></th>
                                                 </tr>
@@ -141,8 +141,8 @@
                                                             {{item.alumno.cicloIngreso.descripcion}}
                                                         </span>
                                                     </td>
-                                                    <td class="v-middle">
-                                                        <input type="checkbox" v-on:click="matriculatAutoriazacion(item.alumno)"/>
+                                                    <td class="v-middle text-center">
+                                                        <input type="checkbox" id="chkbox" v-model="item.estadoMatriculaAutorizacion" onclick="return false;" v-on:click="matriculatAutoriazacion(item)"/>
                                                     </td>
                                                     <td class="v-middle">
                                                         <span v-if="item.estadoMatriculableEnum.name == 'MAT'" v-text="item.estadoMatriculableEnum.value" class="label label-primary"></span>
