@@ -74,4 +74,6 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     List<DocenteSeccion> allActivosBySeccionesOrderPrincipalLimit(List<Seccion> secciones);
 
+    List<DocenteSeccion> allByGrupoSeccionForUpdateFecha(GrupoSeccion grupoSeccion);
+
 }
