@@ -791,7 +791,8 @@ var app = new Vue({
             tabs.find(".tab-pane").removeClass("active");
 
             let $vue = this;
-            $global.$emit('loadGrupoComponent', seccion.id);
+            // $global.$emit('loadGrupoComponent', seccion.id);
+            $vue.$refs.grupoHorarioComponentRef.loadGruposHorario(seccion.id);
             if (seccion.matriculados > 0) {
                 $vue.grupoModal.showaccept = false;
             } else {
@@ -1984,6 +1985,58 @@ var app = new Vue({
         showHorasSemanales(seccion) {
             return seccion.horasAdicionales > 0;
         },
+        cambiarFechaModular() {
+
+            let $vue = this;
+
+            if ($vue.grupoSeccion.fechaInicioModular == undefined || $vue.grupoSeccion.fechaFinModular == undefined) {
+                return;
+            }
+
+            if ($vue.grupoSeccion.fechaInicioModular == '' || $vue.grupoSeccion.fechaFinModular == '') {
+                return;
+            }
+
+            MODAL.showWait("Espere un momento por favor");
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/asignarGrupoSeccionModular'),
+                data: {id: $vue.grupoSeccion.id,
+                    fechaFinModular: $vue.grupoSeccion.fechaFinModular,
+                    fechaInicioModular: $vue.grupoSeccion.fechaInicioModular,
+                    tipoDictado: $vue.grupoSeccion.tipoDictado,
+                    tipoDictadoCheck: $vue.grupoSeccion.tipoDictadoCheck
+                },
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        
+                        if ($vue.grupoSeccion.tipoDictadoCheck == false) {
+                            $vue.grupoSeccion.fechaFinModular = '';
+                            $vue.grupoSeccion.fechaInicioModular = '';
+                        }
+
+                    } else {
+                        $vue.grupoSeccion.tipoDictadoCheck = false;
+                        $vue.grupoSeccion.tipoDictado = '';
+                        $vue.grupoSeccion.fechaFinModular = '';
+                        $vue.grupoSeccion.fechaInicioModular = '';
+                        notify(response.message, "error");
+                    }
+                    MODAL.hideWait();
+                }, error: function () {
+                    $vue.grupoSeccion.tipoDictadoCheck = false;
+                    $vue.grupoSeccion.tipoDictado = '';
+                    $vue.grupoSeccion.fechaFinModular = '';
+                    $vue.grupoSeccion.fechaInicioModular = '';
+                    MODAL.hideWait();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+
+        }
     }
 });
 

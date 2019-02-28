@@ -30,12 +30,12 @@
                                               >
                                 </multiselect>
 
-
                             </div>
 
                             <!--<section class="panel-body">-->
                             <div class="table-responsive" >
-                                <table class="table table-bordered m-b-xs"
+                                <table id="tblRegulares" 
+                                       class="table table-bordered m-b-xs"
                                        v-if="tabGrupos['regulares'].tblHorarios!=null">
 
                                     <thead>
@@ -67,10 +67,16 @@
                                                 </template>
 
 
-                                                <span v-if="tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
-                                                      class="form-control btn-danger"
+                                                <span v-if="tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id] &amp;&amp; !tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].tieneCruce" 
+                                                      class="form-control btn-warning"
                                                       >
                                                     {{tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
+                                                </span>
+                                                <span v-if="tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id] &amp;&amp; tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].tieneCruce" 
+                                                      class="form-control btn-danger crueHorario"
+                                                      >
+                                                    ({{tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}})
+                                                    Cruce
                                                 </span>
 
                                             </td>
@@ -122,8 +128,8 @@
                                             </template>
 
 
-                                            <span v-if="tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
-                                                  class="form-control btn-danger"
+                                            <span v-if="tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id] &amp;&amp; !tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].tieneCruce" 
+                                                  class="form-control btn-warning"
                                                   >
                                                 {{tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
                                             </span>
@@ -144,7 +150,8 @@
 
                         <section class="block">
                             <div class="table-responsive" >
-                                <table class="table table-bordered"
+                                <table id="tblZetas" 
+                                       class="table table-bordered"
                                        v-if="tabGrupos['zetas'].tblHorarios!=null">
 
                                     <thead  style="width: 100%; display: block;">
@@ -176,7 +183,7 @@
 
 
                                                 <span v-if="tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
-                                                      class="form-control btn-danger"
+                                                      class="form-control btn-warning"
                                                       >
                                                     {{tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
                                                 </span>

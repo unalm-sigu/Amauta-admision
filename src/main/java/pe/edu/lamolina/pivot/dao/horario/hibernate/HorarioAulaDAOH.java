@@ -300,4 +300,53 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         return all(sql);
     }
 
+    @Override
+    public List<HorarioAula> allByAulas(List<Aula> aulas) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .in("au.id", aulas);
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByAulasAndSecciones(List<Aula> aulas, List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .in("sec.id", secciones)
+                .in("au.id", aulas);
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByAulasAndNotInSecciones(List<Aula> aulas, List<Seccion> secciones, Date fechaInicio, Date fechaFin) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia", "hora", "aula au")
+                .left("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "sec.grupoHoras gh")
+                .left("gs.cicloAcademico ca")
+                .left("reservaAula ra", "ra.tramite tra")
+                .left("tra.docente do", "do.persona")
+                .left("tra.alumno al", "al.persona")
+                .left("tra.oficina ofi", "tra.empresa emp")
+                .notIn("sec.id", secciones)
+                .in("au.id", aulas)
+                .beginBlock()
+                .__().between("ha.fechaInicio", fechaInicio, fechaFin)
+                .__().between("ha.fechaFin", fechaInicio, fechaFin)
+                .beginBlock()
+                .__().filter("ha.fechaInicio", "<=", fechaInicio)
+                .__().filter("ha.fechaFin", ">=", fechaFin)
+                .endBlock()
+                .beginBlock()
+                .__().filter("ha.fechaInicio", ">=",fechaInicio)
+                .__().filter("ha.fechaFin", "<=", fechaFin)
+                .endBlock()
+                .endBlock();
+        return all(sql);
+    }
+
 }
