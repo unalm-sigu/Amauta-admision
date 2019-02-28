@@ -57,6 +57,8 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByAulas(List<Aula> aulas);
 
-    public List<HorarioAula> allByFechas(Date fechaInicioModular, Date fechaFinModular);
+    List<HorarioAula> allByAulasAndSecciones(List<Aula> aulas, List<Seccion> secciones);
+
+    List<HorarioAula> allByAulasAndNotInSecciones(List<Aula> aulas, List<Seccion> secciones, Date fechaInicio, Date fechaFin);
 
 }
