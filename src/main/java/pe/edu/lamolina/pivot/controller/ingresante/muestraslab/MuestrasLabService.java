@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.model.medico.HistoriaClinica;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface MuestrasLabService {
 
@@ -44,4 +45,6 @@ public interface MuestrasLabService {
     Boolean findRiesgoAlumno(HistoriaClinica historia);
 
     List<RecorridoIngresante> allIngresantesConTurno(CicloAcademico ciclo);
+    
+    HistoriaClinica crearHistoriaClinica(RecorridoIngresante recorrido, DataSessionPivot ds);
 }
