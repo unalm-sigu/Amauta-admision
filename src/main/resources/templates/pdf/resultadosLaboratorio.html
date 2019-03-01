@@ -212,13 +212,13 @@
                     </td>                            
 
                     <td>      
-                        <span class="bold datos_alumno">Muestra Abs: </span><span class="datos_alumno" th:text="${ingresante.laboratorio.valorMuestra}" ></span> <br/>
-                        <span class="bold datos_alumno">Est&aacute;ndar Abs: </span><span class="datos_alumno" th:text="${ingresante.laboratorio.estandar}" ></span> <br/>
-                        <span class="bold datos_alumno">Hemoglobina(g/dL): </span><span class="datos_alumno" th:text="${ingresante.laboratorio.hemoglobina}" ></span> <br/>
+                        <span class="bold datos_alumno">Muestra Abs: </span><span class="datos_alumno" th:if="${ingresante.laboratorio!=null}" th:text="${ingresante.laboratorio.valorMuestra}" ></span> <br/>
+                        <span class="bold datos_alumno">Est&aacute;ndar Abs: </span><span class="datos_alumno" th:if="${ingresante.laboratorio!=null}" th:text="${ingresante.laboratorio.estandar}" ></span> <br/>
+                        <span class="bold datos_alumno">Hemoglobina(g/dL): </span><span class="datos_alumno" th:if="${ingresante.laboratorio!=null}" th:text="${ingresante.laboratorio.hemoglobina}" ></span> <br/>
                         <span class="bold datos_alumno">Sangre: </span>
-                        <span class="datos_alumno" th:text="${ingresante.laboratorio.tipoSangreEnum.value}" ></span>
+                        <span class="datos_alumno" th:if="${ingresante.laboratorio!=null and ingresante.laboratorio.tipoSangreEnum!=null}" th:text="${ingresante.laboratorio.tipoSangreEnum.value}" ></span>
                         <span>&nbsp;</span>
-                        <span class="datos_alumno"  th:if="${ingresante.laboratorio.tipoSangreEnum.value != 'Por Confirmar'}" th:text="${ingresante.laboratorio.factorRHEnum.value}" ></span> <br/>
+                        <span class="datos_alumno"  th:if="${ingresante.laboratorio!=null and ingresante.laboratorio.tipoSangreEnum!=null and ingresante.laboratorio.tipoSangreEnum.value != 'Por Confirmar'}" th:text="${ingresante.laboratorio.factorRHEnum.value}" ></span> <br/>
 
                     </td>
                 </tr>

@@ -1992,49 +1992,63 @@ var app = new Vue({
             if ($vue.grupoSeccion.fechaInicioModular == undefined || $vue.grupoSeccion.fechaFinModular == undefined) {
                 return;
             }
-
             if ($vue.grupoSeccion.fechaInicioModular == '' || $vue.grupoSeccion.fechaFinModular == '') {
                 return;
             }
 
-            MODAL.showWait("Espere un momento por favor");
+            var message = ''
+            if ($vue.grupoSeccion.tipoDictadoCheck) {
+                message = "¿Está seguro que desea asignar el curso como modular?";
+            } else {
+                message = "¿Está seguro que desea desasignar el curso modular?";
+            }
 
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/gposeccion/asignarGrupoSeccionModular'),
-                data: {id: $vue.grupoSeccion.id,
-                    fechaFinModular: $vue.grupoSeccion.fechaFinModular,
-                    fechaInicioModular: $vue.grupoSeccion.fechaInicioModular,
-                    tipoDictado: $vue.grupoSeccion.tipoDictado,
-                    tipoDictadoCheck: $vue.grupoSeccion.tipoDictadoCheck
+            let mm = bootbox.confirm({
+                message: message,
+                buttons: {
+                    confirm: {label: 'Si, Aceptar', className: "btn-danger btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
                 },
-                success: function (response) {
-                    if (response.success) {
-                        notify(response.message, "info");
-                        
-                        if ($vue.grupoSeccion.tipoDictadoCheck == false) {
-                            $vue.grupoSeccion.fechaFinModular = '';
-                            $vue.grupoSeccion.fechaInicioModular = '';
-                        }
+                callback: function (result) {
+                    if (result) {
 
+                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                        $(".btn-modal").prop('disabled', true);
+
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/gposeccion/asignarGrupoSeccionModular'),
+                            data: {id: $vue.grupoSeccion.id,
+                                fechaFinModular: $vue.grupoSeccion.fechaFinModular,
+                                fechaInicioModular: $vue.grupoSeccion.fechaInicioModular,
+                                tipoDictado: $vue.grupoSeccion.tipoDictado,
+                                tipoDictadoCheck: $vue.grupoSeccion.tipoDictadoCheck
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                } else {
+
+                                    mm.modal("hide");
+                                    notify(response.message, "error");
+                                }
+                                $vue.loadGpoSeccionFlash(mm);
+
+                            }, error: function () {
+
+                                $vue.loadGpoSeccionFlash(mm);
+                                mm.modal("hide");
+                                notify(MESSAGES.errorComunicacion, "error");
+
+                            }
+                        });
+
+                        return false;
                     } else {
-                        $vue.grupoSeccion.tipoDictadoCheck = false;
-                        $vue.grupoSeccion.tipoDictado = '';
-                        $vue.grupoSeccion.fechaFinModular = '';
-                        $vue.grupoSeccion.fechaInicioModular = '';
-                        notify(response.message, "error");
+                        $vue.loadGpoSeccionFlash();
                     }
-                    MODAL.hideWait();
-                }, error: function () {
-                    $vue.grupoSeccion.tipoDictadoCheck = false;
-                    $vue.grupoSeccion.tipoDictado = '';
-                    $vue.grupoSeccion.fechaFinModular = '';
-                    $vue.grupoSeccion.fechaInicioModular = '';
-                    MODAL.hideWait();
-                    notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-
 
         }
     }
