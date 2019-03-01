@@ -13,4 +13,8 @@ public interface RetiroCicloDAO extends EasyDAO<RetiroCiclo> {
 
     public RetiroCiclo findByAlumno(Alumno alumno, CicloAcademico ciclo);
 
+    public List<RetiroCiclo> allByCiclo(CicloAcademico ciclo);
+
+    public List<RetiroCiclo> allAlumnosByCiclo(List<Long> alumnos, CicloAcademico ciclo);
+
 }

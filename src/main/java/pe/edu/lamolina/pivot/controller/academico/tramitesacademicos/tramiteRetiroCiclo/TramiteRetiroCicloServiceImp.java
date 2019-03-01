@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
@@ -24,6 +27,7 @@ import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.matricula.MatriculaSimultaneo;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
@@ -68,6 +72,9 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     @Autowired
     SeccionDAO seccionDAO;
 
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
+
     @Override
     public List<CicloAcademico> allCiclos(CicloAcademico academico) {
         return cicloAcademicoDAO.allRegularPre(3, academico);
@@ -81,7 +88,11 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     @Override
     @Transactional
     public void save(RetiroCiclo retiroCiclo, DataSessionPivot ds) {
-
+        
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(retiroCiclo.getAlumno());
+        AlumnoCiclo alumnoCiclo = alumnoCiclos.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), retiroCiclo.getId())).findAny().orElse(null);
+        Assert.isNotNull(alumnoCiclo, "El alumno no tiene actividad en el ciclo " + retiroCiclo.getCicloAcademico().getDescripcion());
+        
         RetiroCiclo retiro = new RetiroCiclo();
         retiro.setEstado(TramiteEstadoEnum.PEND);
         retiro.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
@@ -89,6 +100,7 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
         retiro.setCicloAcademico(retiroCiclo.getCicloAcademico());
         retiro.setCicloRegistro(ds.getCicloAcademico());
         retiro.setUsuario(ds.getUsuario());
+        retiro.setMotivo(retiroCiclo.getMotivo());
         retiroCicloDAO.save(retiro);
 
     }
