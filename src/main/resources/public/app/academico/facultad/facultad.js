@@ -144,7 +144,7 @@ $(function () {
                             url: APP.url("academico/facultad/consejeroRequeridoEstado"),
                             data: JSON.stringify({
                                 id: id,
-                                consejeroRequerido: consejeroRequeridoEstadoChange
+                                consejeriaRequerida: consejeroRequeridoEstadoChange
                             }),
                             contentType: "application/json",
                             success: function (response) {
