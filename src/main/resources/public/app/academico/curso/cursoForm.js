@@ -10,6 +10,7 @@ var app = new Vue({
         modalidades: JSON.parse(modalidadesJson),
         tiposCurso: JSON.parse(tiposCursoJson),
         tiposCurricula: JSON.parse(tiposCurriculaJson),
+        tiposCarpeta: JSON.parse(tiposCarpetaJson),
         idiomas: JSON.parse(idiomasJson),
         departamentos: JSON.parse(departamentosJson),
         carreras: JSON.parse(carrerasJson),
@@ -27,6 +28,8 @@ var app = new Vue({
         isLoadingDocentes: false,
         siEncuestar: true,
         siCargaAdicional: true,
+        tipoCarpetaTeoria: {},
+        tipoCarpetaPractica: {}
     },
     created: function () {
         let $vue = this;
@@ -37,6 +40,8 @@ var app = new Vue({
             $vue.nivelesPosgrado.push({id: i});
         }
 
+        $vue.tipoCarpetaTeoria = $vue.curso.tipoCarpetaTeoria;
+        $vue.tipoCarpetaPractica = $vue.curso.tipoCarpetaPractica;
         $vue.modalidadCurso = $vue.curso.modalidadEstudio;
         $vue.dptoCurso = $vue.curso.departamentoAcademico;
         $vue.tipoCursoEnum = $vue.curso.tipoCursoEnum;
@@ -300,6 +305,8 @@ var app = new Vue({
             $vue.curso.tipoCurriculaEnum = $vue.tipoCurriculaEnum;
             $vue.curso.noEncuestar = !$vue.siEncuestar;
             $vue.curso.noCargaAdicional = !$vue.siCargaAdicional;
+            $vue.curso.tipoCarpetaTeoria = $vue.tipoCarpetaTeoria;
+            $vue.curso.tipoCarpetaPractica = $vue.tipoCarpetaPractica;
 
             $.ajax({
                 url: APP.url('academico/curso/save'),
@@ -337,6 +344,8 @@ var app = new Vue({
                         $vue.dptoCurso = $vue.curso.departamentoAcademico;
                         $vue.tipoCursoEnum = $vue.curso.tipoCursoEnum;
                         $vue.tipoCurriculaEnum = $vue.curso.tipoCurriculaEnum;
+                        $vue.curso.tipoCarpetaTeoria = $vue.tipoCarpetaTeoria;
+                        $vue.curso.tipoCarpetaPractica = $vue.tipoCarpetaPractica;
                         $vue.nivelCurso = {id: $vue.curso.nivel};
                         $vue.siEncuestar = !$vue.curso.noEncuestar;
                         $vue.siCargaAdicional = !$vue.curso.noCargaAdicional;
@@ -418,7 +427,7 @@ var app = new Vue({
                                     notify(response.message, "error");
                                 }
                             },
-                            error(response) {
+                            error(response) {   
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });

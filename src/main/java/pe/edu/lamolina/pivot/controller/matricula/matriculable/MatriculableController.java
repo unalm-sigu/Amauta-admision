@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,6 +45,7 @@ import static pe.edu.lamolina.model.enums.RolEnum.FAC;
 import static pe.edu.lamolina.model.enums.RolEnum.MOD;
 import static pe.edu.lamolina.model.enums.RolEnum.TODO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -85,11 +87,22 @@ public class MatriculableController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico c = service.findCicloAcademico(ds.getCicloAcademico());
+        CicloAcademico cicloAcademico = service.findCicloAcademico(ds.getCicloAcademico());
         AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
+
+        for (TipoCondicionalEnum value : TipoCondicionalEnum.values()) {
+            ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
+            obj.put("name", value.name());
+            obj.put("value", value.getValue());
+            array.add(obj);
+        }
         model.addAttribute("resumen", JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
-        model.addAttribute("ciclo", JsonHelper.createJson(c, JsonNodeFactory.instance, new String[]{"*"}));
+        model.addAttribute("ciclo", JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"}));
+        model.addAttribute("tipoCondicional", array);
+
         return "academico/matriculable/matriculable";
     }
 
@@ -151,8 +164,7 @@ public class MatriculableController {
                             "turnoAtencion.fechaHoraInicio",
                             "alumno.situacionAcademica.codigo",
                             "alumno.situacionAcademica.nombre",
-                            "alumno.situacionAcademica.descripcion",
-                        });
+                            "alumno.situacionAcademica.descripcion",});
                 if (matriculable.getPuntajePrioridad() != null) {
                     node.put("puntajePrioridad", NumberFormat.notaDecimalXDecimals(matriculable.getPuntajePrioridad(), 6));
                 }
@@ -453,13 +465,13 @@ public class MatriculableController {
     }
 
     @ResponseBody
-    @RequestMapping("saveMatriculable")
-    public JsonResponse saveMatriculable(@RequestBody Alumno alumno, HttpSession session) {
+    @RequestMapping("saveMatriculable/{tipoCondicional}")
+    public JsonResponse saveMatriculable(@PathVariable String tipoCondicional, @RequestBody Alumno alumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.revisarSituacionAcademica(alumno, ds);
-            service.saveMatriculable(alumno, ds);
+//            service.revisarSituacionAcademica(alumno, ds);
+            service.saveMatriculable(alumno, tipoCondicional, ds);
 
             response.setMessage("Se agregó al alumno satisfactoriamente.");
             response.setSuccess(true);
@@ -481,6 +493,48 @@ public class MatriculableController {
 
             service.inhabilitarMatriculable(matriculaResumen, ds);
             response.setMessage("Se actualizo el matriculable satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("verificarAlumnosNmat")
+    public JsonResponse verificarAlumnosNmat(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.verificarAlumnosNmat(ds);
+            response.setMessage("Se verificó satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("beneficiar")
+    public JsonResponse beneficiar(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.beneficiar(matriculaResumen, ds);
+            response.setMessage("Se verificó satisfactoriamente.");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

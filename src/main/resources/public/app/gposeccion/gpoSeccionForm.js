@@ -171,6 +171,9 @@ var app = new Vue({
         aulas: [],
         grupos: [],
         docenteSelect: {},
+        dataModalAgregarHorasAdicionales: {
+            id: 'idModalAgregarHorasAdicionales',
+        },
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -788,7 +791,8 @@ var app = new Vue({
             tabs.find(".tab-pane").removeClass("active");
 
             let $vue = this;
-            $global.$emit('loadGrupoComponent', seccion.id);
+            // $global.$emit('loadGrupoComponent', seccion.id);
+            $vue.$refs.grupoHorarioComponentRef.loadGruposHorario(seccion.id);
             if (seccion.matriculados > 0) {
                 $vue.grupoModal.showaccept = false;
             } else {
@@ -1937,6 +1941,111 @@ var app = new Vue({
                             }
                         });
                         return false;
+                    }
+                }
+            });
+
+        },
+        asignarHorasAdicionales(seccion) {
+            let $vue = this;
+            $vue.$refs.modalAgregarHorasAdicionales.open();
+            $vue.$refs.modalHorasAdicionalesComponent.seccion = seccion;
+            if (seccion.grupoHoras.id) {
+                $vue.$refs.modalAgregarHorasAdicionales.showaccept = false;
+            } else {
+                $vue.$refs.modalAgregarHorasAdicionales.showaccept = true;
+            }
+        },
+        saveModalAgregarHorasAdicionales() {
+            let $vue = this;
+            let horasAsignadas = $vue.$refs.modalHorasAdicionalesComponent.seccion.horasAdicionales;
+            if (horasAsignadas == '') {
+                notify("Tiene que asignar un valor", "error");
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/asignarHorasAdicionales'),
+                data: {id: $vue.$refs.modalHorasAdicionalesComponent.seccion.id,
+                    horasAdicionales: $vue.$refs.modalHorasAdicionalesComponent.seccion.horasAdicionales
+                },
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $vue.$refs.modalAgregarHorasAdicionales.close();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        showHorasSemanales(seccion) {
+            return seccion.horasAdicionales > 0;
+        },
+        cambiarFechaModular() {
+
+            let $vue = this;
+
+            if ($vue.grupoSeccion.fechaInicioModular == undefined || $vue.grupoSeccion.fechaFinModular == undefined) {
+                return;
+            }
+            if ($vue.grupoSeccion.fechaInicioModular == '' || $vue.grupoSeccion.fechaFinModular == '') {
+                return;
+            }
+
+            var message = ''
+            if ($vue.grupoSeccion.tipoDictadoCheck) {
+                message = "¿Está seguro que desea asignar el curso como modular?";
+            } else {
+                message = "¿Está seguro que desea desasignar el curso modular?";
+            }
+
+            let mm = bootbox.confirm({
+                message: message,
+                buttons: {
+                    confirm: {label: 'Si, Aceptar', className: "btn-danger btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
+                },
+                callback: function (result) {
+                    if (result) {
+
+                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                        $(".btn-modal").prop('disabled', true);
+
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/gposeccion/asignarGrupoSeccionModular'),
+                            data: {id: $vue.grupoSeccion.id,
+                                fechaFinModular: $vue.grupoSeccion.fechaFinModular,
+                                fechaInicioModular: $vue.grupoSeccion.fechaInicioModular,
+                                tipoDictado: $vue.grupoSeccion.tipoDictado,
+                                tipoDictadoCheck: $vue.grupoSeccion.tipoDictadoCheck
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                } else {
+
+                                    mm.modal("hide");
+                                    notify(response.message, "error");
+                                }
+                                $vue.loadGpoSeccionFlash(mm);
+
+                            }, error: function () {
+
+                                $vue.loadGpoSeccionFlash(mm);
+                                mm.modal("hide");
+                                notify(MESSAGES.errorComunicacion, "error");
+
+                            }
+                        });
+
+                        return false;
+                    } else {
+                        $vue.loadGpoSeccionFlash();
                     }
                 }
             });

@@ -660,6 +660,22 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
+    public List<Alumno> allPendingPREPromedioByCicloYear(String year) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("alu.modalidadEstudio me")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .join("alu.persona aluPer", "alu.carrera alucar")
+                .join("alucar.facultad fac")
+                .leftJoin("aluPer.tipoDocumento td", "alu.cicloIngreso ci")
+                .filter("alu.promedioProcesado", 0)
+                .filter("me.codigo", ModalidadEstudioEnum.PRE.name())
+                .complexFilter("SUBSTRING(alu.codigo,1,4)", year);
+
+        return all(sql);
+    }
+
+    @Override
     public List<Alumno> allPendingEpgPromedioByCicloYear(String year) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
@@ -748,6 +764,32 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .endBlock();
 
         return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allByNameCondicional(String nombre, CicloAcademico cicloAcademico) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia subQuery = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alum")
+                .filter("cicloAcademico", cicloAcademico);
+
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa", "situacionAcademica sa")
+                .leftJoin("per.tipoDocumento td")
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .__().filter("alu.codigo", "like", nombre)
+                .endBlock()
+                .notExists(subQuery)
+                .in("sa.codigo", Arrays.asList(SituacionAcademicaEnum.S_6.getValue(), SituacionAcademicaEnum.S_4.getValue()))
+                .linkedBy("alu.id", "alum.id")
+                .limit(15);
+        return sql.all(getCurrentSession());
     }
 
 }

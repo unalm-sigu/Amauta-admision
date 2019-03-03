@@ -1,0 +1,68 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Aulas</title>
+        <link th:substituteby="_layout/includes :: styles-dynatable" />
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div  id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <h2>Tipo Carpetas </h2>
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-success" v-on:click="nuevoTipocarpeta">Nuevo</a>
+                        </div>
+                    </div> 
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <table class="table table-condensed table-hover">
+                                <tbody>
+
+                                    <tr v-for="item in tipocarpetas">
+                                        <td class="v-middle col-sm-12">
+
+                                            <span class="block bold">{{item.nombre}}</span>
+
+                                            <table v-if="item.tipoCarpetas.length>0" class="table m-t-md">
+                                                <tbody>
+                                                    <tr  v-for="hijo in  item.tipoCarpetas">
+                                                        <td class="v-middle col-sm-12">
+                                                            <span class="block m-l-lg">- {{hijo.nombre}}</span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+                            </table>
+
+                        </section>
+                    </section>
+                </section>
+                <div th:substituteby="general/tipocarpeta/tipocarpetaModal"></div>
+
+            </div>
+            <div th:substituteby="_modules/vue-modal"/>
+
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/general/tipocarpeta/tipocarpeta.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

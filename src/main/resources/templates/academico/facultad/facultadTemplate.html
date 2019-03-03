@@ -8,14 +8,21 @@
     <td class="v-middle text-center">
         {{:codigoCurso}}
     </td>
-    <td class="v-middle text-center">
+    <td class="v-middle text-center" id="">
         {{:simbolo}}
     </td>
     <td class="v-middle text-center">
-        {{if estado == 'DES'}}
-            <label class="label label-{{:colorEstado}}" data-toggle="tooltip" title="{{:motivoDesactivacion}}"  >{{:estadoEnum}}</label>
+        {{if consejeriaRequerida}}
+        <input type="checkbox" id="chkboxInput" checked="checked" value="true" onclick="return false;"  class="estadoConsejeroRequerido" rel="{{:id}}" />
         {{else}}
-            <label class="label label-{{:colorEstado}}">{{:estadoEnum}}</label>
+        <input type="checkbox" id="chkboxInput" value="true" onclick="return false;"  class="estadoConsejeroRequerido" rel="{{:id}}" />
+        {{/if}}
+    </td>
+    <td class="v-middle text-center">
+        {{if estado == 'DES'}}
+        <label class="label label-{{:colorEstado}}" data-toggle="tooltip" title="{{:motivoDesactivacion}}"  >{{:estadoEnum}}</label>
+        {{else}}
+        <label class="label label-{{:colorEstado}}">{{:estadoEnum}}</label>
         {{/if}}
     </td>
     <td>

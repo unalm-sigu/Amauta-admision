@@ -65,6 +65,7 @@ public class AuditorServiceImpl implements AuditorService {
 
         ObjectNode data = new ObjectNode(jsonNodeFactory);
         data.put("alumnoId", alumno.getId());
+        data.put("alumnoCodigo", alumno.getCodigo());
         data.put("cicloEvaluando", cicloAcademico.toString());
 
         objNode.put("tipo", LoggerAccionEnum.PROMEDIAR_ALUMNO.name());

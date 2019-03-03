@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.ingresante.resultadoslab;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,16 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
 
         BigDecimal valorMuestra = laboratorio.getValorMuestra();
         BigDecimal estandar = laboratorio.getEstandar();
-        BigDecimal hemoglobina = valorMuestra.multiply(new BigDecimal(15)).divide(estandar, 4, RoundingMode.HALF_UP).setScale(2, RoundingMode.DOWN);;
+        BigDecimal hemoglobina = valorMuestra.multiply(new BigDecimal(18)).divide(estandar, 2, RoundingMode.DOWN);
+        BigDecimal tope = new BigDecimal(0.5);
+        BigDecimal decimalRevisar = hemoglobina.multiply(new BigDecimal(10)).remainder( BigDecimal.ONE );
+        if (decimalRevisar.compareTo(tope) == 1) {
+            // redondear
+            hemoglobina = hemoglobina.setScale(1, RoundingMode.HALF_UP);
+        }else{
+            //truncar
+            hemoglobina = hemoglobina.setScale(1, RoundingMode.DOWN);            
+        }
 
         if (laboratorio.getId() != null) {
             HistoriaLaboratorio labBd = historiaLaboratorioDAO.find(laboratorio.getId());
@@ -80,8 +90,9 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
             labBd.setValorMuestra(laboratorio.getValorMuestra());
             labBd.setHemoglobina(hemoglobina);
             labBd.setEstandar(estandar);
-            labBd.setFactorRH(laboratorio.getFactorRH());
+            labBd.setFactorRH(laboratorio.getFactorRHEnum().name());
             labBd.setTipoSangre(laboratorio.getTipoSangreEnum().name());
+            labBd.setObservaciones(laboratorio.getObservaciones());
             historiaLaboratorioDAO.update(labBd);
         } else {
             laboratorio.setHemoglobina(hemoglobina);
@@ -107,6 +118,11 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
     @Override
     public List<RecorridoIngresante> allIngresantesDynatableByPersona(DynatableFilter filter, List<Persona> personas) {
         return recorridoIngresanteDAO.allIngresantesDynatableByPersona(filter, personas);
+    }
+
+    @Override
+    public List<RecorridoIngresante> allIngresantesByPersona(List<Persona> personas) {
+        return recorridoIngresanteDAO.allIngresantesByPersonas(personas);
     }
 
 }

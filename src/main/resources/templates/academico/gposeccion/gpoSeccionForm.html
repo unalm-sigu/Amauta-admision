@@ -55,6 +55,9 @@
             padding-left: 15px;
         }
 
+        .crueHorario{
+            font-size: 10px;
+        }
     </style>
 </head>
 
@@ -81,7 +84,7 @@
                                         <a class="label label-primary m-t-xs" v-on:click="openClonar"> Clonar </a>
                                     </div>
 
-                                    <div class="col-md-9">
+                                    <div class="col-md-5">
                                         <div class="row m-b-xs">
                                             <div class="col-md-1 bold">Anexo</div>
                                             <div class="col-md-11">
@@ -110,6 +113,62 @@
                                                 
                                             </div>
                                         </div-->
+                                    </div>
+
+                                    <div class="col-md-1">
+
+                                        <div class="row m-b-xs">
+
+                                            <label class="col-md-12 bold">Modular</label>
+
+                                            <div class="col-md-12">
+                                                <span class="v-middle"> 
+                                                    <label class="switch">
+                                                        <input type="checkbox"
+                                                               v-on:change="cambiarFechaModular()"
+                                                               v-model="grupoSeccion.tipoDictadoCheck" />
+                                                        <span></span>
+                                                    </label>
+                                                </span>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-3">
+
+                                        <div v-if="grupoSeccion.tipoDictadoCheck" class="row m-b-xs">
+
+                                            <div class="col-md-12">
+                                                <div class="bold col-md-3 label-control" for="">Fecha Inicio</div>
+
+                                                <div class="col-md-9">
+                                                    <v-date-picker v-model="grupoSeccion.fechaInicioModular"
+                                                                   ref="inputFechaInicioModular"
+                                                                   id="idinputFechaInicioModular"
+                                                                   v-on:changedate="cambiarFechaModular()"
+                                                                   ></v-date-picker>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-if="grupoSeccion.tipoDictadoCheck" class="row m-b-xs">
+
+                                            <div class="bold col-md-12 " >
+                                                <div class="bold col-md-3 label-control" for="">Fecha Fin</div>
+
+                                                <div class="col-md-9">
+                                                    <v-date-picker v-model="grupoSeccion.fechaFinModular"
+                                                                   ref="inputFechaFinModular"
+                                                                   id="idinputFechaFinModular"
+                                                                   v-on:changedate="cambiarFechaModular()"
+                                                                   ></v-date-picker>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
                                     </div>
 
                                     <div class="col-md-2">
@@ -156,8 +215,9 @@
                                             <th class="col-md-1 text-center v-middle">Sección</th>
                                             <th class="col-md-1 text-center v-middle">Aula</th>
                                             <th class="col-md-1 text-center v-middle">Grupo</th>
+                                            <th class="col-md-1 text-center v-middle">Horas Adicionales</th>
                                             <th class="col-md-2 text-center v-middle">Restricción modalidad facultad especialidad</th>
-                                            <th class="col-md-2 text-center v-middle">Restricción repitencia</th>
+                                            <th class="col-md-1 text-center v-middle">Restricción repitencia</th>
                                             <th class="col-md-1 text-center v-middle">Restricción CAPA</th>
                                             <th class="col-md-1 text-center v-middle">Vac</th>
                                             <th class="col-md-1 text-center v-middle">Mat</th>
@@ -238,6 +298,11 @@
                                                        class="form-control"/>
 
                                             </td>
+
+                                            <td class="text-center v-middle">
+                                                <span v-if="showHorasSemanales(seccion)">{{seccion.horasAdicionales}}</span>
+                                            </td>
+
                                             <td class="text-center v-middle">
                                                 <a v-on:click="showModalRestriccion(seccion)" 
                                                    v-if="!seccion.isTieneRestriccion &amp;&amp; !seccion.isTipoSeccionTCUR"
@@ -411,6 +476,14 @@
                                                                 Bloquear
                                                             </a>
                                                         </li>
+
+                                                        <li role="presentation">
+                                                            <a href="#"
+                                                               v-on:click="asignarHorasAdicionales(seccion)">
+                                                                Asignar Horas Adicionales
+                                                            </a>
+                                                        </li>
+
                                                     </ul>
                                                 </div>
 
@@ -459,6 +532,10 @@
                                                     v-bind:class="getClassTab('PRECIOS')" v-on:click="verTab('PRECIOS')">
                                                     <a href="#5Conte" data-toggle="tab">Precios</a>
                                                 </li>
+                                                <li v-if="seccionSeleccionada.estado == 'ACT' " 
+                                                    v-bind:class="getClassTab('CARPETA')" v-on:click="verTab('CARPETA')">
+                                                    <a href="#6Conte" data-toggle="tab">Tipo Carpeta</a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </header>
@@ -479,6 +556,9 @@
                                         <div v-if="ciclo.tipo == 'NIV' " 
                                              class="tab-pane" v-bind:class="getClassTab('PRECIOS')" id="5Conte">
                                             <div th:substituteby="academico/gposeccion/includes/precioSeccionForm"/>
+                                        </div>
+                                        <div class="tab-pane" v-bind:class="getClassTab('CARPETA')" id="6Conte">
+                                            <div th:substituteby="academico/gposeccion/includes/tipocarpetaform"/>
                                         </div>
                                     </div>
 
@@ -504,7 +584,8 @@
         <div th:substituteby="academico/gposeccion/components/restriccionComponent"/>
         <div th:substituteby="academico/gposeccion/components/repitenciaComponent"/>
         <div th:substituteby="academico/gposeccion/components/grupoRegularAulaComponent"/>
-
+        <div th:substituteby="academico/gposeccion/components/horaAdicionalComponente"/>
+        <div th:substituteby="academico/gposeccion/components/tipocarpetacomponent"/>
     </section>
 
     <div layout:fragment="js">
@@ -527,6 +608,8 @@
         <!--<script th:src="@{/app/gposeccion/gpoSolicitarIncremento.js}" charset="utf-8"></script>-->
         <script th:src="@{/phobos/modules/vuelect3.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/grupoRegularAulaComponet.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/horaAdicionalComponente.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/tipocarpetacomponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
     </div>
 </body>

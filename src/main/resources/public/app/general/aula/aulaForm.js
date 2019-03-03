@@ -4,6 +4,7 @@ $(function () {
         form: null,
         init: function () {
             var tipoAmbiente = $('[name="tipoAmbiente"]').select2({placeholder: "Seleccione el tipo ambiente"});
+            $('[name="tipoCarpeta.id"]').select2({placeholder: "Seleccione el tipo carpeta"});
 
             if ($('[name="id"]').val() != '') {
                 AulaForm.viewDivs(tipoAmbiente);
@@ -146,6 +147,7 @@ $(function () {
         },
         saveUpdate: function () {
             var form = $("#formularioAula");
+            console.log("save");
             if (!form.parsley().validate()) {
                 return;
             }

@@ -68,4 +68,12 @@ public class FacultadServiceImp implements FacultadService {
         facultadDAO.update(facultadBD);
     }
 
+    @Override
+    @Transactional
+    public void updateConsejeroRequerido(Facultad facultadForm) {
+        Facultad facultadDB = facultadDAO.find(facultadForm.getId());
+        facultadDB.setConsejeriaRequerida(facultadForm.getConsejeriaRequerida());
+        facultadDAO.update(facultadDB);
+    }
+
 }

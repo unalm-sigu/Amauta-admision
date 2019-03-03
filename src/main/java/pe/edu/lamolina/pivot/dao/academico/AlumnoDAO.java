@@ -93,6 +93,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allPendingPromedioByCicloYear(String year);
 
+    List<Alumno> allPendingPREPromedioByCicloYear(String year);
+
     void updatePromedioProcesado(Alumno alumno);
 
     List<Alumno> allIngresantesByCiclos(List<CicloAcademico> ciclosIngresantes);
@@ -106,4 +108,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
     List<Alumno> allDesertorByName(String nombre, Long oficinaCode);
 
     List<Alumno> allPendingEpgPromedioByCicloYear(String year);
+
+    public List<Alumno> allByNameCondicional(String nombre, CicloAcademico cicloAcademico);
 }

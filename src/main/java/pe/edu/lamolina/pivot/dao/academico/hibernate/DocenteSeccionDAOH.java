@@ -486,4 +486,15 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
         return sql.all(getCurrentSession());
     }
 
+    @Override
+    public List<DocenteSeccion> allByGrupoSeccionForUpdateFecha(GrupoSeccion grupoSeccion) {
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
+                .filter("gs.id", grupoSeccion)
+                .filter("ds.estado", EstadoEnum.ACT)
+                .filter("sec.estado", EstadoEnum.ACT);
+        return all(sql);
+    }
+
 }

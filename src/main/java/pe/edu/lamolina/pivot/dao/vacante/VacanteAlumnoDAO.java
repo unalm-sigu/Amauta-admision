@@ -23,4 +23,6 @@ public interface VacanteAlumnoDAO extends EasyDAO<VacanteAlumno> {
 
     List<VacanteAlumno> allActivoBySecciones(List<Seccion> secciones);
 
+    public VacanteAlumno allByAlumnoAndSeccion(Alumno alumno, Seccion seccion);
+
 }

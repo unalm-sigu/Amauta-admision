@@ -88,6 +88,7 @@
                     <header class="header b-b padder-lg">
                         <h2 th:inline="text"> Muestras de Laboratorio</h2>    
                         <h4 style="text-align: right">Laboratorio Siguiente: {{laboratorioActual.numero}}</h4>
+                        <a type="button" class="btn btn-success pull-right" href="/ingresante/muestraslab/listaExcel">Excel</a>                                                           
                     </header>
 
                     <section class="wrapper-lg">
@@ -196,8 +197,10 @@
                                                             </span>
                                                             <small class="block bold">
                                                                 Especialidad: {{item.alumno.carrera.nombre}}
-                                                            </small>
-                                                            <br/>
+                                                            </small>                                                       
+
+                                                            <br/> 
+
                                                             <span class="block bold">
                                                                 Número de Atención: {{item.numeroAtencion}}
                                                             </span>
@@ -207,7 +210,12 @@
                                                         <td class="v-middle">
                                                             <span class="block">
                                                                 {{item.laboratorio.fechaRegistro}}
+
+                                                                <span v-if="item.tieneRiesgo" class="text-primary bold">
+                                                                    R
+                                                                </span>
                                                             </span>
+
 
                                                         </td>
 

@@ -21,6 +21,7 @@ import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CRE;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 
 @Repository
 public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implements CicloAcademicoDAO {
@@ -101,8 +102,10 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     public CicloAcademico findAnteriorRegular(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
                 .filter("tipo", "REG")
                 .filter("codigo", "<", ciclo.getCodigo())
+                .filter("me.codigo", PRE)
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(1);
 
@@ -602,6 +605,20 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .limit(1);
 
         return find(sql);
+    }
+
+    @Override
+    public List<CicloAcademico> allRegularPre(int maxResultado, CicloAcademico academico) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("me.codigo", PRE)
+                .filter("ca.tipo", REG)
+                .filter("ca.codigo","<", academico.getCodigo())
+                .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
+                .limit(maxResultado);
+
+        return all(sql);
     }
 
 }

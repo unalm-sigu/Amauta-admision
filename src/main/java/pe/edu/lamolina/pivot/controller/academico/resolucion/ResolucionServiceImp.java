@@ -25,6 +25,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
@@ -116,7 +117,7 @@ public class ResolucionServiceImp implements ResolucionService {
 
     @Autowired
     OficinaService oficinaService;
-    
+
     @Autowired
     MatriculableService matriculableService;
 
@@ -353,7 +354,7 @@ public class ResolucionServiceImp implements ResolucionService {
                     alumnoDAO.update(alumno);
 
                     matriculableService.revisarSituacionAcademica(tramite.getAlumno(), ds);
-                    matriculableService.saveMatriculable(tramite.getAlumno(), ds);
+                    matriculableService.saveMatriculable(tramite.getAlumno(), TipoCondicionalEnum.OTRO.name(), ds);
                 } else {
                     tramiteUpd.setEstadoEnum(TramiteEstadoEnum.RCHR);
                 }
