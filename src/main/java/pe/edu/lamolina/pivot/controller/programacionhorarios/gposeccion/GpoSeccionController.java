@@ -2480,6 +2480,11 @@ public class GpoSeccionController {
 
             List<DocenteSeccion> docentesSeccion = seccion.getDocenteSeccion();
             ArrayNode arrayProfeSecc = new ArrayNode(JsonNodeFactory.instance);
+            
+            if(TipoDictadoGrupoSeccionEnum.MOD.name().equalsIgnoreCase(gpoSeccion.getTipoDictado())){
+                fechaMin=TypesUtil.getStringDate(gpoSeccion.getFechaInicioModular(), "dd/MM/yyyy");
+                fechaMax=TypesUtil.getStringDate(gpoSeccion.getFechaFinModular(), "dd/MM/yyyy");
+            }
 
             for (DocenteSeccion docSeccion : docentesSeccion) {
                 ObjectNode nodeProfe = JsonHelper.createJson(docSeccion, JsonNodeFactory.instance, true, new String[]{

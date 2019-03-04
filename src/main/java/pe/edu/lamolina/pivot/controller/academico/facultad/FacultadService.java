@@ -18,4 +18,6 @@ public interface FacultadService {
 
     void estado(Facultad facultad);
 
+    void updateConsejeroRequerido(Facultad facultad);
+
 }

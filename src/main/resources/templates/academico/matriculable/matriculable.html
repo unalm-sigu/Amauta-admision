@@ -14,7 +14,7 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li v-if="ciclo.fechaVerificaNmat == null"><a  v-on:click="verificarAlumnosNmat" >Verificar alumnos NMAT</a></li>
-                            <li v-if="ciclo.fechaVerificaNmat == null"><a  v-on:click="generarMatriculables" >Generar</a></li>
+                            <li v-if="ciclo.fechaVerificaNmat != null &amp;&amp; ciclo.fechaMatriculables != null"><a  v-on:click="generarMatriculables" >Generar</a></li>
                             <li v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="limpiarMatriculables" >Limpiar matriculable</a></li>
                             <li v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="finalizarMatriculable" >Finalizar matriculable</a></li>
                             <li ><a  v-on:click="modal">Agregar Matriculable</a></li>
@@ -115,6 +115,10 @@
                                                         <small class="block">
                                                             <smal>DNI: </smal>{{item.alumno.persona.numeroDocIdentidad}}
                                                         </small>
+                                                        <small class="block" v-if="item.esBeneficiadoUltimoCiclo == 1">
+                                                            <smal>Beneficiado Ult Ciclo: </smal>
+                                                        </small>
+                                                        
                                                         <a v-if="item.motivoMatriculable != '' " class="text-danger " data-toggle="tooltip" v-bind:title="item.motivoMatriculable" href="#">
                                                             <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                                                         </a>
@@ -168,6 +172,7 @@
                                                             <li v-if="item.estado == 'INH'"><a v-on:click="inhabilitarModal(item)" href="#">Habilitar</a></li>
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li><a class="modificar-datos" href="#">Modificar datos</a></li>
+                                                            <li  v-if="item.esBeneficiadoUltimoCiclo == 0" ><a v-on:click="beneficiar(item)" href="#">Beneficiar Ult. Ciclo</a></li>
                                                             <li><a v-bind:href="urlMatricula(item)">Matricula</a></li>
                                                         </ul>
                                                     </div>

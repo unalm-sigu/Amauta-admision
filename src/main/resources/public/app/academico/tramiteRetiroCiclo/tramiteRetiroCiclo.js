@@ -8,7 +8,7 @@ var app = new Vue({
         modalRetiroCiclo: {
             id: 'modalRetiroCiclo',
             header: true,
-            title: 'Agregar Tramite Ciclo ',
+            title: 'Agregar Tramite Retiro Ciclo ',
             okbtn: "Guardar",
             showaccept: true
         },

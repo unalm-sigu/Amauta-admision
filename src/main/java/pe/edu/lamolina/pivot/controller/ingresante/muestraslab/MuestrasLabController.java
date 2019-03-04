@@ -43,8 +43,8 @@ public class MuestrasLabController {
     MuestrasLabService service;
 
     @Autowired
-    VisorMuestrasLab visorMuestrasLab;    
-    
+    VisorMuestrasLab visorMuestrasLab;
+
     @Autowired
     IngresanteMuestraLabView ingresanteMuestraLabView;
 
@@ -98,9 +98,9 @@ public class MuestrasLabController {
                 if (resultHistoria.size() > 0) {
                     HistoriaClinica historiaCli = resultHistoria.get(0);
                     //riesgo alumno
-                    Boolean riesgo = service.findRiesgoAlumno(historiaCli);                    
+                    Boolean riesgo = service.findRiesgoAlumno(historiaCli);
                     reco.setTieneRiesgo(riesgo);
-                    
+
                     //busqueda laboratorio
                     List<HistoriaLaboratorio> resultLaboratorio = laboratorios.stream()
                             .filter(item -> item.getHistoriaClinica().getId().equals(historiaCli.getId()))
@@ -115,6 +115,8 @@ public class MuestrasLabController {
                     //si no existe, crearlo
                     //crear historia clinica                    
                     //poner historia creada en laboratorio
+                    HistoriaClinica historia = service.crearHistoriaClinica(reco, ds);
+                    laboratorio.setHistoriaClinica(historia);
                 }
 
                 reco.setLaboratorio(laboratorio);
@@ -296,19 +298,19 @@ public class MuestrasLabController {
         }
         return response;
     }
-    
+
     @RequestMapping("listaExcel")
     public ModelAndView listaExcel(Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        
+
         List<RecorridoIngresante> ingresantes = service.allIngresantesConTurno(ds.getCicloAcademico());
 
         InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoIngresanteMuestraLab.xlsx");
 
         model.addAttribute("formato", formato);
         model.addAttribute("ingresantes", ingresantes);
-        
+
         return new ModelAndView(ingresanteMuestraLabView);
     }
 

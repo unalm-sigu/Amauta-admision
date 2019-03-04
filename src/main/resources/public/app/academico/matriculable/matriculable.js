@@ -39,7 +39,7 @@ new Vue({
             showaccept: true
         },
         matriculableSelected: {},
-        tipoCondicional:{}
+        tipoCondicional: {}
 
     },
     mounted: function () {
@@ -284,7 +284,7 @@ new Vue({
             }
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/saveMatriculable/'+$vue.tipoCondicional.name),
+                url: APP.url('academico/matriculable/saveMatriculable/' + $vue.tipoCondicional.name),
                 contentType: "application/json",
                 data: JSON.stringify($vue.alumno),
                 success: function (response) {
@@ -349,6 +349,27 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.findCiclo();
+                        $vue.$refs.load.loadRemoteData();
+                        MODAL.hideWait();
+                        notify(response.message, "success");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
+        beneficiar(item) {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/beneficiar'),
+                contentType: "application/json",
+                data: JSON.stringify(item),
+                success: function (response) {
+                    if (response.success) {
                         $vue.$refs.load.loadRemoteData();
                         MODAL.hideWait();
                         notify(response.message, "success");

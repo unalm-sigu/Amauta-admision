@@ -117,6 +117,50 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        consejeroRequeridoEdit: function (e) {
+            var texto;
+            var self = $(e.currentTarget);
+            var id = self.attr("rel");
+
+            var consejeroRequeridoEstadoChange;
+            consejeroRequeridoEstadoChange = $("#chkboxInput").is(':checked');
+            if (consejeroRequeridoEstadoChange == true) {
+                texto = "habilitar";
+            } else {
+                texto = "inhabilitar";
+            }
+
+            bootbox.confirm({
+                message: '¿Esta seguro que desea ' + texto + ' la matricula del alumno seleccionado? ',
+                buttons: {
+                    confirm: {label: 'Aceptar', className: "btn-success"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url("academico/facultad/consejeroRequeridoEstado"),
+                            data: JSON.stringify({
+                                id: id,
+                                consejeriaRequerida: consejeroRequeridoEstadoChange
+                            }),
+                            contentType: "application/json",
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, 'info');
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }, error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
         }
     };
 
@@ -125,6 +169,9 @@ $(function () {
     });
     Facultad.body.delegate(".estado", "click", function (e) {
         Facultad.estado(e);
+    });
+    Facultad.body.delegate(".estadoConsejeroRequerido", "click", function (e) {
+        Facultad.consejeroRequeridoEdit(e);
     });
     Facultad.init();
 });
