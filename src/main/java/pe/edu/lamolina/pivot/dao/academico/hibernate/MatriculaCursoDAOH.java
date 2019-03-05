@@ -240,4 +240,16 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
         return sql.all(getCurrentSession());
 
     }
+
+    @Override
+    public MatriculaCurso findByMatriculaCurso(MatriculaResumen matriculaResumen, Curso curso) {
+
+        Octavia sql = Octavia.query()
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
+                .filter("mr.id", matriculaResumen)
+                .filter("cu.id", curso);
+
+        return find(sql);
+    }
 }
