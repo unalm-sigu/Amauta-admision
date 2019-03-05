@@ -14,7 +14,7 @@ new Vue({
     },
     computed: {
         generarDisponible() {
-            return this.rolExamen && this.rolExamen.isEstadoCreado && this.rolExamen.isSituacionConfigurarRol;
+            return this.rolExamen && (this.rolExamen.isSituacionConfigurarRol || this.rolExamen.isSituacionConfigurarHorario);
         },
         modificarHorarioDisponible() {
             return this.rolExamen && this.rolExamen.isEstadoCreado && this.rolExamen.isSituacionConfigurarHorario;
@@ -156,7 +156,7 @@ new Vue({
                 }
             });
         }, selectFechaHoraGrupo(dia, hora, semExamen) {
-      
+
             if (this.grupoActivo == null) {
                 notify("Seleccione un grupo horas.", "error");
                 return;

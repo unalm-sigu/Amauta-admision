@@ -39,14 +39,20 @@ var app = new Vue({
 
             $vue.showLoader();
             
+            $vue.formm={};
+            $vue.formm.alumnos= $vue.alumnoeleccionados;
+            $vue.formm.seccion= $vue.seccion;
+
             $.ajax({
                 url: APP.url('docente/ampliacionvacante/matricular'),
                 type: 'POST',
-                data: JSON.stringify($vue.alumnoeleccionados),
+                dataType: 'json',
                 contentType: "application/json",
+                data: JSON.stringify($vue.formm),
                 success(response) {
                     if (response.success) {
                         $vue.$refs.modalAmpliacionVacante.close();
+                        $vue.$refs.raptor.repreload();
                     } else {
                         notify(response.message, "error");
                     }
@@ -61,6 +67,23 @@ var app = new Vue({
         },
         agregarAlumno() {
             let $vue = this;
+            if ($vue.alumnoeleccionado.id == null) {
+                notify("Seleccione un alumno", "error");
+                return;
+            }
+            let idstu = $vue.alumnoeleccionados.map(function (v, i) {
+                return v.id;
+            });
+            let inx = idstu.indexOf($vue.alumnoeleccionado.id);
+            if (inx >= 0) {
+                notify("El Alumno ya se encuentra en la lista", "error");
+                $vue.alumnoeleccionado = {};
+                return;
+            }
+//            if ($vue.alumnoeleccionado.situacion == '0') {
+//                notify("El Alumno no es matriculable", "error");
+//                return;
+//            }
             $vue.alumnoeleccionados.push($vue.alumnoeleccionado);
             $vue.alumnoeleccionado = {};
         },
@@ -89,6 +112,10 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        eliminarAlumno(alumno) {
+            let $vue = this;
+            $vue.alumnoeleccionados.splice($vue.alumnoeleccionados.indexOf(alumno), 1);
         }
     }
 });

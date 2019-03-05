@@ -125,7 +125,7 @@
 
                                                 <td class="text-center v-middle">
 
-                                                    <small v-for="seccion in gposeccion.secciones " class="block text-muted"> {{seccion.ampliacion}} <span v-on:click.prevent="changeVacante(seccion)" class="label label-success pointer">Agregar</span>  </small>
+                                                    <small v-for="seccion in gposeccion.secciones " class="block text-muted"> {{seccion.ampliacionVacante}} <span v-on:click.prevent="changeVacante(seccion)" class="label label-success pointer">Agregar</span>  </small>
 
                                                 </td>
 
@@ -178,6 +178,29 @@
 
                                     <template slot="option" slot-scope="props">
 
+                                        <span class="block row">
+
+                                            <div class="col-sm-2 v-middle">
+                                                <img style="min-height:  40px;max-height: 40px;min-width: 40px;max-width: 40px;"
+                                                     onerror="this.src=APP.url('phobos/images/avatar.png');"
+                                                     v-bind:src="props.option.persona.rutaFotoPostulante" 
+                                                     class="img-circle" />
+                                            </div>
+
+                                            <div class="col-sm-5 v-middle">
+                                                <p class="text-primary block">{{props.option.persona.nombreCompleto}}</p> 
+                                                {{props.option.codigo}}
+                                                <span v-if="props.option.situacion=='0' " class="text-xs bold text-danger block">No Matriculable</span>
+                                                <span v-if="props.option.situacion=='1' " class="text-xs bold text-primary block">Apto Para Matricular</span>
+                                            </div>
+
+                                            <div  class="col-sm-5  v-middle">
+                                                <p class="block">{{props.option.carrera.nombre}}</p>
+                                                <p class="block">{{props.option.carrera.facultad.nombre}}</p>
+                                            </div>
+
+                                        </span>
+
                                     </template>
 
                                 </multiselect>
@@ -203,10 +226,22 @@
                                     <td class="col-sm-8 v-middle">
                                         <p class="text-primary block">{{item.persona.nombreCompleto}}</p> 
                                         {{item.codigo}}
+                                        <span v-if="item.situacion=='0' " class="text-xs bold block text-danger">No Matriculable</span>
+                                        <span v-if="item.situacion=='1' " class="text-xs bold block text-primary">Apto Para Matricular</span>
                                     </td>
                                     <td  class="col-sm-4  v-middle">
                                         <p class="block">{{item.carrera.nombre}}</p>
                                         <p class="block">{{item.carrera.facultad.nombre}}</p>
+                                    </td>
+                                    <td  class="v-middle">
+                                        <div class="dropdown actions">
+                                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                                <i class="glyphicon glyphicon-option-vertical"></i>
+                                            </a>
+                                            <ul class="dropdown-menu pull-right">
+                                                <li><a v-on:click.prevent="eliminarAlumno(item)"  href="#">Remover Alumno</a></li>
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>                            

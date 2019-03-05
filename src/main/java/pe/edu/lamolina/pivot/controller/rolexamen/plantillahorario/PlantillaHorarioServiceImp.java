@@ -88,7 +88,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     @Transactional(readOnly = false)
     public void calcularPlantillaHorario(RolExamenes rolExamenes) {
         RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
-        Assert.isTrue(rolBD.isSituacionConfigurarRol(), "La plantilla de horarioas ya ha sido generada");
+        Assert.isTrue(rolBD.isSituacionConfigurarRol() || rolBD.isSituacionConfigurarHorario(), "La plantilla de horarioas ya ha sido generada");
 
         this.deletePlantillaHorario(rolExamenes);
 
@@ -154,7 +154,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                 }
 
                 if (grupoHorasExamen.getFechasHorasGruposExamen().size() < semanaExamen.getRolExamenes().getHorasExamen()) {
-                    Hora horaFinalVisual = horas.stream().filter(x -> x.getNumero().compareTo(fechaHoraGrupoExamen.getHora().getNumero() + 1) == 0).findFirst().orElse(null);
+                    Hora horaFinalVisual = horas.stream().filter(x -> x.getNumero().compareTo(fechaHoraGrupoExamen.getHora().getNumero()) == 0).findFirst().orElse(null);
                     grupoHorasExamen.setHoraFin(horaFinalVisual);
                     grupoHorasExamen.getFechasHorasGruposExamen().add(fechaHoraGrupoExamen);
                 }
@@ -269,7 +269,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
             diasHorasGrupo = diasHorasGrupo.stream()
                     .filter(x -> x.getDia().getId().compareTo(groupsAndDays.get(gruposHora.getId())) == 0)
                     .filter(x -> x.getHora().getNumero() >= HORA_INICIO)
-                    .filter(x -> x.getHora().getNumero() <= HORA_FIN)
+                    .filter(x -> x.getHora().getNumero() < HORA_FIN)
                     .collect(Collectors.toList());
             Collections.sort(diasHorasGrupo, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
             gruposHora.setDiaHoraGrupo(diasHorasGrupo);
