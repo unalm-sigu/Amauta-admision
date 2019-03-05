@@ -70,8 +70,12 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     @Override
     public List<RecorridoIngresante> allIngresantesConTurno(CicloAcademico ciclo) {
-
         return recorridoIngresanteDAO.allConTurno(ciclo);
+    }
+
+    @Override
+    public List<RecorridoIngresante> allIngresantesConTurno(TurnoEntrevistaObuae turno, CicloAcademico ciclo) {
+        return recorridoIngresanteDAO.allConTurno(turno, ciclo);
     }
 
     @Override

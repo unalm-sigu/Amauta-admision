@@ -18,12 +18,16 @@
                 margin: auto;
                 margin-top: 10px;
             }
+            .thumbnail>p{
+                margin-top: 10px;
+                margin-left:  10px;
+            }
         </style>
     </head>
 
     <body>
         <div layout:fragment="main">
-            <div id="main">
+            <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">        
                     <h2>Ampliación de Vacante    <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
@@ -35,7 +39,11 @@
                     <section class="panel">
                         <section class="panel-body">
 
-                            <raptor-table v-bind:url="raptorurl" ref="raptor">
+                            <raptor-table 
+                                v-bind:paginate="false" 
+                                v-bind:searcher="false" 
+                                v-bind:url="raptorurl" 
+                                ref="raptor">
 
                                 <div slot="header">
 
@@ -135,11 +143,74 @@
                         </section>
                     </section>
                 </section>
-                
+
                 <modal-vik ref="modalAmpliacionVacante"
                            v-bind="dataModalAmpliacionVacante"
                            v-bind:okaction="saveModalAmpliacionVacante"  >
                     <div slot="body">
+
+                        <div class="thumbnail">
+
+                            <p  v-if="seccion.tipoSeccion=='TCUR' " ><b class=" text-primary">Teoría</b> Sección {{seccion.codigo2}} Grupo {{seccion.grupoHoras.codigo}} Aula  {{seccion.aula.codigo}} Capacidad {{seccion.aula.capacidadAula}}</p>
+
+                            <p  v-if="seccion.tipoSeccion=='PCUR' " ><b class=" text-primary">Teoría</b> Sección {{seccion.seccionSuperior.codigo2}} Grupo {{seccion.seccionSuperior.grupoHoras.codigo}} Aula  {{seccion.seccionSuperior.aula.codigo}} Capacidad {{seccion.seccionSuperior.aula.capacidadAula}}</p>
+                            <p  v-if="seccion.tipoSeccion=='PCUR' " ><b class=" text-primary">Práctica</b> Sección {{seccion.codigo2}} Grupo {{seccion.grupoHoras.codigo}} Aula  {{seccion.aula.codigo}} Capacidad {{seccion.aula.capacidadAula}}</p>
+
+                            <p  v-if="seccion.tipoSeccion=='TEO' " ><b class=" text-primary">Teoría</b> Sección {{seccion.codigo2}} Grupo {{seccion.grupoHoras.codigo}} Aula  {{seccion.aula.codigo}} Capacidad {{seccion.aula.capacidadAula}}</p>
+                            <p  v-if="seccion.tipoSeccion=='PRA' " ><b class=" text-primary">Práctica</b> Sección {{seccion.codigo2}} Grupo {{seccion.grupoHoras.codigo}} Aula  {{seccion.aula.codigo}} Capacidad {{seccion.aula.capacidadAula}}</p>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="form-group col-sm-10">
+                                <multiselect v-model='alumnoeleccionado'
+                                             label='nombre'
+                                             placeholder="Seleccione un alumno"
+                                             deselect-label=""
+                                             select-label=""
+                                             track-by='id'
+                                             v-bind:allow-empty="false"
+                                             v-bind:options='alumnos'
+                                             v-bind:custom-label="labelAlumno"
+                                             v-bind:loading="isLoadingAlumnos"
+                                             v-on:search-change="searchAlumnos">
+
+                                    <template slot="option" slot-scope="props">
+
+                                    </template>
+
+                                </multiselect>
+                                <input type="text" class="hide" required="" v-model="alumnoeleccionado.id"/>
+
+                            </div>
+
+                            <div class="form-group  col-sm-2">  
+                                <button v-on:click="agregarAlumno" class="btn btn-primary btn-sm">Agregar</button>
+                            </div>
+
+                        </div>
+
+                        <table class="table table-condensed m-t-md">
+                            <tbody>
+                                <tr v-for="item in alumnoeleccionados">
+                                    <td class="v-middle">
+                                        <img style="min-height:  40px;max-height: 40px;min-width: 40px;max-width: 40px;"
+                                             onerror="this.src=APP.url('phobos/images/avatar.png');"
+                                             v-bind:src="item.persona.rutaFotoPostulante" 
+                                             class="img-circle" />
+                                    </td>
+                                    <td class="col-sm-8 v-middle">
+                                        <p class="text-primary block">{{item.persona.nombreCompleto}}</p> 
+                                        {{item.codigo}}
+                                    </td>
+                                    <td  class="col-sm-4  v-middle">
+                                        <p class="block">{{item.carrera.nombre}}</p>
+                                        <p class="block">{{item.carrera.facultad.nombre}}</p>
+                                    </td>
+                                </tr>
+                            </tbody>                            
+                        </table>
 
                     </div>
                 </modal-vik>
@@ -152,6 +223,7 @@
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vuemodal"/>
+            <div th:substituteby="_layout/includes :: vue-loader"/>
             <script th:src="@{/app/docente/ampliacionvacante/ampliacionvacante.js}" charset="utf-8"></script>
         </div>
     </body>

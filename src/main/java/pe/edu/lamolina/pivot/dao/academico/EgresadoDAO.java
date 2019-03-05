@@ -12,6 +12,8 @@ public interface EgresadoDAO extends EasyDAO<Egresado> {
 
     Egresado findByAlumno(Alumno alumno);
 
+    Egresado findPrincipalByAlumno(Alumno alumno);
+
     List<Egresado> allByCicloAcademico(CicloAcademico ciclo);
 
     List<Egresado> allByControlesOrdenMerito(List<ControlMeritoEgresado> coms);

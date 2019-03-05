@@ -171,5 +171,11 @@ new Vue({
                 }, 50);
             }
         },
+        verListaExcel() {
+            let $vue = this;
+            let turno = $vue.turnoSelected.id
+            console.log(turno)
+            location.href = APP.url('ingresante/muestraslab/listaExcelTurno?turno=' + turno)
+        }
     }
 });

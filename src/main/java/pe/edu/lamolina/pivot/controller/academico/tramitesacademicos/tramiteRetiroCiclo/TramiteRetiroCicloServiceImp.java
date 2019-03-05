@@ -117,6 +117,8 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+            matriculaResumen.setCursosMatriculados(0);
+            matriculaResumen.setCreditosMatriculados(0);
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
             matriculaResumenDAO.update(matriculaResumen);
 
