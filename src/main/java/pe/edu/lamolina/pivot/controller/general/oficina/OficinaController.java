@@ -206,9 +206,7 @@ public class OficinaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
 
-//            ObjectUtil.printAttr(colaboradorBean);
             Colaborador colaborador = colaboradorBean.getColaborador();
-//            ObjectUtil.printAttr(colaborador);
             List<PerfilCompania> perfilCompanias = colaboradorBean.getPerfilCompanias();
             List<FuncionColaborador> funciones = new ArrayList();
             if (perfilCompanias != null) {
@@ -280,7 +278,6 @@ public class OficinaController {
         try {
             ArrayList<FuncionColaborador> funciones = new ArrayList();
             Colaborador colaborador = colaboradorBean.getColaborador();
-            ObjectUtil.printAttr(colaboradorBean);
             if (colaboradorBean.getPerfilCompanias() != null) {
                 for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
                     FuncionColaborador funcionColaborador = new FuncionColaborador();
@@ -450,9 +447,9 @@ public class OficinaController {
         Compania compania = ds.getCompania();
         Oficina oficina = service.find(new Oficina(idOficina));
         service.fillReferencia(oficina);
-        
+
         List<TipoOficina> tipoOficina = service.allTipoOficina();
-        
+
         ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
         for (TipoOficina tipoOficina1 : tipoOficina) {
             node.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{
@@ -461,8 +458,8 @@ public class OficinaController {
         }
 
         ObjectNode objectNode = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
-            "*","tipoOficina.*","cargoJefe.*","oficinaSuperior.*"});
-        
+            "*", "tipoOficina.*", "cargoJefe.*", "oficinaSuperior.*"});
+
         model.addAttribute("tipos", node.toString());
         model.addAttribute("oficina", objectNode.toString());
         return "general/oficina/oficinaForm";
@@ -827,8 +824,7 @@ public class OficinaController {
             List<Persona> personas = service.allPersonasByNombre(buscar);
             for (Persona persona : personas) {
                 node.add(JsonHelper.createJson(persona, jsonFactory, new String[]{
-                    "*",
-                }));
+                    "*",}));
             }
             response.setData(node);
             response.setSuccess(true);

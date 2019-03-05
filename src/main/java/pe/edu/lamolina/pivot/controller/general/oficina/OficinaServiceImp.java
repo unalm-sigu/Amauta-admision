@@ -717,7 +717,6 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     public List<PerfilCompania> allCargos(Oficina oficina) {
-        ObjectUtil.printAttr(oficina);
         List<PerfilCompania> oficinaCompanias = perfilCompaniaDAO.allTipoCargoByOfi(oficina);
         logger.debug("CANTIDAD DE FUNCS = {}", oficinaCompanias.size());
         List<PerfilCompania> companias = perfilCompaniaDAO.allTipoCargo();
@@ -978,7 +977,6 @@ public class OficinaServiceImp implements OficinaService {
         Colaborador colaboradorBD = colaboradorDAO.find(colaboradorForm.getId());
         Oficina oficinaAnterior = colaboradorBD.getOficina();
         Oficina oficinaNueva = oficinaDAO.find(colaboradorForm.getOficina().getId());
-        ObjectUtil.printAttr(colaboradorForm);
 
         colaboradorBD.setFechaModificacion(new Date());
         colaboradorBD.setUserModificacion(ds.getUsuario());
@@ -1109,8 +1107,6 @@ public class OficinaServiceImp implements OficinaService {
             logger.info("ENTRA AL SEGUNDO LOOP");
             if (!mapRolTengo.containsKey(funcionRolNuevo.getRol().getId())) {
                 logger.info("ENTRA AL IF");
-
-                ObjectUtil.printAttr(oficinaMean);
 
                 UsuarioRol usuarioRol = new UsuarioRol();
                 usuarioRol.setEstado(UserEstadoEnum.ACT);

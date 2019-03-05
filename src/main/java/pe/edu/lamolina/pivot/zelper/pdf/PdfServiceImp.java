@@ -203,7 +203,6 @@ public class PdfServiceImp implements PdfService {
 
     @Override
     public List<String> reporteProgramacion(CicloAcademico ciclo) {
-        ObjectUtil.printAttr(ciclo);
         List<String> pdfs = new ArrayList<>();
         //buscar boletin anexo superiores ordenados por orden
         List<AnexoBoletin> listaAB = anexoBoletinDAO.allAnexosSuperioresOrderedbyOrden();
@@ -214,7 +213,6 @@ public class PdfServiceImp implements PdfService {
         for (AnexoBoletin ab : listaAB) {
             List<AnexoBoletin> subListaAB = anexoBoletinDAO.allBySuperior(ab);
             for (AnexoBoletin subAB : subListaAB) {
-//                ObjectUtil.printAttr(subAB);
                 List<GrupoSeccion> grupoSeccList = grupoSeccionDAO.allOrdenadoByCicloAndAnexoBoletin(ciclo, subAB);
 
                 for (GrupoSeccion gs : grupoSeccList) {
