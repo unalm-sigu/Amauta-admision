@@ -90,7 +90,7 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     public void save(RetiroCiclo retiroCiclo, DataSessionPivot ds) {
         
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(retiroCiclo.getAlumno());
-        AlumnoCiclo alumnoCiclo = alumnoCiclos.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), retiroCiclo.getId())).findAny().orElse(null);
+        AlumnoCiclo alumnoCiclo = alumnoCiclos.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), retiroCiclo.getCicloAcademico().getId())).findAny().orElse(null);
         Assert.isNotNull(alumnoCiclo, "El alumno no tiene actividad en el ciclo " + retiroCiclo.getCicloAcademico().getDescripcion());
         
         RetiroCiclo retiro = new RetiroCiclo();

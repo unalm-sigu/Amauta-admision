@@ -61,6 +61,8 @@ var app = new Vue({
                         $vue.$refs.load.loadRemoteData();
                         $vue.$refs.modalRetiroCiclo.close();
                         notify(response.message, "success");
+                    }else{
+                        notify(response.message, "error");                        
                     }
                 },
                 error: function () {
