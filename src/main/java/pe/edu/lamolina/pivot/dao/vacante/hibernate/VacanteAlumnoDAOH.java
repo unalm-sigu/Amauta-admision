@@ -107,7 +107,7 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
         Octavia sql = Octavia.query()
                 .from(VacanteAlumno.class, "va")
                 .join("seccion se", "alumno alu")
-                .filter("se.id", alumno)
+                .filter("se.id", seccion)
                 .filter("alu.id", alumno);
         return find(sql);
     }

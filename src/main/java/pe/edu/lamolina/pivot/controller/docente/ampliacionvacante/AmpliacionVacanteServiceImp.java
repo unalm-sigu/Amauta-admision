@@ -73,7 +73,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         Map<Long, DocenteSeccion> mapDocentesSeccion = MapUtil.storeItems("seccion.id", docentesSecciones);
 
         logger.debug("Cantidad docente seccion {}", docentesSecciones.size());
-        List<Long> idsGpoSecc = new ArrayList<>();
+        List<Long> idsGpoSecc = new ArrayList();
         for (DocenteSeccion docenteSeccion : docentesSecciones) {
             idsGpoSecc.add(docenteSeccion.getSeccion().getGrupoSeccion().getId());
             logger.debug("la seccion {}, grupo {}", docenteSeccion.getSeccion().getId(), docenteSeccion.getSeccion().getGrupoSeccion().getId());
