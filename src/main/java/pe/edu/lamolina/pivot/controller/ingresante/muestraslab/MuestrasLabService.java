@@ -45,6 +45,8 @@ public interface MuestrasLabService {
     Boolean findRiesgoAlumno(HistoriaClinica historia);
 
     List<RecorridoIngresante> allIngresantesConTurno(CicloAcademico ciclo);
-    
+
+    List<RecorridoIngresante> allIngresantesConTurno(TurnoEntrevistaObuae turno, CicloAcademico ciclo);
+
     HistoriaClinica crearHistoriaClinica(RecorridoIngresante recorrido, DataSessionPivot ds);
 }

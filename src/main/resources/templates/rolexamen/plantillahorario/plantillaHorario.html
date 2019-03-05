@@ -34,7 +34,8 @@
                                             </multiselect>
                                         </div>
                                     </div>
-                                    <div class="form-group col-md-1" v-if="generarDisponible">
+                                    <!-- v-if="generarDisponible" -->
+                                    <div class="form-group col-md-1" v-if="rolExamen!=null &amp;&amp; (rolExamen.isSituacionConfigurarRol || rolExamen.isSituacionConfigurarHorario)">
                                         <a class="btn btn-success "
                                            v-on:click.prevent="calcularPlantillaHorario">
                                             Generar
@@ -144,7 +145,8 @@
                                                                 <span 
                                                                     class="form-control"
                                                                     th:style="'border-color:#fff;'">
-                                                                    {{hora.descripcion}}
+                                                                    {{hora.descripcion}} - 
+                                                                    {{hora.horaSiguiente.descripcion}}
                                                                 </span>
 
                                                             </td>

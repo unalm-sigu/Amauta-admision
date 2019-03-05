@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -305,6 +306,21 @@ public class MuestrasLabController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         List<RecorridoIngresante> ingresantes = service.allIngresantesConTurno(ds.getCicloAcademico());
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoIngresanteMuestraLab.xlsx");
+
+        model.addAttribute("formato", formato);
+        model.addAttribute("ingresantes", ingresantes);
+
+        return new ModelAndView(ingresanteMuestraLabView);
+    }
+
+    @RequestMapping("listaExcelTurno")
+    public ModelAndView listaExcelTurno(@RequestParam("turno") Long idTurno, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        List<RecorridoIngresante> ingresantes = service.allIngresantesConTurno(new TurnoEntrevistaObuae(idTurno), ds.getCicloAcademico());
 
         InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoIngresanteMuestraLab.xlsx");
 
