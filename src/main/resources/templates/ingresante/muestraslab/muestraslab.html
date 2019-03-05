@@ -88,7 +88,7 @@
                     <header class="header b-b padder-lg">
                         <h2 th:inline="text"> Muestras de Laboratorio</h2>    
                         <h4 style="text-align: right">Laboratorio Siguiente: {{laboratorioActual.numero}}</h4>
-                        <a type="button" class="btn btn-success pull-right" href="/ingresante/muestraslab/listaExcel">Excel</a>                                                           
+                        <a type="button" class="btn btn-success pull-right" v-on:click="verListaExcel" shref="/ingresante/muestraslab/listaExcel">Excel</a>                                                           
                     </header>
 
                     <section class="wrapper-lg">

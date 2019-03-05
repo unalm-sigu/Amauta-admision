@@ -182,7 +182,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             MatriculaSeccion matriculaSeccion = matriculaSeccionDAO.findByMatriculaSeccion(matriculaResumen, seccion);
 
             if (matriculaSeccion == null) {
-                
+
                 matriculaSeccion = new MatriculaSeccion();
                 matriculaSeccion.setCreditos(curso.getCreditos());
                 matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
@@ -191,16 +191,16 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                 matriculaSeccion.setUserRegistro(ds.getUsuario());
                 matriculaSeccion.setFechaRegistro(new Date());
                 matriculaSeccionDAO.save(matriculaSeccion);
-                
+
             } else {
-                
+
                 matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
                 matriculaSeccionDAO.update(matriculaSeccion);
             }
 
             seccion.setMatriculados(seccion.getMatriculados() + 1);
             seccion.setReservados(seccion.getReservados() - 1);
-            seccion.setAmpliacionVacante(seccion.getAmpliacionVacante()+1);
+            seccion.setAmpliacionVacante(seccion.getAmpliacionVacante() + 1);
             seccionDAO.update(seccion);
 
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.MAT);

@@ -60,7 +60,7 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("al.persona per", "al.carrera car")
                 .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
                 .in("per.id", personas)
-                .orderBy("per.paterno asc","per.materno asc","per.nombres asc");
+                .orderBy("per.paterno asc", "per.materno asc", "per.nombres asc");
 
         return all(sql);
     }
@@ -101,6 +101,20 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .join("cicloAcademico ci", "alumno a", "a.persona per")
                 .leftJoin("turnoEntrevistaObuae tu")
                 .filter("ci.id", ciclo)
+                .isNotNull("turnoEntrevistaObuae")
+                .orderBy("per.paterno asc", "per.materno asc", "per.nombres asc");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<RecorridoIngresante> allConTurno(TurnoEntrevistaObuae turno, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(RecorridoIngresante.class, "ri")
+                .join("cicloAcademico ci", "alumno a", "a.persona per")
+                .leftJoin("turnoEntrevistaObuae tu")
+                .filter("ci.id", ciclo)
+                .filter("tu.id", turno)
                 .isNotNull("turnoEntrevistaObuae")
                 .orderBy("per.paterno asc", "per.materno asc", "per.nombres asc");
 
