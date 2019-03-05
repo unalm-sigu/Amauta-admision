@@ -362,8 +362,6 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
         }
 
         PreguntaExamen preguntaReemplazo = mapPreguntas.get(nroReemplazo);
-        ObjectUtil.printAttr(preguntaReemplazo);
-
         preguntaBD.setNumero(nroReemplazo);
         preguntaExamenDAO.update(preguntaBD);
 

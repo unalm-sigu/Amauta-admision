@@ -75,7 +75,6 @@ public class PdfGeneratorImp implements PdfGenerator {
 
         TipoPdfEnum documentoPdfEnum = pdfContent.getTipoPdfEnum();
 
-        ObjectUtil.printAttr(pdfContent);
         pdfContent.setSubject(documentoPdfEnum.getSubject());
         pdfContent.setTitle(documentoPdfEnum.getTitle());
         pdfContent.setTemplate(documentoPdfEnum.getFileTemplate());
@@ -127,7 +126,7 @@ public class PdfGeneratorImp implements PdfGenerator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         docPDF.close();
         logger.debug("Se genero el documento pdf {}", filePath);
         return filePath;

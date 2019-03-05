@@ -113,7 +113,6 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     @Override
     public void inicializarVisor() {
         CicloAcademico ciclo = cicloAcademicoDAO.findActivoPregrado();
-        ObjectUtil.printAttr(ciclo);
         List<RecorridoIngresante> listaRecorridos = recorridoIngresanteDAO.allByCiclo(ciclo);
         List<Persona> listaPersonas = new ArrayList();
         for (RecorridoIngresante elem : listaRecorridos) {
