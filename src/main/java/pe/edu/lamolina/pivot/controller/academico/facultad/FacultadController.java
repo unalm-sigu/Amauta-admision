@@ -104,7 +104,7 @@ public class FacultadController {
                 node.put("codigoCurso", facultad.getCodigoCurso());
                 node.put("estado", facultad.getEstado());
                 node.put("estadoEnum", facultad.getEstadoEnum().getValue());
-                node.put("consejeroRequerido", facultad.getConsejeroRequerido());
+                node.put("consejeriaRequerida", facultad.getConsejeriaRequerida());
                 node.put("motivoDesactivacion", facultad.getMotivoDesactivacion());
                 node.put("fecha", new DateTime(facultad.getFechaRegistro()).toString("dd/MM/yyyy"));
                 array.add(node);
@@ -209,7 +209,7 @@ public class FacultadController {
 
         try {
 
-            logger.debug("Estado consejero requerido  {}", facultadForm.getConsejeroRequerido());
+            logger.debug("Estado consejero requerido  {}", facultadForm.getConsejeriaRequerida());
             logger.debug("facultad  {}", facultadForm.getId());
 
             service.updateConsejeroRequerido(facultadForm);

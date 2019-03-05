@@ -24,6 +24,8 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allByCiclo(CicloAcademico ciclo);
 
+    List<Seccion> allByCiclo(CicloAcademico ciclo, SeccionEstadoEnum... estados);
+
     List<Seccion> allActivosByGposSeccion(List<GrupoSeccion> gruposSeccion);
 
     List<Seccion> allOperativesByGpoSeccion(GrupoSeccion gruposSeccion);

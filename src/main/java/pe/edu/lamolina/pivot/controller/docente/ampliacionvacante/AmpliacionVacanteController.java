@@ -12,14 +12,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -45,10 +51,10 @@ public class AmpliacionVacanteController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
 
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             JsonNodeFactory factory = JsonNodeFactory.instance;
 
             ArrayNode array = new ArrayNode(factory);
@@ -83,12 +89,23 @@ public class AmpliacionVacanteController {
                     "secciones.codigo2",
                     "secciones.vacantes",
                     "secciones.matriculados",
+                    "secciones.tipoSeccion",
                     "secciones.grupoHoras.id",
                     "secciones.grupoHoras.codigo",
                     "secciones.aula.id",
                     "secciones.aula.codigo",
                     "secciones.aula.aforo",
-                });
+                    "secciones.aula.capacidadAula",
+                    "secciones.seccionSuperior.id",
+                    "secciones.seccionSuperior.codigo",
+                    "secciones.seccionSuperior.codigo2",
+                    "secciones.seccionSuperior.tipoSeccion",
+                    "secciones.seccionSuperior.aula.id",
+                    "secciones.seccionSuperior.aula.codigo",
+                    "secciones.seccionSuperior.aula.aforo",
+                    "secciones.seccionSuperior.aula.capacidadAula",
+                    "secciones.seccionSuperior.grupoHoras.id",
+                    "secciones.seccionSuperior.grupoHoras.codigo",});
 
                 array.add(nodeGpoSecc);
             }
@@ -103,4 +120,69 @@ public class AmpliacionVacanteController {
         }
         return json;
     }
+
+    @ResponseBody
+    @RequestMapping("allAlumno")
+    public JsonResponse allAlumno(@RequestParam("nombre") String nombre,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+            List<Alumno> alumnos = service.allAlumnoByName(nombre, cicloAcademico);
+
+            for (Alumno alumno : alumnos) {
+                ObjectNode json = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "id",
+                            "codigo",
+                            "persona.nombreCompleto",
+                            "persona.rutaFotoDocumento",
+                            "persona.rutaFotoPostulante",
+                            "carrera.nombre",
+                            "carrera.facultad.nombre",});
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("matricular")
+    public JsonResponse matricular(@RequestParam("nombre") AmpliacionVacanteForm ampliacionVacanteForm,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            service.matricular(ampliacionVacanteForm,cicloAcademico,ds);
+            response.setMessage(Messages.UPDATED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
 }

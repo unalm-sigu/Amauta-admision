@@ -11,7 +11,7 @@
                     <a href="#grupo2" data-toggle="tab" >Especiales</a>
                 </li>
                 <li v-bind:class="{active : tabGrupos.grupoHorarioSel.tabGrupo=='zetas'}">
-                    <a href="#grupo3" data-toggle="tab">Zetas</a>
+                    <a href="#grupo3" data-toggle="tab" >Zetas</a>
                 </li>
             </ul>
             <section class="panel m-b-xs">
@@ -57,7 +57,8 @@
 
                                             </td>
                                             <td  v-for="dia in tabGrupos['regulares'].tblHorarios.dias"> 
-                                                <template v-if="tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
+                                                <!-- v-if="tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null" -->
+                                                <template >
                                                     <span v-if="tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
                                                           v-on:click="selectDiaHoraGrupo(tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
                                                           class="form-control pointer"
@@ -66,18 +67,12 @@
                                                     </span>
                                                 </template>
 
-
-                                                <span v-if="tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id] &amp;&amp; !tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].tieneCruce" 
+                                                <!-- 
+                                                <span v-if="tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
                                                       class="form-control btn-warning"
                                                       >
                                                     {{tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
-                                                </span>
-                                                <span v-if="tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id] &amp;&amp; tabGrupos['regulares'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].tieneCruce" 
-                                                      class="form-control btn-danger crueHorario"
-                                                      >
-                                                    ({{tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}})
-                                                    Cruce
-                                                </span>
+                                                </span>-->
 
                                             </td>
                                         </tr>
@@ -116,7 +111,8 @@
                                             <span>{{hora.descripcion}}</span>
                                         </td>
                                         <td  v-for="dia in tabGrupos['especial'].tblHorarios.dias"> 
-                                            <template v-if="tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
+                                            <!-- v-if="tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null" -->
+                                            <template>
                                                 <span v-if="tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
                                                       v-on:click="selectDiaHoraGrupo(tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
                                                       class="form-control pointer"
@@ -127,13 +123,13 @@
                                                 </span>
                                             </template>
 
-
+                                            <!-- 
                                             <span v-if="tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id] &amp;&amp; !tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].tieneCruce" 
                                                   class="form-control btn-warning"
                                                   >
                                                 {{tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
                                             </span>
-
+                                            -->
                                         </td>
                                     </tr>
                                 </tbody>
@@ -170,7 +166,8 @@
                                             </td>
                                             <td  v-for="dia in tabGrupos['zetas'].tblHorarios.dias"
                                                  style="width: 15%"> 
-                                                <template v-if="tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
+                                                <!--  v-if="tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null"-->
+                                                <template>
                                                     <span v-if="tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
                                                           v-on:click="selectDiaHoraGrupo(tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
                                                           class="form-control pointer"
@@ -181,13 +178,13 @@
                                                     </span>
                                                 </template>
 
-
+                                                <!-- 
                                                 <span v-if="tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
                                                       class="form-control btn-warning"
                                                       >
                                                     {{tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
                                                 </span>
-
+                                                -->
                                             </td>
                                         </tr>
                                     </tbody>

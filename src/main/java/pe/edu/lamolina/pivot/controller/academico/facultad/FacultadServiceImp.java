@@ -14,20 +14,20 @@ import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 @Service
 @Transactional(readOnly = true)
 public class FacultadServiceImp implements FacultadService {
-    
+
     @Autowired
     FacultadDAO facultadDAO;
-    
+
     @Override
     public List<Facultad> allFacultad(DynatableFilter filter, List<Facultad> facultads) {
         return facultadDAO.allDynatable(filter, facultads);
     }
-    
+
     @Override
     public Facultad findFacultad(Long idFacultad) {
         return facultadDAO.find(idFacultad);
     }
-    
+
     @Override
     public void save(Facultad facultad) {
         facultad.setCompania(new Compania(1));
@@ -35,7 +35,7 @@ public class FacultadServiceImp implements FacultadService {
         facultad.setEstado(FacultadEstadoEnum.CRE);
         facultadDAO.save(facultad);
     }
-    
+
     @Override
     @Transactional
     public void update(Facultad facultad) {
@@ -45,13 +45,13 @@ public class FacultadServiceImp implements FacultadService {
         facultadDb.setSimbolo(facultad.getSimbolo());
         facultadDAO.update(facultadDb);
     }
-    
+
     @Override
     @Transactional
     public void delete(Facultad facultad) {
         facultadDAO.delete(facultad);
     }
-    
+
     @Override
     @Transactional
     public void estado(Facultad facultad) {
@@ -67,13 +67,13 @@ public class FacultadServiceImp implements FacultadService {
         }
         facultadDAO.update(facultadBD);
     }
-    
+
     @Override
     @Transactional
     public void updateConsejeroRequerido(Facultad facultadForm) {
         Facultad facultadDB = facultadDAO.find(facultadForm.getId());
-        facultadDB.setConsejeroRequerido(facultadForm.getConsejeroRequerido());
+        facultadDB.setConsejeriaRequerida(facultadForm.getConsejeriaRequerida());
         facultadDAO.update(facultadDB);
     }
-    
+
 }
