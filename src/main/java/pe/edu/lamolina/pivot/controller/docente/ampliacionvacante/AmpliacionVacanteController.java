@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -90,6 +91,7 @@ public class AmpliacionVacanteController {
                     "secciones.vacantes",
                     "secciones.matriculados",
                     "secciones.tipoSeccion",
+                    "secciones.ampliacionVacante",
                     "secciones.grupoHoras.id",
                     "secciones.grupoHoras.codigo",
                     "secciones.aula.id",
@@ -100,6 +102,7 @@ public class AmpliacionVacanteController {
                     "secciones.seccionSuperior.codigo",
                     "secciones.seccionSuperior.codigo2",
                     "secciones.seccionSuperior.tipoSeccion",
+                    "secciones.seccionSuperior.ampliacionVacante",
                     "secciones.seccionSuperior.aula.id",
                     "secciones.seccionSuperior.aula.codigo",
                     "secciones.seccionSuperior.aula.aforo",
@@ -131,10 +134,11 @@ public class AmpliacionVacanteController {
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<Alumno> alumnos = service.allAlumnoByName(nombre, cicloAcademico);
 
             for (Alumno alumno : alumnos) {
@@ -142,6 +146,7 @@ public class AmpliacionVacanteController {
                         new String[]{
                             "id",
                             "codigo",
+                            "situacion",
                             "persona.nombreCompleto",
                             "persona.rutaFotoDocumento",
                             "persona.rutaFotoPostulante",
@@ -163,8 +168,7 @@ public class AmpliacionVacanteController {
 
     @ResponseBody
     @RequestMapping("matricular")
-    public JsonResponse matricular(@RequestParam("nombre") AmpliacionVacanteForm ampliacionVacanteForm,
-            HttpSession session) {
+    public JsonResponse matricular(@RequestBody AmpliacionVacanteForm ampliacionVacanteForm, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
@@ -172,7 +176,7 @@ public class AmpliacionVacanteController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            service.matricular(ampliacionVacanteForm,cicloAcademico,ds);
+            service.matricular(ampliacionVacanteForm, cicloAcademico, ds);
             response.setMessage(Messages.UPDATED);
             response.setSuccess(true);
 
