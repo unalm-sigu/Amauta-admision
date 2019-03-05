@@ -152,7 +152,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
         Curso curso = grupoSeccion.getCurso();
 
-        List<Alumno> alumnos = alumnoDAO.allByIds(ampliacionVacanteForm.getAlumnos().stream().map(x -> x.getId()).collect(Collectors.toList()));
+        List<Alumno> alumnos = alumnoDAO.allByAlumnos(ampliacionVacanteForm.getAlumnos());
 
         for (Alumno alumno : alumnos) {
 

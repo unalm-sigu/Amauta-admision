@@ -111,6 +111,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByNameCondicional(String nombre, CicloAcademico cicloAcademico);
 
-    public List<Alumno> allByNameCicloAcademico(String nombre, CicloAcademico cicloAcademico);
+    List<Alumno> allByNameCicloAcademico(String nombre, CicloAcademico cicloAcademico);
+
+    List<Alumno> allByAlumnos(List<Alumno> alumnos);
 
 }
