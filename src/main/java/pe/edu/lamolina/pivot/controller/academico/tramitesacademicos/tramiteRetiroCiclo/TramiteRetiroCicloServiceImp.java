@@ -1,8 +1,8 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,24 +13,19 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
+import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
-import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
-import pe.edu.lamolina.model.matricula.MatriculaSimultaneo;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
-import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -91,7 +86,7 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
 
     @Autowired
     DespliegueConfig despliegueConfig;
-    
+
     @Autowired
     InfoAcademicoService infoAcademicoService;
 
@@ -109,20 +104,39 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     @Transactional
     public void save(RetiroCiclo retiroCiclo, DataSessionPivot ds) {
 
+        Alumno alumno = retiroCiclo.getAlumno();
+        alumno = alumnoDAO.find(alumno);
+        
+        Boolean isCondicional = Arrays.asList(S_6, S_4).contains(alumno.getSituacionAcademica().getCodigoEnum());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(retiroCiclo.getAlumno());
         AlumnoCiclo alumnoCiclo = alumnoCiclos.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), retiroCiclo.getCicloAcademico().getId())).findAny().orElse(null);
         Assert.isNotNull(alumnoCiclo, "El alumno no tiene actividad en el ciclo " + retiroCiclo.getCicloAcademico().getDescripcion());
 
         RetiroCiclo retiro = new RetiroCiclo();
         retiro.setEstado(TramiteEstadoEnum.PEND);
-        retiro.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
+        if (isCondicional) {
+            retiro.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
+        } else {
+            retiro.setTipoEnum(TipoRetiroCicloEnum.REG);
+        }
         retiro.setAlumno(retiroCiclo.getAlumno());
         retiro.setCicloAcademico(retiroCiclo.getCicloAcademico());
         retiro.setCicloRegistro(ds.getCicloAcademico());
         retiro.setUsuario(ds.getUsuario());
         retiro.setMotivo(retiroCiclo.getMotivo());
         retiroCicloDAO.save(retiro);
+        CicloAcademico academico = cicloAcademicoDAO.findActivoPregrado();
+        if (isCondicional) {
+            updateCursoApro(retiroCiclo.getAlumno());
+        }
+    }
 
+    private void updateCursoApro(Alumno alumno) {
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno);
+        for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
+            alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
+            alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
+        }
     }
 
     @Override
@@ -141,10 +155,10 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
             matriculaResumen.setCreditosMatriculados(0);
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
             matriculaResumenDAO.update(matriculaResumen);
-            
+
             alumno = alumnoDAO.find(alumno.getId());
             infoAcademicoService.cambiarPlan(alumno, alumno.getPlanCurricular(), ds);
-            
+
             /*List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByMatriculaResumen(matriculaResumen);
             List<Curso> cursos = matriculaCursos.stream().map(x -> x.getCurso()).collect(Collectors.toList());
             for (MatriculaCurso matriculaCurso : matriculaCursos) {
@@ -195,10 +209,10 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
                 AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase()),
                 ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
     }
-    
+
     @Override
-    public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds){
-        
+    public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds) {
+
         return alumnoDAO.allByName(nombre);
     }
 

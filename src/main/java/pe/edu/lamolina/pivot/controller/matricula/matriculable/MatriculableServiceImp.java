@@ -729,8 +729,11 @@ public class MatriculableServiceImp implements MatriculableService {
         MatriculaResumen matri = new MatriculaResumen();
         CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         Alumno alumno = alumnoDAO.find(alumnoForm);
+
+        Boolean isCondicional = Arrays.asList(S_6, S_4).contains(alumno.getSituacionAcademica().getCodigoEnum());
+
         AlumnoCiclo alumnoCicloSituacion = alumnoCicloDAO.findByAlumnoCiclo(alumno, ciclo);
-        SituacionAcademica situacionAcademica = null;
+        /*  SituacionAcademica situacionAcademica = null;
         if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_3) {
             situacionAcademica = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_3U.name());
 
@@ -745,7 +748,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 alumnoCicloSituacion.setSituacionFinal(situacionAcademica);
                 alumnoCicloDAO.update(alumnoCicloSituacion);
             }
-        }
+        }*/
         SituacionAcademica sit = alumno.getSituacionAcademica();
         ModalidadEstudio modalidad = alumno.getModalidadEstudio();
         List<SituacionAcademicaEnum> sitEnum = Arrays.asList(S_8, S_9);
@@ -769,6 +772,8 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
 
         if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {
+            Assert.isTrue(isCondicional, "El alumno no puede cumple requisito para matricula condicional.");
+
             RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumno(alumno, ciclo);
             Assert.isNotNull(retiroCiclo, "Debe generar un retiro ciclo para el alumno.");
         }
