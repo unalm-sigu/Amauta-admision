@@ -101,10 +101,10 @@ var app = new Vue({
         },
         updateEnMatricula() {
             let $vue = this;
-            $vue.rutaMatricula.replace("http://", "");
+            $vue.rutaMatricula = $vue.rutaMatricula.replace("http://", "");
             $.ajax({
                 method: 'POST',
-                url: APP.url($vue.rutaMatricula + "/matricula/deleteMatricula"),
+                url: APP.url("/" + $vue.rutaMatricula + "/matricula/deleteMatricula"),
                 data: {idMatriculaResumen: $vue.matriculaResumen.id, idUsuario: $vue.idUsuario},
                 success: function (response) {
                     if (response.success) {
