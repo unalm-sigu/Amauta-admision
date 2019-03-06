@@ -27,6 +27,8 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -70,12 +72,15 @@ public class TramiteRetiroCicloController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<CicloAcademico> cicloAcademicos = service.allCiclos(ds.getCicloAcademico());
+        Parametro parametro = service.findParametro();
         ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
         for (CicloAcademico cicloAcademico : cicloAcademicos) {
             arrayNode.add(JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{
                 "*"}));
         }
         model.addAttribute("ciclos", arrayNode);
+        model.addAttribute("rutaMatricula", parametro.getValor());
+        model.addAttribute("idUsuario", ds.getUsuario().getId());
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/tramiteRetiroCiclo/tramiteRetiroCiclo";
     }
@@ -147,10 +152,10 @@ public class TramiteRetiroCicloController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
-            service.update(retiroCiclo, ds);
-
+            MatriculaResumen matriculaResumen =service.update(retiroCiclo, ds);
+            
+            response.setData(JsonHelper.createJson(matriculaResumen, jsonFactory, new String[]{"id"}));
             response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
 
