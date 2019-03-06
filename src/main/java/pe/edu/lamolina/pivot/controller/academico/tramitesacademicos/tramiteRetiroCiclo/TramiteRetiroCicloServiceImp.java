@@ -125,8 +125,7 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
         retiro.setUsuario(ds.getUsuario());
         retiro.setMotivo(retiroCiclo.getMotivo());
         retiroCicloDAO.save(retiro);
-        CicloAcademico academico = cicloAcademicoDAO.findActivoPregrado();
-        if (isCondicional) {
+        if (!isCondicional) {
             updateCursoApro(retiroCiclo.getAlumno());
         }
     }
