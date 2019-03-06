@@ -101,6 +101,7 @@ var app = new Vue({
         },
         updateEnMatricula() {
             let $vue = this;
+            $vue.rutaMatricula.replace("http://", "");
             $.ajax({
                 method: 'POST',
                 url: APP.url($vue.rutaMatricula + "/matricula/deleteMatricula"),
