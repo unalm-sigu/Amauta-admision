@@ -268,11 +268,9 @@ public class MatriculableServiceImp implements MatriculableService {
         Map<Long, Alumno> mapMatriculable = TypesUtil.convertListToMap("id", ingresantes);
 
         List<CicloAcademico> ciclosPrevios = cicloAcademicoDAO.allActivosAnteriores(3, cicloBD);
-        for (CicloAcademico ciclop : ciclosPrevios) {
-            System.out.println(ciclop.getCodigo());
-        }
+
         Map<Long, Alumno> mapMatriculableCondicional = new LinkedHashMap();
-        
+
         Map<Long, Alumno> mapMatriculableExist = new LinkedHashMap();
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCiclo(ciclo);
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
@@ -338,10 +336,16 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Alumno> alumnos = new ArrayList(mapMatriculable.values());
         List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
         System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos Reg para ser matriculables");
-        matriculaResumenDAO.saveMatriculables(alumnosIds, ciclo);
+        if (alumnosIds.size() > 0) {
+            matriculaResumenDAO.saveMatriculables(alumnosIds, ciclo);
+        }
 
         List<Alumno> alumnosCondicional = new ArrayList(mapMatriculableCondicional.values());
         for (Alumno alumno : alumnosCondicional) {
+            Alumno alumnoExist = mapMatriculableExist.get(alumno.getId());
+            if (alumnoExist != null) {
+                continue;
+            }
             MatriculaResumen matriculable = new MatriculaResumen();
             matriculable.setAlumno(alumno);
             matriculable.setCicloAcademico(cicloBD);
@@ -772,7 +776,7 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setEsCondicional(true);
         matri.setFechaCondicional(new Date());
         updateCursoApro(alumno);
-        
+
         if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
             AlumnoCiclo alumnoCiclo = null;
             if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {

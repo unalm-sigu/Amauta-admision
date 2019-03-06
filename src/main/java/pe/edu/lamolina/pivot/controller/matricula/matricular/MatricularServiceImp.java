@@ -38,6 +38,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSimultaneoDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -78,6 +79,9 @@ public class MatricularServiceImp implements MatricularService {
 
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+    
+    @Autowired
+    SeccionDAO seccionDAO;
 
     @Override
     public TurnoAtencion findTurnoAtencion(Long turnoAtencion) {
@@ -246,7 +250,10 @@ public class MatricularServiceImp implements MatricularService {
                         matriculaCursoDAO.update(mc);
                         notify.setCurrentCurso(notify.getCurrentCurso() + 1);
                     }
-
+                    
+                    seccion.setMatriculados(seccion.getMatriculados() + 1);
+                    seccionDAO.update(seccion);
+                    
                     mr.setCreditosMatriculados(curso.getCreditos() + mr.getCreditosMatriculados());
                     matriculaResumenDAO.update(mr);
 
