@@ -79,7 +79,7 @@ public class MatricularServiceImp implements MatricularService {
 
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-    
+
     @Autowired
     SeccionDAO seccionDAO;
 
@@ -250,10 +250,10 @@ public class MatricularServiceImp implements MatricularService {
                         matriculaCursoDAO.update(mc);
                         notify.setCurrentCurso(notify.getCurrentCurso() + 1);
                     }
-                    
+
                     seccion.setMatriculados(seccion.getMatriculados() + 1);
                     seccionDAO.update(seccion);
-                    
+
                     mr.setCreditosMatriculados(curso.getCreditos() + mr.getCreditosMatriculados());
                     matriculaResumenDAO.update(mr);
 
@@ -359,6 +359,9 @@ public class MatricularServiceImp implements MatricularService {
                     mr.setCreditosMatriculados(curso.getCreditos() + mr.getCreditosMatriculados());
                     matriculaResumenDAO.update(mr);
 
+                    seccion.setMatriculados(seccion.getMatriculados() + 1);
+                    seccionDAO.update(seccion);
+
                     ms.setEstadoEnum(EstadoMatriculaEnum.MAT);
                     matriculaSeccionDAO.update(ms);
 
@@ -400,7 +403,7 @@ public class MatricularServiceImp implements MatricularService {
                 }
             }
             Long countCursosMat = misMatriculaCursoMap.values().stream().filter(x -> x.isEstadoMAT()).count();
-            Integer countCreditosMat = misMatriculaCursoMap.values().stream().mapToInt(x->x.getCreditos()).sum();
+            Integer countCreditosMat = misMatriculaCursoMap.values().stream().mapToInt(x -> x.getCreditos()).sum();
             mr.setCursosMatriculados(countCursosMat.intValue());
             mr.setCreditosMatriculados(countCreditosMat);
             matriculaResumenDAO.update(mr);
