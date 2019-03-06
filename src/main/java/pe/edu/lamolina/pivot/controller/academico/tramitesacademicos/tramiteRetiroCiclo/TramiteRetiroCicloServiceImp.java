@@ -106,7 +106,7 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
 
         Alumno alumno = retiroCiclo.getAlumno();
         alumno = alumnoDAO.find(alumno);
-        
+
         Boolean isCondicional = Arrays.asList(S_6, S_4).contains(alumno.getSituacionAcademica().getCodigoEnum());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(retiroCiclo.getAlumno());
         AlumnoCiclo alumnoCiclo = alumnoCiclos.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), retiroCiclo.getCicloAcademico().getId())).findAny().orElse(null);
@@ -131,8 +131,8 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     }
 
     private void updateCursoApro(RetiroCiclo retiroCiclo) {
-        
-        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumno(retiroCiclo.getAlumno(),Long.parseLong(retiroCiclo.getCicloAcademico().getNumeroCiclo()));
+
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoAprob(retiroCiclo.getAlumno(), retiroCiclo.getCicloAcademico());
         for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
             alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
             alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
