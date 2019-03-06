@@ -32,8 +32,10 @@ import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
+import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
@@ -79,6 +81,9 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     SeccionDAO seccionDAO;
 
     @Autowired
+    AlumnoDAO alumnoDAO;
+
+    @Autowired
     ParametroDAO parametroDAO;
 
     @Autowired
@@ -86,6 +91,9 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
 
     @Autowired
     DespliegueConfig despliegueConfig;
+    
+    @Autowired
+    InfoAcademicoService infoAcademicoService;
 
     @Override
     public List<CicloAcademico> allCiclos(CicloAcademico academico) {
@@ -133,7 +141,10 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
             matriculaResumen.setCreditosMatriculados(0);
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
             matriculaResumenDAO.update(matriculaResumen);
-
+            
+            alumno = alumnoDAO.find(alumno.getId());
+            infoAcademicoService.cambiarPlan(alumno, alumno.getPlanCurricular(), ds);
+            
             /*List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByMatriculaResumen(matriculaResumen);
             List<Curso> cursos = matriculaCursos.stream().map(x -> x.getCurso()).collect(Collectors.toList());
             for (MatriculaCurso matriculaCurso : matriculaCursos) {
@@ -183,6 +194,12 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
         return parametroDAO.findBySistemaAmbienteParametrosSistemas(new Sistema(despliegueConfig.getSistema()),
                 AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase()),
                 ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+    }
+    
+    @Override
+    public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds){
+        
+        return alumnoDAO.allByName(nombre);
     }
 
 }

@@ -29,7 +29,7 @@ var app = new Vue({
             if (nombre != '' || nombre != null || nombre != undefined) {
 
                 $.ajax({
-                    url: APP.url("academico/matriculable/allAlumnoByNombre"),
+                    url: APP.url("academico/tramiteretirociclo/allAlumnoByNombre"),
                     dataType: 'json',
                     type: 'post',
                     data: {nombre: nombre}

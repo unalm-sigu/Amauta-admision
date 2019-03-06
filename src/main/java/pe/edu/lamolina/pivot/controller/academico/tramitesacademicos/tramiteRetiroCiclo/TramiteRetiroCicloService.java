@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRet
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.general.Parametro;
@@ -19,5 +20,7 @@ public interface TramiteRetiroCicloService {
     public MatriculaResumen update(RetiroCiclo retiroCiclo, DataSessionPivot ds);
 
     public Parametro findParametro();
+
+    public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
 }

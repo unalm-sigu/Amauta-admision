@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -26,6 +27,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.general.Parametro;
@@ -165,6 +167,46 @@ public class TramiteRetiroCicloController {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+    
+     @ResponseBody
+    @RequestMapping("allAlumnoByNombre")
+    public JsonResponse allAlumnoByNombre(@RequestParam("nombre") String nombre, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            List<Alumno> lista = service.allAlumnoByNombre(nombre, ds);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Alumno alum : lista) {
+                jsonList.add(JsonHelper.createJson(alum, jsonFactory, true,
+                        new String[]{
+                            "id",
+                            "id",
+                            "codigo",
+                            "modalidadEstudio.nombre",
+                            "carrera.codigo",
+                            "carrera.nombre",
+                            "carrera.facultad.codigo",
+                            "carrera.facultad.nombre",
+                            "persona.numeroDocIdentidad",
+                            "persona.apellidosNombres",
+                            "persona.nombreCompleto",
+                            "persona.rutaFoto",
+                            "persona.tipoDocumento.*"}));
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 }
