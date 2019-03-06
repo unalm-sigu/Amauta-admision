@@ -126,12 +126,13 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
         retiro.setMotivo(retiroCiclo.getMotivo());
         retiroCicloDAO.save(retiro);
         if (!isCondicional) {
-            updateCursoApro(retiroCiclo.getAlumno());
+            updateCursoApro(retiroCiclo);
         }
     }
 
-    private void updateCursoApro(Alumno alumno) {
-        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno);
+    private void updateCursoApro(RetiroCiclo retiroCiclo) {
+        
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumno(retiroCiclo.getAlumno(),Long.parseLong(retiroCiclo.getCicloAcademico().getNumeroCiclo()));
         for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
             alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
             alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
