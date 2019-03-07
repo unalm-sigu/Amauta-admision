@@ -24,7 +24,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Autowired
     TokenIngresanteDAO tokenIngresanteDAO;
-    
+
     @Override
     @Transactional
     public JsonResponse updateRest(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
@@ -38,12 +38,16 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         token.setValor(valor);
         token.setUserRegistro(ds.getUsuario());
         tokenIngresanteDAO.save(token);
-        
+
         FormImportBean formImport = new FormImportBean();
         formImport.setUsuario(ds.getUsuario());
         formImport.setValue(matriculaResumen.getId().toString());
-        
-        return this.postToBackEnd(parametro.getValor(), formImport);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(parametro.getValor());
+        sb.append("matriculaSeccion/");
+        sb.append("deleteMatricula");
+        return this.postToBackEnd(sb.toString(), formImport);
     }
 
 }
