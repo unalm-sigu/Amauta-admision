@@ -40,12 +40,12 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         tokenIngresanteDAO.save(token);
 
         FormImportBean formImport = new FormImportBean();
-        formImport.setUsuario(ds.getUsuario());
+        formImport.setUsuario(ds.getUsuario().getId());
         formImport.setValue(matriculaResumen.getId().toString());
 
         StringBuilder sb = new StringBuilder();
         sb.append(parametro.getValor());
-        sb.append("matriculaSeccion/");
+        sb.append("/matriculaSeccion/");
         sb.append("deleteMatricula");
         return this.postToBackEnd(sb.toString(), formImport);
     }
