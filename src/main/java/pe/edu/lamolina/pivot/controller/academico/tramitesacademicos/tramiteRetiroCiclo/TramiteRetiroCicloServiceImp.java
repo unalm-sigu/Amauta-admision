@@ -1,8 +1,8 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,28 +13,31 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
+import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum;
-import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
-import pe.edu.lamolina.model.matricula.MatriculaSimultaneo;
+import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
-import pe.edu.lamolina.model.vacantes.VacanteAlumno;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
+import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSimultaneoDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.general.ParametroDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -73,7 +76,19 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     SeccionDAO seccionDAO;
 
     @Autowired
+    AlumnoDAO alumnoDAO;
+
+    @Autowired
+    ParametroDAO parametroDAO;
+
+    @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
+
+    @Autowired
+    DespliegueConfig despliegueConfig;
+
+    @Autowired
+    InfoAcademicoService infoAcademicoService;
 
     @Override
     public List<CicloAcademico> allCiclos(CicloAcademico academico) {
@@ -88,41 +103,63 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     @Override
     @Transactional
     public void save(RetiroCiclo retiroCiclo, DataSessionPivot ds) {
-        
+
+        Alumno alumno = retiroCiclo.getAlumno();
+        alumno = alumnoDAO.find(alumno);
+
+        Boolean isCondicional = Arrays.asList(S_6, S_4).contains(alumno.getSituacionAcademica().getCodigoEnum());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(retiroCiclo.getAlumno());
-        AlumnoCiclo alumnoCiclo = alumnoCiclos.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), retiroCiclo.getId())).findAny().orElse(null);
+        AlumnoCiclo alumnoCiclo = alumnoCiclos.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), retiroCiclo.getCicloAcademico().getId())).findAny().orElse(null);
         Assert.isNotNull(alumnoCiclo, "El alumno no tiene actividad en el ciclo " + retiroCiclo.getCicloAcademico().getDescripcion());
-        
+
         RetiroCiclo retiro = new RetiroCiclo();
         retiro.setEstado(TramiteEstadoEnum.PEND);
-        retiro.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
+        if (isCondicional) {
+            retiro.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
+        } else {
+            retiro.setTipoEnum(TipoRetiroCicloEnum.REG);
+        }
         retiro.setAlumno(retiroCiclo.getAlumno());
         retiro.setCicloAcademico(retiroCiclo.getCicloAcademico());
         retiro.setCicloRegistro(ds.getCicloAcademico());
         retiro.setUsuario(ds.getUsuario());
         retiro.setMotivo(retiroCiclo.getMotivo());
         retiroCicloDAO.save(retiro);
+        if (!isCondicional) {
+            updateCursoApro(retiroCiclo);
+        }
+    }
 
+    private void updateCursoApro(RetiroCiclo retiroCiclo) {
+
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoAprob(retiroCiclo.getAlumno(), retiroCiclo.getCicloAcademico());
+        for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
+            alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
+            alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
+        }
     }
 
     @Override
     @Transactional
-    public void update(RetiroCiclo retiroCiclo, DataSessionPivot ds) {
+    public MatriculaResumen update(RetiroCiclo retiroCiclo, DataSessionPivot ds) {
         RetiroCiclo retiroCiclobd = retiroCicloDAO.find(retiroCiclo.getId());
         retiroCiclobd.setEstado(TramiteEstadoEnum.valueOf(retiroCiclo.getEstado()));
         retiroCicloDAO.update(retiroCiclobd);
-
+        MatriculaResumen matriculaResumen = new MatriculaResumen();
         if (retiroCiclobd.getEstadoEnum() == TramiteEstadoEnum.RCHZ) {
             Alumno alumno = retiroCiclobd.getAlumno();
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
-            MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+            matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             matriculaResumen.setCursosMatriculados(0);
             matriculaResumen.setCreditosMatriculados(0);
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
             matriculaResumenDAO.update(matriculaResumen);
 
-            List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByMatriculaResumen(matriculaResumen);
+            alumno = alumnoDAO.find(alumno.getId());
+            infoAcademicoService.cambiarPlan(alumno, alumno.getPlanCurricular(), ds);
+
+            /*List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByMatriculaResumen(matriculaResumen);
             List<Curso> cursos = matriculaCursos.stream().map(x -> x.getCurso()).collect(Collectors.toList());
             for (MatriculaCurso matriculaCurso : matriculaCursos) {
                 matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RET);
@@ -159,9 +196,24 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
                 AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findByAlumnoCurso(alumno, curso);
                 alumnoCursoCurricula.setEstadoMatriculaEnum(EstadoMatriculaEnum.RET);
                 alumnoCursoCurriculaDAO.delete(alumnoCursoCurricula);
-            }
+            }*/
             // Consultar si existe algun pago al matricularse.
         }
+        return matriculaResumen;
+    }
+
+    @Override
+    public Parametro findParametro() {
+
+        return parametroDAO.findBySistemaAmbienteParametrosSistemas(new Sistema(despliegueConfig.getSistema()),
+                AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase()),
+                ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+    }
+
+    @Override
+    public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds) {
+
+        return alumnoDAO.allByName(nombre);
     }
 
 }

@@ -331,8 +331,9 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         Octavia sql = Octavia.query()
                 .select("ca")
                 .from(CicloPostula.class, "cp")
-                .join("cicloAcademico ca")
+                .join("cicloAcademico ca", "ca.modalidadEstudio me")
                 .filter("cp.estado", ACT);
+
         return find(sql);
     }
 

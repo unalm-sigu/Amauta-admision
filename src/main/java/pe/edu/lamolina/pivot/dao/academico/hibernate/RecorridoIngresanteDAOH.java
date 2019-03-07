@@ -57,6 +57,88 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
     }
 
     @Override
+    public List<RecorridoIngresante> allConMuestaByDynatableCiclo(DynatableFilter filter, CicloAcademico ciclo) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(RecorridoIngresante.class, "ri")
+                .join("cicloAcademico ci", "alumno al")
+                .join("al.persona per", "al.carrera car")
+                .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
+                .isNotNull("ri.numeroMuestraSangre")
+                .filter("ci.id", ciclo)
+                .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("ri.numeroMuestraSangre");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<RecorridoIngresante> allConMuestraByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(RecorridoIngresante.class, "ri")
+                .join("cicloAcademico ci", "alumno al")
+                .join("al.persona per", "al.carrera car")
+                .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
+                .isNotNull("ri.numeroMuestraSangre")
+                .filter("ci.id", ciclo)
+                .orderBy("ri.numeroMuestraSangre");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<RecorridoIngresante> allConMuestraByFechaCiclo(Date today, CicloAcademico ciclo) {
+        Date tomorrow = new DateTime(today).plusDays(1).toDate();
+
+        Octavia subQuery = Octavia.query()
+                .from(HistoriaLaboratorio.class, "lab")
+                .join("historiaClinica hc", "hc.paciente pac", "pac.persona pp")
+                .filter("fechaMuestra", ">=", today)
+                .filter("fechaMuestra", "<", tomorrow);
+
+        Octavia sql = Octavia.query()
+                .from(RecorridoIngresante.class, "ri")
+                .join("cicloAcademico ci", "alumno al")
+                .join("al.persona per", "al.carrera car")
+                .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
+                .isNotNull("ri.numeroMuestraSangre")
+                .filter("ci.id", ciclo)
+                .exists(subQuery)
+                .linkedBy("per.id", "pp.id")
+                .orderBy("ri.numeroMuestraSangre");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<RecorridoIngresante> allConMuestaByDynatableFechaCiclo(DynatableFilter filter, Date today, CicloAcademico ciclo) {
+        Date tomorrow = new DateTime(today).plusDays(1).toDate();
+
+        Octavia subQuery = Octavia.query()
+                .from(HistoriaLaboratorio.class, "lab")
+                .join("historiaClinica hc", "hc.paciente pac", "pac.persona pp")
+                .filter("fechaMuestra", ">=", today)
+                .filter("fechaMuestra", "<", tomorrow);
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(RecorridoIngresante.class, "ri")
+                .join("cicloAcademico ci", "alumno al")
+                .join("al.persona per", "al.carrera car")
+                .leftJoin("turnoEntrevistaObuae tu", "per.tipoDocumento td")
+                .isNotNull("ri.numeroMuestraSangre")
+                .filter("ci.id", ciclo)
+                .exists(subQuery)
+                .linkedBy("per.id", "pp.id")
+                .searchFields("al.codigo", "car.nombre", "per.numeroDocIdentidad", "td.simbolo")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("ri.numeroMuestraSangre");
+
+        return all(sql);
+    }
+
+    @Override
     public List<RecorridoIngresante> allIngresantesByPersonas(List<Persona> personas) {
         Octavia sql = Octavia.query()
                 .from(RecorridoIngresante.class, "ri")

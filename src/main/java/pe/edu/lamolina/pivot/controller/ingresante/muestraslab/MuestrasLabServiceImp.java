@@ -77,39 +77,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     @Transactional
     public List<RecorridoIngresante> allRecorridosByDynatable(DynatableFilter filter, CicloAcademico ciclo, DataSessionPivot ds) {
         List<RecorridoIngresante> recorridos = recorridoIngresanteDAO.allByDynatableCiclo(filter, ciclo);
-
-        List<Alumno> alumnos = recorridos.stream()
-                .map(RecorridoIngresante::getAlumno)
-                .collect(Collectors.toList());
-
-        List<Persona> personas = alumnos.stream()
-                .map(Alumno::getPersona)
-                .collect(Collectors.toList());
-
-        List<HistoriaLaboratorio> laboratorios = historiaLaboratorioDAO.allByPersonas(personas);
-        List<HistoriaClinica> historiasClinicas = historiaClinicaDAO.allByPersonas(personas);
-        List<HistoriaEnfermedad> historiasEnfermedades = historiaEnfermedadDAO.allRiesgoByHistoriasClinicas(historiasClinicas);
-        Map<Long, HistoriaLaboratorio> mapLaboratorio = TypesUtil.convertListToMap("historiaClinica.paciente.persona.id", laboratorios);
-        Map<Long, HistoriaClinica> mapHistoriaClinica = TypesUtil.convertListToMap("paciente.persona.id", historiasClinicas);
-        Map<Long, List<HistoriaEnfermedad>> mapHistoriaEnfermedad = TypesUtil.convertListToMapList("historiaClinica.paciente.persona.id", historiasEnfermedades);
-
-        for (RecorridoIngresante reco : recorridos) {
-            Persona persona = reco.getAlumno().getPersona();
-            HistoriaClinica historiaClinica = mapHistoriaClinica.get(persona.getId());
-            historiaClinica = (historiaClinica == null) ? crearHistoriaClinica(persona, ds) : historiaClinica;
-
-            HistoriaLaboratorio laboratorio = mapLaboratorio.get(persona.getId());
-            laboratorio = (laboratorio == null) ? new HistoriaLaboratorio() : laboratorio;
-            laboratorio.setHistoriaClinica(historiaClinica);
-            reco.setLaboratorio(laboratorio);
-
-            List<HistoriaEnfermedad> historiaEnfermedades = mapHistoriaEnfermedad.get(persona.getId());
-            if (historiaEnfermedades != null && !historiaEnfermedades.isEmpty()) {
-                reco.setTieneRiesgo(Boolean.TRUE);
-            }
-
-        }
-
+        completarInfoRecorridos(recorridos, ds);
         return recorridos;
     }
 
@@ -117,39 +85,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     @Transactional
     public List<RecorridoIngresante> allRecorridosByDynatableTurno(DynatableFilter filter, TurnoEntrevistaObuae turno, CicloAcademico ciclo, DataSessionPivot ds) {
         List<RecorridoIngresante> recorridos = recorridoIngresanteDAO.allByDynatableCicloTurno(filter, ciclo, turno);
-
-        List<Alumno> alumnos = recorridos.stream()
-                .map(RecorridoIngresante::getAlumno)
-                .collect(Collectors.toList());
-
-        List<Persona> personas = alumnos.stream()
-                .map(Alumno::getPersona)
-                .collect(Collectors.toList());
-
-        List<HistoriaLaboratorio> laboratorios = historiaLaboratorioDAO.allByPersonas(personas);
-        List<HistoriaClinica> historiasClinicas = historiaClinicaDAO.allByPersonas(personas);
-        List<HistoriaEnfermedad> historiasEnfermedades = historiaEnfermedadDAO.allRiesgoByHistoriasClinicas(historiasClinicas);
-        Map<Long, HistoriaLaboratorio> mapLaboratorio = TypesUtil.convertListToMap("historiaClinica.paciente.persona.id", laboratorios);
-        Map<Long, HistoriaClinica> mapHistoriaClinica = TypesUtil.convertListToMap("paciente.persona.id", historiasClinicas);
-        Map<Long, List<HistoriaEnfermedad>> mapHistoriaEnfermedad = TypesUtil.convertListToMapList("historiaClinica.paciente.persona.id", historiasEnfermedades);
-
-        for (RecorridoIngresante reco : recorridos) {
-            Persona persona = reco.getAlumno().getPersona();
-            HistoriaClinica historiaClinica = mapHistoriaClinica.get(persona.getId());
-            historiaClinica = (historiaClinica == null) ? crearHistoriaClinica(persona, ds) : historiaClinica;
-
-            HistoriaLaboratorio laboratorio = mapLaboratorio.get(persona.getId());
-            laboratorio = (laboratorio == null) ? new HistoriaLaboratorio() : laboratorio;
-            laboratorio.setHistoriaClinica(historiaClinica);
-            reco.setLaboratorio(laboratorio);
-
-            List<HistoriaEnfermedad> historiaEnfermedades = mapHistoriaEnfermedad.get(persona.getId());
-            if (historiaEnfermedades != null && !historiaEnfermedades.isEmpty()) {
-                reco.setTieneRiesgo(Boolean.TRUE);
-            }
-
-        }
-
+        completarInfoRecorridos(recorridos, ds);
         return recorridos;
     }
 
@@ -157,7 +93,11 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     @Transactional
     public List<RecorridoIngresante> allAtendidosByDynatableTurno(DynatableFilter filter, TurnoEntrevistaObuae turno, CicloAcademico ciclo, DataSessionPivot ds) {
         List<RecorridoIngresante> recorridos = recorridoIngresanteDAO.allAtendidosByDynatableCicloFecha(filter, ciclo, turno.getFecha());
+        completarInfoRecorridos(recorridos, ds);
+        return recorridos;
+    }
 
+    private void completarInfoRecorridos(List<RecorridoIngresante> recorridos, DataSessionPivot ds) {
         List<Alumno> alumnos = recorridos.stream()
                 .map(RecorridoIngresante::getAlumno)
                 .collect(Collectors.toList());
@@ -181,6 +121,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
             HistoriaLaboratorio laboratorio = mapLaboratorio.get(persona.getId());
             laboratorio = (laboratorio == null) ? new HistoriaLaboratorio() : laboratorio;
             laboratorio.setHistoriaClinica(historiaClinica);
+            laboratorio.setIdRecorridoIngresante(reco.getId());
             reco.setLaboratorio(laboratorio);
 
             List<HistoriaEnfermedad> historiaEnfermedades = mapHistoriaEnfermedad.get(persona.getId());
@@ -189,8 +130,6 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
             }
 
         }
-
-        return recorridos;
     }
 
     private HistoriaClinica crearHistoriaClinica(Persona persona, DataSessionPivot ds) {
@@ -219,24 +158,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     @Override
     public List<RecorridoIngresante> allIngresantesConTurno(CicloAcademico ciclo) {
         List<RecorridoIngresante> recorridos = recorridoIngresanteDAO.allConTurno(ciclo);
-        List<Alumno> alumnos = recorridos.stream()
-                .map(RecorridoIngresante::getAlumno)
-                .collect(Collectors.toList());
-
-        List<Persona> personas = alumnos.stream()
-                .map(Alumno::getPersona)
-                .collect(Collectors.toList());
-
-        List<HistoriaLaboratorio> laboratorios = historiaLaboratorioDAO.allByPersonas(personas);
-        Map<Long, HistoriaLaboratorio> mapLaboratorio = TypesUtil.convertListToMap("historiaClinica.paciente.persona.id", laboratorios);
-
-        for (RecorridoIngresante reco : recorridos) {
-            Persona persona = reco.getAlumno().getPersona();
-            HistoriaLaboratorio laboratorio = mapLaboratorio.get(persona.getId());
-            reco.setLaboratorio(laboratorio);
-
-        }
-
+        infoRecorridosExcel(recorridos);
         Collections.sort(recorridos, new RecorridoIngresante.CompareNombres());
 
         return recorridos;
@@ -245,24 +167,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     @Override
     public List<RecorridoIngresante> allIngresantesConTurno(TurnoEntrevistaObuae turno, CicloAcademico ciclo) {
         List<RecorridoIngresante> recorridos = recorridoIngresanteDAO.allConTurno(turno, ciclo);
-        List<Alumno> alumnos = recorridos.stream()
-                .map(RecorridoIngresante::getAlumno)
-                .collect(Collectors.toList());
-
-        List<Persona> personas = alumnos.stream()
-                .map(Alumno::getPersona)
-                .collect(Collectors.toList());
-
-        List<HistoriaLaboratorio> laboratorios = historiaLaboratorioDAO.allByPersonas(personas);
-        Map<Long, HistoriaLaboratorio> mapLaboratorio = TypesUtil.convertListToMap("historiaClinica.paciente.persona.id", laboratorios);
-
-        for (RecorridoIngresante reco : recorridos) {
-            Persona persona = reco.getAlumno().getPersona();
-            HistoriaLaboratorio laboratorio = mapLaboratorio.get(persona.getId());
-            reco.setLaboratorio(laboratorio);
-
-        }
-
+        infoRecorridosExcel(recorridos);
         Collections.sort(recorridos, new RecorridoIngresante.CompareNombres());
 
         return recorridos;
@@ -272,7 +177,13 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     public List<RecorridoIngresante> allAtendidos(TurnoEntrevistaObuae turno, CicloAcademico ciclo) {
         Date fecha = turno.getFecha();
         List<RecorridoIngresante> recorridos = recorridoIngresanteDAO.allAtendidos(fecha, ciclo);
+        infoRecorridosExcel(recorridos);
+        Collections.sort(recorridos, new RecorridoIngresante.CompareAtencion());
 
+        return recorridos;
+    }
+
+    private void infoRecorridosExcel(List<RecorridoIngresante> recorridos) {
         List<Alumno> alumnos = recorridos.stream()
                 .map(RecorridoIngresante::getAlumno)
                 .collect(Collectors.toList());
@@ -290,10 +201,6 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
             reco.setLaboratorio(laboratorio);
 
         }
-
-        Collections.sort(recorridos, new RecorridoIngresante.CompareAtencion());
-
-        return recorridos;
     }
 
     @Override
@@ -310,14 +217,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     @Override
     public List<TurnoEntrevistaObuae> allTurnos(CicloAcademico ciclo) {
-        List<RecorridoIngresante> listaRecorridos = recorridoIngresanteDAO.allByCiclo(ciclo);
-        List<TurnoEntrevistaObuae> turnos = new ArrayList();
-        for (RecorridoIngresante recorrido : listaRecorridos) {
-            if (!turnos.contains(recorrido.getTurnoEntrevistaObuae()) && recorrido.getTurnoEntrevistaObuae() != null) {
-                turnos.add(recorrido.getTurnoEntrevistaObuae());
-            }
-        }
-        return turnos;
+        return turnoEntrevistaObuaeDAO.allFromRecorridoByCiclo(ciclo);
     }
 
     @Override
@@ -367,6 +267,10 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         laboratorio.setUserRegistro(ds.getUsuario());
         historiaLaboratorioDAO.save(laboratorio);
 
+        RecorridoIngresante recorrido = recorridoIngresanteDAO.find(laboratorio.getIdRecorridoIngresante());
+        recorrido.setNumeroMuestraSangre(laboratorio.getNumeroMuestra());
+        recorridoIngresanteDAO.update(recorrido);
+
         visorMuestrasLab.incrementaNumLab();
     }
 
@@ -388,6 +292,10 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         Date fechaMuestra = new DateTime(laboratorioBD.getFechaMuestra()).toLocalDate().toDate();
         Assert.isTrue(today.equals(fechaMuestra), "No puede eliminarse la muestra de una fecha pasada");
 
+        RecorridoIngresante recorrido = recorridoIngresanteDAO.find(laboratorioForm.getIdRecorridoIngresante());
+        recorrido.setNumeroMuestraSangre(null);
+        recorridoIngresanteDAO.update(recorrido);
+
         historiaLaboratorioDAO.delete(laboratorioBD);
     }
 
@@ -397,7 +305,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     }
 
     @Override
-    public TurnoEntrevistaObuae findTurno(long idTurno) {
+    public TurnoEntrevistaObuae findTurno(Long idTurno) {
         return turnoEntrevistaObuaeDAO.find(idTurno);
     }
 

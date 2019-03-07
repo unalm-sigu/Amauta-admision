@@ -125,7 +125,7 @@ public class IngresanteMuestraLabView extends AbstractView {
         excelUtil.replaceVal(3, 0, "Ciclo Académico " + ciclo.getDescripcion());
 
         //datos
-        int num = 0;
+        int num = 1;
         for (RecorridoIngresante ingresante : ingresantes) {
 
             excelUtil.replaceStyle(irow, 0, estiloNumero);
@@ -133,8 +133,8 @@ public class IngresanteMuestraLabView extends AbstractView {
 
             excelUtil.replaceStyle(irow, 1, estiloCodigo);
             excelUtil.replaceStyle(irow, 2, estiloGeneral);
-            excelUtil.replaceStyle(irow, 3, estiloGeneral);
-            excelUtil.replaceStyle(irow, 4, estiloGeneral);
+            excelUtil.replaceStyle(irow, 3, estiloNumero);
+            excelUtil.replaceStyle(irow, 4, estiloNumero);
 
             excelUtil.replaceVal(irow, 1, ingresante.getAlumno().getCodigo());
             excelUtil.replaceVal(irow, 2, ingresante.getAlumno().getPersona().getApellidosNombres());

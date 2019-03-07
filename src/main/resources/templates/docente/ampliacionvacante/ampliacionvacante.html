@@ -22,6 +22,10 @@
                 margin-top: 10px;
                 margin-left:  10px;
             }
+            .btn-sm-plus {
+                padding: 2px 5px;
+                font-size: 8px;
+            }
         </style>
     </head>
 
@@ -54,14 +58,14 @@
                                         <thead> 
                                             <tr class=""> 
                                                 <th class="col-md-3"></th>
-                                                <th class="col-md-1 text-center">Grupo</th>
+                                                <th class="col-md-1 text-center">Grupo Sección</th>
                                                 <th class="col-md-1 text-center">Sección</th>
-                                                <th class="col-md-1 text-center">Grupo</th>
+                                                <th class="col-md-1 text-center">Grupo Horas</th>
                                                 <th class="col-md-1 text-center">Aula</th>
                                                 <th class="col-md-1 text-center">Vac</th>
                                                 <th class="col-md-1 text-center">Mat</th>
-                                                <th class="col-md-2 text-center">Ampliación de Vacante</th>
-                                                <th class="col-md-2 text-center">Docente</th>
+                                                <th class="col-md-1 text-center">Ampliación de Vacante</th>
+                                                <th class="col-md-3 text-center">Docentes</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -70,6 +74,7 @@
                                                 <td class="v-middle padder-v" >
 
                                                     <p class="h4 text-info">{{gposeccion.curso.nombre}}</p>
+
                                                     <div class="row m-b-xs">
                                                         <div class="col-md-11">
                                                             <span class="block bold">
@@ -78,7 +83,10 @@
                                                                 <span v-text="gposeccion.curso.tpc"></span> &nbsp;
                                                             </span>
                                                             <small class="block text-muted">Departamento Académico: {{gposeccion.curso.departamentoAcademico.nombre}}</small>
-                                                            <div v-if="gposeccion.responsable != null" class="block"><strong>Responsable:</strong>{{gposeccion.responsable}}</div>
+                                                            <div v-if="gposeccion.docenteResponsable.persona.nombreCompleto != null" class="block">
+                                                                <strong>Responsable:</strong>
+                                                                {{gposeccion.docenteResponsable.persona.nombreCompleto}}
+                                                            </div>
                                                             <div v-else="" class="text-danger block">Sin responsable</div>
                                                         </div>
                                                     </div>
@@ -93,44 +101,67 @@
 
                                                 </td>
 
-                                                <td class="v-middle text-center">
+                                                <td class="text-center">
 
-                                                    <small v-for="seccion in gposeccion.secciones " class="block text-muted"> {{seccion.codigo2}}</small>
-
-                                                </td>
-
-                                                <td class="text-center v-middle">
-
-                                                    <small v-for="seccion in gposeccion.secciones " class="block text-muted"> {{seccion.grupoHoras.codigo}}</small>
+                                                    <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted">
+                                                        {{seccion.codigo2}}
+                                                    </small>
 
                                                 </td>
 
-                                                <td class="text-center v-middle">
+                                                <td class="text-center">
 
-                                                    <small v-for="seccion in gposeccion.secciones " class="block text-muted"> {{seccion.aula.codigo}}  ({{seccion.aula.aforo}}) </small>
-
-                                                </td>
-
-                                                <td class="text-center v-middle">
-
-                                                    <small v-for="seccion in gposeccion.secciones " class="block text-muted"> {{seccion.vacantes}}  </small>
+                                                    <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted">
+                                                        {{seccion.grupoHoras.codigo}}
+                                                    </small>
 
                                                 </td>
 
-                                                <td class="text-center v-middle">
+                                                <td class="text-center">
 
-                                                    <small v-for="seccion in gposeccion.secciones " class="block text-muted"> {{seccion.matriculados}}  </small>
-
-                                                </td>
-
-                                                <td class="text-center v-middle">
-
-                                                    <small v-for="seccion in gposeccion.secciones " class="block text-muted"> {{seccion.ampliacionVacante}} <span v-on:click.prevent="changeVacante(seccion)" class="label label-success pointer">Agregar</span>  </small>
+                                                    <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted"> 
+                                                        {{seccion.aula.codigo}} {{seccion.aula.aforo?'('+seccion.aula.aforo+')':''}}
+                                                    </small>
 
                                                 </td>
 
-                                                <td class="text-center v-middle">
-                                                    {{gposeccion.id}}
+                                                <td class="text-center">
+
+                                                    <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted">
+                                                        {{seccion.vacantes}} 
+                                                    </small>
+
+                                                </td>
+
+                                                <td class="text-center">
+
+                                                    <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted"> 
+                                                        {{seccion.matriculados}} 
+                                                    </small>
+
+                                                </td>
+
+                                                <td class="text-center">
+
+                                                    <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones "  class="block text-muted"> 
+                                                        {{seccion.ampliacionVacante}} 
+                                                        <span v-if="seccion.tipoSeccion!='TCUR' ">
+                                                            <a v-if="docenteSession.id==gposeccion.docenteResponsable.id"  
+                                                               v-on:click.prevent="changeVacante(seccion)" href="#" 
+                                                               class="btn btn-primary btn-sm-plus">
+                                                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                                            </a>  
+                                                        </span>
+                                                    </small>
+
+                                                </td>
+
+                                                <td class="text-center">
+
+                                                    <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted"> 
+                                                        {{seccion.docentePrincipal.persona.nombreCompleto}} 
+                                                    </small>
+
                                                 </td>
 
                                             </tr>
@@ -151,13 +182,28 @@
 
                         <div class="thumbnail">
 
-                            <p  v-if="seccion.tipoSeccion=='TCUR' " ><b class=" text-primary">Teoría</b> Sección {{seccion.codigo2}} Grupo {{seccion.grupoHoras.codigo}} Aula  {{seccion.aula.codigo}} Capacidad {{seccion.aula.capacidadAula}}</p>
 
-                            <p  v-if="seccion.tipoSeccion=='PCUR' " ><b class=" text-primary">Teoría</b> Sección {{seccion.seccionSuperior.codigo2}} Grupo {{seccion.seccionSuperior.grupoHoras.codigo}} Aula  {{seccion.seccionSuperior.aula.codigo}} Capacidad {{seccion.seccionSuperior.aula.capacidadAula}}</p>
-                            <p  v-if="seccion.tipoSeccion=='PCUR' " ><b class=" text-primary">Práctica</b> Sección {{seccion.codigo2}} Grupo {{seccion.grupoHoras.codigo}} Aula  {{seccion.aula.codigo}} Capacidad {{seccion.aula.capacidadAula}}</p>
+                            <p  v-if="seccion.tipoSeccion=='PCUR' " >
+                                <b class=" text-primary">Teoría</b> 
+                                {{seccion.seccionSuperior.codigo2?'Sección '+seccion.seccionSuperior.codigo2:''}} 
+                                {{seccion.seccionSuperior.grupoHoras.codigo?'Grupo '+seccion.seccionSuperior.grupoHoras.codigo:''}} 
+                                {{seccion.seccionSuperior.aula.codigo?'Aula '+seccion.seccionSuperior.aula.codigo:''}} 
+                                {{seccion.seccionSuperior.aula.capacidadAula?'Capacidad '+seccion.seccionSuperior.aula.capacidadAula:''}}
+                            </p>
 
-                            <p  v-if="seccion.tipoSeccion=='TEO' " ><b class=" text-primary">Teoría</b> Sección {{seccion.codigo2}} Grupo {{seccion.grupoHoras.codigo}} Aula  {{seccion.aula.codigo}} Capacidad {{seccion.aula.capacidadAula}}</p>
-                            <p  v-if="seccion.tipoSeccion=='PRA' " ><b class=" text-primary">Práctica</b> Sección {{seccion.codigo2}} Grupo {{seccion.grupoHoras.codigo}} Aula  {{seccion.aula.codigo}} Capacidad {{seccion.aula.capacidadAula}}</p>
+
+                            <p>
+                                <b v-if="seccion.tipoSeccion=='PCUR' " class=" text-primary">Práctica</b> 
+                                <b v-if="seccion.tipoSeccion=='TCUR' " class=" text-primary">Teoría</b> 
+                                <b v-if="seccion.tipoSeccion=='TEO' "  class=" text-primary">Teoría</b> 
+                                <b v-if="seccion.tipoSeccion=='PRA' " class=" text-primary">Práctica</b> 
+                                <b class=" text-primary">Práctica</b> 
+                                {{seccion.codigo2?'Sección '+seccion.codigo2:''}} 
+                                {{seccion.grupoHoras.codigo?'Grupo '+seccion.grupoHoras.codigo:''}} 
+                                {{seccion.aula.codigo?'Aula '+seccion.aula.codigo:''}} 
+                                {{seccion.aula.capacidadAula?'Capacidad '+seccion.aula.capacidadAula:''}}
+                            </p>
+
 
                         </div>
 
@@ -170,33 +216,36 @@
                                              deselect-label=""
                                              select-label=""
                                              track-by='id'
+                                             v-bind:internal-search="false"
                                              v-bind:allow-empty="false"
                                              v-bind:options='alumnos'
+                                             v-bind:hide-selected="true"
                                              v-bind:custom-label="labelAlumno"
                                              v-bind:loading="isLoadingAlumnos"
                                              v-on:search-change="searchAlumnos">
 
                                     <template slot="option" slot-scope="props">
 
-                                        <span class="block row">
+                                        <span class="row">
 
-                                            <div class="col-sm-2 v-middle">
+                                            <div class="col-sm-2">
                                                 <img style="min-height:  40px;max-height: 40px;min-width: 40px;max-width: 40px;"
                                                      onerror="this.src=APP.url('phobos/images/avatar.png');"
                                                      v-bind:src="props.option.persona.rutaFotoPostulante" 
                                                      class="img-circle" />
                                             </div>
 
-                                            <div class="col-sm-5 v-middle">
+                                            <div class="col-sm-5">
                                                 <p class="text-primary block">{{props.option.persona.nombreCompleto}}</p> 
-                                                {{props.option.codigo}}
-                                                <span v-if="props.option.situacion=='0' " class="text-xs bold text-danger block">No Matriculable</span>
-                                                <span v-if="props.option.situacion=='1' " class="text-xs bold text-primary block">Apto Para Matricular</span>
+                                                <p class="block">{{props.option.codigo}}</p>
+                                                <span v-if="props.option.situacion=='0' " class="text-xs bold text-danger">No Matriculable</span>
+                                                <span v-if="props.option.situacion=='1' " class="text-xs bold text-primary">Matriculable</span>
                                             </div>
 
-                                            <div  class="col-sm-5  v-middle">
+                                            <div  class="col-sm-5">
                                                 <p class="block">{{props.option.carrera.nombre}}</p>
-                                                <p class="block">{{props.option.carrera.facultad.nombre}}</p>
+                                                <p v-if="props.option.carrera.facultad.nombre==props.option.carrera.nombre"></p>
+                                                <p v-else="props.option.carrera.facultad.nombre==props.option.carrera.nombre">{{props.option.carrera.facultad.nombre}}</p>
                                             </div>
 
                                         </span>
@@ -208,8 +257,14 @@
 
                             </div>
 
-                            <div class="form-group  col-sm-2">  
+                            <div v-if="alumnoeleccionado.situacion=='1' " class="form-group  col-sm-2">  
                                 <button v-on:click="agregarAlumno" class="btn btn-primary btn-sm">Agregar</button>
+                            </div>
+
+                            <div v-if="alumnoeleccionado.situacion=='0' " class="col-sm-12">
+                                <div class="alert alert-danger">
+                                    <strong>No Matriculable</strong> {{alumnoeleccionado.motivoMatriculable}}
+                                </div>
                             </div>
 
                         </div>
@@ -227,21 +282,16 @@
                                         <p class="text-primary block">{{item.persona.nombreCompleto}}</p> 
                                         {{item.codigo}}
                                         <span v-if="item.situacion=='0' " class="text-xs bold block text-danger">No Matriculable</span>
-                                        <span v-if="item.situacion=='1' " class="text-xs bold block text-primary">Apto Para Matricular</span>
+                                        <span v-if="item.situacion=='1' " class="text-xs bold block text-primary">Matriculable</span>
                                     </td>
                                     <td  class="col-sm-4  v-middle">
                                         <p class="block">{{item.carrera.nombre}}</p>
                                         <p class="block">{{item.carrera.facultad.nombre}}</p>
                                     </td>
                                     <td  class="v-middle">
-                                        <div class="dropdown actions">
-                                            <a class="dropdown-toggle" data-toggle="dropdown">
-                                                <i class="glyphicon glyphicon-option-vertical"></i>
-                                            </a>
-                                            <ul class="dropdown-menu pull-right">
-                                                <li><a v-on:click.prevent="eliminarAlumno(item)"  href="#">Remover Alumno</a></li>
-                                            </ul>
-                                        </div>
+                                        <a v-on:click.prevent="eliminarAlumno(item)" class="text-danger"  href="#">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             </tbody>                            
@@ -256,6 +306,15 @@
 
         </div>
         <div layout:fragment="js">
+
+
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var sessiondocente = /*[[${docente.id}]]*/ '';
+                /*]]>*/
+            </script>
+
+
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vuemodal"/>
             <div th:substituteby="_layout/includes :: vue-loader"/>

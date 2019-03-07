@@ -16,15 +16,17 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
+import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 
 @Component
-public class IngresanteTurnoMuestraLabView extends AbstractView {
+public class ResultadoTurnoMuestraLabView extends AbstractView {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -129,6 +131,7 @@ public class IngresanteTurnoMuestraLabView extends AbstractView {
         //datos
         int num = 1;
         for (RecorridoIngresante ingresante : ingresantes) {
+            HistoriaLaboratorio laboratorio = ingresante.getLaboratorio();
 
             excelUtil.replaceStyle(irow, 0, estiloNumero);
             excelUtil.replaceVal(irow, 0, num++);
@@ -136,9 +139,22 @@ public class IngresanteTurnoMuestraLabView extends AbstractView {
             excelUtil.replaceStyle(irow, 1, estiloCodigo);
             excelUtil.replaceStyle(irow, 2, estiloGeneral);
             excelUtil.replaceStyle(irow, 3, estiloGeneral);
+            excelUtil.replaceStyle(irow, 4, estiloGeneral);
+            excelUtil.replaceStyle(irow, 5, estiloGeneral);
+            excelUtil.replaceStyle(irow, 6, estiloGeneral);
+            excelUtil.replaceStyle(irow, 7, estiloGeneral);
 
             excelUtil.replaceVal(irow, 1, ingresante.getAlumno().getCodigo());
-            excelUtil.replaceVal(irow, 2, ingresante.getAlumno().getPersona().getApellidosNombres());
+            excelUtil.replaceVal(irow, 2, ingresante.getAlumno().getCarrera().getNombreCorto());
+            excelUtil.replaceVal(irow, 3, ingresante.getAlumno().getPersona().getApellidosNombres());
+            excelUtil.replaceVal(irow, 4, laboratorio.getNumeroMuestra());
+            excelUtil.replaceVal(irow, 5, laboratorio.getHemoglobina());
+            if (!StringUtils.isEmpty(laboratorio.getTipoSangre())) {
+                excelUtil.replaceVal(irow, 6, laboratorio.getTipoSangreEnum().getValue());
+            }
+            if (!StringUtils.isEmpty(laboratorio.getFactorRH())) {
+                excelUtil.replaceVal(irow, 7, laboratorio.getFactorRHEnum().getValue());
+            }
             irow++;
         }
 

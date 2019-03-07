@@ -28,7 +28,7 @@ public interface MuestrasLabService {
 
     List<RecorridoIngresante> allIngresantesCiclo(CicloAcademico ciclo);
 
-    TurnoEntrevistaObuae findTurno(long idTurno);
+    TurnoEntrevistaObuae findTurno(Long idTurno);
 
     List<TurnoEntrevistaObuae> allTurnos(CicloAcademico ciclo);
 
@@ -55,7 +55,6 @@ public interface MuestrasLabService {
     List<RecorridoIngresante> allIngresantesConTurno(TurnoEntrevistaObuae turno, CicloAcademico ciclo);
 
     //HistoriaClinica crearHistoriaClinica(RecorridoIngresante recorrido, DataSessionPivot ds);
-
     List<RecorridoIngresante> allAtendidos(TurnoEntrevistaObuae turnoEntrevistaObuae, CicloAcademico ciclo);
 
 }

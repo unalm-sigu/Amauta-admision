@@ -21,6 +21,10 @@ public interface RecorridoIngresanteDAO extends EasyDAO<RecorridoIngresante> {
 
     List<RecorridoIngresante> allIngresantesDynatableByPersona(DynatableFilter filter, List<Persona> personas);
 
+    List<RecorridoIngresante> allConMuestaByDynatableCiclo(DynatableFilter filter, CicloAcademico ciclo);
+
+    List<RecorridoIngresante> allConMuestaByDynatableFechaCiclo(DynatableFilter filter, Date fecha, CicloAcademico ciclo);
+
     List<RecorridoIngresante> allIngresantesByPersonas(List<Persona> personas);
 
     List<RecorridoIngresante> allConTurno(CicloAcademico ciclo);
@@ -28,5 +32,9 @@ public interface RecorridoIngresanteDAO extends EasyDAO<RecorridoIngresante> {
     List<RecorridoIngresante> allConTurno(TurnoEntrevistaObuae turno, CicloAcademico ciclo);
 
     List<RecorridoIngresante> allAtendidos(Date fecha, CicloAcademico ciclo);
+
+    List<RecorridoIngresante> allConMuestraByCiclo(CicloAcademico ciclo);
+
+    List<RecorridoIngresante> allConMuestraByFechaCiclo(Date fecha, CicloAcademico ciclo);
 
 }

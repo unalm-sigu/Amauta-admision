@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,13 +22,10 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
-import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
-import pe.edu.lamolina.model.medico.HistoriaClinica;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 import pe.edu.lamolina.pivot.controller.reporte.view.AtendidosMuestraLabView;
 import pe.edu.lamolina.pivot.controller.reporte.view.IngresanteMuestraLabView;
@@ -59,7 +53,7 @@ public class MuestrasLabController {
     AtendidosMuestraLabView atendidosMuestraLabView;
 
     @RequestMapping(method = RequestMethod.GET)
-    public String postulante(Model model, HttpSession session) {
+    public String index(Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
@@ -68,7 +62,6 @@ public class MuestrasLabController {
         jsonLab.put("ciclo", visorMuestrasLab.getCicloAcademico().getDescripcion());
 
         model.addAttribute("laboratorioActual", jsonLab);
-
         return "ingresante/muestraslab/muestraslab";
     }
 
@@ -82,25 +75,7 @@ public class MuestrasLabController {
             CicloAcademico ciclo = service.findCicloActivoAdmision();
 
             List<RecorridoIngresante> recorridos = service.allRecorridosByDynatable(filter, ciclo, ds);
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
-            for (RecorridoIngresante reco : recorridos) {
-                ObjectNode node = JsonHelper.createJson(reco, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "*",
-                            "alumno.*",
-                            "alumno.carrera.nombre",
-                            "alumno.persona.*",
-                            "alumno.persona.tipoDocumento.simbolo",
-                            "turnoEntrevistaObuae.*",
-                            "laboratorio.id",
-                            "laboratorio.numeroMuestra",
-                            "laboratorio.fechaMuestra",
-                            "laboratorio.historiaClinica.id",
-                            "tieneRiesgo"
-                        });
-                array.add(node);
-            }
+            ArrayNode array = createRecorridoJson(recorridos);
 
             json.setData(array);
             json.setTotal(filter.getTotal());
@@ -124,25 +99,7 @@ public class MuestrasLabController {
             CicloAcademico ciclo = service.findCicloActivoAdmision();
 
             List<RecorridoIngresante> recorridos = service.allRecorridosByDynatableTurno(filter, turno, ciclo, ds);
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
-            for (RecorridoIngresante reco : recorridos) {
-                ObjectNode node = JsonHelper.createJson(reco, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "*",
-                            "alumno.*",
-                            "alumno.carrera.nombre",
-                            "alumno.persona.*",
-                            "alumno.persona.tipoDocumento.simbolo",
-                            "turnoEntrevistaObuae.*",
-                            "laboratorio.id",
-                            "laboratorio.numeroMuestra",
-                            "laboratorio.fechaMuestra",
-                            "laboratorio.historiaClinica.id",
-                            "tieneRiesgo"
-                        });
-                array.add(node);
-            }
+            ArrayNode array = createRecorridoJson(recorridos);
 
             json.setData(array);
             json.setTotal(filter.getTotal());
@@ -166,24 +123,7 @@ public class MuestrasLabController {
             CicloAcademico ciclo = service.findCicloActivoAdmision();
 
             List<RecorridoIngresante> recorridos = service.allAtendidosByDynatableTurno(filter, turno, ciclo, ds);
-
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            for (RecorridoIngresante reco : recorridos) {
-                ObjectNode node = JsonHelper.createJson(reco, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "*",
-                            "alumno.*",
-                            "alumno.carrera.nombre",
-                            "alumno.persona.*",
-                            "alumno.persona.tipoDocumento.simbolo",
-                            "turnoEntrevistaObuae.*",
-                            "laboratorio.id",
-                            "laboratorio.numeroMuestra",
-                            "laboratorio.fechaMuestra",
-                            "laboratorio.historiaClinica.id"
-                        });
-                array.add(node);
-            }
+            ArrayNode array = createRecorridoJson(recorridos);
 
             json.setData(array);
             json.setTotal(filter.getTotal());
@@ -201,17 +141,9 @@ public class MuestrasLabController {
     public JsonResponse turnos(HttpSession session) {
         JsonResponse json = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<TurnoEntrevistaObuae> turnos = service.allTurnos(ds.getCicloAcademico());
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
-            for (TurnoEntrevistaObuae elem : turnos) {
-
-                ObjectNode node = JsonHelper.createJson(elem, JsonNodeFactory.instance, true,
-                        new String[]{
-                            "*",});
-                array.add(node);
-            }
+            CicloAcademico ciclo = service.findCicloActivoAdmision();
+            List<TurnoEntrevistaObuae> turnos = service.allTurnos(ciclo);
+            ArrayNode array = createTurnosJson(turnos);
 
             json.setData(array);
             json.setSuccess(Boolean.TRUE);
@@ -231,9 +163,7 @@ public class MuestrasLabController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.saveLaboratorio(laboratorio, ds);
-
-            ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{
-                "*",});
+            ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{"*"});
 
             response.setData(json);
             response.setMessage(GlobalMessages.CREATED);
@@ -255,9 +185,7 @@ public class MuestrasLabController {
         try {
 
             service.deleteLaboratorio(laboratorio);
-
-            ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{
-                "*",});
+            ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{"*"});
 
             response.setData(json);
             response.setMessage(GlobalMessages.DELETED);
@@ -320,6 +248,39 @@ public class MuestrasLabController {
         model.addAttribute("turno", turno);
 
         return new ModelAndView(atendidosMuestraLabView);
+    }
+
+    private ArrayNode createTurnosJson(List<TurnoEntrevistaObuae> turnos) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+        for (TurnoEntrevistaObuae elem : turnos) {
+            ObjectNode node = JsonHelper.createJson(elem, JsonNodeFactory.instance, true, new String[]{"*"});
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ArrayNode createRecorridoJson(List<RecorridoIngresante> recorridos) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (RecorridoIngresante reco : recorridos) {
+            ObjectNode node = JsonHelper.createJson(reco, JsonNodeFactory.instance, true,
+                    new String[]{
+                        "*",
+                        "alumno.*",
+                        "alumno.carrera.nombre",
+                        "alumno.persona.*",
+                        "alumno.persona.tipoDocumento.simbolo",
+                        "turnoEntrevistaObuae.*",
+                        "laboratorio.id",
+                        "laboratorio.numeroMuestra",
+                        "laboratorio.fechaMuestra",
+                        "laboratorio.idRecorridoIngresante",
+                        "laboratorio.historiaClinica.id",
+                        "tieneRiesgo"
+                    });
+            array.add(node);
+        }
+        return array;
     }
 
 }

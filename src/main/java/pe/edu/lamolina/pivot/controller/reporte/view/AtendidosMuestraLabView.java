@@ -137,7 +137,7 @@ public class AtendidosMuestraLabView extends AbstractView {
         excelUtil.replaceVal(4, 2, "Fecha " + TypesUtil.getStringDate(turno.getFecha(), "dd/MM/yyyy"));
 
         //datos
-        int num = 0;
+        int num = 1;
         for (RecorridoIngresante ingresante : ingresantes) {
 
             excelUtil.replaceStyle(irow, 0, estiloNumero);
