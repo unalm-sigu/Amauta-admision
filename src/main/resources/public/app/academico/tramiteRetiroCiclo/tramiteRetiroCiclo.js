@@ -106,7 +106,8 @@ var app = new Vue({
                 method: 'POST',
                 url: APP.url("/" + $vue.rutaMatricula + "/matriculaSeccion/deleteMatricula"),
                 data: {idMatriculaResumen: $vue.matriculaResumen.id, idUsuario: $vue.idUsuario},
-                contentType: "application/json",
+                dataType: 'json',
+                type: 'post',
                 success: function (response) {
                     if (response.success) {
 //                        $vue.$refs.load.loadRemoteData();
