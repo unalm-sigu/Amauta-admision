@@ -257,7 +257,7 @@
                                 <input type="text" class="hide" required="" v-model="alumnoeleccionado.id"/>
 
                             </div>
-
+                            
                             <div v-if="alumnoeleccionado.situacion=='1' " class="form-group  col-sm-2">  
                                 <button v-on:click="agregarAlumno" class="btn btn-primary btn-sm">Agregar</button>
                             </div>
@@ -287,7 +287,7 @@
                                     </td>
                                     <td  class="col-sm-4  v-middle">
                                         <p class="block">{{item.carrera.nombre}}</p>
-                                        <p v-if="props.option.carrera.facultad.nombre==props.option.carrera.nombre" class="block"></p>
+                                        <p v-if="item.carrera.facultad.nombre==item.carrera.nombre" class="block"></p>
                                         <p v-else="" class="block">{{item.carrera.facultad.nombre}}</p>
                                     </td>
                                     <td  class="v-middle">
