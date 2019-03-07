@@ -104,7 +104,7 @@ var app = new Vue({
             $vue.rutaMatricula = $vue.rutaMatricula.replace("http://", "");
             $.ajax({
                 method: 'POST',
-                url: APP.url("/" + $vue.rutaMatricula + "/matricula/deleteMatricula"),
+                url: APP.url("/" + $vue.rutaMatricula + "/matriculaSeccion/deleteMatricula"),
                 data: {idMatriculaResumen: $vue.matriculaResumen.id, idUsuario: $vue.idUsuario},
                 success: function (response) {
                     if (response.success) {
