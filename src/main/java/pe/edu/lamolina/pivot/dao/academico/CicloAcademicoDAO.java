@@ -98,6 +98,8 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allActivosAlModalidades();
 
-    public List<CicloAcademico> allRegularPre(int i, CicloAcademico academico);
+    List<CicloAcademico> allRegularPre(int i, CicloAcademico academico);
+
+    CicloAcademico findActivoAdmisionPregrado();
 
 }

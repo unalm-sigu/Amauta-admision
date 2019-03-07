@@ -1,10 +1,11 @@
 package pe.edu.lamolina.pivot.zelper;
 
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
+
 public class Laboratory {
 
     public static void main666(String[] args) {
-        int b = 4 / 3;
-        System.out.println(b);
+        ObjectUtil.printAttr(args);
     }
 
 }

@@ -4,6 +4,9 @@ var app = new Vue({
     data: {
         URL_RETIROS: APP.url("academico/tramiteretirociclo/list"),
         ciclos: JSON.parse(ciclosJson),
+        rutaMatricula: rutaMatricula,
+        idUsuario: idUsuario,
+        matriculaResumen: {},
         tramiteRetiroCiclo: {},
         modalRetiroCiclo: {
             id: 'modalRetiroCiclo',
@@ -26,7 +29,7 @@ var app = new Vue({
             if (nombre != '' || nombre != null || nombre != undefined) {
 
                 $.ajax({
-                    url: APP.url("academico/matriculable/allAlumnoByNombre"),
+                    url: APP.url("academico/tramiteretirociclo/allAlumnoByNombre"),
                     dataType: 'json',
                     type: 'post',
                     data: {nombre: nombre}
@@ -61,6 +64,8 @@ var app = new Vue({
                         $vue.$refs.load.loadRemoteData();
                         $vue.$refs.modalRetiroCiclo.close();
                         notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
                     }
                 },
                 error: function () {
@@ -69,9 +74,9 @@ var app = new Vue({
                 }
             });
         },
-        update(item,val) {
+        update(item, val) {
             let $vue = this;
-            
+
             item.estado = val == 0 ? 'RCHZ' : 'ACEP'
             $.ajax({
                 method: 'POST',
@@ -82,6 +87,29 @@ var app = new Vue({
                     if (response.success) {
                         $vue.$refs.load.loadRemoteData();
                         notify(response.message, "success");
+                        if (item.estado == 'RCHZ') {
+                            $vue.matriculaResumen = response.data;
+                            $vue.updateEnMatricula();
+                        }
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
+        updateEnMatricula() {
+            let $vue = this;
+            $vue.rutaMatricula = $vue.rutaMatricula.replace("http://", "");
+            $.ajax({
+                method: 'POST',
+                url: APP.url("/" + $vue.rutaMatricula + "/matricula/deleteMatricula"),
+                data: {idMatriculaResumen: $vue.matriculaResumen.id, idUsuario: $vue.idUsuario},
+                success: function (response) {
+                    if (response.success) {
+//                        $vue.$refs.load.loadRemoteData();
+//                        notify(response.message, "success");
                     }
                 },
                 error: function () {

@@ -227,8 +227,9 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             resumen.setNotaFinal("0");
             resumen.setPorcentajeAvance(0);
             resumen.setCreditosTrikaPagados(0);
+            resumen.setCreditosTrikaSeparados(0);
             matriculaResumenDAO.save(resumen);
-            //System.out.println("\t" + rr + " mat-resumen es " + resumen.getId());
+            System.out.println("\t" + rr + " mat-resumen es " + resumen.getId());
 
             resumen.setMatriculaSeccion(new ArrayList());
             resumen.setMatriculaCurso(new ArrayList());
@@ -236,7 +237,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
         }
 
         if (resumen.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
-            //System.out.println("\t" + rr + " guardando mat-resumen " + resumen.getId() + " del alumno " + alumno.getCodigo());
+            System.out.println("\t" + rr + " guardando mat-resumen " + resumen.getId() + " del alumno " + alumno.getCodigo());
             resumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriculaResumenDAO.update(resumen);
         }

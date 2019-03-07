@@ -22,6 +22,7 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
+import pe.edu.lamolina.model.inscripcion.CicloPostula;
 
 @Repository
 public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implements CicloAcademicoDAO {
@@ -326,6 +327,17 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     }
 
     @Override
+    public CicloAcademico findActivoAdmisionPregrado() {
+        Octavia sql = Octavia.query()
+                .select("ca")
+                .from(CicloPostula.class, "cp")
+                .join("cicloAcademico ca", "ca.modalidadEstudio me")
+                .filter("cp.estado", ACT);
+
+        return find(sql);
+    }
+
+    @Override
     public void updateActualizarBoletin(CicloAcademico cicloAcademico) {
         Octavia octavia = Octavia.update(CicloAcademico.class);
         octavia.set(cicloAcademico, "actualizarBoletin");
@@ -614,7 +626,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .join("modalidadEstudio me")
                 .filter("me.codigo", PRE)
                 .filter("ca.tipo", REG)
-                .filter("ca.codigo","<", academico.getCodigo())
+                .filter("ca.codigo", "<", academico.getCodigo())
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(maxResultado);
 
