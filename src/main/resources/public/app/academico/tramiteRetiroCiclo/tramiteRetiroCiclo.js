@@ -103,20 +103,14 @@ var app = new Vue({
             let $vue = this;
             $vue.rutaMatricula = $vue.rutaMatricula.replace("http://", "");
             $.ajax({
-                method: 'POST',
-                url: APP.url("/" + $vue.rutaMatricula + "/matricula/deleteMatricula"),
-                data: {idMatriculaResumen: $vue.matriculaResumen.id, idUsuario: $vue.idUsuario},
-                success: function (response) {
-                    if (response.success) {
-//                        $vue.$refs.load.loadRemoteData();
-//                        notify(response.message, "success");
-                    }
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                    MODAL.hideWait();
+                url: APP.url("/" + $vue.rutaMatricula + "/matriculaSeccion/deleteMatricula"),
+                dataType: 'json',
+                type: 'post',
+                data: {idMatriculaResumen: $vue.matriculaResumen.id, idUsuario: $vue.idUsuario}
+            }).then(response => {
+                if (response.success) {
                 }
-            });
+            })
         }
     }
 })
