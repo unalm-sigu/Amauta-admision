@@ -46,7 +46,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         super();
         setClazz(Alumno.class);
     }
-
+    
     @Override
     public Alumno findLock(Long id) {
         StringBuilder sql = new StringBuilder()
