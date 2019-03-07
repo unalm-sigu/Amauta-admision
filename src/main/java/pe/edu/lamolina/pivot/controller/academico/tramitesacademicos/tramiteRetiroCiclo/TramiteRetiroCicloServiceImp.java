@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -90,6 +91,9 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     @Autowired
     InfoAcademicoService infoAcademicoService;
 
+    @Autowired
+    ResponseRestService responseRestService;
+
     @Override
     public List<CicloAcademico> allCiclos(CicloAcademico academico) {
         return cicloAcademicoDAO.allRegularPre(3, academico);
@@ -151,6 +155,11 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+
+            JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
+            
+            Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
+            
             matriculaResumen.setCursosMatriculados(0);
             matriculaResumen.setCreditosMatriculados(0);
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
@@ -158,7 +167,6 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
 
             alumno = alumnoDAO.find(alumno.getId());
             infoAcademicoService.cambiarPlan(alumno, alumno.getPlanCurricular(), ds);
-
             /*List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByMatriculaResumen(matriculaResumen);
             List<Curso> cursos = matriculaCursos.stream().map(x -> x.getCurso()).collect(Collectors.toList());
             for (MatriculaCurso matriculaCurso : matriculaCursos) {

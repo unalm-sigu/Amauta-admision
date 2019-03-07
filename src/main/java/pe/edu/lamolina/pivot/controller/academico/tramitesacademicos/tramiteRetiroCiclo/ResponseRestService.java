@@ -1,0 +1,11 @@
+package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo;
+
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+
+public interface ResponseRestService {
+
+    public JsonResponse updateRest(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
+}
