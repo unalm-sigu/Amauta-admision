@@ -26,13 +26,16 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.model.medico.HistoriaClinica;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
+import pe.edu.lamolina.pivot.controller.reporte.view.AtendidosMuestraLabView;
 import pe.edu.lamolina.pivot.controller.reporte.view.IngresanteMuestraLabView;
+import pe.edu.lamolina.pivot.controller.reporte.view.IngresanteTurnoMuestraLabView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -47,7 +50,13 @@ public class MuestrasLabController {
     VisorMuestrasLab visorMuestrasLab;
 
     @Autowired
+    IngresanteTurnoMuestraLabView ingresanteTurnoMuestraLabView;
+
+    @Autowired
     IngresanteMuestraLabView ingresanteMuestraLabView;
+
+    @Autowired
+    AtendidosMuestraLabView atendidosMuestraLabView;
 
     @RequestMapping(method = RequestMethod.GET)
     public String postulante(Model model, HttpSession session) {
@@ -56,6 +65,7 @@ public class MuestrasLabController {
 
         ObjectNode jsonLab = new ObjectNode(JsonNodeFactory.instance);
         jsonLab.put("numero", visorMuestrasLab.getNumeroLab());
+        jsonLab.put("ciclo", visorMuestrasLab.getCicloAcademico().getDescripcion());
 
         model.addAttribute("laboratorioActual", jsonLab);
 
@@ -63,65 +73,18 @@ public class MuestrasLabController {
     }
 
     @ResponseBody
-    @RequestMapping("list/{idTurno}")
-    public DynatableResponse listIngresantes(@PathVariable Long idTurno, DynatableFilter filter, HttpSession session) {
+    @RequestMapping("list/todos")
+    public DynatableResponse listTodos(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            TurnoEntrevistaObuae turno = new TurnoEntrevistaObuae(idTurno);
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = service.findCicloActivoAdmision();
 
-            List<RecorridoIngresante> lista = service.ingresantesDynatableTurno(filter, turno, ds.getCicloAcademico());
-
-            List<Alumno> alumnos = lista.stream()
-                    .map(RecorridoIngresante::getAlumno)
-                    .collect(Collectors.toList());
-
-            List<Persona> personas = alumnos.stream()
-                    .map(Alumno::getPersona)
-                    .collect(Collectors.toList());
-
-            List<HistoriaLaboratorio> laboratorios = service.allLabByPersonas(personas);
-
-            List<HistoriaClinica> historias = service.allHistoriaByPersonas(personas);
-
+            List<RecorridoIngresante> recorridos = service.allRecorridosByDynatable(filter, ciclo, ds);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (RecorridoIngresante reco : lista) {
-                //busqueda historia clinica
-                List<HistoriaClinica> resultHistoria = historias.stream()
-                        .filter(item -> item.getPaciente().getPersona().getId().equals(reco.getAlumno().getPersona().getId()))
-                        .collect(Collectors.toList());
-
-                HistoriaLaboratorio laboratorio = new HistoriaLaboratorio();
-
-                if (resultHistoria.size() > 0) {
-                    HistoriaClinica historiaCli = resultHistoria.get(0);
-                    //riesgo alumno
-                    Boolean riesgo = service.findRiesgoAlumno(historiaCli);
-                    reco.setTieneRiesgo(riesgo);
-
-                    //busqueda laboratorio
-                    List<HistoriaLaboratorio> resultLaboratorio = laboratorios.stream()
-                            .filter(item -> item.getHistoriaClinica().getId().equals(historiaCli.getId()))
-                            .collect(Collectors.toList());
-                    if (resultLaboratorio.size() > 0) {
-                        laboratorio = resultLaboratorio.get(0);
-                    } else {
-                        laboratorio.setHistoriaClinica(historiaCli);
-                    }
-                } else {
-                    //buscar paciente
-                    //si no existe, crearlo
-                    //crear historia clinica                    
-                    //poner historia creada en laboratorio
-                    HistoriaClinica historia = service.crearHistoriaClinica(reco, ds);
-                    laboratorio.setHistoriaClinica(historia);
-                }
-
-                reco.setLaboratorio(laboratorio);
-
+            for (RecorridoIngresante reco : recorridos) {
                 ObjectNode node = JsonHelper.createJson(reco, JsonNodeFactory.instance, true,
                         new String[]{
                             "*",
@@ -132,7 +95,49 @@ public class MuestrasLabController {
                             "turnoEntrevistaObuae.*",
                             "laboratorio.id",
                             "laboratorio.numeroMuestra",
-                            "laboratorio.fechaRegistro",
+                            "laboratorio.fechaMuestra",
+                            "laboratorio.historiaClinica.id",
+                            "tieneRiesgo"
+                        });
+                array.add(node);
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("list/turno/{idTurno}")
+    public DynatableResponse listTurno(@PathVariable Long idTurno, DynatableFilter filter, HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            TurnoEntrevistaObuae turno = new TurnoEntrevistaObuae(idTurno);
+            CicloAcademico ciclo = service.findCicloActivoAdmision();
+
+            List<RecorridoIngresante> recorridos = service.allRecorridosByDynatableTurno(filter, turno, ciclo, ds);
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (RecorridoIngresante reco : recorridos) {
+                ObjectNode node = JsonHelper.createJson(reco, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "*",
+                            "alumno.*",
+                            "alumno.carrera.nombre",
+                            "alumno.persona.*",
+                            "alumno.persona.tipoDocumento.simbolo",
+                            "turnoEntrevistaObuae.*",
+                            "laboratorio.id",
+                            "laboratorio.numeroMuestra",
+                            "laboratorio.fechaMuestra",
                             "laboratorio.historiaClinica.id",
                             "tieneRiesgo"
                         });
@@ -152,61 +157,32 @@ public class MuestrasLabController {
 
     @ResponseBody
     @RequestMapping("list/atendidos/{idTurno}")
-    public DynatableResponse listIngresantesAtendidos(@PathVariable Long idTurno, DynatableFilter filter, HttpSession session) {
+    public DynatableResponse listAtendidos(@PathVariable Long idTurno, DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            TurnoEntrevistaObuae turno = service.findTurno(idTurno);
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            TurnoEntrevistaObuae turno = service.findTurno(idTurno);
+            CicloAcademico ciclo = service.findCicloActivoAdmision();
 
-//            List<RecorridoIngresante> lista = service.ingresantesDynatable(filter,  ds.getCicloAcademico());
-            List<RecorridoIngresante> lista = service.allIngresantesCiclo(ds.getCicloAcademico());
-
-            List<Alumno> alumnos = lista.stream()
-                    .map(RecorridoIngresante::getAlumno)
-                    .collect(Collectors.toList());
-
-            List<Persona> personas = alumnos.stream()
-                    .map(Alumno::getPersona)
-                    .collect(Collectors.toList());
-
-            List<HistoriaLaboratorio> laboratorios = service.allLabByPersonasFilterFecha(personas, turno.getFecha());
-
-            List<Persona> personasFiltro = new ArrayList();
-            for (RecorridoIngresante reco : lista) {
-                List<HistoriaLaboratorio> resultLab = laboratorios.stream()
-                        .filter(item -> item.getHistoriaClinica().getPaciente().getPersona().getId().equals(reco.getAlumno().getPersona().getId()))
-                        .collect(Collectors.toList());
-                if (resultLab.size() > 0) {
-                    personasFiltro.add(reco.getAlumno().getPersona());
-                }
-            }
-
-            List<RecorridoIngresante> listaFiltrada = service.allIngresantesDynatableByPersona(filter, personasFiltro);
+            List<RecorridoIngresante> recorridos = service.allAtendidosByDynatableTurno(filter, turno, ciclo, ds);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            for (RecorridoIngresante reco : listaFiltrada) {
-                List<HistoriaLaboratorio> resultLab = laboratorios.stream()
-                        .filter(item -> item.getHistoriaClinica().getPaciente().getPersona().getId().equals(reco.getAlumno().getPersona().getId()))
-                        .collect(Collectors.toList());
-                if (resultLab.size() > 0) {
-                    reco.setLaboratorio(resultLab.get(0));
-                    ObjectNode node = JsonHelper.createJson(reco, JsonNodeFactory.instance, true,
-                            new String[]{
-                                "*",
-                                "alumno.*",
-                                "alumno.carrera.nombre",
-                                "alumno.persona.*",
-                                "alumno.persona.tipoDocumento.simbolo",
-                                "turnoEntrevistaObuae.*",
-                                "laboratorio.id",
-                                "laboratorio.numeroMuestra",
-                                "laboratorio.fechaRegistro",
-                                "laboratorio.historiaClinica.id"
-                            });
-                    array.add(node);
-                }
+            for (RecorridoIngresante reco : recorridos) {
+                ObjectNode node = JsonHelper.createJson(reco, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "*",
+                            "alumno.*",
+                            "alumno.carrera.nombre",
+                            "alumno.persona.*",
+                            "alumno.persona.tipoDocumento.simbolo",
+                            "turnoEntrevistaObuae.*",
+                            "laboratorio.id",
+                            "laboratorio.numeroMuestra",
+                            "laboratorio.fechaMuestra",
+                            "laboratorio.historiaClinica.id"
+                        });
+                array.add(node);
             }
 
             json.setData(array);
@@ -222,8 +198,7 @@ public class MuestrasLabController {
 
     @ResponseBody
     @RequestMapping("turnos")
-    public JsonResponse turnos(HttpSession session
-    ) {
+    public JsonResponse turnos(HttpSession session) {
         JsonResponse json = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -253,14 +228,9 @@ public class MuestrasLabController {
     public JsonResponse saveLaboratorio(@RequestBody HistoriaLaboratorio laboratorio, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-
-            laboratorio.setNumeroMuestra(visorMuestrasLab.getNumeroLab());
-            laboratorio.setFechaRegistro(new Date());
-            laboratorio.setUserRegistro(ds.getUsuario());
-            service.saveLaboratorio(laboratorio);
-            visorMuestrasLab.incrementaNumLab();
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.saveLaboratorio(laboratorio, ds);
 
             ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{
                 "*",});
@@ -304,13 +274,14 @@ public class MuestrasLabController {
     public ModelAndView listaExcel(Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-        List<RecorridoIngresante> ingresantes = service.allIngresantesConTurno(ds.getCicloAcademico());
+        CicloAcademico ciclo = service.findCicloActivoAdmision();
+        List<RecorridoIngresante> ingresantes = service.allIngresantesConTurno(ciclo);
 
         InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoIngresanteMuestraLab.xlsx");
 
         model.addAttribute("formato", formato);
         model.addAttribute("ingresantes", ingresantes);
+        model.addAttribute("ciclo", ciclo);
 
         return new ModelAndView(ingresanteMuestraLabView);
     }
@@ -319,15 +290,36 @@ public class MuestrasLabController {
     public ModelAndView listaExcelTurno(@RequestParam("turno") Long idTurno, Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        TurnoEntrevistaObuae turno = service.findTurno(idTurno);
+        CicloAcademico ciclo = service.findCicloActivoAdmision();
+        List<RecorridoIngresante> ingresantes = service.allIngresantesConTurno(turno, ciclo);
 
-        List<RecorridoIngresante> ingresantes = service.allIngresantesConTurno(new TurnoEntrevistaObuae(idTurno), ds.getCicloAcademico());
-
-        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoIngresanteMuestraLab.xlsx");
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoIngresanteTurnoMuestraLab.xlsx");
 
         model.addAttribute("formato", formato);
         model.addAttribute("ingresantes", ingresantes);
+        model.addAttribute("ciclo", ciclo);
+        model.addAttribute("turno", turno);
 
-        return new ModelAndView(ingresanteMuestraLabView);
+        return new ModelAndView(ingresanteTurnoMuestraLabView);
+    }
+
+    @RequestMapping("listaExcelAtendidos")
+    public ModelAndView listaExcelAtendidos(@RequestParam("turno") Long idTurno, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        TurnoEntrevistaObuae turno = service.findTurno(idTurno);
+        CicloAcademico ciclo = service.findCicloActivoAdmision();
+        List<RecorridoIngresante> ingresantes = service.allAtendidos(turno, ciclo);
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoAtendidosMuestraLab.xlsx");
+
+        model.addAttribute("formato", formato);
+        model.addAttribute("ingresantes", ingresantes);
+        model.addAttribute("ciclo", ciclo);
+        model.addAttribute("turno", turno);
+
+        return new ModelAndView(atendidosMuestraLabView);
     }
 
 }

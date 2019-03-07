@@ -36,4 +36,14 @@ public class HistoriaEnfermedadDAOH extends AbstractEasyDAO<HistoriaEnfermedad> 
         return all(sql);
     }
 
+    @Override
+    public List<HistoriaEnfermedad> allRiesgoByHistoriasClinicas(List<HistoriaClinica> historiasClinicas) {
+        Octavia sql = Octavia.query()
+                .from(HistoriaEnfermedad.class, "henf")
+                .join("historiaClinica hc", "enfermedad enf", "hc.paciente pac", "pac.persona")
+                .in("hc.id", historiasClinicas)
+                .filter("enf.tieneRiesgo", true);
+        return all(sql);
+    }
+
 }

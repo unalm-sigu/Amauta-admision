@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
+import java.util.Date;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
@@ -12,6 +13,8 @@ public interface RecorridoIngresanteDAO extends EasyDAO<RecorridoIngresante> {
 
     List<RecorridoIngresante> allByDynatableCiclo(DynatableFilter filter, CicloAcademico ciclo);
 
+    List<RecorridoIngresante> allAtendidosByDynatableCicloFecha(DynatableFilter filter, CicloAcademico ciclo, Date fecha);
+
     List<RecorridoIngresante> allByCiclo(CicloAcademico ciclo);
 
     List<RecorridoIngresante> allByDynatableCicloTurno(DynatableFilter filter, CicloAcademico ciclo, TurnoEntrevistaObuae turno);
@@ -23,5 +26,7 @@ public interface RecorridoIngresanteDAO extends EasyDAO<RecorridoIngresante> {
     List<RecorridoIngresante> allConTurno(CicloAcademico ciclo);
 
     List<RecorridoIngresante> allConTurno(TurnoEntrevistaObuae turno, CicloAcademico ciclo);
+
+    List<RecorridoIngresante> allAtendidos(Date fecha, CicloAcademico ciclo);
 
 }

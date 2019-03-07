@@ -86,9 +86,9 @@
                 <div v-cloak="">
 
                     <header class="header b-b padder-lg">
-                        <h2 th:inline="text"> Muestras de Laboratorio</h2>    
-                        <h4 style="text-align: right">Laboratorio Siguiente: {{laboratorioActual.numero}}</h4>
-                        <a type="button" class="btn btn-success pull-right" v-on:click="verListaExcel" shref="/ingresante/muestraslab/listaExcel">Excel</a>                                                           
+                        <a type="button" class="btn btn-success pull-right" v-on:click="verListaExcel">Excel</a>                                                           
+                        <h2 th:inline="text" class="m-b-xs"> Muestras de Laboratorio {{laboratorioActual.ciclo}}</h2>    
+                        <p class="block m-t-xs text-danger bold" style="">Laboratorio Siguiente: {{laboratorioActual.numero}}</p>
                     </header>
 
                     <section class="wrapper-lg">
@@ -98,17 +98,27 @@
                                 <raptor-table v-bind:url="ingresantesURL" ref="raptorML">                            
 
                                     <div slot="header">
-                                        <div class="col-md-5" >
+                                        <div class="col-md-2" >
+                                            <label>Todos:</label>
+                                            <br/>
+                                            <label class="switch">
+                                                <input type="checkbox" v-model="verTodos" v-on:change="selectTodos('todos')"/>
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-4" >
+
                                             <div class="col-md-3">
                                                 <br v-if="verTurno"/>
                                                 <label v-if="!verTurno">&nbsp;&nbsp;&nbsp;&nbsp;Turno:</label>
                                                 <div class="col-sm-6">
                                                     <label class="switch">
-                                                        <input type="checkbox" v-model="verTurno" v-on:change="selectTurno"/>
+                                                        <input type="checkbox" v-model="verTurno" v-on:change="selectTodos('turno')"/>
                                                         <span></span>
                                                     </label>
                                                 </div>
                                             </div>
+
                                             <div class="col-md-9">
                                                 <label v-if="verTurno">Turno:</label>
                                                 <multiselect 
@@ -123,19 +133,22 @@
                                                     v-on:input="cambiarTurno">
                                                 </multiselect>
                                             </div>
+
                                         </div>
 
-                                        <div class="col-md-5">
+                                        <div class="col-md-4">
+
                                             <div class="col-md-3">
                                                 <br v-if="verAtendidos"/>
                                                 <label v-if="!verAtendidos">&nbsp;&nbsp;&nbsp;&nbsp;Atendidos:</label>
                                                 <div class="col-sm-6">
                                                     <label class="switch">
-                                                        <input type="checkbox" v-model="verAtendidos" v-on:change="selectAtendido"/>
+                                                        <input type="checkbox" v-model="verAtendidos" v-on:change="selectTodos('atendidos')"/>
                                                         <span></span>
                                                     </label>
                                                 </div>
                                             </div>
+
                                             <div class="col-md-9">
                                                 <label v-if="verAtendidos">Atendidos:</label>
                                                 <multiselect 
@@ -144,10 +157,10 @@
                                                     v-bind:internal-search='false'
                                                     v-bind:limit='15'
                                                     v-bind:options='turnos'
-                                                    placeholder="Seleccione un turno"
+                                                    placeholder="Seleccione una fecha"
                                                     label='fecha'
                                                     v-bind:allow-empty="false"
-                                                    v-on:input="cambiarTurno">
+                                                    v-on:input="cambiarTurnoAtendidos">
                                                 </multiselect>
                                             </div>
                                         </div>
@@ -160,10 +173,12 @@
                                                 <thead>
 
                                                     <tr>
-                                                        <th class="col-xs-2">Alumno</th>
-                                                        <th class="col-xs-3"></th>
-                                                        <th class="col-xs-2">Fecha Atención</th>
-                                                        <th class="col-xs-3">Número de Laboratorio</th>
+                                                        <th class="col-xs-1 v-middle text-center">Alumno</th>
+                                                        <th class="col-xs-5"></th>
+                                                        <th class="col-xs-1 v-middle text-center">Fecha Atención</th>
+                                                        <th class="col-xs-1"></th>
+                                                        <th class="col-xs-1 v-middle text-center">Fecha toma muestra</th>
+                                                        <th class="col-xs-3 v-middle text-center">Número de Laboratorio</th>
                                                     </tr> 
 
                                                 </thead>
@@ -207,16 +222,21 @@
 
                                                         </td>
 
-                                                        <td class="v-middle">
-                                                            <span class="block">
-                                                                {{item.laboratorio.fechaRegistro}}
+                                                        <td class="v-middle text-center">
+                                                            {{item.turnoEntrevistaObuae.fecha}}
+                                                        </td>
 
-                                                                <span v-if="item.tieneRiesgo" class="text-primary bold">
-                                                                    R
-                                                                </span>
+                                                        <td class="v-middle text-center">
+                                                            <span v-if="item.tieneRiesgo" class="text-primary bold h3">
+                                                                R
                                                             </span>
+                                                        </td>
 
-
+                                                        <td class="v-middle text-center">
+                                                            <span v-if="item.laboratorio.fechaMuestra != '' ">
+                                                                <span class="block">{{item.laboratorio.fechaMuestra.split(" ")[0]}}</span>
+                                                                <span class="block">{{item.laboratorio.fechaMuestra.split(" ")[1]}}</span>
+                                                            </span>
                                                         </td>
 
                                                         <td  class="v-middle"> 
@@ -224,7 +244,7 @@
                                                                 <input v-model="item.laboratorio.numeroMuestra" type="text" class="form-control" disabled=""/>        
                                                             </div>
 
-                                                            <div v-if="verTurno">
+                                                            <div v-if="verTurno || verTodos">
                                                                 <div v-if="item.laboratorio.numeroMuestra==''" class="form-group col-md-6">
                                                                     <a type="button" class="btn btn-success" v-on:click="asignarNumLab(item)">Asignar</a>
                                                                 </div>

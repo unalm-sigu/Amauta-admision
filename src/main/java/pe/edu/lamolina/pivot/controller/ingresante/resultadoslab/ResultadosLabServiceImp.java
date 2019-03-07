@@ -59,7 +59,7 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
     @Override
     public List<HistoriaLaboratorio> allLabByPersonas(List<Persona> personas) {
 
-        return historiaLaboratorioDAO.allByPersona(personas);
+        return historiaLaboratorioDAO.allByPersonas(personas);
 
     }
 
@@ -74,13 +74,13 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
         BigDecimal estandar = laboratorio.getEstandar();
         BigDecimal hemoglobina = valorMuestra.multiply(new BigDecimal(18)).divide(estandar, 2, RoundingMode.DOWN);
         BigDecimal tope = new BigDecimal(0.5);
-        BigDecimal decimalRevisar = hemoglobina.multiply(new BigDecimal(10)).remainder( BigDecimal.ONE );
+        BigDecimal decimalRevisar = hemoglobina.multiply(new BigDecimal(10)).remainder(BigDecimal.ONE);
         if (decimalRevisar.compareTo(tope) == 1) {
             // redondear
             hemoglobina = hemoglobina.setScale(1, RoundingMode.HALF_UP);
-        }else{
+        } else {
             //truncar
-            hemoglobina = hemoglobina.setScale(1, RoundingMode.DOWN);            
+            hemoglobina = hemoglobina.setScale(1, RoundingMode.DOWN);
         }
 
         if (laboratorio.getId() != null) {
@@ -102,7 +102,7 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
 
     @Override
     public List<HistoriaClinica> allHistoriaByPersonas(List<Persona> personas) {
-        return historiaClinicaDAO.allByPersona(personas);
+        return historiaClinicaDAO.allByPersonas(personas);
     }
 
     @Override

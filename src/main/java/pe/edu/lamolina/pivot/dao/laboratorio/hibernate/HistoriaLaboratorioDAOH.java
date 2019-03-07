@@ -5,9 +5,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.medico.HistoriaClinica;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
@@ -40,7 +38,7 @@ public class HistoriaLaboratorioDAOH extends AbstractEasyDAO<HistoriaLaboratorio
     }
 
     @Override
-    public List<HistoriaLaboratorio> allByPersona(List<Persona> personas) {
+    public List<HistoriaLaboratorio> allByPersonas(List<Persona> personas) {
         Octavia sql = Octavia.query()
                 .from(HistoriaLaboratorio.class, "hl")
                 .join("historiaClinica hc", "hc.paciente pac", "pac.persona per")
@@ -57,8 +55,8 @@ public class HistoriaLaboratorioDAOH extends AbstractEasyDAO<HistoriaLaboratorio
         Octavia sql = Octavia.query()
                 .from(HistoriaLaboratorio.class, "hl")
                 .join("historiaClinica hc", "hc.paciente pac", "pac.persona per")
-                .filter("hl.fechaRegistro",">=", dtOrg.toDate())
-                .filter("hl.fechaRegistro","<", dtPlusOne.toDate())
+                .filter("hl.fechaRegistro", ">=", dtOrg.toDate())
+                .filter("hl.fechaRegistro", "<", dtPlusOne.toDate())
                 .in("per.id", personas);
         return all(sql);
     }

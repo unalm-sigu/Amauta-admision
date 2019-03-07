@@ -24,7 +24,7 @@ import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 
 @Component
-public class IngresanteMuestraLabView extends AbstractView {
+public class IngresanteTurnoMuestraLabView extends AbstractView {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -50,8 +50,9 @@ public class IngresanteMuestraLabView extends AbstractView {
 
         List<RecorridoIngresante> ingresantes = (List<RecorridoIngresante>) model.get("ingresantes");
         CicloAcademico ciclo = (CicloAcademico) model.get("ciclo");
+        TurnoEntrevistaObuae turno = (TurnoEntrevistaObuae) model.get("turno");
 
-        this.generateSheet(wb, ingresantes, ciclo);
+        this.generateSheet(wb, ingresantes, turno, ciclo);
         String fecha = new DateTime().toString("dd/MM/yyyy_H:mm");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + "Alumnos_Muestra_Laboratorio_" + fecha + ".xlsx\"");
         response.setContentType(getContentType());
@@ -62,9 +63,9 @@ public class IngresanteMuestraLabView extends AbstractView {
         out.flush();
     }
 
-    private void generateSheet(Workbook wb, List<RecorridoIngresante> ingresantes, CicloAcademico ciclo) {
+    private void generateSheet(Workbook wb, List<RecorridoIngresante> ingresantes, TurnoEntrevistaObuae turno, CicloAcademico ciclo) {
         Sheet sheet = wb.getSheet("Hoja1");
-        this.createBody(wb, sheet, ingresantes, ciclo);
+        this.createBody(wb, sheet, ingresantes, turno, ciclo);
     }
 
     private CellStyle getStyleCabecera(Workbook workBook) {
@@ -111,7 +112,7 @@ public class IngresanteMuestraLabView extends AbstractView {
         return cell;
     }
 
-    private void createBody(Workbook wb, Sheet sheet, List<RecorridoIngresante> ingresantes, CicloAcademico ciclo) {
+    private void createBody(Workbook wb, Sheet sheet, List<RecorridoIngresante> ingresantes, TurnoEntrevistaObuae turno, CicloAcademico ciclo) {
         ExcelHelper excelUtil = new ExcelHelper(sheet, wb);
 
         CellStyle estiloCabeceraNombre = getStyleCabecera(wb);
@@ -123,6 +124,7 @@ public class IngresanteMuestraLabView extends AbstractView {
         int irow = 7;
 
         excelUtil.replaceVal(3, 0, "Ciclo Académico " + ciclo.getDescripcion());
+        excelUtil.replaceVal(4, 2, "Fecha " + TypesUtil.getStringDate(turno.getFecha(), "dd/MM/yyyy"));
 
         //datos
         int num = 0;
@@ -134,17 +136,9 @@ public class IngresanteMuestraLabView extends AbstractView {
             excelUtil.replaceStyle(irow, 1, estiloCodigo);
             excelUtil.replaceStyle(irow, 2, estiloGeneral);
             excelUtil.replaceStyle(irow, 3, estiloGeneral);
-            excelUtil.replaceStyle(irow, 4, estiloGeneral);
 
             excelUtil.replaceVal(irow, 1, ingresante.getAlumno().getCodigo());
             excelUtil.replaceVal(irow, 2, ingresante.getAlumno().getPersona().getApellidosNombres());
-
-            if (ingresante.getTurnoEntrevistaObuae() != null) {
-                excelUtil.replaceVal(irow, 3, TypesUtil.getStringDate(ingresante.getTurnoEntrevistaObuae().getFecha(), "dd/MM/yyyy"));
-            }
-            if (ingresante.getLaboratorio() != null && ingresante.getLaboratorio().getFechaMuestra() != null) {
-                excelUtil.replaceVal(irow, 4, TypesUtil.getStringDate(ingresante.getLaboratorio().getFechaMuestra(), "dd/MM/yyyy"));
-            }
             irow++;
         }
 
