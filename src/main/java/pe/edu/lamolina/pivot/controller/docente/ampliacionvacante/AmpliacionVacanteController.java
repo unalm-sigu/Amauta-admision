@@ -116,6 +116,7 @@ public class AmpliacionVacanteController {
                     "secciones.seccionSuperior.aula.capacidadAula",
                     "secciones.seccionSuperior.grupoHoras.id",
                     "secciones.seccionSuperior.grupoHoras.codigo",
+                    "secciones.docentePrincipal.codigo",
                     "secciones.docentePrincipal.persona.nombreCompleto",
                 });
 
