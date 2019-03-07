@@ -22,6 +22,10 @@
                 margin-top: 10px;
                 margin-left:  10px;
             }
+            .btn-sm-plus {
+                padding: 2px 5px;
+                font-size: 8px;
+            }
         </style>
     </head>
 
@@ -142,7 +146,9 @@
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones "  class="block text-muted"> 
                                                         {{seccion.tipoSeccion!='TCUR'?seccion.ampliacionVacante:''}} 
                                                         <span v-if="seccion.tipoSeccion!='TCUR' ">
-                                                            <a v-if="docenteSession.id==gposeccion.docenteResponsable.id"  v-on:click.prevent="changeVacante(seccion)" href="#" class="">
+                                                            <a v-if="docenteSession.id==gposeccion.docenteResponsable.id"  
+                                                               v-on:click.prevent="changeVacante(seccion)" href="#" 
+                                                               class="btn btn-primary btn-sm-plus">
                                                                 <i class="fa fa-plus" aria-hidden="true"></i>
                                                             </a>  
                                                         </span>

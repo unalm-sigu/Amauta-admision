@@ -4,8 +4,6 @@ var app = new Vue({
     data: {
         URL_RETIROS: APP.url("academico/tramiteretirociclo/list"),
         ciclos: JSON.parse(ciclosJson),
-        rutaMatricula: rutaMatricula,
-        idUsuario: idUsuario,
         matriculaResumen: {},
         tramiteRetiroCiclo: {},
         modalRetiroCiclo: {
@@ -87,10 +85,6 @@ var app = new Vue({
                     if (response.success) {
                         $vue.$refs.load.loadRemoteData();
                         notify(response.message, "success");
-                        if (item.estado == 'RCHZ') {
-                            $vue.matriculaResumen = response.data;
-                            $vue.updateEnMatricula();
-                        }
                     }
                 },
                 error: function () {
@@ -99,18 +93,5 @@ var app = new Vue({
                 }
             });
         },
-        updateEnMatricula() {
-            let $vue = this;
-            $vue.rutaMatricula = $vue.rutaMatricula.replace("http://", "");
-            $.ajax({
-                url: APP.url("/" + $vue.rutaMatricula + "/matriculaSeccion/deleteMatricula"),
-                dataType: 'json',
-                type: 'post',
-                data: {idMatriculaResumen: $vue.matriculaResumen.id, idUsuario: $vue.idUsuario}
-            }).then(response => {
-                if (response.success) {
-                }
-            })
-        }
     }
 })

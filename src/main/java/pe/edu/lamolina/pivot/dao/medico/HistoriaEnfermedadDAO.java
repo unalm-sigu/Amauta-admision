@@ -11,4 +11,6 @@ public interface HistoriaEnfermedadDAO extends EasyDAO<HistoriaEnfermedad> {
 
     List<HistoriaEnfermedad> allByHistoriaClinica(HistoriaClinica historiaClinica);
 
+    List<HistoriaEnfermedad> allRiesgoByHistoriasClinicas(List<HistoriaClinica> historiasClinicas);
+
 }

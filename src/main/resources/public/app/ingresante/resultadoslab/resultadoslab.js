@@ -4,11 +4,13 @@ Vue.component("multiselect", window.VueMultiselect.default)
 new Vue({
     el: '#resultadosVUE',
     data: {
+        ciclo: JSON.parse(cicloJson),
+        turnos: JSON.parse(turnosJson),
         turnoSelected: {},
-        ingresantesURL: APP.url('ingresante/resultadoslab/list'),
+        ingresantesURL: APP.url('ingresante/resultadoslab/list/turno/0'),
         tipoSangreList: [],
         rhList: [],
-        itemSelected: {laboratorio:''},
+        itemSelected: {laboratorio: ''},
         newObservacionModal: {
             id: 'modalObservacion',
             header: true,
@@ -29,6 +31,10 @@ new Vue({
         $vue.loadTipoSangre();
         $vue.loadFactorRh();
         console.log(" $vue.$refs.raptorRL", $vue.$refs.raptorRL._props);
+        $vue.$refs.raptorRL.afterProcess = function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        }
+
     },
     methods: {
 
@@ -88,13 +94,49 @@ new Vue({
         },
         abrirObservaciones(item) {
             let $vue = this;
-            $vue.itemSelected = item;            
+            $vue.itemSelected = item;
             $vue.$refs.modalObservacion.open();
         },
         cerrarObservacion() {
             let $vue = this;
             $vue.$refs.modalObservacion.close();
 
+        },
+        cambiarTurno(item) {
+            let $vue = this;
+            if ($vue.existeTurnoSelect()) {
+                $vue.ingresantesURL = APP.url('ingresante/resultadoslab/list/turno/' + item.id);
+            } else {
+                $vue.ingresantesURL = APP.url('ingresante/resultadoslab/list/turno/0');
+            }
+            setTimeout(function () {
+                console.log("$vue.ingresantesURL == " + $vue.ingresantesURL)
+                $vue.$refs.raptorRL.loadRemoteData();
+            }, 50);
+        },
+        clearAll() {
+            let $vue = this;
+            $vue.turnoSelected = {};
+            $vue.ingresantesURL = APP.url('ingresante/resultadoslab/list/turno/0');
+            setTimeout(function () {
+                console.log("$vue.ingresantesURL == " + $vue.ingresantesURL)
+                $vue.$refs.raptorRL.loadRemoteData();
+            }, 50);
+        },
+        existeTurnoSelect() {
+            let $vue = this;
+            return $vue.turnoSelected.id != undefined;
+        },
+        verReporteTurno() {
+            let $vue = this;
+            if ($vue.existeTurnoSelect()) {
+                let turno = $vue.turnoSelected.id;
+                console.log(turno)
+                location.href = APP.url('ingresante/resultadoslab/listaExcelTurno?turno=' + turno);
+
+            } else {
+                notify("Debe seleccionar un turno", "error")
+            }
         }
     }
 });

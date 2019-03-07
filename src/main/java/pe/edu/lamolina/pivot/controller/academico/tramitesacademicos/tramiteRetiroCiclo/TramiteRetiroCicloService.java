@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRet
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
