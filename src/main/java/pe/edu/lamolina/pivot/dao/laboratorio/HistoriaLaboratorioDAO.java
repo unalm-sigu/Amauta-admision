@@ -13,7 +13,7 @@ public interface HistoriaLaboratorioDAO extends EasyDAO<HistoriaLaboratorio> {
 
     List<HistoriaLaboratorio> allByHistoriaClinica(List<HistoriaClinica> historialClinicaes);
 
-    List<HistoriaLaboratorio> allByPersona(List<Persona> personas);
+    List<HistoriaLaboratorio> allByPersonas(List<Persona> personas);
 
     List<HistoriaLaboratorio> allByPersonaFilterFecha(List<Persona> personas, Date fecha);
 
