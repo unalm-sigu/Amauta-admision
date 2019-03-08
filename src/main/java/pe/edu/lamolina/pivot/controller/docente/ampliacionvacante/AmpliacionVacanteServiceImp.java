@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.docente.ampliacionvacante;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -99,14 +100,27 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
         List<DocenteSeccion> responsablesseccion = docenteSeccionDAO.allResponsableBySeccionCiclo(secciones, ciclo);
         Map<Long, DocenteSeccion> mapResponsableSeccion = TypesUtil.convertListToMap("seccion.id", responsablesseccion);
+        
+        Map<Long, Seccion> grupoSeccionTcurMap = secciones
+                .stream()
+                .filter(y->y.getTipoSeccionEnum()==TipoSeccionEnum.TCUR)
+                .collect(Collectors.toMap(x -> x.getGrupoSeccion().getId(), x -> x ,(f,s)->s));
 
         for (Seccion seccion : secciones) {
 
-            GrupoSeccion gpoSecc = mapGposSeccion.get(seccion.getGrupoSeccion().getId());
-            gpoSecc.getSecciones().add(seccion);
-
             DocenteSeccion docPrincipal = mapResponsableSeccion.get(seccion.getId());
             seccion.setDocentePrincipal(docPrincipal != null ? docPrincipal.getDocente() : null);
+            
+            if(seccion.getIsTipoSeccionPCUR()){
+                Seccion seccionSuper=seccion.getSeccionSuperior();
+                if(seccionSuper==null){
+                    seccionSuper=grupoSeccionTcurMap.get(seccion.getGrupoSeccion().getId());
+                    seccion.setSeccionSuperior(seccionSuper);
+                }
+            }
+
+            GrupoSeccion gpoSecc = mapGposSeccion.get(seccion.getGrupoSeccion().getId());
+            gpoSecc.getSecciones().add(seccion);
 
         }
 
@@ -116,7 +130,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
     @Override
     public List<Alumno> allAlumnoByName(String nombre, CicloAcademico cicloAcademico, Seccion seccionForm) {
 
-        logger.debug("*****seccion**** {}", seccionForm.getId());
         Seccion seccion = seccionDAO.find(seccionForm);
         GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
         Curso curso = grupoSeccion.getCurso();
@@ -165,18 +178,23 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
             AlumnoCursoCurricula alumnoCursoCurricula = alumnosCursoCurriculaMap.get(alumno.getId());
 
-            if (alumnoCursoCurricula != null && alumnoCursoCurricula.getEstadoEnum() == CursoCurriculaEstadoEnum.APR) {
-                alumno.setMotivoMatriculable("Ya aprobó");
-                continue;
-            }
-
-            if (alumnoCursoCurricula != null && alumnoCursoCurricula.getEstadoEnum() == CursoCurriculaEstadoEnum.NREQ) {
+            if (alumnoCursoCurricula == null) {
                 alumno.setMotivoMatriculable("No cumple requisito");
                 continue;
             }
 
-            if (alumnoCursoCurricula != null && Arrays.asList(CursoCurriculaEstadoEnum.HAB, CursoCurriculaEstadoEnum.SIM).contains(alumnoCursoCurricula.getEstadoEnum())) {
-                alumno.setSituacion("1");
+            if (alumnoCursoCurricula.getEstadoEnum() == CursoCurriculaEstadoEnum.APR) {
+                alumno.setMotivoMatriculable("Ya aprobó");
+                continue;
+            }
+
+            if (alumnoCursoCurricula.getEstadoEnum() == CursoCurriculaEstadoEnum.NREQ) {
+                alumno.setMotivoMatriculable("No cumple requisito");
+                continue;
+            }
+
+            if (!Arrays.asList(CursoCurriculaEstadoEnum.HAB, CursoCurriculaEstadoEnum.SIM).contains(alumnoCursoCurricula.getEstadoEnum())) {
+                alumno.setMotivoMatriculable("No cumple requisito");
                 continue;
             }
 
@@ -190,8 +208,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
     @Transactional
     public void matricular(AmpliacionVacanteForm ampliacionVacanteForm, CicloAcademico cicloAcademico, DataSessionPivot ds) {
 
-        Seccion seccionForm = ampliacionVacanteForm.getSeccion();
-        Seccion seccion = seccionDAO.find(seccionForm);
+        Seccion seccion = seccionDAO.find(ampliacionVacanteForm.getSeccion());
+        logger.debug("seccion {} ", seccion.getId());
 
         GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
         Curso curso = grupoSeccion.getCurso();
@@ -281,7 +299,16 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             }
 
             if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+
                 Seccion seccionSuper = seccion.getSeccionSuperior();
+
+                if (seccionSuper == null) {
+                    seccionSuper = seccionDAO.findByGpoSeccionTipoSeccion(grupoSeccion, TipoSeccionEnum.TCUR);
+                }
+
+                if (seccionSuper == null) {
+                    throw new PhobosException("Sección no configurada");
+                }
 
                 MatriculaSeccion matriculaSeccionSuper = matriculaSeccionDAO.findByMatriculaMatSeccion(matriculaResumen, seccionSuper);
 
@@ -302,6 +329,10 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                     throw new PhobosException(sb.toString());
 
                 }
+
+                seccionSuper.setMatriculados(seccionSuper.getMatriculados() + 1);
+                seccionSuper.setAmpliacionVacante(seccionSuper.getAmpliacionVacante() + 1);
+                seccionDAO.update(seccionSuper);
 
             }
 

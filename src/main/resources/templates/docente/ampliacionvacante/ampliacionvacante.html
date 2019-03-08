@@ -83,7 +83,7 @@
                                                                 <span v-text="gposeccion.curso.tpc"></span> &nbsp;
                                                             </span>
                                                             <small class="block text-muted">Departamento Académico: {{gposeccion.curso.departamentoAcademico.nombre}}</small>
-                                                            <div v-if="gposeccion.docenteResponsable.persona.nombreCompleto != null" class="block">
+                                                            <div v-if="gposeccion.docenteResponsable.persona.nombreCompleto != null" class="block text-primary">
                                                                 <strong>Responsable:</strong>
                                                                 {{gposeccion.docenteResponsable.persona.nombreCompleto}}
                                                             </div>
@@ -144,7 +144,7 @@
                                                 <td class="text-center">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones "  class="block text-muted"> 
-                                                        {{seccion.ampliacionVacante}} 
+                                                        {{seccion.tipoSeccion!='TCUR'?seccion.ampliacionVacante:''}} 
                                                         <span v-if="seccion.tipoSeccion!='TCUR' ">
                                                             <a v-if="docenteSession.id==gposeccion.docenteResponsable.id"  
                                                                v-on:click.prevent="changeVacante(seccion)" href="#" 
@@ -156,10 +156,11 @@
 
                                                 </td>
 
-                                                <td class="text-center">
+                                                <td class="">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted"> 
-                                                        {{seccion.docentePrincipal.persona.nombreCompleto}} 
+                                                        <p v-if="seccion.docentePrincipal.codigo != 'N.N.' " >{{seccion.docentePrincipal.persona.nombreCompleto}}</p>
+                                                        <p v-else="">Desconocido</p>
                                                     </small>
 
                                                 </td>
@@ -245,7 +246,7 @@
                                             <div  class="col-sm-5">
                                                 <p class="block">{{props.option.carrera.nombre}}</p>
                                                 <p v-if="props.option.carrera.facultad.nombre==props.option.carrera.nombre"></p>
-                                                <p v-else="props.option.carrera.facultad.nombre==props.option.carrera.nombre">{{props.option.carrera.facultad.nombre}}</p>
+                                                <p v-else="">{{props.option.carrera.facultad.nombre}}</p>
                                             </div>
 
                                         </span>
@@ -256,7 +257,7 @@
                                 <input type="text" class="hide" required="" v-model="alumnoeleccionado.id"/>
 
                             </div>
-
+                            
                             <div v-if="alumnoeleccionado.situacion=='1' " class="form-group  col-sm-2">  
                                 <button v-on:click="agregarAlumno" class="btn btn-primary btn-sm">Agregar</button>
                             </div>
@@ -286,7 +287,8 @@
                                     </td>
                                     <td  class="col-sm-4  v-middle">
                                         <p class="block">{{item.carrera.nombre}}</p>
-                                        <p class="block">{{item.carrera.facultad.nombre}}</p>
+                                        <p v-if="item.carrera.facultad.nombre==item.carrera.nombre" class="block"></p>
+                                        <p v-else="" class="block">{{item.carrera.facultad.nombre}}</p>
                                     </td>
                                     <td  class="v-middle">
                                         <a v-on:click.prevent="eliminarAlumno(item)" class="text-danger"  href="#">
