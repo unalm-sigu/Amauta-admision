@@ -1,8 +1,11 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +25,12 @@ import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
+import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Sistema;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
@@ -39,6 +44,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSimultaneoDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.ParametroDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -84,6 +90,9 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
 
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
+ 
+    @Autowired
+    TokenIngresanteDAO tokenIngresanteDAO;
 
     @Autowired
     DespliegueConfig despliegueConfig;
@@ -157,9 +166,9 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
 
             JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
-            
+
             Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
-            
+
             matriculaResumen.setCursosMatriculados(0);
             matriculaResumen.setCreditosMatriculados(0);
             matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
@@ -222,6 +231,21 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds) {
 
         return alumnoDAO.allByName(nombre);
+    }
+
+    @Override
+    @Transactional
+    public void createToken(RetiroCiclo retiroCiclo, DataSessionPivot ds) {
+        String valor = RandomStringUtils.randomAlphanumeric(45);
+        TokenIngresante token = new TokenIngresante();
+        token.setEstado(TokenEstadoEnum.ACT);
+        token.setFechaRegistro(new Date());
+        token.setFechaVencimiento(new DateTime().plusSeconds(5).toDate());
+        token.setPersona(ds.getPersona());
+        token.setValor(valor);
+        token.setUserRegistro(ds.getUsuario());
+        tokenIngresanteDAO.save(token);
+
     }
 
 }

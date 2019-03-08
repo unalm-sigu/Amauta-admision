@@ -24,4 +24,6 @@ public interface TramiteRetiroCicloService {
 
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
+    public void createToken(RetiroCiclo retiroCiclo, DataSessionPivot ds);
+
 }
