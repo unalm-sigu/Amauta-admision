@@ -84,7 +84,6 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
             Assert.isFalse(count > 1, "Está repitiendo alumno");
         }
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
-        logger.debug("estadp {}", estadoTramite.getId());
         System.out.println("Estado" + estadoTramite.getId());
         for (Reincorporacion reincorporacione : resolucionForm.getReincorporaciones()) {
             Facultad facultad = reincorporacione.getAlumno().getCarrera().getFacultad();
