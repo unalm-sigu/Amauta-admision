@@ -18,7 +18,7 @@ import pe.edu.lamolina.pivot.dao.mensajeria.TipoMensajeIntranetDAO;
 
 @Service
 @Transactional(readOnly = true)
-public class MensajeriaIntranetServiceImp implements MensajeriaIntranetService {
+public class MensajesIntranetServiceImp implements MensajesIntranetService {
 
     @Autowired
     GrupoAlumnoDAO grupoAlumnoDAO;

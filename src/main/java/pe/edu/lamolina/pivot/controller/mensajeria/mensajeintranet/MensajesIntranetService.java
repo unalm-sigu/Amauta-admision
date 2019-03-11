@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.academico.MensajeIntranet;
 import pe.edu.lamolina.model.academico.TipoMensajeIntranet;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
-public interface MensajeriaIntranetService {
+public interface MensajesIntranetService {
 
     List<GrupoAlumno> allGruposAlumnos();
 
