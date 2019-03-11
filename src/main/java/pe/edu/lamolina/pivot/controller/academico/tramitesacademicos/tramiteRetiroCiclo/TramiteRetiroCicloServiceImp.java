@@ -70,6 +70,7 @@ import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
+import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -138,32 +139,13 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     @Autowired
     TokenIngresanteDAO tokenIngresanteDAO;
 
-    @Autowired
-    GeneracionAportesDAO generacionAportesDAO;
-
-    @Autowired
-    ResumenAporteAlumnoDAO resumenAporteAlumnoDAO;
-
-    @Autowired
-    AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
-
-    @Autowired
-    ReincorporacionDAO reincorporacionDAO;
-
-    @Autowired
-    AporteCicloDAO aporteCicloDAO;
-
-    @Autowired
-    DeudaAlumnoDAO deudaAlumnoDAO;
-
-    @Autowired
-    AporteSemestralDAO aporteSemestralDAO;
-
-    @Autowired
-    AcreenciaDAO acreenciaDAO;
+   
 
     @Autowired
     DespliegueConfig despliegueConfig;
+
+    @Autowired
+    AporteAlumnoService aporteAlumnoService;
 
     @Autowired
     InfoAcademicoService infoAcademicoService;
@@ -209,7 +191,7 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
         if (!isCondicional) {
             updateCursoApro(retiroCiclo);
         }
-        generarAportes(alumno, ds.getCicloAcademico(), ds);
+        aporteAlumnoService.generarAportes(alumno, ds.getCicloAcademico(), ds);
     }
 
     private void updateCursoApro(RetiroCiclo retiroCiclo) {
@@ -317,258 +299,5 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
 
     }
 
-    private void generarAportes(Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds) {
-
-        GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(ciclo);
-        if (generador == null) {
-            return;
-        }
-        if (!Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN).contains(generador.getEstadoEnum())) {
-            return;
-        }
-
-        MatriculaResumen matriResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
-        ResumenAporteAlumno aportante = resumenAporteAlumnoDAO.findByAlumnoCicloAcademico(alumno, ciclo);
-        if (aportante == null) {
-            aportante = new ResumenAporteAlumno();
-        }
-
-        aportante.setMatriculaResumen(matriResumen);
-        aportante.setMontoAFavor(BigDecimal.ZERO);
-        aportante.setMontoCancelado(BigDecimal.ZERO);
-        aportante.setMontoExonerado(BigDecimal.ZERO);
-        aportante.setMontoFraccionado(BigDecimal.ZERO);
-        aportante.setMontoInicial(BigDecimal.ZERO);
-        aportante.setMontoPendiente(BigDecimal.ZERO);
-        aportante.setMontoTotal(BigDecimal.ZERO);
-        aportante.setFechaRegistro(new Date());
-        aportante.setUserRegistro(ds.getUsuario());
-
-        if (aportante.getId() == null) {
-            resumenAporteAlumnoDAO.save(aportante);
-        }
-
-        if (Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN).contains(generador.getEstadoEnum())) {
-            List<AporteCiclo> aportesCiclo = aporteCicloDAO.allByCicloAcademico(ciclo);
-            for (AporteCiclo aporteCiclo : aportesCiclo) {
-
-                if (aporteCiclo.getMontoVariable()) {
-                    createAporteVariable(aporteCiclo, aportante);
-                } else if (!aporteCiclo.getPersonalizado() && !aporteCiclo.getMontoVariable()) {
-                    createAporteFijo(aporteCiclo, aportante);
-                } else if (aporteCiclo.getPersonalizado() && !aporteCiclo.getMontoVariable()) {
-                    createAporteFijoPersonalizado(aporteCiclo, aportante);
-                }
-                aporteCicloDAO.update(aporteCiclo);
-            }
-        }
-
-        resumenAporteAlumnoDAO.update(aportante);
-        if (generador.getEstadoEnum() != GeneracionAportesEstadoEnum.BOL) {
-            return;
-        }
-
-        Alumno alumnoBD = alumnoDAO.find(alumno.getId());
-        List<AporteAlumnoCiclo> deudasAlu = aporteAlumnoCicloDAO.allByAlumnoCiclo(alumno, ciclo);
-        Map<Long, List<AporteAlumnoCiclo>> mapDeudasByCta = TypesUtil.convertListToMapList("aporteCiclo.cuentaBancaria.id", deudasAlu);
-        Map<Long, CuentaBancaria> mapCtaBanco = TypesUtil.convertListToMap("aporteCiclo.cuentaBancaria.id", "aporteCiclo.cuentaBancaria", deudasAlu);
-        List<CuentaBancaria> ctasBanco = new ArrayList(mapCtaBanco.values());
-        for (CuentaBancaria ctaBanco : ctasBanco) {
-            List<AporteAlumnoCiclo> deudasCta = mapDeudasByCta.get(ctaBanco.getId());
-
-            if (deudasCta == null) {
-                continue;
-            }
-
-            BigDecimal monto = BigDecimal.ZERO;
-            for (AporteAlumnoCiclo aporteAlumnoCiclo : deudasCta) {
-                monto = monto.add(aporteAlumnoCiclo.getMonto());
-            }
-
-            DeudaAlumno deudaAlumno = new DeudaAlumno();
-            if (ctaBanco.getCodigo().equals(CuentaBancariaEnum.MAT_UNALM.getCodigoServ())) {//credipago matricula
-                deudaAlumno.setConcepto("Deuda Académica");
-            } else if (ctaBanco.getCodigo().equals(CuentaBancariaEnum.MAT_FDA.getCodigoServ())) {//credipago bienestar
-                deudaAlumno.setConcepto("Deuda Bienestar");
-            }
-
-            ObjectNode detalleJson = createDetalleJson(deudasAlu);
-            deudaAlumno.setAlumno(alumnoBD);
-            deudaAlumno.setCuentaBancaria(ctaBanco);
-            deudaAlumno.setEstadoEnum(DeudaEstadoEnum.DEU);
-            deudaAlumno.setMonto(monto);
-            deudaAlumno.setDetalleJson(detalleJson.toString());
-            deudaAlumno.setUserRegistro(ds.getUsuario());
-            deudaAlumno.setFechaRegistro(new Date());
-            deudaAlumno.setAbono(BigDecimal.ZERO);
-            deudaAlumnoDAO.save(deudaAlumno);
-
-            for (AporteAlumnoCiclo aporteAlu : deudasCta) {
-                aporteAlu.setDeudaAlumno(deudaAlumno);
-                aporteAlumnoCicloDAO.update(aporteAlu);
-            }
-
-            Acreencia acreencia = new Acreencia();
-            if (ctaBanco.getCodigo().equals(CuentaBancariaEnum.MAT_UNALM.getCodigoServ())) {//credipago matricula
-                acreencia.setDescripcion("Deuda Académica");
-            } else if (ctaBanco.getCodigo().equals(CuentaBancariaEnum.MAT_FDA.getCodigoServ())) {//credipago bienestar
-                acreencia.setDescripcion("Deuda Bienestar");
-            }
-
-            acreencia.setOficina(new Oficina(OficinaEnum.OBUAE.getId()));
-            acreencia.setTablaEnum(NombreTablasEnum.FIN_DEUDA_ALUMNO);
-            acreencia.setInstanciaTabla(deudaAlumno.getId());
-            acreencia.setEstadoEnum(DeudaEstadoEnum.DEU);
-            acreencia.setMonto(monto);
-            acreencia.setAbono(BigDecimal.ZERO);
-            acreencia.setPersona(alumnoBD.getPersona());
-            acreencia.setCuentaBancaria(ctaBanco);
-            acreencia.setFechaDocumento(new Date());
-            acreencia.setUsuarioRegistro(ds.getUsuario());
-            acreencia.setFechaRegistro(new Date());
-            acreenciaDAO.save(acreencia);
-        }
-
-    }
-
-    private void createAporteVariable(AporteCiclo aporteCiclo, ResumenAporteAlumno aportante) {
-        Aporte aporte = aporteCiclo.getAporte();
-        Alumno alumno = aportante.getMatriculaResumen().getAlumno();
-
-        /* Aporte Semestral */
-        if (aporte.getCodigoEnum() == AportesEnum.A01) {
-            AporteSemestral apoSem = aporteSemestralDAO.findActivoByAlumno(alumno, aporte);
-            AporteAlumnoCiclo aac = new AporteAlumnoCiclo();
-            aac.setAporteCiclo(aporteCiclo);
-            aac.setEstadoEnum(EstadoAporteEnum.DEBE);
-            aac.setFraccionado(BigDecimal.ZERO);
-            aac.setMonto(apoSem.getCategoriaBienestar().getMonto());
-            aac.setNumeroCuota(1);
-            aac.setPagado(BigDecimal.ZERO);
-            aac.setResumenAporteAlumno(aportante);
-            aac.setSaldo(apoSem.getCategoriaBienestar().getMonto());
-            aporteAlumnoCicloDAO.save(aac);
-
-            aportante.setMontoInicial(aportante.getMontoInicial().add(aac.getMonto()));
-            aportante.setMontoTotal(aportante.getMontoTotal().add(aac.getMonto()));
-            aportante.setMontoPendiente(aportante.getMontoPendiente().add(aac.getMonto()));
-
-            aporteCiclo.setAportantes(aporteCiclo.getAportantes() + 1);
-        }
-
-        /* Aporte Voluntario - Solo cachimbos */
-        if (aporte.getCodigoEnum() == AportesEnum.A14
-                && Arrays.asList(S_8, S_9).contains(alumno.getSituacionAcademica().getCodigoEnum())) {
-            AporteSemestral apoSem = aporteSemestralDAO.findActivoByAlumno(alumno, aporte);
-            AporteAlumnoCiclo aac = new AporteAlumnoCiclo();
-            aac.setAporteCiclo(aporteCiclo);
-            aac.setEstadoEnum(EstadoAporteEnum.DEBE);
-            aac.setFraccionado(BigDecimal.ZERO);
-            if (apoSem == null) {
-                throw new PhobosException("Llenar aporte voluntario");
-            }
-            aac.setMonto(apoSem.getMonto());
-            aac.setNumeroCuota(1);
-            aac.setPagado(BigDecimal.ZERO);
-            aac.setResumenAporteAlumno(aportante);
-            aac.setSaldo(apoSem.getMonto());
-            aporteAlumnoCicloDAO.save(aac);
-
-            aportante.setMontoInicial(aportante.getMontoInicial().add(aac.getMonto()));
-            aportante.setMontoTotal(aportante.getMontoTotal().add(aac.getMonto()));
-            aportante.setMontoPendiente(aportante.getMontoPendiente().add(aac.getMonto()));
-
-            aporteCiclo.setAportantes(aporteCiclo.getAportantes() + 1);
-        }
-    }
-
-    private void createAporteFijo(AporteCiclo aporteCiclo, ResumenAporteAlumno aportante) {
-        BigDecimal monto = aporteCiclo.getMontoFijo();
-        AporteAlumnoCiclo aac = new AporteAlumnoCiclo();
-        aac.setAporteCiclo(aporteCiclo);
-        aac.setEstadoEnum(EstadoAporteEnum.DEBE);
-        aac.setFraccionado(BigDecimal.ZERO);
-        aac.setMonto(monto);
-        aac.setNumeroCuota(1);
-        aac.setPagado(BigDecimal.ZERO);
-        aac.setResumenAporteAlumno(aportante);
-        aac.setSaldo(monto);
-        aporteAlumnoCicloDAO.save(aac);
-
-        aportante.setMontoInicial(aportante.getMontoInicial().add(monto));
-        aportante.setMontoTotal(aportante.getMontoTotal().add(monto));
-        aportante.setMontoPendiente(aportante.getMontoPendiente().add(monto));
-
-        aporteCiclo.setAportantes(aporteCiclo.getAportantes() + 1);
-    }
-
-    private void createAporteFijoPersonalizado(AporteCiclo aporteCiclo, ResumenAporteAlumno aportante) {
-        if (!aporteCiclo.getPersonalizado()) {
-            return;
-        }
-
-        Aporte aporte = aporteCiclo.getAporte();
-        Alumno alumno = aportante.getMatriculaResumen().getAlumno();
-        CicloAcademico ciclo = aportante.getMatriculaResumen().getCicloAcademico();
-
-        /* Reincorporacion */
-        if (aporte.getCodigoEnum() == AportesEnum.A38) {
-            Reincorporacion reincorpora = reincorporacionDAO.findByAlumnoCiclo(alumno, ciclo);
-            if (reincorpora != null) {
-                BigDecimal monto = aporteCiclo.getMontoFijo();
-                AporteAlumnoCiclo aac = new AporteAlumnoCiclo();
-                aac.setAporteCiclo(aporteCiclo);
-                aac.setEstadoEnum(EstadoAporteEnum.DEBE);
-                aac.setFraccionado(BigDecimal.ZERO);
-                aac.setMonto(monto);
-                aac.setNumeroCuota(1);
-                aac.setPagado(BigDecimal.ZERO);
-                aac.setResumenAporteAlumno(aportante);
-                aac.setSaldo(monto);
-                aporteAlumnoCicloDAO.save(aac);
-
-                aportante.setMontoInicial(aportante.getMontoInicial().add(monto));
-                aportante.setMontoTotal(aportante.getMontoTotal().add(monto));
-                aportante.setMontoPendiente(aportante.getMontoPendiente().add(monto));
-
-                aporteCiclo.setAportantes(aporteCiclo.getAportantes() + 1);
-            }
-        }
-
-        /* Observacion Academica */
-        if (aporte.getCodigoEnum() == AportesEnum.A02
-                && Arrays.asList(S_1, S_2, S_2U).contains(alumno.getSituacionAcademica().getCodigoEnum())) {
-
-        }
-
-        /* Viene de Suspension */
-        if (aporte.getCodigoEnum() == AportesEnum.A28
-                && Arrays.asList(S_3, S_3U).contains(alumno.getSituacionAcademica().getCodigoEnum())) {
-
-        }
-        /* A pesar de estar Suspendidos van a estudiar */
-        if (aporte.getCodigoEnum() == AportesEnum.A28
-                && Arrays.asList(S_6U, S_6, S_4, S_4U).contains(alumno.getSituacionAcademica().getCodigoEnum())) {
-
-        }
-
-    }
-
-    private ObjectNode createDetalleJson(List<AporteAlumnoCiclo> deudasAlumno) {
-        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
-
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-        for (AporteAlumnoCiclo aporteAlu : deudasAlumno) {
-            ObjectNode node = JsonHelper.createJson(aporteAlu, JsonNodeFactory.instance, new String[]{
-                "*",
-                "aporteCiclo.*",
-                "aporteCiclo.aporte.*",
-                "resumenAporteAlumno.*",
-                "resumenAporteAlumno.matriculaResumen.*"
-            });
-            array.add(node);
-        }
-        json.set("data", array);
-        return json;
-    }
+    
 }
