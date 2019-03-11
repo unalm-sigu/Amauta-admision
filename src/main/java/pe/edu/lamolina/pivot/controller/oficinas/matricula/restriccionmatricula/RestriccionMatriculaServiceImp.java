@@ -34,10 +34,10 @@ import pe.edu.lamolina.model.academico.TipoDeudaMaterial;
 import pe.edu.lamolina.model.enums.DeudaAlumnoEstadoEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
-import pe.edu.lamolina.pivot.dao.academico.DeudaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoDeudaAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.dao.academico.DeudaMaterialAlumnoDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -46,7 +46,7 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    DeudaAlumnoDAO deudaAlumnoDAO;
+    DeudaMaterialAlumnoDAO deudaAlumnoDAO;
 
     @Autowired
     TipoDeudaAlumnoDAO tipoDeudaAlumnoDAO;
