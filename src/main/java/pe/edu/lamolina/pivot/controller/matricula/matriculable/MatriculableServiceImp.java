@@ -329,13 +329,16 @@ public class MatriculableServiceImp implements MatriculableService {
             }
             mapMatriculable.put(estudiante.getId(), estudiante);
         }
+
         for (Alumno alumnoTramite : alumosConTramite) {
             Alumno alumno = mapMatriculableCondicional.get(alumnoTramite.getId());
             if (alumno != null) {
                 continue;
             }
+            updateCursoApro(alumno);
             mapMatriculableCondicional.put(alumnoTramite.getId(), alumnoTramite);
         }
+
         List<Alumno> alumnos = new ArrayList(mapMatriculable.values());
         List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
         System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos Reg para ser matriculables");

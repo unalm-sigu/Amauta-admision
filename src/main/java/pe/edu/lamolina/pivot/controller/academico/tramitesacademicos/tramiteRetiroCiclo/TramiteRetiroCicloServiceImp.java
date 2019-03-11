@@ -139,8 +139,6 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     @Autowired
     TokenIngresanteDAO tokenIngresanteDAO;
 
-   
-
     @Autowired
     DespliegueConfig despliegueConfig;
 
@@ -188,19 +186,6 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
         retiro.setUsuario(ds.getUsuario());
         retiro.setMotivo(retiroCiclo.getMotivo());
         retiroCicloDAO.save(retiro);
-        if (!isCondicional) {
-            updateCursoApro(retiroCiclo);
-        }
-        aporteAlumnoService.generarAportes(alumno, ds.getCicloAcademico(), ds);
-    }
-
-    private void updateCursoApro(RetiroCiclo retiroCiclo) {
-
-        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoAprob(retiroCiclo.getAlumno(), retiroCiclo.getCicloAcademico());
-        for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
-            alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
-            alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
-        }
     }
 
     @Override
@@ -299,5 +284,4 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
 
     }
 
-    
 }
