@@ -43,19 +43,23 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th class="text-center">Tipo Resolución</th>
-                                            <th class="text-center">Oficina</th>
-                                            <th class="text-center">Documento</th>
-                                            <th class="text-center">Fecha Resolución</th>
-                                            <th class="text-center">Registro </th>
-                                            <th class="text-center">Estado</th>
-                                            <th class="text-center" style="width: 20px !important;"></th>
+                                            <th class="text-muted">Tipo Resolución</th>
+                                            <th class="text-muted">Alumnos</th>
+                                            <th class="text-muted">Oficina</th>
+                                            <th class="text-muted">Documento</th>
+                                            <th class="text-muted">Fecha Resolución</th>
+                                            <th class="text-muted">Registro </th>
+                                            <th class="text-muted">Estado</th>
+                                            <th class="text-muted" style="width: 20px !important;"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="item in props.data"> 
                                             <td>
                                                 {{item.tipoResolucion.nombre}}
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-info-circle text-primary " aria-hidden="true" v-on:click="allAlumnos(item.id)"></i>
                                             </td>
                                             <td>
                                                 {{item.oficina.nombre}}    
@@ -295,6 +299,7 @@
                 </modal-vik>
 
 
+                <div th:substituteby="academico/resolucion/alumnosResolucionModal"/>
             </section>
         </div>
         <div th:substituteby="templates/modal"/>

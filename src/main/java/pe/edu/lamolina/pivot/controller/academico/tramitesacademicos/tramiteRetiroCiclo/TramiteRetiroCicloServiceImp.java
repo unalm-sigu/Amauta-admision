@@ -172,8 +172,13 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(retiroCiclo.getAlumno());
         AlumnoCiclo alumnoCiclo = alumnoCiclos.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), retiroCiclo.getCicloAcademico().getId())).findAny().orElse(null);
         Assert.isNotNull(alumnoCiclo, "El alumno no tiene actividad en el ciclo " + retiroCiclo.getCicloAcademico().getDescripcion());
-
-        RetiroCiclo retiro = new RetiroCiclo();
+        
+        
+        
+        
+        RetiroCiclo retiro = retiroCicloDAO.findByAlumnoCicloRetiro(alumno, retiroCiclo.getCicloAcademico());
+        Assert.isNull(retiro, "El alumno ya cuenta con un trámite de retiro para el ciclo " + retiroCiclo.getCicloAcademico().getDescripcion());
+        retiro = new RetiroCiclo();
         retiro.setEstado(TramiteEstadoEnum.PEND);
         if (isCondicional) {
             retiro.setTipoEnum(TipoRetiroCicloEnum.EXCEP);

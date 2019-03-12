@@ -6,7 +6,7 @@ var app = new Vue({
     data: {
         URL_RESOLUCIONES: APP.url('academico/resolucion/listResoluciones'),
         URL_TRAMITES: APP.url('academico/resolucion/listTramitesToConfirm'),
-        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning", DOC_CONF: "success",VB_RES:"primary"},
+        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning", DOC_CONF: "success", VB_RES: "primary"},
         resolucionModal: {
             id: 'modalResolucion',
             header: true,
@@ -21,10 +21,18 @@ var app = new Vue({
             okbtn: 'Aceptar',
             modalsize: 'modal-md'
         },
+        modalAlumnos: {
+            id: 'modalAlumnos',
+            header: true,
+            title: 'Alumnos',
+            okbtn: 'Aceptar',
+            showaccept: false
+        },
         resolucion: null,
         tiposResoluciones: null,
         files: [],
-        ciclosToReincorporacion: null
+        ciclosToReincorporacion: null,
+        alumnosReincorporacion: []
     }, created: function () {
 
     }, mounted: function () {
@@ -257,6 +265,26 @@ var app = new Vue({
             if (descripcion != '' && tipo != '') {
                 return `${descripcion} - ${tipo}`;
         }
+        },
+        allAlumnos(item) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url('academico/resolucion/alumnos/' + item),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                success: function (response) {
+                    if (response.success) {
+                        $vue.alumnosReincorporacion = response.data;
+                        $vue.$refs.modalAlumnos.open();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     }
 })

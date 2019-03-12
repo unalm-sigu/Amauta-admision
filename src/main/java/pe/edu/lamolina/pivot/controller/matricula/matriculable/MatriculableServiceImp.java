@@ -331,11 +331,11 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         for (Alumno alumnoTramite : alumosConTramite) {
+            updateCursoApro(alumnoTramite);
             Alumno alumno = mapMatriculableCondicional.get(alumnoTramite.getId());
             if (alumno != null) {
                 continue;
             }
-            updateCursoApro(alumno);
             mapMatriculableCondicional.put(alumnoTramite.getId(), alumnoTramite);
         }
 
@@ -347,9 +347,13 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         List<Alumno> alumnosCondicional = new ArrayList(mapMatriculableCondicional.values());
-        for (Alumno alumno : alumnosCondicional) {
-            Alumno alumnoExist = mapMatriculableExist.get(alumno.getId());
+        for (Alumno alumnoCondicional : alumnosCondicional) {
+            Alumno alumnoExist = mapMatriculableExist.get(alumnoCondicional.getId());
             if (alumnoExist != null) {
+                continue;
+            }
+            Alumno alumno = mapMatriculable.get(alumnoCondicional.getId());
+            if (alumno != null) {
                 continue;
             }
             MatriculaResumen matriculable = new MatriculaResumen();
@@ -781,7 +785,7 @@ public class MatriculableServiceImp implements MatriculableService {
         if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {
             Assert.isTrue(isCondicional, "El alumno no cumple requisito para matricula condicional.");
 
-            RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumno(alumno, ciclo);
+            RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(alumno, ciclo);
             Assert.isNotNull(retiroCiclo, "Debe generar un retiro ciclo para el alumno.");
 
             matri.setEsCondicional(true);
