@@ -34,12 +34,23 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
     }
     
     @Override
-    public RetiroCiclo findByAlumno(Alumno alumno, CicloAcademico ciclo) {
+    public RetiroCiclo findByAlumnoCicloRegistro(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = new Octavia()
                 .from(RetiroCiclo.class, "rc")
-                .join("alumno al", "cicloRegistro cr", "cicloAcademico")
+                .join("alumno al", "cicloRegistro cr", "cicloAcademico ca")
                 .filter("al.id", alumno)
                 .filter("cr.id", ciclo);
+        
+        return find(sql);
+    }
+  
+    @Override
+    public RetiroCiclo findByAlumnoCicloRetiro(Alumno alumno, CicloAcademico ciclo) {
+        Octavia sql = new Octavia()
+                .from(RetiroCiclo.class, "rc")
+                .join("alumno al", "cicloRegistro cr", "cicloAcademico ca")
+                .filter("al.id", alumno)
+                .filter("ca.id", ciclo);
         
         return find(sql);
     }
