@@ -74,15 +74,16 @@ var app = new Vue({
         },
         update(item, val) {
             let $vue = this;
-
-            item.estado = val == 0 ? 'RCHZ' : 'ACEP'
+            var data = Object.assign({},item);
+            data.estado = val == 0 ? 'RCHZ' : 'ACEP'
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/tramiteretirociclo/update'),
-                data: JSON.stringify(item),
+                data: JSON.stringify(data),
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
+                        item.estado = data.estado;
                         $vue.$refs.load.loadRemoteData();
                         notify(response.message, "success");
                     }

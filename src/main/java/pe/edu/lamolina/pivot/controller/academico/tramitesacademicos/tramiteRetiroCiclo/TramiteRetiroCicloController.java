@@ -154,6 +154,8 @@ public class TramiteRetiroCicloController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            
+            service.createToken(retiroCiclo,ds);
             MatriculaResumen matriculaResumen = service.update(retiroCiclo, ds);
            
             response.setData(JsonHelper.createJson(matriculaResumen, jsonFactory, new String[]{"id"}));

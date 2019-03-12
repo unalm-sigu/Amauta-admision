@@ -161,6 +161,14 @@
             </div>
             <div class="row">
                 <div class="col-sm-12">
+                    <label>Asunto</label>
+                    <div class="form-group">
+                        <input type="text" required="true" v-model="mensajeria.asunto" maxlength="40" class="form-control"/>
+                    </div>
+                </div>
+            </div>    
+            <div class="row">
+                <div class="col-sm-12">
                     <label>Contenido</label>
                     <div class="form-group">
                         <textarea type="text" required="true" v-model="mensajeria.contenido" class="form-control" rows="4"></textarea>

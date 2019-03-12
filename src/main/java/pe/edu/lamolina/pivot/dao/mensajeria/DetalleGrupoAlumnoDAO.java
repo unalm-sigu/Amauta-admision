@@ -10,4 +10,6 @@ public interface DetalleGrupoAlumnoDAO extends EasyDAO<DetalleGrupoAlumno> {
 
     List<DetalleGrupoAlumno> allByDynatbleGrupoAlumno(DynatableFilter filter, GrupoAlumno grupo);
 
+    List<DetalleGrupoAlumno> allByGrupoAlumnoCiclo(GrupoAlumno gpoAlumno);
+
 }

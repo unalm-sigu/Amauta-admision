@@ -69,6 +69,9 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         BigDecimal factor1 = capa.divide(cca, 12, RoundingMode.HALF_UP);
         BigDecimal factor2 = caps.divide(ccs, 12, RoundingMode.HALF_UP);
         BigDecimal puntajePrioridad = factor1.multiply(factor2).multiply(pps);
+        if (caps.equals(BigDecimal.ZERO)) {
+            puntajePrioridad = BigDecimal.ZERO;
+        }
 
         matriculaResumen.setCreditosAprobadosAcumulados(Integer.parseInt(capa.toString()));
         matriculaResumen.setCreditosAcumulados(Integer.parseInt(cca.toString()));
