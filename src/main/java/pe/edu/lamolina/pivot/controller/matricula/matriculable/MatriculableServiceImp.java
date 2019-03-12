@@ -814,7 +814,7 @@ public class MatriculableServiceImp implements MatriculableService {
                     Integer cantAlum = turnosAtencion.getAlumnos() + 1;
                     turnosAtencion.setAlumnos(cantAlum);
                     turnosAtencion.setPrioridadFin(numPrioridad);
-                    turnoAtencionDAO.update(turnosAtencion);
+//                    turnoAtencionDAO.update(turnosAtencion);
 
                     configuracionMatriculaService.updateTurnos(turnosAtencion.getId(), cantAlum.toString());
 
@@ -826,6 +826,8 @@ public class MatriculableServiceImp implements MatriculableService {
         matriculaResumenDAO.save(matri);
 
         aporteAlumnoService.generarAportes(alumno, ds.getCicloAcademico(), ds);
+        revisarSituacionAcademica(alumno, ds);
+
     }
 
     private void updateCursoApro(Alumno alumno) {

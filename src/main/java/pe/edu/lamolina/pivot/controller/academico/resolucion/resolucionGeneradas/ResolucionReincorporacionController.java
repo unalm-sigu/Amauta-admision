@@ -48,7 +48,7 @@ public class ResolucionReincorporacionController {
 
     @Autowired
     ResolucionService resolucionService;
-  
+
     @Autowired
     MatriculableService matriculableService;
 
@@ -147,8 +147,8 @@ public class ResolucionReincorporacionController {
 
             for (Alumno alumno : alumnos) {
 
-                matriculableService.saveMatriculable(alumno,TipoCondicionalEnum.OTRO.name(), ds);
-                matriculableService.revisarSituacionAcademica(alumno, ds);
+                matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.OTRO.name(), ds);
+
             }
             response.setMessage("Se realizó el registro satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);

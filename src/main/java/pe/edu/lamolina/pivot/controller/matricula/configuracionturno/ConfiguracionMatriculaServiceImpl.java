@@ -20,6 +20,7 @@ import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
 
 @Service
+@Transactional(readOnly = true)
 public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatriculaService {
 
     @Autowired
