@@ -18,7 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
+import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 
 @Component
 public class IngresanteMuestraLabView extends AbstractView {
@@ -46,8 +49,9 @@ public class IngresanteMuestraLabView extends AbstractView {
     protected void buildExcelDocument(Map<String, Object> model, Workbook wb, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         List<RecorridoIngresante> ingresantes = (List<RecorridoIngresante>) model.get("ingresantes");
+        CicloAcademico ciclo = (CicloAcademico) model.get("ciclo");
 
-        this.generateSheet(wb, ingresantes);
+        this.generateSheet(wb, ingresantes, ciclo);
         String fecha = new DateTime().toString("dd/MM/yyyy_H:mm");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + "Alumnos_Muestra_Laboratorio_" + fecha + ".xlsx\"");
         response.setContentType(getContentType());
@@ -58,9 +62,9 @@ public class IngresanteMuestraLabView extends AbstractView {
         out.flush();
     }
 
-    private void generateSheet(Workbook wb, List<RecorridoIngresante> ingresantes) {
+    private void generateSheet(Workbook wb, List<RecorridoIngresante> ingresantes, CicloAcademico ciclo) {
         Sheet sheet = wb.getSheet("Hoja1");
-        this.createBody(wb, sheet, ingresantes);
+        this.createBody(wb, sheet, ingresantes, ciclo);
     }
 
     private CellStyle getStyleCabecera(Workbook workBook) {
@@ -107,66 +111,40 @@ public class IngresanteMuestraLabView extends AbstractView {
         return cell;
     }
 
-    private void createBody(Workbook wb, Sheet sheet, List<RecorridoIngresante> ingresantes) {
+    private void createBody(Workbook wb, Sheet sheet, List<RecorridoIngresante> ingresantes, CicloAcademico ciclo) {
         ExcelHelper excelUtil = new ExcelHelper(sheet, wb);
 
-        CellStyle estiloCabecera = getStyleCabecera(wb);
         CellStyle estiloCabeceraNombre = getStyleCabecera(wb);
         estiloCabeceraNombre.setAlignment(CellStyle.ALIGN_LEFT);
         CellStyle estiloCodigo = getStyleNumero(wb);
         CellStyle estiloNumero = getStyleNumero(wb);
         CellStyle estiloGeneral = getStyleGeneral(wb);
 
-        int irow = 5;
-        int firsRow = irow;
-        int num = 1;
-        int nameCol = 1;
-        int codigoCol = nameCol + 8;
-        int firmaCol = codigoCol + 3;
+        int irow = 7;
 
-        //cabeceras
-        excelUtil.mergeCell(sheet, irow - 1, irow - 1, nameCol, nameCol + 7);
-        excelUtil.mergeCell(sheet, irow - 1, irow - 1, codigoCol, codigoCol + 2);
-        excelUtil.mergeCell(sheet, irow - 1, irow - 1, firmaCol, firmaCol + 2);
-
-        excelUtil.replaceStyle(irow - 1, 0, estiloCabecera);
-        for (int i = codigoCol; i < firmaCol; i++) {
-            excelUtil.replaceStyle(irow - 1, i, estiloCabecera);
-        }
-        for (int i = firmaCol; i <= firmaCol + 2; i++) {
-            excelUtil.replaceStyle(irow - 1, i, estiloCabecera);
-        }
-        for (int i = nameCol; i < codigoCol; i++) {
-            excelUtil.replaceStyle(irow - 1, i, estiloCabeceraNombre);
-        }
-
-        excelUtil.replaceVal(irow - 1, 0, "N°");
-        excelUtil.replaceVal(irow - 1, nameCol, "ALUMNO");
-        excelUtil.replaceVal(irow - 1, codigoCol, "CÓDIGO");
-        excelUtil.replaceVal(irow - 1, firmaCol, "FIRMA");
+        excelUtil.replaceVal(3, 0, "Ciclo Académico " + ciclo.getDescripcion());
 
         //datos
+        int num = 1;
         for (RecorridoIngresante ingresante : ingresantes) {
 
             excelUtil.replaceStyle(irow, 0, estiloNumero);
             excelUtil.replaceVal(irow, 0, num++);
 
-            excelUtil.mergeCell(sheet, irow, irow, nameCol, nameCol + 7);
-            excelUtil.mergeCell(sheet, irow, irow, codigoCol, codigoCol + 2);
-            excelUtil.mergeCell(sheet, irow, irow, firmaCol, firmaCol + 2);
+            excelUtil.replaceStyle(irow, 1, estiloCodigo);
+            excelUtil.replaceStyle(irow, 2, estiloGeneral);
+            excelUtil.replaceStyle(irow, 3, estiloNumero);
+            excelUtil.replaceStyle(irow, 4, estiloNumero);
 
-            for (int i = codigoCol; i < firmaCol; i++) {
-                excelUtil.replaceStyle(irow, i, estiloCodigo);
-            }
-            for (int i = nameCol; i < codigoCol; i++) {
-                excelUtil.replaceStyle(irow, i, estiloGeneral);
-            }
-            for (int i = firmaCol; i <= firmaCol + 2; i++) {
-                excelUtil.replaceStyle(irow, i, estiloGeneral);
-            }
+            excelUtil.replaceVal(irow, 1, ingresante.getAlumno().getCodigo());
+            excelUtil.replaceVal(irow, 2, ingresante.getAlumno().getPersona().getApellidosNombres());
 
-            excelUtil.replaceVal(irow, nameCol, ingresante.getAlumno().getPersona().getApellidosNombres());
-            excelUtil.replaceVal(irow, codigoCol, ingresante.getAlumno().getCodigo());
+            if (ingresante.getTurnoEntrevistaObuae() != null) {
+                excelUtil.replaceVal(irow, 3, TypesUtil.getStringDate(ingresante.getTurnoEntrevistaObuae().getFecha(), "dd/MM/yyyy"));
+            }
+            if (ingresante.getLaboratorio() != null && ingresante.getLaboratorio().getFechaMuestra() != null) {
+                excelUtil.replaceVal(irow, 4, TypesUtil.getStringDate(ingresante.getLaboratorio().getFechaMuestra(), "dd/MM/yyyy"));
+            }
             irow++;
         }
 

@@ -76,4 +76,6 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     List<DocenteSeccion> allByGrupoSeccionForUpdateFecha(GrupoSeccion grupoSeccion);
 
+    public List<DocenteSeccion> allResponsableBySeccionCiclo(List<Seccion> secciones, CicloAcademico ciclo);
+
 }

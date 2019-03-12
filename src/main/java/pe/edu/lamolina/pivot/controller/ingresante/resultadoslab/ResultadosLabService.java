@@ -12,6 +12,10 @@ import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 
 public interface ResultadosLabService {
 
+    CicloAcademico findCicloActivoAdmision();
+
+    List<TurnoEntrevistaObuae> allTurnos(CicloAcademico ciclo);
+
     List<RecorridoIngresante> ingresantesCiclo(CicloAcademico ciclo);
 
     HistoriaClinica findHistoriaClinica(RecorridoIngresante recorrido);
@@ -27,4 +31,13 @@ public interface ResultadosLabService {
     List<RecorridoIngresante> allIngresantesDynatableByPersona(DynatableFilter filter, List<Persona> personas);
 
     List<RecorridoIngresante> allIngresantesByPersona(List<Persona> personas);
+
+    List<RecorridoIngresante> allConMuestraByDynatableCiclo(DynatableFilter filter, CicloAcademico ciclo);
+
+    List<RecorridoIngresante> allConMuestraByDynatableTurnoCiclo(DynatableFilter filter, TurnoEntrevistaObuae turno, CicloAcademico ciclo);
+
+    TurnoEntrevistaObuae findTurno(Long idTurno);
+
+    List<RecorridoIngresante> allRecorridosConMuestra(TurnoEntrevistaObuae turno, CicloAcademico ciclo);
+
 }

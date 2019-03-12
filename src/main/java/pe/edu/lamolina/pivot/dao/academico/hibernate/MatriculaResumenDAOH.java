@@ -26,8 +26,9 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
-import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -360,6 +361,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
             sql.filter("alum.creditosAprobados", "<", Constantine.CAPA_ULTIMO_CICLO);
         }
         sql.filter("aca.id", cicloAcademico)
+                .notIn("sit.id", Arrays.asList(S_8, S_9))
                 .filter("mr.puntajePrioridad", "<=", matri.getPuntajePrioridad())
                 .orderBy("mr.puntajePrioridad desc")
                 .limit(1);
@@ -379,6 +381,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
             sql.filter("alum.creditosAprobados", "<", Constantine.CAPA_ULTIMO_CICLO);
         }
         sql.filter("aca.id", cicloAcademico)
+                .notIn("sit.id", Arrays.asList(S_8, S_9))
                 .filter("mr.puntajePrioridad", ">=", matri.getPuntajePrioridad())
                 .orderBy("mr.puntajePrioridad asc")
                 .limit(1);

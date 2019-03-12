@@ -12,6 +12,6 @@ public interface HistoriaClinicaDAO extends EasyDAO<HistoriaClinica> {
 
     HistoriaClinica findByPaciente(Paciente paciente);
 
-    List<HistoriaClinica> allByPersona(List<Persona> personas);
+    List<HistoriaClinica> allByPersonas(List<Persona> personas);
 
 }

@@ -9,6 +9,7 @@ new Vue({
         ingresantesURL: '',
         turnos: [],
         laboratorioActual: JSON.parse(laboratorioActual),
+        verTodos: false,
         verTurno: true,
         verAtendidos: false,
     },
@@ -30,30 +31,19 @@ new Vue({
                 if ($vue.turnos.length > 0) {
                     $vue.turnoSelected = $vue.turnos[0];
                     $vue.atendidoSelected = $vue.turnos[0];
-                    $vue.ingresantesURL = APP.url('ingresante/muestraslab/list/' + $vue.turnoSelected.id);
-
-                    setTimeout(function () {
-                        $vue.$refs.raptorML.loadRemoteData();
-                        console.log(" $vue.$refs.raptorML", $vue.$refs.raptorML._props);
-                    }, 50);
+                    $vue.selectTodos("turno");
                 }
             })
         },
         cambiarTurno() {
             let $vue = this;
             console.log("turnosel", $vue.turnoSelected)
-            $vue.ingresantesURL = APP.url('ingresante/muestraslab/list/' + $vue.turnoSelected.id);
-            setTimeout(function () {
-                $vue.$refs.raptorML.loadRemoteData();
-            }, 50);
+            $vue.selectTodos("turno");
         },
         cambiarTurnoAtendidos() {
             let $vue = this;
             console.log("atendidoSelected", $vue.atendidoSelected)
-            $vue.ingresantesURL = APP.url('ingresante/muestraslab/list/atendidos/' + $vue.atendidoSelected.id);
-            setTimeout(function () {
-                $vue.$refs.raptorML.loadRemoteData();
-            }, 50);
+            $vue.selectTodos("atendidos");
         },
         asignarNumLab(item) {
             console.log("item selected", item)
@@ -88,7 +78,6 @@ new Vue({
                 });
             }
         },
-
         borrarNumlab(item) {
             console.log("item selected", item)
             let $vue = this;
@@ -133,49 +122,52 @@ new Vue({
 
 
         },
-
-        selectTurno() {
+        selectTodos(item) {
+            console.log(item)
             let $vue = this;
-            if ($vue.verTurno) {
+            if (item == 'todos') {
+                $vue.verTodos = true;
                 $vue.verAtendidos = false;
-                $vue.ingresantesURL = APP.url('ingresante/muestraslab/list/' + $vue.turnoSelected.id);
-                setTimeout(function () {
-                    $vue.$refs.raptorML.loadRemoteData();
-                }, 50);
-            }
-            if (!$vue.verTurno) {
-                $vue.verAtendidos = true;
-                $vue.ingresantesURL = APP.url('ingresante/muestraslab/list/atendidos/' + $vue.atendidoSelected.id);
-                setTimeout(function () {
-                    $vue.$refs.raptorML.loadRemoteData();
-                    console.log(" $vue.$refs.raptorML", $vue.$refs.raptorML._props);
-                }, 50);
-            }
-        },
-
-        selectAtendido() {
-            let $vue = this;
-            if ($vue.verAtendidos) {
                 $vue.verTurno = false;
-                $vue.ingresantesURL = APP.url('ingresante/muestraslab/list/atendidos/' + $vue.atendidoSelected.id);
-                setTimeout(function () {
-                    $vue.$refs.raptorML.loadRemoteData();
-                    console.log(" $vue.$refs.raptorML", $vue.$refs.raptorML._props);
-                }, 50);
-            }
-            if (!$vue.verAtendidos) {
+                $vue.ingresantesURL = APP.url('ingresante/muestraslab/list/todos');
+
+            } else if (item == 'turno') {
                 $vue.verTurno = true;
-                $vue.ingresantesURL = APP.url('ingresante/muestraslab/list/' + $vue.turnoSelected.id);
-                setTimeout(function () {
-                    $vue.$refs.raptorML.loadRemoteData();
-                }, 50);
+                $vue.verAtendidos = false;
+                $vue.verTodos = false;
+                $vue.ingresantesURL = APP.url('ingresante/muestraslab/list/turno/' + $vue.turnoSelected.id);
+
+            } else if (item == 'atendidos') {
+                $vue.verAtendidos = true;
+                $vue.verTurno = false;
+                $vue.verTodos = false;
+                $vue.ingresantesURL = APP.url('ingresante/muestraslab/list/atendidos/' + $vue.atendidoSelected.id);
             }
+
+            setTimeout(function () {
+                console.log("$vue.ingresantesURL == " + $vue.ingresantesURL)
+                $vue.$refs.raptorML.loadRemoteData();
+            }, 50);
         },
         verListaExcel() {
+            console.log("ver excel")
             let $vue = this;
-            let turno = $vue.turnoSelected.id
-            console.log(turno)
-            location.href = APP.url('ingresante/muestraslab/listaExcelTurno?turno=' + turno)
+            if ($vue.verTodos) {
+                console.log("excel todos")
+                location.href = APP.url('ingresante/muestraslab/listaExcel')
+
+            } else if ($vue.verTurno) {
+                console.log("excel turno")
+                let turno = $vue.turnoSelected.id
+                console.log(turno)
+                location.href = APP.url('ingresante/muestraslab/listaExcelTurno?turno=' + turno)
+
+            } else if ($vue.verAtendidos) {
+                console.log("excel atendidos")
+                let turno = $vue.atendidoSelected.id
+                console.log(turno)
+                location.href = APP.url('ingresante/muestraslab/listaExcelAtendidos?turno=' + turno)
+            }
         }
     }
 });

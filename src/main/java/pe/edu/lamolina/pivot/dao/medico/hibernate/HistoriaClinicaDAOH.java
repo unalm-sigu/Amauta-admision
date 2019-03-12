@@ -37,7 +37,7 @@ public class HistoriaClinicaDAOH extends AbstractEasyDAO<HistoriaClinica> implem
     }
 
     @Override
-    public List<HistoriaClinica> allByPersona(List<Persona> personas) {
+    public List<HistoriaClinica> allByPersonas(List<Persona> personas) {
         Octavia sql = Octavia.query()
                 .from(HistoriaClinica.class, "hc")
                 .join("paciente p", "p.persona per")

@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DetalleGrupoAlumno;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
@@ -22,6 +23,7 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
@@ -33,6 +35,7 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
@@ -793,25 +796,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allByNameCicloAcademico(String nombre, CicloAcademico cicloAcademico) {
-        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
-        Octavia sql = Octavia.query()
-                .from(Alumno.class, "alu")
-                .join("persona per", "carrera car", "car.facultad fa")
-                .leftJoin("per.tipoDocumento td", "cicloActivo ca")
-                .filter("per.estado", PersonaEstadoEnum.ACT)
-                .filter("ca.id", cicloAcademico)
-                .beginBlock()
-                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
-                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
-                .__().filter("per.numeroDocIdentidad", "like", nombre)
-                .__().filter("alu.codigo", "like", nombre)
-                .endBlock()
-                .limit(15);
-        return sql.all(getCurrentSession());
-    }
-
-    @Override
     public List<Alumno> allByAlumnos(List<Alumno> alumnos) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
@@ -819,6 +803,114 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td", "cicloActivo ci", "modalidadEstudio me", "situacionAcademica situ")
                 .in("alu.id", alumnos);
         return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allMatriculadosByDetalleGpoAlu(DetalleGrupoAlumno dga, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .select("alu")
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "alu.persona per", "alu.carrera car", "car.facultad fa", "cicloAcademico ca")
+                .leftJoin("per.tipoDocumento td", "alu.modalidadEstudio me", "alu.situacionAcademica situ")
+                .filter("mr.estado", MAT)
+                .filter("ca.id", ciclo);
+
+        if (dga.getCarrera() != null) {
+            sql.filter("car.id", dga.getCarrera());
+        }
+        if (dga.getFacultad() != null) {
+            sql.filter("fa.id", dga.getFacultad());
+        }
+        if (dga.getModalidadEstudio() != null) {
+            sql.filter("me.id", dga.getModalidadEstudio());
+        }
+        if (dga.getSituacionAcademica() != null) {
+            sql.filter("situ.id", dga.getSituacionAcademica());
+        }
+
+        if (hayDetallesConCurso(dga)) {
+            Octavia subQuery = Octavia.query()
+                    .from(MatriculaSeccion.class, "ms")
+                    .join("matriculaResumen mr", "mr.alumno aa")
+                    .join("seccion se", "se.grupoSeccion gs", "gs.curso cu", "gs.cicloAcademico ca")
+                    .filter("ms.estado", MAT)
+                    .filter("se.estado", SeccionEstadoEnum.ACT);
+            if (dga.getCurso() != null) {
+                subQuery.filter("cu.id", dga.getCurso());
+            }
+            if (dga.getGrupoSeccion() != null) {
+                subQuery.filter("gs.id", dga.getGrupoSeccion());
+            }
+            if (dga.getSeccion() != null) {
+                subQuery.filter("se.id", dga.getSeccion());
+            }
+            sql.__().__()
+                    .exists(subQuery)
+                    .linkedBy("alu.id", "aa.id");
+        }
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allMatriculablesByDetalleGpoAlu(DetalleGrupoAlumno dga, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .select("alu")
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "alu.persona per", "alu.carrera car", "car.facultad fa", "cicloAcademico ca")
+                .leftJoin("per.tipoDocumento td", "alu.modalidadEstudio me", "alu.situacionAcademica situ")
+                .in("mr.estado", Arrays.asList(MAT, NMAT))
+                .filter("ca.id", ciclo);
+
+        if (dga.getCarrera() != null) {
+            sql.filter("car.id", dga.getCarrera());
+        }
+        if (dga.getFacultad() != null) {
+            sql.filter("fa.id", dga.getFacultad());
+        }
+        if (dga.getModalidadEstudio() != null) {
+            sql.filter("me.id", dga.getModalidadEstudio());
+        }
+        if (dga.getSituacionAcademica() != null) {
+            sql.filter("situ.id", dga.getSituacionAcademica());
+        }
+
+        if (hayDetallesConCurso(dga)) {
+            Octavia subQuery = Octavia.query()
+                    .from(MatriculaSeccion.class, "ms")
+                    .join("matriculaResumen mr", "mr.alumno aa")
+                    .join("seccion se", "se.grupoSeccion gs", "gs.curso cu", "gs.cicloAcademico ca")
+                    .filter("ms.estado", MAT)
+                    .filter("se.estado", SeccionEstadoEnum.ACT);
+
+            if (dga.getCurso() != null) {
+                subQuery.filter("cu.id", dga.getCurso());
+            }
+            if (dga.getGrupoSeccion() != null) {
+                subQuery.filter("gs.id", dga.getGrupoSeccion());
+            }
+            if (dga.getSeccion() != null) {
+                subQuery.filter("se.id", dga.getSeccion());
+            }
+            sql.__()
+                    .exists(subQuery)
+                    .linkedBy("alu.id", "aa.id");
+        }
+
+        return all(sql);
+    }
+
+    private boolean hayDetallesConCurso(DetalleGrupoAlumno dga) {
+        if (dga.getCurso() != null) {
+            return true;
+        }
+        if (dga.getGrupoSeccion() != null) {
+            return true;
+        }
+        if (dga.getSeccion() != null) {
+            return true;
+        }
+        return false;
     }
 
 }

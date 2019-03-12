@@ -4,7 +4,7 @@ Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 new Vue({
     el: '#mensajeriaVUE',
     data: {
-        mensajeriaURL: APP.url('mensajeria/list'),
+        mensajeriaURL: APP.url('mensajeria/mensajesintranet/list'),
         mensajeria: {},
         gruposAlumno: JSON.parse(gruposAlumnoJson),
         tiposMensaje: JSON.parse(tiposMensajeJson),
@@ -53,7 +53,7 @@ new Vue({
 
             $.ajax({
                 method: 'POST',
-                url: APP.url('mensajeria/saveUpdate'),
+                url: APP.url('mensajeria/mensajesintranet/saveUpdate'),
                 data: JSON.stringify($vue.mensajeria),
                 contentType: "application/json",
                 success: function (response) {
@@ -77,7 +77,7 @@ new Vue({
             $("#formMensajeria").parsley().destroy();
             $.ajax({
                 method: 'POST',
-                url: APP.url('mensajeria/edit'),
+                url: APP.url('mensajeria/mensajesintranet/edit'),
                 data: JSON.stringify(item),
                 contentType: "application/json",
                 success: function (response) {
@@ -109,7 +109,7 @@ new Vue({
                 if (success) {
                     $.ajax({
                         method: 'POST',
-                        url: APP.url('mensajeria/eliminar'),
+                        url: APP.url('mensajeria/mensajesintranet/eliminar'),
                         data: JSON.stringify(item),
                         success: function (response) {
                             if (response.success) {

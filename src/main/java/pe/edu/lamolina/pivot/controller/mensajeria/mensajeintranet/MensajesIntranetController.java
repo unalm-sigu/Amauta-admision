@@ -27,11 +27,11 @@ import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("mensajeria")
-public class MensajeriaIntranetController {
+@RequestMapping("mensajeria/mensajesintranet")
+public class MensajesIntranetController {
 
     @Autowired
-    MensajeriaIntranetService service;
+    MensajesIntranetService service;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -62,7 +62,7 @@ public class MensajeriaIntranetController {
         model.addAttribute("tiposMensaje", arrayTipos);
         model.addAttribute("ciclo", cicloJSON);
 
-        return "mensaje/mensajeriaIntranet/mensajeriaIntranet";
+        return "mensaje/mensajesintranet/mensajesIntranet";
     }
 
     @ResponseBody
