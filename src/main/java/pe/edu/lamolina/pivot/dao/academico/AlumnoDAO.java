@@ -6,6 +6,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DetalleGrupoAlumno;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -17,7 +18,7 @@ import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableResum
 
 public interface AlumnoDAO extends EasyDAO<Alumno> {
 
-    public List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Carrera> facultades);
+    List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Carrera> facultades);
 
     List<Alumno> allByModalidadesDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<String> modalidades);
 
@@ -79,7 +80,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     void updateSituacionCapaCredCur(Alumno alumno);
 
-    public List<Alumno> allByNameSinMatriculaResumen(String nombre, CicloAcademico cicloAcademico);
+    List<Alumno> allByNameSinMatriculaResumen(String nombre, CicloAcademico cicloAcademico);
 
     List<Alumno> allByCarreraCicloMayores(Carrera carrera, String codigoCiclo);
 
@@ -103,7 +104,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allEstudiaronByCiclos(List<CicloAcademico> ciclosPrevios);
 
-    public List<Alumno> findAlumnosConsejeria(Long carrera, CicloAcademico cicloAcademico);
+    List<Alumno> findAlumnosConsejeria(Long carrera, CicloAcademico cicloAcademico);
 
     List<Alumno> allDesertorByName(String nombre, Long oficinaCode);
 
@@ -112,5 +113,9 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
     List<Alumno> allByNameCondicional(String nombre, CicloAcademico cicloAcademico);
 
     List<Alumno> allByAlumnos(List<Alumno> alumnos);
+
+    List<Alumno> allMatriculadosByDetalleGpoAlu(DetalleGrupoAlumno dga, CicloAcademico ciclo);
+
+    List<Alumno> allMatriculablesByDetalleGpoAlu(DetalleGrupoAlumno dga, CicloAcademico ciclo);
 
 }

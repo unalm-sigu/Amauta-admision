@@ -20,13 +20,15 @@ var app = new Vue({
             if (this.asignacionAula != null) {
                 asignacionAula = this.asignacionAula;
             }
+            MODAL.showWait("Espere un momento por favor");
             AXIOS.post(`${this.URL}/procesarAsignacionAulas`, asignacionAula)
                     .then(response => {
                         if (response.data.success) {
-                            //  this.reload();
-                            //  this.$refs.modalEditar.close();
+                            this.asignacionAula = response.data.data;
+                            MODAL.hideWait();
                         } else {
                             notify(response.data.message, 'error');
+                            MODAL.hideWait();
                         }
                     });
         }

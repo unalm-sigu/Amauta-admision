@@ -51,4 +51,14 @@ public class DistanciaPabellonDAOH extends AbstractEasyDAO<DistanciaPabellon> im
         return all(sql);
     }
 
+    @Override
+    public List<DistanciaPabellon> allByActAndDistanciaOrder(String distanciaOrder) {
+        Octavia sql = Octavia.query()
+                .from(DistanciaPabellon.class, "dp")
+                .join("departamentoAcademico da", "pabellon au")
+                .filter("da.estado", EstadoEnum.ACT.name())
+                .orderBy(distanciaOrder);
+        return all(sql);
+    }
+
 }
