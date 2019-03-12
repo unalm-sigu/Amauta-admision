@@ -104,6 +104,25 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
+    public List<Seccion> allForAsignacionAulaByCiclo(CicloAcademico ciclo, SeccionEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .leftJoin("cur.tipoCarpetaTeoria tct", "cur.tipoCarpetaPractica tcp")
+                .leftJoin("aula", "grupoHoras")
+                .filter("ca.id", ciclo)
+                .beginBlock()
+                .isNotNull("tct.id")
+                .endBlock()
+                .beginBlock()
+                .isNotNull("tcp.id")
+                .endBlock()
+                .in("sec.estado", estados);
+
+        return all(sql);
+    }
+
+    @Override
     public List<Seccion> allActivosByGposSeccion(List<GrupoSeccion> gruposSeccion) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
@@ -224,6 +243,16 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     public void updateRestriccionCapa(Seccion seccion) {
         Octavia octavia = Octavia.update(Seccion.class);
         octavia.set(seccion, "restriccionCapa");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateAsignacionAula(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "restriccionCapa");
+        octavia.set(seccion, "aulaAsignadaAuto");
+        octavia.set(seccion, "fechaAsignacionAuto");
+        octavia.set(seccion, "aula");
         this.update(octavia);
     }
 
