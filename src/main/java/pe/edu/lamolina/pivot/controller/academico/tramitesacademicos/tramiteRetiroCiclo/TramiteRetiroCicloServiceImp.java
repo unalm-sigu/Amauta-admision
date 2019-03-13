@@ -1,14 +1,9 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
@@ -16,58 +11,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
-import pe.edu.lamolina.model.aporte.Aporte;
-import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
-import pe.edu.lamolina.model.aporte.AporteCiclo;
-import pe.edu.lamolina.model.aporte.AporteSemestral;
-import pe.edu.lamolina.model.aporte.GeneracionAportes;
-import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
-import pe.edu.lamolina.model.enums.AportesEnum;
-import pe.edu.lamolina.model.enums.CuentaBancariaEnum;
-import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
-import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
-import pe.edu.lamolina.model.enums.EstadoAporteEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import pe.edu.lamolina.model.enums.GeneracionAportesEstadoEnum;
-import pe.edu.lamolina.model.enums.NombreTablasEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2U;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
-import pe.edu.lamolina.model.finanzas.Acreencia;
-import pe.edu.lamolina.model.finanzas.CuentaBancaria;
-import pe.edu.lamolina.model.finanzas.DeudaAlumno;
-import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Parametro;
-import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
@@ -85,19 +49,11 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSimultaneoDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
-import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
-import pe.edu.lamolina.pivot.dao.aporte.AporteCicloDAO;
-import pe.edu.lamolina.pivot.dao.aporte.AporteSemestralDAO;
-import pe.edu.lamolina.pivot.dao.aporte.GeneracionAportesDAO;
-import pe.edu.lamolina.pivot.dao.aporte.ResumenAporteAlumnoDAO;
-import pe.edu.lamolina.pivot.dao.finanza.AcreenciaDAO;
 import pe.edu.lamolina.pivot.dao.general.ParametroDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
-import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CAPA_ULTIMO_CICLO;
 
 @Service
@@ -248,6 +204,7 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
 
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private void updateCursoApro(Alumno alumno, DataSessionPivot ds) {
         avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
     }
