@@ -70,6 +70,7 @@ import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
+import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
@@ -165,6 +166,9 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     @Autowired
     ConfiguracionMatriculaService configuracionMatriculaService;
 
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
+
     @Override
     public List<CicloAcademico> allCiclos(CicloAcademico academico) {
         return cicloAcademicoDAO.allRegularPre(3, academico);
@@ -210,8 +214,8 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
                 matriculaResumen.setMotivoMatriculable(retiroCiclo.getMotivo());
                 matriculaResumen.setEsCondicional(true);
                 matriculaResumen.setFechaCondicional(new Date());
-                updateCursoApro(alumno);
-                
+                updateCursoApro(alumno, ds);
+
                 AlumnoCiclo alumnoCicloPenultimo = alumnoCiclos.get(1);
                 alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumno);
                 matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
@@ -223,14 +227,15 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
                     BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
                     matriculaResumen.setPrioridad(prioridad);
                     if (ciclo.getFechaTurnosAsignados() != null) {
+                        TurnoAtencion turnoAlumno = turnoAtencionDAO.find(matriculaResumen.getTurnoAtencion().getId());
                         TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
-                        BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
-                        Integer cantAlum = turnosAtencion.getAlumnos() + 1;
-                        turnosAtencion.setAlumnos(cantAlum);
-                        turnosAtencion.setPrioridadFin(numPrioridad);
-//                    turnoAtencionDAO.update(turnosAtencion);
-
-                        configuracionMatriculaService.updateTurnos(turnosAtencion.getId(), cantAlum.toString());
+                        if (turnoAlumno.getId() != turnosAtencion.getId()) {
+                            BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
+                            Integer cantAlum = turnosAtencion.getAlumnos() + 1;
+                            turnosAtencion.setAlumnos(cantAlum);
+                            turnosAtencion.setPrioridadFin(numPrioridad);
+                            turnoAtencionDAO.update(turnosAtencion);
+                        }
 
                         matriculaResumen.setTurnoAtencion(turnosAtencion);
 
@@ -243,12 +248,8 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
 
     }
 
-    private void updateCursoApro(Alumno alumno) {
-        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno);
-        for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
-            alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
-            alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
-        }
+    private void updateCursoApro(Alumno alumno, DataSessionPivot ds) {
+        avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
     }
 
     @Override
