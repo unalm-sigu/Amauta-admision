@@ -203,7 +203,7 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
         retiro.setMotivo(retiroCiclo.getMotivo());
         retiroCicloDAO.save(retiro);
 
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findMatriculadoByAlumno(ds.getCicloAcademico(), alumno);
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ds.getCicloAcademico(), alumno, EstadoMatriculaEnum.NMAT);
         if (matriculaResumen != null) {
             CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
             if (ciclo.getFechaPrioridades() != null) {
@@ -211,7 +211,7 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
                 matriculaResumen.setEsCondicional(true);
                 matriculaResumen.setFechaCondicional(new Date());
                 updateCursoApro(alumno);
-
+                
                 AlumnoCiclo alumnoCicloPenultimo = alumnoCiclos.get(1);
                 alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumno);
                 matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
