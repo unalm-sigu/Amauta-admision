@@ -227,7 +227,7 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
                     BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
                     matriculaResumen.setPrioridad(prioridad);
                     if (ciclo.getFechaTurnosAsignados() != null) {
-                        TurnoAtencion turnoAlumno = turnoAtencionDAO.find(matriculaResumen.getTurnoAtencion().getId());
+                        TurnoAtencion turnoAlumno = turnoAtencionDAO.findById(matriculaResumen.getTurnoAtencion().getId());
                         TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
                         if (turnoAlumno.getId() != turnosAtencion.getId()) {
                             BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
