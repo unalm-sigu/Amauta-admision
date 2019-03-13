@@ -356,8 +356,10 @@ public class MatriculableServiceImp implements MatriculableService {
             if (alumno != null) {
                 continue;
             }
+            
+            logger.debug("Codigo Alumno {}",alumnoCondicional.getCodigo());
             MatriculaResumen matriculable = new MatriculaResumen();
-            matriculable.setAlumno(alumno);
+            matriculable.setAlumno(alumnoCondicional);
             matriculable.setCicloAcademico(cicloBD);
             matriculable.setCreditosMatriculados(0);
             matriculable.setCreditosRetirados(0);
@@ -365,8 +367,8 @@ public class MatriculableServiceImp implements MatriculableService {
             matriculable.setCursosMatriculados(0);
             matriculable.setCursosRetirados(0);
             matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
-            matriculable.setSituacionInicio(alumno.getSituacionAcademica());
-            matriculable.setEsUltimoCiclo(alumno.getCreditosAprobados() >= 172);
+            matriculable.setSituacionInicio(alumnoCondicional.getSituacionAcademica());
+            matriculable.setEsUltimoCiclo(alumnoCondicional.getCreditosAprobados() >= 172);
             matriculable.setCreditosTrikaSeparados(0);
             matriculable.setEsCondicional(Boolean.TRUE);
             matriculable.setFechaCondicional(new Date());
