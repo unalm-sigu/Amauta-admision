@@ -27,6 +27,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.aporte.Aporte;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.AporteCiclo;
@@ -71,6 +72,8 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
+import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableConnector;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -80,6 +83,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSimultaneoDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
 import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.aporte.AporteCicloDAO;
 import pe.edu.lamolina.pivot.dao.aporte.AporteSemestralDAO;
@@ -93,6 +97,7 @@ import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CAPA_ULTIMO_CICLO;
 
 @Service
 @Transactional(readOnly = true)
@@ -151,6 +156,15 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     @Autowired
     ResponseRestService responseRestService;
 
+    @Autowired
+    TurnoAtencionDAO turnoAtencionDAO;
+
+    @Autowired
+    MatriculableConnector matriculableConector;
+
+    @Autowired
+    ConfiguracionMatriculaService configuracionMatriculaService;
+
     @Override
     public List<CicloAcademico> allCiclos(CicloAcademico academico) {
         return cicloAcademicoDAO.allRegularPre(3, academico);
@@ -172,10 +186,7 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(retiroCiclo.getAlumno());
         AlumnoCiclo alumnoCiclo = alumnoCiclos.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), retiroCiclo.getCicloAcademico().getId())).findAny().orElse(null);
         Assert.isNotNull(alumnoCiclo, "El alumno no tiene actividad en el ciclo " + retiroCiclo.getCicloAcademico().getDescripcion());
-        
-        
-        
-        
+
         RetiroCiclo retiro = retiroCicloDAO.findByAlumnoCicloRetiro(alumno, retiroCiclo.getCicloAcademico());
         Assert.isNull(retiro, "El alumno ya cuenta con un trámite de retiro para el ciclo " + retiroCiclo.getCicloAcademico().getDescripcion());
         retiro = new RetiroCiclo();
@@ -191,6 +202,53 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
         retiro.setUsuario(ds.getUsuario());
         retiro.setMotivo(retiroCiclo.getMotivo());
         retiroCicloDAO.save(retiro);
+
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findMatriculadoByAlumno(ds.getCicloAcademico(), alumno);
+        if (matriculaResumen != null) {
+            CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
+            if (ciclo.getFechaPrioridades() != null) {
+                matriculaResumen.setMotivoMatriculable(retiroCiclo.getMotivo());
+                matriculaResumen.setEsCondicional(true);
+                matriculaResumen.setFechaCondicional(new Date());
+                updateCursoApro(alumno);
+
+                AlumnoCiclo alumnoCicloPenultimo = alumnoCiclos.get(1);
+                alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumno);
+                matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
+
+                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+                MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+                if (matriculaAnt != null && matriculaDes != null) {
+
+                    BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
+                    matriculaResumen.setPrioridad(prioridad);
+                    if (ciclo.getFechaTurnosAsignados() != null) {
+                        TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
+                        BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
+                        Integer cantAlum = turnosAtencion.getAlumnos() + 1;
+                        turnosAtencion.setAlumnos(cantAlum);
+                        turnosAtencion.setPrioridadFin(numPrioridad);
+//                    turnoAtencionDAO.update(turnosAtencion);
+
+                        configuracionMatriculaService.updateTurnos(turnosAtencion.getId(), cantAlum.toString());
+
+                        matriculaResumen.setTurnoAtencion(turnosAtencion);
+
+                    }
+                    matriculaResumenDAO.update(matriculaResumen);
+                }
+            }
+
+        }
+
+    }
+
+    private void updateCursoApro(Alumno alumno) {
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno);
+        for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
+            alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
+            alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
+        }
     }
 
     @Override
