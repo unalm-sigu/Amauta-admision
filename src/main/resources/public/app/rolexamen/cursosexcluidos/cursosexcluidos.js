@@ -83,6 +83,22 @@ new Vue({
             }, error => {
                 notify(MESSAGES.errorComunicacion, 'error');
             });
+        }, anular(cursoExcluido) {
+            let $vue = this;
+            $.ajax({
+                method: "POST",
+                contentType: "application/json",
+                url: `${$vue.URL}/anularExcluision`,
+                data: JSON.stringify(cursoExcluido)
+            }).then(response => {
+                if (response.success) {
+                    $vue.loadCursosExcluidosByRoleExamen();
+                } else {
+                    notify(response.message, 'error');
+                }
+            }, error => {
+                notify(MESSAGES.errorComunicacion, 'error');
+            });
         }
     }
 });

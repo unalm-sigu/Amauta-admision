@@ -14,4 +14,6 @@ public interface CursosExcluidosService {
 
     void excluirCurso(CursoExcluido cursoExcluido, DataSessionPivot ds);
 
+    void anularExclusion(CursoExcluido cursoExcluido, DataSessionPivot ds);
+
 }
