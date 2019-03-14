@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.pivot.dao.sip.TurnoEntrevistaObuaeDAO;
 
@@ -18,12 +17,12 @@ public class TurnoEntrevistaObuaeDAOH extends AbstractEasyDAO<TurnoEntrevistaObu
     }
 
     @Override
-    public List<TurnoEntrevistaObuae> allFromRecorridoByCiclo(CicloAcademico ciclo) {
+    public List<TurnoEntrevistaObuae> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
-                .selectDistinct("teo")
-                .from(RecorridoIngresante.class, "ri")
-                .join("cicloAcademico ca", "turnoEntrevistaObuae teo")
-                .filter("ca.id", ciclo);
+                .from(TurnoEntrevistaObuae.class, "teo")
+                .join("eventoCiclo ec", "ec.cicloPostula cp", "cp.cicloAcademico ca")
+                .filter("ca.id", ciclo)
+                .orderBy("teo.fecha");
 
         return all(sql);
     }

@@ -7,5 +7,5 @@ import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 
 public interface TurnoEntrevistaObuaeDAO extends EasyDAO<TurnoEntrevistaObuae> {
 
-    List<TurnoEntrevistaObuae> allFromRecorridoByCiclo(CicloAcademico ciclo);
+    List<TurnoEntrevistaObuae> allByCiclo(CicloAcademico ciclo);
 }

@@ -217,7 +217,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     @Override
     public List<TurnoEntrevistaObuae> allTurnos(CicloAcademico ciclo) {
-        return turnoEntrevistaObuaeDAO.allFromRecorridoByCiclo(ciclo);
+        return turnoEntrevistaObuaeDAO.allByCiclo(ciclo);
     }
 
     @Override

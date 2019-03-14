@@ -36,7 +36,7 @@ public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
             TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico,
             List<GrupoHoras> grupoHorasFilter);
 
-    List<GrupoHoras> allGrupo();
+    List<GrupoHoras> allRegulares();
 
     List<GrupoHoras> searchByNombreFilter(String nombre, Integer limit);
 

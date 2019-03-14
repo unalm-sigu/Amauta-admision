@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.cambioaulagrupo;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -463,11 +464,12 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         cambioAulaGrupoDAO.update(cambioAulaGrupoForm);
 
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(cambioAulaGrupoBD.getSeccion());
-        Map<String, List<HorarioSeccion>> horariosSeccionMap = TypesUtil.convertListToMapList("estado", horariosSeccion);
+        Map<String, List<HorarioSeccion>> mapHorariosSeccion = TypesUtil.convertListToMapList("estado", horariosSeccion);
+
         {
-            List<HorarioSeccion> solicitados = horariosSeccionMap.get(EstadoHorarioAulaEnum.SOL.name());
-            List<HorarioSeccion> activos = horariosSeccionMap.get(EstadoHorarioAulaEnum.ACT.name());
-            List<HorarioSeccion> pendientes = horariosSeccionMap.get(EstadoHorarioAulaEnum.PEND.name());
+            List<HorarioSeccion> solicitados = getListNotNull(mapHorariosSeccion.get(EstadoHorarioAulaEnum.SOL.name()));
+            List<HorarioSeccion> activos = getListNotNull(mapHorariosSeccion.get(EstadoHorarioAulaEnum.ACT.name()));
+            List<HorarioSeccion> pendientes = getListNotNull(mapHorariosSeccion.get(EstadoHorarioAulaEnum.PEND.name()));
 
             if (solicitados == null) {
                 throw new PhobosException("Tiene una solicitud pendiente.");
@@ -488,11 +490,11 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         }
 
         List<HorarioAula> horariosAula = horarioAulaDAO.allBySeccion(cambioAulaGrupoBD.getSeccion());
-        Map<String, List<HorarioAula>> horariosAulaMap = TypesUtil.convertListToMapList("estado", horariosAula);
+        Map<String, List<HorarioAula>> mapHorariosAula = TypesUtil.convertListToMapList("estado", horariosAula);
         {
-            List<HorarioAula> solicitados = horariosAulaMap.get(EstadoHorarioAulaEnum.SOL.name());
-            List<HorarioAula> activos = horariosAulaMap.get(EstadoHorarioAulaEnum.ACT.name());
-            List<HorarioAula> pendientes = horariosAulaMap.get(EstadoHorarioAulaEnum.PEND.name());
+            List<HorarioAula> solicitados = getListNotNull(mapHorariosAula.get(EstadoHorarioAulaEnum.SOL.name()));
+            List<HorarioAula> activos = getListNotNull(mapHorariosAula.get(EstadoHorarioAulaEnum.ACT.name()));
+            List<HorarioAula> pendientes = getListNotNull(mapHorariosAula.get(EstadoHorarioAulaEnum.PEND.name()));
 
             if (solicitados == null) {
                 throw new PhobosException("Tiene una solicitud pendiente.");
@@ -512,6 +514,13 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
             }
         }
 
+    }
+
+    private List getListNotNull(List lista) {
+        if (lista == null) {
+            return new ArrayList();
+        }
+        return lista;
     }
 
     @Override

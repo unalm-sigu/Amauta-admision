@@ -65,7 +65,7 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
 
     @Override
     public List<TurnoEntrevistaObuae> allTurnos(CicloAcademico ciclo) {
-        List<TurnoEntrevistaObuae> turnos = turnoEntrevistaObuaeDAO.allFromRecorridoByCiclo(ciclo);
+        List<TurnoEntrevistaObuae> turnos = turnoEntrevistaObuaeDAO.allByCiclo(ciclo);
         return turnos;
     }
 

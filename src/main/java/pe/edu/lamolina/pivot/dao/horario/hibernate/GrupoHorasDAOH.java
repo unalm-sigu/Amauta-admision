@@ -141,11 +141,12 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
     }
 
     @Override
-    public List<GrupoHoras> allGrupo() {
+    public List<GrupoHoras> allRegulares() {
         Octavia sql = Octavia.query()
                 .from(GrupoHoras.class, "gh")
-                .join("tipoGrupoHoras")
+                .join("tipoGrupoHoras tgh")
                 .filter("gh.tipoSeccion", TipoSeccionEnum.TEO)
+                .filter("tgh.tipo", TipoGrupoHorasEnum.REGULAR)
                 .orderBy("gh.codigo");
 
         return all(sql);
