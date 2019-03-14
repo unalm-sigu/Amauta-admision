@@ -129,7 +129,7 @@ new Vue({
             let cursoMasivo = {
                 curso: $vue.curso,
                 rolExamenes: $vue.rolExamenes
-            }
+            };
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: "POST",
