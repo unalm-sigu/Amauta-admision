@@ -46,7 +46,8 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
     public List<Reincorporacion> allByResolucion(Resolucion resolucion) {
         Octavia sql = Octavia.query()
                 .from(Reincorporacion.class, "rei")
-                .join("tramite tra", "resolucion res", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
+                .left("tramite tra")
+                .join("resolucion res", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
                 .filter("res.id", resolucion);
 
         return all(sql);
@@ -97,5 +98,14 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .filter("al.id", alumno)
                 .filter("cr.id", ciclo);
         return find(sql);
+    }
+
+    @Override
+    public List<Reincorporacion> allByCicloReincorporacion(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(Reincorporacion.class, "rei")
+                .join("cicloReincorporacion cr", "rei.alumno al")
+                .filter("cr.id", ciclo);
+        return all(sql);
     }
 }

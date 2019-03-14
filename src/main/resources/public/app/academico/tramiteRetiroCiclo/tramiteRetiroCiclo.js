@@ -60,11 +60,11 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.$refs.load.loadRemoteData();
-                        $vue.$refs.modalRetiroCiclo.close();
                         notify(response.message, "success");
                     } else {
                         notify(response.message, "error");
                     }
+                    $vue.$refs.modalRetiroCiclo.close();
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -74,7 +74,7 @@ var app = new Vue({
         },
         update(item, val) {
             let $vue = this;
-            var data = Object.assign({},item);
+            var data = Object.assign({}, item);
             data.estado = val == 0 ? 'RCHZ' : 'ACEP'
             $.ajax({
                 method: 'POST',

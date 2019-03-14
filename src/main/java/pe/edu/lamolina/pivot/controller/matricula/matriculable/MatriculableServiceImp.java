@@ -72,6 +72,7 @@ import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
+import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
@@ -142,6 +143,9 @@ public class MatriculableServiceImp implements MatriculableService {
     @Autowired
     AporteAlumnoService aporteAlumnoService;
 
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
+
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
         return matriculaResumenDAO.findResumenByCicloRolDynateable(cicloAcademico, codigo, filtros);
@@ -168,7 +172,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public void generar(CicloAcademico ciclo, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
-        generarPregrado(ciclo);
+        generarPregrado(ciclo, ds);
         generarPosgrado(ciclo);
 
         CicloAcademico cicloAcademicoUpd = new CicloAcademico();
@@ -255,7 +259,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
     }
 
-    private void generarPregrado(CicloAcademico ciclo) {
+    private void generarPregrado(CicloAcademico ciclo, DataSessionPivot ds) {
         List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
 
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
@@ -331,11 +335,11 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         for (Alumno alumnoTramite : alumosConTramite) {
+            updateCursoApro(alumnoTramite, ds);
             Alumno alumno = mapMatriculableCondicional.get(alumnoTramite.getId());
             if (alumno != null) {
                 continue;
             }
-            updateCursoApro(alumno);
             mapMatriculableCondicional.put(alumnoTramite.getId(), alumnoTramite);
         }
 
@@ -347,13 +351,19 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         List<Alumno> alumnosCondicional = new ArrayList(mapMatriculableCondicional.values());
-        for (Alumno alumno : alumnosCondicional) {
-            Alumno alumnoExist = mapMatriculableExist.get(alumno.getId());
+        for (Alumno alumnoCondicional : alumnosCondicional) {
+            Alumno alumnoExist = mapMatriculableExist.get(alumnoCondicional.getId());
             if (alumnoExist != null) {
                 continue;
             }
+            Alumno alumno = mapMatriculable.get(alumnoCondicional.getId());
+            if (alumno != null) {
+                continue;
+            }
+
+            logger.debug("Codigo Alumno {}", alumnoCondicional.getCodigo());
             MatriculaResumen matriculable = new MatriculaResumen();
-            matriculable.setAlumno(alumno);
+            matriculable.setAlumno(alumnoCondicional);
             matriculable.setCicloAcademico(cicloBD);
             matriculable.setCreditosMatriculados(0);
             matriculable.setCreditosRetirados(0);
@@ -361,8 +371,8 @@ public class MatriculableServiceImp implements MatriculableService {
             matriculable.setCursosMatriculados(0);
             matriculable.setCursosRetirados(0);
             matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
-            matriculable.setSituacionInicio(alumno.getSituacionAcademica());
-            matriculable.setEsUltimoCiclo(alumno.getCreditosAprobados() >= 172);
+            matriculable.setSituacionInicio(alumnoCondicional.getSituacionAcademica());
+            matriculable.setEsUltimoCiclo(alumnoCondicional.getCreditosAprobados() >= 172);
             matriculable.setCreditosTrikaSeparados(0);
             matriculable.setEsCondicional(Boolean.TRUE);
             matriculable.setFechaCondicional(new Date());
@@ -781,12 +791,12 @@ public class MatriculableServiceImp implements MatriculableService {
         if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {
             Assert.isTrue(isCondicional, "El alumno no cumple requisito para matricula condicional.");
 
-            RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumno(alumno, ciclo);
+            RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(alumno, ciclo);
             Assert.isNotNull(retiroCiclo, "Debe generar un retiro ciclo para el alumno.");
 
             matri.setEsCondicional(true);
             matri.setFechaCondicional(new Date());
-            updateCursoApro(alumno);
+            updateCursoApro(alumno, ds);
         }
 
         if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
@@ -830,12 +840,8 @@ public class MatriculableServiceImp implements MatriculableService {
 
     }
 
-    private void updateCursoApro(Alumno alumno) {
-        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno);
-        for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
-            alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
-            alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
-        }
+    private void updateCursoApro(Alumno alumno, DataSessionPivot ds) {
+        avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
     }
 
     @Override
