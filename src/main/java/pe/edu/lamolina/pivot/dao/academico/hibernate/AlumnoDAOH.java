@@ -38,6 +38,7 @@ import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableResumen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -467,6 +468,11 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alum")
                 .filter("cicloAcademico", cicloAcademico);
+       
+        Octavia subQueryRetiro = new Octavia()
+                .from(RetiroCiclo.class, "rc")
+                .join("alumno alumrc" , "cicloRegistro cr")
+                .filter("cr.id", cicloAcademico);
 
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
@@ -479,8 +485,13 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .__().filter("per.numeroDocIdentidad", "like", nombre)
                 .__().filter("alu.codigo", "like", nombre)
                 .endBlock()
-                .notExists(subQuery)
-                .linkedBy("alu.id", "alum.id")
+                .beginBlock()
+                .__().notExists(subQuery)
+                .__().linkedBy("alu.id", "alum.id")
+                .__().exists(subQueryRetiro)
+                .__().linkedBy("alu.id", "alumrc.id")
+                .endBlock()
+                
                 .limit(15);
         return sql.all(getCurrentSession());
     }
