@@ -29,6 +29,17 @@ public class CursoExcluidoDAOH extends AbstractEasyDAO<CursoExcluido> implements
     }
 
     @Override
+    public List<CursoExcluido> allByRolExamenes(RolExamenes rolExamenes, EstadoEnum estadoEnum) {
+        Octavia sql = Octavia.query()
+                .from(CursoExcluido.class, "cme")
+                .join("rolExamenes re", "curso cu")
+                .filter("re.id", rolExamenes)
+                .filter("re.estado", estadoEnum)
+                .orderBy("cu.nombre");
+        return all(sql);
+    }
+
+    @Override
     public CursoExcluido findActiveByCursoAndRolExamenes(Curso curso, RolExamenes rolExamenes) {
         Octavia sql = Octavia.query()
                 .from(CursoExcluido.class, "ce")
@@ -38,6 +49,13 @@ public class CursoExcluidoDAOH extends AbstractEasyDAO<CursoExcluido> implements
                 .filter("ce.estado", EstadoEnum.ACT.name())
                 .orderBy("cu.nombre");
         return find(sql);
+    }
+
+    @Override
+    public void updateAnulacion(CursoExcluido cursoExcluidoUpd) {
+        Octavia octavia = Octavia.update(CursoExcluido.class);
+        octavia.set(cursoExcluidoUpd, "estado");
+        this.update(octavia);
     }
 
 }

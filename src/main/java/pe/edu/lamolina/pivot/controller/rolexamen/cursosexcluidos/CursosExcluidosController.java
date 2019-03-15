@@ -80,6 +80,27 @@ public class CursosExcluidosController {
     }
 
     @ResponseBody
+    @RequestMapping("anularExcluision")
+    public JsonResponse anularExcluision(@RequestBody CursoExcluido cursoExcluido, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds.setFechaAccionAudit(new Date());
+            cursosExcluidosService.anularExclusion(cursoExcluido, ds);
+            response.setSuccess(true);
+            response.setMessage("Curso excluido satisfactoriamnente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("listCursoExcluido")
     public JsonResponse listCursoExcluido(@RequestBody RolExamenes rolExamenes, HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();

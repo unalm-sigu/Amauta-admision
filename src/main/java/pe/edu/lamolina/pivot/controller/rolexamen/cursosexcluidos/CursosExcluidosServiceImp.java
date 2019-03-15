@@ -34,6 +34,7 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
     }
 
     @Override
+    @Transactional
     public void excluirCurso(CursoExcluido cursoExcluido, DataSessionPivot ds) {
         CursoExcluido cursoExcluidoFound = cursoExcluidoDAO.findActiveByCursoAndRolExamenes(cursoExcluido.getCurso(), cursoExcluido.getRolExamenes());
         if (cursoExcluidoFound != null) {
@@ -44,6 +45,14 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
         cursoExcluido.setUserRegistro(ds.getUsuario());
         cursoExcluido.setEstadoEnum(EstadoEnum.ACT);
         cursoExcluidoDAO.save(cursoExcluido);
+    }
+
+    @Override
+    @Transactional
+    public void anularExclusion(CursoExcluido cursoExcluido, DataSessionPivot ds) {
+        CursoExcluido cursoExcluidoUpd = new CursoExcluido(cursoExcluido.getId());
+        cursoExcluidoUpd.setEstadoEnum(EstadoEnum.ANU);
+        cursoExcluidoDAO.updateAnulacion(cursoExcluidoUpd);
     }
 
 }
