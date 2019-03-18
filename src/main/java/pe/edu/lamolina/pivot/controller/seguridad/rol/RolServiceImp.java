@@ -71,6 +71,9 @@ public class RolServiceImp implements RolService {
         Boolean existEnum = false;
         for (RolEnum enu : RolEnum.values()) {
             existEnum = rol.getCodigo().equals(enu.name()) ? true : false;
+            if (existEnum) {
+                break;
+            }
         }
         Assert.isTrue(existEnum, "No se agregó el código. Comunicarse con soporte.");
         rolDAO.save(rol);
