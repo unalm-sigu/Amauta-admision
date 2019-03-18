@@ -1073,13 +1073,16 @@ public class OficinaServiceImp implements OficinaService {
             }
         }
         Usuario usuarioColaborador = usuarioDAO.findByPersona(colaboradorForm.getPersona());
+        System.out.println("usuarioColaborador " + usuarioColaborador);
         ArrayList<PerfilCompania> perfiles = new ArrayList();
         for (FuncionColaborador funcionColaborador : mapNuevo.values()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             perfiles.add(perfil);
         }
+        System.out.println("perfiles ::: " + perfiles.size());
         if (usuarioColaborador != null) {
             perfiles.add(colaboradorForm.getCargo());
+            System.out.println("perfiles.add ::: " + perfiles.size());
             updateUserRol(usuarioColaborador, perfiles, oficinaMea, colaboradorForm, ds);
         }
     }
@@ -1088,9 +1091,11 @@ public class OficinaServiceImp implements OficinaService {
     private void updateUserRol(Usuario usuarioColaborador, List<PerfilCompania> perfilesCompaniaNuevos, Oficina oficinaMean, Colaborador colaborador, DataSessionPivot ds) {
         logger.info("ENTRA A UPDATE USER ROL");
         List<FuncionRol> funcionRolNuevos = funcionRolDAO.allByPerfilCompania(perfilesCompaniaNuevos);
+        System.out.println("funcionRolNuevos ::: " + funcionRolNuevos.size());
         Map<Long, List<Rol>> mapRolNuevos = TypesUtil.convertListToMapList("rol.id", "rol", funcionRolNuevos);
 
         List<UsuarioRol> rolesUsuarioTengo = usuarioRolDAO.allUsuarioAndOficina(usuarioColaborador, oficinaMean);
+        System.out.println("rolesUsuarioTengo ::: " + rolesUsuarioTengo.size());
         Map<Long, List<Rol>> mapRolTengo = TypesUtil.convertListToMapList("rol.id", "rol", rolesUsuarioTengo);
 
         for (UsuarioRol usuarioRol : rolesUsuarioTengo) {
