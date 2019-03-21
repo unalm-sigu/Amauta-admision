@@ -2,35 +2,28 @@ Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#oficinaFormVUE',
     data: {
-        oficina: JSON.parse(oficinaJson), //{instanciaReferencia: {}, tipoOficina: {}, oficinaSuperior: {}},
+        oficina: JSON.parse(oficinaJson), //{instanciaReferencia: {}, tipoOficina: {}, oficinaSuperior: {}, cargo: {}},
         tiposOficina: JSON.parse(tiposOficinaJson),
         oficinaSuperior: [],
         referencias: [],
         personas: [],
         cargosJefe: [],
-        hayInstancia: false
+        hayInstancia: false,
+        inicio: true,
     },
     mounted() {
         let $vue = this;
-        $vue.oficina.instanciaReferencia = null;
-        $vue.tipoSelect($vue.oficina.tipoOficina);
+//        $vue.oficina.instanciaReferencia = null;
+        $vue.loadReferencias($vue.oficina.tipoOficina);
     },
     watch: {
-
-//        tipoOficina(value) {
-//            let $vue = this;
-//            console.log(value)
-//            if (value != undefined) {
-//                $vue.tipoSelect(value);
-//            }
-//        }
     },
     methods: {
 
         findOficinaSuperior(nombre) {
             let $vue = this;
             $.ajax({
-                url: APP.url('general/oficina/allUnidadSuperior'),
+                url: APP.url(rutaModulo + '/allUnidadSuperior'),
                 dataType: 'json',
                 type: 'POST',
                 data: {nombre: nombre},
@@ -48,7 +41,7 @@ new Vue({
         },
         allPersonas(nombre) {
             let $vue = this;
-            axios.post('/general/oficina/allPersona', {nombre: nombre})
+            axios.post(rutaModulo + '/allPersona', {nombre: nombre})
                     .then(response => {
                         if (response.data.success) {
                             $vue.personas = response.data.data;
@@ -65,7 +58,7 @@ new Vue({
             let $vue = this;
 
             $.ajax({
-                url: APP.url('general/oficina/allCargo'),
+                url: APP.url(rutaModulo + '/allCargo'),
                 dataType: 'json',
                 type: 'POST',
                 data: {nombre: nombre},
@@ -81,43 +74,37 @@ new Vue({
                 }
             });
         },
-        tipoSelect(tipoOficina) {
+        loadReferencias(tipoOficina) {
             let $vue = this;
-            if (tipoOficina.id == undefined) {
-                $vue.oficina.instanciaReferencia = null;
-                $vue.oficina.instanciaOficina = null;
-                return;
-            }
 
             $.ajax({
-                url: APP.url('general/oficina/allReferencia'),
+                url: APP.url(rutaModulo + '/allReferencia'),
                 dataType: 'json',
                 type: 'POST',
                 data: {tipo: tipoOficina.id},
                 success: function (response) {
-                    let ubicado = false;
                     $vue.hayInstancia = false;
+                    $vue.oficina.instanciaReferencia = {};
 
                     if (response.success) {
-                        console.log($vue.oficina.instanciaOficina)
                         $vue.referencias = response.data;
                         if ($vue.referencias.length > 0) {
                             $vue.hayInstancia = true;
                         }
-                        for (var i = 0; i < $vue.referencias.length; i++) {
-                            if ($vue.oficina.instanciaOficina == $vue.referencias[i].id) {
-                                ubicado = true;
-                                $vue.oficina.instanciaReferencia = Object.assign({}, $vue.referencias[i], {});
+                        if ($vue.inicio) {
+                            $vue.inicio = false;
+                            if ($vue.oficina.instanciaOficina == undefined) {
+                                return;
                             }
-                        }
-                        if (!ubicado) {
-                            $vue.oficina.instanciaReferencia = null;
-                            $vue.oficina.instanciaOficina = null;
+                            for (var i = 0; i < $vue.referencias.length; i++) {
+                                if ($vue.oficina.instanciaOficina == $vue.referencias[i].id) {
+                                    $vue.oficina.instanciaReferencia = $vue.referencias[i];
+                                }
+                            }
                         }
 
                     } else {
                         $vue.oficina.instanciaReferencia = null;
-                        $vue.oficina.instanciaOficina = null;
                     }
                 },
                 error: function () {
@@ -126,8 +113,6 @@ new Vue({
             });
         },
         verRef(value) {
-            let $vue = this;
-            $vue.oficina.instanciaOficina = value.id;
         },
         save() {
             let $vue = this;
@@ -137,13 +122,12 @@ new Vue({
             if (target.parsley().validate() !== true) {
                 return;
             }
-            var data = {};
-            data = Object.assign({}, $vue.oficina);
-            if ($vue.oficina.instanciaOficina != undefined) {
-                // data.instanciaOficina = $vue.oficina.instanciaOficina.id;
+            var data = Object.assign({}, $vue.oficina);
+            if ($vue.oficina.instanciaReferencia.id != undefined) {
+                data.instanciaOficina = $vue.oficina.instanciaReferencia.id;
             }
             $.ajax({
-                url: APP.url('general/oficina/save'),
+                url: APP.url(rutaModulo + '/save'),
                 dataType: 'json',
                 type: 'POST',
                 contentType: "application/json",
@@ -162,7 +146,6 @@ new Vue({
             });
         },
         classLabel(item) {
-            //ACT("Activo"), CRE("Creado"), INA("Inactivo"), RES("Resolución");
             var color = {ACT: "success", CRE: "warning", INA: "danger", RES: "primary"};
             return "label-" + color[item.estado];
 

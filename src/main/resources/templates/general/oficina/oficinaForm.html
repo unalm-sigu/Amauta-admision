@@ -6,7 +6,7 @@
         <section layout:fragment="main" >
             <div id="oficinaFormVUE" >
                 <header class="header b-b padder-lg">                
-                    <a href="/general/oficina" class="btn btn-default btn-sm pull-right">Regresar</a>
+                    <a th:href="${origen}" class="btn btn-default btn-sm pull-right">Regresar</a>
                     <h2 v-text="oficina.id != null ? oficina.nombre : 'Nueva Oficina' " >Nuevo Oficina</h2> 
                 </header>
 
@@ -54,11 +54,11 @@
                                                  label='nombre'
                                                  track-by='id'
                                                  v-bind:allow-empty="false"
-                                                 v-on:input ="tipoSelect"
+                                                 v-on:input ="loadReferencias"
                                                  placeholder="Seleccione tipo de oficina">
 
                                     </multiselect>
-                                    <input type="text" v-model="oficina.tipoOficina.id" class="hide"   required="true" />
+                                    <input type="text" v-model="oficina.tipoOficina.id" class="hide" required="true" />
                                 </div>
                             </div>
                             <div class="form-group" v-if="hayInstancia">
@@ -80,7 +80,8 @@
                                             </div>                                 
                                         </template>
                                     </multiselect>
-                                    <input type="text" v-model="oficina.instanciaOficina" class="hide" required="true" />
+                                    <input type="text" v-model="oficina.instanciaReferencia.id" class="hide" required="true" />
+                                    <!--<pre>{{oficina}}</pre>-->
                                 </div>
                             </div>
                             <div class="form-group">
@@ -119,7 +120,7 @@
                                 <div id="footerOficina" class="col-sm-10 col-sm-offset-4">
                                     <a class="btn btn-primary"
                                        v-text="oficina.id != null ? 'Actualizar' :'Guardar'" v-on:click='save'></a>                                        
-                                    <a href="/general/oficina" class="btn btn-link" >Cancelar</a>
+                                    <a th:href="${origen}" class="btn btn-link" >Regresar</a>
                                 </div>
                             </div>
 
@@ -136,6 +137,7 @@
                 /*<![CDATA[*/
                 var oficinaJson = /*[[${oficina}]]*/'';
                 var tiposOficinaJson = /*[[${tiposOficina}]]*/'';
+                var rutaModulo = 'general/oficina';
                 /*]]>*/
             </script>
             <script th:src="@{/app/general/oficina/oficinaForm.js}" charset="utf-8"></script>

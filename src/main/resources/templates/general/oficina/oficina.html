@@ -1,7 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Administración de Oficinas</title>
-        <!--<div th:substituteby="_layout/includes :: styles-dynatable"></div>-->
     </head>
     <body>
         <div layout:fragment="main">
@@ -108,29 +107,25 @@
                                     </table>
                                 </template>
                             </raptor-table>
-                            
-                            
+
+
 
                         </section>
 
                     </section>
-                    
+
                 </section>
-                
+
                 <div th:substituteby="general/oficina/oficinaModals"/>
             </div>
-            
-            <div th:substituteby="_modules/vue-modal"/>
-            
 
-            <!--<div th:substituteby="templates/modal"/>--> 
-            <!--<div th:substituteby="general/oficina/oficinaModals"/>-->
-            <!--<script id="oficinaTemplate" type="text/x-jsrender" class="hide" ><div th:substituteby="general/oficina/oficinaTemplate"/></script>-->
+            <div th:substituteby="_modules/vue-modal"/>
+
+
 
         </div>
 
         <div layout:fragment="js">
-            <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/general/oficina/oficina.js}" charset="utf-8"></script>

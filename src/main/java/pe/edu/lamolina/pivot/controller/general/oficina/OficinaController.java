@@ -9,10 +9,12 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -436,6 +438,7 @@ public class OficinaController {
 
         ObjectNode oficinaJson = JsonHelper.createJson(new Oficina(), JsonNodeFactory.instance, new String[]{
             "*", "tipoOficina.*", "cargoJefe.*", "oficinaSuperior.*"});
+        oficinaJson.put("instanciaReferencia", "");
 
         model.addAttribute("tiposOficina", tiposOficinaJson.toString());
         model.addAttribute("oficina", oficinaJson.toString());
@@ -443,7 +446,10 @@ public class OficinaController {
     }
 
     @RequestMapping("{oficina}/update")
-    public String update(@PathVariable("oficina") Long idOficina, Model model, HttpSession session) {
+    public String update(
+            @PathVariable("oficina") Long idOficina,
+            @RequestParam(value = "origen", required = false) String origen,
+            Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Oficina oficina = service.find(new Oficina(idOficina));
         service.fillReferencia(oficina);
@@ -456,10 +462,21 @@ public class OficinaController {
 
         ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
             "*", "tipoOficina.*", "cargoJefe.*", "oficinaSuperior.*"});
+        oficinaJson.put("instanciaReferencia", "");
 
         model.addAttribute("tiposOficina", tiposOficinaJson.toString());
         model.addAttribute("oficina", oficinaJson.toString());
+        model.addAttribute("origen", getOrigen(origen));
         return "general/oficina/oficinaForm";
+    }
+
+    private String getOrigen(String origen) {
+        if (StringUtils.isEmpty(origen)) {
+            return "/academico/alumno";
+        }
+        byte[] decoded = Base64.getMimeDecoder().decode(origen);
+        String output = new String(decoded);
+        return output;
     }
 
 //    @RequestMapping("save")
@@ -487,9 +504,7 @@ public class OficinaController {
     @RequestMapping("save")
     public JsonResponse save(@RequestBody Oficina oficina, HttpSession session) {
 
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);

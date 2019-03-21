@@ -1,141 +1,9 @@
 $(function () {
-    ///*
-//    var dynatable = $('#dynaTable').dynatable({
-//        dataset: {
-//            ajaxUrl: APP.url('general/oficina/all'),
-//            perPageDefault: 10
-//        },
-//        writers: {_rowWriter: ulWriter},
-//        table: {bodyRowSelector: 'tbody tr'}
-//    }).data('dynatable');
-//
-//    function ulWriter(rowIndex, record, columns, cellWriter) {
-//        var colorEstado = {ACT: "success", INA: "default"};
-//        record.colorEstado = colorEstado[record.estado];
-//        record.index = rowIndex;
-//
-//        var html = $.templates("#oficinaTemplate").render(record);
-//        return $(html).prop('outerHTML');
-//    }
 
     var Oficina = {
         init: function () {},
         body: $("body"),
         form: {},
-//        estado: function (e) {
-//
-//            e.preventDefault();
-//            var self = $(e.currentTarget);
-//            var estado = self.attr('rev');
-//            var id = self.attr('rel');
-//
-//            Oficina.form.id = id;
-//
-//            var mimodal = bootbox.confirm({
-//                title: "Cambiar Estado",
-//                size: 'small',
-//                message: '¿Desea cambiar el estado de la oficina?',
-//                buttons: {
-//                    confirm: {label: "Cambiar Estado", className: "btn-info"},
-//                    cancel: {label: "Cancelar", className: "btn-link"}
-//                },
-//                callback: function (result) {
-//                    if (result) {
-//                        Oficina.saveEstado(mimodal);
-//                    } else {
-//                        mimodal.modal('hide');
-//                    }
-//                    return false;
-//                }
-//            });
-//        },
-//        saveEstado: function (mimodal) {
-//            $.ajax({
-//                url: APP.url('general/oficina/estado'),
-//                type: 'POST',
-//                async: false,
-//                data: Oficina.form,
-//                success: function (response) {
-//                    if (response.success) {
-//                        dynatable.process();
-//                        mimodal.modal('hide');
-//                    } else {
-//                        notify(response.message, "error");
-//                    }
-//                },
-//                error: function () {
-//                    mimodal.modal('hide');
-//                    notify(MESSAGES.errorComunicacion, "error");
-//                }
-//            });
-//        },
-//        eliminar: function (e) {
-//            e.preventDefault();
-//            var self = $(e.currentTarget);
-//            var id = self.attr("rel");
-//            bootbox.confirm({
-//                message: "¿Está seguro que desea eliminar la oficina?",
-//                size: 'small',
-//                buttons: {
-//                    confirm: {label: 'Sí, Eliminar', className: "btn-danger"},
-//                    cancel: {label: 'Cancelar', className: "btn-link"}
-//                },
-//                callback: function (result) {
-//                    if (result) {
-//                        $.ajax({
-//                            url: APP.url('general/oficina/delete'),
-//                            type: 'POST',
-//                            async: false,
-//                            data: {id: id},
-//                            success: function (response) {
-//                                if (response.success) {
-//                                    notify(response.message, "info");
-//                                    dynatable.process();
-//                                } else {
-//                                    notify(response.message, "error");
-//                                }
-//                            },
-//                            error: function () {
-//                                notify(MESSAGES.errorComunicacion, "error");
-//                            }
-//                        });
-//                    }
-//                }
-//            });
-//        },
-//        colaborador: function (e) {
-//            e.preventDefault();
-//            var self = $(e.currentTarget);
-//            var id = self.attr("rel");
-//            var mialert = bootbox.alert({
-//                message: "¿Está seguro que desea eliminar la oficina?",
-//                title: "Colaboradores",
-//                buttons: {
-//                    ok: {label: 'Cerrar', className: "btn-primary"},
-//                },
-//                callback: function (result) {
-//                    if (result) {
-//                    }
-//                }
-//            });
-//            $.ajax({
-//                url: APP.url('general/oficina/allColaborador'),
-//                type: 'POST',
-//                async: false,
-//                data: {id: id},
-//                success: function (response) {
-//                    if (response.success) {
-//                        var html = $.templates("#colaboradorTemplate").render(response.data);
-//                        mialert.find('.bootbox-body').html(html);
-//                    } else {
-//                        notify(response.message, "error");
-//                    }
-//                },
-//                error: function () {
-//                    notify(MESSAGES.errorComunicacion, "error");
-//                }
-//            });
-//        },
         previoRetirarJefe: function (e) {
             e.preventDefault();
             var rec = APP.recDynatable(dynatable, e);
@@ -526,10 +394,12 @@ new Vue({
             return classesEstado[item.estado];
         },
         urlEditar(item) {
-            return APP.url('general/oficina/' + item.id + '/update');
+            let $vue = this;
+            return APP.url('general/oficina/' + item.id + '/update') + $vue.getOrigenURL();
         },
         urlColaboradores(item) {
-            return APP.url('general/oficina/' + item.id + '/colaboradores');
+            let $vue = this;
+            return APP.url('general/oficina/' + item.id + '/colaboradores') + $vue.getOrigenURL();
         },
         cambiarEstado(item, accion) {
             let $vue = this;
@@ -616,7 +486,11 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
+        },
     }
 });
     
