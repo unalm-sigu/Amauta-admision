@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Facultad;
-import pe.edu.lamolina.model.enums.FacultadEstadoEnum;
+import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 
@@ -32,7 +32,7 @@ public class FacultadServiceImp implements FacultadService {
     public void save(Facultad facultad) {
         facultad.setCompania(new Compania(1));
         facultad.setFechaRegistro(new Date());
-        facultad.setEstado(FacultadEstadoEnum.CRE);
+        facultad.setEstado(EnteAcademicoEstadoEnum.CRE);
         facultadDAO.save(facultad);
     }
 
@@ -56,14 +56,14 @@ public class FacultadServiceImp implements FacultadService {
     @Transactional
     public void estado(Facultad facultad) {
         Facultad facultadBD = facultadDAO.find(facultad.getId());
-        if (FacultadEstadoEnum.CRE.name().equalsIgnoreCase(facultadBD.getEstado())) {
-            facultadBD.setEstado(FacultadEstadoEnum.ACT);
-        } else if (FacultadEstadoEnum.ACT.name().equalsIgnoreCase(facultadBD.getEstado())) {
-            facultadBD.setEstado(FacultadEstadoEnum.DES);
+        if (EnteAcademicoEstadoEnum.CRE.name().equalsIgnoreCase(facultadBD.getEstado())) {
+            facultadBD.setEstado(EnteAcademicoEstadoEnum.ACT);
+        } else if (EnteAcademicoEstadoEnum.ACT.name().equalsIgnoreCase(facultadBD.getEstado())) {
+            facultadBD.setEstado(EnteAcademicoEstadoEnum.INA);
             facultadBD.setMotivoDesactivacion(facultad.getMotivoDesactivacion());
             facultadBD.setFechaDesactivacion(new Date());
         } else {
-            facultadBD.setEstado(FacultadEstadoEnum.ACT);
+            facultadBD.setEstado(EnteAcademicoEstadoEnum.ACT);
         }
         facultadDAO.update(facultadBD);
     }

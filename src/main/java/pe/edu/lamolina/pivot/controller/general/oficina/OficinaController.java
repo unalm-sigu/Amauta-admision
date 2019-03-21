@@ -37,6 +37,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.AusenciaJefe;
@@ -426,42 +427,38 @@ public class OficinaController {
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        Compania compania = ds.getCompania();
+
         List<TipoOficina> tipoOficina = service.allTipoOficina();
-        ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode tiposOficinaJson = new ArrayNode(JsonNodeFactory.instance);
         for (TipoOficina tipoOficina1 : tipoOficina) {
-            node.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{
-                "*"
-            }));
+            tiposOficinaJson.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{"*"}));
         }
-        ObjectNode objectNode = JsonHelper.createJson(new Oficina(), JsonNodeFactory.instance, new String[]{
-            "*"});
-        model.addAttribute("tipos", node.toString());
-        model.addAttribute("oficina", objectNode.toString());
+
+        ObjectNode oficinaJson = JsonHelper.createJson(new Oficina(), JsonNodeFactory.instance, new String[]{
+            "*", "tipoOficina.*", "cargoJefe.*", "oficinaSuperior.*"});
+
+        model.addAttribute("tiposOficina", tiposOficinaJson.toString());
+        model.addAttribute("oficina", oficinaJson.toString());
         return "general/oficina/oficinaForm";
     }
 
     @RequestMapping("{oficina}/update")
     public String update(@PathVariable("oficina") Long idOficina, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        Compania compania = ds.getCompania();
         Oficina oficina = service.find(new Oficina(idOficina));
         service.fillReferencia(oficina);
 
         List<TipoOficina> tipoOficina = service.allTipoOficina();
-
-        ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode tiposOficinaJson = new ArrayNode(JsonNodeFactory.instance);
         for (TipoOficina tipoOficina1 : tipoOficina) {
-            node.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{
-                "*"
-            }));
+            tiposOficinaJson.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{"*"}));
         }
 
-        ObjectNode objectNode = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
+        ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
             "*", "tipoOficina.*", "cargoJefe.*", "oficinaSuperior.*"});
 
-        model.addAttribute("tipos", node.toString());
-        model.addAttribute("oficina", objectNode.toString());
+        model.addAttribute("tiposOficina", tiposOficinaJson.toString());
+        model.addAttribute("oficina", oficinaJson.toString());
         return "general/oficina/oficinaForm";
     }
 
@@ -575,6 +572,8 @@ public class OficinaController {
 
         try {
 
+            String columnas = "id,codigo,nombre,estado,estadoEnum";
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
             ArrayNode array = new ArrayNode(jsonFactory);
@@ -582,30 +581,36 @@ public class OficinaController {
             if (TipoOficinaEnum.DPTO.name().equalsIgnoreCase(oficina.getCodigo())) {
                 List<DepartamentoAcademico> departamentos = service.allDepartamento(compania);
                 for (DepartamentoAcademico departamento : departamentos) {
-                    ObjectNode a = new ObjectNode(jsonFactory);
-                    a.put("id", departamento.getId());
-                    a.put("codigo", departamento.getCodigo());
-                    a.put("nombre", departamento.getNombre());
+                    ObjectNode a = JsonHelper.createJson(departamento, jsonFactory, columnas.split(","));
+                    a.put("descripcion", departamento.getCodigo() + " - " + departamento.getNombre());
+                    a.put("modalidad", "");
                     array.add(a);
                 }
             }
             if (TipoOficinaEnum.ESP.name().equalsIgnoreCase(oficina.getCodigo())) {
                 List<Carrera> carreras = service.allCarrera(compania);
                 for (Carrera carrera : carreras) {
-                    ObjectNode a = new ObjectNode(jsonFactory);
-                    a.put("id", carrera.getId());
-                    a.put("codigo", carrera.getCodigo());
-                    a.put("nombre", carrera.getNombre());
+
+                    columnas += ",tipo,tipoEnum";
+                    ObjectNode a = JsonHelper.createJson(carrera, jsonFactory, columnas.split(","));
+
+                    ModalidadEstudio modalidad = carrera.getModalidadEstudio();
+                    a.put("modalidad", modalidad.getCodigo());
+
+                    String descripcion = carrera.getCodigo() + " - ";
+                    descripcion += modalidad.isPostgrado() ? carrera.getTipoEnum().getValue() + " " : "";
+                    descripcion += carrera.getNombre();
+                    a.put("descripcion", descripcion);
+
                     array.add(a);
                 }
             }
             if (TipoOficinaEnum.FAC.name().equalsIgnoreCase(oficina.getCodigo())) {
                 List<Facultad> facultades = service.allFacultad(compania);
                 for (Facultad facultad : facultades) {
-                    ObjectNode a = new ObjectNode(jsonFactory);
-                    a.put("id", facultad.getId());
-                    a.put("codigo", facultad.getCodigo());
-                    a.put("nombre", facultad.getNombre());
+                    ObjectNode a = JsonHelper.createJson(facultad, jsonFactory, columnas.split(","));
+                    a.put("descripcion", facultad.getCodigo() + " - " + facultad.getNombre());
+                    a.put("modalidad", "");
                     array.add(a);
                 }
             }

@@ -7,11 +7,13 @@
             <div id="oficinaFormVUE" >
                 <header class="header b-b padder-lg">                
                     <a href="/general/oficina" class="btn btn-default btn-sm pull-right">Regresar</a>
-                    <h2   v-text="oficina.id != null ? oficina.nombre : 'Nueva Oficina' " >Nuevo Oficina</h2> 
+                    <h2 v-text="oficina.id != null ? oficina.nombre : 'Nueva Oficina' " >Nuevo Oficina</h2> 
                 </header>
 
                 <section class="panel">
                     <section class="panel-body bg-white b">
+                        <!--<pre>{{oficina}}</pre>-->
+
                         <form id="formControl" class="form-horizontal m-t-lg" data-parsley-validate="true">
                             <div class="form-group">
 
@@ -47,30 +49,38 @@
                             <div class="form-group ">
                                 <label class="col-sm-3 control-label"> Tipo</label>
                                 <div class="col-sm-4">
-                                    <multiselect v-model="tipoOficina" 
-                                                 v-bind:options='tipos'
+                                    <multiselect v-model="oficina.tipoOficina" 
+                                                 v-bind:options='tiposOficina'
                                                  label='nombre'
                                                  track-by='id'
                                                  v-bind:allow-empty="false"
-                                                 v-on:select ="tipoSelect"
+                                                 v-on:input ="tipoSelect"
                                                  placeholder="Seleccione tipo de oficina">
 
                                     </multiselect>
-                                    <input type="text" v-model="oficina.tipoOficina" class="hide"   required="true" />
+                                    <input type="text" v-model="oficina.tipoOficina.id" class="hide"   required="true" />
                                 </div>
                             </div>
                             <div class="form-group" v-if="hayInstancia">
 
                                 <label class="col-sm-3 control-label">Referencia</label>
                                 <div class="col-sm-4">
-                                    <multiselect v-model="oficina.instanciaOficina" 
-                                                 v-bind:options='instanciaOficina'
-                                                 label='nombre'
+                                    <multiselect v-model="oficina.instanciaReferencia" 
+                                                 v-bind:options='referencias'
+                                                 label='descripcion'
                                                  track-by='id'
                                                  v-bind:allow-empty="false"
+                                                 v-on:input ="verRef"
                                                  placeholder="Seleccione Referencia">
+                                        <template slot="option" slot-scope="props">    
+                                            <div class="option__desc">
+                                                <span class="bold block" > {{ props.option.codigo }} - {{ props.option.nombre }}</span>
+                                                <small v-if="props.option.modalidad == 'EPG' " class="block">{{props.option.tipoEnum.value}}</small>
+                                                <div class="block"><span class="label" v-bind:class="classLabel(props.option)">  {{props.option.estadoEnum.value}}  </span></div>
+                                            </div>                                 
+                                        </template>
                                     </multiselect>
-                                    <input type="text" v-model="oficina.instanciaOficina" class="hide"   required="true" />
+                                    <input type="text" v-model="oficina.instanciaOficina" class="hide" required="true" />
                                 </div>
                             </div>
                             <div class="form-group">
@@ -85,7 +95,7 @@
                                                  v-bind:allow-empty="false"
                                                  placeholder="Seleccione Unidad superior">
                                     </multiselect>
-                                    <input type="text" v-model="oficina.oficinaSuperior" class="hide"   required="true" />
+                                    <input type="text" v-model="oficina.oficinaSuperior.id" class="hide" required="true" />
                                 </div>
                             </div>
 
@@ -125,7 +135,7 @@
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var oficinaJson = /*[[${oficina}]]*/'';
-                var tiposJson = /*[[${tipos}]]*/'';
+                var tiposOficinaJson = /*[[${tiposOficina}]]*/'';
                 /*]]>*/
             </script>
             <script th:src="@{/app/general/oficina/oficinaForm.js}" charset="utf-8"></script>

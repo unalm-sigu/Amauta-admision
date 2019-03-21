@@ -16,7 +16,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
-import pe.edu.lamolina.model.enums.EstadoCarreraEnum;
+import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -61,12 +61,12 @@ public class CarreraServiceImp implements CarreraService {
     @Transactional
     public void cambiarEstadoCarrera(Carrera carrera) {
         Carrera carrreraBD = carreraDAO.find(carrera.getId());
-        if (carrera.getEstado().equals(EstadoCarreraEnum.ACT.name())) {
-            carrreraBD.setEstadoEnum(EstadoCarreraEnum.INA);
+        if (carrera.getEstadoEnum() == EnteAcademicoEstadoEnum.ACT) {
+            carrreraBD.setEstadoEnum(EnteAcademicoEstadoEnum.INA);
             carrreraBD.setMotivoAnulacion(carrera.getMotivoAnulacion());
             carrreraBD.setFechaAnulacion(new Date());
         } else {
-            carrreraBD.setEstadoEnum(EstadoCarreraEnum.ACT);
+            carrreraBD.setEstadoEnum(EnteAcademicoEstadoEnum.ACT);
         }
         carreraDAO.update(carrreraBD);
     }
@@ -75,10 +75,10 @@ public class CarreraServiceImp implements CarreraService {
     @Transactional
     public void cambiarEstadoAdmision(Carrera carrera) {
         Carrera carrreraBD = carreraDAO.find(carrera.getId());
-        if (carrreraBD.getEstadoAdmision().equals(EstadoCarreraEnum.ACT.name())) {
-            carrreraBD.setEstadoAdmisionEnum(EstadoCarreraEnum.INA);
+        if (carrreraBD.getEstadoAdmisionEnum() == EnteAcademicoEstadoEnum.ACT) {
+            carrreraBD.setEstadoAdmisionEnum(EnteAcademicoEstadoEnum.INA);
         } else {
-            carrreraBD.setEstadoAdmisionEnum(EstadoCarreraEnum.ACT);
+            carrreraBD.setEstadoAdmisionEnum(EnteAcademicoEstadoEnum.ACT);
         }
         carreraDAO.update(carrreraBD);
     }
@@ -92,20 +92,20 @@ public class CarreraServiceImp implements CarreraService {
     @Transactional
     public void save(Carrera carrera, Usuario usuario) {
         if (carrera.getId() == null) {
-            carrera.setEstadoEnum(EstadoCarreraEnum.CRE);
+            carrera.setEstadoEnum(EnteAcademicoEstadoEnum.CRE);
             carrera.setUserRegistro(usuario);
             carrera.setFechaRegistro(new Date());
             carreraDAO.save(carrera);
 
         } else {
             Carrera carreraBD = carreraDAO.find(carrera.getId());
-            if (!carreraBD.getEstado().equals(EstadoCarreraEnum.INA.name())) {
+            if (carreraBD.getEstadoEnum() != EnteAcademicoEstadoEnum.INA) {
                 carreraBD.setNombre(carrera.getNombre());
             }
-            if (carreraBD.getEstado().equals(EstadoCarreraEnum.CRE.name())) {
+            if (carreraBD.getEstadoEnum() == EnteAcademicoEstadoEnum.CRE) {
                 carreraBD.setFacultad(carrera.getFacultad());
                 carreraBD.setModalidadEstudio(carrera.getModalidadEstudio());
-                carreraBD.setTipo(carrera.getTipoEnum());
+                carreraBD.setTipoEnum(carrera.getTipoEnum());
             }
             carreraDAO.update(carreraBD);
             if (carrera.getOrientacionCarrera() == null) {
