@@ -17,11 +17,16 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
+import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
@@ -31,6 +36,7 @@ import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.almacen.ResumenInventarioDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
@@ -71,6 +77,9 @@ public class AulaServiceImp implements AulaService {
 
     @Autowired
     TipoCarpetaDAO tipoCarpetaDAO;
+
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -285,6 +294,19 @@ public class AulaServiceImp implements AulaService {
     private void completarDocentes(List<HorarioAula> horariosAulas) {
 
         List<Seccion> secciones = horariosAulas.stream().filter(x -> x.getSeccion() != null).map(x -> x.getSeccion()).collect(Collectors.toList());
+
+        Map<Long, CicloAcademico> ciclosXid = TypesUtil.convertListToMap("grupoSeccion.cicloAcademico.id", "grupoSeccion.cicloAcademico", secciones);
+        List<CicloAcademico> cicloAcademicos = ciclosXid.values().stream().collect(Collectors.toList());
+        List<EventoCicloAcademico> eventoCicloAcademicos = eventoCicloAcademicoDAO.allActivoByCicloTipoEvento(cicloAcademicos, EventoAcademicoEnum.CLASES_PRE);
+        Map<Long, EventoCicloAcademico> eventoAcademicoXcicloAcademico = TypesUtil.convertListToMap("cicloAcademico.id", eventoCicloAcademicos);
+        for (Seccion seccione : secciones) {
+            GrupoSeccion grupoSeccion = seccione.getGrupoSeccion();
+            if (TipoDictadoGrupoSeccionEnum.SEM.name().equalsIgnoreCase(grupoSeccion.getTipoDictado())) {
+                EventoCicloAcademico evento = eventoAcademicoXcicloAcademico.get(grupoSeccion.getCicloAcademico().getId());
+                grupoSeccion.setFechaInicioPeriodo(evento.getFechaInicio());
+                grupoSeccion.setFechaFinPeriodo(evento.getFechaFin());
+            }
+        }
 
         List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allActivosBySeccionesOrderPrincipalLimit(secciones);
         Map<Long, List<DocenteSeccion>> docenteSeccionesMap = TypesUtil.convertListToMapList("seccion.id", docenteSecciones);
