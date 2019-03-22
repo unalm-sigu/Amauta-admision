@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.general.oficina;
+package pe.edu.lamolina.pivot.controller.general.oficina.colaborador;
 
 public class ResumenColaborador {
 

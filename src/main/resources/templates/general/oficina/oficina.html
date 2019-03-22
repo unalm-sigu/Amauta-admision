@@ -9,7 +9,7 @@
                 <header class="header b-b padder-lg">
 
                     <div class="pull-right m-t-md">                 
-                        <a class="btn btn-success btn-sm" type="button" th:href="@{/general/oficina/nuevo}" >Nuevo</a>
+                        <a class="btn btn-success btn-sm" type="button" v-bind:href="urlNuevaOficina()" >Nuevo</a>
                     </div>  
 
                     <h2>Oficinas de la Institución</h2>
@@ -58,11 +58,17 @@
                                                         <span v-else="" class="text-sm block m-b">(Encargado)</span>
                                                     </template>
 
-                                                    <span v-if="item.personaJefe.id != '' " class="text-primary block">{{item.personaJefe.nombreConTitulo}}</span>
+                                                    <span v-if="item.personaJefe.id != '' " class="text-primary block">
+                                                        {{item.personaJefe.nombreConTitulo}}
+                                                    </span>
 
-                                                    <span v-if="item.fechaInicioJefatura != '' " class="text-sm block">Desde el {{item.fechaInicioJefatura}}</span>
+                                                    <span v-if="item.fechaInicioJefatura != '' " class="text-sm block">
+                                                        Desde el {{item.fechaInicioJefatura}}
+                                                    </span>
 
-                                                    <p v-if="item.motivoAusenciaJefe != '' " class="text-sm block text-danger">({{item.motivoAusenciaJefe}})</p>
+                                                    <p v-if="item.motivoAusenciaJefe != '' " class="text-sm block text-danger">
+                                                        ({{item.motivoAusenciaJefe}})
+                                                    </p>
                                                 </td>
 
                                                 <td class="v-middle text-center">
@@ -89,7 +95,7 @@
                                                             <li role="presentation" class="divider"></li>
 
                                                             <li v-if="item.personaJefe.id != '' "><a class="btn-link retirar-jefe" v-bind:rel="item.id">Retirar Jefe</a></li>
-                                                            <li v-else=""><a class="btn-link asignar-jefe" v-bind:rel="item.id"> Asignar Jefe</a></li>
+                                                            <li v-else=""><a class="pointer" v-on:click="asignarJefe(item)"> Asignar Jefe</a></li>
 
                                                             <li v-if="item.jefeEncargado.id != '' "><a class="btn-link retirar-encargado" v-bind:rel="item.id" href="#">Retirar Encargado</a></li>
                                                             <li v-else=""><a class="btn-link asignar-encargado" v-bind:rel="item.id" href="#">Asignar Encargado</a></li>
@@ -125,6 +131,11 @@
         </div>
 
         <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var rutaModulo = 'general/oficina';
+                /*]]>*/
+            </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/general/oficina/oficina.js}" charset="utf-8"></script>

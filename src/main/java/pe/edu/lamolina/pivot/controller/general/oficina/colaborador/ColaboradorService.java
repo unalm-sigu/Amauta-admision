@@ -1,6 +1,5 @@
-package pe.edu.lamolina.pivot.controller.general.oficina;
+package pe.edu.lamolina.pivot.controller.general.oficina.colaborador;
 
-import pe.edu.lamolina.pivot.controller.general.oficina.colaborador.ResumenColaborador;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -18,7 +17,7 @@ import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-public interface OficinaService {
+public interface ColaboradorService {
 
     List<Oficina> allByDynatable(DynatableFilter filter, Compania compania);
 

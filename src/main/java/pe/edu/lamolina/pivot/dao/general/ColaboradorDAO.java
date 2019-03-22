@@ -6,7 +6,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.general.oficina.ResumenColaborador;
+import pe.edu.lamolina.pivot.controller.general.oficina.colaborador.ResumenColaborador;
 
 public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 

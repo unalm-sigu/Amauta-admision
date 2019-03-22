@@ -15,27 +15,21 @@
                         <!--<pre>{{oficina}}</pre>-->
 
                         <form id="formControl" class="form-horizontal m-t-lg" data-parsley-validate="true">
+                            
                             <div class="form-group">
-
                                 <label class="col-sm-3 control-label">Nombre</label>
-
                                 <div class="col-sm-9">
-
                                     <input  type="text" 
                                             class="inline numeric form-control" 
                                             required="true" 
                                             maxlength="200"
                                             v-model="oficina.nombre"/>
                                 </div>
-
                             </div>
 
                             <div class="form-group">
-
                                 <label for="codigo" class="col-sm-3 control-label">Código</label>
-
                                 <div class="col-sm-4">
-
                                     <input  type="text" 
                                             class="inline numeric form-control " 
                                             required="true" 
@@ -43,7 +37,6 @@
                                             maxlength="20"
                                             v-model="oficina.codigo"/>
                                 </div>
-
                             </div>
 
                             <div class="form-group ">
@@ -61,8 +54,8 @@
                                     <input type="text" v-model="oficina.tipoOficina.id" class="hide" required="true" />
                                 </div>
                             </div>
+                            
                             <div class="form-group" v-if="hayInstancia">
-
                                 <label class="col-sm-3 control-label">Referencia</label>
                                 <div class="col-sm-4">
                                     <multiselect v-model="oficina.instanciaReferencia" 
@@ -81,11 +74,10 @@
                                         </template>
                                     </multiselect>
                                     <input type="text" v-model="oficina.instanciaReferencia.id" class="hide" required="true" />
-                                    <!--<pre>{{oficina}}</pre>-->
                                 </div>
                             </div>
+                            
                             <div class="form-group">
-
                                 <label class="col-sm-3 control-label">Unidad Superior</label>
                                 <div class="col-sm-4">
                                     <multiselect v-model="oficina.oficinaSuperior" 
@@ -101,7 +93,6 @@
                             </div>
 
                             <div class="form-group">
-
                                 <label class="col-sm-3 control-label">Cargo Jefe</label>
                                 <div class="col-sm-4">
                                     <multiselect v-model="oficina.cargoJefe" 

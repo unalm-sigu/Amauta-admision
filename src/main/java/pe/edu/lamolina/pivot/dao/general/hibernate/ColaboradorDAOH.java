@@ -22,7 +22,7 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.general.oficina.ResumenColaborador;
+import pe.edu.lamolina.pivot.controller.general.oficina.colaborador.ResumenColaborador;
 
 @Repository
 public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements ColaboradorDAO {

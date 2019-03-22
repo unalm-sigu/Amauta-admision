@@ -374,7 +374,8 @@ $(function () {
 new Vue({
     el: '#pageOficinasVUE',
     data: {
-        oficinasURL: APP.url('general/oficina/all'),
+        oficinasURL: APP.url(rutaModulo + '/all'),
+        oficina: {personaJefe: {}},
         cfgColaboradores: {
             id: 'colaboradoresModal',
             header: true,
@@ -382,8 +383,18 @@ new Vue({
             showaccept: false,
             cancelbtn: 'Aceptar'
         },
+        configModalAsignarJefe: {
+            id: 'idModalAsignarJefe',
+            header: true,
+            title: 'Asignar jefe de oficina',
+            cancelbtn: 'Aceptar'
+        },
         colaboradores: [],
         modalBootbox: {},
+        configDate: {
+            format: "DD/MM/YYYY",
+            useCurrent: false
+        }
     },
     mounted() {
 
@@ -393,9 +404,13 @@ new Vue({
             var classesEstado = {ACT: "label-success", INA: "label-danger"};
             return classesEstado[item.estado];
         },
+        urlNuevaOficina() {
+            let $vue = this;
+            return APP.url(rutaModulo + '/nuevo') + $vue.getOrigenURL();
+        },
         urlEditar(item) {
             let $vue = this;
-            return APP.url('general/oficina/' + item.id + '/update') + $vue.getOrigenURL();
+            return APP.url(rutaModulo + "/" + item.id + '/update') + $vue.getOrigenURL();
         },
         urlColaboradores(item) {
             let $vue = this;
@@ -486,6 +501,57 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        asignarJefe(item) {
+            let $vue = this;
+            if (item.cargoJefe.nombre == '') {
+                bootbox.alert({
+                    message: 'Falta definir el cargo de la jefatura de esta Unidad',
+                    buttons: {
+                        ok: {label: 'Cerrar', className: "btn-warning"}
+                    }
+                });
+                return;
+            }
+            
+            $vue.oficina = Object.assign({}, item, {});
+            $vue.$refs.modalAsignarJefe.open();
+
+            return;
+
+            var record = {
+                id: rec.id,
+                oficina: rec.nombre,
+                form: 'formJefe',
+                select2Persona: 'select2Persona',
+                textTitulo: 'textTitulo'
+            };
+
+            var mimodal = bootbox.confirm({
+                title: "Asignar Jefe de la Unidad",
+                message: $.templates("#jefeTemplate").render(record),
+                buttons: {
+                    confirm: {label: 'Asignar', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        var form = $("#" + record.form);
+                        form.parsley().destroy();
+                        form.parsley().validate();
+                        $("#" + record.select2Persona).parsley().validate();
+                        if ($("#" + record.select2Persona).select2("val") == "" || !form.parsley().validate()) {
+                            return false;
+                        }
+                        Oficina.ajaxAsignarJefe(form, mimodal);
+                        return false;
+                    }
+                }
+            });
+
+            var form = $("#" + record.form);
+            form.find(".date").datepicker();
+            $("#" + record.select2Persona).select2(Oficina.findPersona());
         },
         getOrigenURL() {
             var url = window.location.href;

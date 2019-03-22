@@ -1,6 +1,6 @@
-package pe.edu.lamolina.pivot.controller.general.oficina;
+package pe.edu.lamolina.pivot.controller.general.oficina.colaborador;
 
-import pe.edu.lamolina.pivot.controller.general.oficina.colaborador.ResumenColaborador;
+import pe.edu.lamolina.pivot.controller.general.oficina.*;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -78,7 +78,7 @@ import pe.edu.lamolina.pivot.dao.seguridad.FuncionRolDAO;
 
 @Service
 @Transactional(readOnly = true)
-public class OficinaServiceImp implements OficinaService {
+public class ColaboradorServiceImp implements ColaboradorService {
 
     @Autowired
     OficinaDAO oficinaDAO;

@@ -14,7 +14,9 @@ new Vue({
     mounted() {
         let $vue = this;
 //        $vue.oficina.instanciaReferencia = null;
-        $vue.loadReferencias($vue.oficina.tipoOficina);
+        if ($vue.oficina.tipoOficina.id != undefined) {
+            $vue.loadReferencias($vue.oficina.tipoOficina);
+        }
     },
     watch: {
     },
