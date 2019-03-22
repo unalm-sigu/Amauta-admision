@@ -64,11 +64,11 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByAulasAndNotInSecciones(List<Aula> aulas, List<Seccion> secciones, Date fechaInicio, Date fechaFin);
 
-    List<HorarioAula> allForRolExamenesByCicloAndSemanaExamen(CicloAcademico cicloAcademico);
+    List<HorarioAula> allForRolExamenesByEventoCicloAcademico(EventoCicloAcademico eventoCicloAcademico);
 
     List<HorarioAula> allByCicloOrderByDiaHora(CicloAcademico cicloAcademico);
 
-    List<HorarioAula> allByCicloAndSemanaExamenLimitByHours(CicloAcademico cicloAcademico, SemanaExamen semanaExamen);
+    List<HorarioAula> allByCicloAndSemanaExamenLimitByHours(EventoCicloAcademico eventoCicloAcademico, SemanaExamen semanaExamen);
 
     List<HorarioAula> allOcupadasByCicloAndSemanaExamen(CicloAcademico cicloAcademico, SemanaExamen semanaExamen);
 

@@ -127,9 +127,9 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
 
         List<SemanaExamen> semanaExamenes = semanaExamenDAO.allByRolExamenes(rolExamenes);
 
-        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAndSemanaExamen(rolExamenes.getEventoCicloAcademico().getCicloAcademico());
+        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByEventoCicloAcademico(rolExamenes.getEventoCicloAcademico());
         for (SemanaExamen semanaExamen : semanaExamenes) {
-            List<HorarioAula> horariosAulasFull = horarioAulaDAO.allByCicloAndSemanaExamenLimitByHours(rolExamenes.getEventoCicloAcademico().getCicloAcademico(), semanaExamen);
+            List<HorarioAula> horariosAulasFull = horarioAulaDAO.allByCicloAndSemanaExamenLimitByHours(rolExamenes.getEventoCicloAcademico(), semanaExamen);
             Map<Long, List<HorarioAula>> mapHorariosBySeccion = TypesUtil.convertListToMapList("seccion.id", horariosAulasFull);
             for (Map.Entry<Long, List<HorarioAula>> entry : mapHorariosBySeccion.entrySet()) {
                 Seccion seccion = new Seccion(entry.getKey());

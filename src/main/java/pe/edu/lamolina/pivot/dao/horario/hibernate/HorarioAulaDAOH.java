@@ -376,26 +376,29 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
-    public List<HorarioAula> allForRolExamenesByCicloAndSemanaExamen(CicloAcademico cicloAcademico) {
+    public List<HorarioAula> allForRolExamenesByEventoCicloAcademico(EventoCicloAcademico eventoCicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("seccion sec", "hora h", "dia d", "aula au")
                 .join("sec.grupoSeccion gSec", "gSec.curso cur", "au.oficinaSupervisora ofi")
                 .join("cur.modalidadEstudio mEst", "gSec.cicloAcademico ca")
-                .filter("ca.id", cicloAcademico)
+                .filter("ha.fechaInicio", ">=", eventoCicloAcademico.getFechaInicio())
+                .filter("ha.fechaFin", "<=", eventoCicloAcademico.getFechaFin())
+                .filter("ca.id", eventoCicloAcademico.getCicloAcademico())
                 .filter("ofi.codigo", OficinaEnum.OERA)
                 .filter("mEst.codigo", ModalidadEstudioEnum.PRE);
         return all(sql);
     }
 
     @Override
-    public List<HorarioAula> allByCicloAndSemanaExamenLimitByHours(CicloAcademico cicloAcademico, SemanaExamen semanaExamen) {
+    public List<HorarioAula> allByCicloAndSemanaExamenLimitByHours(EventoCicloAcademico eventoCicloAcademico, SemanaExamen semanaExamen) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("seccion sec", "hora h", "dia d", "aula au")
                 .join("sec.grupoSeccion gSec", "gSec.curso cur", "au.oficinaSupervisora ofi")
                 .join("cur.modalidadEstudio mEst", "gSec.cicloAcademico ca")
-                .filter("ca.id", cicloAcademico)
+                .filter("ha.fechaInicio", ">=", eventoCicloAcademico.getFechaInicio())
+                .filter("ha.fechaFin", "<=", eventoCicloAcademico.getFechaFin())
                 .filter("h.id", ">=", semanaExamen.getHoraInicio())
                 .filter("h.id", "<=", semanaExamen.getHoraFin())
                 .filter("ofi.codigo", OficinaEnum.OERA)
