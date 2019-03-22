@@ -16,14 +16,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
+import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DESP;
+import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.RET;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.NivelOficinaEnum;
 import pe.edu.lamolina.model.enums.OficinaEstadoEnum;
@@ -49,6 +53,7 @@ import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
@@ -131,6 +136,9 @@ public class OficinaServiceImp implements OficinaService {
     @Autowired
     MedicoDAO medicoDAO;
 
+    @Autowired
+    AlumnoDAO alumnoDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -139,8 +147,8 @@ public class OficinaServiceImp implements OficinaService {
     }
 
     @Override
-    public Oficina find(Oficina persona) {
-        return oficinaDAO.find(persona.getId());
+    public Oficina find(Oficina oficina) {
+        return oficinaDAO.find(oficina.getId());
     }
 
     @Override
@@ -506,9 +514,9 @@ public class OficinaServiceImp implements OficinaService {
     }
 
     @Override
-    public Colaboradores countColaborador(Oficina oficina) {
+    public ResumenColaborador getResumenColoboradores(Oficina oficina) {
         List<Oficina> oficinas = allOficinasByMain(oficina);
-        Colaboradores colaboradors = colaboradorDAO.countByOficinas(oficinas);
+        ResumenColaborador colaboradors = colaboradorDAO.countByOficinas(oficinas);
         return colaboradors;
     }
 
@@ -516,52 +524,54 @@ public class OficinaServiceImp implements OficinaService {
     public ArrayNode getColaboradoresJson(DynatableFilter filter, Oficina oficinaMain) {
         List<Oficina> oficinas = allOficinasByMain(oficinaMain);
 
-        List<Colaborador> colaboradors = colaboradorDAO.allDynatableByOficina(filter, oficinas);
+        List<Colaborador> colaboradores = colaboradorDAO.allDynatableByOficina(filter, oficinas);
         ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-        List<FuncionColaborador> funcion = funcionColaboradorDAO.findFuncionByColaborador();
-        Map<Long, List<Colaborador>> map = TypesUtil.convertListToMapList("colaborador.id", "colaborador", funcion);
-        for (Colaborador colaborador : colaboradors) {
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
+        List<FuncionColaborador> funcionesColaboradores = funcionColaboradorDAO.allByColaboradores(colaboradores);
+        Map<Long, List<FuncionColaborador>> mapFunciones = TypesUtil.convertListToMapList("colaborador.id", funcionesColaboradores);
 
-            if (ColaboradorEstadoEnum.DESP.name().equals(colaborador.getEstado())) {
-                objNode.put("id", colaborador.getId());
-                objNode.put("name", ColaboradorEstadoEnum.ACT.name());
-                objNode.put("value", ColaboradorEstadoEnum.ACT.getValue());
-                objNode.put("estado", colaborador.getEstado());
-                array.add(objNode);
+        for (Colaborador colaborador : colaboradores) {
+//            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+//            ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
 
-            } else {
-                for (ColaboradorEstadoEnum value : ColaboradorEstadoEnum.values()) {
-                    objNode = new ObjectNode(JsonNodeFactory.instance);
-                    if (value.name().equalsIgnoreCase(colaborador.getEstado())) {
+//            if (ColaboradorEstadoEnum.DESP.name().equals(colaborador.getEstado())) {
+//                objNode.put("id", colaborador.getId());
+//                objNode.put("name", ColaboradorEstadoEnum.ACT.name());
+//                objNode.put("value", ColaboradorEstadoEnum.ACT.getValue());
+//                objNode.put("estado", colaborador.getEstado());
+//                array.add(objNode);
+//
+//            } else {
+//                for (ColaboradorEstadoEnum value : ColaboradorEstadoEnum.values()) {
+//                    objNode = new ObjectNode(JsonNodeFactory.instance);
+//                    if (value.name().equalsIgnoreCase(colaborador.getEstado())) {
+//
+//                    } else {
+//                        objNode.put("id", colaborador.getId());
+//                        objNode.put("name", value.name());
+//                        objNode.put("value", value.getValue());
+//                        objNode.put("estado", colaborador.getEstado());
+//                        array.add(objNode);
+//                    }
+//                }
+//            }
+            String columnas = "id,estado,estadoEnum,codigo,"
+                    + "oficina.nombre,cargo.nombre,persona.tipoDocumento.simbolo,"
+                    + "persona.id,persona.nombreCompleto,persona.numeroDocIdentidad";
 
-                    } else {
-                        objNode.put("id", colaborador.getId());
-                        objNode.put("name", value.name());
-                        objNode.put("value", value.getValue());
-                        objNode.put("estado", colaborador.getEstado());
-                        array.add(objNode);
-                    }
-                }
-            }
-
-            node = new ObjectNode(JsonNodeFactory.instance);
-            node.put("id", colaborador.getId());
-            node.put("area", colaborador.getOficina().getNombre());
-            node.put("cargo", colaborador.getCargo().getNombre());
-            node.put("estado", ColaboradorEstadoEnum.getNombre(colaborador.getEstado()));
-            node.put("persona", colaborador.getPersona() == null ? "" : colaborador.getPersona().getNombreCompleto());
-            node.put("personaId", colaborador.getPersona() == null ? null : colaborador.getPersona().getId());
-            node.put("dni", colaborador.getPersona() == null ? "" : colaborador.getPersona().getNumeroDocIdentidad());
-            node.put("funciones", map.get(colaborador.getId()) == null ? 0 : map.get(colaborador.getId()).size());
-            node.put("codigo", colaborador.getCodigo() == null ? "" : colaborador.getCodigo());
-            node.set("estados", array);
+            ObjectNode node = JsonHelper.createJson(colaborador, JsonNodeFactory.instance, true, columnas.split(","));
+            node.put("funciones", getFillList(mapFunciones.get(colaborador.getId())).size());
+//            node.set("estados", array);
             arrayNode.add(node);
         }
 
         return arrayNode;
+    }
+
+    private List getFillList(List lista) {
+        if (lista != null) {
+            return lista;
+        }
+        return new ArrayList();
     }
 
     private List<Oficina> allOficinasByMain(Oficina oficinaMain) {
@@ -662,28 +672,51 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     @Transactional
-    public void updateEstado(Colaborador colaborador, DataSessionPivot dataSessionPivot) {
-        Usuario usuario = dataSessionPivot.getUsuario();
-        Colaborador col = colaboradorDAO.find(colaborador.getId());
-        col.setEstado(ColaboradorEstadoEnum.getName(colaborador.getEstado()));
-        col.setFechaModificacion(new Date());
-        colaboradorDAO.update(col);
+    public void updateEstado(Colaborador empleadoForm, DataSessionPivot ds) {
+        Colaborador empleadoBD = colaboradorDAO.find(empleadoForm.getId());
+        Assert.isNotNull(empleadoBD, "No existe el colaborador que desea modificar su estado");
+        Assert.isFalse(empleadoBD.getEstadoEnum() == empleadoForm.getEstadoEnum(),
+                "El estado del colaborador ya es " + empleadoForm.getEstadoEnum().getValue());
+
+        empleadoBD.setEstadoEnum(empleadoForm.getEstadoEnum());
+        empleadoBD.setUserModificacion(ds.getUsuario());
+        empleadoBD.setFechaModificacion(new Date());
+        colaboradorDAO.update(empleadoBD);
 
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
-        colaboradorEstado.setColaborador(colaborador);
-        colaboradorEstado.setEstado(ColaboradorEstadoEnum.valueOf(ColaboradorEstadoEnum.getName(colaborador.getEstado())));
-        colaboradorEstado.setUserRegistro(usuario);
+        colaboradorEstado.setColaborador(empleadoForm);
+        colaboradorEstado.setEstadoEnum(empleadoForm.getEstadoEnum());
+        colaboradorEstado.setUserRegistro(ds.getUsuario());
         colaboradorEstado.setFechaRegistro(new Date());
         colaboradorEstadoDAO.save(colaboradorEstado);
 
-        String estadoEnum = ColaboradorEstadoEnum.getName(colaborador.getEstado());
-        if (ColaboradorEstadoEnum.DESP.toString().equals(estadoEnum)) {
-            Colaborador emp = colaboradorDAO.find(colaborador);
-            Usuario usuarioColaborador = usuarioDAO.findByPersona(emp.getPersona());
-            usuarioRolDAO.update(colaborador, usuarioColaborador);
+        List<Alumno> alumnos = alumnoDAO.allByPersona(empleadoBD.getPersona());
+        List<Docente> docentes = docenteDAO.allByPersona(empleadoBD.getPersona());
 
-            // FALTA INHABILITAR LAS FUNCIONES
+        int activos = 0;
+        List<Colaborador> colaboradores = colaboradorDAO.allActivosByPersona(empleadoBD.getPersona());
+        for (Colaborador emp : colaboradores) {
+            if (emp.getId() != empleadoForm.getId().longValue()) {
+                activos++;
+            }
         }
+
+        // FALTA INHABILITAR LAS FUNCIONES
+        // FALTA INHABILITAR LAS FUNCIONES
+        // FALTA INHABILITAR LAS FUNCIONES
+        // FALTA INHABILITAR LAS FUNCIONES
+        // FALTA INHABILITAR LAS FUNCIONES
+        // FALTA INHABILITAR LAS FUNCIONES
+        // FALTA INHABILITAR LAS FUNCIONES
+        // FALTA INHABILITAR LAS FUNCIONES
+        //
+        //
+        if (Arrays.asList(DESP, RET).contains(empleadoForm.getEstadoEnum())
+                && activos == 0 & alumnos.isEmpty() && docentes.isEmpty()) {
+            Usuario userEmpleado = usuarioDAO.findByPersona(empleadoBD.getPersona());
+            usuarioRolDAO.updateInactivar(empleadoForm, userEmpleado);
+        }
+
     }
 
     @Override
@@ -698,11 +731,11 @@ public class OficinaServiceImp implements OficinaService {
     }
 
     @Override
-    public Colaborador findColarador(Colaborador colaborador) {
-        Colaborador colab = colaboradorDAO.find(colaborador);
-        List<FuncionColaborador> list = funcionColaboradorDAO.findFuncionByColaborador(colaborador);
-        colab.setFuncionColaborador(list);
-        return colab;
+    public Colaborador findColarador(Colaborador colaboradorForm) {
+        Colaborador colaboradorBD = colaboradorDAO.find(colaboradorForm);
+        List<FuncionColaborador> funcionesColaborador = funcionColaboradorDAO.allByColaborador(colaboradorForm);
+        colaboradorBD.setFuncionColaborador(funcionesColaborador);
+        return colaboradorBD;
     }
 
     @Override
@@ -755,7 +788,7 @@ public class OficinaServiceImp implements OficinaService {
 
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
         colaboradorEstado.setColaborador(colaborador);
-        colaboradorEstado.setEstado(ColaboradorEstadoEnum.ACT);
+        colaboradorEstado.setEstadoEnum(ColaboradorEstadoEnum.ACT);
         colaboradorEstado.setUserRegistro(usuario);
         colaboradorEstado.setFechaRegistro(new Date());
         colaboradorEstadoDAO.save(colaboradorEstado);
@@ -867,7 +900,7 @@ public class OficinaServiceImp implements OficinaService {
 
             ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
             colaboradorEstado.setColaborador(colaborador);
-            colaboradorEstado.setEstado(ColaboradorEstadoEnum.ACT);
+            colaboradorEstado.setEstadoEnum(ColaboradorEstadoEnum.ACT);
             colaboradorEstado.setUserRegistro(usuario);
             colaboradorEstado.setFechaRegistro(new Date());
             colaboradorEstadoDAO.save(colaboradorEstado);
@@ -1049,7 +1082,7 @@ public class OficinaServiceImp implements OficinaService {
             }
         }
 
-        List<FuncionColaborador> funcionesEmp = funcionColaboradorDAO.findFuncionByColaborador(colaboradorForm);
+        List<FuncionColaborador> funcionesEmp = funcionColaboradorDAO.allByColaborador(colaboradorForm);
         Map<Long, FuncionColaborador> mapNuevo = TypesUtil.convertListToMap("funcion.id", colaboradorForm.getFuncionColaborador());
         Map<Long, FuncionColaborador> mapTengo = TypesUtil.convertListToMap("funcion.id", funcionesEmp);
         for (FuncionColaborador funcionColaborador : funcionesEmp) {

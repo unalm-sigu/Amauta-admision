@@ -1,6 +1,6 @@
 package pe.edu.lamolina.pivot.controller.general.oficina;
 
-public class Colaboradores {
+public class ResumenColaborador {
 
     Long activos;
     Long vacaciones;
@@ -9,7 +9,7 @@ public class Colaboradores {
     Long permiso;
     Long despedido;
 
-    public Colaboradores(Long activos, Long vacaciones, Long retirado, Long descanso, Long permiso, Long despedido) {
+    public ResumenColaborador(Long activos, Long vacaciones, Long retirado, Long descanso, Long permiso, Long despedido) {
         this.activos = activos;
         this.vacaciones = vacaciones;
         this.retirado = retirado;

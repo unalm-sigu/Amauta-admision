@@ -1,99 +1,12 @@
 Vue.component("multiselect", window.VueMultiselect.default)
-let $dynatable = null;
-$('#dynaTable').dynatable({});
 
-
-Vue.component("dynatable", {
-    template: "#dynatableTemplate",
-    props: ["project", "dynatable"],
-    mounted: function () {
-        let $vue = this;
-        $vue.oficina = JSON.parse(oficinaId);
-        $vue.createDynatable();
-        $global.$on("reloadDyntable", function () {
-            $dynatable.process();
-        });
-        $global.$on("oficinaId", function (valor) {
-            $vue.oficina = valor.id;
-            $dynatable.process();
-        });
-        $('.dynatable-search').addClass('pull-right');
-        $('.dynatable-search').parents('.panel:first').removeClass('padder-v');
-        $('.dynatable-search').parents('.footer:first').removeClass('m-t-lg');
-        $('.dynatable-search').find('input')
-                .addClass('form-control')
-                .attr('placeholder', 'Buscar');
-          $('.dynatable-search').find('input')
-                .removeClass('input-sm');
-
-        $('multiselect').select2({
-            placeholder: {
-                id: $vue.oficina, // the value of the option
-            }
-        });
-    },
-    methods: {
-        createDynatable: function () {
-            let $vue = this;
-
-            $dynatable = $('#dynaTable').dynatable({
-                dataset: {
-                    ajaxUrl: APP.url("general/oficina/" + $vue.oficina + '/listColaboradores'),
-                    perPageDefault: 10
-                },
-                writers: {_rowWriter: $vue.writter},
-                table: {bodyRowSelector: "tbody tr"}
-            }).data('dynatable');
-
-            $("body").delegate(".updateEstado", "click", function () {
-                $global.$emit("updateEstado", $(this).attr("rel"), $(this).text(), $(this).attr("value"));
-            });
-            $("body").delegate(".updateColaborador", "click", function () {
-                $global.$emit("updateColaborador", $(this).attr("rel"));
-            });
-            $("body").delegate(".updatePersona", "click", function () {
-                $global.$emit("updatePersona", $(this).attr("rel"));
-            });
-            $("body").delegate(".showFuncionesColaborador", "click", function () {
-                $global.$emit("showFuncionesColaborador", $(this).attr("rel"));
-            });
-
-
-            var divElegido = null;
-            $("body").delegate(".verModalidades", "click", function (e) {
-                let $this = $(this);
-                var div = $this.closest("div");
-                var classColor = 'bg-light';
-                var tieneBgColor = div.hasClass(classColor);
-                $dynatable.queries.remove("search");
-                if (divElegido !== null) {
-                    divElegido.removeClass(classColor);
-                    divElegido = null;
-                }
-
-                if (!tieneBgColor) {
-                    div.addClass(classColor);
-                    var estado = $this.attr("rel");
-                    $dynatable.queries.add("search", estado);
-                    divElegido = div;
-                }
-                $dynatable.process();
-            });
-        },
-        writter: function (rowIndex, record, columns, cellWriter) {
-            record.index = rowIndex;
-            var html = $.templates("#dynatableRowTemplate").render(record);
-            return $(html).prop('outerHTML');
-        }
-    }
-});
 new Vue({
     el: '#colaboradorVue',
     mixins: [VueLoader],
     data: {
-        oficinas: JSON.parse(oficinasJson),
-        oficina: {id: JSON.parse(oficinaId)},
+        colaboradoreURL: APP.url(rutaModulo + '/listColaboradores'),
         listaCargos: JSON.parse(cargosJson),
+        estadosEmp: JSON.parse(estadosEmpJson),
         persona: {},
         colaborador: {},
         perfilCompania: {},
@@ -105,40 +18,39 @@ new Vue({
             showaccept: false
         },
         funcion: {id: null},
-        cargos: []
+        cargos: [],
+        divElegido: 0,
+        resumen: {
+            activos: 0,
+            vacaciones: 0,
+            retirado: 0,
+            descanso: 0,
+            permiso: 0,
+            despedido: 0
+        }
     },
     computed: {
 
     },
     created() {
-        let $vue = this;
-        console.log($vue.listaCargos);
-        $vue.oficinas.forEach(function (elem) {
-            if ($vue.oficina.id == elem.id) {
-                $vue.oficina = elem;
-            }
-        })
+//        let $vue = this;
+//        console.log($vue.listaCargos);
+//        $vue.oficinas.forEach(function (elem) {
+//            if ($vue.oficina.id == elem.id) {
+//                $vue.oficina = elem;
+//            }
+//        })
     },
     mounted: function () {
         let $vue = this;
-        $global.$on("updateEstado", function (id, value, estado) {
-            $vue.updateEstado(id, value, estado);
-        });
-        $global.$on("updateColaborador", function (id) {
-            $vue.updateColaborador(id);
-        });
-        $global.$on("updatePersona", function (id) {
-            $vue.updatePersona(id);
-        });
+        $vue.getResumen();
         $global.$on("showFuncionesColaborador", function (id) {
             $vue.showFuncionesColaborador(id);
         });
 
     },
     methods: {
-        updatePersona(id) {
-            window.location = APP.url('general/persona/' + id + '/edicion?origen=' + window.location.pathname);
-        },
+
         addCargo: function () {
             let $vue = this;
             var flag = false;
@@ -173,15 +85,11 @@ new Vue({
         regresar: function () {
             location.href = APP.url("general/oficina");
         },
-        updateColaborador: function (id) {
-            let $vue = this;
-            $vue.oficina
-            location.href = APP.url("general/oficina/" + id + "/updateColaborador/" + $vue.oficina.id)
-        },
+
         nuevoColaborador: function () {
             let $vue = this;
-            $vue.oficina
-            location.href = APP.url("general/oficina/" + $vue.oficina.id + "/nuevoColaborador")
+//            $vue.oficina
+            location.href = APP.url(rutaModulo + "/nuevoColaborador") + $vue.getOrigenURL();
 
         },
         oficinaSeleccionada: function () {
@@ -193,7 +101,7 @@ new Vue({
             let $vue = this;
             console.log(estado);
             if (estado == "DESP") {
-                location.href = APP.url("general/oficina/" + id + "/updateColaborador/" + $vue.oficina.id);
+                location.href = APP.url(rutaModulo + "/updateColaborador/" + $vue.oficina.id);
                 return;
             }
             $vue.colaborador = {id: id, estado: value, oficina: $vue.oficina};
@@ -319,26 +227,113 @@ new Vue({
 
         },
         getRecord: function (id) {
-            var id=parseInt(id);
+            var id = parseInt(id);
             return $dynatable.settings.dataset.records.find(item => item.id === id);
         },
-        showFuncionesColaborador: function (id) {
-            let vue = this;
-            var colaboradorr = vue.getRecord(id);
-     
-            vue.dataVerCargo.title = "Funciones de "+colaboradorr.persona;
-            vue.$refs.modalvercargo.open();
+
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
+        },
+        classEstado(item) {
+            var color = {ACT: "success", VAC: "warning", RET: "default", DSC: "warning", PER: "warning", DESP: "danger"};
+            return "label-" + color[item.estado];
+        },
+        classPanel(nroPanel) {
+            let $vue = this;
+            if ($vue.divElegido == nroPanel) {
+                return 'bg-light';
+            }
+            return '';
+        },
+        verEmpleadosEstado(nroPanel, estado) {
+            let $vue = this;
+            console.log(nroPanel)
+            console.log($vue.divElegido)
+            $vue.$refs.raptorColaboran.querie = [];
+            if ($vue.divElegido == nroPanel) {
+                $vue.divElegido = 0;
+            } else {
+                $vue.divElegido = nroPanel;
+                $vue.$refs.raptorColaboran.querie.push({name: "estado", value: estado});
+            }
+            $vue.$refs.raptorColaboran.loadRemoteData();
+        },
+        changeEstado(item, estado) {
+            let $vue = this;
+            console.log(estado);
+            if (estado.name == "DESP") {
+                location.href = APP.url(rutaModulo + "/updateColaborador/" + item.id) + $vue.getOrigenURL();
+                return;
+            }
+
+            bootbox.confirm({
+                message: "¿Seguro desea cambiar a <strong>" + item.persona.nombreCompleto
+                        + "</strong> al estado <strong class='text-danger'>"
+                        + estado.value + "</strong>?",
+                buttons: {
+                    confirm: {label: "Si, cambiar", className: "btn-info"},
+                    cancel: {label: "No", className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        let empleado = Object.assign({}, item, {});
+                        empleado.estado = estado.name;
+
+                        $.ajax({
+                            url: APP.url(rutaModulo + '/updateEstado'),
+                            type: 'POST',
+                            contentType: "application/json",
+                            data: JSON.stringify(empleado),
+                            success: function (response) {
+                                $vue.getResumen();
+                                $vue.$refs.raptorColaboran.loadRemoteData();
+                                notify(response.message, "info");
+                            },
+                            error: function (error) {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        getResumen() {
+            let $vue = this;
+            $.ajax({
+                url: APP.url(rutaModulo + '/resumen'),
+                type: 'POST',
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.resumen = response.data;
+                    }
+                },
+                error: function (error) {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        updateColaborador(item) {
+            let $vue = this;
+            location.href = APP.url(rutaModulo + "/updateColaborador/" + item.id) + $vue.getOrigenURL();
+        },
+        updatePersona(item) {
+            let $vue = this;
+            location = APP.url('general/persona/' + item.persona.id + '/edicion') + $vue.getOrigenURL();
+        },
+        showFuncionesColaborador(item) {
+            let $vue = this;
+            $vue.dataVerCargo.title = "Funciones de " + item.persona.nombreCompleto;
+            $vue.$refs.modalvercargo.open();
 
             $.ajax({
                 method: 'POST',
-                url: APP.url('general/oficina/verfuncionColaborador'),
-                data: {id: id},
+                url: APP.url(rutaModulo + '/allFuncionesColaborador'),
+                data: {id: item.id},
                 success: function (response) {
-
                     if (response.success) {
-
-                        vue.cargos = response.data;
-
+                        $vue.cargos = response.data;
                     } else {
                         notify(response.message, 'error');
                     }

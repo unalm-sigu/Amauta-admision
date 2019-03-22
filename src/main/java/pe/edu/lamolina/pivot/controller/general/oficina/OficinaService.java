@@ -58,7 +58,7 @@ public interface OficinaService {
 
     List<Oficina> allOficina(Persona persona);
 
-    Colaboradores countColaborador(Oficina oficina);
+    ResumenColaborador getResumenColoboradores(Oficina oficina);
 
     ArrayNode getColaboradoresJson(DynatableFilter filter, Oficina oficinaMain);
 

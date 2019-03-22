@@ -6,7 +6,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.general.oficina.Colaboradores;
+import pe.edu.lamolina.pivot.controller.general.oficina.ResumenColaborador;
 
 public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
@@ -18,7 +18,7 @@ public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
     List<Colaborador> allActivosByOficina(Oficina oficinaBD);
 
-    Colaboradores countByOficinas(List<Oficina> oficina);
+    ResumenColaborador countByOficinas(List<Oficina> oficina);
 
     List<Colaborador> allDynatableByOficina(DynatableFilter filter, List<Oficina> oficinas);
 
@@ -30,8 +30,8 @@ public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
     List<Colaborador> allByName(String nombre);
 
-    public Colaborador findByPersonaAndEstado(Persona persona);
+    Colaborador findByPersonaAndEstado(Persona persona);
 
-    public Colaborador findColaboradorByIdPersona(Long idPersona);
-    
+    Colaborador findColaboradorByIdPersona(Long idPersona);
+
 }
