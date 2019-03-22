@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.fragment.DOMSelectorFragmentSpec;
+//import org.thymeleaf.fragment.DOMSelectorFragmentSpec;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -302,8 +302,8 @@ public class ProfesorController {
             ctx.setVariable("documentos", service.allDocumentos());
             ctx.setVariable("modalidades", service.allModalidadEstudio(compania));
 
-            String htmlContent = springHtml.process("academico/profesor/profesorForm", ctx, new DOMSelectorFragmentSpec("#formDocente"));
-
+            //   String htmlContent = springHtml.process("academico/profesor/profesorForm", ctx, new DOMSelectorFragmentSpec("#formDocente"));
+            String htmlContent = "";
             node.put("html", htmlContent);
             response.setData(node);
             response.setSuccess(true);

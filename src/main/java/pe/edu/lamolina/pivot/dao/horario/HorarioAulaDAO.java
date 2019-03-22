@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
+import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -37,6 +38,8 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByCiclo(CicloAcademico cicloAcademico);
 
+    List<HorarioAula> allByCiclo(CicloAcademico cicloAcademico, EstadoHorarioAulaEnum... estados);
+
     void deleteAllInList(List<HorarioAula> muertos);
 
     List<HorarioAula> allBySecciones(List<Seccion> seccions, CicloAcademico cicloOrigen);
@@ -60,5 +63,13 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
     List<HorarioAula> allByAulasAndSecciones(List<Aula> aulas, List<Seccion> secciones);
 
     List<HorarioAula> allByAulasAndNotInSecciones(List<Aula> aulas, List<Seccion> secciones, Date fechaInicio, Date fechaFin);
+
+    List<HorarioAula> allForRolExamenesByCicloAndSemanaExamen(CicloAcademico cicloAcademico);
+
+    List<HorarioAula> allByCicloOrderByDiaHora(CicloAcademico cicloAcademico);
+
+    List<HorarioAula> allByCicloAndSemanaExamenLimitByHours(CicloAcademico cicloAcademico, SemanaExamen semanaExamen);
+
+    List<HorarioAula> allOcupadasByCicloAndSemanaExamen(CicloAcademico cicloAcademico, SemanaExamen semanaExamen);
 
 }

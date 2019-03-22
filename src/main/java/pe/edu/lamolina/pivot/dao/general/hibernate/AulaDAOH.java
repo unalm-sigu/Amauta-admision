@@ -296,6 +296,17 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     }
 
     @Override
+    public List<Aula> allByOficinaSupervisora(OficinaEnum oficinaEnum, EstadoEnum estadoEnum) {
+        Octavia sql = Octavia.query()
+                .from(Aula.class, "au")
+                .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
+                .filter("ofi.codigo", oficinaEnum)
+                .filter("au.estado", estadoEnum.name());
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
     public List<Aula> allByOficinaSupervisora(OficinaEnum oficinaEnum) {
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")

@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 
@@ -19,7 +20,11 @@ public class RolExamenesLogger {
     private boolean running;
     private boolean cruce;
 
+    private List<Aula> aulasOera;
+
     private List<RolExamenesLogger> logDetails;
+
+    private List<GrupoHorasExamen> gruposHorasExamenes;
 
     public void iniciarGeneric() {
         this.running = true;
@@ -45,6 +50,7 @@ public class RolExamenesLogger {
         this.message = "Proceso: " + this.getTipoEnum().getValue();
         this.running = true;
         this.logDetails = new ArrayList<>();
+        this.aulasOera = new ArrayList<>();
     }
 
     public void iniciarTrasladoToCursoMasivo() {
@@ -199,6 +205,7 @@ public class RolExamenesLogger {
     }
 
     public void finalizeLog() {
+        this.aulasOera = new ArrayList<>();
         this.running = Boolean.FALSE;
         this.logDetails = null;
     }
@@ -248,6 +255,22 @@ public class RolExamenesLogger {
 
     public void setCruce(boolean cruce) {
         this.cruce = cruce;
+    }
+
+    public List<Aula> getAulasOera() {
+        return aulasOera;
+    }
+
+    public void setAulasOera(List<Aula> aulasOera) {
+        this.aulasOera = aulasOera;
+    }
+
+    public List<GrupoHorasExamen> getGruposHorasExamenes() {
+        return gruposHorasExamenes;
+    }
+
+    public void setGruposHorasExamenes(List<GrupoHorasExamen> gruposHorasExamenes) {
+        this.gruposHorasExamenes = gruposHorasExamenes;
     }
 
 }

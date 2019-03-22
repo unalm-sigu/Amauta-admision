@@ -180,7 +180,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void save(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds) {
 
         RolExamenes rolExamenes = rolExamenesDAO.find(cursoMasivosExamen.getRolExamenes().getId());
-        Assert.isTrue(rolExamenes.isEstadoConfigurando() && (rolExamenes.isSituacionConfigurarHorario() || rolExamenes.isSituacionConfigurarCursoMasivo()), "No puede agregar cursos masivos en este momento");
+        Assert.isTrue(rolExamenes.isEstadoConfigurando() && (rolExamenes.isSituacionHorarioConfirmado() || rolExamenes.isSituacionConfigurarCursoMasivo()), "No puede agregar cursos masivos en este momento");
 
         List<String> validationsHorariosExamen = this.validarHorariosExamen(rolExamenes);
         Assert.isTrue(validationsHorariosExamen.isEmpty(), String.join("\n", validationsHorariosExamen));
@@ -257,7 +257,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         cursoMasivoExamenDAO.update(cursoMasivosExamen);
 
         RolExamenes rolExamenesUpd = new RolExamenes(rolExamenes.getId());
-        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_MAS);
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CFG_MAS);
         rolExamenesDAO.updateSituacion(rolExamenesUpd);
     }
 
@@ -738,7 +738,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             if (cursoMasivoSinHorario == null) {
                 RolExamenes rolExamenesUpd = new RolExamenes();
                 rolExamenesUpd.setId(cursoMasivoExamen.getRolExamenes().getId());
-                rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR_MAS);
+                rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CFG_HOR_MAS);
                 rolExamenesDAO.updateSituacion(rolExamenesUpd);
             }
         } else {
@@ -795,7 +795,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
-        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR);
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CFG_HOR);
         rolExamenesDAO.updateSituacion(rolExamenesUpd);
     }
 

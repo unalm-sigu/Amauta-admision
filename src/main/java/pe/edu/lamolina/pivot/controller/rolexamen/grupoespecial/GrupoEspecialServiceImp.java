@@ -231,7 +231,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         }
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
-        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_ESP);
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CFG_ESP);
         rolExamenesDAO.updateSituacion(rolExamenesUpd);
     }
 

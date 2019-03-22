@@ -23,15 +23,19 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.DocenteRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
+import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.GrupoHorasRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.AulaCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.FechaHoraGrupoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoRegularExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
@@ -41,18 +45,21 @@ import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoCursoMasivoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoEspecialDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoRegularDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AulaCursoMasivoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoMasivoExamenDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.DocenteCursoMasivoDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.FechaHoraGrupoExamenDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.LetraGrupoRegularDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoEspecialDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoRegularDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
+@Transactional(readOnly = true)
 public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -93,6 +100,12 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
     @Autowired
     AlumnoGrupoRegularDAO alumnoGrupoRegularDAO;
 
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+
+    @Autowired
+    FechaHoraGrupoExamenDAO fechaHoraGrupoExamenDAO;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void savedLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
@@ -105,27 +118,61 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             LetraGrupoRegular letraGrupoRegular,
             List<CursoMasivoExamen> cursosMasivosExamen,
             List<SeccionGrupoEspecial> seccionesGrupoEspecial,
-            Map<String, List<Seccion>> grupoHorasLetraMap,
+            Map<String, List<Seccion>> mapSeccionesGroupByLetra,
             List<Seccion> seccionesEspeciales,
             DataSessionPivot ds) {
 
         long ini = System.currentTimeMillis();
-        List<Seccion> seccionesByLetra = grupoHorasLetraMap.get(letraGrupoRegular.getLetra());
+        List<Seccion> seccionesByLetra = mapSeccionesGroupByLetra.get(letraGrupoRegular.getLetra());
         if (seccionesByLetra == null) {
             return;
         }
         List<DocenteSeccion> docentesPrincipales = docenteSeccionDAO.allPrincipalesBySecciones(seccionesByLetra);
-
         letraGrupoRegular.setContadorSecciones(BigDecimal.ZERO.intValue());
 
-        for (Seccion seccion : seccionesByLetra) {
+        List<Seccion> seccionesOera = seccionesByLetra
+                .stream().filter(x -> x.getAula().getOficinaSupervisora().isOficinaOera())
+                .collect(Collectors.toList());
+
+        List<Seccion> seccionesOthersOfi = seccionesByLetra
+                .stream().filter(x -> !x.getAula().getOficinaSupervisora().isOficinaOera())
+                .collect(Collectors.toList());
+
+        seccionesOera.addAll(seccionesOthersOfi);
+        /*
+        for (Seccion seccion : seccionesOera) {
+            Aula aulaEach = seccion.getAula();
+            logger.debug("Seccion {}, Aula {}, Es Oera {}", seccion.getCodigo2(), aulaEach.getCodigo(), aulaEach.getOficinaSupervisora().isOficinaOera());
+        }*/
+
+        for (Seccion seccion : seccionesOera) {
             Seccion seccionClone = seccion.clone();
             List<DocenteSeccion> docenteSecciones = docentesPrincipales.stream().filter(x -> x.getSeccion().equals(seccionClone)).collect(Collectors.toList());
             Assert.isFalse(docenteSecciones.isEmpty(), String.format("La sección (%s) de código %s, no tiene docente principal", seccionClone.getId(), seccionClone.getCodigo2()));
             Assert.isTrue(docenteSecciones.size() == 1, String.format("La sección (%s) de código %s, tiene mas de un docente principal", seccionClone.getId(), seccionClone.getCodigo2()));
             seccionClone.setDocenteSeccion(docenteSecciones);
 
-            boolean result = this.procesarSeccionesByLetra(letraGrupoRegular, cursosMasivosExamen, seccionesGrupoEspecial, seccionClone, seccionesByLetra, ds);
+            boolean result = false;
+            if (seccionClone.getAula().getOficinaSupervisora().isOficinaOera()) {
+                result = this.procesarSeccionesByLetra(letraGrupoRegular, cursosMasivosExamen, seccionesGrupoEspecial, seccionClone, seccionesByLetra, ds);
+            } else {
+                GrupoHorasExamen grupoHorasExamen = letraGrupoRegular.getGrupoHorasExamen();
+                Aula seccionAulaOriginal = seccionClone.getAula();
+                AULA_EACH:
+                for (Aula aula : this.rolExamenesLogger.getAulasOera()) {
+                    for (String diaHora : grupoHorasExamen.getDiaHoraList()) {
+                        if (aula.getHorariosAula().contains(diaHora)) {
+                            continue AULA_EACH;
+                        }
+                    }
+                    seccionClone.setAula(aula);
+                    result = this.procesarSeccionesByLetra(letraGrupoRegular, cursosMasivosExamen, seccionesGrupoEspecial, seccionClone, seccionesByLetra, ds);
+                    if (result) {
+                        break AULA_EACH;
+                    }
+                    seccionClone.setAula(seccionAulaOriginal);
+                }
+            }
             if (!result) {
                 seccionesEspeciales.add(seccionClone);
             }
@@ -415,6 +462,14 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             DataSessionPivot ds) {
         SeccionGrupoRegular seccionGrupoRegular = this.crearObjectSeccionGrupoRegular(seccion, letraGrupoRegular, ds);
         letraGrupoRegular.getSeccionesGruposRegulares().add(seccionGrupoRegular);
+        Aula aulaSeccion = this.rolExamenesLogger.getAulasOera()
+                .stream().filter(x -> x.equals(seccion.getAula())).findFirst().orElse(null);
+
+        for (FechaHoraGrupoExamen fechaHoraGrupoExamen : letraGrupoRegular.getGrupoHorasExamen().getFechasHorasGruposExamen()) {
+            HorarioAula horarioAula = new HorarioAula(fechaHoraGrupoExamen, seccion);
+            horarioAulaDAO.save(horarioAula);
+            aulaSeccion.getHorariosAula().add(horarioAula.clone());
+        }
 
         GrupoRegularExamen grupoRegularExamen = letraGrupoRegular.getGruposRegularesExamenes()
                 .stream().filter(x -> x.getGrupoHoras().equals(seccion.getGrupoHoras()))

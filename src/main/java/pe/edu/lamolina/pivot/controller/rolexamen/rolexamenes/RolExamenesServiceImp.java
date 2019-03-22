@@ -26,6 +26,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
@@ -139,7 +140,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolExamenes.setFechaRegistro(new Date());
         rolExamenes.setUserRegistro(ds.getUsuario());
         rolExamenes.setHorasExamen(Constantine.CANTIDAD_HORAS_POR_EXAMEN);
-        rolExamenes.setSituacionEnum(SituacionRolExamenesEnum.CONF_ROL);
+        rolExamenes.setSituacionEnum(SituacionRolExamenesEnum.CFG_ROL);
 
         List<String> errors = new ArrayList<>();
         for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
@@ -200,9 +201,20 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
-        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_ROL);
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CFG_ROL);
         rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CRE);
         rolexamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
+    }
+
+    public void restoreHorariosAulas(RolExamenes rolExamenes) {
+        CicloAcademico cicloAcademico = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
+        List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
+        EventoCicloAcademico dictadoClases = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
+        for (SemanaExamen semana : semanas) {
+            //to delete
+            List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allOcupadasByCicloAndSemanaExamen(cicloAcademico, semana);
+        }
+
     }
 
     public void deleteSeccionesExcluidasByRolExamenes(RolExamenes rolExamenes) {
@@ -318,8 +330,8 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
             for (HorarioAula horarioAula : horarioAulas) {
 
-                boolean test = (numerosemana % 2 == 0) ? 8<= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <=13
-                        :14<= horarioAula.getHora().getNumero()  && horarioAula.getHora().getNumero() <=18;
+                boolean test = (numerosemana % 2 == 0) ? 8 <= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <= 13
+                        : 14 <= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <= 18;
 
                 if (test) {
                     continue;
@@ -355,7 +367,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
                 horarioAulaNew.setReservaAula(horarioAula.getReservaAula());
                 horarioAulaNew.setCursoMasivoExamen(horarioAula.getCursoMasivoExamen());
                 horarioAulaDAO.save(horarioAulaNew);
-                
+
                 horarioAula.setFechaFin(fechafin);
                 horarioAulaDAO.update(horarioAula);
 
@@ -412,8 +424,8 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
             for (HorarioAula horarioAula : horarioAulas) {
 
-                 boolean test = (numerosemana % 2 == 0) ? 8<= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <=13
-                        :14<= horarioAula.getHora().getNumero()  && horarioAula.getHora().getNumero() <=18;
+                boolean test = (numerosemana % 2 == 0) ? 8 <= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <= 13
+                        : 14 <= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <= 18;
 
                 if (test) {
                     continue;
@@ -508,8 +520,8 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
             for (HorarioAula horarioAula : horarioAulas) {
 
-                boolean test = (numerosemana % 2 == 0) ? 8<= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <=13
-                        :14<= horarioAula.getHora().getNumero()  && horarioAula.getHora().getNumero() <=18;
+                boolean test = (numerosemana % 2 == 0) ? 8 <= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <= 13
+                        : 14 <= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <= 18;
 
                 if (test) {
                     continue;

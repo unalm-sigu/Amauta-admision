@@ -11,6 +11,9 @@ import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -166,6 +169,29 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
                 .filter("ca.id", cicloAcademico);
 
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByCicloOrderByDiaHora(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .orderBy("d.numeroDia", "h.numero")
+                .filter("ca.id", cicloAcademico);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByCiclo(CicloAcademico cicloAcademico, EstadoHorarioAulaEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .in("ha.estado", estados);
         return all(sql);
     }
 
@@ -342,10 +368,57 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .__().filter("ha.fechaFin", ">=", fechaFin)
                 .endBlock()
                 .beginBlock()
-                .__().filter("ha.fechaInicio", ">=",fechaInicio)
+                .__().filter("ha.fechaInicio", ">=", fechaInicio)
                 .__().filter("ha.fechaFin", "<=", fechaFin)
                 .endBlock()
                 .endBlock();
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allForRolExamenesByCicloAndSemanaExamen(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("seccion sec", "hora h", "dia d", "aula au")
+                .join("sec.grupoSeccion gSec", "gSec.curso cur", "au.oficinaSupervisora ofi")
+                .join("cur.modalidadEstudio mEst", "gSec.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .filter("ofi.codigo", OficinaEnum.OERA)
+                .filter("mEst.codigo", ModalidadEstudioEnum.PRE);
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByCicloAndSemanaExamenLimitByHours(CicloAcademico cicloAcademico, SemanaExamen semanaExamen) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("seccion sec", "hora h", "dia d", "aula au")
+                .join("sec.grupoSeccion gSec", "gSec.curso cur", "au.oficinaSupervisora ofi")
+                .join("cur.modalidadEstudio mEst", "gSec.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .filter("h.id", ">=", semanaExamen.getHoraInicio())
+                .filter("h.id", "<=", semanaExamen.getHoraFin())
+                .filter("ofi.codigo", OficinaEnum.OERA)
+                .filter("mEst.codigo", ModalidadEstudioEnum.PRE);
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allOcupadasByCicloAndSemanaExamen(CicloAcademico cicloAcademico, SemanaExamen semanaExamen) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("seccion sec", "hora h", "dia d", "aula au")
+                .join("sec.grupoSeccion gSec", "gSec.curso cur", "au.oficinaSupervisora ofi")
+                .join("cur.modalidadEstudio mEst", "gSec.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .filter("ha.fechaInicio", ">=", semanaExamen.getFechaInicio())
+                .filter("ha.fechaFin", "<=", semanaExamen.getFechaFin())
+                .filter("h.id", ">=", semanaExamen.getHoraInicio())
+                .filter("h.id", "<=", semanaExamen.getHoraFin())
+                .filter("ofi.codigo", OficinaEnum.OERA)
+                .filter("mEst.codigo", ModalidadEstudioEnum.PRE)
+                .filter("ha.tipo", TipoHorarioAulaEnum.EXAM)
+                .orderBy("d.numeroDia", "h.numero");
         return all(sql);
     }
 

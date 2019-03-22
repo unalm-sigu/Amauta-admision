@@ -251,6 +251,28 @@ new Vue({
                 return true;
             }
             return false;
+        }, confirmarPlantillaHorario() {
+            let vue = this;
+            bootbox.confirm({
+                message: "Si continua se reservara las aulas con hroario pregrado para rol examenes. Seguro que desea continuar?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/confirmarPlantillaHorario`, vue.rolExamen)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        vue.listarGruposExamenByRolExamen();
+                                        vue.listarHorarioSemanal();
+                                    }
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
         }
     }
 });
