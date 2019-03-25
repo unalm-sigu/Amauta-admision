@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.general.oficina.colaborador;
 
-import pe.edu.lamolina.pivot.controller.general.oficina.*;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -26,7 +24,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -36,26 +33,16 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.model.academico.Facultad;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import pe.edu.lamolina.model.enums.SexoEnum;
-import pe.edu.lamolina.model.enums.TipoOficinaEnum;
-import pe.edu.lamolina.model.general.AusenciaJefe;
 import pe.edu.lamolina.model.general.Colaborador;
-import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.FuncionColaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
-import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -394,41 +381,6 @@ public class ColaboradorController {
         } catch (Exception e) {
             e.printStackTrace();
             response.setTotal(0);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("allPersona")
-    public JsonResponse allPersona(@RequestParam("nombre") String nombre, HttpSession session) {
-
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-
-        try {
-
-            List<Persona> personas = service.allPersona(nombre);
-            ArrayNode array = new ArrayNode(jsonFactory);
-
-            for (Persona persona : personas) {
-                ObjectNode per = new ObjectNode(jsonFactory);
-                per.put("id", persona.getId());
-                per.put("nombre", persona.getNombreConTitulo());
-                per.put("dni", persona.getNumeroDocIdentidad());
-                per.put("tipo", (String) ObjectUtil.getParentTree(persona, "tipoDocumento.simbolo"));
-                per.put("titulo", persona.getTituloAcademico());
-                per.put("hastitulo", Strings.isNullOrEmpty(persona.getTituloAcademico()) ? 0 : 1);
-                array.add(per);
-            }
-
-            response.setData(array);
-            response.setTotal(array.size());
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
         }
         return response;
     }

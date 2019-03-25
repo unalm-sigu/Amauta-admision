@@ -371,24 +371,35 @@ $(function () {
     //*/
 });
 
+Vue.component("multiselect", window.VueMultiselect.default);
+Vue.component('date-picker', VueBootstrapDatetimePicker.default);
+
 new Vue({
     el: '#pageOficinasVUE',
     data: {
         oficinasURL: APP.url(rutaModulo + '/all'),
-        oficina: {personaJefe: {}},
+        oficina: {personaJefe: {}, jefeEncargado: {}},
         cfgColaboradores: {
             id: 'colaboradoresModal',
             header: true,
             title: 'Relación de colaboradores',
-            showaccept: false,
             cancelbtn: 'Aceptar'
         },
         configModalAsignarJefe: {
             id: 'idModalAsignarJefe',
+            form: 'formAsignaJefe',
             header: true,
-            title: 'Asignar jefe de oficina',
-            cancelbtn: 'Aceptar'
+            title: 'Asignar Jefe de Unidad',
+            showaccept: true
         },
+        configModalAsignarEncargado: {
+            id: 'idModalAsignarEncargado',
+            form: 'formAsignaEncargado',
+            header: true,
+            title: 'Asignar Encargado de Jefatura',
+            showaccept: true
+        },
+        personas: [],
         colaboradores: [],
         modalBootbox: {},
         configDate: {
@@ -414,7 +425,7 @@ new Vue({
         },
         urlColaboradores(item) {
             let $vue = this;
-            return APP.url('general/oficina/' + item.id + '/colaboradores') + $vue.getOrigenURL();
+            return APP.url(rutaModulo + item.id + '/colaboradores') + $vue.getOrigenURL();
         },
         cambiarEstado(item, accion) {
             let $vue = this;
@@ -461,7 +472,7 @@ new Vue({
         saveEstado(item, accion) {
             let $vue = this;
             $.ajax({
-                url: APP.url('general/oficina/cambiarEstado/' + accion),
+                url: APP.url(rutaModulo + '/cambiarEstado/' + accion),
                 dataType: 'json',
                 type: 'POST',
                 contentType: "application/json",
@@ -484,7 +495,7 @@ new Vue({
         verColaboradores(item) {
             let $vue = this;
             $.ajax({
-                url: APP.url('general/oficina/allColaborador'),
+                url: APP.url(rutaModulo + '/allColaborador'),
                 type: 'POST',
                 async: false,
                 data: {id: item.id},
@@ -502,7 +513,7 @@ new Vue({
                 }
             });
         },
-        asignarJefe(item) {
+        verAsignarJefe(item) {
             let $vue = this;
             if (item.cargoJefe.nombre == '') {
                 bootbox.alert({
@@ -513,46 +524,92 @@ new Vue({
                 });
                 return;
             }
-            
+
             $vue.oficina = Object.assign({}, item, {});
+            $vue.oficina.esNuevo = true;
             $vue.$refs.modalAsignarJefe.open();
-
-            return;
-
-            var record = {
-                id: rec.id,
-                oficina: rec.nombre,
-                form: 'formJefe',
-                select2Persona: 'select2Persona',
-                textTitulo: 'textTitulo'
-            };
-
-            var mimodal = bootbox.confirm({
-                title: "Asignar Jefe de la Unidad",
-                message: $.templates("#jefeTemplate").render(record),
-                buttons: {
-                    confirm: {label: 'Asignar', className: "btn-primary"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
-                },
-                callback: function (result) {
-                    if (result) {
-                        var form = $("#" + record.form);
-                        form.parsley().destroy();
-                        form.parsley().validate();
-                        $("#" + record.select2Persona).parsley().validate();
-                        if ($("#" + record.select2Persona).select2("val") == "" || !form.parsley().validate()) {
-                            return false;
-                        }
-                        Oficina.ajaxAsignarJefe(form, mimodal);
-                        return false;
-                    }
-                }
-            });
-
-            var form = $("#" + record.form);
-            form.find(".date").datepicker();
-            $("#" + record.select2Persona).select2(Oficina.findPersona());
+            $vue.$refs.modalAsignarJefe.okaction = $vue.asignarJefe;
         },
+        asignarJefe() {
+            let $vue = this;
+            $vue.procesarJefe("asignarJefe");
+        },
+        verRevisarJefe(item) {
+            let $vue = this;
+            if (item.cargoJefe.nombre == '') {
+                bootbox.alert({
+                    message: 'Falta definir el cargo de la jefatura de esta Unidad',
+                    buttons: {
+                        ok: {label: 'Cerrar', className: "btn-warning"}
+                    }
+                });
+                return;
+            }
+
+            $vue.oficina = Object.assign({}, item, {});
+            $vue.oficina.esNuevo = false;
+            $vue.$refs.modalAsignarJefe.open();
+            $vue.$refs.modalAsignarJefe.okaction = $vue.actualizaJefe;
+        },
+        actualizaJefe() {
+            let $vue = this;
+            $vue.procesarJefe("actualizarJefe");
+        },
+        procesarJefe(ruta) {
+            let $vue = this;
+            let form = $("#" + $vue.configModalAsignarJefe.form);
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            axios.post(APP.url(rutaModulo + '/' + ruta), $vue.oficina)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.$refs.raptorOficinas.loadRemoteData();
+                            $vue.$refs.modalAsignarJefe.close();
+                            notify(response.data.message, "info");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+        },
+        verAsignarEncargado(item) {
+            let $vue = this;
+            if (item.cargoJefe.nombre == '') {
+                bootbox.alert({
+                    message: 'Falta definir el cargo de la jefatura de esta Unidad',
+                    buttons: {
+                        ok: {label: 'Cerrar', className: "btn-warning"}
+                    }
+                });
+                return;
+            }
+
+            $vue.oficina = Object.assign({}, item, {});
+            $vue.oficina.esNuevo = true;
+            $vue.$refs.modalAsignarEncargado.open();
+            $vue.$refs.modalAsignarEncargado.okaction = $vue.asignarJefe;
+        },
+        allPersonas(nombre) {
+            let $vue = this;
+            axios.get(APP.url(rutaModulo + '/allPersona'), {params: {nombre: nombre}})
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.personas = response.data.data;
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+        },
+
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);

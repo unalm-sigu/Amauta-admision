@@ -278,26 +278,20 @@ public class OficinaServiceImp implements OficinaService {
     @Override
     @Transactional
     public void asignarJefe(Oficina oficina, DataSessionPivot ds) {
-        Oficina oficinaBD = oficinaDAO.find(oficina.getId());
-        TipoOficina tipo = oficinaBD.getTipoOficina();
-        List<Docente> docentesBD = docenteDAO.allByPersona(oficina.getPersonaJefe());
+        ObjectUtil.eliminarAttrSinId(oficina);
+        Assert.isNotNull(oficina.getPersonaJefe(), "No ha indicado el jefe de la oficina");
 
-        if (oficinaBD.getPersonaJefe() != null) {
-            throw new PhobosException("Esta Unidad ya tiene asignado un jefe");
-        }
+        Oficina oficinaBD = oficinaDAO.find(oficina.getId());
+        Assert.isNull(oficinaBD.getPersonaJefe(), "Esta Unidad ya tiene asignado un jefe");
+        Assert.isNotNull(oficinaBD.getCargoJefe(), "Falta definir el Cargo de la Jefatura de esta Unidad");
+
+        TipoOficina tipo = oficinaBD.getTipoOficina();
+        boolean requiereJefeDocente = tipo.getNivelEnum() == NivelOficinaEnum.OFI;
+        List<Docente> docentesBD = docenteDAO.allByPersona(oficina.getPersonaJefe());
+        Assert.isFalse(requiereJefeDocente && docentesBD.isEmpty(), "Para este tipo de oficina debe elegir un docente como jefe.");
 
         Date hoy = new DateTime().withTimeAtStartOfDay().toDate();
-        if (oficina.getFechaInicioJefatura().after(hoy)) {
-            throw new PhobosException("No puede poner como fecha de inicio un día futuro");
-        }
-
-        if (oficinaBD.getCargoJefe() == null) {
-            throw new PhobosException("Falta definir el Cargo de la jefatura de esta Unidad");
-        }
-
-        if (tipo.getNivel().equals("OFI") && docentesBD.isEmpty()) {
-            throw new PhobosException("La persona seleccionada no es un docente. Elija un docente activo.");
-        }
+        Assert.isFalse(oficina.getFechaInicioJefatura().after(hoy), "No puede poner como fecha de inicio un día futuro");
 
         oficinaBD.setPersonaJefe(oficina.getPersonaJefe());
         oficinaBD.setFechaInicioJefatura(oficina.getFechaInicioJefatura());
@@ -332,6 +326,29 @@ public class OficinaServiceImp implements OficinaService {
 
         this.asignarRol(oficinaBD.getPersonaJefe(), RolEnum.JEFE_DPTO_ACA, ds);
 
+    }
+
+    @Override
+    @Transactional
+    public void actualizarJefe(Oficina oficina, DataSessionPivot ds) {
+        ObjectUtil.eliminarAttrSinId(oficina);
+        Assert.isNotNull(oficina.getPersonaJefe(), "No ha indicado el jefe de la oficina");
+
+        Oficina oficinaBD = oficinaDAO.find(oficina.getId());
+        Assert.isNotNull(oficinaBD.getPersonaJefe(), "Esta Unidad aún no tiene asignado un jefe");
+        Assert.isNotNull(oficinaBD.getCargoJefe(), "Falta definir el Cargo de la Jefatura de esta Unidad");
+
+        Date hoy = new DateTime().withTimeAtStartOfDay().toDate();
+        Assert.isFalse(oficina.getFechaInicioJefatura().after(hoy), "No puede poner como fecha de inicio un día futuro");
+
+        oficinaBD.setFechaInicioJefatura(oficina.getFechaInicioJefatura());
+        oficinaDAO.update(oficinaBD);
+
+        if (oficina.getPersonaJefe().getTituloAcademico() != null) {
+            Persona jefeBD = personaDAO.find(oficina.getPersonaJefe().getId());
+            jefeBD.setTituloAcademico(oficina.getPersonaJefe().getTituloAcademico());
+            personaDAO.update(jefeBD);
+        }
     }
 
     @Override

@@ -51,6 +51,8 @@ public interface OficinaService {
 
     void asignarJefe(Oficina oficina, DataSessionPivot ds);
 
+    void actualizarJefe(Oficina oficina, DataSessionPivot ds);
+
     void retirarJefe(Oficina oficina, DataSessionPivot ds);
 
     void asignarEncargado(Oficina oficina, DataSessionPivot ds);
@@ -67,27 +69,27 @@ public interface OficinaService {
 
     List<TipoOficina> allTipoOficina();
 
-    public TipoOficina findTipoById(String id);
+    TipoOficina findTipoById(String id);
 
-    public Colaborador findColarador(Colaborador colaborador);
+    Colaborador findColarador(Colaborador colaborador);
 
     List<TipoDocIdentidad> allDocumentosIdentidad();
 
-    public List<Oficina> allOficinasByOficinaMain(Oficina oficina);
+    List<Oficina> allOficinasByOficinaMain(Oficina oficina);
 
-    public List<PerfilCompania> allCargos(Oficina oficina);
+    List<PerfilCompania> allCargos(Oficina oficina);
 
-    public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
+    void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
 
     void updateColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot);
 
-    public List<PerfilCompania> allFunciones();
+    List<PerfilCompania> allFunciones();
 
     Persona verifiDocumento(Persona persona);
 
     Usuario verifiEmail(Persona persona);
 
-    public Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
+    Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
 
     List<PerfilCompania> allCargosByOficina(Oficina oficina);
 

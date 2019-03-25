@@ -94,11 +94,12 @@
 
                                                             <li role="presentation" class="divider"></li>
 
-                                                            <li v-if="item.personaJefe.id != '' "><a class="btn-link retirar-jefe" v-bind:rel="item.id">Retirar Jefe</a></li>
-                                                            <li v-else=""><a class="pointer" v-on:click="asignarJefe(item)"> Asignar Jefe</a></li>
+                                                            <li v-if="item.personaJefe.id != '' "><a class="pointer" v-on:click="verAsignarEncargado(item)">Retirar Jefe</a></li>
+                                                            <li v-if="item.personaJefe.id != '' " v-on:click="verRevisarJefe(item)"><a class="pointer" >Actualizar Jefe</a></li>
+                                                            <li v-else=""><a class="pointer" v-on:click="verAsignarJefe(item)"> Asignar Jefe</a></li>
 
                                                             <li v-if="item.jefeEncargado.id != '' "><a class="btn-link retirar-encargado" v-bind:rel="item.id" href="#">Retirar Encargado</a></li>
-                                                            <li v-else=""><a class="btn-link asignar-encargado" v-bind:rel="item.id" href="#">Asignar Encargado</a></li>
+                                                            <li v-else=""><a class="pointer" v-on:click="verAsignarEncargado(item)">Asignar Encargado</a></li>
 
                                                             <li role="presentation" class="divider"></li>
                                                             <li><a class="btn-link" v-on:click="cambiarEstado(item,'eliminar')">Eliminar</a></li>
@@ -138,6 +139,8 @@
             </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
+            <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <script th:src="@{/app/general/oficina/oficina.js}" charset="utf-8"></script>
         </div>
 

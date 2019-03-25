@@ -347,6 +347,26 @@ public class OficinaController {
     }
 
     @ResponseBody
+    @RequestMapping("allPersona")
+    public JsonResponse allPersona(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            List<Persona> personas = service.allPersona(nombre);
+            response.setData(createAllPersonasJson(personas));
+            response.setTotal(personas.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("allColaborador")
     public JsonResponse allColaborador(Oficina oficina, HttpSession session) {
 
@@ -407,14 +427,32 @@ public class OficinaController {
 
     @ResponseBody
     @RequestMapping("asignarJefe")
-    public JsonResponse asignarJefe(Oficina oficina, HttpSession session) {
+    public JsonResponse asignarJefe(@RequestBody Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
             service.asignarJefe(oficina, ds);
             response.setMessage("Jefe asignado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping("actualizarJefe")
+    public JsonResponse actualizarJefe(@RequestBody Oficina oficina, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.actualizarJefe(oficina, ds);
+            response.setMessage("Jefe asignado satisfactoriamente.");
+            response.setSuccess(Boolean.TRUE);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -551,6 +589,8 @@ public class OficinaController {
             "cargoJefe.nombre",
             "jefeEncargado.id",
             "jefeEncargado.nombreConTitulo",
+            "jefeEncargado.nombreCompleto",
+            "jefeEncargado.tituloAcademico",
             "personaJefe.id",
             "personaJefe.nombreConTitulo",
             "personaJefe.nombreCompleto",
@@ -559,10 +599,17 @@ public class OficinaController {
         return node;
     }
 
-    private ArrayNode createPerfilesJson(List<PerfilCompania> perfiles) {
+    private ObjectNode createPersonaJson(Persona persona) {
+        ObjectNode node = JsonHelper.createJson(persona, JsonNodeFactory.instance, true, new String[]{
+            "id", "nombreCompleto", "tituloAcademico", "numeroDocIdentidad", "tipoDocumento.simbolo"
+        });
+        return node;
+    }
+
+    private ArrayNode createAllPersonasJson(List<Persona> personas) {
         ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-        for (PerfilCompania perfil : perfiles) {
-            ObjectNode node = JsonHelper.createJson(perfil, JsonNodeFactory.instance, true, new String[]{"*"});
+        for (Persona persona : personas) {
+            ObjectNode node = createPersonaJson(persona);
             arrayNode.add(node);
         }
         return arrayNode;
