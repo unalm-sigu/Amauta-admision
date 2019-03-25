@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.plantillahorario;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -19,6 +20,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
@@ -125,11 +127,25 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
 
         Assert.isTrue(rolExamenes.isSituacionConfigurarHorario(), "Debe estar configurando los horarios del rol examen para confirmarlos.");
 
+        CicloAcademico cicloRol = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
+
+        final RolExamenes firstRolExamen = rolExamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloRol, null, EventoAcademicoEnum.EXAMEN_PARC);
+
         List<SemanaExamen> semanaExamenes = semanaExamenDAO.allByRolExamenes(rolExamenes);
 
-        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByEventoCicloAcademico(rolExamenes.getEventoCicloAcademico());
+        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAcademico(cicloRol);
+        if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
+            horariosAulasByCiclo.removeIf(x
+                    -> x.getFechaFinDateTime().toLocalDate().isBefore(firstRolExamen.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
+                    || x.getFechaFinDateTime().toLocalDate().isEqual(firstRolExamen.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
+        }
         for (SemanaExamen semanaExamen : semanaExamenes) {
             List<HorarioAula> horariosAulasFull = horarioAulaDAO.allByCicloAndSemanaExamenLimitByHours(rolExamenes.getEventoCicloAcademico(), semanaExamen);
+            if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
+                horariosAulasFull.removeIf(x
+                        -> x.getFechaFinDateTime().toLocalDate().isBefore(firstRolExamen.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
+                        || x.getFechaFinDateTime().toLocalDate().isEqual(firstRolExamen.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
+            }
             Map<Long, List<HorarioAula>> mapHorariosBySeccion = TypesUtil.convertListToMapList("seccion.id", horariosAulasFull);
             for (Map.Entry<Long, List<HorarioAula>> entry : mapHorariosBySeccion.entrySet()) {
                 Seccion seccion = new Seccion(entry.getKey());
@@ -183,7 +199,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CON);
         rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR);
         rolExamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
-        //throw new PhobosException("no pasaras");
+        // throw new PhobosException("no pasaras");
     }
 
     public void agregarGrupoHorasFaltantes(RolExamenes rolExamenes) {

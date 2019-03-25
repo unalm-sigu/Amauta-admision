@@ -20,6 +20,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 
@@ -376,15 +377,15 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
-    public List<HorarioAula> allForRolExamenesByEventoCicloAcademico(EventoCicloAcademico eventoCicloAcademico) {
+    public List<HorarioAula> allForRolExamenesByCicloAcademico(CicloAcademico cicloAcademicoRol) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("seccion sec", "hora h", "dia d", "aula au")
                 .join("sec.grupoSeccion gSec", "gSec.curso cur", "au.oficinaSupervisora ofi")
                 .join("cur.modalidadEstudio mEst", "gSec.cicloAcademico ca")
-                .filter("ha.fechaInicio", ">=", eventoCicloAcademico.getFechaInicio())
-                .filter("ha.fechaFin", "<=", eventoCicloAcademico.getFechaFin())
-                .filter("ca.id", eventoCicloAcademico.getCicloAcademico())
+                //   .filter("ha.fechaInicio", ">=", rolExamenes.getEventoCicloAcademico().getFechaInicio())
+                //    .filter("ha.fechaFin", "<=", rolExamenes.getEventoCicloAcademico().getFechaFin())
+                .filter("ca.id", cicloAcademicoRol)
                 .filter("ofi.codigo", OficinaEnum.OERA)
                 .filter("mEst.codigo", ModalidadEstudioEnum.PRE);
         return all(sql);
@@ -397,8 +398,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .join("seccion sec", "hora h", "dia d", "aula au")
                 .join("sec.grupoSeccion gSec", "gSec.curso cur", "au.oficinaSupervisora ofi")
                 .join("cur.modalidadEstudio mEst", "gSec.cicloAcademico ca")
-                .filter("ha.fechaInicio", ">=", eventoCicloAcademico.getFechaInicio())
-                .filter("ha.fechaFin", "<=", eventoCicloAcademico.getFechaFin())
+                .filter("ca.id", eventoCicloAcademico.getCicloAcademico())
                 .filter("h.id", ">=", semanaExamen.getHoraInicio())
                 .filter("h.id", "<=", semanaExamen.getHoraFin())
                 .filter("ofi.codigo", OficinaEnum.OERA)
