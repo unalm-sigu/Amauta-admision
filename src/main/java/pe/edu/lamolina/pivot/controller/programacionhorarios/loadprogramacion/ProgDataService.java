@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.programacionhorarios.loadprogramacion;
 import java.util.List;
 import java.util.Map;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -57,7 +58,9 @@ public interface ProgDataService {
             Alumno alumno,
             Map<Long, Persona> mapIdPersonas,
             Map<String, Alumno> mapAlumnos,
-            Map<String, SituacionAcademica> mapSituaciones, DataSessionPivot ds);
+            Map<String, SituacionAcademica> mapSituaciones,
+            Map<String, Carrera> mapCarreras,
+            Map<String, CicloAcademico> mapCiclo, DataSessionPivot ds);
 
     Docente saveDocente(Docente docente, ModalidadEstudio modalidad, Map<String, DepartamentoAcademico> mapDptos, DataSessionPivot ds);
 
@@ -114,10 +117,12 @@ public interface ProgDataService {
 
     void codigo2NullSeccion(CicloAcademico ciclo);
 
-    void crearCursos(String rutaFileCursos, Map<String, Curso> mapCursos, Map<String, DepartamentoAcademico> mapDepartamentosAcademicos);
+    void crearCursos(String rutaFileCursos, Map<String, Curso> mapCursos, Map<String, DepartamentoAcademico> mapDepartamentosAcademicos, DataSessionPivot ds);
 
     List<HorarioSeccion> crearHorarioSecciones(String rutaFileHorarioSecciones, Map<String, Seccion> mapSecciones, Map<Integer, Dia> mapDias, Map<Integer, Hora> mapHoras, Map<String, Aula> mapAulas, CicloAcademico ciclo);
 
     List<DiaHoraGrupo> crearHorarioGrupos(String rutaFileHorarioGrupos, Map<Integer, Dia> mapDias, Map<Integer, Hora> mapHoras, Map<String, GrupoHoras> mapGrupos, CicloAcademico ciclo);
+
+    void actualizarCiclo(List<CicloAcademico> ciclos);
 
 }

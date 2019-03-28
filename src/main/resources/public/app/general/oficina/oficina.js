@@ -379,6 +379,7 @@ new Vue({
     data: {
         oficinasURL: APP.url(rutaModulo + '/all'),
         oficina: {personaJefe: {}, jefeEncargado: {}},
+        ausencia: {oficina: {}, jefe: {}, encargado: {}},
         cfgColaboradores: {
             id: 'colaboradoresModal',
             header: true,
@@ -389,15 +390,21 @@ new Vue({
             id: 'idModalAsignarJefe',
             form: 'formAsignaJefe',
             header: true,
-            title: 'Asignar Jefe de Unidad',
-            showaccept: true
+            showaccept: true,
         },
         configModalAsignarEncargado: {
             id: 'idModalAsignarEncargado',
             form: 'formAsignaEncargado',
             header: true,
-            title: 'Asignar Encargado de Jefatura',
-            showaccept: true
+            showaccept: true,
+        },
+        configModalRetirarEncargado: {
+            id: 'idModalRetirarEncargado',
+            form: 'formRetirarEncargado',
+            header: true,
+            title: 'Finalizar Encargatura de la Unidad',
+            showaccept: true,
+            okbtn: 'Finalizar encargatura'
         },
         personas: [],
         colaboradores: [],
@@ -527,6 +534,9 @@ new Vue({
 
             $vue.oficina = Object.assign({}, item, {});
             $vue.oficina.esNuevo = true;
+
+            $vue.configModalAsignarJefe.title = 'Asignar Jefe de Unidad';
+            $vue.configModalAsignarJefe.okbtn = 'Asignar Jefe';
             $vue.$refs.modalAsignarJefe.open();
             $vue.$refs.modalAsignarJefe.okaction = $vue.asignarJefe;
         },
@@ -548,6 +558,8 @@ new Vue({
 
             $vue.oficina = Object.assign({}, item, {});
             $vue.oficina.esNuevo = false;
+            $vue.configModalAsignarJefe.title = 'Actualizar información Jefe de Unidad';
+            $vue.configModalAsignarJefe.okbtn = 'Actualizar Jefe';
             $vue.$refs.modalAsignarJefe.open();
             $vue.$refs.modalAsignarJefe.okaction = $vue.actualizaJefe;
         },
@@ -591,8 +603,141 @@ new Vue({
 
             $vue.oficina = Object.assign({}, item, {});
             $vue.oficina.esNuevo = true;
+            $vue.configModalAsignarEncargado.title = 'Asignar Jefe Encargado';
+            $vue.configModalAsignarEncargado.okbtn = 'Asignar Encargado';
             $vue.$refs.modalAsignarEncargado.open();
-            $vue.$refs.modalAsignarEncargado.okaction = $vue.asignarJefe;
+            $vue.$refs.modalAsignarEncargado.okaction = $vue.asignarEncargado;
+        },
+        asignarEncargado() {
+            let $vue = this;
+            $vue.procesarEncargado("asignarEncargado");
+        },
+        procesarEncargado(ruta) {
+            let $vue = this;
+            let form = $("#" + $vue.configModalAsignarEncargado.form);
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            axios.post(APP.url(rutaModulo + '/' + ruta), $vue.oficina)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.$refs.raptorOficinas.loadRemoteData();
+                            $vue.$refs.modalAsignarEncargado.close();
+                            notify(response.data.message, "info");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+        },
+        verRevisarEncargado(item) {
+            let $vue = this;
+            if (item.cargoJefe.nombre == '') {
+                bootbox.alert({
+                    message: 'Falta definir el cargo de la jefatura de esta Unidad',
+                    buttons: {
+                        ok: {label: 'Cerrar', className: "btn-warning"}
+                    }
+                });
+                return;
+            }
+
+            $vue.oficina = Object.assign({}, item, {});
+            $vue.oficina.esNuevo = false;
+            $vue.configModalAsignarEncargado.title = 'Actualizar información Jefe Encargado';
+            $vue.configModalAsignarEncargado.okbtn = 'Actualizar Jefe Encargado';
+            $vue.$refs.modalAsignarEncargado.open();
+            $vue.$refs.modalAsignarEncargado.okaction = $vue.actualizaEncargado;
+        },
+        actualizaEncargado() {
+            let $vue = this;
+            $vue.procesarEncargado("actualizarEncargado");
+        },
+        previoRetirarEncargado(item) {
+            let $vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro desea dar por finalizada la <b>Encargatura</b> de esta Unidad?",
+                buttons: {
+                    confirm: {label: 'Si, proceder con la finalización', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $vue.verRetirarEncargado(item);
+                    }
+                }
+            });
+        },
+        verRetirarEncargado(item) {
+            let $vue = this;
+            $vue.ausencia = Object.assign({}, item.ausenciaJefe, {});
+            $vue.configModalRetirarEncargado.okclass = "btn-danger";
+            $vue.$refs.modalRetirarEncargado.open();
+
+            return;
+
+            var mimodal = bootbox.confirm({
+                title: "Finalización de Encargatura",
+                message: $.templates("#finEncargoTemplate").render(record),
+                buttons: {
+                    confirm: {label: 'Finalizar encargatura', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        var form = $("#" + record.form);
+                        form.parsley().destroy();
+                        form.parsley().validate();
+                        if (!form.parsley().validate()) {
+                            return false;
+                        }
+
+                        $.ajax({
+                            url: APP.url('general/oficina/retirarEncargado'),
+                            type: 'POST',
+                            async: false,
+                            data: form.serialize(),
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        retirarEncargado() {
+            let $vue = this;
+            let form = $("#" + $vue.configModalRetirarEncargado.form);
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            axios.post(APP.url(rutaModulo + '/retirarEncargado'), $vue.oficina)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.$refs.raptorOficinas.loadRemoteData();
+                            $vue.$refs.modalRetirarEncargado.close();
+                            notify(response.data.message, "info");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
         },
         allPersonas(nombre) {
             let $vue = this;
@@ -609,7 +754,6 @@ new Vue({
                         notify(MESSAGES.errorComunicacion, "error");
                     });
         },
-
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);

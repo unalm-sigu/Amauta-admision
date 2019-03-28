@@ -144,7 +144,42 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     public List<Oficina> allByDynatable(DynatableFilter filter, Compania compania) {
-        return oficinaDAO.allByFilter(filter, compania);
+        List<Oficina> oficinas = oficinaDAO.allByFilter(filter, compania);
+        List<Colaborador> colaboradores = colaboradorDAO.allByOficinas(oficinas);
+        Map<Long, List<Colaborador>> mapColaboradores = TypesUtil.convertListToMapList("oficina.id", colaboradores);
+        List<AusenciaJefe> ausencias = ausenciaJefeDAO.allNoCerradasByOficinas(oficinas);
+        Map<Long, List<AusenciaJefe>> mapAusencias = TypesUtil.convertListToMapList("oficina.id", ausencias);
+
+        TypesUtil tu = new TypesUtil();
+        ObjectUtil.printAttr(tu);
+        tu.getRandom();
+        tu.getUnixTime();
+
+        for (Oficina oficina : oficinas) {
+
+            List<Colaborador> colaboradoresOfi = mapColaboradores.get(oficina.getId());
+            colaboradoresOfi = tu.getListNotNull(null);
+            oficina.setColaborador(colaboradoresOfi);
+
+            oficina.setAusenciasJefe(new ArrayList());
+            if (oficina.getJefeEncargado() == null) {
+                continue;
+            }
+
+            List<AusenciaJefe> ausenciasOfi = tu.getListNotNull(mapAusencias.get(oficina.getId()));
+            for (AusenciaJefe ausenciaJefe : ausenciasOfi) {
+                boolean esMismoJefe = oficina.getPersonaJefe() == null ? true : ausenciaJefe.getJefe().getId() == oficina.getPersonaJefe().getId().longValue();
+                boolean esMismoEncargado = ausenciaJefe.getEncargado().getId() == oficina.getJefeEncargado().getId().longValue();
+                boolean esMismaFecha = ausenciaJefe.getFechaInicioEncargatura().equals(oficina.getFechaEncargatura());
+
+                if (esMismoJefe && esMismoEncargado && esMismaFecha) {
+                    oficina.getAusenciasJefe().add(ausenciaJefe);
+                    break;
+                }
+            }
+        }
+
+        return oficinas;
     }
 
     @Override
@@ -170,11 +205,7 @@ public class OficinaServiceImp implements OficinaService {
     @Override
     @Transactional
     public void save(Oficina oficina, DataSessionPivot ds) {
-        ObjectUtil.eliminarAttrSinId(oficina, "oficinaSuperior");
-        ObjectUtil.eliminarAttrSinId(oficina, "cargoJefe");
-        ObjectUtil.eliminarAttrSinId(oficina, "personaJefe");
-        ObjectUtil.eliminarAttrSinId(oficina, "jefeEncargado");
-        oficina.setTipoOficina(oficina.getTipoOficina());
+        ObjectUtil.eliminarAttrSinId(oficina);
         oficina.setEstadoEnum(OficinaEstadoEnum.ACT);
         oficina.setFechaRegistro(new Date());
         oficina.setUserRegistro(ds.getUsuario());
@@ -186,14 +217,13 @@ public class OficinaServiceImp implements OficinaService {
 //    public void delete(Oficina oficina) {
 //        oficinaDAO.delete(oficina);
 //    }
-    @Override
-    public List<Colaborador> allColaborador(List<Oficina> oficinas) {
-        if (oficinas.size() < 1) {
-            return new ArrayList();
-        }
-        return colaboradorDAO.allByOficinas(oficinas);
-    }
-
+//    @Override
+//    public List<Colaborador> allColaborador(List<Oficina> oficinas) {
+//        if (oficinas.size() < 1) {
+//            return new ArrayList();
+//        }
+//        return colaboradorDAO.allByOficinas(oficinas);
+//    }
     @Override
     public List<Oficina> allUnidadSuperior(String nombre, Compania compania) {
         return oficinaDAO.allUnidadSuperior(nombre, compania);
@@ -401,33 +431,27 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     @Transactional
-
     public void asignarEncargado(Oficina oficina, DataSessionPivot ds) {
+        ObjectUtil.eliminarAttrSinId(oficina);
+        Assert.isNotNull(oficina.getJefeEncargado(), "No ha indicado el encargado de la oficina");
 
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
-        if (oficinaBD.getJefeEncargado() != null) {
-            throw new PhobosException("Esta Unidad ya tiene asignado un jefe encargado");
-        }
+        Assert.isNull(oficinaBD.getJefeEncargado(), "Esta Unidad ya tiene asignado un jefe encargado");
+        Assert.isNotNull(oficinaBD.getCargoJefe(), "Falta definir el Cargo de la Jefatura de esta Unidad");
 
         Date hoy = new DateTime().withTimeAtStartOfDay().toDate();
-        if (oficina.getFechaEncargatura().after(hoy)) {
-            throw new PhobosException("No puede poner como fecha de inicio un día futuro");
-        }
+        Assert.isFalse(oficina.getFechaEncargatura().after(hoy), "No puede poner como fecha de inicio un día futuro");
 
-        if (oficinaBD.getCargoJefe() == null) {
-            throw new PhobosException("Falta definir el Cargo de la jefatura de esta Unidad");
+        if (oficina.getJefeEncargado().getTituloAcademico() != null) {
+            Persona jefeEncargadoBD = personaDAO.find(oficina.getJefeEncargado().getId());
+            jefeEncargadoBD.setTituloAcademico(oficina.getJefeEncargado().getTituloAcademico());
+            personaDAO.update(jefeEncargadoBD);
         }
 
         oficinaBD.setJefeEncargado(oficina.getJefeEncargado());
         oficinaBD.setMotivoAusenciaJefe(oficina.getMotivoAusenciaJefe());
         oficinaBD.setFechaEncargatura(oficina.getFechaEncargatura());
         oficinaDAO.update(oficinaBD);
-
-        if (oficina.getJefeEncargado().getTituloAcademico() != null) {
-            Persona jefeBD = personaDAO.find(oficina.getJefeEncargado().getId());
-            jefeBD.setTituloAcademico(oficina.getJefeEncargado().getTituloAcademico());
-            personaDAO.update(jefeBD);
-        }
 
         AusenciaJefe ausenciaJefe = new AusenciaJefe();
         ausenciaJefe.setJefe(oficinaBD.getPersonaJefe());
@@ -447,9 +471,32 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     @Transactional
+    public void actualizarEncargado(Oficina oficina, DataSessionPivot ds) {
+        ObjectUtil.eliminarAttrSinId(oficina);
+        Assert.isNotNull(oficina.getJefeEncargado(), "No ha indicado el jefe encargado de la oficina");
+
+        Oficina oficinaBD = oficinaDAO.find(oficina.getId());
+        Assert.isNotNull(oficinaBD.getJefeEncargado(), "Esta Unidad aún no tiene asignado un jefe encargado");
+        Assert.isNotNull(oficinaBD.getCargoJefe(), "Falta definir el Cargo de la Jefatura de esta Unidad");
+
+        Date hoy = new DateTime().withTimeAtStartOfDay().toDate();
+        Assert.isFalse(oficina.getFechaEncargatura().after(hoy), "No puede poner como fecha de inicio un día futuro");
+
+        oficinaBD.setFechaEncargatura(oficina.getFechaEncargatura());
+        oficinaDAO.update(oficinaBD);
+
+        if (oficina.getJefeEncargado().getTituloAcademico() != null) {
+            Persona jefeBD = personaDAO.find(oficina.getJefeEncargado().getId());
+            jefeBD.setTituloAcademico(oficina.getJefeEncargado().getTituloAcademico());
+            personaDAO.update(jefeBD);
+        }
+    }
+
+    @Override
+    @Transactional
     public void retirarEncargado(AusenciaJefe ausencia, DataSessionPivot ds) {
 
-        Oficina oficinaBD = oficinaDAO.find(ausencia.getOficina().getId());
+        Oficina oficinaBD = oficinaDAO.find(ausencia.getId());
         AusenciaJefe ausenciaBD = ausenciaJefeDAO.findSinCerrar(ausencia);
 
         if (ausenciaBD == null) {

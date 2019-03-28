@@ -50,6 +50,16 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
     }
 
     @Override
+    public List<Curso> all() {
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cu")
+                .leftJoin("modalidadEstudio", "carrera", "coordinador")
+                .leftJoin("planCalificacion pc", "departamentoAcademico da", "da.facultad");
+
+        return all(sql);
+    }
+
+    @Override
     public List<Curso> allForSistemaCalificacion(String nombre, DepartamentoAcademico departamento, PlanCalificacion planCalificacion, CicloAcademico ciclo) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         StringBuilder sql = new StringBuilder();

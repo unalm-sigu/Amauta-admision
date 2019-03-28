@@ -102,20 +102,14 @@ public class OficinaController {
             Compania compania = ds.getCompania();
 
             List<Oficina> oficinas = service.allByDynatable(filter, compania);
-            List<Colaborador> colaboradoresTodos = service.allColaborador(oficinas);
-            Map<Long, List<Colaborador>> colaboradoresMap = TypesUtil.convertListToMapList("oficina.id", colaboradoresTodos);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Oficina oficina : oficinas) {
-
-                List<Colaborador> colaboradores = colaboradoresMap.get(oficina.getId());
-                if (colaboradores == null) {
-                    colaboradores = new ArrayList();
-                }
-
+                List<AusenciaJefe> ausencias = oficina.getAusenciasJefe();
+                AusenciaJefe ausenciaJefe = ausencias.isEmpty() ? new AusenciaJefe() : ausencias.get(0);
                 ObjectNode node = createOficinaJson(oficina);
-
-                node.put("colaboradores", colaboradores.size());
+                node.put("colaboradores", oficina.getColaborador().size());
+                node.set("ausenciaJefe", createAusenciaJson(ausenciaJefe));
                 array.add(node);
             }
 
@@ -442,7 +436,7 @@ public class OficinaController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("actualizarJefe")
     public JsonResponse actualizarJefe(@RequestBody Oficina oficina, HttpSession session) {
@@ -463,7 +457,7 @@ public class OficinaController {
 
     @ResponseBody
     @RequestMapping("asignarEncargado")
-    public JsonResponse asignarEncargado(Oficina oficina, HttpSession session) {
+    public JsonResponse asignarEncargado(@RequestBody Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -471,6 +465,24 @@ public class OficinaController {
             service.asignarEncargado(oficina, ds);
             response.setMessage("Encargado asignado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("actualizarEncargado")
+    public JsonResponse actualizarEncargado(@RequestBody Oficina oficina, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.actualizarEncargado(oficina, ds);
+            response.setMessage("Jefe asignado satisfactoriamente.");
+            response.setSuccess(Boolean.TRUE);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -499,7 +511,7 @@ public class OficinaController {
 
     @ResponseBody
     @RequestMapping("retirarEncargado")
-    public JsonResponse retirarEncargado(AusenciaJefe ausencia, HttpSession session) {
+    public JsonResponse retirarEncargado(@RequestBody AusenciaJefe ausencia, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -602,6 +614,13 @@ public class OficinaController {
     private ObjectNode createPersonaJson(Persona persona) {
         ObjectNode node = JsonHelper.createJson(persona, JsonNodeFactory.instance, true, new String[]{
             "id", "nombreCompleto", "tituloAcademico", "numeroDocIdentidad", "tipoDocumento.simbolo"
+        });
+        return node;
+    }
+
+    private ObjectNode createAusenciaJson(AusenciaJefe ausencia) {
+        ObjectNode node = JsonHelper.createJson(ausencia, JsonNodeFactory.instance, true, new String[]{
+            "id", "fechaInicioEncargatura", "oficina.id", "oficina.nombre", "jefe.id", "encargado.id", "encargado.nombreConTitulo"
         });
         return node;
     }

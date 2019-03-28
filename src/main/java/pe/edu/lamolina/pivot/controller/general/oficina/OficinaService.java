@@ -29,8 +29,7 @@ public interface OficinaService {
     void save(Oficina oficina, DataSessionPivot ds);
 
 //    void delete(Oficina oficina);
-    List<Colaborador> allColaborador(List<Oficina> oficinas);
-
+    //List<Colaborador> allColaborador(List<Oficina> oficinas);
     List<Oficina> allUnidadSuperior(String nombre, Compania compania);
 
     List<DepartamentoAcademico> allDepartamento(Compania compania);
@@ -56,6 +55,8 @@ public interface OficinaService {
     void retirarJefe(Oficina oficina, DataSessionPivot ds);
 
     void asignarEncargado(Oficina oficina, DataSessionPivot ds);
+
+    void actualizarEncargado(Oficina oficina, DataSessionPivot ds);
 
     void retirarEncargado(AusenciaJefe ausencia, DataSessionPivot ds);
 
