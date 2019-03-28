@@ -36,6 +36,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.CursoExcluido;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.FechaHoraGrupoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
@@ -56,6 +57,7 @@ import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoRegularDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.CursoExcluidoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoMasivoExamenDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.FechaHoraGrupoExamenDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.GrupoHorasExamenDAO;
@@ -136,6 +138,9 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
 
     @Autowired
     SemanaExamenDAO semanaExamenDAO;
+
+    @Autowired
+    CursoExcluidoDAO cursoExcluidoDAO;
 
     private void checkNoPublicado(RolExamenes rol) {
         Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de exámenes ya ha sido publicado");
@@ -220,13 +225,15 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         logger.debug("Crear grupos regulares");
         //secciones de los grupos regulares
         List<Seccion> secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.REGULAR);
-        for (Seccion seccionCursoMasivo : seccionesCursosMasivos) {
-            secciones.removeIf(x -> x.equals(seccionCursoMasivo));
-        }
 
-        for (SeccionExcluido seccionExcluido : seccionesExcluidasByRolExamen) {
-            secciones.removeIf(x -> x.equals(seccionExcluido.getSeccion()));
-        }
+        List<Seccion> seccionesExcluidas = seccionesExcluidasByRolExamen.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+        seccionesExcluidas.addAll(seccionesCursosMasivos);
+
+        List<CursoExcluido> cursosExcluidoz = cursoExcluidoDAO.allByRolExamenes(rolExamenes, EstadoEnum.ACT);
+        List<Curso> cursosExcluidos = cursosExcluidoz.stream().map(x -> x.getCurso()).collect(Collectors.toList());
+
+        this.quitarSeccionesExcluidas(secciones, seccionesExcluidas, cursosExcluidos);
+
         Map<String, List<Seccion>> grupoHorasLetrasRegularesMap = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
         List<String> letras = new ArrayList<>(grupoHorasLetrasRegularesMap.keySet());
         logger.debug("Letras Grupos Regulares {}", String.join(",", letras));
@@ -254,12 +261,8 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         logger.debug("Grupos Especiales");
         //secciones grupos especiales
         secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.ESPECIAL);
-        for (Seccion seccionCursoMasivo : seccionesCursosMasivos) {
-            secciones.removeIf(x -> x.equals(seccionCursoMasivo));
-        }
-        for (SeccionExcluido seccionExcluido : seccionesExcluidasByRolExamen) {
-            secciones.removeIf(x -> x.equals(seccionExcluido.getSeccion()));
-        }
+        this.quitarSeccionesExcluidas(secciones, seccionesExcluidas, cursosExcluidos);
+
         Map<String, List<Seccion>> grupoHorasLetrasEspecialesMap = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
         //hacemos encajar los grupos especiales en las letras regulares 
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
@@ -306,6 +309,15 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         rolExamenesUpd.setId(rolExamenes.getId());
         rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_REG);
         rolExamenesDAO.updateSituacion(rolExamenesUpd);
+    }
+
+    public void quitarSeccionesExcluidas(List<Seccion> secciones, List<Seccion> seccionesExcluidas, List<Curso> cursosExcluidos) {
+        for (Seccion seccionExcluida : seccionesExcluidas) {
+            secciones.removeIf(x -> x.equals(seccionExcluida));
+        }
+        for (Curso cursosExcluido : cursosExcluidos) {
+            secciones.removeIf(x -> x.getGrupoSeccion().getCurso().equals(cursosExcluido));
+        }
     }
 
     public List<String> validarCursosMasivos(List<CursoMasivoExamen> cursosMasivosByRolExamenes) {

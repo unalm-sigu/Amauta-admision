@@ -16,7 +16,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.model.enums.EstadoCarreraEnum;
+import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
@@ -177,7 +177,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "car")
                 .join("modalidadEstudio me", "facultad fa")
-                .filter("car.estado", EstadoCarreraEnum.ACT)
+                .filter("car.estado", EnteAcademicoEstadoEnum.ACT)
                 .filter("car.nombre", "like", nombre)
                 .filter("me.id", modalidadEstudio)
                 .limit(15);
@@ -202,7 +202,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
-                .filter("ca.estado", EstadoCarreraEnum.ACT)
+                .filter("ca.estado", EnteAcademicoEstadoEnum.ACT)
                 .filter("me.id", modalidadEstudio)
                 .orderBy("ca.codigo desc");
 
@@ -215,7 +215,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "car")
                 .join("modalidadEstudio me", "facultad fa")
-                .filter("car.estado", EstadoCarreraEnum.ACT)
+                .filter("car.estado", EnteAcademicoEstadoEnum.ACT)
                 .filter("car.nombre", "like", nombre)
                 .in("me.id", modalidadEstudio)
                 .limit(15);
@@ -229,7 +229,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "car")
                 .join("modalidadEstudio me", "facultad fa", "me.compania co")
-                .filter("car.estado", EstadoCarreraEnum.ACT)
+                .filter("car.estado", EnteAcademicoEstadoEnum.ACT)
                 .filter("car.nombre", "like", nombre)
                 .filter("co.id", cia)
                 .limit(15);
@@ -241,7 +241,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
-                .filter("ca.estado", EstadoCarreraEnum.ACT.name());
+                .filter("ca.estado", EnteAcademicoEstadoEnum.ACT);
         return all(sql);
     }
 
@@ -250,7 +250,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
-                .filter("ca.estado", EstadoCarreraEnum.ACT.name())
+                .filter("ca.estado", EnteAcademicoEstadoEnum.ACT)
                 .in("me.codigo", modalidadesCodes);
 
         return all(sql);
@@ -271,7 +271,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
-                .filter("ca.estado", EstadoCarreraEnum.ACT.name())
+                .filter("ca.estado", EnteAcademicoEstadoEnum.ACT)
                 .filter("me.codigo", modalidad);
         return all(sql);
     }

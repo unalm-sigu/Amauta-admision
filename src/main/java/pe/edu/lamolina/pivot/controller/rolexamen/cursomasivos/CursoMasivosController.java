@@ -190,6 +190,8 @@ public class CursoMasivosController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
+        } finally {
+            rolExamenesLogger.finalizeLog();
         }
         return response;
     }

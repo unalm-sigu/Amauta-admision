@@ -58,6 +58,10 @@ new Vue({
         }
     },
     computed: {
+        allowAsignarAula() {
+            return this.rolExamenes && this.rolExamenes.isEstadoConfigurando
+                    && (this.rolExamenes.isSituacionConfigurarGrupoRegular || this.rolExamenes.isSituacionAsignarHorarioCursosMasivos || this.rolExamenes.isSituacionConfigurarGrupoEspecial);
+        },
         agregarCursoDisponible() {
             return this.rolExamenes && this.rolExamenes.isEstadoConfigurando && (this.rolExamenes.isSituacionConfigurarHorario || this.rolExamenes.isSituacionConfigurarCursoMasivo)
         },
@@ -129,7 +133,7 @@ new Vue({
             let cursoMasivo = {
                 curso: $vue.curso,
                 rolExamenes: $vue.rolExamenes
-            }
+            };
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: "POST",
@@ -375,7 +379,7 @@ new Vue({
             return true;
         },
         addAula(aula) {
-            if (!this.modificarAulaHorarioDisponible) {
+            if (!this.allowAsignarAula) {
                 return;
             }
             let $vue = this;

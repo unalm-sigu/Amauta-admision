@@ -18,11 +18,49 @@
 
                 <section class="wrapper-lg">
                     <section class="panel">
-                        <section class="panel-body">
+                        <section class="panel-body" v-if="asignacionAula">
+                            <div class="row">
+                                <div class="form-group">
+                                    <label class="col-md-3 bold">Fecha Asignacion</label>
 
+                                    <div class="col-md-3">
+                                        <format-date v-bind:datetext="asignacionAula.fechaAsignacion"></format-date>
+                                    </div>
 
-                            raptor
+                                    <div class="col-md-3">
+                                        Secciones Asignadas
+                                    </div>
+                                    <span class="col-md-3" 
+                                          v-text="asignacionAula.seccionesAsignadas">
 
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label class="col-md-3 bold">
+                                        Secciones Tipo Laboratorio
+                                    </label>
+
+                                    <div class="col-md-3" 
+                                         v-text="asignacionAula.seccionesTipoLab">
+
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        Secciones Tipo Aula
+                                    </div>
+                                    <span class="col-md-3" 
+                                          v-text="asignacionAula.seccionesTipoAula">
+
+                                    </span>
+                                </div>
+                            </div>
+                        </section>
+                        <section class="panel-body" v-if="asignacionAula==null">
+                            <span>
+                                Aún no se asignan las aulas.
+                            </span>
                         </section>
 
                     </section>
@@ -49,6 +87,7 @@
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vue-loader"/>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-generalComponents.js}"></script>
             <script th:src="@{/app/programacion/asignacionaula/asignacionaula.js}" charset="utf-8"></script>
         </div>
 

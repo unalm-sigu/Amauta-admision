@@ -1,5 +1,6 @@
 <template id="modal-vik-template">
     <transition name="modal">
+        
         <div v-bind:id="id" class="modal fade" tabindex="-1" role="dialog"
              v-bind:data-backdrop="dataBackdrop" v-bind:data-keyboard="dataKeyboard">
             <div class="modal-dialog" v-bind:class="modalsize" role="document">
@@ -7,7 +8,7 @@
                 <div class="modal-content" v-bind:style="styleModal">
                     <div v-if="header" class="modal-header">
                         <slot name="header">
-                            <button v-on:click="close"  type="button"  class="close">
+                            <button v-on:click="close"  type="button" class="close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                             <h4 class="modal-title">{{ title }}</h4>

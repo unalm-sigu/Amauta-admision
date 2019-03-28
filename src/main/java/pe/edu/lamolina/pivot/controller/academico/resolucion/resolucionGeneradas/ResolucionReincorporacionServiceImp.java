@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
@@ -83,10 +85,16 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
         for (Long count : couterMap.values()) {
             Assert.isFalse(count > 1, "Está repitiendo alumno");
         }
+        List<Reincorporacion> reincorporacions = reincorporacionDAO.allByCicloReincorporacion(ds.getCicloAcademico());
+        Map<Long, Alumno> map = TypesUtil.convertListToMap("alumno", reincorporacions);
+
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
-        logger.debug("estadp {}", estadoTramite.getId());
         System.out.println("Estado" + estadoTramite.getId());
         for (Reincorporacion reincorporacione : resolucionForm.getReincorporaciones()) {
+            Alumno alumno = map.get(reincorporacione.getAlumno().getId());
+            if (alumno != null) {
+                throw new PhobosException("El alumno" + alumno.getCodigo() + " ya cuenta con una resolución para el ciclo activo");
+            }
             Facultad facultad = reincorporacione.getAlumno().getCarrera().getFacultad();
             reincorporacione.setAceptado(1);
             reincorporacione.setFechaRegistro(new Date());
@@ -99,6 +107,16 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
         }
 
         return alumnos;
+    }
+
+    @Override
+    public List<Reincorporacion> findByResolucion(Long resolucion, DataSessionPivot ds) {
+
+        return reincorporacionDAO.allByResolucion(new Resolucion(resolucion));
+    }
+
+    private Exception PhobosException(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

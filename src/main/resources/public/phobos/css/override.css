@@ -118,9 +118,9 @@ input.error{
 
 
 
-/*.login-bg {
-    background: url("../images/dark.jpg") repeat;
-}*/
+.login-bg {
+    background: url(../images/pivot-back.jpg) no-repeat center center fixed;
+}
 
 
 #login .brand {
@@ -268,9 +268,9 @@ div.pregunta_marco_desempeno:hover{
 /*---------------------------------------*/
 
 
-.login-bg {
+/*.login-bg {
     background: #192941;
-}
+}*/
 
 .login-header{
     height: 50px;
@@ -280,7 +280,7 @@ div.pregunta_marco_desempeno:hover{
 }
 
 .login-footer{
-    background: #2ECC71;
+    background: #02192C;
     height: 16px;
     bottom: 0px;
     width: 100%;
@@ -301,7 +301,7 @@ div.pregunta_marco_desempeno:hover{
 
 .login-wrapper .left-box{
     text-align: left;
-    padding: 50px;
+    padding: 20px 50px 50px 50px;
 }
 .login-wrapper .title{
     color: #2ECC71;
@@ -311,6 +311,7 @@ div.pregunta_marco_desempeno:hover{
 .login-wrapper .description{
     color: white;
     font-size: 15px;
+    max-width:550px;
 }
 .login-wrapper .subtitle{
     color: #2ECC71;
@@ -328,7 +329,7 @@ div.pregunta_marco_desempeno:hover{
     margin: 0 auto;
     padding: 35px 0 30px;
     float: none;
-    width: 400px;
+    width: 450px;
     box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.40);

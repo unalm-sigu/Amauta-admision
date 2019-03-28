@@ -153,7 +153,7 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
     }
 
     @Override
-    public void update(Colaborador colaborador, Usuario usuario) {
+    public void updateInactivar(Colaborador colaborador, Usuario usuario) {
         StringBuilder strb = new StringBuilder();
         strb.append("update UsuarioRol  set estado=:estado where oficina.id=:oficinaId and usuario.id = :usuario ");
         Query query = getCurrentSession().createQuery(strb.toString());

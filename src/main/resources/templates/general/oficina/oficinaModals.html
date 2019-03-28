@@ -14,3 +14,179 @@
     </div>
 </modal-vik>
 
+
+<modal-vik ref="modalRetirarEncargado"
+           v-bind="configModalRetirarEncargado"
+           v-bind:okaction="retirarEncargado">
+    <div slot="body">
+        <form v-bind:id="configModalRetirarEncargado.form">
+
+            <p class="m-b h5">
+                Ingrese la fecha de finalización de la encargatura:
+            </p>
+
+            <div class="form-group">
+                <label>Unidad</label>
+                <span class="form-control text-primary" v-text="ausencia.oficina.nombre">Unidad</span>
+            </div>
+
+            <div class="form-group">
+                <label>Encargado(a)</label>
+                <span class="form-control text-primary" v-text="ausencia.encargado.nombreConTitulo">Encargado</span>
+            </div>
+
+            <div class="form-group">   
+                <label>Fecha inicio encargatura</label>
+                <span class="form-control text-primary" v-text="ausencia.fechaInicioEncargatura">Fecha Inicio</span>
+            </div>
+
+            <div class="form-group">   
+                <label>Fecha fin encargatura</label>
+                <div class="input-group">
+                    <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="ausencia.fechaFinEncargatura"></date-picker>
+                    <div class="input-group-addon">
+                        <span class="fa fa-calendar"></span>
+                    </div>
+                </div>
+                <input type="text" required="true" v-model="ausencia.fechaFinEncargatura" class="hide"/>
+            </div>
+            
+        </form>
+    </div>
+</modal-vik>
+
+
+
+<modal-vik ref="modalAsignarEncargado"
+           v-bind="configModalAsignarEncargado">
+    <div slot="body">
+
+        <form v-bind:id="configModalAsignarEncargado.form">
+            <p v-if="oficina.esNuevo" class="m-b h5">
+                Seleccione la persona que va estar encargada de la jefatura de esta 
+                Unidad e indique su título profesional o grado académico:
+            </p>
+            <p v-else="" class="m-b h5">
+                Además de los datos de la encargatura, también puede modificar 
+                el Título/Grado Académico del jefe encargado:
+            </p>
+
+            <div class="form-group">
+                <label>Unidad</label>
+                <span class="form-control text-primary">{{oficina.nombre}}</span>
+            </div>
+
+            <div class="form-group">
+                <label>Encargado(a)</label>
+                <span class="form-control text-primary"
+                      v-if="!oficina.esNuevo"
+                      v-text="oficina.jefeEncargado.nombreCompleto" ></span>
+
+                <multiselect style="z-index: 1000"
+                             v-if="oficina.esNuevo"
+                             v-model="oficina.jefeEncargado" 
+                             v-bind:options='personas'
+                             v-on:search-change="allPersonas"
+                             v-bind:internal-search="false"
+                             label='nombreCompleto'
+                             track-by='id'
+                             required="true"
+                             placeholder=""
+                             v-bind:hide-selected="true" >
+                </multiselect>
+
+                <input type="text" required="true" v-model="oficina.jefeEncargado.id" class="hide"/>
+            </div>
+
+            <div class="form-group">   
+                <label>Título / Grado Académico</label>
+                <input type="text" class="form-control" required="true" style="z-index: 1"
+                       v-model="oficina.jefeEncargado.tituloAcademico"
+                       placeholder="Ing., Lic., Dr., Mg.Sc., Ph.D., etc" />
+            </div>
+
+            <div class="form-group">   
+                <label>Fecha inicio encargatura</label>
+                <div class="input-group">
+                    <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="oficina.fechaEncargatura"></date-picker>
+                    <div class="input-group-addon">
+                        <span class="fa fa-calendar"></span>
+                    </div>
+                </div>
+                <input type="text" required="true" v-model="oficina.fechaEncargatura" class="hide"/>
+            </div>
+
+            <div class="form-group"
+                 v-if="oficina.personaJefe.id != '' ">   
+                <label>Indique el motivo de ausencia del jefe</label>
+                <textarea class="form-control" required="true" minlength="10"
+                          v-model="oficina.motivoAusenciaJefe"></textarea>
+            </div>
+        </form>
+    </div>
+</modal-vik>
+
+
+
+<modal-vik ref="modalAsignarJefe"
+           v-bind="configModalAsignarJefe">
+    <div slot="body">
+
+        <form v-bind:id="configModalAsignarJefe.form">
+            <p v-if="oficina.esNuevo" class="m-b h5">
+                Seleccione la persona que va ser asignada como jefe(a) de esta 
+                Unidad e indique su título profesional o grado académico:
+            </p>
+            <p v-else="" class="m-b h5">
+                Puede modificar el Título/Grado Académico del jefe y la 
+                fecha de inicio de la jefatura:
+            </p>
+
+            <div class="form-group">
+                <label>Unidad</label>
+                <span class="form-control text-primary">{{oficina.nombre}}</span>
+            </div>
+
+            <div class="form-group">
+                <label>Jefe(a)</label>
+                <span class="form-control text-primary"
+                      v-if="!oficina.esNuevo"
+                      v-text="oficina.personaJefe.nombreCompleto" ></span>
+
+                <multiselect style="z-index: 1000"
+                             v-if="oficina.esNuevo"
+                             v-model="oficina.personaJefe" 
+                             v-bind:options='personas'
+                             v-on:search-change="allPersonas"
+                             v-bind:internal-search="false"
+                             label='nombreCompleto'
+                             track-by='id'
+                             required="true"
+                             placeholder=""
+                             v-bind:hide-selected="true" >
+                </multiselect>
+
+                <input type="text" required="true" v-model="oficina.personaJefe.id" class="hide"/>
+            </div>
+
+            <div class="form-group">   
+                <label>Título / Grado Académico</label>
+                <input type="text" class="form-control" required="true" style="z-index: 1"
+                       v-model="oficina.personaJefe.tituloAcademico"
+                       placeholder="Ing., Lic., Dr., Mg.Sc., Ph.D., etc" />
+            </div>
+
+            <div class="form-group">   
+                <label>Fecha inicio de jefatura</label>
+                <div class="input-group">
+                    <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="oficina.fechaInicioJefatura"></date-picker>
+                    <div class="input-group-addon">
+                        <span class="fa fa-calendar"></span>
+                    </div>
+                </div>
+                <input type="text" required="true" v-model="oficina.fechaInicioJefatura" class="hide"/>
+            </div>
+        </form>
+    </div>
+</modal-vik>
+

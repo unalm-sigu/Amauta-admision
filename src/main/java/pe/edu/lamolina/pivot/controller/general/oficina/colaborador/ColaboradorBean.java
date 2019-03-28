@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.general.oficina;
+package pe.edu.lamolina.pivot.controller.general.oficina.colaborador;
 
 import java.util.List;
 import pe.edu.lamolina.model.general.Colaborador;

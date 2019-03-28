@@ -7,7 +7,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.DeudaMaterialAlumno;
 import pe.edu.lamolina.model.academico.TipoDeudaMaterial;
 
-public interface DeudaAlumnoDAO extends EasyDAO<DeudaMaterialAlumno> {
+public interface DeudaMaterialAlumnoDAO extends EasyDAO<DeudaMaterialAlumno> {
 
     List<DeudaMaterialAlumno> allByDynatableTipoDeuda(DynatableFilter filter, TipoDeudaMaterial tipo);
 

@@ -45,6 +45,7 @@ import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.matricula.AlumnoCursoSimultaneo;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.plancurricular.VisorAsignaCurricula;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
@@ -59,6 +60,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -103,6 +105,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
+
+    @Autowired
+    RetiroCicloDAO retiroCicloDAO;
 
     @Autowired
     VisorAsignaCurricula visorAsignaCurricula;
@@ -217,6 +222,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         sincronizarConCurricula(mapCursosCurricula, mapCursoCurriculaAluByCurso, mapCursoCurriculaAlu, alumno);
 
         validarCreditosAprobados(mapCursosCurricula, mapCursoCurriculaAlu.values(), creditosAprobados, creditosCurriculaAprobados);
+        validarTramiteRetiroCiclo(cursosAprobados, alumno, ds.getCicloAcademico());
         validarEquivalencias(mapCursoCurriculaAlu, mapEquivalentesCurricula, cursosAprobados);
         validarHistorial(mapCursoCurriculaAluByCurso, cursosAprobados);
         validarCursosComodin(alumno, mapCursoCurriculaAlu, mapCursoCurriculaAluByCurso, cursosAprobados, ds);
@@ -654,6 +660,23 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             return new ArrayList();
         }
         return lista;
+    }
+
+    private void validarTramiteRetiroCiclo(List<AlumnoCicloCurso> cursosAprobados, Alumno alumno, CicloAcademico cicloAcademico) {
+        RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(alumno, cicloAcademico);
+        if (retiroCiclo != null) {
+
+            List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno);
+
+            for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
+                alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
+                alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
+
+                AlumnoCicloCurso alumnoCicloCurso = cursosAprobados.stream().filter(x -> x.getCurso() == alumnoCursoCurricula.getCurso()).findAny().orElse(null);
+                cursosAprobados.remove(alumnoCicloCurso);
+
+            }
+        }
     }
 
 }

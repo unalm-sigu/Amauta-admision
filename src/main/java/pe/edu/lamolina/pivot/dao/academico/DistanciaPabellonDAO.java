@@ -10,8 +10,10 @@ public interface DistanciaPabellonDAO extends EasyDAO<DistanciaPabellon> {
 
     List<DistanciaPabellon> allActivos();
 
-    List<DistanciaPabellon> allFactorDistanciaByDepartamento(DepartamentoAcademico departamentoAcademico);   
+    List<DistanciaPabellon> allFactorDistanciaByDepartamento(DepartamentoAcademico departamentoAcademico);
 
     List<DistanciaPabellon> allByDynatable(DynatableFilter filter);
+
+    List<DistanciaPabellon> allByActAndDistanciaOrder(String distanciaOrder);
 
 }

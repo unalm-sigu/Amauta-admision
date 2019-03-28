@@ -120,7 +120,7 @@ public class ProfesorController {
         try {
 
             List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
-       
+
             List<Docente> docentes;
 
             docentes = service.allByDepartamentoDynatable(filter, departamentos);
@@ -213,7 +213,6 @@ public class ProfesorController {
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
         try {
-            ObjectUtil.printAttr(docente);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             if (docente.getId() == null) {

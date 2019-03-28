@@ -13,8 +13,14 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface MuestrasLabService {
 
+    CicloAcademico findCicloActivoAdmision();
+
 //    List<HistoriaLaboratorio> laboratorioDynatableFecha(DynatableFilter filter, Date fecha);
-    List<RecorridoIngresante> ingresantesDynatableTurno(DynatableFilter filter, TurnoEntrevistaObuae turno, CicloAcademico ciclo);
+    List<RecorridoIngresante> allRecorridosByDynatable(DynatableFilter filter, CicloAcademico ciclo, DataSessionPivot ds);
+
+    List<RecorridoIngresante> allRecorridosByDynatableTurno(DynatableFilter filter, TurnoEntrevistaObuae turno, CicloAcademico ciclo, DataSessionPivot ds);
+
+    List<RecorridoIngresante> allAtendidosByDynatableTurno(DynatableFilter filter, TurnoEntrevistaObuae turno, CicloAcademico ciclo, DataSessionPivot ds);
 
     List<RecorridoIngresante> ingresantesDynatable(DynatableFilter filter, CicloAcademico ciclo);
 
@@ -22,7 +28,7 @@ public interface MuestrasLabService {
 
     List<RecorridoIngresante> allIngresantesCiclo(CicloAcademico ciclo);
 
-    TurnoEntrevistaObuae findTurno(long idTurno);
+    TurnoEntrevistaObuae findTurno(Long idTurno);
 
     List<TurnoEntrevistaObuae> allTurnos(CicloAcademico ciclo);
 
@@ -32,7 +38,7 @@ public interface MuestrasLabService {
 
     void inicializarVisor();
 
-    void saveLaboratorio(HistoriaLaboratorio laboratorio);
+    void saveLaboratorio(HistoriaLaboratorio laboratorio, DataSessionPivot ds);
 
     List<HistoriaLaboratorio> allLabByPersonas(List<Persona> personas);
 
@@ -45,6 +51,10 @@ public interface MuestrasLabService {
     Boolean findRiesgoAlumno(HistoriaClinica historia);
 
     List<RecorridoIngresante> allIngresantesConTurno(CicloAcademico ciclo);
-    
-    HistoriaClinica crearHistoriaClinica(RecorridoIngresante recorrido, DataSessionPivot ds);
+
+    List<RecorridoIngresante> allIngresantesConTurno(TurnoEntrevistaObuae turno, CicloAcademico ciclo);
+
+    //HistoriaClinica crearHistoriaClinica(RecorridoIngresante recorrido, DataSessionPivot ds);
+    List<RecorridoIngresante> allAtendidos(TurnoEntrevistaObuae turnoEntrevistaObuae, CicloAcademico ciclo);
+
 }

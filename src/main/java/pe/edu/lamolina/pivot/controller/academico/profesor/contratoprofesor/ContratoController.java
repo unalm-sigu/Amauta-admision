@@ -49,7 +49,6 @@ public class ContratoController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (ContratoDocente cd : contratos) {
-                ObjectUtil.printAttr(cd);
                 array.add(JsonHelper.createJson(cd, JsonNodeFactory.instance, new String[]{
                     "id",
                     "categoria.*",
@@ -121,9 +120,7 @@ public class ContratoController {
         }
         return response;
     }
-    
-    
-    
+
     @ResponseBody
     @RequestMapping("/contrato/searchresolucionconsejo")
     public JsonResponse searchresolucionconsejo(@RequestParam("nombre") String nombre) {
@@ -135,8 +132,7 @@ public class ContratoController {
             for (Resolucion resolucion : resoluciones) {
                 jCiclo.add(JsonHelper.createJson(resolucion, jsonFactory, new String[]{
                     "id",
-                    "descripcion",
-                }));
+                    "descripcion",}));
             }
             response.setData(jCiclo);
             response.setTotal(jCiclo.size());
@@ -148,7 +144,7 @@ public class ContratoController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("/contrato/searchresolucionfacultad")
     public JsonResponse searchresolucionfacultad(@RequestParam("nombre") String nombre) {
@@ -160,8 +156,7 @@ public class ContratoController {
             for (Resolucion resolucion : resoluciones) {
                 jCiclo.add(JsonHelper.createJson(resolucion, jsonFactory, new String[]{
                     "id",
-                    "descripcion",
-                }));
+                    "descripcion",}));
             }
             response.setData(jCiclo);
             response.setTotal(jCiclo.size());
@@ -233,7 +228,7 @@ public class ContratoController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("/contrato/{id}/finalizar")
     public JsonResponse finalizar(@PathVariable Long id, HttpSession session) {

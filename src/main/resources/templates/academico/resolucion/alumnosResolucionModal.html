@@ -1,0 +1,29 @@
+<modal-vik ref="modalAlumnos"
+           v-bind="modalAlumnos">
+    <div slot="body">
+        <div id="divDynatable">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Alumno</th>
+                        <th>Ciclo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in alumnosReincorporacion"
+                        >
+                        <td>
+                            <a class="block" v-text="item.alumno.persona.nombreCompleto"></a>
+                            <span class="block" v-text="item.alumno.codigo"></span>
+                            <span > {{item.alumno.persona.tipoDocumento.simbolo}} - {{item.alumno.persona.numeroDocIdentidad}}</span>
+                        </td>
+                        <td>
+                            <span v-text="item.cicloReincorporacion.descripcion"></span>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</modal-vik>

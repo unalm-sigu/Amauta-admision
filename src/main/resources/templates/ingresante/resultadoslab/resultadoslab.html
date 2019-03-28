@@ -9,14 +9,45 @@
             <div id="resultadosVUE" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <h2 th:inline="text"> Resultados de Laboratorio</h2>   
-                    <a type="button" class="btn btn-success pull-right" href="/ingresante/resultadoslab/reporte">Reporte</a>     
+                    <!--<a type="button" class="btn btn-success pull-right" href="/ingresante/resultadoslab/reporte">Reporte</a>-->    
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            <i class="fa fa-random fa-lg"/> &nbsp; Reportes &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a th:href="@{'/ingresante/resultadoslab/reporte'}"> <i class="fa fa-cloud-upload"/>&nbsp;Reporte General</a></li>
+                            <li><a v-on:click="verReporteTurno"> <i class="fa fa-cloud-upload"/>&nbsp; Reporte Excel</a></li>
+                        </ul>
+                    </div>
+
+                    <h2> Resultados de Laboratorio {{ciclo.descripcion}}</h2>   
                 </header>
 
                 <section class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
-                            <raptor-table v-bind:url="ingresantesURL" ref="raptorRL">                                   
+                            <raptor-table v-bind:url="ingresantesURL" ref="raptorRL">  
+
+                                <div slot="header">
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Fecha muestra</span>
+                                            <multiselect 
+                                                v-model='turnoSelected'
+                                                v-bind:internal-search='false'
+                                                v-bind:limit='15'
+                                                v-bind:options='turnos'
+                                                placeholder=""
+                                                label='fecha'
+                                                v-on:input="cambiarTurno">
+                                                <template slot="clear" slot-scope="props">
+                                                    <div class="multiselect__clear" v-if="existeTurnoSelect()"
+                                                         v-on:mousedown.prevent.stop="clearAll(props.search)"></div>
+                                                </template>
+                                            </multiselect>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <template scope="props" >
                                     <div class="table-responsive">
@@ -25,13 +56,13 @@
                                             <thead>
 
                                                 <tr>
-                                                    <th class="col-xs-1">Alumno</th>
-                                                    <th class="col-xs-4"></th>
-                                                    <th class="col-xs-1 text-center">Muestra Abs</th>
-                                                    <th class="col-xs-1 text-center">Estándar Abs</th>
-                                                    <th class="col-xs-1 text-center">Hemoglobina g/dL</th>
-                                                    <th class="col-xs-3 text-center">Sangre</th>
-                                                    <th class="col-xs-1 h-middle"></th>
+                                                    <th class="col-xs-1 v-middle"></th>
+                                                    <th class="col-xs-5 v-middle">Alumno</th>
+                                                    <th class="col-xs-1 v-middle text-center">Muestra Abs</th>
+                                                    <th class="col-xs-1 v-middle text-center">Estándar Abs</th>
+                                                    <th class="col-xs-1 v-middle text-center">Hemoglobina g/dL</th>
+                                                    <th class="col-xs-3 v-middle text-center">Sangre</th>
+                                                    <th class=""></th>
                                                     <th></th>
                                                 </tr> 
 
@@ -68,58 +99,53 @@
                                                             Especialidad: {{item.alumno.carrera.nombre}}
                                                         </small>
                                                         <br/>
-                                                        <span class="block bold">
-                                                            Número de Atención: {{item.numeroAtencion}}
+                                                        <span class="block bold text-danger">
+                                                            Número muestra: {{item.numeroMuestraSangre}}
                                                         </span>
 
                                                     </td>
 
                                                     <td  class="v-middle" >       
                                                         <div v-if="item.laboratorio.id != ''">
-                                                            <div class="form-group">
-                                                                <input v-model="item.laboratorio.valorMuestra" type="text" class="form-control decimal" />        
-                                                            </div>                                                                   
+                                                            <input v-model="item.laboratorio.valorMuestra" type="text" class="form-control decimal" />        
                                                         </div>
                                                     </td>
 
                                                     <td  class="v-middle" >       
                                                         <div  v-if="item.laboratorio.id != ''">
-                                                            <div class="form-group">
-                                                                <input v-model="item.laboratorio.estandar" type="text" class="form-control decimal" />        
-                                                            </div>                                                                   
+                                                            <input v-model="item.laboratorio.estandar" type="text" class="form-control decimal" />        
                                                         </div>
                                                     </td>
 
                                                     <td  class="v-middle" >       
                                                         <div  v-if="item.laboratorio.id != ''">
-                                                            <div class="form-group">
-                                                                <input v-model="item.laboratorio.hemoglobina" type="text" class="form-control decimal" disabled="" />        
-                                                            </div>                                                                   
+                                                            <input v-model="item.laboratorio.hemoglobina" type="text" class="form-control decimal" disabled="" />        
                                                         </div>
                                                     </td>
 
                                                     <td  class="v-middle" >       
-                                                        <div class="form-group" v-if="item.laboratorio.id != ''">
-                                                            <label>Tipo:</label>
+                                                        <div class="input-group m-b-md" v-if="item.laboratorio.id != ''">
+                                                            <span class="input-group-addon">Tipo</span>
                                                             <multiselect 
                                                                 v-model="item.laboratorio.tipoSangreEnum"
                                                                 v-bind:internal-search='false'
                                                                 v-bind:limit='15'
                                                                 v-bind:options='tipoSangreList'
-                                                                placeholder="Seleccionar"
+                                                                placeholder=""
                                                                 label='value'
                                                                 v-bind:show-labels="false"
                                                                 v-bind:allow-empty="false">
                                                             </multiselect>
                                                         </div>
-                                                        <div class="form-group" v-if="item.laboratorio.id != ''">
-                                                            <label>RH:</label>
+
+                                                        <div class="input-group" v-if="item.laboratorio.id != ''">
+                                                            <span class="input-group-addon">&nbsp;RH&nbsp;</span>
                                                             <multiselect 
                                                                 v-model="item.laboratorio.factorRHEnum"
                                                                 v-bind:internal-search='false'
                                                                 v-bind:limit='15'
                                                                 v-bind:options='rhList'
-                                                                placeholder="Seleccionar"
+                                                                placeholder=""
                                                                 label='value'
                                                                 v-bind:show-labels="false"                                                         
                                                                 v-bind:allow-empty="false">
@@ -127,11 +153,15 @@
                                                         </div>
                                                     </td>
 
-                                                    <td  class="v-middle" >                                                                 
+                                                    <td  class="v-middle text-center" >                                                                 
                                                         <div v-if="item.laboratorio.id != ''">
-                                                            <div class="form-group col-md-4">
-                                                                <a type="button" class="btn btn-success" v-on:click="guardarNumeroMuestra(item)">Guardar</a>
-                                                            </div>      
+                                                            <a class="btn btn-success btn-sm"
+                                                               v-on:click="guardarNumeroMuestra(item)">Guardar</a>
+                                                            <div class="m-t-md" v-if="item.laboratorio.observaciones != '' ">
+                                                                <i class="fa fa-info-circle fa-lg text-primary"
+                                                                   data-toggle="tooltip"
+                                                                   v-bind:title="item.laboratorio.observaciones"></i>
+                                                            </div>
                                                         </div>
                                                     </td>
 
@@ -166,6 +196,10 @@
 
 
         <div layout:fragment="js" th:remove="tag">
+            <script th:inline="javascript">
+                var cicloJson = /*[[${cicloJson}]]*/ {};
+                var turnosJson = /*[[${turnosJson}]]*/ {};
+            </script>
 
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vuemodal"/>

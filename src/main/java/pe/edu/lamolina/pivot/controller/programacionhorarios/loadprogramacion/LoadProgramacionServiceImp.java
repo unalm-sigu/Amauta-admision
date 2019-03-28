@@ -307,13 +307,13 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         t1 = System.currentTimeMillis();
         Map<String, Curso> mapCursos = cursoDAO.all().stream().filter(x -> x.getCodigo() != null).collect(Collectors.toMap(x -> x.getCodigo(), x -> x, (a, b) -> a));
         Map<String, DepartamentoAcademico> mapDepartamentosAcademicos = departamentoAcademicoDAO.all().stream().filter(x -> x.getCodigo() != null).collect(Collectors.toMap(x -> x.getCodigo(), x -> x, (a, b) -> a));
-        progDataService.crearCursos(rutaFileCursos, mapCursos, mapDepartamentosAcademicos);
+        progDataService.crearCursos(rutaFileCursos, mapCursos, mapDepartamentosAcademicos, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tcrearCursos ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("saveAlumnos");
-        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+        this.saveAlumnos(alumnos, ciclo, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
 
@@ -461,12 +461,12 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         }
 
         //progDataService.anularDocentes(mapDocentes, modalidad, ds);
-
         return mapDocentes;
     }
 
     private void saveAlumnos(
             List<Alumno> alumnos,
+            CicloAcademico ciclo,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas,
             Map<Long, Persona> mapIdPersonas,
@@ -481,6 +481,10 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         Map<String, Pais> mapPaises = MapUtil.storeItems("codigo", paises);
         List<Ubicacion> ubigeos = ubicacionDAO.all();
         Map<String, Ubicacion> mapUbicacion = MapUtil.storeItems("codigo", ubigeos);
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.allPregradoByRange(0, ciclo.getYear() + 1);
+        Map<String, CicloAcademico> mapCiclo = MapUtil.storeItems("codigoAntiguo", ciclos);
+        List<Carrera> carreras = carreraDAO.all();
+        Map<String, Carrera> mapCarreras = TypesUtil.convertListToMap("codigo", carreras);
 
         long loop = 1;
         for (Alumno alumno : alumnos) {
@@ -515,9 +519,10 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
             }
 
             alumno.setPersona(perxoma);
-            progDataService.saveAlumno(alumno, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+            progDataService.saveAlumno(alumno, mapIdPersonas, mapAlumnos, mapSituaciones, mapCarreras, mapCiclo, ds);
             loop++;
         }
+        progDataService.actualizarCiclo(ciclos);
 
     }
 

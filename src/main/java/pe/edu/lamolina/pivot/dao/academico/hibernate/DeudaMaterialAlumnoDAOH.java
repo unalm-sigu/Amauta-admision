@@ -10,12 +10,12 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.DeudaMaterialAlumno;
 import pe.edu.lamolina.model.academico.TipoDeudaMaterial;
 import pe.edu.lamolina.model.enums.DeudaAlumnoEstadoEnum;
-import pe.edu.lamolina.pivot.dao.academico.DeudaAlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DeudaMaterialAlumnoDAO;
 
 @Repository
-public class DeudaAlumnoDAOH extends AbstractEasyDAO<DeudaMaterialAlumno> implements DeudaAlumnoDAO {
+public class DeudaMaterialAlumnoDAOH extends AbstractEasyDAO<DeudaMaterialAlumno> implements DeudaMaterialAlumnoDAO {
 
-    public DeudaAlumnoDAOH() {
+    public DeudaMaterialAlumnoDAOH() {
         super();
         setClazz(DeudaMaterialAlumno.class);
     }

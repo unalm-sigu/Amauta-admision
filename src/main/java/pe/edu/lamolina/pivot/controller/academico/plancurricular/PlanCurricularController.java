@@ -723,8 +723,6 @@ public class PlanCurricularController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             String message = "Creado exitosamente";
-
-            ObjectUtil.printAttr(grupoCursoEquivalente);
             service.saveGrupoEquivalenteElectivo(grupoCursoEquivalente, ds);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -1642,6 +1640,4 @@ public class PlanCurricularController {
         return response;
     }
 
-    
-    
 }

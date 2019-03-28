@@ -4,6 +4,7 @@ var app = new Vue({
     data: {
         URL_RETIROS: APP.url("academico/tramiteretirociclo/list"),
         ciclos: JSON.parse(ciclosJson),
+        matriculaResumen: {},
         tramiteRetiroCiclo: {},
         modalRetiroCiclo: {
             id: 'modalRetiroCiclo',
@@ -26,7 +27,7 @@ var app = new Vue({
             if (nombre != '' || nombre != null || nombre != undefined) {
 
                 $.ajax({
-                    url: APP.url("academico/matriculable/allAlumnoByNombre"),
+                    url: APP.url("academico/tramiteretirociclo/allAlumnoByNombre"),
                     dataType: 'json',
                     type: 'post',
                     data: {nombre: nombre}
@@ -59,9 +60,11 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.$refs.load.loadRemoteData();
-                        $vue.$refs.modalRetiroCiclo.close();
                         notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
                     }
+                    $vue.$refs.modalRetiroCiclo.close();
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -69,17 +72,18 @@ var app = new Vue({
                 }
             });
         },
-        update(item,val) {
+        update(item, val) {
             let $vue = this;
-            
-            item.estado = val == 0 ? 'RCHZ' : 'ACEP'
+            var data = Object.assign({}, item);
+            data.estado = val == 0 ? 'RCHZ' : 'ACEP'
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/tramiteretirociclo/update'),
-                data: JSON.stringify(item),
+                data: JSON.stringify(data),
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
+                        item.estado = data.estado;
                         $vue.$refs.load.loadRemoteData();
                         notify(response.message, "success");
                     }
@@ -89,6 +93,6 @@ var app = new Vue({
                     MODAL.hideWait();
                 }
             });
-        }
+        },
     }
 })

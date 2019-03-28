@@ -37,7 +37,7 @@ public interface RolService {
 
     List<FuncionRol> allFuncionRol(List<Rol> roles);
 
-    ArrayNode allPerfilCompania(Rol rol, Map<Long, List<FuncionRol>> funcionesRolMap, TipoPerfilCompaniaEnum tipoPerfilCompaniaEnum);
+//    ArrayNode allPerfilCompania(Rol rol, Map<Long, List<FuncionRol>> funcionesRolMap, TipoPerfilCompaniaEnum tipoPerfilCompaniaEnum);
 
     void saveFuncionRol(FuncionRol funcionRol, Usuario usuario);
 

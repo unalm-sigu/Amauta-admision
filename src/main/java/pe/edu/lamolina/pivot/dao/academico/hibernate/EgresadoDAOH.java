@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.math.BigDecimal;
 import java.util.List;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
@@ -30,7 +31,17 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
 
         return find(sql);
     }
-    
+
+    @Override
+    public Egresado findPrincipalByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(Egresado.class, "e")
+                .join("alumno alu")
+                .filter("esPrincipal", BigDecimal.ONE.intValue())
+                .filter("alu.id", alumno);
+        return find(sql);
+    }
+
     @Override
     public List<Egresado> allByCicloAcademico(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
