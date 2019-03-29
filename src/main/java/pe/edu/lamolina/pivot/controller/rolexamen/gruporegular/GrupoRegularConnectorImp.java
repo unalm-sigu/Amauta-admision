@@ -129,7 +129,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         }
         List<DocenteSeccion> docentesPrincipales = docenteSeccionDAO.allPrincipalesBySecciones(seccionesByLetra);
         letraGrupoRegular.setContadorSecciones(BigDecimal.ZERO.intValue());
-
+        /*
         List<Seccion> seccionesOera = seccionesByLetra
                 .stream().filter(x -> x.getAula().getOficinaSupervisora().isOficinaOera())
                 .collect(Collectors.toList());
@@ -139,13 +139,8 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 .collect(Collectors.toList());
 
         seccionesOera.addAll(seccionesOthersOfi);
-        /*
-        for (Seccion seccion : seccionesOera) {
-            Aula aulaEach = seccion.getAula();
-            logger.debug("Seccion {}, Aula {}, Es Oera {}", seccion.getCodigo2(), aulaEach.getCodigo(), aulaEach.getOficinaSupervisora().isOficinaOera());
-        }*/
-
-        for (Seccion seccion : seccionesOera) {
+         */
+        for (Seccion seccion : seccionesByLetra) {
             Seccion seccionClone = seccion.clone();
             List<DocenteSeccion> docenteSecciones = docentesPrincipales.stream().filter(x -> x.getSeccion().equals(seccionClone)).collect(Collectors.toList());
             Assert.isFalse(docenteSecciones.isEmpty(), String.format("La sección (%s) de código %s, no tiene docente principal", seccionClone.getId(), seccionClone.getCodigo2()));

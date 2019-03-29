@@ -203,9 +203,8 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
                 "Debe configurar los grupos masivos previamente.");
 
         List<CursoMasivoExamen> cursosMasivosByRolExamenes = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
-        if (cursosMasivosByRolExamenes.isEmpty()) {
-            throw new PhobosException("Debe configurar los cursos masivos.");
-        }
+        Assert.isFalse(cursosMasivosByRolExamenes.isEmpty(), "Debe configurar los cursos masivos.");
+
         grupoRegularConnector.fillActiveInfoCursosMasivos(cursosMasivosByRolExamenes);
         List<String> cursosMasivosValidations = this.validarCursosMasivos(cursosMasivosByRolExamenes);
         Assert.isTrue(cursosMasivosValidations.isEmpty(), String.join("\n", cursosMasivosValidations));
@@ -221,6 +220,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         this.deleteGrupoRegular(rolExamenes);
 
         List<SeccionExcluido> seccionesExcluidasByRolExamen = seccionExcluidoDAO.allByRolExamenes(rolExamenes);
+        List<CursoExcluido> cursosExcluidos = cursoExcluidoDAO.allByRolExamenes(rolExamenes, EstadoEnum.ACT);
 
         List<LetraGrupoRegular> letrasGruposRegularesOnBD = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
         logger.debug("letras grupos regulares en bd {}", letrasGruposRegularesOnBD.size());
@@ -234,29 +234,43 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         // List<Seccion> secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.REGULAR);
         List<Seccion> secciones = this.allSeccionesWithHorario(cicloAcademico, TipoGrupoHorasEnum.REGULAR, null);
 
-        List<Seccion> seccionesExcluidas = seccionesExcluidasByRolExamen.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
-
-        List<CursoExcluido> cursosExcluidoz = cursoExcluidoDAO.allByRolExamenes(rolExamenes, EstadoEnum.ACT);
-        List<Curso> cursosExcluidos = cursosExcluidoz.stream().map(x -> x.getCurso()).collect(Collectors.toList());
-
-        this.quitarSeccionesExcluidas(secciones, seccionesExcluidas, cursosExcluidos);
+        this.quitarSeccionesExcluidas(secciones, seccionesExcluidasByRolExamen, cursosExcluidos);
         List<Aula> aulasOera = this.aulasOeraWithHorario(rolBD);
         rolExamenesLogger.setAulasOera(new ArrayList<>(aulasOera));
         //    this.analizarAulaEstudios(secciones, aulasOera);
 
+        //creamos las letras regulares
+        List<GrupoHorasExamen> gruposHorasExamen = this.allGrupoHorasExamenByRol(rolExamenes);
+        Map<String, List<Seccion>> seccionesGroupByLetra = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
+        List<String> letras = new ArrayList<>(seccionesGroupByLetra.keySet());
+
+        List<LetraGrupoRegular> letrasGruposRegulares = this.convertLetraToLetraGpo(letras, rolExamenes, gruposHorasExamen, today, ds.getUsuario());
+
+        List<Seccion> seccionesOera = secciones
+                .stream().filter(x -> x.getAula().getOficinaSupervisora().isOficinaOera())
+                .collect(Collectors.toList());
+
+        List<Seccion> seccionesOthersOfi = secciones
+                .stream().filter(x -> !x.getAula().getOficinaSupervisora().isOficinaOera())
+                .collect(Collectors.toList());
+        /*
         Map<String, List<Seccion>> seccionesGroupByLetra = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
         List<String> letras = new ArrayList<>(seccionesGroupByLetra.keySet());
         logger.debug("Letras Grupos Regulares {}", String.join(",", letras));
+        this.crearLetrasGruposRegulares(letrasGruposRegulares, cursosMasivosByRolExamenes, seccionesGrupoEspecial, seccionesGroupByLetra, seccionesEspecialesRecolected, ds);
+         */
+        seccionesGroupByLetra = TypesUtil.convertListToMapList("grupoHoras.letra", seccionesOera);
+        logger.debug("Letras Grupos Regulares Oera {}", String.join(",", letras));
+        this.crearLetrasGruposRegulares(letrasGruposRegulares, cursosMasivosByRolExamenes, seccionesGrupoEspecial, seccionesGroupByLetra, seccionesEspecialesRecolected, ds);
 
-        //creamos las letras regulares
-        List<GrupoHorasExamen> gruposHorasExamen = this.allGrupoHorasExamenByRol(rolExamenes);
-        List<LetraGrupoRegular> letrasGruposRegulares = this.convertLetraToLetraGpo(letras, rolExamenes, gruposHorasExamen, today, ds.getUsuario());
+        seccionesGroupByLetra = TypesUtil.convertListToMapList("grupoHoras.letra", seccionesOthersOfi);
+        logger.debug("Letras Grupos Regulares No Oera {}", String.join(",", letras));
         this.crearLetrasGruposRegulares(letrasGruposRegulares, cursosMasivosByRolExamenes, seccionesGrupoEspecial, seccionesGroupByLetra, seccionesEspecialesRecolected, ds);
 
         logger.debug("Grupos Especiales");
         //secciones grupos especiales
         secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.ESPECIAL);
-        this.quitarSeccionesExcluidas(secciones, seccionesExcluidas, cursosExcluidos);
+        this.quitarSeccionesExcluidas(secciones, seccionesExcluidasByRolExamen, cursosExcluidos);
 
         Map<String, List<Seccion>> mapSeccionesGroupByLetra = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
 
@@ -359,7 +373,10 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         return aulasOera;
     }
 
-    public void quitarSeccionesExcluidas(List<Seccion> secciones, List<Seccion> seccionesExcluidas, List<Curso> cursosExcluidos) {
+    public void quitarSeccionesExcluidas(List<Seccion> secciones, List<SeccionExcluido> seccionesExcluidasByRolExamen, List<CursoExcluido> cursosExcluidoz) {
+        List<Seccion> seccionesExcluidas = seccionesExcluidasByRolExamen.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+        List<Curso> cursosExcluidos = cursosExcluidoz.stream().map(x -> x.getCurso()).collect(Collectors.toList());
+
         for (Seccion seccionExcluida : seccionesExcluidas) {
             secciones.removeIf(x -> x.equals(seccionExcluida));
         }
