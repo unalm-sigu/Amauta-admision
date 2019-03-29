@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.rolexamen.util;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
@@ -148,7 +149,9 @@ public class RolExamenesLogger {
 
         String msg = "Conflicto del docente %s - %s, con el grupo letra %s y la seccion %s";
         String complexMsg = String.format(
-                msg, docente.getCodigo(), docente.getPersona().getApellidosNombres(),
+                msg,
+                docente.getCodigo(),
+                ObjectUtil.getParentTree(docente, "persona.apellidosNombres"),
                 letraGrupoRegular.getLetra(),
                 seccion.getCodigo2()
         );

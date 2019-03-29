@@ -23,8 +23,7 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
     public RolExamenes find(long id) {
         Octavia sql = Octavia.query()
                 .from(RolExamenes.class, "rexa")
-                .join("eventoCicloAcademico eca", "userRegistro ur")
-                .join("ur.persona per")
+                .join("eventoCicloAcademico eca")
                 .join("eca.eventoAcademico ea", "eca.cicloAcademico ca")
                 .filter("rexa.id", id);
         return find(sql);
@@ -34,7 +33,7 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
     public List<RolExamenes> allActiveByCiclo(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(RolExamenes.class, "rexa")
-                .join("eventoCicloAcademico eca", "userRegistro ur")
+                .join("eventoCicloAcademico eca")
                 .join("eca.eventoAcademico ea", "eca.cicloAcademico ca")
                 .filter("ca.id", cicloAcademico);
         return all(sql);
@@ -45,7 +44,7 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
         DynatableSql sql = new DynatableSql(filter)
                 .from(RolExamenes.class, "re")
                 .join("eventoCicloAcademico eca", "eca.cicloAcademico ca")
-                .join("userRegistro ur", "ur.persona urp")
+                //                .join("userRegistro ur", "ur.persona urp")
                 .filter("ca.id", cicloAcademico)
                 .searchFields("ca.descripcion", "re.nombre")
                 .orderBy("re.id desc");
@@ -86,7 +85,7 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
     public RolExamenes findByEstadoCiclo(RolExamenesEstadoEnum rolExamenesEstadoEnum, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(RolExamenes.class, "rexa")
-                .join("eventoCicloAcademico eca", "userRegistro ur")
+                .join("eventoCicloAcademico eca")
                 .join("eca.eventoAcademico ea", "eca.cicloAcademico ca")
                 .filter("ca.id", cicloAcademico)
                 .filter("rexa.estado", rolExamenesEstadoEnum);

@@ -69,10 +69,11 @@
                             </div>
                             <div class="row">
                                 <raptor-table v-bind:url="`${URL}/listarGruposExamenByRolExamen`" 
+                                              v-bind:searcher="false" 
                                               v-bind:preload="false" 
+                                              v-bind:paginate="false" 
                                               v-bind:pagination="paginationGpo"
-                                              ref="raptorGrupo"
-                                              >
+                                              ref="raptorGrupo">
                                     <template scope="props" >
                                         <div class="col-sm-1 col-xs-1" 
                                              v-for="item in props.data">
@@ -141,12 +142,11 @@
 
                                                     <tbody >
                                                         <tr v-for="hora in semExamen.tblHorarioSeamanaExamen.horas">
-                                                            <td style="width: 12.5%" class="v-middle">
+                                                            <td style="width: 12.5%" class="v-middle text-center">
                                                                 <span 
-                                                                    class="form-control"
                                                                     th:style="'border-color:#fff;'">
-                                                                    {{hora.descripcion}} - 
-                                                                    {{hora.horaSiguiente.descripcion}}
+                                                                    {{hora.descripcion2}} - 
+                                                                    {{hora.horaSiguiente.descripcion2}}
                                                                 </span>
 
                                                             </td>

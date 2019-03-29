@@ -86,8 +86,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
     }
 
     @Override
-    public List<EventoCicloAcademico> findEventoCiclo(CicloAcademico cicloAcademico) {
-
+    public List<EventoCicloAcademico> allEventoCiclo(CicloAcademico cicloAcademico) {
         return eventoCicloAcatemicoDAO.allEventoAcademicoByCicloAca(cicloAcademico);
     }
 

@@ -128,15 +128,10 @@ public class CursoMasivosController {
                     new String[]{
                         "*",
                         "rolExamenes.*",
-                        "curso.*",
-                        "userRegistro.*",
-                        "userRegistro.persona.*",
-                        "seccionesCursosMasivos.*",
-                        "seccionesCursosMasivos.seccion.*",
-                        "seccionesCursosMasivos.userRegistro.*",
-                        "seccionesCursosMasivos.userRegistro.persona.*",
-                        "seccionesCursosMasivos.usuarioExclusion.*",
-                        "seccionesCursosMasivos.usuarioExclusion.persona.*",
+                        "curso.id",
+                        "curso.codigo",
+                        "curso.nombre",
+                        "curso.tpc",
                         "grupoHorasExamen.*",
                         "grupoHorasExamen.horaInicio.*",
                         "grupoHorasExamen.horaFin.*",
@@ -211,10 +206,12 @@ public class CursoMasivosController {
                 ObjectNode cursoMasivo = JsonHelper.createJson(cursoMasivoByRolExamen, JsonNodeFactory.instance, true,
                         new String[]{
                             "*",
-                            "curso.*",
+                            "curso.id",
+                            "curso.codigo",
+                            "curso.nombre",
+                            "curso.tpc",
                             "aulasCursosMasivos.aula.*",
-                            "seccionesCursosMasivos.seccion.*",
-                            "grupoHorasExamen.*",
+                            "grupoHorasExamen.id",
                             "grupoHorasExamen.dia.*",
                             "grupoHorasExamen.horaInicio.*",
                             "grupoHorasExamen.horaFin.*",
@@ -222,12 +219,7 @@ public class CursoMasivosController {
                             "grupoHorasExamen.semanaExamen.numeroSemana",
                             "grupoHorasExamen.grupoHoras.letra",
                             "grupoHorasExamen.grupoHoras.codigo",
-                            "rolExamenes.id",
-                            "docentesCursosMasivos.id",
-                            "docentesCursosMasivos.docente.codigo",
-                            "docentesCursosMasivos.docente.persona.apellidosNombres",
-                            "docentesCursosMasivos.estado",
-                            "docentesCursosMasivos.estadoEnum",});
+                            "rolExamenes.id"});
 
                 jCursoMasivosByRolExamen.add(cursoMasivo);
             }
@@ -549,12 +541,10 @@ public class CursoMasivosController {
         for (SeccionCursoMasivo item : list) {
             array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "*",
-                "seccion.*",
-                "seccion.grupoHoras.*",
-                "userRegistro.*",
-                "userRegistro.persona.*",
-                "usuarioExclusion.*",
-                "usuarioExclusion.persona.*"
+                "seccion.id",
+                "seccion.codigo2",
+                "seccion.grupoHoras.id",
+                "seccion.grupoHoras.codigo"
             }));
         }
 

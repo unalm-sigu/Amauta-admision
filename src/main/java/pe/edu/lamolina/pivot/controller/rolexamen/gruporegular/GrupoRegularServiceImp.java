@@ -376,6 +376,12 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
 
     }
 
+    public List<String> getDiaHoraList(List<FechaHoraGrupoExamen> fechasHorasGpoExamen) {
+        List<String> result = fechasHorasGpoExamen
+                .stream().map(x -> x.getDia().getNumeroDia() + "-" + x.getHora().getNumero()).collect(Collectors.toList());
+        return result;
+    }
+
     public void calcularGruposEspeciales(String letraEspeciales,
             List<CursoMasivoExamen> cursosMasivosByRolExamenes,
             List<SeccionGrupoEspecial> seccionesGrupoEspecialByRolExamen,
@@ -393,8 +399,9 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
             boolean withMatch = false;
             for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
                 //Arrays.equals((String[]) seccion.getDiaHoraList().toArray(new String[0]), (String[]) letraGrupoRegular.getGrupoHorasExamen().getDiaHoraList().toArray(new String[0]))
-                if (seccion.getDiaHoraList().containsAll(letraGrupoRegular.getGrupoHorasExamen().getDiaHoraList())
-                        || letraGrupoRegular.getGrupoHorasExamen().getDiaHoraList().containsAll(seccion.getDiaHoraList())) {
+                if (seccion.getDiaHoraList().containsAll(getDiaHoraList(letraGrupoRegular.getGrupoHorasExamen().getFechasHorasGruposExamen()))
+                        //                        || letraGrupoRegular.getGrupoHorasExamen().getDiaHoraList().containsAll(seccion.getDiaHoraList())) {
+                        || getDiaHoraList(letraGrupoRegular.getGrupoHorasExamen().getFechasHorasGruposExamen()).containsAll(seccion.getDiaHoraList())) {
                     List<CursoMasivoExamen> cursosMasivosByRolExamenesAndGrupoHoras = cursosMasivosByRolExamenes.stream()
                             .filter(x -> x.getGrupoHorasExamen() != null)
                             .filter(x -> x.getGrupoHorasExamen().equals(letraGrupoRegular.getGrupoHorasExamen()))

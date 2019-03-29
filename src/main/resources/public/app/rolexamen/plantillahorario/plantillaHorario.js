@@ -7,7 +7,7 @@ new Vue({
         rolExamen: {
             semanasExamen: []
         },
-        paginationGpo: {'total-items': 0, 'items-per-page': 30, 'max-size': 3, 'boundary-link-numbers': true},
+        paginationGpo: {'total-items': 0, 'items-per-page': 300, 'max-size': 3, 'boundary-link-numbers': true},
         semanasExamen: [],
         semanaExamenActiva: null,
         grupoActivo: null,
