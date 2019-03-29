@@ -2,15 +2,19 @@ package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DESP;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DSC;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.PER;
+import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.RET;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.VAC;
 import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
@@ -18,7 +22,7 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.general.oficina.Colaboradores;
+import pe.edu.lamolina.pivot.controller.general.oficina.colaborador.ResumenColaborador;
 
 @Repository
 public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements ColaboradorDAO {
@@ -83,7 +87,7 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
-    public Colaboradores countByOficinas(List<Oficina> oficinas) {
+    public ResumenColaborador countByOficinas(List<Oficina> oficinas) {
         Octavia sql = Octavia.query()
                 .select("sum(case co.estado when 'ACT' then 1 else 0 end)",
                         "sum(case co.estado when 'VAC' then 1 else 0 end)",
@@ -92,24 +96,47 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
                         "sum(case co.estado when 'PER' then 1 else 0 end)",
                         "sum(case co.estado when 'DESP' then 1 else 0 end)"
                 )
-                .into(Colaboradores.class)
+                .into(ResumenColaborador.class)
                 .from(Colaborador.class, "co")
                 .join("oficina ofi")
                 .in("ofi.id", oficinas);
 
-        return (Colaboradores) sql.find(getCurrentSession());
+        return (ResumenColaborador) sql.find(getCurrentSession());
+    }
+
+    private void setCondicionEstado(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+
+        for (String key : queries.keySet()) {
+            if (!key.equals("estado")) {
+                continue;
+            }
+
+            String values = (String) queries.get(key);
+            ColaboradorEstadoEnum enumValue = ColaboradorEstadoEnum.valueOf(values);
+            if (Arrays.asList(ACT, DESP, DSC, PER, RET, VAC).contains(enumValue)) {
+                sql.filter("co.estado", values);
+            }
+        }
+
     }
 
     @Override
     public List<Colaborador> allDynatableByOficina(DynatableFilter filter, List<Oficina> oficinas) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Colaborador.class, "co")
-                .join("persona per", "oficina ofi")
+                .join("persona per", "oficina ofi", "cargo ca")
+                .leftJoin("per.tipoDocumento")
                 .in("ofi.id", oficinas)
-                .searchFields("ofi.nombre", "co.estado")
+                .searchFields("ofi.nombre", "ca.nombre", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("co.id desc");
+        setCondicionEstado(filter, sql);
+
         return all(sql);
     }
 

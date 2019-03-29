@@ -4,6 +4,7 @@ Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 new Vue({
     el: '#colaboradorFormVue',
     data: {
+        origen: $("#origen").val(),
         tipoDoc: JSON.parse(tipoDocumentoJson),
         persona: {},
         oficina: {id: JSON.parse(oficinaId)},
@@ -14,7 +15,7 @@ new Vue({
         cargos: JSON.parse(cargosJson),
         colabo: JSON.parse(colaboradorJson),
         funcionColaborador: [],
-        colaborador: {id:null,funcionColaborador:[]},
+        colaborador: {id: null, funcionColaborador: []},
         personaValidTemp: {},
         newCola: false,
         colaboradorData: {},
@@ -145,9 +146,9 @@ new Vue({
                 self.btnEnable();
                 return;
             }
-            
+
             self.btnEnable();
-            
+
             $vue.colaboradorData.colaborador = $vue.colaborador;
             $vue.colaboradorData.perfilCompanias = $vue.misfunciones;
             $vue.colaboradorData.oficinaMean = $vue.oficina;

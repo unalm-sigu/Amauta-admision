@@ -101,8 +101,10 @@ public class GrupoEspecialController {
         for (SeccionGrupoEspecial item : list) {
             ObjectNode jItem = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "*",
-                "seccion.*",
-                "seccion.grupoHoras.*",
+                "seccion.id",
+                "seccion.codigo2",
+                "seccion.grupoHoras.id",
+                "seccion.grupoHoras.codigo",
                 "seccion.grupoSeccion.id",
                 "seccion.grupoSeccion.curso.id",
                 "seccion.grupoSeccion.curso.nombre",
@@ -110,8 +112,6 @@ public class GrupoEspecialController {
                 "seccion.grupoSeccion.curso.tpc",
                 "aula.*",
                 "rolExamenes.*",
-                "userRegistro.*",
-                "userRegistro.persona.*",
                 "docente.persona.apellidosNombres",
                 "grupoHorasExamen.*",
                 "grupoHorasExamen.dia.*",

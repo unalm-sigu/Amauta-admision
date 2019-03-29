@@ -1,18 +1,11 @@
 package pe.edu.lamolina.pivot.controller.seguridad.rol;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sun.mail.handlers.message_rfc822;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.jboss.logging.annotations.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.enums.FuncionRolEstadoEnum;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
-import pe.edu.lamolina.model.enums.TipoPerfilCompaniaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.seguridad.FuncionRol;
@@ -41,7 +33,6 @@ import pe.edu.lamolina.pivot.dao.seguridad.MenuDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuRolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolSistemaDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
 
 @Service
 @Transactional(readOnly = true)
@@ -80,6 +71,9 @@ public class RolServiceImp implements RolService {
         Boolean existEnum = false;
         for (RolEnum enu : RolEnum.values()) {
             existEnum = rol.getCodigo().equals(enu.name()) ? true : false;
+            if (existEnum) {
+                break;
+            }
         }
         Assert.isTrue(existEnum, "No se agregó el código. Comunicarse con soporte.");
         rolDAO.save(rol);
@@ -252,7 +246,16 @@ public class RolServiceImp implements RolService {
 
     @Override
     public List<Rol> allRolByDynatable(DynatableFilter filter, Sistema sistema) {
-        return rolDAO.allByDynatable(filter, sistema);
+        List<Rol> roles = rolDAO.allByDynatable(filter, sistema);
+        List<RolSistema> rolesSys = rolSistemaDAO.allByRoles(roles);
+        Map<Long, List<RolSistema>> mapRolSys = TypesUtil.convertListToMapList("rol.id", rolesSys);
+        for (Rol rol : roles) {
+            List<RolSistema> systemsRol = mapRolSys.get(rol.getId());
+            systemsRol = (systemsRol == null) ? new ArrayList() : systemsRol;
+            rol.setRolSistema(systemsRol);
+        }
+
+        return roles;
     }
 
     @Override
@@ -305,35 +308,6 @@ public class RolServiceImp implements RolService {
             return new ArrayList<>();
         }
         return funcionRolDAO.allFuncionRolActivoByRoles(roles);
-    }
-
-    @Override
-    public ArrayNode allPerfilCompania(Rol rol, Map<Long, List<FuncionRol>> funcionesRolMap, TipoPerfilCompaniaEnum tipoPerfilCompaniaEnum) {
-
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        ArrayNode array = new ArrayNode(jsonFactory);
-
-        List<FuncionRol> funcionesRoll = funcionesRolMap.get(rol.getId());
-        if (funcionesRoll == null || funcionesRoll.isEmpty()) {
-            return array;
-        }
-
-        for (FuncionRol funcionRol : funcionesRoll) {
-
-            if (FuncionRolEstadoEnum.ACT.name().equalsIgnoreCase(funcionRol.getEstado())) {
-                if (tipoPerfilCompaniaEnum.name().equalsIgnoreCase(funcionRol.getPerfilCompania().getTipo())) {
-
-                    ObjectNode node = JsonHelper.createJson(funcionRol.getPerfilCompania(), jsonFactory, true,
-                            new String[]{
-                                "*"
-                            });
-
-                    array.add(node);
-                }
-            }
-        }
-
-        return array;
     }
 
     @Override

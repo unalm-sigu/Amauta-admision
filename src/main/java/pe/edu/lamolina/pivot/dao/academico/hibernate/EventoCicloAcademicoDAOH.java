@@ -26,6 +26,7 @@ public class EventoCicloAcademicoDAOH extends AbstractEasyDAO<EventoCicloAcademi
         DynatableSql sql = new DynatableSql(filter)
                 .from(EventoCicloAcademico.class, "eca")
                 .join("cicloAcademico ca", "eventoAcademico ea")
+                .leftJoin("color")
                 .filter("ca.id", cicloAcademico)
                 .searchFields("ea.codigo", "ea.nombre")
                 .orderBy("eca.fechaFin desc");
@@ -47,6 +48,7 @@ public class EventoCicloAcademicoDAOH extends AbstractEasyDAO<EventoCicloAcademi
         Octavia sql = Octavia.query()
                 .from(EventoCicloAcademico.class, "eca")
                 .join("cicloAcademico ca", "eventoAcademico ea")
+                .left("color")
                 .filter("ca.id", cicloAcademico);
         return sql.all(getCurrentSession());
     }
@@ -68,8 +70,9 @@ public class EventoCicloAcademicoDAOH extends AbstractEasyDAO<EventoCicloAcademi
 
         Octavia sql = Octavia.query()
                 .from(EventoCicloAcademico.class, "eca")
-                .join("eventoAcademico ")
-                .filter("eca.cicloAcademico", cicloAcademico);
+                .join("eventoAcademico", "cicloAcademico ca")
+                .leftJoin("color")
+                .filter("ca.id", cicloAcademico);
 
         return all(sql);
     }
@@ -102,6 +105,16 @@ public class EventoCicloAcademicoDAOH extends AbstractEasyDAO<EventoCicloAcademi
                 .filter("eca.estado", EstadoEnum.CRE)
                 .filter("ea.tipo", TipoEventoAcademicoEnum.EXAMEN)
                 .filter("eca.cicloAcademico", cicloAcademico);
+        return all(sql);
+    }
+
+    @Override
+    public List<EventoCicloAcademico> allActivoByCicloTipoEvento(List<CicloAcademico> cicloAcademicos, EventoAcademicoEnum eventoAcademicoEnum) {
+        Octavia sql = Octavia.query()
+                .from(EventoCicloAcademico.class, "eca")
+                .join("eventoAcademico ea", "cicloAcademico ca")
+                .filter("ea.codigo", eventoAcademicoEnum)
+                .in("ca.id", cicloAcademicos);
         return all(sql);
     }
 

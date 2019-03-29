@@ -373,9 +373,11 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     @Override
     public List<GrupoHorasExamen> allGrupoHorasExamenByRolExamen(RolExamenes rolExamenes, DynatableFilter filter) {
         List<GrupoHorasExamen> gruposHorasExamenes = grupoHorasExamenDAO.allByRolExamenesAndDyna(rolExamenes, filter);
+        List<FechaHoraGrupoExamen> fechasHorasGpoExamenTodos = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gruposHorasExamenes);
+        Map<Long, List<FechaHoraGrupoExamen>> mapFechaHoraGpoExamen = TypesUtil.convertListToMapList("grupoHorasExamen.id", fechasHorasGpoExamenTodos);
 
         for (GrupoHorasExamen gruposHora : gruposHorasExamenes) {
-            List<FechaHoraGrupoExamen> fechasHorasGrupoExamen = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gruposHora);
+            List<FechaHoraGrupoExamen> fechasHorasGrupoExamen = TypesUtil.getListNotNull(mapFechaHoraGpoExamen.get(gruposHora.getId()));
             gruposHora.setFechasHorasGruposExamen(fechasHorasGrupoExamen);
             gruposHora.setSemanaExamen(null);
             if (!fechasHorasGrupoExamen.isEmpty()) {
@@ -439,6 +441,11 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     @Override
     public List<FechaHoraGrupoExamen> allFechaHoraGrupoExamenBySemanaExamen(SemanaExamen semanaExamen) {
         return fechaHoraGrupoExamenDAO.allBySemanaExamen(semanaExamen);
+    }
+
+    @Override
+    public List<FechaHoraGrupoExamen> allFechaHoraGrupoExamenBySemanas(List<SemanaExamen> semanasExamen) {
+        return fechaHoraGrupoExamenDAO.allBySemanasExamen(semanasExamen);
     }
 
     @Override

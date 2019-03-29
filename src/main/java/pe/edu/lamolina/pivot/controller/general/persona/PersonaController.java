@@ -7,6 +7,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -143,8 +144,17 @@ public class PersonaController {
         model.addAttribute("persona", persona);
         model.addAttribute("documentos", service.allDocumentos());
         model.addAttribute("fotoHelper", new FotoHelper());
-        model.addAttribute("origen", origen);
+        model.addAttribute("origen", getOrigen(origen));
         return "general/persona/personaForm";
+    }
+
+    private String getOrigen(String origen) {
+        if (StringUtils.isEmpty(origen)) {
+            return "/general/persona";
+        }
+        byte[] decoded = Base64.getMimeDecoder().decode(origen);
+        String output = new String(decoded);
+        return output;
     }
 
     @ResponseBody

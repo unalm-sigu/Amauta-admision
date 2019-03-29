@@ -30,12 +30,14 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.enums.FuncionRolEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoPerfilCompaniaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.RolSistema;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
@@ -107,18 +109,15 @@ public class RolController {
 
             for (Rol rol : roles) {
 
-                ObjectNode node = new ObjectNode(jsonFactory);
+                ObjectNode node = JsonHelper.createJson(rol, jsonFactory, true, new String[]{
+                    "*",
+                    "rolSuperior.*",
+                    "rolSistema.id",
+                    "rolSistema.sistema.*"
+                });
 
-                node.put("id", rol.getId());
-                node.put("nombre", rol.getNombre());
-                node.put("codigo", rol.getCodigo());
-                node.set("funciones", service.allPerfilCompania(rol, funcionesRolMap, TipoPerfilCompaniaEnum.FUNCION));
-                node.set("cargos", service.allPerfilCompania(rol, funcionesRolMap, TipoPerfilCompaniaEnum.CARGO));
-
-                if (rol.getRolSuperior() != null) {
-                    node.put("rolSuperior", rol.getRolSuperior().getNombre());
-                }
-
+                node.set("funciones", createFuncionesJson(rol, funcionesRolMap, TipoPerfilCompaniaEnum.FUNCION));
+                node.set("cargos", createFuncionesJson(rol, funcionesRolMap, TipoPerfilCompaniaEnum.CARGO));
                 array.add(node);
             }
             json.setData(array);
@@ -405,5 +404,28 @@ public class RolController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    private ArrayNode createFuncionesJson(Rol rol, Map<Long, List<FuncionRol>> mapFunciones, TipoPerfilCompaniaEnum tipoPerfilEnum) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(jsonFactory);
+
+        List<FuncionRol> funcionesRoll = mapFunciones.get(rol.getId());
+        if (funcionesRoll == null || funcionesRoll.isEmpty()) {
+            return array;
+        }
+
+        for (FuncionRol funcionRol : funcionesRoll) {
+
+            if (FuncionRolEstadoEnum.ACT.name().equalsIgnoreCase(funcionRol.getEstado())) {
+                if (tipoPerfilEnum.name().equalsIgnoreCase(funcionRol.getPerfilCompania().getTipo())) {
+                    ObjectNode node = JsonHelper.createJson(funcionRol.getPerfilCompania(), jsonFactory, true, new String[]{"*"});
+                    array.add(node);
+                }
+            }
+        }
+
+        return array;
     }
 }

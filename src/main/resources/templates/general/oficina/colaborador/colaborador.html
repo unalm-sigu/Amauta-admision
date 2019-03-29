@@ -1,151 +1,216 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Administración de Oficinas</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-</head>
-<body>
-    <div layout:fragment="main">
-        <div id="colaboradorVue">
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div id="colaboradorVue">
 
-            <header class="header b-b padder-lg">
+                <header class="header b-b padder-lg">
 
-                <div class="pull-right m-t-md">
-                    <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li ><a href="#" v-on:click="nuevoColaborador()" >Nuevo Colaborador</a></li>
-                        <li><a href="#"  v-on:click="nuevoCargos()">Agregar Cargo</a></li>
-                        <li><a href="#"  v-on:click="nuevaFuncion()">Agregar Función</a></li>
-                        <li class="divider"></li>
-                        <li><a href="#" v-on:click="verCargo()">Ver Cargos</a></li>
-                        <li><a href="#" v-on:click="verFuncion()">Ver Funciones</a></li>
-                    </ul>
-                    <a href="#" v-on:click="regresar" class="btn btn-default btn-sm m-l-sm">Regresar</a>
-                </div>
-                <h2>Colaboradores</h2>
-            </header>
-            <section class="wrapper-lg m-b-xs">
-                <section class="panel m-b-xs">
-                    <section class="panel-body">
-                        <div class="row">
-                            <div class="col-md-2 text-center" >
-                                <a class="verModalidades text-success pointer" value="1" rel="ACT" >
-                                    <span class="h1 block bold" th:text="${resumen.activos}"></span>
-                                    <small class="block m-b-xs">Activos</small>
-                                </a>
-                            </div>
-                            <div class="col-md-2 text-center">
-                                <a class="verModalidades ext-black pointer" value="2" rel="VAC" >
-                                    <span class="h1 block bold" th:text="${resumen.vacaciones}"></span>
-                                    <small class="block m-b-xs">Vacaciones</small>
-                                </a>
-                            </div>
-                            <div class="col-md-2 text-center">
-                                <a class="verModalidades text-black pointer" value="3" rel="RET" >
-                                    <span class="h1 block bold" th:text="${resumen.retirado}"></span>
-                                    <small class="block m-b-xs">Retirados</small>
-                                </a>
-                            </div>
-                            <div class="col-md-2 text-center">
-                                <a class="verModalidades text-warning pointer" value="4" rel="DSC"  >
-                                    <span class="h1 block bold" th:text="${resumen.descanso}" ></span>
-                                    <small class="block m-b-xs">Descanso</small>
-                                </a>
-                            </div>
-                            <div class="col-md-2 text-center">
-                                <a class="verModalidades text-warning pointer" value="5" rel="PER" >
-                                    <span class="h1 block bold" th:text="${resumen.permiso}" ></span>
-                                    <small class="block m-b-xs">Permiso</small>
-                                </a>
-                            </div>
-                            <div class="col-md-2 text-center">
-                                <a class="verModalidades text-danger pointer" value="6" rel="DESP" >
-                                    <span class="h1 block bold" th:text="${resumen.despedido}" ></span>
-                                    <small class="block m-b-xs">Despedidos</small>
-                                </a>
-                            </div>
-                        </div>
-                    </section>
-                </section>
+                    <div class="pull-right m-t-md">
+                        <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ><a href="#" v-on:click="nuevoColaborador()" >Nuevo Colaborador</a></li>
+                            <li><a href="#"  v-on:click="nuevoCargos()">Agregar Cargo</a></li>
+                            <li><a href="#"  v-on:click="nuevaFuncion()">Agregar Función</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#" v-on:click="verCargo()">Ver Cargos</a></li>
+                            <li><a href="#" v-on:click="verFuncion()">Ver Funciones</a></li>
+                        </ul>
+                        <a th:href="${origen}" class="btn btn-default btn-sm m-l-sm">Regresar</a>
+                    </div>
 
-                <section class="panel">            
-                    <section class="panel-body">
-                        <div class="col-sm-6">
-                            <div class="form-group">                                
-                                <multiselect 
-                                    v-model="oficina" 
-                                    v-bind:options='oficinas'
-                                    label='nombre'
-                                    track-by='id'
-                                    v-bind:hide-selected="true"
-                                    placeholder="Seleccione una oficina"
-                                    v-on:input="oficinaSeleccionada()" >
-                                </multiselect>
-                            </div>
-                        </div>                        
-                        <dynatable/>
-                    </section>
-                </section>
+                    <h2>Colaboradores</h2>
+                </header>
 
-            </section>
-
-            <!--MODAL INICIO-->
-            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                <div class="modal-dialog modal-md" role="document">
-                    <form data-parsley-validate="true" id="formConfig"  method="post">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title" id="myModalLabel"> Agregar cargos </h4>
-                            </div>
-                            <div class="modal-body">
-                                <div class="form-group">
-                                    <label >Nombre Cargo</label>
-                                    <div class="form-group">
-                                        <input   required="true" type="text" class="inline form-control" placeholder="Ingrese nombre de cargo" list="listaCargos" v-model="perfilCompania.nombre" />                                                
+                <section class="wrapper-lg m-b-xs">
+                    <section class="panel m-b-xs">
+                        <section class="panel-body">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-2 text-center" v-bind:class="classPanel(1)" >
+                                        <a class="text-success pointer" 
+                                           v-on:click="verEmpleadosEstado(1,'ACT')">
+                                            <span class="h1 block bold" v-text="resumen.activos"></span>
+                                            <small class="block m-b-xs">Activos</small>
+                                        </a>
                                     </div>
-                                    <datalist  id="listaCargos" >
-                                        <option class="inline form-control" v-for="cargo in listaCargos" v-bind:value="cargo.nombre" v-text="cargo.nombre" readonly=""> </option>
-                                    </datalist>
-                                </div>
-                                <div class="form-group">
-                                    <label >Nombre Documento Cargo</label>
-                                    <div class="form-group">
-                                        <input   required="true" type="text" class="inline form-control" placeholder="Ingrese nombre documento"  v-model="perfilCompania.nombreDocumento" />                                                
-                                    </div>                                         
+                                    <div class="col-md-2 text-center" v-bind:class="classPanel(2)" >
+                                        <a class="text-black pointer" 
+                                           v-on:click="verEmpleadosEstado(2,'VAC')">
+                                            <span class="h1 block bold" v-text="resumen.vacaciones"></span>
+                                            <small class="block m-b-xs">Vacaciones</small>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-2 text-center" v-bind:class="classPanel(3)" >
+                                        <a class="text-black pointer" 
+                                           v-on:click="verEmpleadosEstado(3,'RET')">
+                                            <span class="h1 block bold" v-text="resumen.retirado"></span>
+                                            <small class="block m-b-xs">Retirados</small>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-2 text-center" v-bind:class="classPanel(4)" >
+                                        <a class="text-warning pointer" 
+                                           v-on:click="verEmpleadosEstado(4,'DSC')">
+                                            <span class="h1 block bold" v-text="resumen.descanso" ></span>
+                                            <small class="block m-b-xs">Descanso</small>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-2 text-center" v-bind:class="classPanel(5)" >
+                                        <a class="text-warning pointer" 
+                                           v-on:click="verEmpleadosEstado(5,'PER')">
+                                            <span class="h1 block bold" v-text="resumen.permiso" ></span>
+                                            <small class="block m-b-xs">Permiso</small>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-2 text-center" v-bind:class="classPanel(6)" >
+                                        <a class="text-danger pointer" value="6" rel="DESP" 
+                                           v-on:click="verEmpleadosEstado(6,'DESP')">
+                                            <span class="h1 block bold" v-text="resumen.despedido" ></span>
+                                            <small class="block m-b-xs">Despedidos</small>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                                <button type="button" class="btn btn-success" v-on:click.prevent="addCargo" >Agregar</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <!--MODAL FIN-->
 
-            <th:block th:replace="general/oficina/colaborador/colaboradorTemplate"/>
+                        </section>
+                    </section>
+
+                    <section class="panel">            
+                        <section class="panel-body">
+
+                            <raptor-table v-bind:url="colaboradoreURL" ref="raptorColaboran">
+                                <div slot="header">
+                                    <div class="h4 block m-b-xs m-t-n" th:text="${oficina.nombre}">Oficina</div>
+                                    <span class="text-primary bold" th:text="${oficina.codigo}">9090</span>
+                                </div>
+
+                                <template scope="props" >
+
+                                    <table class="table table-striped">
+                                        <thead class="panel panel-heading">
+                                            <tr>
+                                                <th class="col-md-5 v-middle">Colaborador</th>
+                                                <th class="col-md-5 v-middle">Área donde labora</th>
+                                                <th class="col-md-1 v-middle text-center">Funciones</th>
+                                                <th class="col-md-1 v-middle text-center">Estado</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle text-left">
+                                                    <a class="block text-primary bold">{{item.persona.nombreCompleto}}</a> 
+                                                    <small v-if="item.codigo != '' " class="block">
+                                                        <strong>Código:</strong> {{item.codigo}}
+                                                    </small> 
+                                                    <small v-if="item.persona.numeroDocIdentidad != '' " class="block">
+                                                        <strong>{{item.persona.tipoDocumento.simbolo}}:</strong> {{item.persona.numeroDocIdentidad}}
+                                                    </small> 
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <span class="block"><strong>Oficina:</strong> {{item.oficina.nombre}}</span> 
+                                                    <span><strong>Cargo:</strong> {{item.cargo.nombre}}</span> 
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span class="estado-blue pointer" v-on:click="showFuncionesColaborador(item)">{{item.funciones}}</span> 
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span class="label" v-bind:class="classEstado(item)">{{item.estadoEnum.value}}</span> 
+                                                </td>
+
+                                                <td class="v-middle"> 
+
+                                                    <div class="dropdown actions">
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="glyphicon glyphicon-option-vertical"></i>
+                                                        </a> 
+                                                        <ul class="dropdown-menu pull-right" >
+                                                            <li v-for="estado in estadosEmp"
+                                                                v-if="estado.name != item.estado ">
+                                                                <a v-text="estado.value" class="pointer"
+                                                                   v-on:click="changeEstado(item,estado)">Changex</a>
+                                                            </li>
+                                                            <li class="divider"></li>
+                                                            <li><a class="pointer" v-on:click="updateColaborador(item)">Editar Funciones</a></li>
+                                                            <li><a class="pointer" v-on:click="updatePersona(item)">Editar Info personal</a></li>
+                                                        </ul>
+                                                    </div>
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+
+                </section>
+
+                <!--MODAL INICIO-->
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                    <div class="modal-dialog modal-md" role="document">
+                        <form data-parsley-validate="true" id="formConfig"  method="post">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel"> Agregar cargos </h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label >Nombre Cargo</label>
+                                        <div class="form-group">
+                                            <input   required="true" type="text" class="inline form-control" placeholder="Ingrese nombre de cargo" list="listaCargos" v-model="perfilCompania.nombre" />                                                
+                                        </div>
+                                        <datalist  id="listaCargos" >
+                                            <option class="inline form-control" v-for="cargo in listaCargos" v-bind:value="cargo.nombre" v-text="cargo.nombre" readonly=""> </option>
+                                        </datalist>
+                                    </div>
+                                    <div class="form-group">
+                                        <label >Nombre Documento Cargo</label>
+                                        <div class="form-group">
+                                            <input   required="true" type="text" class="inline form-control" placeholder="Ingrese nombre documento"  v-model="perfilCompania.nombreDocumento" />                                                
+                                        </div>                                         
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                                    <button type="button" class="btn btn-success" v-on:click.prevent="addCargo" >Agregar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!--MODAL FIN-->
+
+                <th:block th:replace="general/oficina/colaborador/colaboradorTemplate"/>
+
+            </div>
+
 
         </div>
 
-        <th:block th:replace="general/oficina/colaborador/colaboradorDynatable"/>
-
+    </body>
+    <div layout:fragment="js">
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var cargosJson = /*[[${cargos.toString()}]]*/ 'json';
+            var estadosEmpJson = /*[[${estadosEmp.toString()}]]*/ 'json';
+            var idOficina = /*[[${idOficina}]]*/ 'json';
+            var rutaModulo = 'general/oficina/' + idOficina;
+            /*]]>*/
+        </script>
+        <div th:substituteby="_modules/vue-raptor-table"></div>
+        <div th:substituteby="_modules/vue-modal2"></div>
+        <div th:substituteby="_layout/includes :: vue-loader"/>
+        <script th:src="@{/app/general/oficina/colaborador/colaborador.js}" charset="utf-8"></script>
     </div>
-
-</body>
-<div layout:fragment="js">
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        var oficinaId = /*[[${oficina}]]*/ 'json';
-        var oficinasJson = /*[[${oficinas.toString()}]]*/ 'json';
-        var cargosJson = /*[[${cargos.toString()}]]*/ 'json';
-        /*]]>*/
-    </script>
-    <div th:substituteby="_modules/vue-modal2"></div>
-    <div th:substituteby="_layout/includes :: vue-loader"/>
-    <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-    <script th:src="@{/app/general/oficina/colaborador/colaborador.js}" charset="utf-8"></script>
-</div>
 </html>

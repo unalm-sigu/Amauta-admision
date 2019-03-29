@@ -126,7 +126,8 @@ var app = new Vue({
                 }
             });
             this.$refs.modalReunionConsejo.open();
-        }, renderEventos: function () {
+        },
+        renderEventos: function () {
             var vue = this;
             var data = vue.oficina.id == null ? 0 : vue.oficina.id;
             $.ajax({

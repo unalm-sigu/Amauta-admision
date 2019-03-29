@@ -85,7 +85,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
-                .leftJoin("aula", "grupoHoras")
+                .leftJoin("aula", "grupoHoras", "cur.modalidadEstudio")
                 .filter("ca.id", ciclo);
         
         return all(sql);

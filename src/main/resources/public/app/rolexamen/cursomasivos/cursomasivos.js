@@ -11,20 +11,19 @@ new Vue({
             title: 'Asignar Aulas',
             cancelbtn: 'Cancelar',
             okbtn: 'Asignar',
-            modalsize: 'modal-lg'
+            modalsize: 'modal-lg',
+            showaccept: true
         },
         aulasAsignadasModal: {
             id: 'modalAulasAsignadas',
             header: true,
             title: 'Aulas Asignadas',
-            showaccept: "false",
             modalsize: 'modal-lg'
         },
         seccionesModal: {
             id: 'modalSecciones',
             header: true,
-            title: 'Secciones Asignadas',
-            showaccept: "false"
+            title: 'Secciones Asignadas'
         },
         rolExamenes: null,
         rolesExamenes: JSON.parse(jRolexamenes),

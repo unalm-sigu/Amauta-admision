@@ -52,6 +52,10 @@
 
                                     <div class="dropdown-menu dropdown-box">
                                         <div class="row m-l-xs m-r-xs">
+                                            
+                                            <span class="block bg-warning">
+                                                <strong class="text-black m-t-lg m-l-xs m-b-lg " > {{dia.mainHorarioAula.tipoEnum.descripcion}}  </strong>
+                                            </span>
 
                                             <span v-if="dia.mainHorarioAula.seccion.grupoSeccion.curso.codigo" class="disabled block docente-uno">
                                                 <strong> {{dia.mainHorarioAula.seccion.grupoSeccion.curso.codigo}}</strong>
@@ -61,7 +65,7 @@
                                             <span v-if="dia.mainHorarioAula.reservaAula.tramite.numero"  class="disabled block docente-uno">
                                                 Reserva Ambiente
                                             </span>
-
+ 
                                             <span v-if="dia.mainHorarioAula.reservaAula.estado" class="v-middle text-left">
                                                 <span class="label label-primary" v-if="dia.mainHorarioAula.reservaAula.estado=='ACT'"> Activo </span>
                                                 <span class="label label-success" v-if="dia.mainHorarioAula.reservaAula.estado=='RES'"> Reservado </span>
@@ -108,6 +112,10 @@
 
                                             <span v-if="dia.mainHorarioAula.reservaAula.motivo" class="block">
                                                 <strong> Motivo: </strong>  {{dia.mainHorarioAula.reservaAula.motivo}}
+                                            </span>
+
+                                            <span v-if="dia.mainHorarioAula.tipo=='DICT'" class="block">
+                                                <strong> Periodo  </strong> De  {{dia.mainHorarioAula.seccion.grupoSeccion.fechaInicioPeriodo}} al {{dia.mainHorarioAula.seccion.grupoSeccion.fechaFinPeriodo}}
                                             </span>
 
 

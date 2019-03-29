@@ -261,8 +261,8 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         rolExamenesDAO.updateSituacion(rolExamenesUpd);
     }
 
-    public List<String> validarHorariosExamen(RolExamenes rolExamenes) {
-        List<String> validations = new ArrayList<>();
+    private List<String> validarHorariosExamen(RolExamenes rolExamenes) {
+        List<String> validations = new ArrayList();
         List<GrupoHorasExamen> gruposHorasExamen = grupoHorasExamenDAO.allByRolExamenes(rolExamenes);
         for (GrupoHorasExamen grupoHorasExamen : gruposHorasExamen) {
             if (!grupoHorasExamen.getVerificado()) {
