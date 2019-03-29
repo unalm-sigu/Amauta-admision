@@ -199,7 +199,8 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         this.checkNoPublicado(rolBD);
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
-        Assert.isTrue(rolExamenes.isSituacionConfigurarCursoMasivo() || rolExamenes.isSituacionConfigurarGrupoRegular(), "Debe configurar los grupos masivos previamente.");
+        Assert.isTrue(rolExamenes.isSituacionConfigurarCursoMasivo() || rolExamenes.isSituacionConfigurarGrupoRegular(),
+                "Debe configurar los grupos masivos previamente.");
 
         List<CursoMasivoExamen> cursosMasivosByRolExamenes = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
         if (cursosMasivosByRolExamenes.isEmpty()) {
@@ -226,9 +227,8 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
 
         List<Seccion> seccionesEspecialesRecolected = new ArrayList<>();
 
-        List<HorarioSeccion> horariosSeccionByCiclo = horarioSeccionDAO.allByCicloOrderByDiaHora(cicloAcademico);
+        //List<HorarioSeccion> horariosSeccionByCiclo = horarioSeccionDAO.allByCicloOrderByDiaHora(cicloAcademico);
         //  Map<Long, List<HorarioSeccion>> mapHorariosSeccionesByCiclo = TypesUtil.convertListToMapList("seccion.id", horariosSeccionByCiclo);
-
         logger.debug("Crear grupos regulares");
         //secciones de los grupos regulares
         // List<Seccion> secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.REGULAR);

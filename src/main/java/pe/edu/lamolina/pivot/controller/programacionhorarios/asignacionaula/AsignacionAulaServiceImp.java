@@ -129,7 +129,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 List<Aula> aulasByPabellon = aulas.stream()
                         .filter(x -> x.getAulaSuperior().equals(distanciaPabellon.getPabellon()))
                         .filter(x -> x.getTipoCarpeta().equals(seccion.getTipoCarpeta()))
-                        .filter(x -> x.getAforo() >= seccion.getVacantes())
+                        .filter(x -> x.getAforo() >= seccion.getMatriculados())
                         .collect(Collectors.toList());
                 Collections.sort(aulasByPabellon, (p1, p2) -> p1.getAforo().compareTo(p2.getAforo()));
                 /*       logger.debug("Departamento {}, Pabellon {}, Distancia {}, Aulas {}", distanciaPabellon.getDepartamentoAcademico().getId(),

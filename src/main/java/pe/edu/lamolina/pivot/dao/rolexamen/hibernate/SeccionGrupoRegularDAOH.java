@@ -118,6 +118,13 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
     }
 
     @Override
+    public void updateAula(SeccionGrupoRegular seccionGrupoRegularUpd) {
+        Octavia octavia = Octavia.update(SeccionGrupoRegular.class);
+        octavia.set(seccionGrupoRegularUpd, "aula");
+        this.update(octavia);
+    }
+
+    @Override
     public Map<Long, Integer> countByLetrasGruposRegulares(List<LetraGrupoRegular> letraGrupoRegulars, SeccionRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
                 .select("lgr.id", "count(sgr)")
@@ -192,12 +199,12 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
     public SeccionGrupoRegular findByRolExamenesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
                 .from(SeccionGrupoRegular.class, "sgr")
-                .join("letraGrupoRegular lgr", "seccion sec", "lgr.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .join("letraGrupoRegular lgr", "aula au", "seccion sec", "lgr.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
                 .join("lgr.rolExamenes rex")
                 .filter("sec.id", seccion)
                 .in("sgr.estado", estados)
                 .filter("rex.id", rol);
-        
+
         return find(sql);
     }
 

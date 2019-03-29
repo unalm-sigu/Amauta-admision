@@ -1,0 +1,54 @@
+<div>
+    <template id="mainCambioAula">
+        <form id="frmCambioAula" v-if="seccionRolExamenes">
+            <div class="row" v-if="isTipoRegular()">
+                <div class="form-group">
+                    <label class="col-md-4 bold" >Letra Grupo Regular</label>
+                    <div class="col-md-8" >
+                        <span  v-text="seccionRolExamenes.letraGrupoRegular.letra"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" >
+                <div class="form-group">
+                    <label class="col-md-4 bold" >Sección</label>
+                    <div class="col-md-8" >
+                        <span  v-text="seccionRolExamenes.seccion.codigo2"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" >
+                <div class="form-group">
+                    <label class="col-md-4 bold" >Aula Origen</label>
+                    <div class="col-md-8" >
+                        <span  v-text="seccionRolExamenes.aula.codigo"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row" >
+                <div class="form-group">
+                    <label class="col-md-4 bold" >Aula Destino</label>
+                    <div class="col-md-8" >
+                        <multiselect   
+                            placeholder="Seleccione" 
+                            v-model="aulaDestino" 
+                            v-bind:options="aulasOera"
+                            label="codigo" 
+                            track-by="id" 
+                            v-bind:allow-empty="false" 
+                            deselect-label=""
+                            select-label="" 
+                            internalSearch="true"
+                            ></multiselect>
+                        <input v-bind:value="aulaDestino" type="hidden" required="true"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row panel-body">
+                <a type="button" v-on:click.prevent="cambiarAula" class="btn btn-success pull-right">Cambiar Aula</a>
+            </div>
+        </form>
+    </template>
+</div>
+
+<script type="text/javascript" th:src="@{/app/rolexamen/components/cambio-aula.js}"></script>

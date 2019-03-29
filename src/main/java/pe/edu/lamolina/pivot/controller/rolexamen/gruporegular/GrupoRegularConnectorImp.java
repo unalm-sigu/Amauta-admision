@@ -461,15 +461,20 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             List<MatriculaSeccion> matriculadosPorSeccion,
             DataSessionPivot ds) {
         SeccionGrupoRegular seccionGrupoRegular = this.crearObjectSeccionGrupoRegular(seccion, letraGrupoRegular, ds);
-        letraGrupoRegular.getSeccionesGruposRegulares().add(seccionGrupoRegular);
-        Aula aulaSeccion = this.rolExamenesLogger.getAulasOera()
+        Aula aulaSeccionLogger = this.rolExamenesLogger.getAulasOera()
                 .stream().filter(x -> x.equals(seccion.getAula())).findFirst().orElse(null);
 
         for (FechaHoraGrupoExamen fechaHoraGrupoExamen : letraGrupoRegular.getGrupoHorasExamen().getFechasHorasGruposExamen()) {
             HorarioAula horarioAula = new HorarioAula(fechaHoraGrupoExamen, seccion);
-            horarioAulaDAO.save(horarioAula);
-            aulaSeccion.getHorariosAula().add(horarioAula.clone());
+            horarioAula.setSeccionGrupoRegular(seccionGrupoRegular);
+            //  horarioAulaDAO.save(horarioAula);
+            aulaSeccionLogger.getHorariosAula().add(horarioAula.clone());
+            if (seccionGrupoRegular == null) {
+                seccionGrupoRegular.setHorariosAula(new ArrayList<>());
+            }
+            seccionGrupoRegular.getHorariosAula().add(horarioAula);
         }
+        letraGrupoRegular.getSeccionesGruposRegulares().add(seccionGrupoRegular);
 
         GrupoRegularExamen grupoRegularExamen = letraGrupoRegular.getGruposRegularesExamenes()
                 .stream().filter(x -> x.getGrupoHoras().equals(seccion.getGrupoHoras()))

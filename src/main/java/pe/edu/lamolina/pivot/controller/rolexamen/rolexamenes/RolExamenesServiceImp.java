@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
@@ -206,10 +207,11 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CRE);
         rolexamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
 
-        this.restoreHorariosAulas(rolExamenes);
+        this.restoreHorariosAulas(rolExamenes, null, null);
     }
 
-    public void restoreHorariosAulas(RolExamenes rolExamenes) {
+    @Override
+    public void restoreHorariosAulas(RolExamenes rolExamenes, Seccion seccion, Aula aula) {
         CicloAcademico cicloAcademico = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
         List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
 
@@ -218,6 +220,10 @@ public class RolExamenesServiceImp implements RolExamenesService {
         EventoCicloAcademico dictadoClases = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
 
         List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAcademico(rolExamenes.getEventoCicloAcademico().getCicloAcademico());
+        if (seccion != null && aula != null) {
+            horariosAulasByCiclo.removeIf(x -> !x.getSeccion().equals(seccion));
+            horariosAulasByCiclo.removeIf(x -> !x.getAula().equals(aula));
+        }
         if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
             horariosAulasByCiclo.removeIf(x
                     -> x.getFechaFinDateTime().toLocalDate().isBefore(firstRolExamen.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
@@ -232,7 +238,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
             }
             Map<Long, List<HorarioAula>> mapHorariosBySeccion = TypesUtil.convertListToMapList("seccion.id", horariosAulasFull);
             for (Map.Entry<Long, List<HorarioAula>> entry : mapHorariosBySeccion.entrySet()) {
-                Seccion seccion = new Seccion(entry.getKey());
+                Seccion iSeccion = new Seccion(entry.getKey());
                 List<HorarioAula> horariosAulasBySeccion = entry.getValue();
 
                 Map<Long, List<HorarioAula>> mapHorariosBySeccionAndDia = TypesUtil.convertListToMapList("dia.id", horariosAulasBySeccion);
@@ -240,7 +246,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
                     Dia dia = new Dia(entry1.getKey());
                     //  List<HorarioAula> horariosAulasBySeccionAndDia = entry1.getValue();
                     List<HorarioAula> horariosAulasBySeccionAndDia = horariosAulasByCiclo.stream()
-                            .filter(x -> x.getSeccion().equals(seccion))
+                            .filter(x -> x.getSeccion().equals(iSeccion))
                             .filter(x -> x.getDia().equals(dia))
                             .filter(x -> !x.isTipoExamen())
                             .collect(Collectors.toList());

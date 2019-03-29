@@ -4,6 +4,8 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
@@ -30,9 +32,11 @@ public interface RolExamenesService {
     void eliminarConfiguracion(RolExamenes rolExamenes, DataSessionPivot ds);
 
     void fijarHorarioAula(RolExamenes rolExamenes, DataSessionPivot ds);
-    
+
     void cerrar(RolExamenes rolExamenes, DataSessionPivot ds);
-    
+
     void modificar(RolExamenes rolExamenes, DataSessionPivot ds);
+
+    void restoreHorariosAulas(RolExamenes rolExamenes, Seccion seccion, Aula aula);
 
 }

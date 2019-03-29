@@ -77,7 +77,7 @@
                                                 <td class="text-center v-middle">
                                                     <span v-text="sec.aula.codigo"></span>
                                                 </td>
-                                          
+
                                                 <td class="text-center v-middle">
                                                     <div>
                                                         <v-estado v-bind:codigo="sec.estado" v-bind:valor="sec.estadoEnum.value"/> 
@@ -89,6 +89,7 @@
                                                             <i class="glyphicon glyphicon-option-vertical"></i>
                                                         </a> 
                                                         <ul class="dropdown-menu pull-right">
+                                                            <li v-if="sec.isEstadoActivo"><a  v-on:click.prevent="cambiarAula(sec)">Cambiar Aula</a></li>
                                                             <li v-if="sec.isEstadoActivo"><a v-on:click.prevent="excluir(sec,tipoAccion.SECCION)">Excluir</a></li>
                                                             <li v-if="sec.isEstadoExcluido"><a v-on:click.prevent="incluir(sec,tipoAccion.SECCION)">Incluir</a></li>
                                                             <li v-if="sec.isEstadoActivo"><a  v-on:click.prevent="trasladar(sec)">Mover</a></li>
@@ -102,11 +103,9 @@
                                 </template>
                             </raptor-table>
 
-
                         </section>
                     </section>
                 </section>
-
 
                 <modal-vik ref="moverSeccionModal"
                            id="modalMoverSeccion"
@@ -120,6 +119,16 @@
                                               > 
                         </mover-seccion-examen> 
 
+                    </div>
+                </modal-vik>
+                <modal-vik ref="cambiarAulaModal"
+                           id="modalCambiarAula"
+                           header="true"
+                           modalsize="modal-lg"
+                           title="Cambiar Aula"
+                           v-bind:showaccept="false">
+                    <div slot="body">
+                        <cambio-aula-examen ref="cambiarAulaExamenComp"></cambio-aula-examen>
                     </div>
                 </modal-vik>
 
@@ -138,6 +147,7 @@
             <script th:src="@{/phobos/modules/vue-generalComponents.js}" charset="utf-8"></script>
             <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
             <div th:substituteby="rolexamen/components/mover-seccion-examen"/>
+            <div th:substituteby="rolexamen/components/cambio-aula"/>
             <script th:src="@{/app/rolexamen/gruporegular/grupoRegularSecciones.js}" charset="utf-8"></script>
         </div>
 
