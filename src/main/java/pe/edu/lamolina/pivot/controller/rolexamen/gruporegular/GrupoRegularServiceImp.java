@@ -56,6 +56,7 @@ import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoEspecialDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoRegularDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoExcluidoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoMasivoExamenDAO;
@@ -99,6 +100,9 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
 
     @Autowired
     AlumnoGrupoRegularDAO alumnoGrupoRegularDAO;
+
+    @Autowired
+    AlumnoGrupoEspecialDAO alumnoGrupoEspecialDAO;
 
     @Autowired
     LetraGrupoRegularDAO letraGrupoRegularDAO;
@@ -303,6 +307,17 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
             logger.debug("guardara la letra {}", letraGrupoRegular.getLetra());
             letraGrupoRegularDAO.save(letraGrupoRegular);
+            
+            List<SeccionGrupoRegular> seccionesGpoRegular = letraGrupoRegular.getSeccionesGruposRegulares();
+            seccionGrupoRegularDAO.createForLetraGrupoRegular(seccionesGpoRegular, letraGrupoRegular, ds.getFechaAccionAudit(), ds.getUsuario());
+            
+            List<Seccion> seccionesAfectadas = seccionesGpoRegular.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+            List<SeccionGrupoRegular> seccionesGpoRegularBD = seccionGrupoRegularDAO.allByLetraGrupoRegularAndSecciones(letraGrupoRegular, seccionesAfectadas);
+            Map<Long, SeccionGrupoRegular> mapSeccionGpoRegularBD = TypesUtil.convertListToMap("seccion.id", seccionesGpoRegularBD);
+            for (SeccionGrupoRegular seccionGpoRegular : seccionesGpoRegular) {
+                SeccionGrupoRegular seccionGpoRegularBD = mapSeccionGpoRegularBD.get(seccionGpoRegular.getSeccion().getId());
+                alumnoGrupoRegularDAO.createForSeccionGrupoRegular(seccionGpoRegular.getAlumnosGruposRegulares(), seccionGpoRegularBD, ds.getFechaAccionAudit(), ds.getUsuario());
+            }
         }
 
         RolExamenes rolExamenesUpd = new RolExamenes();
@@ -372,6 +387,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
                 seccionGrupoEspecial.getAlumnosGrupoEspecial().add(alumnoGrupoEspecial);
             }
             seccionGrupoEspecialDAO.save(seccionGrupoEspecial);
+            alumnoGrupoEspecialDAO.createForSeccionGrupoEspecial(seccionGrupoEspecial.getAlumnosGrupoEspecial(), seccionGrupoEspecial, ds.getFechaAccionAudit(), ds.getUsuario());
         }
 
     }

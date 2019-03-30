@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.rolexamen;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -13,6 +14,7 @@ import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
+import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
 
@@ -38,12 +40,18 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
     List<SeccionGrupoRegular> allByRolExamenes(
             RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnums);
 
-    public List<RolExamenDocente> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico);
+    List<RolExamenDocente> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico);
 
     List<SeccionGrupoRegular> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, SeccionRolExamenEstadoEnum... seccionRolExamenEstadosEnum);
 
-    public List<SeccionGrupoRegular> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes);
+    List<SeccionGrupoRegular> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes);
 
     SeccionGrupoRegular findByRolExamenesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... estados);
+
+    void createForLetraGrupoRegular(
+            List<SeccionGrupoRegular> seccionesGpoRegular,
+            LetraGrupoRegular letraGpoRegular,
+            Date fecha,
+            Usuario user);
 
 }

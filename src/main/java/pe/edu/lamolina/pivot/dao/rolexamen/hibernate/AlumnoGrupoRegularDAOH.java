@@ -198,4 +198,43 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
         return all(sql);
     }
 
+    @Override
+    public void createForSeccionGrupoRegular(
+            List<AlumnoGrupoRegular> alumnosGpoRegular,
+            SeccionGrupoRegular seccionGpoRegular,
+            Date fecha,
+            Usuario user) {
+
+        if (alumnosGpoRegular.isEmpty()) {
+            return;
+        }
+
+        List<Long> ids = alumnosGpoRegular.stream().map(x -> x.getAlumno().getId()).collect(Collectors.toList());
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("insert into ").append(tb(AlumnoGrupoRegular.class));
+        sql.append("  (estado,fechaRegistro,seccionGrupoRegular,alumno,userRegistro) ");
+        sql.append(" select :ESTADO, :FECHA, sgr, alu, usr ");
+        sql.append("   from ").append(tb(Alumno.class)).append(" alu, ");
+        sql.append("        ").append(tb(SeccionGrupoRegular.class)).append(" sgr, ");
+        sql.append("        ").append(tb(Usuario.class)).append(" usr ");
+        sql.append("  where alu.id in (:ALUMNOS) ");
+        sql.append("    and sgr.id = :SECCION ");
+        sql.append("    and usr.id = :USER ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameterList("ALUMNOS", ids);
+        query.setParameter("SECCION", seccionGpoRegular.getId());
+        query.setParameter("USER", user.getId());
+        query.setParameter("ESTADO", AlumnoRolExamenEstadoEnum.ACT.name());
+        query.setParameter("FECHA", fecha);
+
+        query.executeUpdate();
+
+    }
+
+    private String tb(Class clazz) {
+        return clazz.getSimpleName();
+    }
+
 }
