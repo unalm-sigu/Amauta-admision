@@ -20,6 +20,7 @@ public class RolExamenesLogger {
     private String message;
     private boolean running;
     private boolean cruce;
+    private Integer maximoAforoAula;
 
     private List<Aula> aulasOera;
 
@@ -274,6 +275,14 @@ public class RolExamenesLogger {
 
     public void setGruposHorasExamenes(List<GrupoHorasExamen> gruposHorasExamenes) {
         this.gruposHorasExamenes = gruposHorasExamenes;
+    }
+
+    public Integer getMaximoAforoAula() {
+        return maximoAforoAula;
+    }
+
+    public void setMaximoAforoAula(Integer maximoAforoAula) {
+        this.maximoAforoAula = maximoAforoAula;
     }
 
 }

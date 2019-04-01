@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.rolexamen.gruporegular;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -152,20 +153,38 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 result = this.procesarSeccionesByLetra(letraGrupoRegular, cursosMasivosExamen, seccionesGrupoEspecial, seccionClone, seccionesByLetra, ds);
             } else {
                 GrupoHorasExamen grupoHorasExamen = letraGrupoRegular.getGrupoHorasExamen();
-                Aula seccionAulaOriginal = seccionClone.getAula();
-                AULA_EACH:
-                for (Aula aula : this.rolExamenesLogger.getAulasOera()) {
-                    for (String diaHora : grupoHorasExamen.getDiaHoraList()) {
-                        if (aula.getHorariosAula().contains(diaHora)) {
-                            continue AULA_EACH;
-                        }
+                Aula aulaSeccionOriginal = seccionClone.getAula();
+
+                Map<Long, List<Aula>> mapAulasAgrupadasPorModulo = TypesUtil.convertListToMapList("aulaSuperior.id", this.rolExamenesLogger.getAulasOera());
+                Map<Long, List<Aula>> mapAulasAgrupadasPorModuloOrdered = new LinkedHashMap();
+                mapAulasAgrupadasPorModuloOrdered.put(aulaSeccionOriginal.getAulaSuperior().getId(), mapAulasAgrupadasPorModulo.get(aulaSeccionOriginal.getAulaSuperior().getId()));
+                for (Map.Entry<Long, List<Aula>> entry : mapAulasAgrupadasPorModulo.entrySet()) {
+                    Long key = entry.getKey();
+                    List<Aula> value = entry.getValue();
+                    if (key.compareTo(aulaSeccionOriginal.getAulaSuperior().getId()) == 0) {
+                        continue;
                     }
-                    seccionClone.setAula(aula);
-                    result = this.procesarSeccionesByLetra(letraGrupoRegular, cursosMasivosExamen, seccionesGrupoEspecial, seccionClone, seccionesByLetra, ds);
-                    if (result) {
-                        break AULA_EACH;
+                    mapAulasAgrupadasPorModuloOrdered.put(key, value);
+                }
+
+                final int AFORO_INCREMENTO = 5;
+                int inicio = seccion.getMatriculados();
+                int fin = inicio + AFORO_INCREMENTO;
+                while (true) {
+                    Aula aulaResult = this.buscarAulaOeraBySeccion(seccion,
+                            letraGrupoRegular,
+                            mapAulasAgrupadasPorModulo,
+                            cursosMasivosExamen,
+                            seccionesGrupoEspecial,
+                            seccionesByLetra,
+                            inicio, fin,
+                            ds);
+                    if (!aulaResult.equals(seccion.getAula())) {
+                        break;
                     }
-                    seccionClone.setAula(seccionAulaOriginal);
+                    if (fin > rolExamenesLogger.getMaximoAforoAula()) {
+                        break;
+                    }
                 }
             }
             if (!result) {
@@ -176,6 +195,42 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
         long milis = end - ini;
         logger.debug("Termino en Segundos {}, MiliSeconds {}", TimeUnit.MILLISECONDS.toSeconds(milis), milis);
+    }
+
+    public Aula buscarAulaOeraBySeccion(
+            Seccion seccion,
+            LetraGrupoRegular letraGrupoRegular,
+            Map<Long, List<Aula>> aulasAgrupadasPorModulo,
+            List<CursoMasivoExamen> cursosMasivosExamen,
+            List<SeccionGrupoEspecial> seccionesGrupoEspecial,
+            List<Seccion> seccionesByLetra,
+            Integer inicio,
+            Integer fin,
+            DataSessionPivot ds) {
+        Seccion seccionClone = seccion.clone();
+        Aula aulaSeccionOriginal = seccion.getAula();
+        GrupoHorasExamen grupoHorasExamen = letraGrupoRegular.getGrupoHorasExamen();
+
+        for (Map.Entry<Long, List<Aula>> entry : aulasAgrupadasPorModulo.entrySet()) {
+            List<Aula> aulasByModulo = entry.getValue();
+            AULA_EACH:
+            for (Aula aula : aulasByModulo) {
+                if (!(aula.getAforo() >= inicio && aula.getAforo() < fin)) {
+                    continue;
+                }
+                for (String diaHora : grupoHorasExamen.getDiaHoraList()) {
+                    if (aula.getHorariosAula().contains(diaHora)) {
+                        continue AULA_EACH;
+                    }
+                }
+                seccionClone.setAula(aula);
+                boolean result = this.procesarSeccionesByLetra(letraGrupoRegular, cursosMasivosExamen, seccionesGrupoEspecial, seccionClone, seccionesByLetra, ds);
+                if (result) {
+                    return aula;
+                }
+            }
+        }
+        return aulaSeccionOriginal;
     }
 
     @Override

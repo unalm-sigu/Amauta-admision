@@ -55,4 +55,6 @@ public interface AulaDAO extends EasyDAO<Aula> {
 
     List<Aula> allByOficinaSupervisora(OficinaEnum oficinaEnum, EstadoEnum estadoEnum);
 
+    Aula findAulaMaxAforo(OficinaEnum oficinaEnum, EstadoEnum estadoEnum);
+
 }

@@ -369,7 +369,7 @@ public class PlantillaHorarioController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-        plantillaHorarioService.confirmarPlantillaHorario(rolExamenes, ds);
+            service.confirmarPlantillaHorario(rolExamenes, ds);
             logger.debug("changeSemanaExamen");
             response.setMessage("Horarios confirmados correctamente.");
             response.setSuccess(Boolean.TRUE);
