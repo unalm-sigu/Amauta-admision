@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
@@ -45,6 +46,8 @@ public interface CursoMasivosService {
     CursoMasivoExamen findCursoMasivo(Long idCursoMasivo);
 
     void saveHorarioExamen(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds);
+
+    GrupoHorasExamen revisarGpoHorasExamenCursoMasivo(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds);
 
     void excluirDocenteCursoMasivo(DocenteCursoMasivo docenteCursoMasivo, DataSessionPivot ds);
 

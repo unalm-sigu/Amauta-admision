@@ -374,4 +374,18 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         this.actualizarFechaGrupoHorasExamen(grupoHorasExamen, grupoHorasExamen.getRolExamenes());
 
     }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void deleteGrupoHoraExamen(GrupoHorasExamen grupoHorasExamenForm) {
+        GrupoHorasExamen grupoHorasExamenBD = grupoHorasExamenDAO.find(grupoHorasExamenForm.getId());
+        checkEstadoPublicado(grupoHorasExamenBD.getRolExamenes());
+
+        List<FechaHoraGrupoExamen> fechas = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(grupoHorasExamenBD);
+        Assert.isTrue(fechas.isEmpty(), "No puede eliminarse un grupo con fecha y horas programadas");
+        Assert.isFalse(grupoHorasExamenBD.getVerificado(), "Este grupo ya fue verificado. No puede ser elimnado.");
+
+        grupoHorasExamenDAO.delete(grupoHorasExamenBD);
+    }
+
 }

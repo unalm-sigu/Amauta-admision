@@ -256,6 +256,7 @@ public class PlantillaHorarioController {
                         "grupoHorasExamen.*",
                         "grupoHorasExamen.grupoHoras.codigo", "grupoHorasExamen.grupoHoras.id",
                         "grupoHorasExamen.grupoHoras.tipoGrupoHoras.*"});
+            jsonFechaHoraGrupoEach.put("revisado", "");
             jFechasHorasGrupos.putPOJO(fechaHoraGrupoExamen.getIdDiaHora(), jsonFechaHoraGrupoEach);
         }
         data.set("fechasHorasGrupos", jFechasHorasGrupos);
@@ -320,6 +321,25 @@ public class PlantillaHorarioController {
                     }));
 
             response.setMessage("Hora removida del grupo.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "deleteGrupoHoraExamen", method = RequestMethod.POST)
+    public JsonResponse deleteGrupoHoraExamen(@RequestBody GrupoHorasExamen grupoHoraExamen,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.deleteGrupoHoraExamen(grupoHoraExamen);
+
+            response.setMessage("Grupo eliminado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
