@@ -29,6 +29,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.CursoEquivalenteElectivo;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.PlanCurricular;
@@ -45,6 +46,7 @@ import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.CONV;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.matricula.AlumnoCursoSimultaneo;
@@ -59,6 +61,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoEquivalenteDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoEquivalenteElectivoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoOpcionalCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
@@ -101,6 +104,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     @Autowired
     CursoEquivalenteDAO cursoEquivalenteDAO;
 
+    @Autowired
+    CursoEquivalenteElectivoDAO cursoEquivalenteElectivoDAO;
+    
     @Autowired
     AlumnoAvanceCurricularDAO avanceCurricularDAO;
 
@@ -314,8 +320,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (AlumnoCicloCurso cursoAprobado : mapCursosAprobados.values()) {
             AlumnoCursoCurricula cursoCurriAlu = mapCursoCurriculaAluByCurso.get(cursoAprobado.getCurso().getId());
             if (cursoCurriAlu == null) {
-
-                validarHistorialCursos(cursoAprobado, alumno);
+                
+//                validarHistorialCursos(cursoAprobado, alumno);
                 continue;
             }
             if (cursoAprobado.getNota().equals("TE")) {
@@ -723,13 +729,31 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
         }
     }
+<<<<<<< HEAD (1c4969a) - fix
+    
+    private void validarHistorialCursos(AlumnoCicloCurso alumnoCicloCurso, List<TipoCursoCurricula> tipoCursoCurriculas, List<PlanCurricular> planCurriculars,
+=======
 
     private void validarHistorialCursos(AlumnoCicloCurso alumnoCicloCurso,
+>>>>>>> 99ee46a09deda1ab8c634faca08159a3da316d1b
             Alumno alumno) {
 
         CursoOpcionalCurricula cursoOpcionalCurricula = cursoOpcionalCurriculaDAO.allByPlanCurricularAndCurso(alumno.getPlanCurricular(), alumnoCicloCurso.getCurso());
         if (cursoOpcionalCurricula != null) {
-//            alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);
+            alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculas.stream().filter(x -> x.getCodigoEnum() == ELC).findAny().orElse(null));
+        } else {
+            CursoEquivalenteElectivo cursoEquivalenteElectivo = cursoEquivalenteElectivoDAO.findCursoPlanCurricula(alumnoCicloCurso.getCurso(), alumno.getPlanCurricular());
+            if (cursoEquivalenteElectivo == null) {
+                for (PlanCurricular planCurricular : planCurriculars) {
+                    
+                    CursoOpcionalCurricula curricula = cursoOpcionalCurriculaDAO.allByPlanCurricularAndCurso(planCurricular, alumnoCicloCurso.getCurso());
+                    if (curricula != null) {
+                        
+                    }
+                }
+            }else{
+                
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalenteElectivo;
 import pe.edu.lamolina.model.academico.PlanCurricular;
@@ -77,6 +78,19 @@ public class CursoEquivalenteElectivoDAOH extends AbstractEasyDAO<CursoEquivalen
         }
 
         return cursoEquivalente.getGrupo();
+    }
+
+    @Override
+    public CursoEquivalenteElectivo findCursoPlanCurricula(Curso curso, PlanCurricular planCurricular) {
+
+        Octavia sql = Octavia.query()
+                .from(CursoEquivalenteElectivo.class, "ce")
+                .join("cursoOpcionalCurricula cc", "cursoEquivalente cee", "cc.curso", "cc.planCurricular")
+                .filter("cc.planCurricular", planCurricular)
+                .filter("cee.id", curso)
+                .filter("estado", EstadoEnum.ACT.name());
+
+        return find(sql);
     }
 
 }
