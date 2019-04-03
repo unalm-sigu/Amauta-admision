@@ -39,7 +39,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
     }
     
     @Override
-    public List<AlumnoCursoCurricula> allNoOpcionalByAlumno(Alumno alumno) {
+    public List<AlumnoCursoCurricula> allObligatoriosByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCursoCurricula.class, "acc")
                 .isNotNull("cursoCurricula")
