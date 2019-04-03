@@ -36,6 +36,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.CursoExcluido;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.FechaHoraGrupoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
@@ -55,7 +56,9 @@ import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoEspecialDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoRegularDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.CursoExcluidoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoMasivoExamenDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.FechaHoraGrupoExamenDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.GrupoHorasExamenDAO;
@@ -99,6 +102,9 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     AlumnoGrupoRegularDAO alumnoGrupoRegularDAO;
 
     @Autowired
+    AlumnoGrupoEspecialDAO alumnoGrupoEspecialDAO;
+
+    @Autowired
     LetraGrupoRegularDAO letraGrupoRegularDAO;
 
     @Autowired
@@ -136,6 +142,9 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
 
     @Autowired
     SemanaExamenDAO semanaExamenDAO;
+
+    @Autowired
+    CursoExcluidoDAO cursoExcluidoDAO;
 
     private void checkNoPublicado(RolExamenes rol) {
         Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de exámenes ya ha sido publicado");
@@ -220,13 +229,15 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         logger.debug("Crear grupos regulares");
         //secciones de los grupos regulares
         List<Seccion> secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.REGULAR);
-        for (Seccion seccionCursoMasivo : seccionesCursosMasivos) {
-            secciones.removeIf(x -> x.equals(seccionCursoMasivo));
-        }
 
-        for (SeccionExcluido seccionExcluido : seccionesExcluidasByRolExamen) {
-            secciones.removeIf(x -> x.equals(seccionExcluido.getSeccion()));
-        }
+        List<Seccion> seccionesExcluidas = seccionesExcluidasByRolExamen.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+        seccionesExcluidas.addAll(seccionesCursosMasivos);
+
+        List<CursoExcluido> cursosExcluidoz = cursoExcluidoDAO.allByRolExamenes(rolExamenes, EstadoEnum.ACT);
+        List<Curso> cursosExcluidos = cursosExcluidoz.stream().map(x -> x.getCurso()).collect(Collectors.toList());
+
+        this.quitarSeccionesExcluidas(secciones, seccionesExcluidas, cursosExcluidos);
+
         Map<String, List<Seccion>> grupoHorasLetrasRegularesMap = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
         List<String> letras = new ArrayList<>(grupoHorasLetrasRegularesMap.keySet());
         logger.debug("Letras Grupos Regulares {}", String.join(",", letras));
@@ -254,12 +265,8 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         logger.debug("Grupos Especiales");
         //secciones grupos especiales
         secciones = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.ESPECIAL);
-        for (Seccion seccionCursoMasivo : seccionesCursosMasivos) {
-            secciones.removeIf(x -> x.equals(seccionCursoMasivo));
-        }
-        for (SeccionExcluido seccionExcluido : seccionesExcluidasByRolExamen) {
-            secciones.removeIf(x -> x.equals(seccionExcluido.getSeccion()));
-        }
+        this.quitarSeccionesExcluidas(secciones, seccionesExcluidas, cursosExcluidos);
+
         Map<String, List<Seccion>> grupoHorasLetrasEspecialesMap = TypesUtil.convertListToMapList("grupoHoras.letra", secciones);
         //hacemos encajar los grupos especiales en las letras regulares 
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
@@ -300,12 +307,32 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
             logger.debug("guardara la letra {}", letraGrupoRegular.getLetra());
             letraGrupoRegularDAO.save(letraGrupoRegular);
+            
+            List<SeccionGrupoRegular> seccionesGpoRegular = letraGrupoRegular.getSeccionesGruposRegulares();
+            seccionGrupoRegularDAO.createForLetraGrupoRegular(seccionesGpoRegular, letraGrupoRegular, ds.getFechaAccionAudit(), ds.getUsuario());
+            
+            List<Seccion> seccionesAfectadas = seccionesGpoRegular.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+            List<SeccionGrupoRegular> seccionesGpoRegularBD = seccionGrupoRegularDAO.allByLetraGrupoRegularAndSecciones(letraGrupoRegular, seccionesAfectadas);
+            Map<Long, SeccionGrupoRegular> mapSeccionGpoRegularBD = TypesUtil.convertListToMap("seccion.id", seccionesGpoRegularBD);
+            for (SeccionGrupoRegular seccionGpoRegular : seccionesGpoRegular) {
+                SeccionGrupoRegular seccionGpoRegularBD = mapSeccionGpoRegularBD.get(seccionGpoRegular.getSeccion().getId());
+                alumnoGrupoRegularDAO.createForSeccionGrupoRegular(seccionGpoRegular.getAlumnosGruposRegulares(), seccionGpoRegularBD, ds.getFechaAccionAudit(), ds.getUsuario());
+            }
         }
 
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
         rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_REG);
         rolExamenesDAO.updateSituacion(rolExamenesUpd);
+    }
+
+    public void quitarSeccionesExcluidas(List<Seccion> secciones, List<Seccion> seccionesExcluidas, List<Curso> cursosExcluidos) {
+        for (Seccion seccionExcluida : seccionesExcluidas) {
+            secciones.removeIf(x -> x.equals(seccionExcluida));
+        }
+        for (Curso cursosExcluido : cursosExcluidos) {
+            secciones.removeIf(x -> x.getGrupoSeccion().getCurso().equals(cursosExcluido));
+        }
     }
 
     public List<String> validarCursosMasivos(List<CursoMasivoExamen> cursosMasivosByRolExamenes) {
@@ -360,8 +387,15 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
                 seccionGrupoEspecial.getAlumnosGrupoEspecial().add(alumnoGrupoEspecial);
             }
             seccionGrupoEspecialDAO.save(seccionGrupoEspecial);
+            alumnoGrupoEspecialDAO.createForSeccionGrupoEspecial(seccionGrupoEspecial.getAlumnosGrupoEspecial(), seccionGrupoEspecial, ds.getFechaAccionAudit(), ds.getUsuario());
         }
 
+    }
+
+    public List<String> getDiaHoraList(List<FechaHoraGrupoExamen> fechasHorasGpoExamen) {
+        List<String> result = fechasHorasGpoExamen
+                .stream().map(x -> x.getDia().getNumeroDia() + "-" + x.getHora().getNumero()).collect(Collectors.toList());
+        return result;
     }
 
     public void calcularGruposEspeciales(String letraEspeciales,
@@ -381,8 +415,9 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
             boolean withMatch = false;
             for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
                 //Arrays.equals((String[]) seccion.getDiaHoraList().toArray(new String[0]), (String[]) letraGrupoRegular.getGrupoHorasExamen().getDiaHoraList().toArray(new String[0]))
-                if (seccion.getDiaHoraList().containsAll(letraGrupoRegular.getGrupoHorasExamen().getDiaHoraList())
-                        || letraGrupoRegular.getGrupoHorasExamen().getDiaHoraList().containsAll(seccion.getDiaHoraList())) {
+                if (seccion.getDiaHoraList().containsAll(getDiaHoraList(letraGrupoRegular.getGrupoHorasExamen().getFechasHorasGruposExamen()))
+                        //                        || letraGrupoRegular.getGrupoHorasExamen().getDiaHoraList().containsAll(seccion.getDiaHoraList())) {
+                        || getDiaHoraList(letraGrupoRegular.getGrupoHorasExamen().getFechasHorasGruposExamen()).containsAll(seccion.getDiaHoraList())) {
                     List<CursoMasivoExamen> cursosMasivosByRolExamenesAndGrupoHoras = cursosMasivosByRolExamenes.stream()
                             .filter(x -> x.getGrupoHorasExamen() != null)
                             .filter(x -> x.getGrupoHorasExamen().equals(letraGrupoRegular.getGrupoHorasExamen()))

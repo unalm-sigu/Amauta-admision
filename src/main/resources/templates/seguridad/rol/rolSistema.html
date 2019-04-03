@@ -19,7 +19,7 @@
                 <section class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
-                            
+
                             <raptor-table v-bind:url="rolesUrl" ref="tblroles">
                                 <template scope="props" >
 
@@ -28,8 +28,9 @@
                                             <tr>
                                                 <th class="col-xs-2 text-center">Código</th>
                                                 <th class="col-xs-4">Nombre</th>
-                                                <th class="col-xs-3">Cargos</th>
-                                                <th class="col-xs-3">Funciones</th>
+                                                <th class="col-xs-2">Cargos</th>
+                                                <th class="col-xs-2">Funciones</th>
+                                                <th class="col-xs-2">Sistemas</th>
                                                 <th class=""></th>
                                             </tr>
                                         </thead>
@@ -40,7 +41,9 @@
                                                 </td>
                                                 <td class="v-middle">
                                                     <span v-text="item.nombre"></span>
-                                                    <span class="subtext-xs" v-text="item.rolSuperior"></span>
+                                                    <span class="subtext-xs"
+                                                          v-if="item.rolSuperior.id != '' "
+                                                          v-text="item.rolSuperior.nombre"></span>
                                                 </td>
 
                                                 <td class="v-middle">
@@ -49,6 +52,9 @@
 
                                                 <td class="v-middle">
                                                     <p  v-for="funcion in item.funciones">{{funcion.nombre}}</p>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <p  v-for="rolSys in item.rolSistema">{{rolSys.sistema.nombre}}</p>
                                                 </td>
 
                                                 <td class="v-middle text-left">
@@ -60,7 +66,7 @@
                                                         <ul class="dropdown-menu pull-right">
                                                             <li><a class="btn-link" href="#" v-on:click.prevent="{{editarRol(item)}}">Editar</a></li>
                                                             <li><a class="btn-link" href="#" v-on:click.prevent="{{eliminarRol(item)}}">Eliminar</a></li>
-                                                             <li role="presentation" class="divider"></li>
+                                                            <li role="presentation" class="divider"></li>
                                                             <li><a class="btn-link" href="#" v-on:click.prevent="{{relacionarCargo(item)}}">Relacionar Cargo</a></li>
                                                             <li><a class="btn-link" href="#" v-on:click.prevent="{{relacionarFuncion(item)}}">Relacionar Función</a></li>
                                                         </ul>

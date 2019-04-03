@@ -76,6 +76,16 @@ public class FechaHoraGrupoExamenDAOH extends AbstractEasyDAO<FechaHoraGrupoExam
     }
 
     @Override
+    public List<FechaHoraGrupoExamen> allBySemanasExamen(List<SemanaExamen> semanasExamen) {
+        Octavia sql = Octavia.query()
+                .from(FechaHoraGrupoExamen.class, "fhg")
+                .join("grupoHorasExamen ghe", "semanaExamen se", "dia d", "hora h")
+                .join("ghe.grupoHoras gh", "gh.tipoGrupoHoras tgh")
+                .in("se.id", semanasExamen);
+        return all(sql);
+    }
+
+    @Override
     public List<FechaHoraGrupoExamen> allByRolExamens(RolExamenes rolExamenes) {
         Octavia sql = Octavia.query()
                 .from(FechaHoraGrupoExamen.class, "fhg")

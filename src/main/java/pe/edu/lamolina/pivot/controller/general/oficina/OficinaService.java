@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.general.oficina;
 
+import pe.edu.lamolina.pivot.controller.general.oficina.colaborador.ResumenColaborador;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -28,8 +29,7 @@ public interface OficinaService {
     void save(Oficina oficina, DataSessionPivot ds);
 
 //    void delete(Oficina oficina);
-    List<Colaborador> allColaborador(List<Oficina> oficinas);
-
+    //List<Colaborador> allColaborador(List<Oficina> oficinas);
     List<Oficina> allUnidadSuperior(String nombre, Compania compania);
 
     List<DepartamentoAcademico> allDepartamento(Compania compania);
@@ -50,15 +50,19 @@ public interface OficinaService {
 
     void asignarJefe(Oficina oficina, DataSessionPivot ds);
 
+    void actualizarJefe(Oficina oficina, DataSessionPivot ds);
+
     void retirarJefe(Oficina oficina, DataSessionPivot ds);
 
     void asignarEncargado(Oficina oficina, DataSessionPivot ds);
+
+    void actualizarEncargado(Oficina oficina, DataSessionPivot ds);
 
     void retirarEncargado(AusenciaJefe ausencia, DataSessionPivot ds);
 
     List<Oficina> allOficina(Persona persona);
 
-    Colaboradores countColaborador(Oficina oficina);
+    ResumenColaborador getResumenColoboradores(Oficina oficina);
 
     ArrayNode getColaboradoresJson(DynatableFilter filter, Oficina oficinaMain);
 
@@ -66,27 +70,27 @@ public interface OficinaService {
 
     List<TipoOficina> allTipoOficina();
 
-    public TipoOficina findTipoById(String id);
+    TipoOficina findTipoById(String id);
 
-    public Colaborador findColarador(Colaborador colaborador);
+    Colaborador findColarador(Colaborador colaborador);
 
     List<TipoDocIdentidad> allDocumentosIdentidad();
 
-    public List<Oficina> allOficinasByOficinaMain(Oficina oficina);
+    List<Oficina> allOficinasByOficinaMain(Oficina oficina);
 
-    public List<PerfilCompania> allCargos(Oficina oficina);
+    List<PerfilCompania> allCargos(Oficina oficina);
 
-    public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
+    void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
 
     void updateColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot);
 
-    public List<PerfilCompania> allFunciones();
+    List<PerfilCompania> allFunciones();
 
     Persona verifiDocumento(Persona persona);
 
     Usuario verifiEmail(Persona persona);
 
-    public Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
+    Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
 
     List<PerfilCompania> allCargosByOficina(Oficina oficina);
 

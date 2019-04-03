@@ -13,6 +13,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.calendar.EventCalendar;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
@@ -108,14 +109,13 @@ public class EventoCicloAcademicoServiceImp implements EventoCicloAcademicoServi
         for (EventoCicloAcademico evento : eventos) {
             EventCalendar eventCalendar = new EventCalendar();
             eventCalendar.setTitle(evento.getEventoAcademico().getNombre());
-            String jFechaInicio = evento.getFechaInicio() != null ? new DateTime(evento.getFechaInicio()).toString("yyyy-MM-dd") : "";
-            eventCalendar.setStart(jFechaInicio);
-            String jFechaFin = evento.getFechaFin() != null ? new DateTime(evento.getFechaFin()).toString("yyyy-MM-dd") : "";
-            eventCalendar.setEnd(jFechaFin);
+            eventCalendar.setStart(TypesUtil.getStringDate(evento.getFechaInicio(), "yyyy-MM-dd"));
+            eventCalendar.setEnd(TypesUtil.getStringDate(evento.getFechaFin(), "yyyy-MM-dd"));
             eventCalendar.setColor(evento.getColor().getCodigo());
             eventoss.add(eventCalendar);
         }
         return eventoss;
     }
+    
 
 }

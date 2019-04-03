@@ -609,6 +609,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionPCUR.setMatriculados(0);
         seccionPCUR.setRetirados(0);
         seccionPCUR.setReservados(0);
+        seccionPCUR.setAmpliacionVacante(0);
 
         seccionPCUR.setDocenteSeccion(new ArrayList<>());
         DocenteSeccion docenteSeccion2 = new DocenteSeccion();

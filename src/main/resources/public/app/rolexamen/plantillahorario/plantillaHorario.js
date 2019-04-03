@@ -7,7 +7,7 @@ new Vue({
         rolExamen: {
             semanasExamen: []
         },
-        paginationGpo: {'total-items': 0, 'items-per-page': 30, 'max-size': 3, 'boundary-link-numbers': true},
+        paginationGpo: {'total-items': 0, 'items-per-page': 300, 'max-size': 3, 'boundary-link-numbers': true},
         semanasExamen: [],
         semanaExamenActiva: null,
         grupoActivo: null,
@@ -33,7 +33,8 @@ new Vue({
                 return "";
             }
             return `${eventoCicloAcademico.eventoAcademico.nombre}`;
-        }, changeRolExamen() {
+        },
+        changeRolExamen() {
             AXIOS.post(`${this.URL}/changeRolExamen`, this.rolExamen)
                     .then(response => {
                         if (response.data.success) {
@@ -53,7 +54,8 @@ new Vue({
          }
          // MODAL.hideWait();
          });
-         },*/ calcularPlantillaHorario() {
+         },*/
+        calcularPlantillaHorario() {
             if (!this.generarDisponible) {
                 return;
             }
@@ -92,7 +94,8 @@ new Vue({
             }
 
 
-        }, listarGruposExamenByRolExamen() {
+        },
+        listarGruposExamenByRolExamen() {
             this.$refs.raptorGrupo.ajaxdata = {rolExamenes: this.rolExamen.id};
             this.$refs.raptorGrupo.loadRemoteData();
 
@@ -104,7 +107,8 @@ new Vue({
              }
              // MODAL.hideWait();
              });*/
-        }, listarHorarioSemanal() {
+        },
+        listarHorarioSemanal() {
             AXIOS.post(`${this.URL}/listarHorarioSemanal`, this.rolExamen)
                     .then(response => {
                         if (response.data.success) {
@@ -117,18 +121,21 @@ new Vue({
                         }
                         // MODAL.hideWait();
                     });
-        }, styleBorder(item) {
+        },
+        styleBorder(item) {
             let $vue = this;
             if ($vue.grupoActivo != null && item.id == $vue.grupoActivo.id) {
                 return "background-color:gray;";
             }
             return "border-color:" + item.grupoHoras.color + ";";
-        }, classHoras(item) {
+        },
+        classHoras(item) {
             if (item.fechasHorasGruposExamen.length == 0 || item.fechasHorasGruposExamen.length != 2) {
                 return "label-danger";
             }
             return "label-success";
-        }, seleccionarHorario(grupoHora, event) {
+        },
+        seleccionarHorario(grupoHora, event) {
             var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false});
             event.preventDefault();
             this.grupoActivo = grupoHora;
@@ -145,7 +152,23 @@ new Vue({
              
              this.getHorario(id);*/
             mibox.modal('hide');
-        }, seleccionarSemana(semana) {
+        },
+        removeGpo(grupoHora) {
+            let $vue = this;
+            var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false});
+            if (this.grupoActivo.id == grupoHora.id) {
+                this.grupoActivo = null;
+            }
+
+            AXIOS.post(`${this.URL}/deleteGrupoHoraExamen`, grupoHora)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.$refs.raptorGrupo.loadRemoteData();
+                        }
+                        mibox.modal('hide');
+                    });
+        },
+        seleccionarSemana(semana) {
             let vue = this;
             this.semanasExamen.forEach(function (x) {
                 if (x.id == semana.id) {
@@ -155,7 +178,8 @@ new Vue({
                     x.selected = false;
                 }
             });
-        }, selectFechaHoraGrupo(dia, hora, semExamen) {
+        },
+        selectFechaHoraGrupo(dia, hora, semExamen) {
 
             if (this.grupoActivo == null) {
                 notify("Seleccione un grupo horas.", "error");
@@ -222,14 +246,16 @@ new Vue({
                             }
                         });
             }
-        }, actualizarGrupos(grupoActivo) {
+        },
+        actualizarGrupos(grupoActivo) {
             for (var j = 0; j < this.$refs.raptorGrupo.data.length; j++) {
                 if (this.$refs.raptorGrupo.data[j].id == grupoActivo.id) {
                     this.$refs.raptorGrupo.data[j] = grupoActivo;
                 }
             }
             this.listarHorarioSemanal();
-        }, styleHdia(dia, hora) {
+        },
+        styleHdia(dia, hora) {
             let $vue = this;
             for (var i = 0; i < $vue.horarioGpo.length; i++) {
                 if ($vue.horarioGpo[i].hora.id == hora.id && $vue.horarioGpo[i].dia.id == dia.id) {
@@ -237,13 +263,15 @@ new Vue({
                 }
             }
             return "border-color:#DFE7EE; background-color:#FFFFFF;color:#E40DEB;"
-        }, fechaGrupoHoraItem(fechaGrupoHora) {
+        },
+        fechaGrupoHoraItem(fechaGrupoHora) {
             if (this.grupoActivo != null && fechaGrupoHora.grupoHorasExamen.id == this.grupoActivo.id) {
                 return "border-color:#600D63; background-color:#DCDFE3;color:#000000;"
             }
 
             return "border-color:#DFE7EE; background-color:#FFFFFF;color:#E40DEB;"
-        }, hasGruposHorasExamen() {
+        },
+        hasGruposHorasExamen() {
             if (this.$refs.raptorGrupo == null) {
                 return false;
             }

@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.controller.rolexamen.plantillahorario;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -44,23 +43,21 @@ public class PlantillaHorarioController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    PlantillaHorarioService plantillaHorarioService;
+    PlantillaHorarioService service;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
-        List<RolExamenes> rolesExamenes = plantillaHorarioService.allRolExamenesActives(ds.getCicloAcademico());
+        List<RolExamenes> rolesExamenes = service.allRolExamenesActives(ds.getCicloAcademico());
         JsonNodeFactory jc = JsonNodeFactory.instance;
 
         ArrayNode jRolesExamenes = new ArrayNode(jc);
         rolesExamenes.forEach(x -> {
-            jRolesExamenes.add(JsonHelper.createJson(x, jc, false,
-                    new String[]{
-                        "*",
-                        "eventoCicloAcademico.eventoAcademico.*"
-                    }));
+            jRolesExamenes.add(JsonHelper.createJson(x, jc, false, new String[]{
+                "*", "eventoCicloAcademico.eventoAcademico.*"
+            }));
         });
         model.addAttribute("jRolesExamenes", jRolesExamenes.toString());
 
@@ -73,7 +70,7 @@ public class PlantillaHorarioController {
             Model model,
             HttpSession session) {
 
-        RolExamenes rolExamenes = plantillaHorarioService.findRolExamenes(new RolExamenes(rolExamenId));
+        RolExamenes rolExamenes = service.findRolExamenes(new RolExamenes(rolExamenId));
         ObjectNode jRolExamenes = JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, false,
                 new String[]{
                     "*",
@@ -94,16 +91,15 @@ public class PlantillaHorarioController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            rolExamenes = plantillaHorarioService.findRolExamenes(rolExamenes);
-            response.setData(JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, false,
-                    new String[]{
-                        "*",
-                        "eventoCicloAcademico.eventoAcademico.*",
-                        "semanasExamen.rolExamenes.*",
-                        "semanasExamen.*",
-                        "semanasExamen.horaFin",
-                        "semanasExamen.horaInicio"
-                    }));
+            rolExamenes = service.findRolExamenes(rolExamenes);
+            response.setData(JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, false, new String[]{
+                "*",
+                "eventoCicloAcademico.eventoAcademico.*",
+                "semanasExamen.rolExamenes.*",
+                "semanasExamen.*",
+                "semanasExamen.horaFin.*",
+                "semanasExamen.horaInicio.*"
+            }));
 
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -120,10 +116,13 @@ public class PlantillaHorarioController {
             DynatableFilter filter,
             @RequestParam(name = "rolExamenes", required = false) Long idRolExamenes,
             HttpSession session, HttpServletRequest request) {
+
         DynatableResponse response = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonNodeFactory jc = JsonNodeFactory.instance;
+
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
             if (idRolExamenes == null) {
                 response.setData(new ArrayNode(jc));
                 response.setTotal(filter.getTotal());
@@ -131,20 +130,29 @@ public class PlantillaHorarioController {
                 return response;
             }
 
-            List<GrupoHorasExamen> gruposHorasExamenes = plantillaHorarioService.allGrupoHorasExamenByRolExamen(new RolExamenes(idRolExamenes), filter);
+            List<GrupoHorasExamen> gruposHorasExamenes = service.allGrupoHorasExamenByRolExamen(new RolExamenes(idRolExamenes), filter);
             ArrayNode jGruposHorasExamenes = new ArrayNode(jc);
-            gruposHorasExamenes.forEach(x -> {
-                jGruposHorasExamenes.add(JsonHelper.createJson(x, jc, false,
+            for (GrupoHorasExamen ghe : gruposHorasExamenes) {
+                ObjectNode node = JsonHelper.createJson(ghe, jc, false,
                         new String[]{
                             "*",
                             "rolExamenes.*",
-                            "grupoHoras.*",
-                            "fechasHorasGruposExamen.*",
-                            "fechasHorasGruposExamen.hora.*",
-                            "fechasHorasGruposExamen.dia.*",
-                            "semanaExamen.*"
-                        }));
-            });
+                            "grupoHoras.id",
+                            "grupoHoras.codigo",
+                            "grupoHoras.tipoSeccion",
+                            "grupoHoras.letra",
+                            "grupoHoras.color",
+                            "fechasHorasGruposExamen.id",
+                            "fechasHorasGruposExamen.hora.id",
+                            "fechasHorasGruposExamen.hora.codigo",
+                            "fechasHorasGruposExamen.dia.id",
+                            "fechasHorasGruposExamen.dia.simbolo",
+                            "semanaExamen.numeroSemana",
+                            "semanaExamen.id"
+                        });
+                jGruposHorasExamenes.add(node);
+            }
+
             response.setData(jGruposHorasExamenes);
             response.setTotal(filter.getTotal());
             response.setFiltered(filter.getFiltered());
@@ -162,14 +170,20 @@ public class PlantillaHorarioController {
     @RequestMapping(value = "listarHorarioSemanal", method = RequestMethod.POST)
     public JsonResponse listarHorarioSemanal(@RequestBody RolExamenes rolExamenes,
             HttpSession session, HttpServletRequest request) {
+
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonNodeFactory jc = JsonNodeFactory.instance;
         try {
-            rolExamenes = plantillaHorarioService.findRolExamenes(rolExamenes);
+            List<Dia> dias = service.allDias();
+            List<Hora> horas = service.allHoras();
+            rolExamenes = service.findRolExamenes(rolExamenes);
+            List<FechaHoraGrupoExamen> fechasHorasGrupoExamen = service.allFechaHoraGrupoExamenBySemanas(rolExamenes.getSemanasExamen());
+            Map<Long, List<FechaHoraGrupoExamen>> mapFechasHorasGpoExamen = TypesUtil.convertListToMapList("semanaExamen.id", fechasHorasGrupoExamen);
+
             ArrayNode jSeamanasExamen = new ArrayNode(jc);
             for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
-                ObjectNode jTblSeamanaExamen = this.horarioBySemanaExamen(semanaExamen);
+                ObjectNode jTblSeamanaExamen = this.horarioBySemanaExamen(semanaExamen, dias, horas, mapFechasHorasGpoExamen);
                 ObjectNode jSemanaExamen = JsonHelper.createJson(semanaExamen, jc, false,
                         new String[]{
                             "*",
@@ -196,13 +210,17 @@ public class PlantillaHorarioController {
         return response;
     }
 
-    public ObjectNode horarioBySemanaExamen(SemanaExamen semanaExamen) {
+    private ObjectNode horarioBySemanaExamen(
+            SemanaExamen semanaExamen,
+            List<Dia> dias,
+            List<Hora> horas,
+            Map<Long, List<FechaHoraGrupoExamen>> mapFechasHorasGpoExamen) {
+
         JsonNodeFactory jc = JsonNodeFactory.instance;
 
         ObjectNode data = new ObjectNode(jc);
-
-        List<Dia> dias = plantillaHorarioService.allDias();
-        List<Hora> horas = plantillaHorarioService.allHoras();
+//        List<Dia> dias = service.allDias();
+//        List<Hora> horas = service.allHoras();
         Map<Integer, Hora> mapHoras = TypesUtil.convertListToMap("numero", horas);
 
         List<Hora> horasEncontradas = horas.stream()
@@ -227,7 +245,8 @@ public class PlantillaHorarioController {
         data.set("dias", diasJson);
         data.set("horas", horasJson);
 
-        List<FechaHoraGrupoExamen> fechasHorasGrupoExamen = plantillaHorarioService.allFechaHoraGrupoExamenBySemanaExamen(semanaExamen);
+        List<FechaHoraGrupoExamen> fechasHorasGrupoExamen = TypesUtil.getListNotNull(mapFechasHorasGpoExamen.get(semanaExamen.getId()));
+//        List<FechaHoraGrupoExamen> fechasHorasGrupoExamen = service.allFechaHoraGrupoExamenBySemanaExamen(semanaExamen);
         ObjectNode jFechasHorasGrupos = new ObjectNode(jc);
         for (FechaHoraGrupoExamen fechaHoraGrupoExamen : fechasHorasGrupoExamen) {
             ObjectNode jsonFechaHoraGrupoEach = JsonHelper.createJson(fechaHoraGrupoExamen, jc, true,
@@ -237,6 +256,7 @@ public class PlantillaHorarioController {
                         "grupoHorasExamen.*",
                         "grupoHorasExamen.grupoHoras.codigo", "grupoHorasExamen.grupoHoras.id",
                         "grupoHorasExamen.grupoHoras.tipoGrupoHoras.*"});
+            jsonFechaHoraGrupoEach.put("revisado", "");
             jFechasHorasGrupos.putPOJO(fechaHoraGrupoExamen.getIdDiaHora(), jsonFechaHoraGrupoEach);
         }
         data.set("fechasHorasGrupos", jFechasHorasGrupos);
@@ -267,7 +287,7 @@ public class PlantillaHorarioController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            plantillaHorarioService.calcularPlantillaHorario(rolExamenes);
+            service.calcularPlantillaHorario(rolExamenes);
             logger.debug("changeSemanaExamen");
             response.setMessage("Horarios calculados correctamente.");
             response.setSuccess(Boolean.TRUE);
@@ -286,8 +306,8 @@ public class PlantillaHorarioController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            plantillaHorarioService.deleteFechaHoraGrupoExamen(fechaHoraGrupoExamen);
-            GrupoHorasExamen grupoHorasExamen = plantillaHorarioService.findGrupoHorasExamen(fechaHoraGrupoExamen.getGrupoHorasExamen());
+            service.deleteFechaHoraGrupoExamen(fechaHoraGrupoExamen);
+            GrupoHorasExamen grupoHorasExamen = service.findGrupoHorasExamen(fechaHoraGrupoExamen.getGrupoHorasExamen());
 
             response.setData(JsonHelper.createJson(grupoHorasExamen, JsonNodeFactory.instance, true,
                     new String[]{
@@ -311,6 +331,25 @@ public class PlantillaHorarioController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "deleteGrupoHoraExamen", method = RequestMethod.POST)
+    public JsonResponse deleteGrupoHoraExamen(@RequestBody GrupoHorasExamen grupoHoraExamen,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.deleteGrupoHoraExamen(grupoHoraExamen);
+
+            response.setMessage("Grupo eliminado satisfactoriamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "agregarFechaHoraGrupoExamen", method = RequestMethod.POST)
     public JsonResponse agregarFechaHoraGrupoExamen(@RequestBody FechaHoraGrupoExamen fechaHoraGrupoExamen,
             HttpSession session, HttpServletRequest request) {
@@ -318,9 +357,9 @@ public class PlantillaHorarioController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             response.setSuccess(Boolean.TRUE);
-            plantillaHorarioService.agregarFechoHoraGrupoExamen(fechaHoraGrupoExamen);
+            service.agregarFechoHoraGrupoExamen(fechaHoraGrupoExamen);
 
-            GrupoHorasExamen grupoHorasExamen = plantillaHorarioService.findGrupoHorasExamen(fechaHoraGrupoExamen.getGrupoHorasExamen());
+            GrupoHorasExamen grupoHorasExamen = service.findGrupoHorasExamen(fechaHoraGrupoExamen.getGrupoHorasExamen());
 
             response.setData(JsonHelper.createJson(grupoHorasExamen, JsonNodeFactory.instance, true,
                     new String[]{

@@ -99,23 +99,23 @@ public class PersistenceConfig {
         return transManager;
     }
 
-    @Bean
-    public FilterRegistrationBean someFilterRegistration() {
-
-        FilterRegistrationBean registration = new FilterRegistrationBean();
-        registration.setFilter(someFilter());
-        registration.addUrlPatterns("/*");
-        registration.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.FORWARD);
-        registration.setName("hibernateFilter");
-        return registration;
-    }
-
-    @Bean(name = "hibernateFilter")
-    public OpenSessionInViewFilter someFilter() {
-        OpenSessionInViewFilter filter = new OpenSessionInViewFilter();
-        filter.setSessionFactoryBeanName("sessionFactory");
-
-        return filter;
-    }
+//    @Bean
+//    public FilterRegistrationBean someFilterRegistration() {
+//
+//        FilterRegistrationBean registration = new FilterRegistrationBean();
+//        registration.setFilter(someFilter());
+//        registration.addUrlPatterns("/*");
+//        registration.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.FORWARD);
+//        registration.setName("hibernateFilter");
+//        return registration;
+//    }
+//
+//    @Bean(name = "hibernateFilter")
+//    public OpenSessionInViewFilter someFilter() {
+//        OpenSessionInViewFilter filter = new OpenSessionInViewFilter();
+//        filter.setSessionFactoryBeanName("sessionFactory");
+//
+//        return filter;
+//    }
 
 }

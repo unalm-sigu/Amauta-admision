@@ -1,8 +1,10 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -10,11 +12,13 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoEspecialDAO;
 
 @Repository
@@ -127,6 +131,45 @@ public class AlumnoGrupoEspecialDAOH extends AbstractEasyDAO<AlumnoGrupoEspecial
         Octavia octavia = Octavia.update(AlumnoGrupoEspecial.class);
         octavia.set(alumnoGrupoEspecial, "estado");
         this.update(octavia);
+    }
+
+    @Override
+    public void createForSeccionGrupoEspecial(
+            List<AlumnoGrupoEspecial> alumnosGpoEspecial,
+            SeccionGrupoEspecial seccionGpoEspecial,
+            Date fecha,
+            Usuario user) {
+
+        if (alumnosGpoEspecial.isEmpty()) {
+            return;
+        }
+
+        List<Long> ids = alumnosGpoEspecial.stream().map(x -> x.getAlumno().getId()).collect(Collectors.toList());
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("insert into ").append(tb(AlumnoGrupoEspecial.class));
+        sql.append("  (estado,fechaRegistro,seccionGrupoEspecial,alumno,userRegistro) ");
+        sql.append(" select :ESTADO, :FECHA, sge, alu, usr ");
+        sql.append("   from ").append(tb(Alumno.class)).append(" alu, ");
+        sql.append("        ").append(tb(SeccionGrupoEspecial.class)).append(" sge, ");
+        sql.append("        ").append(tb(Usuario.class)).append(" usr ");
+        sql.append("  where alu.id in (:ALUMNOS) ");
+        sql.append("    and sge.id = :SECCION ");
+        sql.append("    and usr.id = :USER ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameterList("ALUMNOS", ids);
+        query.setParameter("SECCION", seccionGpoEspecial.getId());
+        query.setParameter("USER", user.getId());
+        query.setParameter("ESTADO", AlumnoRolExamenEstadoEnum.ACT.name());
+        query.setParameter("FECHA", fecha);
+
+        query.executeUpdate();
+
+    }
+
+    private String tb(Class clazz) {
+        return clazz.getSimpleName();
     }
 
 }

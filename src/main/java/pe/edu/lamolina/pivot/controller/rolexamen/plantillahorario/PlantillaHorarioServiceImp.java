@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
@@ -280,9 +281,11 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     @Override
     public List<GrupoHorasExamen> allGrupoHorasExamenByRolExamen(RolExamenes rolExamenes, DynatableFilter filter) {
         List<GrupoHorasExamen> gruposHorasExamenes = grupoHorasExamenDAO.allByRolExamenesAndDyna(rolExamenes, filter);
+        List<FechaHoraGrupoExamen> fechasHorasGpoExamenTodos = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gruposHorasExamenes);
+        Map<Long, List<FechaHoraGrupoExamen>> mapFechaHoraGpoExamen = TypesUtil.convertListToMapList("grupoHorasExamen.id", fechasHorasGpoExamenTodos);
 
         for (GrupoHorasExamen gruposHora : gruposHorasExamenes) {
-            List<FechaHoraGrupoExamen> fechasHorasGrupoExamen = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gruposHora);
+            List<FechaHoraGrupoExamen> fechasHorasGrupoExamen = TypesUtil.getListNotNull(mapFechaHoraGpoExamen.get(gruposHora.getId()));
             gruposHora.setFechasHorasGruposExamen(fechasHorasGrupoExamen);
             gruposHora.setSemanaExamen(null);
             if (!fechasHorasGrupoExamen.isEmpty()) {
@@ -349,6 +352,11 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     }
 
     @Override
+    public List<FechaHoraGrupoExamen> allFechaHoraGrupoExamenBySemanas(List<SemanaExamen> semanasExamen) {
+        return fechaHoraGrupoExamenDAO.allBySemanasExamen(semanasExamen);
+    }
+
+    @Override
     public List<FechaHoraGrupoExamen> allFechaHoraGrupoExamenByRolExamen(RolExamenes rolExamenes) {
         return fechaHoraGrupoExamenDAO.allByRolExamens(rolExamenes);
     }
@@ -366,4 +374,18 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         this.actualizarFechaGrupoHorasExamen(grupoHorasExamen, grupoHorasExamen.getRolExamenes());
 
     }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void deleteGrupoHoraExamen(GrupoHorasExamen grupoHorasExamenForm) {
+        GrupoHorasExamen grupoHorasExamenBD = grupoHorasExamenDAO.find(grupoHorasExamenForm.getId());
+        checkEstadoPublicado(grupoHorasExamenBD.getRolExamenes());
+
+        List<FechaHoraGrupoExamen> fechas = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(grupoHorasExamenBD);
+        Assert.isTrue(fechas.isEmpty(), "No puede eliminarse un grupo con fecha y horas programadas");
+        Assert.isFalse(grupoHorasExamenBD.getVerificado(), "Este grupo ya fue verificado. No puede ser elimnado.");
+
+        grupoHorasExamenDAO.delete(grupoHorasExamenBD);
+    }
+
 }

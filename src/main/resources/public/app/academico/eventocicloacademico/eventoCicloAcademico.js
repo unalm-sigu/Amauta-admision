@@ -6,11 +6,12 @@ new Vue({
         onlyOne: true,
         eventoCicloAcademico: {eventoAcademico: {}},
         motivoAnular: "",
-        addEventoCicloAcademicoaModal: {
+        configModalAddEventoCicloAcademico: {
             id: 'modalAddEventoCicloAcademico',
             header: true,
             title: 'Crear evento académico',
-            okbtn: 'Guardar'
+            okbtn: 'Guardar',
+            showaccept: true
         },
         addAnularCicloModal: {
             id: 'modalAddAnularCiclo',
@@ -19,11 +20,9 @@ new Vue({
             okbtn: 'Aceptar'
         }
     },
-
     created() {
         let vue = this;
     },
-
     watch: {
         btnActive: function (after, before) {
             var vue = this;
@@ -33,7 +32,6 @@ new Vue({
             }
         }
     },
-
     mounted: function () {
         let vue = this;
         $global.$on("eliminar", function (id) {
@@ -44,7 +42,6 @@ new Vue({
         });
         vue.renderEventos();
     },
-
     methods: {
         formClear: function () {
             $('#formEventoCicloAcademico').parsley('destroy');

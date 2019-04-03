@@ -12,7 +12,7 @@
                 </header>
 
                 <section class="wrapper-lg">
-                    <section class="panel">
+                    <section class="panel m-b">
                         <section class="panel-body">
 
                             <div class="row">
@@ -83,7 +83,7 @@
                         </section>
                     </section>
 
-                    <section class="panel">
+                    <section class="panel m-t">
                         <section class="panel-body">
                             <table class="table table-striped">
                                 <thead> 
@@ -143,7 +143,7 @@
                                             <span class="badge pointer"
                                                   v-on:click="verAulasAsignadas(item)">{{ item.aulas }}</span>
                                         </td>
-                                        <td class="v-middle text-center"> 
+                                        <td class="v-middle text-center" v-bind:class="styleAlumnoVsAulas(item)"> 
                                             {{ item.capacidadAulas }}
                                         </td>
                                         <td class="v-middle text-center">
@@ -154,15 +154,15 @@
                                         <a class="dropdown-toggle pointer" href="#" data-toggle="dropdown"> <i class="glyphicon glyphicon-option-vertical"> </i></a>
 
                                         <ul class="dropdown-menu pull-right" >
-                                            <template v-if="modificarAulaHorarioDisponible">
-                                                <li><a class=" pointer btn-link bold" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>     
-                                                <li><a class=" pointer btn-link bold" v-on:click="verAsignarHorario(item)">Asignar Horario</a></li>  
-                                            </template>
+
+                                            <li><a class=" pointer btn-link bold" v-if="allowAsignarAula" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>     
+                                            <li><a class=" pointer btn-link bold"  v-if="modificarAulaHorarioDisponible" v-on:click="verAsignarHorario(item)">Asignar Horario</a></li>  
+
                                             <template v-if="verAulaHorarioDisponible">
                                                 <li><a class=" pointer btn-link bold" v-on:click="verAulasAsignadas(item)">Aulas</a></li>     
                                             </template>
                                             <li><a class=" pointer btn-link bold" v-on:click="cursoMasivoSecciones(item)"  >Secciones</a></li>   
-                                            <template v-if="incluirExcluirMoverDisponible">
+                                            <template v-if="rolExamenes.isSituacionConfigurarCursoMasivo">
                                                 <li class="divider"></li>     
                                                 <li v-if="item.isEstadoActivo"><a class=" pointer bold" v-on:click="excluir(item,tipoAccion.CURSO)"  >Excluir</a></li>
                                                 <li v-if="item.isEstadoExcluido"><a class=" pointer bold" v-on:click="incluir(item,tipoAccion.CURSO)"  >Incluir</a></li>

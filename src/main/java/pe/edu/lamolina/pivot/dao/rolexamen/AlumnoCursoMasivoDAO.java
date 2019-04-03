@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
+import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface AlumnoCursoMasivoDAO extends EasyDAO<AlumnoCursoMasivo> {
 
@@ -38,5 +40,11 @@ public interface AlumnoCursoMasivoDAO extends EasyDAO<AlumnoCursoMasivo> {
     void updateEstado(AlumnoCursoMasivo alumnoCursoMasivo);
 
     List<AlumnoCursoMasivo> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, AlumnoRolExamenEstadoEnum... estados);
+
+    void createForCursoMasivo(
+            List<MatriculaSeccion> matriculadosSeccion,
+            CursoMasivoExamen cursoMasivo,
+            SeccionCursoMasivo seccionCursoMasivo,
+            Usuario user);
 
 }

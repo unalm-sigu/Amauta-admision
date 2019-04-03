@@ -54,7 +54,7 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
 
     @Override
     public List<GrupoHoras> allGrupos() {
-        List<GrupoHoras> grupos = grupoHorasDAO.allGrupo();
+        List<GrupoHoras> grupos = grupoHorasDAO.allRegulares();
         return grupos;
     }
 

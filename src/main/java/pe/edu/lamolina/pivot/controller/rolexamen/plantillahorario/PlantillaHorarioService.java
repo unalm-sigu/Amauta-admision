@@ -31,11 +31,15 @@ public interface PlantillaHorarioService {
 
     List<FechaHoraGrupoExamen> allFechaHoraGrupoExamenBySemanaExamen(SemanaExamen semanaExamen);
 
+    List<FechaHoraGrupoExamen> allFechaHoraGrupoExamenBySemanas(List<SemanaExamen> semanasExamen);
+
     List<FechaHoraGrupoExamen> allFechaHoraGrupoExamenByRolExamen(RolExamenes rolExamenes);
 
     List<Hora> allHoras();
 
     void deleteFechaHoraGrupoExamen(FechaHoraGrupoExamen fechaHoraGrupoExamen);
+
+    void deleteGrupoHoraExamen(GrupoHorasExamen grupoHoraExamen);
 
     void deletePlantillaHorario(RolExamenes rolExamenes);
 

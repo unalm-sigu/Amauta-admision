@@ -357,13 +357,19 @@
             <groupId>com.github.albatrosscloud</groupId>
             <!--<groupId>pe.albatross</groupId>-->
             <artifactId>zelpers</artifactId>
-            <version>0.1.63</version>
+            <version>0.1.66</version>
         </dependency>
         
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-            <version>0.17.00</version>
+            <version>0.17.09</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.albatrosscloud</groupId>
+                    <artifactId>zelpers</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>

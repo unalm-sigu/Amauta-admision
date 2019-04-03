@@ -1,6 +1,16 @@
 <html layout:decorator="_layout/layout"> 
     <head>
         <title> Plantilla Horarios </title>
+        <style>
+            .close-btn {
+                position: absolute;
+                top: -10px;
+                right: -10px;
+                z-index: 100;
+                border-radius: 30px;
+                padding: 4px 8px;
+            }
+        </style>
     </head>
     <body>
         <section layout:fragment="main">
@@ -69,10 +79,11 @@
                             </div>
                             <div class="row">
                                 <raptor-table v-bind:url="`${URL}/listarGruposExamenByRolExamen`" 
+                                              v-bind:searcher="false" 
                                               v-bind:preload="false" 
+                                              v-bind:paginate="false" 
                                               v-bind:pagination="paginationGpo"
-                                              ref="raptorGrupo"
-                                              >
+                                              ref="raptorGrupo">
                                     <template scope="props" >
                                         <div class="col-sm-1 col-xs-1" 
                                              v-for="item in props.data">
@@ -83,7 +94,14 @@
                                                       style="min-height: 100px;border-width: 1px;"
                                                       v-bind:style="styleBorder(item)">
 
+                                                    <button class="btn btn-danger btn-sm close-btn" v-on:click="removeGpo(item)"
+                                                            v-if="item.fechasHorasGruposExamen.length==0">
+                                                        <i class="fa fa-times"></i>
+                                                    </button>
+
                                                     <div class="m-t-sm pointer verhorario" v-on:click="seleccionarHorario(item,$event)">
+
+
                                                         <h4 class="list-group-item-heading" >{{item.grupoHoras.codigo}}</h4>
                                                         <h5 class="list-group-item-heading" >{{item.grupoHoras.tipoSeccion}}/{{item.grupoHoras.letra}}</h5>
 
@@ -141,12 +159,11 @@
 
                                                     <tbody >
                                                         <tr v-for="hora in semExamen.tblHorarioSeamanaExamen.horas">
-                                                            <td style="width: 12.5%" class="v-middle">
+                                                            <td style="width: 12.5%" class="v-middle text-center">
                                                                 <span 
-                                                                    class="form-control"
                                                                     th:style="'border-color:#fff;'">
-                                                                    {{hora.descripcion}} - 
-                                                                    {{hora.horaSiguiente.descripcion}}
+                                                                    {{hora.descripcion2}} - 
+                                                                    {{hora.horaSiguiente.descripcion2}}
                                                                 </span>
 
                                                             </td>

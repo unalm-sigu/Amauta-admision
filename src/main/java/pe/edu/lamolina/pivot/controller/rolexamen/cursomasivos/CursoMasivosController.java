@@ -32,6 +32,7 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
@@ -128,15 +129,10 @@ public class CursoMasivosController {
                     new String[]{
                         "*",
                         "rolExamenes.*",
-                        "curso.*",
-                        "userRegistro.*",
-                        "userRegistro.persona.*",
-                        "seccionesCursosMasivos.*",
-                        "seccionesCursosMasivos.seccion.*",
-                        "seccionesCursosMasivos.userRegistro.*",
-                        "seccionesCursosMasivos.userRegistro.persona.*",
-                        "seccionesCursosMasivos.usuarioExclusion.*",
-                        "seccionesCursosMasivos.usuarioExclusion.persona.*",
+                        "curso.id",
+                        "curso.codigo",
+                        "curso.nombre",
+                        "curso.tpc",
                         "grupoHorasExamen.*",
                         "grupoHorasExamen.horaInicio.*",
                         "grupoHorasExamen.horaFin.*",
@@ -190,6 +186,8 @@ public class CursoMasivosController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
+        } finally {
+            rolExamenesLogger.finalizeLog();
         }
         return response;
     }
@@ -209,10 +207,13 @@ public class CursoMasivosController {
                 ObjectNode cursoMasivo = JsonHelper.createJson(cursoMasivoByRolExamen, JsonNodeFactory.instance, true,
                         new String[]{
                             "*",
-                            "curso.*",
+                            "curso.id",
+                            "curso.codigo",
+                            "curso.nombre",
+                            "curso.tpc",
                             "aulasCursosMasivos.aula.*",
-                            "seccionesCursosMasivos.seccion.*",
-                            "grupoHorasExamen.*",
+                            "grupoHorasExamen.id",
+                            "grupoHorasExamen.fecha",
                             "grupoHorasExamen.dia.*",
                             "grupoHorasExamen.horaInicio.*",
                             "grupoHorasExamen.horaFin.*",
@@ -220,12 +221,7 @@ public class CursoMasivosController {
                             "grupoHorasExamen.semanaExamen.numeroSemana",
                             "grupoHorasExamen.grupoHoras.letra",
                             "grupoHorasExamen.grupoHoras.codigo",
-                            "rolExamenes.id",
-                            "docentesCursosMasivos.id",
-                            "docentesCursosMasivos.docente.codigo",
-                            "docentesCursosMasivos.docente.persona.apellidosNombres",
-                            "docentesCursosMasivos.estado",
-                            "docentesCursosMasivos.estadoEnum",});
+                            "rolExamenes.id"});
 
                 jCursoMasivosByRolExamen.add(cursoMasivo);
             }
@@ -460,6 +456,7 @@ public class CursoMasivosController {
     public JsonResponse saveHorarioExamen(
             @RequestBody CursoMasivoExamen cursoMasivoExamen,
             HttpSession session, HttpServletRequest request) {
+
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
@@ -478,6 +475,44 @@ public class CursoMasivosController {
                         });
                 response.setData(jLog);
             }
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            rolExamenesLogger.finalizeLog();
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "revisarGpoHorasExamenCursoMasivo", method = RequestMethod.POST)
+    public JsonResponse revisarGpoHorasExamenCursoMasivo(
+            @RequestBody CursoMasivoExamen cursoMasivoExamen,
+            HttpSession session, HttpServletRequest request) {
+
+        JsonResponse response = new JsonResponse();
+        JsonNodeFactory jc = JsonNodeFactory.instance;
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds.setFechaAccionAudit(new Date());
+
+            logger.debug("revisarGpoHorasExamenCursoMasivo");
+            GrupoHorasExamen gpoHorasExamen = service.revisarGpoHorasExamenCursoMasivo(cursoMasivoExamen, ds);
+            ObjectNode gpoJson = JsonHelper.createJson(gpoHorasExamen, JsonNodeFactory.instance, true, new String[]{"*"});
+
+            ObjectNode node = new ObjectNode(jc);
+            node.set("grupoHorasExamen", gpoJson);
+            if (rolExamenesLogger.getLogDetails() != null && !rolExamenesLogger.getLogDetails().isEmpty()) {
+                ObjectNode jLog = JsonHelper.createJson(rolExamenesLogger, jc, false, new String[]{"*", "logDetails.*"});
+                node.set("conflictos", jLog);
+            }
+
+            response.setData(node);
+            response.setMessage("Revisión de horarios finalizada correctamente.");
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
@@ -547,12 +582,10 @@ public class CursoMasivosController {
         for (SeccionCursoMasivo item : list) {
             array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "*",
-                "seccion.*",
-                "seccion.grupoHoras.*",
-                "userRegistro.*",
-                "userRegistro.persona.*",
-                "usuarioExclusion.*",
-                "usuarioExclusion.persona.*"
+                "seccion.id",
+                "seccion.codigo2",
+                "seccion.grupoHoras.id",
+                "seccion.grupoHoras.codigo"
             }));
         }
 
