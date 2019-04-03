@@ -129,4 +129,6 @@ public interface PlanCurricularService {
 
     void verificarAsignacion(Carrera carrera);
 
+    public void updateResumen(Integer minCreditos, Integer totalCreditos, ResumenPlanCurricular resumenPlanCurricular);
+
 }

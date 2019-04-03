@@ -1,6 +1,5 @@
 
 $(function () {
-
     $(".date").datepickerBoot();
     var dynatableCursosObl = $('#dynaTableCurObl').dynatable({
         dataset: {
@@ -120,6 +119,7 @@ $(function () {
         pestanaCicloCurElecElegida: null,
         tipoCursoCurricula: null,
         record: null,
+        flag: "",
         init: function () {
 //            $('.date').datepicker();
             if (NuevaCurricula.idPlan != null) {
@@ -1971,6 +1971,82 @@ $(function () {
                     }
                 }
             });
+        },
+        editCreditos($this, e, clase) {
+            console.log($this)
+            // consuem event
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            $td = $this;
+            // if class
+            if ($td.children().attr('value') == undefined) {
+                return;
+            }
+            // if already editing, do nothing.
+            if ($td.data('editing'))
+                return;
+            // mark as editing
+            $td.data('editing', true);
+
+            // get old text
+            var txt = $td.text();
+
+            // store old text
+            $td.data('oldText', txt);
+
+            // make input
+            var $input = $('<input type="text" class="editfield form-control " >');
+            $input.val($.trim(txt));
+            $input.attr('rel', $td.children().attr('rel'));
+            $input.attr('value', $td.children().attr('value'));
+            $input.numeric();
+            // clean td and add the input
+            $td.empty();
+            $td.append($input);
+        },
+        save($this, e) {
+            console.log($this);
+            var totalCreditos = null;
+            var minCreditos = null;
+            $input = $(e.target);
+            var val = $input.val();
+            var rel = $input.attr('rel');
+            var value = $input.attr('value');
+            var $td = $input.closest('td');
+            var $a = $('<a  class="block bold" > </a>');
+            $a.text(val);
+            $a.attr('rel', rel);
+            $a.attr('value', value);
+            $td.empty();
+            $td.append($a);
+            $td.data('editing', false);
+            console.log('Value changed ' + rel);
+            console.log('Value changed ' + value);
+            if (value == 1) {
+                totalCreditos = val;
+            } else {
+                minCreditos = val;
+            }
+
+            $.ajax({
+                url: APP.url('academico/planCurricular/updateResumen'),
+                type: 'POST',
+                async: true,
+                data: {idResumen: rel, totalCreditos: totalCreditos, minCreditos: minCreditos},
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        dynatableCursosRes.process();
+
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     };
 
@@ -2154,6 +2230,18 @@ $(function () {
 
     $("body").delegate(".btn-delete-curso-equivalente", "click", function (e) {
         NuevaCurricula.deleteNuevoCursoEquivalente($(this), e);
+    });
+
+    $("body").delegate(".table-data td.ELC", "click", function (e) {
+        NuevaCurricula.editCreditos($(this), e, 'ELC');
+    });
+    $("body").delegate(".table-data td.EEP", "click", function (e) {
+        NuevaCurricula.editCreditos($(this), e), 'EEP';
+    });
+    $("body").delegate(".tabledata tr").on('keyup', 'input.editfield', function (e) {
+        if (e.which == 13) {
+            NuevaCurricula.save($(this), e);
+        }
     });
 
     NuevaCurricula.init();
