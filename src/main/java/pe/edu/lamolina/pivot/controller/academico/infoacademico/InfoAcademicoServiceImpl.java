@@ -488,6 +488,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "curso.codigo",
                 "curso.nombre",
                 "curso.tpc",
+                "tipoCursoCurricula.*",
                 /* -- */
                 "alumnoCiclo.cicloAcademico.descripcion",
                 "alumnoCiclo.cicloAcademico.tipoEnum"

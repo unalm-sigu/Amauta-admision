@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.List;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -21,5 +22,13 @@ public class TipoCursoCurriculaDAOH extends AbstractEasyDAO<TipoCursoCurricula> 
                 .from(TipoCursoCurricula.class, "t")
                 .filter("t.codigo", tipoCursoCurriculaEnum);
         return find(sql);
+    }
+
+    @Override
+    public List<TipoCursoCurricula> allByCodigos(List<String> list) {
+        Octavia sql = Octavia.query()
+                .from(TipoCursoCurricula.class, "t")
+                .in("t.codigo", list);
+        return all(sql);
     }
 }

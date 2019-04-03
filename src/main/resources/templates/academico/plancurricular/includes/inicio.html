@@ -97,7 +97,7 @@
 
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4" >
             <div class="form-group">
                 <label >Inicio Ciclo Vigencia</label>
                 <select class="form-control select2" 
@@ -107,7 +107,7 @@
                     <option></option>
                     <option  th:each="item : ${ciclos}" 
                              th:value="${item.id}"
-                             th:text="${item.descripcion}"></option>
+                             th:text="${item.descripcion} "></option>
                 </select>
 
                 <span th:if="${planCurricular.id}">

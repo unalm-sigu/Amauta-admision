@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +56,9 @@ import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.OBL;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -312,14 +316,18 @@ public class PlanCurricularController {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("id", resumen.getId());
                 node.put("tipoCurso", resumen.getTipoCursoCurricula().getNombre());
+                node.put("tipoCursoCodigo", resumen.getTipoCursoCurricula().getCodigo());
                 node.put("creditos", resumen.getCreditos());
                 node.put("minimoCreditos", resumen.getMinimoCreditos());
                 node.put("cursos", resumen.getCursos());
 
                 array.add(node);
-                totalCreditos += resumen.getCreditos();
-                totalCursos += resumen.getCursos();
-                totalMinimo += resumen.getMinimoCreditos();
+                if (Arrays.asList(GEN,OBL,ELC).contains(resumen.getTipoCursoCurricula().getCodigoEnum())) {
+                    
+                    totalCreditos += resumen.getCreditos();
+                    totalCursos += resumen.getCursos();
+                    totalMinimo += resumen.getMinimoCreditos();
+                }
             }
 
             {
@@ -1637,6 +1645,29 @@ public class PlanCurricularController {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("updateResumen")
+    public JsonResponse updateResumen(@RequestParam("idResumen") Integer resumen,
+            @RequestParam(value = "minCreditos", required = false) Integer minCreditos,
+            @RequestParam(value = "totalCreditos", required = false) Integer totalCreditos, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.updateResumen(minCreditos, totalCreditos, new ResumenPlanCurricular(resumen));
+            response.setSuccess(true);
+            response.setMessage("Se modifico el resumen exitosamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 
