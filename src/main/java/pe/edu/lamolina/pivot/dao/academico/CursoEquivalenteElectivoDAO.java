@@ -13,7 +13,9 @@ public interface CursoEquivalenteElectivoDAO extends EasyDAO<CursoEquivalenteEle
 
     void deleteByGrupoCursoOpcionalCurricula(Integer grupo, CursoOpcionalCurricula curso);
 
-    List<CursoEquivalenteElectivo> allActivoByCursoOpcionalCurricula(CursoOpcionalCurricula cursoCurricula);
+    List<CursoEquivalenteElectivo> allActivoByCursoOpcional(CursoOpcionalCurricula cursoCurricula);
+
+    List<CursoEquivalenteElectivo> allActivoByCursosOpcionales(List<CursoOpcionalCurricula> cursosElectivos);
 
     List<CursoEquivalenteElectivo> allActivoByPlanCurricular(PlanCurricular planCurricular);
 

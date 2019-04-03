@@ -681,19 +681,23 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<RequisitoCursoCurricula> preRequisitos = requisitoCursoCurriculaDAO.allByCursosCurricula(cursosCurricula);
         List<RequisitoCursoCurricula> postRequisitos = requisitoCursoCurriculaDAO.allPostRequisitosByCursosCurricula(cursosCurricula);
         List<RequisitoCursoOpcional> postRequisitosOpc = requisitoCursoOpcionalDAO.allPostRequisitosByCursosCurricula(cursosCurricula);
+        List<CursoEquivalente> equivalentesCurricula = cursoEquivalenteDAO.allActivoByCursosCurriculas(cursosCurricula);
 
         Map<Long, List<RequisitoCursoCurricula>> mapPreRequisitos = TypesUtil.convertListToMapList("cursoCurricula.id", preRequisitos);
         Map<Long, List<RequisitoCursoCurricula>> mapPostRequisitos = TypesUtil.convertListToMapList("cursoRequisito.id", postRequisitos);
         Map<Long, List<RequisitoCursoOpcional>> mapPostRequisitosOpc = TypesUtil.convertListToMapList("cursoRequisitoCurricula.id", postRequisitosOpc);
+        Map<Long, List<CursoEquivalente>> mapEquivalentes = TypesUtil.convertListToMapList("cursoCurricula.id", equivalentesCurricula);
 
         for (CursoCurricula curso : cursosCurricula) {
             List<RequisitoCursoCurricula> preRequisitosCurso = fillList(mapPreRequisitos.get(curso.getId()));
             List<RequisitoCursoCurricula> postRequisitosCurso = fillList(mapPostRequisitos.get(curso.getId()));
             List<RequisitoCursoOpcional> postRequisitosCursoOpc = fillList(mapPostRequisitosOpc.get(curso.getId()));
+            List<CursoEquivalente> equivalentesCurso = fillList(mapEquivalentes.get(curso.getId()));
 
-            curso.setCursosCurricula(preRequisitosCurso == null ? new ArrayList() : preRequisitosCurso);
-            curso.setRequisitosCursoCurricula(postRequisitosCurso == null ? new ArrayList() : postRequisitosCurso);
-            curso.setRequisitosCursoOpcional(postRequisitosCursoOpc == null ? new ArrayList() : postRequisitosCursoOpc);
+            curso.setCursosCurricula(preRequisitosCurso);
+            curso.setRequisitosCursoCurricula(postRequisitosCurso);
+            curso.setRequisitosCursoOpcional(postRequisitosCursoOpc);
+            curso.setCursosEquivalentes(equivalentesCurso);
         }
 
         return cursosCurricula;
@@ -724,15 +728,20 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<CursoOpcionalCurricula> cursosElectivos = cursoOpcionalCurriculaDAO.allByDynatable(filter);
         List<RequisitoCursoOpcional> preRequisitos = requisitoCursoOpcionalDAO.allRequisitosByCursosElectivos(cursosElectivos);
         List<RequisitoCursoOpcional> postRequisitos = requisitoCursoOpcionalDAO.allPostRequisitosByCursosElectivo(cursosElectivos);
+        List<CursoEquivalenteElectivo> equivalentesCurricula = cursoEquivalenteElectivoDAO.allActivoByCursosOpcionales(cursosElectivos);
 
         Map<Long, List<RequisitoCursoOpcional>> mapRequisitos = TypesUtil.convertListToMapList("cursoOpcional.id", preRequisitos);
         Map<Long, List<RequisitoCursoOpcional>> mapPostRequisitos = TypesUtil.convertListToMapList("cursoRequisitoOpcional.id", postRequisitos);
+        Map<Long, List<CursoEquivalenteElectivo>> mapEquivalesCurricula = TypesUtil.convertListToMapList("cursoOpcionalCurricula.id", equivalentesCurricula);
 
         for (CursoOpcionalCurricula cursoElectivo : cursosElectivos) {
             List<RequisitoCursoOpcional> preRequisitosElec = fillList(mapRequisitos.get(cursoElectivo.getId()));
             List<RequisitoCursoOpcional> postRequisitosElec = fillList(mapPostRequisitos.get(cursoElectivo.getId()));
-            cursoElectivo.setCursosOpcionales(preRequisitosElec == null ? new ArrayList() : preRequisitosElec);
-            cursoElectivo.setRequisitosCursoOpcionales(postRequisitosElec == null ? new ArrayList() : postRequisitosElec);
+            List<CursoEquivalenteElectivo> equivalentesCurso = fillList(mapEquivalesCurricula.get(cursoElectivo.getId()));
+
+            cursoElectivo.setCursosOpcionales(preRequisitosElec);
+            cursoElectivo.setRequisitosCursoOpcionales(postRequisitosElec);
+            cursoElectivo.setCursoEquivalenteElectivo(equivalentesCurso);
         }
 
         return cursosElectivos;

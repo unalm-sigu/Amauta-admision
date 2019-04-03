@@ -69,6 +69,9 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td", "cicloActivo cia", "cicloIngreso ci", "modalidadEstudio me", "situacionAcademica situ")
+                .leftJoin("per.paisNacer")
+                .leftJoin("per.ubicacionNacer ubn", "ubn.ubicacionSuperior ubnProv", "ubn.tipoUbicacion")
+                .leftJoin("ubnProv.ubicacionSuperior ubnDep", "ubnProv.tipoUbicacion", "ubnDep.tipoUbicacion")
                 .filter("alu.id", alumno);
         return (Alumno) sql.find(getCurrentSession());
     }
@@ -468,10 +471,10 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alum")
                 .filter("cicloAcademico", cicloAcademico);
-       
+
         Octavia subQueryRetiro = new Octavia()
                 .from(RetiroCiclo.class, "rc")
-                .join("alumno alumrc" , "cicloRegistro cr")
+                .join("alumno alumrc", "cicloRegistro cr")
                 .filter("cr.id", cicloAcademico);
 
         Octavia sql = Octavia.query()
@@ -491,7 +494,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .__().exists(subQueryRetiro)
                 .__().linkedBy("alu.id", "alumrc.id")
                 .endBlock()
-                
                 .limit(15);
         return sql.all(getCurrentSession());
     }
