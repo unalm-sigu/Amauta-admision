@@ -106,7 +106,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     @Autowired
     CursoEquivalenteElectivoDAO cursoEquivalenteElectivoDAO;
-    
+
     @Autowired
     AlumnoAvanceCurricularDAO avanceCurricularDAO;
 
@@ -320,7 +320,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (AlumnoCicloCurso cursoAprobado : mapCursosAprobados.values()) {
             AlumnoCursoCurricula cursoCurriAlu = mapCursoCurriculaAluByCurso.get(cursoAprobado.getCurso().getId());
             if (cursoCurriAlu == null) {
-                
+
 //                validarHistorialCursos(cursoAprobado, alumno);
                 continue;
             }
@@ -363,9 +363,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         List<Long> toBeRemoved = new LinkedList();
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursosCurriculaAlu.entrySet()) {
             Long key = entry.getKey();
-            CursoCurricula cursoCurri = entry.getValue();
+            AlumnoCursoCurricula cursoCurri = entry.getValue();
             Curso curso = cursoCurri.getCurso();
-            String codeDptoCurso = ObjectUtil.getParentTree(curso, "departamentoAcademico.codigo");
+            String codeDptoCurso = (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.codigo");
             if (codesDptosCultDepMed.contains(codeDptoCurso) && curso.getTipoCurriculaEnum() == TipoCurriculaEnum.REG) {
                 continue;
             }
@@ -390,7 +390,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             CursoCurricula cursoCurri = entry.getValue();
             Curso curso = cursoCurri.getCurso();
 
-            String codeDptoCurso = ObjectUtil.getParentTree(curso, "departamentoAcademico.codigo");
+            String codeDptoCurso = (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.codigo");
             boolean esCursoDeporte = false;
             if (codesDptosCultDepMed.contains(codeDptoCurso)) {
                 esCursoDeporte = true;
@@ -729,13 +729,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
         }
     }
-<<<<<<< HEAD (1c4969a) - fix
-    
-    private void validarHistorialCursos(AlumnoCicloCurso alumnoCicloCurso, List<TipoCursoCurricula> tipoCursoCurriculas, List<PlanCurricular> planCurriculars,
-=======
 
-    private void validarHistorialCursos(AlumnoCicloCurso alumnoCicloCurso,
->>>>>>> 99ee46a09deda1ab8c634faca08159a3da316d1b
+    private void validarHistorialCursos(AlumnoCicloCurso alumnoCicloCurso, List<TipoCursoCurricula> tipoCursoCurriculas, List<PlanCurricular> planCurriculars,
             Alumno alumno) {
 
         CursoOpcionalCurricula cursoOpcionalCurricula = cursoOpcionalCurriculaDAO.allByPlanCurricularAndCurso(alumno.getPlanCurricular(), alumnoCicloCurso.getCurso());
@@ -745,14 +740,14 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             CursoEquivalenteElectivo cursoEquivalenteElectivo = cursoEquivalenteElectivoDAO.findCursoPlanCurricula(alumnoCicloCurso.getCurso(), alumno.getPlanCurricular());
             if (cursoEquivalenteElectivo == null) {
                 for (PlanCurricular planCurricular : planCurriculars) {
-                    
+
                     CursoOpcionalCurricula curricula = cursoOpcionalCurriculaDAO.allByPlanCurricularAndCurso(planCurricular, alumnoCicloCurso.getCurso());
                     if (curricula != null) {
-                        
+
                     }
                 }
-            }else{
-                
+            } else {
+
             }
         }
     }
