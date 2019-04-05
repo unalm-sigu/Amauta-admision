@@ -74,7 +74,8 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .left("cu.departamentoAcademico")
                 .filter("al.id", alumno)
                 .filter("estaAprobado", 1)
-                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
+                .orderBy("acc.fechaRegistro");
 
         return all(sql);
     }
