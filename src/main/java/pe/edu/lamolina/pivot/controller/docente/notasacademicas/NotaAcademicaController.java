@@ -345,7 +345,7 @@ public class NotaAcademicaController {
         return json;
     }
 
-    public ObjectNode castEvaluacionExpandida(EvaluacionExpandida evaluacionExpandida) {
+    private ObjectNode castEvaluacionExpandida(EvaluacionExpandida evaluacionExpandida) {
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         node.put("evaPlanId", evaluacionExpandida.getId());
         node.put("tipoEvalCod", evaluacionExpandida.getTipoEvaluacion().getCodigo());
@@ -426,7 +426,7 @@ public class NotaAcademicaController {
         logger.debug("planCalificacion {}", planCalificacion);
         GrupoSeccion grupoSeccion = service.findGrupo(idGrupoSeccion);
 
-        List<PlanCalificacionCurso> planesCalificacionCurso = service.findAllActivePlanCalificacionCursos(grupoSeccion.getCurso(),
+        List<PlanCalificacionCurso> planesCalificacionCurso = service.allActivosPlanCalificacionCurso(grupoSeccion.getCurso(),
                 ds.getCicloAcademico().getTipoEnum());
         PlanCalificacion planCalifica = planesCalificacionCurso.get(0).getPlanCalificacion();
         if (planCalificacion != null) {
