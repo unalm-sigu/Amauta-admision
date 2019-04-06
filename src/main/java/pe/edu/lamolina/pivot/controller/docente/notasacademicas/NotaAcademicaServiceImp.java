@@ -336,6 +336,11 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     public Seccion findSeccion(Long idSeccion) {
         return seccionDAO.find(idSeccion);
+//        Seccion seccion = seccionDAO.find(idSeccion);
+//        System.out.println("SECC ::::: " + seccion);
+//        SistemaNotas sn = seccion.getGrupoSeccion().getPlanCalificacion().getSistemaNotas();
+//        System.out.println("SN ::::: " + sn);
+//        return seccion;
     }
 
     @Override
@@ -1051,7 +1056,13 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     @Override
     public EvaluacionSeccion findEvalSeccByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
-        return evaluacionSeccionDAO.findByPlanCalGrupoSec(idPlanCalificacion, idGrupoSeccion, estadoPlanCalificaEnum);
+        EvaluacionSeccion evaluaSecc = evaluacionSeccionDAO.findByPlanCalGrupoSec(idPlanCalificacion, idGrupoSeccion, estadoPlanCalificaEnum);
+        if (evaluaSecc != null) {
+            SistemaNotas sistemaNotas = evaluaSecc.getSistemaNotas();
+            List<NotaLetra> notasLetras = notaLetraDAO.allBySistemaNotas(sistemaNotas);
+            sistemaNotas.setNotaLetra(notasLetras);
+        }
+        return evaluaSecc;
     }
 
     @Override
