@@ -143,7 +143,6 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .from(AlumnoCursoCurricula.class, "acc")
                 .join("alumno alu", "curso cur")
                 .filter("alu.id", alumnoBD)
-                .in("acc.estado", Arrays.asList(APR, EQUIV, CONV))
                 .orderBy("acc.numeroCiclo");
         return all(sql);
     }
