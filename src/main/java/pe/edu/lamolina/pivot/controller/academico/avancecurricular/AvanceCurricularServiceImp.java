@@ -14,9 +14,11 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
@@ -25,6 +27,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoEquivalenteDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoOpcionalCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
@@ -64,6 +67,9 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
     AlumnoCursoSimultaneoDAO alumnoCursoSimultaneoDAO;
 
     @Autowired
+    CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
+
+    @Autowired
     AvanceCurricularAsincronoService avanceCurricularAsincronoService;
 
     @Autowired
@@ -79,16 +85,23 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         List<Alumno> alumnos = alumnoDAO.allByPlanCurricular(planBD);
 
         Map<Long, CursoCurricula> mapCursoCurricula = new HashMap<>();
+        Map<Long, CursoCurricula> mapCursoCurriculaByCurso = new HashMap<>();
         Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula = new HashMap<>();
         Map<Long, List<CursoEquivalente>> mapCursosEquivalentes = new HashMap<>();
-
-        obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
+        Map<Long, AlumnoCursoCurricula> mapAlumnoCurso = new HashMap<>();
+        obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, mapCursoCurriculaByCurso);
 
         logger.debug("Cantidad de alumnos: {}", alumnos.size());
         logger.debug("Cantidad de Cursos: {}", mapCursoCurricula.size());
 
+        List<CursoOpcionalCurricula> cursoOpcionalCurriculas = cursoOpcionalCurriculaDAO.all();
+        Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcional = TypesUtil.convertListToMapList("planCurricular.id", cursoOpcionalCurriculas);
+
         List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivoByAlumnosCicloActivo(alumnos);
         Map<Long, List<MatriculaCurso>> mapCursosMatriculados = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculados);
+
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnos(alumnos);
+        Map<Long, List<AlumnoCursoCurricula>> mapAlumnoCursoCurricula = TypesUtil.convertListToMapList("alumno.id", alumnoCursoCurriculas);
 
         List<AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumnos(alumnos);
         Map<Long, List<AlumnoCicloCurso>> mapCursosAprobados = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosAprobados);
@@ -110,8 +123,20 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
         for (Alumno alumno : alumnos) {
             List<MatriculaCurso> cursosMatriculadosAlumno = mapCursosMatriculados.get(alumno.getId());
-            List<AlumnoCicloCurso> cursosAprobadosAlumno = mapCursosAprobados.get(alumno.getId());
-            avanceCurricularAsincronoService.procesarAlumno(alumno, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, mapCursosVecesLlevado, cursosMatriculadosAlumno, cursosAprobadosAlumno, ds);
+
+            List<CursoOpcionalCurricula> cursoOpcional = mapCursoOpcional.get(alumno.getPlanCurricular().getId());
+
+            avanceCurricularAsincronoService.procesarAlumno(alumno,
+                    mapCursoCurricula,
+                    mapRequisitoCursoCurricula,
+                    mapCursosEquivalentes,
+                    mapCursosVecesLlevado,
+                    cursosMatriculadosAlumno,
+                    cursosAprobados,
+                    alumnoCursoCurriculas,
+                    cursoOpcional,
+                    mapCursoCurriculaByCurso,
+                    ds);
         }
     }
 
@@ -119,14 +144,17 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
             PlanCurricular planCurricular,
             Map<Long, CursoCurricula> mapCursoCurricula,
             Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula,
-            Map<Long, List<CursoEquivalente>> mapCursosEquivalentes) {
+            Map<Long, List<CursoEquivalente>> mapCursosEquivalentes,
+            Map<Long, CursoCurricula> mapCursoCurriculaByCurso
+    ) {
 
-        List<CursoCurricula> cursos = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
-        for (CursoCurricula curso : cursos) {
-            if (curso.getNumeroCiclo() == 0) {
+        List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
+        for (CursoCurricula cursoCurricula : cursosCurricula) {
+            if (cursoCurricula.getNumeroCiclo() == 0) {
                 continue;
             }
-            mapCursoCurricula.put(curso.getId(), curso);
+            mapCursoCurricula.put(cursoCurricula.getId(), cursoCurricula);
+            mapCursoCurriculaByCurso.put(cursoCurricula.getCurso().getId(), cursoCurricula);
         }
 
         List<RequisitoCursoCurricula> requisitoCursoCurriculas = requisitoCursoCurriculaDAO.allByPlanCurricular(planCurricular);
@@ -159,9 +187,11 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
         Alumno alumnoBD = alumnoDAO.findAllInfo(alumno.getId());
         Map<Long, CursoCurricula> mapCursoCurricula = new HashMap<>();
+        Map<Long, CursoCurricula> mapCursoCurriculaByCurso = new HashMap<>();
+        Map<Long, AlumnoCursoCurricula> mapAlumnoCurso = new HashMap<>();
         Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula = new HashMap<>();
         Map<Long, List<CursoEquivalente>> mapCursosEquivalentes = new HashMap<>();
-        obtenerData(alumnoBD.getPlanCurricular(), mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
+        obtenerData(alumnoBD.getPlanCurricular(), mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, mapCursoCurriculaByCurso);
 
         List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivoByAlumnoCicloActivo(alumno);
         List<AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumno);
@@ -184,7 +214,19 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         }
 
         alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoBD);
-        avanceCurricularAsincronoService.procesarAlumnoSincrono(alumnoBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, mapCursosVecesLlevado, cursosMatriculados, cursosAprobados, ds);
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoApro(alumnoBD);
+        List<CursoOpcionalCurricula> cursoOpcionalCurriculas = cursoOpcionalCurriculaDAO.allByPlanCurricular(alumnoBD.getPlanCurricular());
+        avanceCurricularAsincronoService.procesarAlumnoSincrono(alumnoBD,
+                mapCursoCurricula,
+                mapRequisitoCursoCurricula,
+                mapCursosEquivalentes,
+                mapCursosVecesLlevado,
+                cursosMatriculados,
+                cursosAprobados,
+                alumnoCursoCurriculas,
+                cursoOpcionalCurriculas,
+                mapCursoCurriculaByCurso,
+                ds);
     }
 
     @Override

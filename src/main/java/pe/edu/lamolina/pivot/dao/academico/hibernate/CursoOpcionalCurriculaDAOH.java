@@ -10,18 +10,19 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 
 @Repository
 public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCurricula> implements CursoOpcionalCurriculaDAO {
-
+    
     public CursoOpcionalCurriculaDAOH() {
         super();
         setClazz(CursoOpcionalCurricula.class);
     }
-
+    
     @Override
     public List<CursoOpcionalCurricula> allByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
@@ -32,7 +33,7 @@ public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCur
                 .orderBy("tcc.orden desc", "cur.nombre");
         return all(sql);
     }
-
+    
     @Override
     public Map<Long, Integer> countByPlanesCurricular(List<PlanCurricular> curriculas) {
         Octavia sql = Octavia.query()
@@ -41,7 +42,7 @@ public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCur
                 .join("planCurricular pc")
                 .in("pc.id", curriculas)
                 .groupBy("pc.id");
-
+        
         List<Object[]> resultado = sql.all(getCurrentSession());
         Map<Long, Integer> result = new HashMap();
         for (Object[] objects : resultado) {
@@ -49,17 +50,17 @@ public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCur
         }
         return result;
     }
-
+    
     @Override
     public List<CursoOpcionalCurricula> allByPlanCurricular(PlanCurricular planCurricular) {
         Octavia sql = Octavia.query()
                 .from(CursoOpcionalCurricula.class, "cc")
                 .join("curso cur", "planCurricular pc", "tipoCursoCurricula tcc")
                 .filter("pc.id", planCurricular);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<CursoOpcionalCurricula> allByNombrePlan(CursoCurricula cursoCurricula, Integer limit) {
         Octavia sql = Octavia.query()
@@ -75,5 +76,16 @@ public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCur
                 .limit(limit);
         return sql.all(getCurrentSession());
     }
-
+    
+    @Override
+    public CursoOpcionalCurricula allByPlanCurricularAndCurso(PlanCurricular planCurricular, Curso curso) {
+        Octavia sql = Octavia.query()
+                .from(CursoOpcionalCurricula.class, "cc")
+                .join("curso cur", "planCurricular pc", "tipoCursoCurricula tcc")
+                .filter("pc.id", planCurricular)
+                .filter("cur.id", curso);
+        
+        return find(sql);
+    }
+    
 }

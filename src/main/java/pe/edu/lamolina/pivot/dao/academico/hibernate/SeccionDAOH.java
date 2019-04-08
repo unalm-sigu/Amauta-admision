@@ -40,6 +40,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur")
                 .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
+                .leftJoin("pc.sistemaNotas", "pc2.sistemaNotas")
                 .leftJoin("grupoHoras gh", "aula au", "au.oficinaSupervisora", "au.aulaSuperior")
                 .leftJoin("seccionSuperior", "cur.departamentoAcademico daca")
                 .filter("sec.id", id);

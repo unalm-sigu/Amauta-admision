@@ -212,7 +212,7 @@ public class EvaluacionDAOH extends AbstractEasyDAO<Evaluacion> implements Evalu
         Octavia sql = Octavia.query()
                 .from(Evaluacion.class, "eva")
                 .join("evaluacionExpandida ee", "evaluacionSeccion es", "tipoEvaluacion te", "seccionResponsable sr")
-                .leftJoin("docenteEvaluador de")
+                .leftJoin("docenteEvaluador de", "de.persona per")
                 .in("ee.id", evaluacionesExp);
 
         return all(sql);

@@ -10,7 +10,7 @@ import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 
 public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
 
-    List<AlumnoCursoCurricula> allNoOpcionalByAlumno(Alumno alumno);
+    List<AlumnoCursoCurricula> allObligatoriosByAlumno(Alumno alumno);
 
     List<AlumnoCursoCurricula> allByAlumnoAprob(Alumno alumno, CicloAcademico ciclo);
 
@@ -26,5 +26,9 @@ public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
 
     List<AlumnoCursoCurricula> allByAlumnoCicloRegularAct(Alumno alumno);
 
-    List<AlumnoCursoCurricula> allByAlumnosCurso(List<Alumno> alumnos, Curso curso);
+    public List<AlumnoCursoCurricula> allByAlumnosCurso(List<Alumno> alumnos, Curso curso);
+
+    public List<AlumnoCursoCurricula> allByAlumnos(List<Alumno> alumnos);
+
+    public List<AlumnoCursoCurricula> allByAlumnoApro(Alumno alumnoBD);
 }

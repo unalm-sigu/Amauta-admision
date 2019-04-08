@@ -48,7 +48,8 @@ public class PlanCalificacionCursoDAOH extends AbstractEasyDAO<PlanCalificacionC
     public List<PlanCalificacionCurso> allByFilter(PlanCalificacion planCalificacion, TipoCicloEnum tipoCicloEnum, Curso curso, EstadoEnum estadoEnum) {
         Octavia sql = Octavia.query()
                 .from(PlanCalificacionCurso.class, "pc")
-                .join("planCalificacion pln", "curso cur");
+                .join("planCalificacion pln", "curso cur")
+                .left("pln.sistemaNotas");
 
         if (planCalificacion != null) {
             sql.filter("pln.id", planCalificacion.getId());
