@@ -28,7 +28,7 @@ import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.pivot.controller.rolexamen.components.CambioHorarioExamenSeccion;
-import pe.edu.lamolina.pivot.controller.rolexamen.components.TipoGrupoRolExamenesEnum;
+import pe.edu.lamolina.model.enums.TipoGrupoRolExamenesEnum;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;

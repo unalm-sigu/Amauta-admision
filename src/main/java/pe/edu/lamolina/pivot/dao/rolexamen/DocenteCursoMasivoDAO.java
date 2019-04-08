@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface DocenteCursoMasivoDAO extends EasyDAO<DocenteCursoMasivo> {
 
@@ -30,10 +31,15 @@ public interface DocenteCursoMasivoDAO extends EasyDAO<DocenteCursoMasivo> {
 
     void updateEstado(DocenteCursoMasivo docenteCursoMasivo);
 
-    public List<DocenteCursoMasivo> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico);
+    List<DocenteCursoMasivo> allByDocenteAndCiclo(Docente docente, CicloAcademico cicloAcademico);
 
     List<DocenteCursoMasivo> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, DocenteRolExamenEstadoEnum... estados);
 
     List<DocenteCursoMasivo> allByCursoMasivoAndDocenteAndEstados(CursoMasivoExamen cursoMasivoExamen, Docente docente, DocenteRolExamenEstadoEnum... estados);
+
+    void createDocentesCursoMasivo(
+            List<DocenteCursoMasivo> docentesCursoMasivo,
+            CursoMasivoExamen cursoMasivo,
+            Usuario user);
 
 }

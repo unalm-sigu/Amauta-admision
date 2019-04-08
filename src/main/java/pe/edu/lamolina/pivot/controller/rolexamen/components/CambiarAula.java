@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.components;
 
+import pe.edu.lamolina.model.enums.TipoGrupoRolExamenesEnum;
 import java.io.Serializable;
 
 public class CambiarAula implements Serializable {

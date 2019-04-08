@@ -1,8 +1,10 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -10,12 +12,15 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoCursoMasivoDAO;
 
 @Repository
@@ -29,7 +34,7 @@ public class AlumnoCursoMasivoDAOH extends AbstractEasyDAO<AlumnoCursoMasivo> im
     @Override
     public void deleteByCursoMasivo(CursoMasivoExamen cursoMasivoExamen) {
         StringBuilder strb = new StringBuilder();
-        strb.append(" delete from  AlumnoCursoMasivo acm where acm.cursoMasivoExamen.id = :CURSO_MASIVO ");
+        strb.append(" delete from AlumnoCursoMasivo acm where acm.cursoMasivoExamen.id = :CURSO_MASIVO ");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("CURSO_MASIVO", cursoMasivoExamen.getId());
@@ -171,6 +176,48 @@ public class AlumnoCursoMasivoDAOH extends AbstractEasyDAO<AlumnoCursoMasivo> im
             result.put(TypesUtil.getLong(objects[0]), TypesUtil.getInt(objects[1]));
         }
         return result;
+    }
+
+    @Override
+    public void createForCursoMasivo(
+            List<MatriculaSeccion> matriculadosSeccion,
+            CursoMasivoExamen cursoMasivo,
+            SeccionCursoMasivo seccionCursoMasivo,
+            Usuario user) {
+
+        if (matriculadosSeccion.isEmpty()) {
+            return;
+        }
+
+        List<Long> ids = matriculadosSeccion.stream().map(x -> x.getMatriculaResumen().getAlumno().getId()).collect(Collectors.toList());
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("insert into ").append(tb(AlumnoCursoMasivo.class));
+        sql.append("  (estado,fechaRegistro,cursoMasivoExamen,alumno,seccionCursoMasivo,userRegistro) ");
+        sql.append(" select :ESTADO, :FECHA, cm, alu, scm, usr ");
+        sql.append("   from ").append(tb(Alumno.class)).append(" alu, ");
+        sql.append("        ").append(tb(CursoMasivoExamen.class)).append(" cm, ");
+        sql.append("        ").append(tb(SeccionCursoMasivo.class)).append(" scm, ");
+        sql.append("        ").append(tb(Usuario.class)).append(" usr ");
+        sql.append("  where alu.id in (:ALUMNOS) ");
+        sql.append("    and cm.id = :CURSO ");
+        sql.append("    and scm.id = :SECCION ");
+        sql.append("    and usr.id = :USER ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameterList("ALUMNOS", ids);
+        query.setParameter("CURSO", cursoMasivo.getId());
+        query.setParameter("SECCION", seccionCursoMasivo.getId());
+        query.setParameter("USER", user.getId());
+        query.setParameter("ESTADO", AlumnoRolExamenEstadoEnum.ACT.name());
+        query.setParameter("FECHA", new Date());
+
+        query.executeUpdate();
+
+    }
+
+    private String tb(Class clazz) {
+        return clazz.getSimpleName();
     }
 
 }

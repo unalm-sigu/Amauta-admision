@@ -71,7 +71,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
-@Transactional
+@Transactional(readOnly = false)
 public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
     @Autowired

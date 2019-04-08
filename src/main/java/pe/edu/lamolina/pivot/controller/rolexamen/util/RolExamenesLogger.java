@@ -38,6 +38,7 @@ public class RolExamenesLogger {
         this.message = "Calculo de " + this.getTipoEnum().getValue();
         this.running = true;
         this.logDetails = new ArrayList<>();
+        this.aulasOera = new ArrayList<>();
     }
 
     public void activarCursoMasivo() {
@@ -45,6 +46,7 @@ public class RolExamenesLogger {
         this.message = "Proceso: " + this.getTipoEnum().getValue();
         this.running = true;
         this.logDetails = new ArrayList<>();
+        this.aulasOera = new ArrayList<>();
     }
 
     public void activarGrupoRegular() {
@@ -173,6 +175,17 @@ public class RolExamenesLogger {
 
         String msg = "Conflicto del Aula %s, con el curso masivo %s - %s";
         String complexMsg = String.format(msg, aula.getCodigo(), curso.getCodigo(), curso.getNombre());
+        rolExamenesLogger.setMessage(complexMsg);
+        this.logDetails.add(rolExamenesLogger);
+    }
+
+    public void aulaOcupada(Aula aula, GrupoHorasExamen grupoHorasExamen) {
+        this.cruce = true;
+        RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
+        rolExamenesLogger.setTipoEnum(TipoRolExamenesLoggerEnum.AUL_OCUP);
+
+        String msg = "El Aula %s, se encuentra ocupada para los horarios del grupo %s";
+        String complexMsg = String.format(msg, aula.getCodigo(), grupoHorasExamen.getGrupoHoras().getCodigo());
         rolExamenesLogger.setMessage(complexMsg);
         this.logDetails.add(rolExamenesLogger);
     }

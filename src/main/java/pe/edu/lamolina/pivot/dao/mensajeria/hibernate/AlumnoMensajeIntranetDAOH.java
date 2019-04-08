@@ -29,7 +29,8 @@ public class AlumnoMensajeIntranetDAOH extends AbstractEasyDAO<AlumnoMensajeIntr
         sql.append("insert into ").append(AlumnoMensajeIntranet.class.getSimpleName());
         sql.append("  (alumno,mensajeIntranet) ");
         sql.append(" select alu, msg ");
-        sql.append("   from ").append(Alumno.class.getSimpleName()).append(" alu,").append(MensajeIntranet.class.getSimpleName()).append(" msg ");
+        sql.append("   from ").append(Alumno.class.getSimpleName()).append(" alu, ");
+        sql.append("        ").append(MensajeIntranet.class.getSimpleName()).append(" msg ");
         sql.append("  where alu.id in (:ALUMNOS) ");
         sql.append("    and msg.id = :MENSAJE ");
 

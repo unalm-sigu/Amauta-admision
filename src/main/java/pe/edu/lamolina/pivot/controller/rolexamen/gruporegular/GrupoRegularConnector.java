@@ -73,4 +73,10 @@ public interface GrupoRegularConnector {
 
     RolExamenesLogger validacionActivarAlumno(GrupoHorasExamen grupoHorasExamen, Alumno alumno);
 
+    List<Aula> allAulasOeraWithHorarioByRolExamenes(RolExamenes rolExamenes);
+
+    boolean checkDisponibilidadAula(Aula aula, GrupoHorasExamen grupoHorasExamen);
+
+    Map<Long, List<Aula>> aulasAgrupadasPorModulo(Aula aulaSeccionOriginal);
+
 }

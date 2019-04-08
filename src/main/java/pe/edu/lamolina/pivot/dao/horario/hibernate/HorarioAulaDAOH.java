@@ -20,6 +20,9 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
@@ -349,6 +352,27 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
+    public List<HorarioAula> allByRolExamenes(RolExamenes rolExamenes) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .join("rolExamenes rex")
+                .filter("rex.id", rolExamenes);
+        return all(sql);
+    }
+
+    @Override
+    public void deleteByRolExamenes(RolExamenes rolExamenes) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  HorarioAula ha where ha.rolExamenes.id=:ROLEX");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("ROLEX", rolExamenes.getId());
+        query.executeUpdate();
+    }
+
+    @Override
     public List<HorarioAula> allBySeccionGrupoEspecial(SeccionGrupoEspecial seccionGrupoEspecial) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
@@ -444,6 +468,36 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .filter("ha.tipo", TipoHorarioAulaEnum.EXAM)
                 .orderBy("d.numeroDia", "h.numero");
         return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByCursoMasivo(CursoMasivoExamen cursoMasivoExamen) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("seccion sec", "hora h", "dia d", "aula au", "cursoMasivoExamen cmas")
+                .join("sec.grupoSeccion gSec", "gSec.curso cur", "au.oficinaSupervisora ofi")
+                .join("cur.modalidadEstudio mEst", "gSec.cicloAcademico ca")
+                .filter("cmas.id", cursoMasivoExamen);
+        return all(sql);
+    }
+
+//    public List<HorarioAula> allByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
+//        Octavia sql = Octavia.query()
+//                .from(HorarioAula.class, "ha")
+//                .join("seccion sec", "hora h", "dia d", "aula au", "")
+//                .join("sec.grupoSeccion gSec", "gSec.curso cur", "au.oficinaSupervisora ofi")
+//                .join("cur.modalidadEstudio mEst", "gSec.cicloAcademico ca")
+//                .filter("ha.cursoMasivoExamen", cursoMasivoExamen);
+//        return all(sql);
+//    }
+    @Override
+    public void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  HorarioAula ha where ha.seccionGrupoRegular.letraGrupoRegular.id=:LETRA");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("LETRA", letraGrupoRegular.getId());
+        query.executeUpdate();
     }
 
 }

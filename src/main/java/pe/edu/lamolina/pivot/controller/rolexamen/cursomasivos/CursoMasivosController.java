@@ -32,6 +32,7 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
@@ -212,6 +213,7 @@ public class CursoMasivosController {
                             "curso.tpc",
                             "aulasCursosMasivos.aula.*",
                             "grupoHorasExamen.id",
+                            "grupoHorasExamen.fecha",
                             "grupoHorasExamen.dia.*",
                             "grupoHorasExamen.horaInicio.*",
                             "grupoHorasExamen.horaFin.*",
@@ -454,6 +456,7 @@ public class CursoMasivosController {
     public JsonResponse saveHorarioExamen(
             @RequestBody CursoMasivoExamen cursoMasivoExamen,
             HttpSession session, HttpServletRequest request) {
+
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
@@ -472,6 +475,44 @@ public class CursoMasivosController {
                         });
                 response.setData(jLog);
             }
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            rolExamenesLogger.finalizeLog();
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "revisarGpoHorasExamenCursoMasivo", method = RequestMethod.POST)
+    public JsonResponse revisarGpoHorasExamenCursoMasivo(
+            @RequestBody CursoMasivoExamen cursoMasivoExamen,
+            HttpSession session, HttpServletRequest request) {
+
+        JsonResponse response = new JsonResponse();
+        JsonNodeFactory jc = JsonNodeFactory.instance;
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds.setFechaAccionAudit(new Date());
+
+            logger.debug("revisarGpoHorasExamenCursoMasivo");
+            GrupoHorasExamen gpoHorasExamen = service.revisarGpoHorasExamenCursoMasivo(cursoMasivoExamen, ds);
+            ObjectNode gpoJson = JsonHelper.createJson(gpoHorasExamen, JsonNodeFactory.instance, true, new String[]{"*"});
+
+            ObjectNode node = new ObjectNode(jc);
+            node.set("grupoHorasExamen", gpoJson);
+            if (rolExamenesLogger.getLogDetails() != null && !rolExamenesLogger.getLogDetails().isEmpty()) {
+                ObjectNode jLog = JsonHelper.createJson(rolExamenesLogger, jc, false, new String[]{"*", "logDetails.*"});
+                node.set("conflictos", jLog);
+            }
+
+            response.setData(node);
+            response.setMessage("Revisión de horarios finalizada correctamente.");
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);

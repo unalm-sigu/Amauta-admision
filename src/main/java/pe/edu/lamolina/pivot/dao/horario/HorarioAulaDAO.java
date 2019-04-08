@@ -12,6 +12,9 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
@@ -77,5 +80,13 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
     List<HorarioAula> allBySeccionGrupoRegular(SeccionGrupoRegular seccionGrupoRegular);
 
     List<HorarioAula> allBySeccionGrupoEspecial(SeccionGrupoEspecial seccionGrupoEspecial);
+
+    List<HorarioAula> allByCursoMasivo(CursoMasivoExamen cursoMasivoExamen);
+
+    List<HorarioAula> allByRolExamenes(RolExamenes rolExamenes);
+
+    void deleteByRolExamenes(RolExamenes rolExamenes);
+
+    void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
 
 }

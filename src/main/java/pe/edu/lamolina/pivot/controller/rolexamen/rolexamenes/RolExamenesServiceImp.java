@@ -216,7 +216,6 @@ public class RolExamenesServiceImp implements RolExamenesService {
         List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
 
         final RolExamenes firstRolExamen = rolexamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloAcademico, null, EventoAcademicoEnum.EXAMEN_PARC);
-
         EventoCicloAcademico dictadoClases = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
 
         List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAcademico(rolExamenes.getEventoCicloAcademico().getCicloAcademico());
@@ -265,11 +264,13 @@ public class RolExamenesServiceImp implements RolExamenesService {
                 }
             }
             //to delete
+            /*
             List<HorarioAula> horariosAulasByCicloOcupadas = horarioAulaDAO.allOcupadasByCicloAndSemanaExamen(cicloAcademico, semana);
             for (HorarioAula horariosAulasByCicloOcupada : horariosAulasByCicloOcupadas) {
                 horarioAulaDAO.delete(horariosAulasByCicloOcupada);
 
-            }
+            }*/
+            horarioAulaDAO.deleteByRolExamenes(rolExamenes);
         }
 
     }

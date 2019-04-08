@@ -8,7 +8,8 @@ public enum TipoRolExamenesLoggerEnum {
     CUR_MAS("Cursos Masivos"), GPO_REG("Grupos Regulares"), GPO_ESP("Grupos Especiales"), //PARENTS
     TRAS_TO_CUR_MAS("Traslado a Cursos Masivos"), TRAS_TO_GPO_REG("Traslado a Grupo Regular"), //Traslados
     ACT_CUR_MAS("Activar Curso Masivo"), ACT_GPO_REG("Activar Grupo Regular"),
-    CRU_DOC("Cruce Docente"), CRU_ALU("Cruce Alumno"), CRU_AUL("Cruce Aula"); //HIJOS
+    CRU_DOC("Cruce Docente"), CRU_ALU("Cruce Alumno"), CRU_AUL("Cruce Aula"),
+    AUL_OCUP("Aula Ocupada"); //HIJOS
 
     private final String value;
     private static final Map<String, TipoRolExamenesLoggerEnum> lookup = new HashMap<>();

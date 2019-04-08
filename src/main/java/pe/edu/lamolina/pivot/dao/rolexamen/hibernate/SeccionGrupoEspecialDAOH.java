@@ -51,6 +51,7 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .join("seccion sec", "rolExamenes re")
                 .join("userRegistro ureg", "ureg.persona pureg")
                 .left("aula au", "grupoHorasExamen ghe")
+                .left("au.oficinaSupervisora ofsup")
                 .filter("re.id", rolExamenes)
                 .in("sce.estado", estados);
         return all(sql);
@@ -108,6 +109,14 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
     public void updateFechaExamen(SeccionGrupoEspecial seccionGrupoEspecial) {
         Octavia octavia = Octavia.update(SeccionGrupoEspecial.class);
         octavia.set(seccionGrupoEspecial, "grupoHorasExamen");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateFechaExamenAndAula(SeccionGrupoEspecial seccionGrupoEspecial) {
+        Octavia octavia = Octavia.update(SeccionGrupoEspecial.class);
+        octavia.set(seccionGrupoEspecial, "grupoHorasExamen");
+        octavia.set(seccionGrupoEspecial, "aula");
         this.update(octavia);
     }
 
