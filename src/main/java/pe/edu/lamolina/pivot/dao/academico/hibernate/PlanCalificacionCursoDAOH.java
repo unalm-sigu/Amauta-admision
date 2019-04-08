@@ -85,4 +85,16 @@ public class PlanCalificacionCursoDAOH extends AbstractEasyDAO<PlanCalificacionC
         return all(sql);
     }
 
+    @Override
+    public List<PlanCalificacionCurso> allActivosByPLanes(List<PlanCalificacion> planes) {
+        Octavia sql = Octavia.query()
+                .from(PlanCalificacionCurso.class, "pc")
+                .join("planCalificacion pln", "curso cur")
+                .left("pln.sistemaNotas")
+                .filter("pc.estado", EstadoEnum.ACT)
+                .in("pln.id", planes);
+
+        return all(sql);
+    }
+
 }

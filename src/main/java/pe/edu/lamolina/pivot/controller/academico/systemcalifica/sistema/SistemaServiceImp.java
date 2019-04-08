@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Evaluacion;
@@ -208,9 +210,19 @@ public class SistemaServiceImp implements SistemaService {
         }
 
         List<PlanCalificacion> listaPlanes = planCalificacionDAO.allByDynatable(filter, dpto);
+        List<Curso> cursos = cursoDAO.allByPlanes(listaPlanes);
+        List<Curso> cursosRegulares = cursoDAO.allRegularesByPlanes(listaPlanes);
+        //List<PlanCalificacionCurso> planesCursos = planCalificacionCursoDAO.allByFilter(plan, null, null, EstadoEnum.ACT);
+        List<PlanCalificacionCurso> planesCursos = planCalificacionCursoDAO.allActivosByPLanes(listaPlanes);
+
+        Map<Long, List<Curso>> mapCursos = TypesUtil.convertListToMapList("planCalificacion.id", cursos);
+        Map<Long, List<Curso>> mapCursosReg = TypesUtil.convertListToMapList("planCalificacionRegular.id", cursosRegulares);
+        Map<Long, List<PlanCalificacionCurso>> mapPlanesCurso = TypesUtil.convertListToMapList("planCalificacion.id", planesCursos);
+
         for (PlanCalificacion plan : listaPlanes) {
-            List<PlanCalificacionCurso> planesCursos = planCalificacionCursoDAO.allByFilter(plan, null, null, EstadoEnum.ACT);
-            plan.setPlanCalificacionCursos(planesCursos);
+            plan.setPlanCalificacionCursos(TypesUtil.getListNotNull(mapPlanesCurso.get(plan.getId())));
+            plan.setCurso(TypesUtil.getListNotNull(mapCursos.get(plan.getId())));
+            plan.setCursosPlanRegular(TypesUtil.getListNotNull(mapCursosReg.get(plan.getId())));
         }
         return listaPlanes;
     }
