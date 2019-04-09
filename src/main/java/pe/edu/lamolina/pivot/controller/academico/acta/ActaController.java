@@ -232,7 +232,8 @@ public class ActaController {
                             grupoHoras += sec.getGrupoHoras().getId() + "|" + sec.getGrupoHoras().getCodigo() + ",";
                         }
 
-                        docentesSeccion = service.allDocenteSeccionByFilter(null, sec);
+//                        docentesSeccion = service.allDocenteSeccionByFilter(null, sec);
+                        docentesSeccion = sec.getDocenteSeccion();
                         for (DocenteSeccion docentesSeccionEach : docentesSeccion) {
                             if (docentesSeccionEach.getEstadoEnum().equals(EstadoEnum.ACT)) {
                                 if (docentesSeccionEach.esDocentePrincipal()) {

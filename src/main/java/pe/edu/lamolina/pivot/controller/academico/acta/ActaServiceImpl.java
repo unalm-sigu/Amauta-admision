@@ -74,7 +74,31 @@ public class ActaServiceImpl implements ActaService {
 
     @Override
     public List<GrupoSeccion> allGrupoSeccionByFilterDyna(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, DynatableFilter dynatableFilter) {
-        return grupoSeccionDAO.allByDynatableCicloDpto(cicloAcademico, departamentoAcademico, dynatableFilter);
+        List<GrupoSeccion> gpoSecciones = grupoSeccionDAO.allByDynatableCicloDpto(cicloAcademico, departamentoAcademico, dynatableFilter);
+        List<Seccion> secciones = seccionDAO.allActivosByGposSeccion(gpoSecciones);
+        List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosBySecciones(secciones);
+
+        Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
+        Map<Long, List<DocenteSeccion>> mapDocentes = TypesUtil.convertListToMapList("seccion.id", profeSecciones);
+
+        for (GrupoSeccion gpoSecc : gpoSecciones) {
+            List<Seccion> seccionesGpo = TypesUtil.getListNotNull(mapSecciones.get(gpoSecc.getId()));
+            gpoSecc.setSecciones(seccionesGpo);
+            for (Seccion seccion : seccionesGpo) {
+                List<DocenteSeccion> profesBySeccion = TypesUtil.getListNotNull(mapDocentes.get(seccion.getId()));
+                List<DocenteSeccion> profesSeccFinal = new ArrayList();
+                for (DocenteSeccion profeSecc : profesBySeccion) {
+                    if (profeSecc.getDocente().getPersona() != null) {
+                        profesSeccFinal.add(profeSecc);
+                        profeSecc.setSeccion(seccion);
+                    }
+                }
+                seccion.setDocenteSeccion(profesSeccFinal);
+                seccion.setGrupoSeccion(gpoSecc);
+            }
+        }
+
+        return gpoSecciones;
     }
 
     @Override
@@ -181,7 +205,7 @@ public class ActaServiceImpl implements ActaService {
             if (curso.getDepartamentoAcademico() == null) {
                 continue;
             }
-            
+
             gpoSeccionesFinal.add(gpoSecc);
             List<Seccion> seccionesGpo = TypesUtil.getListNotNull(mapSecciones.get(gpoSecc.getId()));
             gpoSecc.setSecciones(seccionesGpo);

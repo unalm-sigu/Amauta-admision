@@ -66,9 +66,9 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
 
         String head = "Curso|Grupo|Departamento|Docente Principal|Email Doc. Principal|Versión Acta|Estado Sistema Calificación|Estado Acta|Fecha Cierre Acta|Alumnos Total|Alumnos NF";
         rows.add(head);
-        StringBuilder sb;
+
         for (GrupoSeccion grupoSeccion : allGruposSeccion) {
-            sb = new StringBuilder();
+
             Curso curso = grupoSeccion.getCurso();
             DepartamentoAcademico departamento = curso.getDepartamentoAcademico();
 
@@ -126,8 +126,11 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
                 docentes = "-";
                 emails = "-";
             }
-            logger.debug("creando registro-excel del curso {}", curso.getCodigo());
-            sb
+
+            Object cantidadAlumnos = cantidadAlumnosByGrupo.get(grupoSeccion.getId());
+            Object cantidadAlumnosNF = cantidadAlumnosByGrupoNF.get(grupoSeccion.getId());
+
+            StringBuilder sb = new StringBuilder()
                     .append(curso.getNombre()).append("|")
                     .append(secciones.substring(0, secciones.length())).append("|")
                     .append(departamento.getNombre()).append("|")
@@ -135,16 +138,10 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
                     .append(emails).append("|")
                     .append(grupoSeccion.getVersion()).append("|")
                     .append(estadoPlan).append("|")
-                    .append(estadoGrupo);
-
-            sb.append("|")
-                    .append(grupoSeccion.getFechaCierreActa() == null ? "-" : TypesUtil.getStringDate(grupoSeccion.getFechaCierreActa(), "dd/MM/yyyy"));
-
-            Object cantidadAlumnos = cantidadAlumnosByGrupo.get(grupoSeccion.getId());
-            sb.append("|").append(cantidadAlumnos != null ? TypesUtil.getInt(cantidadAlumnos) : "");
-
-            Object cantidadAlumnosNF = cantidadAlumnosByGrupoNF.get(grupoSeccion.getId());
-            sb.append("|").append(cantidadAlumnosNF != null ? TypesUtil.getInt(cantidadAlumnosNF) : "");
+                    .append(estadoGrupo).append("|")
+                    .append(grupoSeccion.getFechaCierreActa() == null ? "-" : TypesUtil.getStringDate(grupoSeccion.getFechaCierreActa(), "dd/MM/yyyy")).append("|")
+                    .append(cantidadAlumnos != null ? TypesUtil.getInt(cantidadAlumnos) : "").append("|")
+                    .append(cantidadAlumnosNF != null ? TypesUtil.getInt(cantidadAlumnosNF) : "");
 
             rows.add(sb.toString());
         }
