@@ -229,10 +229,13 @@ public class SistemaServiceImp implements SistemaService {
 
     @Override
     public PlanCalificacion findPlanCalificacion(Long idPlanCalificacion) {
-        PlanCalificacion planCalificacion = planCalificacionDAO.find(idPlanCalificacion);
-        List<PlanCalificacionCurso> planCursos = planCalificacionCursoDAO.allByFilter(planCalificacion, null, null, EstadoEnum.ACT);
-        planCalificacion.setPlanCalificacionCursos(planCursos);
-        return planCalificacion;
+        PlanCalificacion plan = planCalificacionDAO.find(idPlanCalificacion);
+        List<PlanCalificacionCurso> planCursos = planCalificacionCursoDAO.allByFilter(plan, null, null, EstadoEnum.ACT);
+        List<EvaluacionPlan> evaluaciones = evaluacionPlanDAO.allByPlan(plan);
+
+        plan.setPlanCalificacionCursos(planCursos);
+        plan.setEvaluacionPlan(evaluaciones);
+        return plan;
     }
 
     @Override

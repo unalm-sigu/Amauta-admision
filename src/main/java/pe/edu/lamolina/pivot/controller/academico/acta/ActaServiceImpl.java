@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.acta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
@@ -27,6 +30,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.auditoria.ControlDeActasDAO;
 
 @Service
@@ -40,6 +44,9 @@ public class ActaServiceImpl implements ActaService {
 
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
+
+    @Autowired
+    SeccionDAO seccionDAO;
 
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
@@ -157,6 +164,52 @@ public class ActaServiceImpl implements ActaService {
     @Override
     public List<DepartamentoAcademico> countGroupsByFilter(List<Long> departamentos, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico) {
         return departamentoAcademicoDAO.countByFilter(departamentos, cicloAcademico, departamentoAcademico);
+    }
+
+    @Override
+    public List<GrupoSeccion> allGrupoSeccionByCiclo(CicloAcademico cicloAcademico) {
+        List<GrupoSeccion> gpoSecciones = grupoSeccionDAO.allActivoByCiclo(cicloAcademico);
+        List<GrupoSeccion> gpoSeccionesFinal = new ArrayList();
+        List<Seccion> secciones = seccionDAO.allActivosByGposSeccion(gpoSecciones);
+        List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosBySecciones(secciones);
+
+        Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
+        Map<Long, List<DocenteSeccion>> mapDocentes = TypesUtil.convertListToMapList("seccion.id", profeSecciones);
+
+        for (GrupoSeccion gpoSecc : gpoSecciones) {
+            Curso curso = gpoSecc.getCurso();
+            if (curso.getDepartamentoAcademico() == null) {
+                continue;
+            }
+            
+            gpoSeccionesFinal.add(gpoSecc);
+            List<Seccion> seccionesGpo = TypesUtil.getListNotNull(mapSecciones.get(gpoSecc.getId()));
+            gpoSecc.setSecciones(seccionesGpo);
+            for (Seccion seccion : seccionesGpo) {
+                List<DocenteSeccion> profesBySeccion = TypesUtil.getListNotNull(mapDocentes.get(seccion.getId()));
+                List<DocenteSeccion> profesSeccFinal = new ArrayList();
+                for (DocenteSeccion profeSecc : profesBySeccion) {
+                    if (profeSecc.getDocente().getPersona() != null) {
+                        profesSeccFinal.add(profeSecc);
+                        profeSecc.setSeccion(seccion);
+                    }
+                }
+                seccion.setDocenteSeccion(profesSeccFinal);
+                seccion.setGrupoSeccion(gpoSecc);
+            }
+        }
+
+        return gpoSeccionesFinal;
+    }
+
+    @Override
+    public Map mapCantidadAlumnoByGrupo(List<GrupoSeccion> gpoSecciones) {
+        return grupoSeccionDAO.allCountAlumnos(gpoSecciones);
+    }
+
+    @Override
+    public Map mapCantidadAlumnoByGrupoNF(List<GrupoSeccion> gpoSecciones) {
+        return grupoSeccionDAO.allCountAlumnosWithNf(gpoSecciones);
     }
 
 }
