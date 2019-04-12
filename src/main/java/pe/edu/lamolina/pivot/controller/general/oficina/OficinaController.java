@@ -176,8 +176,7 @@ public class OficinaController {
             tiposOficinaJson.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{"*"}));
         }
 
-        ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
-            "*", "tipoOficina.*", "cargoJefe.*", "oficinaSuperior.*"});
+        ObjectNode oficinaJson = createOficinaJson(oficina);
         oficinaJson.put("instanciaReferencia", "");
 
         model.addAttribute("tiposOficina", tiposOficinaJson.toString());
@@ -591,10 +590,18 @@ public class OficinaController {
         ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
             "id", "nombre", "codigo", "estadoEnum", "estado", "motivoAusenciaJefe",
             "fechaInicioJefatura", "fechaEncargatura",
+            "instanciaOficina",
+            "instanciaOficinaCodigo",
+            "instanciaOficinaNombre",
+            "compania.telefonos",
+            "tipoOficina.id",
+            "tipoOficina.codigo",
+            "tipoOficina.nombre",
             "tipoOficina.nivelEnum",
             "tipoOficina.codigoEnum",
             "oficinaSuperior.id",
             "oficinaSuperior.nombre",
+            "cargoJefe.id",
             "cargoJefe.nombre",
             "jefeEncargado.id",
             "jefeEncargado.nombreConTitulo",
