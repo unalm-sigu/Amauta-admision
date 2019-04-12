@@ -17,6 +17,12 @@ new Vue({
         if ($vue.oficina.tipoOficina.id != undefined) {
             $vue.loadReferencias($vue.oficina.tipoOficina);
         }
+        $vue.oficina.codigo = VUE.revisarCodigo($vue.oficina.codigo);
+        $vue.oficina.nombre = VUE.revisarNombreObjeto($vue.oficina.nombre);
+        $vue.oficina.anexos = VUE.revisarAnexos($vue.oficina.anexos);
+        $vue.oficina.telefonos = VUE.revisarTelefonos($vue.oficina.telefonos);
+        $vue.oficina.email = VUE.revisarEmail($vue.oficina.email);
+
     },
     watch: {
     },
@@ -119,6 +125,7 @@ new Vue({
         save() {
             let $vue = this;
 
+
             let form = $("#formOficina");
             form.parsley().destroy();
             form.parsley();
@@ -159,27 +166,31 @@ new Vue({
 
             if (tipo == 'CODIGO') {
                 ofi[campo] = VUE.revisarCodigo(ofi[campo]);
+
             } else if (tipo == 'EMAIL') {
                 ofi[campo] = VUE.revisarEmail(ofi[campo]);
+
+            } else if (tipo == 'NOMBRE') {
+                ofi[campo] = VUE.revisarNombreObjeto(ofi[campo]);
+
             } else if (tipo == 'ANEXOS') {
-                var str = ofi[campo];
-                str = str.replace(/[\-\/\,]/g, ' ');
-                str = str.replace(/[^0-9\s]/g, '');
-                str = str.replace(/ +(?= )/g, '').trim();
-                var arr = str.split(" ");
-                str = arr.join(" / ");
-                ofi[campo] = str;
+                ofi[campo] = VUE.revisarAnexos(ofi[campo]);
 
             } else if (tipo == 'TELEFONOS') {
-                var str = ofi[campo];
-                str = str.replace(/[\/\,]/g, ' ');
-                str = str.replace(/[^0-9\s]/g, '');
-                str = str.replace(/ +(?= )/g, '').trim();
-                var arr = str.split(" ");
-                str = arr.join(" / ");
-                ofi[campo] = str;
+                ofi[campo] = VUE.revisarTelefonos(ofi[campo]);
             }
         }
     }
 });
+
+window.Parsley
+        .addValidator('nombreObjeto', {
+            requirementType: 'string',
+            validateString(value) {
+                return value !== value.toUpperCase();
+            },
+            messages: {
+                es: 'Este valor no pueder ser todo en mayúsculas'
+            }
+        });
     

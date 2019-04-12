@@ -31,6 +31,8 @@
                                         <div class="form-group">
                                             <label>Nombre</label>
                                             <input type="text" class="form-control" required="true" maxlength="200"
+                                                   data-parsley-nombre-objeto=""
+                                                   v-on:blur="revisar('NOMBRE',oficina,'nombre')"
                                                    v-model="oficina.nombre"/>
                                         </div>
                                     </div>
@@ -115,14 +117,17 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label class="control-label">Teléfonos directos</label>
-                                            <input  type="text" class="form-control" maxlength="400" v-model="oficina.telefonos"/>
+                                            <input  type="text" class="form-control" maxlength="400" 
+                                                    v-on:blur="revisar('TELEFONOS',oficina,'telefonos')"
+                                                    v-model="oficina.telefonos"/>
                                         </div>
                                     </div>
 
                                     <div class="col-sm-12">
                                         <div class="form-group">
                                             <label class="control-label">Correo electrónico</label>
-                                            <input  type="text" class="form-control" maxlength="200" 
+                                            <input  type="email" class="form-control" maxlength="200"
+                                                    data-parsley-type="email"
                                                     v-on:blur="revisar('EMAIL',oficina,'email')"
                                                     v-model="oficina.email"/>
                                         </div>
