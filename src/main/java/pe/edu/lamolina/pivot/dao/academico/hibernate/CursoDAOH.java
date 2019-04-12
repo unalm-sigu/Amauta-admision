@@ -106,11 +106,31 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
     }
 
     @Override
+    public List<Curso> allByPlanes(List<PlanCalificacion> planes) {
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cu")
+                .join("planCalificacion pc")
+                .in("pc.id", planes);
+
+        return all(sql);
+    }
+
+    @Override
     public List<Curso> allByPlanRegular(PlanCalificacion plan) {
         Octavia sql = Octavia.query()
                 .from(Curso.class, "cu")
                 .join("planCalificacionRegular pc")
                 .filter("pc.id", plan);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Curso> allRegularesByPlanes(List<PlanCalificacion> planes) {
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cu")
+                .join("planCalificacionRegular pc")
+                .in("pc.id", planes);
 
         return all(sql);
     }
