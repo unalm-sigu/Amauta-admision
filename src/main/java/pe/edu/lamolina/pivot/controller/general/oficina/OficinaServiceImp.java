@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
@@ -795,6 +796,9 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     public TipoOficina findTipoById(String id) {
+        if (StringUtils.isEmpty(id)) {
+            return new TipoOficina();
+        }
         return tipoOficinaDAO.find(Long.valueOf(id));
     }
 

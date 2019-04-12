@@ -8,7 +8,7 @@
 
                 <header class="header b-b padder-lg">                
                     <a th:href="${origen}" class="btn btn-default btn-sm pull-right">Regresar</a>
-                    <h2 v-text="oficina.id != null ? oficina.nombre : 'Nueva Oficina' " >Nuevo Oficina</h2> 
+                    <h2 v-text="oficina.id != '' ? oficina.nombre : 'Nueva Oficina' " >Nuevo Oficina</h2> 
                 </header>
 
                 <section class="wrapper-lg">
@@ -169,7 +169,7 @@
                                 <div id="footerOficina" class="text-center">
                                     <a th:href="${origen}" class="btn btn-default" >Regresar</a>
                                     <a class="btn btn-primary"
-                                       v-text="oficina.id != null ? 'Actualizar' :'Guardar'" v-on:click='save'></a>
+                                       v-text="oficina.id != '' ? 'Actualizar' :'Guardar'" v-on:click='save'></a>
                                 </div>
                             </div>
                         </section>

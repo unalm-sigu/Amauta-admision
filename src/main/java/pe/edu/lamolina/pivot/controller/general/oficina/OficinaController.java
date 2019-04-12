@@ -151,8 +151,9 @@ public class OficinaController {
             tiposOficinaJson.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{"*"}));
         }
 
-        ObjectNode oficinaJson = JsonHelper.createJson(new Oficina(), JsonNodeFactory.instance, new String[]{
-            "*", "tipoOficina.*", "cargoJefe.*", "oficinaSuperior.*"});
+        Oficina oficina = new Oficina();
+        oficina.setCompania(ds.getCompania());
+        ObjectNode oficinaJson = createOficinaJson(oficina);
         oficinaJson.put("instanciaReferencia", "");
 
         model.addAttribute("tiposOficina", tiposOficinaJson.toString());
@@ -262,8 +263,8 @@ public class OficinaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
             ArrayNode array = new ArrayNode(jsonFactory);
-            TipoOficina oficina = service.findTipoById(tipo);
-            if (TipoOficinaEnum.DPTO.name().equalsIgnoreCase(oficina.getCodigo())) {
+            TipoOficina tipoOficina = service.findTipoById(tipo);
+            if (TipoOficinaEnum.DPTO == tipoOficina.getCodigoEnum()) {
                 List<DepartamentoAcademico> departamentos = service.allDepartamento(compania);
                 for (DepartamentoAcademico departamento : departamentos) {
                     ObjectNode a = JsonHelper.createJson(departamento, jsonFactory, columnas.split(","));
@@ -272,7 +273,7 @@ public class OficinaController {
                     array.add(a);
                 }
             }
-            if (TipoOficinaEnum.ESP.name().equalsIgnoreCase(oficina.getCodigo())) {
+            if (TipoOficinaEnum.ESP == tipoOficina.getCodigoEnum()) {
                 List<Carrera> carreras = service.allCarrera(compania);
                 for (Carrera carrera : carreras) {
 
@@ -290,7 +291,7 @@ public class OficinaController {
                     array.add(a);
                 }
             }
-            if (TipoOficinaEnum.FAC.name().equalsIgnoreCase(oficina.getCodigo())) {
+            if (TipoOficinaEnum.FAC == tipoOficina.getCodigoEnum()) {
                 List<Facultad> facultades = service.allFacultad(compania);
                 for (Facultad facultad : facultades) {
                     ObjectNode a = JsonHelper.createJson(facultad, jsonFactory, columnas.split(","));
