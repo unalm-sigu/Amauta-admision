@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.acta;
 
 import java.util.List;
+import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -32,5 +33,11 @@ public interface ActaService {
     List<DepartamentoAcademico> countGroupsByFilter(List<Long> departamentos, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico);
 
     ActaResumen findResumenByDepartamento(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico);
+
+    List<GrupoSeccion> allGrupoSeccionByCiclo(CicloAcademico cicloAcademico);
+
+    Map mapCantidadAlumnoByGrupo(List<GrupoSeccion> gpoSecciones);
+
+    Map mapCantidadAlumnoByGrupoNF(List<GrupoSeccion> gpoSecciones);
 
 }

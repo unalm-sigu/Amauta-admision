@@ -418,15 +418,6 @@ APP = {
 
         $this.val(nom);
     },
-    revisarNombre2: function (string) {
-        var nom = string.toLowerCase().replace(/[^a-zçñáéíóúü\s'\-]/g, '');
-        nom = nom.replace(/[\n\f\b\r|,\t]/g, ' ').replace(/\s\s+/g, ' ').trim();
-        nom = APP.capitalize(nom, " ");
-        nom = APP.capitalize(nom, "'");
-        nom = APP.capitalize(nom, "-");
-
-        return nom;
-    },
     capitalize: function (string, separator) {
         var arr = string.split(separator);
         $.each(arr, function (i, value) {
@@ -518,6 +509,26 @@ APP = {
         link.click();
     }
 };
+
+VUE = {
+    revisarEmail: function (string) {
+        var conte = string.toLowerCase().replace(/[\n\f\b\r\t\s|,'"!$%&/]/g, '').trim();
+        return APP.stripAccents(conte).toLowerCase();
+    },
+    revisarNombre: function (string) {
+        var nom = string.toLowerCase().replace(/[^a-zçñáéíóúü\s'\-]/g, '');
+        nom = nom.replace(/[\n\f\b\r|,\t]/g, ' ').replace(/\s\s+/g, ' ').trim();
+        nom = APP.capitalize(nom, " ");
+        nom = APP.capitalize(nom, "'");
+        nom = APP.capitalize(nom, "-");
+
+        return nom;
+    },
+    revisarCodigo: function (string) {
+        var str = string.replace(/[\s\n\f\b\r\t]/g, '');
+        return str.toUpperCase();
+    },
+}
 
 MESSAGES = {
     errorComunicacion: 'Error de conexión con el servidor.',

@@ -6,9 +6,14 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
+import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
+import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AvanceCurricularAsincronoService {
@@ -21,6 +26,12 @@ public interface AvanceCurricularAsincronoService {
             Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
             List<MatriculaCurso> cursosMatriculados,
             List<AlumnoCicloCurso> cursosAprobadosAlumno,
+            List<AlumnoCursoCurricula> alumnoCursoCurricula,
+            List<CursoOpcionalCurricula> cursoOpcionalCurriculas,
+            Map<Long, CursoCurricula> mapCursoCurriculaByCurso,
+            List<TipoCursoCurricula> tipoCursoCurriculas,
+            List<ResumenPlanCurricular> resumenPlanCurriculars,
+            List<AlumnoAvanceCurricular> alumnoAvanceCurriculars,
             DataSessionPivot ds);
 
     void procesarAlumnoSincrono(
@@ -31,6 +42,12 @@ public interface AvanceCurricularAsincronoService {
             Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
             List<MatriculaCurso> cursosMatriculados,
             List<AlumnoCicloCurso> cursosAprobadosAlumno,
+            List<AlumnoCursoCurricula> alumnoCursoCurricula,
+            List<CursoOpcionalCurricula> cursoOpcional,
+            Map<Long, CursoCurricula> mapCursosCurriculaByCurso,
+            List<TipoCursoCurricula> tipoCursoCurriculas,
+            List<ResumenPlanCurricular> resumenPlanCurriculars,
+            List<AlumnoAvanceCurricular> alumnoAvanceCurriculars,
             DataSessionPivot ds);
 
     void deleteAllAlumnoCursoSimultaneoByAlumno(Alumno alumno);
@@ -50,5 +67,11 @@ public interface AvanceCurricularAsincronoService {
             Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
             List<MatriculaCurso> cursosMatriculados,
             List<AlumnoCicloCurso> cursosAprobadosAlumno,
+            List<AlumnoCursoCurricula> alumnoCursoCurricula,
+            List<CursoOpcionalCurricula> cursoOpcionalCurriculas,
+            Map<Long, CursoCurricula> mapCursoCurriculaByCurso,
+            List<TipoCursoCurricula> tipoCursoCurriculas,
+            List<ResumenPlanCurricular> resumenPlanCurriculars,
+            List<AlumnoAvanceCurricular> alumnoAvanceCurriculars,
             DataSessionPivot ds);
 }

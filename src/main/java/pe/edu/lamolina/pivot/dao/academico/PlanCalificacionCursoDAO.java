@@ -17,4 +17,6 @@ public interface PlanCalificacionCursoDAO extends EasyDAO<PlanCalificacionCurso>
 
     List<PlanCalificacionCurso> allByFilterDyna(DynatableFilter filter, PlanCalificacion planCalificacion, EstadoEnum estadoPlanCurdo);
 
+    List<PlanCalificacionCurso> allActivosByPLanes(List<PlanCalificacion> planes);
+
 }

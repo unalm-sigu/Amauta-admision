@@ -14,7 +14,10 @@ public interface CursoEquivalenteDAO extends EasyDAO<CursoEquivalente> {
 
     List<CursoEquivalente> allActivoByCursoCurricula(CursoCurricula cursoCurricula);
 
+    List<CursoEquivalente> allActivoByCursosCurriculas(List<CursoCurricula> cursosCurricula);
+
     List<CursoEquivalente> allActivoByPlanCurricular(PlanCurricular planCurricular);
 
     List<CursoEquivalente> allActivoByPlanes(List<PlanCurricular> planes);
+
 }

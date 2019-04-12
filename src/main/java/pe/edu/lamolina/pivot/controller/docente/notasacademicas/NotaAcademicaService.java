@@ -150,7 +150,7 @@ public interface NotaAcademicaService {
 
     void desvincularPlanCalificacion(GrupoSeccion grupo);
 
-    List<PlanCalificacionCurso> findAllActivePlanCalificacionCursos(Curso curso, TipoCicloEnum tipoCicloEnum);
+    List<PlanCalificacionCurso> allActivosPlanCalificacionCurso(Curso curso, TipoCicloEnum tipoCicloEnum);
 
     void cambiarAnularNotaminima(EvaluacionExpandida evaluacionExpandida, Integer notaMinimaAnulable);
 

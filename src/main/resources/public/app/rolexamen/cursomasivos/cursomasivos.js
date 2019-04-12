@@ -11,20 +11,19 @@ new Vue({
             title: 'Asignar Aulas',
             cancelbtn: 'Cancelar',
             okbtn: 'Asignar',
-            modalsize: 'modal-lg'
+            modalsize: 'modal-lg',
+            showaccept: true
         },
         aulasAsignadasModal: {
             id: 'modalAulasAsignadas',
             header: true,
             title: 'Aulas Asignadas',
-            showaccept: "false",
             modalsize: 'modal-lg'
         },
         seccionesModal: {
             id: 'modalSecciones',
             header: true,
-            title: 'Secciones Asignadas',
-            showaccept: "false"
+            title: 'Secciones Asignadas'
         },
         rolExamenes: null,
         rolesExamenes: JSON.parse(jRolexamenes),
@@ -47,7 +46,12 @@ new Vue({
         semanasExamen: [],
         semanaExamenActiva: null,
         grupoActivo: null,
-        rolExamenesLogger: null
+        rolExamenesLogger: null,
+        gposHorasExamen: [],
+        gposFechas: [],
+        conflictos: [],
+        btnVerificar: true,
+        btnTexto: "Verificar horarios",
     },
     mounted() {
         let $vue = this;
@@ -152,7 +156,8 @@ new Vue({
             }, error => {
                 notify(MESSAGES.errorComunicacion, 'error');
             });
-        }, eliminarGruposMasivos() {
+        },
+        eliminarGruposMasivos() {
             let vue = this;
             bootbox.confirm({
                 message: "¿Si continua se perdera el avance de los cursos masivos, grupos regulares y especiales?",
@@ -202,7 +207,8 @@ new Vue({
             $vue.cursoMasivoExamen = jQuery.extend(true, {}, item);
             $vue.aulas = $vue.cursoMasivoExamen.aulasCursosMasivos;
             $vue.$refs.addAulasModal.open();
-        }, cursoMasivoSecciones(item) {
+        },
+        cursoMasivoSecciones(item) {
             location.href = `${this.URL}/secciones/${item.id}`;
         },
         verAulasAsignadas(item) {
@@ -291,7 +297,8 @@ new Vue({
                     }
                 }
             });
-        }, excluir(item, tipoAccion) {
+        },
+        excluir(item, tipoAccion) {
             console.dir(item);
             let vue = this;
             bootbox.confirm({
@@ -330,7 +337,8 @@ new Vue({
                     }
                 }
             });
-        }, incluir(item, tipoAccion) {
+        },
+        incluir(item, tipoAccion) {
             let vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea incluir?",
@@ -449,7 +457,8 @@ new Vue({
             }
             this.listarHorarioSemanal();
             $vue.$refs.modalHorarios.open();
-        }, saveHorarioExamen() {
+        },
+        saveHorarioExamen() {
             let $vue = this;
             //   $vue.grupoActivo.semanaExamen = this.semanaExamenActiva;
             $vue.cursoMasivoExamen.grupoHorasExamen = {id: $vue.grupoActivo.id};
@@ -467,7 +476,8 @@ new Vue({
                         // MODAL.hideWait();
                     });
             $vue.$refs.modalHorarios.close();
-        }, listarHorarioSemanal() {
+        },
+        listarHorarioSemanal() {
             AXIOS.post(`${APP.url('rolexamen/plantillahorario')}/listarHorarioSemanal`, this.rolExamenes)
                     .then(response => {
                         if (response.data.success) {
@@ -482,13 +492,20 @@ new Vue({
                         }
                         // MODAL.hideWait();
                     });
-        }, fechaGrupoHoraItem(fechaGrupoHora) {
+        },
+        fechaGrupoHoraItem(fechaGrupoHora) {
             if (this.grupoActivo != null && fechaGrupoHora.grupoHorasExamen.id == this.grupoActivo.id) {
                 return "border-color:#600D63; background-color:#DCDFE3;color:#000000;"
             }
 
-            return "border-color:#DFE7EE; background-color:#FFFFFF;color:#E40DEB;"
-        }, seleccionarSemana(semana) {
+            if (fechaGrupoHora.revisado == 'SI') {
+                return "border-color:#600D63; background-color:#27AE60;color:#FFFFFF;";
+            } else if (fechaGrupoHora.revisado == 'NO') {
+                return "border-color:#600D63; background-color:#E74C3C;color:#FFFFFF;";
+            }
+            return "border-color:#DFE7EE; background-color:#FFFFFF;color:#E40DEB;";
+        },
+        seleccionarSemana(semana) {
             console.dir(semana);
             let vue = this;
             this.semanasExamen.forEach(function (x) {
@@ -499,23 +516,113 @@ new Vue({
                     x.selected = false;
                 }
             });
-        }, seleccionarGrupoHorasExamen(dia, hora, semExamen) {
+        },
+        seleccionarGrupoHorasExamen(dia, hora, semExamen) {
+            let $vue = this;
             let fechaHoraGrupoExamen = semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id + '_' + hora.id];
+            if (fechaHoraGrupoExamen.revisado == "NO") {
+                $vue.rolExamenesLogger = $vue.conflictos[dia.id + '_' + hora.id];
+                $vue.$refs.infoModal.title = $vue.rolExamenesLogger.message;
+                $vue.$refs.infoModal.open();
+                notify("Este grupo ya fue descartado por contener conflictos", "error");
+                return;
+            }
             console.log("fecha hora grupo examen seleccionado");
             console.dir(fechaHoraGrupoExamen);
             console.log("semana examen");
             console.dir(semExamen);
-            this.grupoActivo = fechaHoraGrupoExamen.grupoHorasExamen;
-        }, verDocentes(cursoMasivo) {
+            $vue.grupoActivo = fechaHoraGrupoExamen.grupoHorasExamen;
+        },
+        verDocentes(cursoMasivo) {
             this.cursoMasivoExamen = cursoMasivo;
             this.$refs.tblDocentesCursosMasivos.ajaxdata = {cursoMasivo: this.cursoMasivoExamen.id};
             this.$refs.tblDocentesCursosMasivos.loadRemoteData();
             this.$refs.docenteModal.open();
-        }, verAlumnos(cursoMasivo) {
+        },
+        verAlumnos(cursoMasivo) {
             this.cursoMasivoExamen = cursoMasivo;
             this.$refs.tblAlumnoCursosMasivos.ajaxdata = {cursoMasivo: this.cursoMasivoExamen.id};
             this.$refs.tblAlumnoCursosMasivos.loadRemoteData();
             this.$refs.alumnoModal.open();
+        },
+        verificarTodosGpos() {
+            let $vue = this;
+            let gposHorasExamen = [];
+            $vue.gposFechas = [];
+            $vue.conflictos = [];
+            $vue.gposHorasExamen = [];
+            $vue.btnVerificar = false;
+            $vue.btnTexto = '<i class="fa fa-spinner fa-spin"></i> Verificando...';
+
+            for (var i = 0; i < $vue.semanasExamen.length; i++) {
+                let semExamen = $vue.semanasExamen[i];
+                let dias = semExamen.tblHorarioSeamanaExamen.dias;
+                let horas = semExamen.tblHorarioSeamanaExamen.horas;
+
+                for (var j = 0; j < dias.length; j++) {
+                    let dia = dias[j];
+                    for (var k = 0; k < horas.length; k++) {
+                        let hora = horas[k];
+                        let fhg = semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id + '_' + hora.id];
+                        if (fhg != undefined) {
+                            gpo = fhg.grupoHorasExamen;
+                            gposHorasExamen[gpo.id] = gpo;
+                            let listaHdia = $vue.gposFechas[gpo.id];
+                            if (listaHdia == undefined) {
+                                listaHdia = [];
+                            }
+                            listaHdia.push({idDiaHora: dia.id + '_' + hora.id, semana: i});
+                            $vue.gposFechas[gpo.id] = listaHdia;
+                        }
+                    }
+                }
+            }
+
+            for (var key in gposHorasExamen) {
+                let gpo = gposHorasExamen[key];
+                $vue.gposHorasExamen.push(gpo);
+
+                let listaHdia = $vue.gposFechas[gpo.id];
+                for (var i = 0; i < listaHdia.length; i++) {
+                    let idx = listaHdia[i];
+                    let fhg = $vue.semanasExamen[idx.semana].tblHorarioSeamanaExamen.fechasHorasGrupos[idx.idDiaHora];
+                    fhg.revisado = "";
+                }
+            }
+
+            $vue.verificarGrupo(0);
+        },
+        verificarGrupo(idxGpo) {
+            let $vue = this;
+            if ($vue.gposHorasExamen.length <= idxGpo) {
+                $vue.btnVerificar = true;
+                $vue.btnTexto = 'Verificar horarios';
+                notify("Se terminó de revisar todos los horarios", "info");
+                return;
+            }
+            $vue.cursoMasivoExamen.grupoHorasExamen = {id: $vue.gposHorasExamen[idxGpo].id};
+            axios.post(`${this.URL}/revisarGpoHorasExamenCursoMasivo`, $vue.cursoMasivoExamen)
+                    .then(response => {
+                        if (response.data.success) {
+                            let rpta = response.data.data;
+                            let gpo = $vue.gposHorasExamen[idxGpo];
+                            let listaHdia = $vue.gposFechas[gpo.id];
+                            for (var i = 0; i < listaHdia.length; i++) {
+                                let idx = listaHdia[i];
+                                let fhg = $vue.semanasExamen[idx.semana].tblHorarioSeamanaExamen.fechasHorasGrupos[idx.idDiaHora];
+                                fhg.revisado = rpta.grupoHorasExamen.revisado;
+                                $vue.conflictos[idx.idDiaHora] = rpta.conflictos;
+                            }
+
+                        }
+                        $vue.verificarGrupo(idxGpo + 1);
+                    });
+        },
+        styleAlumnoVsAulas(item) {
+            if (item.capacidadAulas >= item.alumnosCount) {
+                return "text-primary";
+            }
+            return "text-danger";
         }
     }
 });

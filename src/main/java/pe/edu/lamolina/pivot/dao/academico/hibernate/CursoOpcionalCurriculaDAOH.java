@@ -10,6 +10,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.PlanCurricular;
@@ -20,6 +21,16 @@ public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCur
     public CursoOpcionalCurriculaDAOH() {
         super();
         setClazz(CursoOpcionalCurricula.class);
+    }
+
+    @Override
+    public CursoOpcionalCurricula find(long id) {
+        Octavia sql = Octavia.query()
+                .from(CursoOpcionalCurricula.class, "cc")
+                .join("curso cur", "planCurricular pc", "tipoCursoCurricula tcc")
+                .filter("cc.id", id);
+
+        return find(sql);
     }
 
     @Override
@@ -74,6 +85,17 @@ public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCur
                 .orderBy("cur.nombre")
                 .limit(limit);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public CursoOpcionalCurricula allByPlanCurricularAndCurso(PlanCurricular planCurricular, Curso curso) {
+        Octavia sql = Octavia.query()
+                .from(CursoOpcionalCurricula.class, "cc")
+                .join("curso cur", "planCurricular pc", "tipoCursoCurricula tcc")
+                .filter("pc.id", planCurricular)
+                .filter("cur.id", curso);
+
+        return find(sql);
     }
 
 }

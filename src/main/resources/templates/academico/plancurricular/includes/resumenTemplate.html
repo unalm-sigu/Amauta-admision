@@ -1,18 +1,27 @@
 <tr rel="{{:index}}">
     {{if tipoCurso=="TOTAL"}}
-        <td  class="v-middle text-right"> 
-            <b>{{:tipoCurso}}</b>
-        </td>
-    {{else}}
-        <td  class="v-middle"> 
-            <span class="block">{{:tipoCurso}}</span>
-        </td>
-    {{/if}}
-    <td  class="v-middle text-center"> 
-        <span class="block">{{:creditos}}</span>
+    <td  class="v-middle text-right"> 
+        <b>{{:tipoCurso}}</b>
     </td>
-    <td  class="v-middle text-center"> 
+    {{else}}
+    <td  class="v-middle"> 
+        <span class="block">{{:tipoCurso}}</span>
+    </td>
+    {{/if}}
+    <td  class="v-middle text-center {{:tipoCursoCodigo}}"> 
+
+        {{if tipoCursoCodigo == 'EEP' }}
+        <a class="block bold" rel="{{:id}}" value="1">{{:creditos}}</a>
+        {{else}}
+        <span class="block">{{:creditos}}</span>
+        {{/if}}
+    </td>
+    <td  class="v-middle text-center {{:tipoCursoCodigo}} "> 
+        {{if tipoCursoCodigo == 'ELC' }}
+        <a class="block bold" rel="{{:id}}" value="2">{{:minimoCreditos}}</a>
+        {{else}}
         <span class="block">{{:minimoCreditos}}</span>
+        {{/if}}
     </td>
     <td  class="v-middle text-center"> 
         <span class="block">{{:cursos}}</span>

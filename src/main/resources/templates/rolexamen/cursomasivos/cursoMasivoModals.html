@@ -170,37 +170,56 @@
 <modal-vik ref="modalHorarios"
            id="modalHorarios"
            header="true"
+           showaccept="true"
            title="Horarios"
            modalsize="modal-lg"
            v-bind:okaction="saveHorarioExamen">
+
     <div slot="body">
         <form id="frmHorarios">
             <section class="panel-body">
+
                 <div class="row">
-                    <div class="form-group">
-                        <label class="col-md-2">Curso Masivo</label>
+                    <div class="col-md-10">
+                        <div class="row" >
+                            <div class="col-md-2">
+                                Rol Examenes
+                            </div>
+                            <div class="col-md-10"
+                                 v-if="rolExamenes">
+                                <span class="h5 m-b-xxs m-t-xs"
+                                      v-text="rolExamenes.nombre"></span>
+                            </div>
+                        </div>
 
-                        <div class="col-md-4"
-                             v-if="cursoMasivoExamen.curso">
-                            <span class=" text-primary bold h5 m-b-xs m-t-xs"
-                                  v-text="cursoMasivoExamen.curso.nombre"
-                                  v-if="cursoMasivoExamen"></span>
-                            <span class="">
-                                {{cursoMasivoExamen.curso.codigo}}&nbsp;
-                                <i class="fa fa-bookmark text-primary"></i>
-                                {{cursoMasivoExamen.curso.tpc}}
-                            </span>
+                        <div class="row" v-if="cursoMasivoExamen.curso">
+                            <label class="col-md-2">Curso Masivo</label>
+                            <div class="col-md-10">
+                                <span class="text-primary bold h5 m-b-xxs m-t-xs"
+                                      v-text="cursoMasivoExamen.curso.nombre"
+                                      v-if="cursoMasivoExamen"></span>
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            Rol Examenes
+
+                        <div class="row" v-if="cursoMasivoExamen.curso">
+                            <label class="col-md-2">&nbsp;</label>
+                            <div class="col-md-4">
+                                <span class="m-t-xxs">
+                                    {{cursoMasivoExamen.curso.codigo}}&nbsp;
+                                    <i class="fa fa-bookmark text-primary"></i>
+                                    {{cursoMasivoExamen.curso.tpc}}
+                                </span>
+                            </div>
+
                         </div>
-                        <span class="col-md-4" 
-                              v-text="rolExamenes.nombre"
-                              v-if="rolExamenes">
-                        </span>    
                     </div>
-
+                    <div class="col-md-2" v-if="cursoMasivoExamen.curso">
+                        <a class="btn btn-sm btn-primary pull-right" v-on:click="verificarTodosGpos()"
+                           v-bind:class="btnVerificar?'':'disabled'"
+                           v-html="btnTexto">Revisar ABC</a>
+                    </div>
                 </div>
+
                 <div class="row" >
                     <header class="page-header m-t-xs m-b-xs" style="border-bottom: 1px solid white;">
                         <div class="tabbable-line" style="margin-top: 8px;">	
@@ -218,6 +237,7 @@
                             </ul>
                         </div>
                     </header>
+
                     <div class="tab-content">
                         <div class="tab-pane"
                              v-bind:id="semExamen.numeroSemana"
@@ -239,29 +259,21 @@
 
                                         <tbody >
                                             <tr v-for="hora in semExamen.tblHorarioSeamanaExamen.horas">
-                                                <td style="width: 12.5%" class="v-middle">
-                                                    <span 
-                                                        class="form-control"
-                                                        th:style="'border-color:#fff;'">
-                                                        {{hora.descripcion}}
-                                                    </span>
-
+                                                <td style="width: 12.5%" class="v-middle text-center">
+                                                    {{hora.descripcion2}}
                                                 </td>
                                                 <td v-for="dia in semExamen.tblHorarioSeamanaExamen.dias" style="width: 12.5%">
                                                     <!-- v-bind:class="getClassGpoHorario(tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])" -->
                                                     <!--   v-on:click="selectFechaHoraGrupo(dia,hora,semExamen)" -->
                                                     <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id]" 
                                                           v-on:click="seleccionarGrupoHorasExamen(dia,hora,semExamen)"
-                                                          class="form-control pointer"
+                                                          class="form-control pointer text-center"
                                                           v-bind:style="fechaGrupoHoraItem(semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id])"
                                                           >
                                                         {{semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id].grupoHorasExamen.grupoHoras.codigo}}
                                                     </span>
                                                     <span v-if="semExamen.tblHorarioSeamanaExamen.fechasHorasGrupos[dia.id+'_'+hora.id]==null" 
-                                                          class="form-control"
-                                                          >
-
-                                                    </span>
+                                                          class="form-control"></span>
                                                 </td>
                                             </tr>
                                         </tbody>

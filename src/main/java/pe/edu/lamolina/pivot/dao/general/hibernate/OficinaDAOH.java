@@ -41,7 +41,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
     public Oficina find(long id) {
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
-                .join("tipoOficina")
+                .join("tipoOficina", "compania")
                 .leftJoin("personaJefe pj", "jefeEncargado", "cargoJefe", "oficinaSuperior")
                 .filter("ofi.id", id);
 
@@ -52,6 +52,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
     public List<Oficina> all() {
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
+                .join("tipoOficina", "compania")
                 .leftJoin("personaJefe pj", "jefeEncargado", "cargoJefe", "oficinaSuperior");
 
         return all(sql);
@@ -72,8 +73,8 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
 
         DynatableSql sql = new DynatableSql(filter)
                 .from(Oficina.class, "ofi")
-                .join("compania cia")
-                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina")
+                .join("tipoOficina", "compania cia")
+                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca")
                 .filter("cia.id", compania)
                 .searchFields("ofi.codigo", "ofi.nombre", "ofi.tipoOficina", "ca.nombre", "sup.nombre")
                 .searchComplexField("concat(coalesce(pj.paterno,''),' ',coalesce(pj.materno,''),' ',coalesce(pj.nombres,''))")
@@ -318,7 +319,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .from(Oficina.class, "o")
                 .join("tipoOficina to")
                 .filter("to.codigo", TipoOficinaEnum.FAC);
-        
+
         return all(sql);
     }
 

@@ -26,6 +26,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.calendar.EventCalendar;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -85,12 +86,11 @@ public class EventoCicloAcademicoController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
-
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             List<EventoCicloAcademico> eventos = service.allByDynatable(filter, ciclo);
 
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (EventoCicloAcademico evento : eventos) {
-                array.add(evento.toJson());
+                array.add(createEventoJson(evento));
             }
 
             json.setData(array);
@@ -109,8 +109,8 @@ public class EventoCicloAcademicoController {
     public JsonResponse update(EventoCicloAcademico eventoCicloAcademico) {
         JsonResponse response = new JsonResponse();
         try {
-            EventoCicloAcademico eventoCicloAcademicoDB = service.findEventoCicloAcademico(eventoCicloAcademico);
-            response.setData(eventoCicloAcademicoDB.toJson());
+            EventoCicloAcademico eventoCicloDB = service.findEventoCicloAcademico(eventoCicloAcademico);
+            response.setData(createEventoJson(eventoCicloDB));
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -221,6 +221,16 @@ public class EventoCicloAcademicoController {
         }
 
         return response;
+    }
+
+    private ObjectNode createEventoJson(EventoCicloAcademico evento) {
+        ObjectNode node = JsonHelper.createJson(evento, JsonNodeFactory.instance, true, new String[]{
+            "*",
+            "cicloAcademico.id", "cicloAcademico.descripcion",
+            "eventoAcademico.*",
+            "color.*"
+        });
+        return node;
     }
 
 }

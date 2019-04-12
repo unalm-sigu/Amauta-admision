@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +28,14 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REG;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_VER;
 import pe.edu.lamolina.model.enums.TipoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.TipoTramiteEnum.REI;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -72,34 +77,55 @@ public class ConfiguracionTurnoController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) throws ParseException {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        List<EventoCicloAcademico> evento = service.findEventoCiclo(ds.getCicloAcademico());
+        List<EventoCicloAcademico> eventosCiclo = service.allEventoCiclo(ds.getCicloAcademico());
         List<ConfiguracionTurnosAtencion> configuraciones = service.allConfiguraciones(ds.getCicloAcademico());
 
-        ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-
-        for (TipoMatriculaEnum d : TipoMatriculaEnum.values()) {
-            objNode.put(d.name(), d.getValue());
-        };
-
-        ObjectNode cicloJson = JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, true,
-                new String[]{
-                    "*", "modalidadEstudio.*"
-                });
-        ArrayNode jConfigArray = new ArrayNode(JsonNodeFactory.instance);
-        for (ConfiguracionTurnosAtencion config : configuraciones) {
-            ObjectNode configJson = JsonHelper.createJson(config, JsonNodeFactory.instance, true,
-                    new String[]{
-                        "*", "eventoCicloAcademico.*", "eventoCicloAcademico.eventoAcademico.*"
-                    });
-            jConfigArray.add(configJson);
-        }
-
-        model.addAttribute("eventos", new EventoCicloAcademico().toJsonArray(evento));
-        model.addAttribute("configuraciones", jConfigArray);
-        model.addAttribute("ciclo", cicloJson);
-        model.addAttribute("tipoMatricula", objNode.toString());
+        model.addAttribute("eventos", createEventosCicloJson(eventosCiclo));
+        model.addAttribute("configuraciones", createCfgTurnosAtencionJson(configuraciones));
+        model.addAttribute("ciclo", createCicloJson(ds.getCicloAcademico()));
+        model.addAttribute("tipoMatricula", JsonHelper.enumToJson(TipoMatriculaEnum.values()));
 
         return "academico/matricula/matriculaConfiguracion";
+    }
+
+    private ObjectNode createCicloJson(CicloAcademico ciclo) {
+        ObjectNode node = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{
+            "*", "modalidadEstudio.*"
+        });
+        return node;
+    }
+
+    private ArrayNode createCfgTurnosAtencionJson(List<ConfiguracionTurnosAtencion> configuraciones) {
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ArrayNode eventosJson = new ArrayNode(JsonNodeFactory.instance);
+
+        for (ConfiguracionTurnosAtencion config : configuraciones) {
+            ObjectNode node = JsonHelper.createJson(config, factory, true, new String[]{
+                "*", "eventoCicloAcademico.*", "eventoCicloAcademico.eventoAcademico.*"
+            });
+            eventosJson.add(node);
+
+        }
+        return eventosJson;
+    }
+
+    private ArrayNode createEventosCicloJson(List<EventoCicloAcademico> eventosCiclo) {
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ArrayNode eventosJson = new ArrayNode(JsonNodeFactory.instance);
+
+        for (EventoCicloAcademico evento : eventosCiclo) {
+            if (Arrays.asList(MAT_REG.name(), REI.name(), MAT_VER.name()).contains(evento.getEventoAcademico().getCodigo())) {
+                ObjectNode node = JsonHelper.createJson(evento, factory, true, new String[]{
+                    "*",
+                    "cicloAcademico.id", "cicloAcademico.descripcion",
+                    "eventoAcademico.*",
+                    "color.*"
+                });
+                eventosJson.add(node);
+            }
+
+        }
+        return eventosJson;
     }
 
     @ResponseBody

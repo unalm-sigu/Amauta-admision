@@ -15,52 +15,82 @@
                 </header>
 
                 <section class="wrapper-lg">
-                    <section class="panel">
+                    <section class="panel m-b">
                         <section class="panel-body">
 
-                            <div class="row">
-
-                                <div class="row">
-                                    <div class="form-group">
-                                        <label class="m col-md-2 bold">Rol Examen</label>  
-                                        <div class="m-t-md col-md-4" v-text="cursoMasivoExamen.rolExamenes.nombre">
-
-                                        </div>
-                                    </div>
-                                </div>                                   
-
-                                <div class="row">
-                                    <div class="form-group">
-                                        <label class="m col-md-2 bold">Curso</label>
-                                        <div class="m-t-md col-md-4" v-text="cursoMasivoExamen.curso.nombre">
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row"  v-if="cursoMasivoExamen.grupoHorasExamen">
-                                    <div class="form-group">
-                                        <label class="m col-md-2 bold">Fecha Examen</label>
-                                        <div class="m-t-md col-md-4">
+                            <table>
+                                <tbody>
+                                    <tr class="m-b">
+                                        <td class="col-md-2 bold">Rol Examen</td>
+                                        <td class="col-md-4" v-text="cursoMasivoExamen.rolExamenes.nombre"></td>
+                                        <td class="col-md-6"></td>
+                                    </tr>
+                                    <tr class="">
+                                        <td class="col-md-2 bold">Curso</td>
+                                        <td class="col-md-4">
+                                            <div class="block text-primary bold m-t"
+                                                 v-text="cursoMasivoExamen.curso.nombre"></div>
+                                            <div class="block m-b">
+                                                {{cursoMasivoExamen.curso.codigo}}&nbsp;
+                                                <i class="fa fa-bookmark text-primary"></i>
+                                                {{cursoMasivoExamen.curso.tpc}}</div>
+                                        </td>
+                                        <td class="col-md-6"></td>
+                                    </tr>
+                                    <tr class="m-b">
+                                        <td class="col-md-2 bold">Fecha Examen</td>
+                                        <td class="col-md-4" >
                                             <template v-if="cursoMasivoExamen.grupoHorasExamen.fecha">
+                                                {{cursoMasivoExamen.grupoHorasExamen.fecha }}
+                                                (Grupo {{cursoMasivoExamen.grupoHorasExamen.grupoHoras.codigo}})
+                                                <label >Hora Inicio: {{cursoMasivoExamen.grupoHorasExamen.horaInicio.descripcion}}</label>
+                                                <label >Hora Fin: {{cursoMasivoExamen.grupoHorasExamen.horaFin.descripcion}}</label>
+                                            </template>
+                                            <template v-else="">
+                                                Sin Asignar Horario
+                                            </template>
+                                        </td>
+                                        <td class="col-md-6"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!--div class="row">
+                                <div class="form-group">
+                                    <label class="m col-md-2 bold">Rol Examen</label>  
+                                    <div class="m-t-md col-md-4" v-text="cursoMasivoExamen.rolExamenes.nombre"></div>
+                                </div>
+                            </div>                                   
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <label class="m col-md-2 bold">Curso</label>
+                                    <div class="m-t-md col-md-4" v-text="cursoMasivoExamen.curso.nombre"></div>
+                                </div>
+                            </div>
+
+                            <div class="row"  v-if="cursoMasivoExamen.grupoHorasExamen">
+                                <div class="form-group">
+                                    <label class="m col-md-2 bold">Fecha Examen</label>
+                                    <div class="m-t-md col-md-4">
+                                        <template v-if="cursoMasivoExamen.grupoHorasExamen.fecha">
                                             {{cursoMasivoExamen.grupoHorasExamen.fecha }}
                                             (Grupo {{cursoMasivoExamen.grupoHorasExamen.grupoHoras.codigo}})
                                             <label >Hora Inicio: {{cursoMasivoExamen.grupoHorasExamen.horaInicio.descripcion}}</label>
                                             <label >Hora Fin: {{cursoMasivoExamen.grupoHorasExamen.horaFin.descripcion}}</label>
-                                            </template>
-                                            <template v-else="">
-                                               Sin Asignar Horario
-                                            </template>
-                                        </div>
-
+                                        </template>
+                                        <template v-else="">
+                                            Sin Asignar Horario
+                                        </template>
                                     </div>
+
                                 </div>
-                            </div>
+                            </div-->
 
                         </section>
                     </section>
 
-                    <section class="panel">
+                    <section class="panel m-t">
                         <section class="panel-body">
 
                             <raptor-table v-bind:url="`${URL}/listSeccionesCursosMasivos`" v-bind:preload="false" ref="tblSeccionesCursosMasivos">
@@ -81,8 +111,7 @@
                                                     <span class="text-md bold text-primary">  {{sec.seccion.codigo2}} ({{sec.seccion.grupoHoras.codigo}}) </span>
                                                 </td>
                                                 <td class="text-center">
-                                                    <span class="badge pointer"
-                                                          >{{ sec.alumnosCount }}</span>
+                                                    <span class="badge pointer">{{ sec.alumnosCount }}</span>
                                                 </td>
                                                 <td class="text-center">
                                         <v-estado v-bind:codigo="sec.estado" v-bind:valor="sec.estadoEnum.value"/> 

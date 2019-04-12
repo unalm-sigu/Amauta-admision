@@ -43,4 +43,10 @@ public interface AlumnoGrupoRegularDAO extends EasyDAO<AlumnoGrupoRegular> {
 
     List<AlumnoGrupoRegular> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, AlumnoRolExamenEstadoEnum estadoEnum);
 
+    void createForSeccionGrupoRegular(
+            List<AlumnoGrupoRegular> alumnosGpoRegular,
+            SeccionGrupoRegular seccionGpoRegular,
+            Date fecha,
+            Usuario user);
+
 }

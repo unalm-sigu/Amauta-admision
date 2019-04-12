@@ -98,7 +98,7 @@
                                                             <li v-if="item.personaJefe.id != '' " v-on:click="verRevisarJefe(item)"><a class="pointer" >Actualizar Jefe</a></li>
                                                             <li v-else=""><a class="pointer" v-on:click="verAsignarJefe(item)"> Asignar Jefe</a></li>
 
-                                                                <li v-if="item.jefeEncargado.id != '' "><a class="pointer" v-on:click="previoRetirarEncargado(item)">Retirar Encargado</a></li>
+                                                            <li v-if="item.jefeEncargado.id != '' "><a class="pointer" v-on:click="previoRetirarEncargado(item)">Retirar Encargado</a></li>
                                                             <li v-if="item.jefeEncargado.id != '' "><a class="pointer" v-on:click="verRevisarEncargado(item)">Actualizar Encargado</a></li>
                                                             <li v-else=""><a class="pointer" v-on:click="verAsignarEncargado(item)">Asignar Encargado</a></li>
 

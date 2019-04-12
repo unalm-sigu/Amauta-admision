@@ -17,7 +17,11 @@ public interface CursoDAO extends EasyDAO<Curso> {
 
     List<Curso> allByPlan(PlanCalificacion plan);
 
+    List<Curso> allByPlanes(List<PlanCalificacion> planes);
+
     List<Curso> allByPlanRegular(PlanCalificacion plan);
+
+    List<Curso> allRegularesByPlanes(List<PlanCalificacion> planes);
 
     List<Curso> allActiveByPlan(PlanCalificacion plan);
 
@@ -50,4 +54,5 @@ public interface CursoDAO extends EasyDAO<Curso> {
     List<Curso> searchLikeNombre(String nombre, Integer limit);
 
     List<Curso> allForExamenByCiclo(String nombre, RolExamenes rolExamenes, CicloAcademico cicloAcademico);
+
 }

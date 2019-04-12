@@ -1,8 +1,11 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -18,6 +21,8 @@ import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.rolexamen.DocenteCursoMasivoDAO;
 
 @Repository
@@ -177,6 +182,44 @@ public class DocenteCursoMasivoDAOH extends AbstractEasyDAO<DocenteCursoMasivo> 
                 .in("re.estado", estados)
                 .filter("dc.id", docente);
         return all(sql);
+    }
+
+    @Override
+    public void createDocentesCursoMasivo(
+            List<DocenteCursoMasivo> docentesCursoMasivo,
+            CursoMasivoExamen cursoMasivo,
+            Usuario user) {
+
+        if (docentesCursoMasivo.isEmpty()) {
+            return;
+        }
+        List<Long> ids = docentesCursoMasivo.stream().map(x -> x.getDocente().getId()).collect(Collectors.toList());
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("insert into ").append(tb(DocenteCursoMasivo.class));
+        sql.append("  (estado,secciones,fechaRegistro,cursoMasivoExamen,docente,userRegistro) ");
+        sql.append(" select :ESTADO, :SECCIONES, :FECHA, cm, doc, usr ");
+        sql.append("   from ").append(tb(CursoMasivoExamen.class)).append(" cm, ");
+        sql.append("        ").append(tb(Docente.class)).append(" doc, ");
+        sql.append("        ").append(tb(Usuario.class)).append(" usr ");
+        sql.append("  where doc.id in (:DOCENTES) ");
+        sql.append("    and cm.id = :CURSO ");
+        sql.append("    and usr.id = :USER ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameterList("DOCENTES", ids);
+        query.setParameter("CURSO", cursoMasivo.getId());
+        query.setParameter("USER", user.getId());
+        query.setParameter("ESTADO", DocenteRolExamenEstadoEnum.ACT.name());
+        query.setParameter("FECHA", new Date());
+        query.setParameter("SECCIONES", BigDecimal.ZERO.intValue());
+
+        query.executeUpdate();
+
+    }
+
+    private String tb(Class clazz) {
+        return clazz.getSimpleName();
     }
 
 }

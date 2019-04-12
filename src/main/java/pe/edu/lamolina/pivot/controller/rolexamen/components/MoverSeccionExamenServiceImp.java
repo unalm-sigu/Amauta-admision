@@ -99,7 +99,6 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
     @Autowired
     AlumnoGrupoEspecialDAO alumnoGrupoEspecialDAO;
 
-
     @Override
     public List<CursoMasivoExamen> allActiveCursosMasivosByRolExamenes(RolExamenes rolExamenes) {
         List<CursoMasivoExamen> cursoMasivos = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
@@ -210,6 +209,7 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
                 seccionGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
             }
             seccionGrupoRegularDAO.save(seccionGrupoRegular);
+            alumnoGrupoRegularDAO.createForSeccionGrupoRegular(seccionGrupoRegular.getAlumnosGruposRegulares(), seccionGrupoRegular, ds.getFechaAccionAudit(), ds.getUsuario());
             this.cambiarEstadoSeccionCursoMasivo(seccionCursoMasivoOrigen, alumnosCursoMasivosOrigen);
         } else {
             throw new PhobosException("Conflictos encontrados.");
@@ -240,6 +240,7 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
                 seccionGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
             }
             seccionGrupoRegularDAO.save(seccionGrupoRegular);
+            alumnoGrupoRegularDAO.createForSeccionGrupoRegular(seccionGrupoRegular.getAlumnosGruposRegulares(), seccionGrupoRegular, ds.getFechaAccionAudit(), ds.getUsuario());
             this.cambiarEstadoSeccionGrupoRegular(seccionGrupoRegularOrigen, alumnosSeccionRegularOrigen);
         } else {
             throw new PhobosException("Conflictos encontrados.");
@@ -270,6 +271,7 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
                 seccionGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
             }
             seccionGrupoRegularDAO.save(seccionGrupoRegular);
+            alumnoGrupoRegularDAO.createForSeccionGrupoRegular(seccionGrupoRegular.getAlumnosGruposRegulares(), seccionGrupoRegular, ds.getFechaAccionAudit(), ds.getUsuario());
             this.cambiarEstadoSeccionGrupoEspecial(seccionCursoMasivoOrigen, alumnosSeccionEspecialOrigen);
         } else {
             throw new PhobosException("Conflictos encontrados.");
@@ -498,5 +500,5 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
     public SeccionGrupoRegular findSeccionGrupoRegularBySeccionRolExamenes(Seccion seccion, RolExamenes rol) {
         return seccionGrupoRegularDAO.findByRolExamenesSeccion(rol, seccion, SeccionRolExamenEstadoEnum.ACT);
     }
-  
+
 }

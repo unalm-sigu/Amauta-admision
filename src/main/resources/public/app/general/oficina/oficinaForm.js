@@ -118,12 +118,14 @@ new Vue({
         },
         save() {
             let $vue = this;
-            let target = $("#formControl");
-            target.parsley().destroy();
-            target.parsley();
-            if (target.parsley().validate() !== true) {
+
+            let form = $("#formOficina");
+            form.parsley().destroy();
+            form.parsley();
+            if (form.parsley().validate() !== true) {
                 return;
             }
+
             var data = Object.assign({}, $vue.oficina);
             if ($vue.oficina.instanciaReferencia.id != undefined) {
                 data.instanciaOficina = $vue.oficina.instanciaReferencia.id;
@@ -151,6 +153,32 @@ new Vue({
             var color = {ACT: "success", CRE: "warning", INA: "danger", RES: "primary"};
             return "label-" + color[item.estado];
 
+        },
+        revisar(tipo, ofi, campo) {
+            let $vue = this;
+
+            if (tipo == 'CODIGO') {
+                ofi[campo] = VUE.revisarCodigo(ofi[campo]);
+            } else if (tipo == 'EMAIL') {
+                ofi[campo] = VUE.revisarEmail(ofi[campo]);
+            } else if (tipo == 'ANEXOS') {
+                var str = ofi[campo];
+                str = str.replace(/[\-\/\,]/g, ' ');
+                str = str.replace(/[^0-9\s]/g, '');
+                str = str.replace(/ +(?= )/g, '').trim();
+                var arr = str.split(" ");
+                str = arr.join(" / ");
+                ofi[campo] = str;
+
+            } else if (tipo == 'TELEFONOS') {
+                var str = ofi[campo];
+                str = str.replace(/[\/\,]/g, ' ');
+                str = str.replace(/[^0-9\s]/g, '');
+                str = str.replace(/ +(?= )/g, '').trim();
+                var arr = str.split(" ");
+                str = arr.join(" / ");
+                ofi[campo] = str;
+            }
         }
     }
 });

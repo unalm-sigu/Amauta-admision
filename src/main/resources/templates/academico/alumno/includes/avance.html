@@ -58,9 +58,9 @@
                 </thead>
                 <tbody>           
                     <tr v-for="item in cursosCurricula"
-                        v-if="item.numeroCiclo == showCiclo ">
+                        v-if="item.numeroCiclo == showCiclo &amp;&amp; item.estadoRegistro != 'INA'">
                         <td  class="v-middle text-center"> 
-                            <span class="block" v-text="item.cursoCurricula.tipoCursoCurricula.nombre"></span>
+                            <span class="block" v-text="item.tipoCursoCurricula.nombre"></span>
                         </td>
                         <td  class="v-middle text-center"> 
                             <span class="block" v-text="item.curso.codigo"></span>
@@ -91,7 +91,7 @@
         </div>
 
         <div v-if="!showCursos">
-            <div v-if="resumenPlan.length > 0" class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
+            <div v-if="resumenPlan.length > 0  " class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
                 <table class="table table-striped">
                     <thead>
                         <tr>
