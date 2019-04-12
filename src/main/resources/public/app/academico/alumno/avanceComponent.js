@@ -44,6 +44,9 @@ Vue.component("avance-component", {
 
             for (var i = 0; i < $vue.resumenAlumno.length; i++) {
                 let res = $vue.resumenAlumno[i];
+                if (res.tipoCursoCurricula.codigo == 'EEP') {
+                    continue;
+                }
                 cred += res.creditos;
                 cur += res.cursos;
             }
@@ -56,6 +59,9 @@ Vue.component("avance-component", {
 
             for (var i = 0; i < $vue.resumenPlan.length; i++) {
                 let res = $vue.resumenPlan[i];
+                if (res.tipoCursoCurricula.codigo == 'EEP') {
+                    continue;
+                }
                 cred += res.creditos;
                 cur += res.cursos;
             }
@@ -102,7 +108,7 @@ Vue.component("avance-component", {
             }
         },
         styleEstadoCurr(nombre) {
-            if (nombre === 'APR' || nombre === 'EQUIV') {
+            if (nombre === 'APR' || nombre === 'EQUIV' || nombre === 'CONV') {
                 return "text-success";
             } else if (nombre === 'SIM') {
                 return "text-warning";
@@ -112,6 +118,8 @@ Vue.component("avance-component", {
                 return "text-primary";
             } else if (nombre === 'MAT') {
                 return "text-primary bold";
+            } else if (nombre === 'PEND') {
+                return "text-warning ";
             }
         },
         cargaAvance() {

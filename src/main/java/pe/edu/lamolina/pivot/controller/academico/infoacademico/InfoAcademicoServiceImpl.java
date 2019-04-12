@@ -175,14 +175,46 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
         List<CursoCurricula> cursosCicloPlan = cursoCurriculaDAO.allByPlanCurricular(alumno.getPlanCurricular());
         List<AlumnoCursoCurricula> cursosPlanAlumno = alumnoCursoCurriculaDAO.allByAlumnoCursosCurricula(alumno, cursosCicloPlan);
+        List<AlumnoCursoCurricula> cursosPlanAlumnoOpcional = alumnoCursoCurriculaDAO.allByAlumnoCursosOpcional(alumno);
+        List<AlumnoCursoCurricula> cursosComodin = alumnoCursoCurriculaDAO.allByAlumnoComodin(alumno);
         for (AlumnoCursoCurricula alumnoCursoCurricula : cursosPlanAlumno) {
             ObjectNode objNode = JsonHelper.createJson(alumnoCursoCurricula, JsonNodeFactory.instance, true, new String[]{
-                "numeroCiclo", "estado", "estadoEnum", "vecesCursado", "nota", "creditos","estadoMatricula","estadoMatriculaEnum",
+                "numeroCiclo", "estado", "estadoEnum", "vecesCursado", "nota", "creditos", "estadoMatricula", "estadoMatriculaEnum",
+                "estadoRegistro",
                 "curso.codigo",
                 "curso.codigoAnterior1",
                 "curso.nombre",
                 "curso.tpc",
                 "cursoCurricula.tipoCursoCurricula.nombre",
+                "tipoCursoCurricula.nombre",
+                "cicloAprobado.descripcion"
+            });
+            cursosJson.add(objNode);
+        }
+        for (AlumnoCursoCurricula alumnoCursoCurricula : cursosPlanAlumnoOpcional) {
+            ObjectNode objNode = JsonHelper.createJson(alumnoCursoCurricula, JsonNodeFactory.instance, true, new String[]{
+                "numeroCiclo", "estado", "estadoEnum", "vecesCursado", "nota", "creditos", "estadoMatricula", "estadoMatriculaEnum",
+                "estadoRegistro",
+                "curso.codigo",
+                "curso.codigoAnterior1",
+                "curso.nombre",
+                "curso.tpc",
+                "cursoCurricula.tipoCursoCurricula.nombre",
+                "tipoCursoCurricula.nombre",
+                "cicloAprobado.descripcion"
+            });
+            cursosJson.add(objNode);
+        }
+        for (AlumnoCursoCurricula alumnoCursoCurricula : cursosComodin) {
+            ObjectNode objNode = JsonHelper.createJson(alumnoCursoCurricula, JsonNodeFactory.instance, true, new String[]{
+                "numeroCiclo", "estado", "estadoEnum", "vecesCursado", "nota", "creditos", "estadoMatricula", "estadoMatriculaEnum",
+                "estadoRegistro",
+                "curso.codigo",
+                "curso.codigoAnterior1",
+                "curso.nombre",
+                "curso.tpc",
+                "cursoCurricula.tipoCursoCurricula.nombre",
+                "tipoCursoCurricula.nombre",
                 "cicloAprobado.descripcion"
             });
             cursosJson.add(objNode);

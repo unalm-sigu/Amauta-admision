@@ -7,9 +7,10 @@ import pe.edu.lamolina.model.general.Colaborador;
 public class Laboratory {
 
     public static void main666(String[] args) {
-//        List<Colaborador> datos = null;
-//        List<Colaborador> info = TypesUtil.getListNotNull(null);
-//        System.out.println("info.size::" + info.size());
+        String cursosConcat = "VAS/ASAD/";
+        System.out.println(cursosConcat.length());
+        cursosConcat = cursosConcat.substring(0, cursosConcat.length()-1);
+        System.out.println(cursosConcat);
     }
 
 }

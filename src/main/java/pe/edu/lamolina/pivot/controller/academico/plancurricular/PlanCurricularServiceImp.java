@@ -57,11 +57,13 @@ import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoOficina;
+import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularAsincronoService;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
@@ -138,6 +140,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Autowired
     CursoEquivalenteDAO cursoEquivalenteDAO;
+
+    @Autowired
+    AlumnoAvanceCurricularDAO alumnoAvanceCurricularDAO;
 
     @Autowired
     CursoEquivalenteElectivoDAO cursoEquivalenteElectivoDAO;
@@ -1249,8 +1254,11 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             }
             cursoAprobado.setVecesCursadoTransient(cursoVeces.getVecesCursado());
         }
-
+        List<TipoCursoCurricula> tipoCursoCurriculas = tipoCursoCurriculaDAO.all();
         for (Alumno alumno : alumnos) {
+            List<AlumnoAvanceCurricular> avanceCurriculars = alumnoAvanceCurricularDAO.allByAlumno(alumno);
+            List<ResumenPlanCurricular> resumenPlanCurriculars = resumenPlanCurricularDAO.allByPlan(alumno.getPlanCurricular());
+
             String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
             logger.debug("{} de {} ::::: alumno {} cicloIngreso {}", count, alumnos.size(), alumno.getId(), codigoCicloAlumno);
             count++;
@@ -1283,17 +1291,20 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             List<AlumnoCursoCurricula> alumnoCursoCurricula = mapAlumnoCursoCurricula.get(alumno.getId());
             List<CursoOpcionalCurricula> opcionalCurriculas = mapCursoOpcional.get(alumno.getPlanCurricular().getId());
 
-            avanceCurricularAsincronoService.crearAvanceCurricular(alumno, 
-                    planBD, 
-                    mapCursoCurriculaPlan, 
-                    mapRequisitoCursoCurriculaAll, 
-                    mapCursosEquivalentesAll, 
+            avanceCurricularAsincronoService.crearAvanceCurricular(alumno,
+                    planBD,
+                    mapCursoCurriculaPlan,
+                    mapRequisitoCursoCurriculaAll,
+                    mapCursosEquivalentesAll,
                     mapCursosVecesLlevado,
                     cursosMatriculadosAlumno,
-                    cursosAprobadosAlumno, 
-                    alumnoCursoCurricula, 
-                    opcionalCurriculas, 
+                    cursosAprobadosAlumno,
+                    alumnoCursoCurricula,
+                    opcionalCurriculas,
                     mapCursoCurriculaByCurso,
+                    tipoCursoCurriculas,
+                    resumenPlanCurriculars,
+                    avanceCurriculars,
                     ds);
         }
 
