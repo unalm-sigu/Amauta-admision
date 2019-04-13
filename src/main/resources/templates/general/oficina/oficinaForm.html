@@ -101,35 +101,61 @@
                                     <div class="col-sm-2">
                                         <div class="form-group">
                                             <label class="">Central telefónica</label>
-                                            <span class="form-control text-primary" v-text="oficina.compania.telefonos"></span>
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-phone fa-lg text-primary"></i></span>
+                                                <span class="form-control text-primary" v-text="oficina.compania.telefonos"></span>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="codigo" class=" control-label">Anexos</label>
-                                            <input  type="text" class="form-control" maxlength="200" 
-                                                    v-on:blur="revisar('ANEXOS',oficina,'anexos')"
-                                                    v-model="oficina.anexos"/>
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-volume-control-phone fa-lg"></i></span>
+                                                <input  type="text" class="form-control" maxlength="200" 
+                                                        v-on:blur="revisar('ANEXOS',oficina,'anexos')"
+                                                        v-model="oficina.anexos"/>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label class="control-label">Teléfonos directos</label>
-                                            <input  type="text" class="form-control" maxlength="400" 
-                                                    v-on:blur="revisar('TELEFONOS',oficina,'telefonos')"
-                                                    v-model="oficina.telefonos"/>
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-phone fa-lg"></i></span>
+                                                <input  type="text" class="form-control" maxlength="400" 
+                                                        v-on:blur="revisar('TELEFONOS',oficina,'telefonos')"
+                                                        v-model="oficina.telefonos"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label">Correo electrónico</label>
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-envelope-o fa-lg"></i></span>
+                                                <input  type="email" class="form-control" maxlength="200"
+                                                        data-parsley-type="email"
+                                                        v-on:blur="revisar('EMAIL',oficina,'email')"
+                                                        v-model="oficina.email"/>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="col-sm-12">
+                                    <div class="col-sm-6">
                                         <div class="form-group">
-                                            <label class="control-label">Correo electrónico</label>
-                                            <input  type="email" class="form-control" maxlength="200"
-                                                    data-parsley-type="email"
-                                                    v-on:blur="revisar('EMAIL',oficina,'email')"
-                                                    v-model="oficina.email"/>
+                                            <label class="control-label">Referencia sobre ubicación</label>
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-lg"></i></span>
+                                                <input  type="text" class="form-control" maxlength="200"
+                                                        v-model="oficina.referenciaUbicacion"/>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

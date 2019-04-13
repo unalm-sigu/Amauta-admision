@@ -52,13 +52,17 @@
 
                                                 <td class="v-middle">
                                                     <span v-if="item.anexos != '' " class="block">
-                                                        <i class="fa fa-phone-square fa-lg text-primary"></i> {{item.compania.telefonos}} Anexos: {{item.anexos}}
+                                                        <i class="fa fa-phone-square fa-lg text-primary"></i> {{item.compania.telefonos}} 
+                                                        <i class="fa fa-volume-control-phone fa-lg text-primary"></i> {{item.anexos}}
                                                     </span>
                                                     <span v-if="item.telefonos != '' " class="block">
                                                         <i class="fa fa-phone-square fa-lg text-success"></i> {{item.telefonos}}
                                                     </span>
                                                     <span v-if="item.email != '' " class="block">
                                                         <i class="fa fa-envelope text-primary"></i> {{item.email}}
+                                                    </span>
+                                                    <span v-if="item.referenciaUbicacion != '' " class="block">
+                                                        <i class="fa fa-map-marker text-dark fa-lg"></i> {{item.referenciaUbicacion}}
                                                     </span>
                                                 </td>
 
