@@ -38,4 +38,6 @@ public interface SeccionGrupoEspecialDAO extends EasyDAO<SeccionGrupoEspecial> {
 
     SeccionGrupoEspecial findByRolExamanesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... estados);
 
+    void updateFechaExamenAndAula(SeccionGrupoEspecial seccionGrupoEspecial);
+
 }

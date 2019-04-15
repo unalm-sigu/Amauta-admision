@@ -37,4 +37,6 @@ public interface HorarioSeccionDAO extends EasyDAO<HorarioSeccion> {
 
     List<HorarioSeccion> allByGrupoSeccion(GrupoSeccion grupoSeccion);
 
+    List<HorarioSeccion> allByCicloOrderByDiaHora(CicloAcademico cicloAcademico);
+
 }

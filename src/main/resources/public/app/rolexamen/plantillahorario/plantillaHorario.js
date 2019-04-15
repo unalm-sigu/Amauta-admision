@@ -14,7 +14,7 @@ new Vue({
     },
     computed: {
         generarDisponible() {
-            return this.rolExamen && (this.rolExamen.isSituacionConfigurarRol || this.rolExamen.isSituacionConfigurarHorario);
+            return this.rolExamen && (this.rolExamen.isSituacionConfigurarRol || this.rolExamen.isSituacionConfigurarHorario || this.rolExamen.isSituacionHorarioConfirmado);
         },
         modificarHorarioDisponible() {
             return this.rolExamen && this.rolExamen.isEstadoCreado && this.rolExamen.isSituacionConfigurarHorario;
@@ -73,8 +73,9 @@ new Vue({
                             AXIOS.post(`${vue.URL}/calcularPlantillaHorario`, vue.rolExamen)
                                     .then(response => {
                                         if (response.data.success) {
-                                            vue.listarGruposExamenByRolExamen();
-                                            vue.listarHorarioSemanal();
+                                            //  vue.listarGruposExamenByRolExamen();
+                                            //   vue.listarHorarioSemanal();
+                                            vue.changeRolExamen();
                                         }
                                         MODAL.hideWait();
                                     });
@@ -86,8 +87,9 @@ new Vue({
                 AXIOS.post(`${vue.URL}/calcularPlantillaHorario`, vue.rolExamen)
                         .then(response => {
                             if (response.data.success) {
-                                vue.listarGruposExamenByRolExamen();
-                                vue.listarHorarioSemanal();
+                                vue.changeRolExamen();
+                                // vue.listarGruposExamenByRolExamen();
+                                // vue.listarHorarioSemanal();
                             }
                             MODAL.hideWait();
                         });
@@ -156,7 +158,11 @@ new Vue({
         removeGpo(grupoHora) {
             let $vue = this;
             var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false});
-            if (this.grupoActivo.id == grupoHora.id) {
+            console.log("grupo activo");
+            console.dir(this.grupoActivo);
+            console.log("grupo seleccionado");
+            console.dir(grupoHora);
+            if (this.grupoActivo != null && (this.grupoActivo.id == grupoHora.id)) {
                 this.grupoActivo = null;
             }
 
@@ -279,6 +285,29 @@ new Vue({
                 return true;
             }
             return false;
+        }, confirmarPlantillaHorario() {
+            let vue = this;
+            bootbox.confirm({
+                message: "Si continua se reservara las aulas con hroario pregrado para rol examenes. Seguro que desea continuar?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/confirmarPlantillaHorario`, vue.rolExamen)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        vue.listarGruposExamenByRolExamen();
+                                        vue.listarHorarioSemanal();
+                                    }
+                                    vue.changeRolExamen();
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
         }
     }
 });

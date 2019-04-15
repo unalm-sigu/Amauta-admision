@@ -118,7 +118,7 @@ public class AulaController {
                 node.put("capacidad", aula.getCapacidadAula());
                 node.put("sede", aula.getSede() != null ? aula.getSede().getNombre() : "");
                 node.put("tipoAula", aula.getTipoAula() != null ? aula.getTipoAula().getNombre() : "");
-                node.put("tipoCarpeta", aula.getTipoCarpeta() != null ? aula.getTipoCarpeta().getNombre() : "");
+                node.put("tipoCarpeta", aula.getTipoCarpeta() != null ? "" + ObjectUtil.getParentTree(aula, "tipoCarpeta.nombre") : "");
                 node.put("gestor", aula.getOficinaSupervisora() != null ? aula.getOficinaSupervisora().getNombre() : "");
                 node.put("estado", aula.getEstado());
                 node.put("estadoEnum", aula.getEstadoEnum().getValue());

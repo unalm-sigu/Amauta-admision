@@ -7,10 +7,16 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
+import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 
 public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
@@ -37,6 +43,8 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByCiclo(CicloAcademico cicloAcademico);
 
+    List<HorarioAula> allByCiclo(CicloAcademico cicloAcademico, EstadoHorarioAulaEnum... estados);
+
     void deleteAllInList(List<HorarioAula> muertos);
 
     List<HorarioAula> allBySecciones(List<Seccion> seccions, CicloAcademico cicloOrigen);
@@ -60,5 +68,27 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
     List<HorarioAula> allByAulasAndSecciones(List<Aula> aulas, List<Seccion> secciones);
 
     List<HorarioAula> allByAulasAndNotInSecciones(List<Aula> aulas, List<Seccion> secciones, Date fechaInicio, Date fechaFin);
+
+    List<HorarioAula> allForRolExamenesByCicloAcademico(CicloAcademico cicloAcademicoRol);
+
+    List<HorarioAula> allByCicloOrderByDiaHora(CicloAcademico cicloAcademico);
+
+    List<HorarioAula> allByCicloAndSemanaExamenLimitByHours(EventoCicloAcademico eventoCicloAcademico, SemanaExamen semanaExamen);
+
+    List<HorarioAula> allOcupadasByCicloAndSemanaExamen(CicloAcademico cicloAcademico, SemanaExamen semanaExamen);
+
+    List<HorarioAula> allBySeccionGrupoRegular(SeccionGrupoRegular seccionGrupoRegular);
+
+    List<HorarioAula> allBySeccionGrupoEspecial(SeccionGrupoEspecial seccionGrupoEspecial);
+
+    List<HorarioAula> allByCursoMasivo(CursoMasivoExamen cursoMasivoExamen);
+
+    List<HorarioAula> allByRolExamenes(RolExamenes rolExamenes);
+
+    void deleteByRolExamenes(RolExamenes rolExamenes);
+
+    void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
+
+    void deleteByCursoMasivo(CursoMasivoExamen cursoMasivoExamen);
 
 }

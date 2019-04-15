@@ -53,5 +53,6 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
             LetraGrupoRegular letraGpoRegular,
             Date fecha,
             Usuario user);
+    void updateAula(SeccionGrupoRegular seccionGrupoRegularUpd);
 
 }

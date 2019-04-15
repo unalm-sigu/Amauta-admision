@@ -25,8 +25,9 @@
                 <section class="wrapper-lg">
                     <section class="panel m-b-xs">
                         <section class="panel-body">
-                            <div class="row">
-                                <form id="frmPlantillaHorario">
+
+                            <form id="frmPlantillaHorario">
+                                <div class="row">
                                     <div class="form-group col-md-6">
                                         <label class="col-md-4 bold">Rol Examen</label>
 
@@ -45,16 +46,33 @@
                                         </div>
                                     </div>
                                     <!-- v-if="generarDisponible" -->
-                                    <div class="form-group col-md-1" v-if="rolExamen!=null &amp;&amp; (rolExamen.isSituacionConfigurarRol || rolExamen.isSituacionConfigurarHorario)">
+
+                                    <div class="form-group col-md-1" v-if="generarDisponible">
                                         <a class="btn btn-success "
                                            v-on:click.prevent="calcularPlantillaHorario">
                                             Generar
                                         </a>
                                     </div>
+                                    <div class="form-group col-md-1" v-if="rolExamen!=null &amp;&amp; rolExamen.isSituacionConfigurarHorario">
+                                        <a class="btn btn-success "
+                                           v-on:click.prevent="confirmarPlantillaHorario">
+                                            Confirmar
+                                        </a>
+                                    </div>
                                     <div class="form-group col-md-5" >
                                     </div>
-                                </form>
-                            </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label class="col-md-4 bold">Situación Rol Examenes</label>
+
+                                        <div class="col-md-8">  
+                                            <label v-if="rolExamen &amp;&amp; rolExamen.situacionEnum" v-text="rolExamen.situacionEnum.value"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
                         </section>
                     </section>
 
@@ -63,6 +81,7 @@
                              v-bind:class="{'hide':!hasGruposHorasExamen()}">
                         <section class="panel-body">
                             <div class="row">
+
                                 <a class="btn btn-warning pull-left m-l-sm"
                                    v-on:click.prevent="calcularPlantillaHorario"
                                    th:if="${false}">

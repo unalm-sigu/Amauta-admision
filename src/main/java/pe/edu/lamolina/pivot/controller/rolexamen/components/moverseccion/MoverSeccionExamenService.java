@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.rolexamen.components;
+package pe.edu.lamolina.pivot.controller.rolexamen.components.moverseccion;
 
 import java.util.List;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
+import pe.edu.lamolina.pivot.controller.rolexamen.components.CambioHorarioExamenSeccion;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface MoverSeccionExamenService {

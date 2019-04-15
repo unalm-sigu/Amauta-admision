@@ -104,6 +104,14 @@ new Vue({
             const rolExamenes = this.letraGrupoRegular.rolExamenes;
             this.$refs.moverSeccionComp.loadComponent(rolExamenes);
             this.$refs.moverSeccionModal.open();
+        }, cambiarAula(item) {
+            console.log("entro");
+            console.dir(item);
+            const rolExamenes = item.letraGrupoRegular.rolExamenes;
+            this.$refs.cambiarAulaExamenComp.seccion = item.seccion;
+            this.$refs.cambiarAulaExamenComp.tipoorigen = "GRU_REG";
+            this.$refs.cambiarAulaExamenComp.loadComponent(rolExamenes);
+            this.$refs.cambiarAulaModal.open();
         }
     }
 });

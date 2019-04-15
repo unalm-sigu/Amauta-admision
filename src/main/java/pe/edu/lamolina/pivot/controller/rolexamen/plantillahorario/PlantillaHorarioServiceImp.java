@@ -1,7 +1,9 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.plantillahorario;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,26 +19,33 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
-import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.rolexamen.FechaHoraGrupoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
+import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.FechaHoraGrupoExamenDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.GrupoHorasExamenDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SemanaExamenDAO;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
@@ -67,6 +76,15 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
 
     @Autowired
     HoraDAO horaDAO;
+
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+
+    @Autowired
+    RolExamenesDAO rolexamenesDAO;
+
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
     private void checkEstadoPublicado(RolExamenes rol) {
         Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de examanes ya ha sido publicado");
@@ -106,8 +124,92 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
 
         RolExamenes rolExamenesUpd = new RolExamenes(rolExamenes.getId());
         rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CON);
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CFG_HOR);
+        rolExamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
+    }
+
+    @Override
+    @Transactional
+    public void confirmarPlantillaHorario(RolExamenes rolExamenes, DataSessionPivot ds) {
+        logger.debug("confirmarPlantillaHorario");
+        rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
+
+        Assert.isTrue(rolExamenes.isSituacionConfigurarHorario(), "Debe estar configurando los horarios del rol examen para confirmarlos.");
+
+        CicloAcademico cicloRol = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
+
+        final RolExamenes firstRolExamen = rolExamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloRol, null, EventoAcademicoEnum.EXAMEN_PARC);
+
+        List<SemanaExamen> semanaExamenes = semanaExamenDAO.allByRolExamenes(rolExamenes);
+
+        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAcademico(cicloRol);
+        if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
+            horariosAulasByCiclo.removeIf(x
+                    -> x.getFechaFinDateTime().toLocalDate().isBefore(firstRolExamen.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
+                    || x.getFechaFinDateTime().toLocalDate().isEqual(firstRolExamen.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
+        }
+        for (SemanaExamen semanaExamen : semanaExamenes) {
+            List<HorarioAula> horariosAulasFull = horarioAulaDAO.allByCicloAndSemanaExamenLimitByHours(rolExamenes.getEventoCicloAcademico(), semanaExamen);
+            if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
+                horariosAulasFull.removeIf(x
+                        -> x.getFechaFinDateTime().toLocalDate().isBefore(firstRolExamen.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
+                        || x.getFechaFinDateTime().toLocalDate().isEqual(firstRolExamen.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
+            }
+            Map<Long, List<HorarioAula>> mapHorariosBySeccion = TypesUtil.convertListToMapList("seccion.id", horariosAulasFull);
+            for (Map.Entry<Long, List<HorarioAula>> entry : mapHorariosBySeccion.entrySet()) {
+                Seccion seccion = new Seccion(entry.getKey());
+                List<HorarioAula> horariosAulasBySeccion = entry.getValue();
+
+                Map<Long, List<HorarioAula>> mapHorariosBySeccionAndDia = TypesUtil.convertListToMapList("dia.id", horariosAulasBySeccion);
+                for (Map.Entry<Long, List<HorarioAula>> entry1 : mapHorariosBySeccionAndDia.entrySet()) {
+                    Dia dia = new Dia(entry1.getKey());
+                    //  List<HorarioAula> horariosAulasBySeccionAndDia = entry1.getValue();
+                    List<HorarioAula> horariosAulasBySeccionAndDia = horariosAulasByCiclo.stream()
+                            .filter(x -> x.getSeccion().equals(seccion))
+                            .filter(x -> x.getDia().equals(dia))
+                            .collect(Collectors.toList());
+
+                    for (HorarioAula horarioAula : horariosAulasBySeccionAndDia) {
+
+                        logger.debug("Original - Dia {}, Hora {}, Fecha Inicio {}, Fecha Fin {} ",
+                                horarioAula.getDia().getNumeroDia(),
+                                horarioAula.getHora().getNumero(),
+                                horarioAula.getFechaInicio(),
+                                horarioAula.getFechaFin());
+                        Date endDateOrigin = horarioAula.getFechaFin();
+
+                        DateTime fechaFin = new DateTime(semanaExamen.getFechaInicio()).plusDays(-1);
+                        horarioAula.setFechaFin(fechaFin.toDate());
+                        horarioAulaDAO.update(horarioAula);
+                        logger.debug("Actualizado - Dia {}, Hora {}, Fecha Inicio {}, Fecha Fin {} ",
+                                horarioAula.getDia().getNumeroDia(),
+                                horarioAula.getHora().getNumero(),
+                                TypesUtil.getStringDate(horarioAula.getFechaInicio(), "yyyy-MM-dd"),
+                                TypesUtil.getStringDate(horarioAula.getFechaFin(), "yyyy-MM-dd"));
+
+                        HorarioAula horarioAulaNew = horarioAula.clone();
+                        horarioAulaNew.setId(null);
+                        DateTime fechaInicio = new DateTime(semanaExamen.getFechaFin()).plusDays(1);
+                        horarioAulaNew.setFechaInicio(fechaInicio.toDate());
+                        horarioAulaNew.setFechaFin(endDateOrigin);
+                        //   horarioAulaNew.setRolExamenes(rolExamenes);
+                        horarioAulaDAO.save(horarioAulaNew);
+
+                        logger.debug("Nuevo - Dia {}, Hora {}, Fecha Inicio {}, Fecha Fin {} ",
+                                horarioAulaNew.getDia().getNumeroDia(),
+                                horarioAulaNew.getHora().getNumero(),
+                                TypesUtil.getStringDate(horarioAulaNew.getFechaInicio(), "yyyy-MM-dd"),
+                                TypesUtil.getStringDate(horarioAulaNew.getFechaFin(), "yyyy-MM-dd"));
+                    }
+
+                }
+            }
+        }
+        RolExamenes rolExamenesUpd = new RolExamenes(rolExamenes.getId());
+        rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CON);
         rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR);
         rolExamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
+        // throw new PhobosException("no pasaras");
     }
 
     public void agregarGrupoHorasFaltantes(RolExamenes rolExamenes) {
@@ -249,6 +351,72 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         for (GrupoHorasExamen gruposHora : gruposHoras) {
             grupoHorasExamenDAO.delete(gruposHora);
         }
+        this.restoreHorariosAulas(rolBD, null, null);
+    }
+
+    public void restoreHorariosAulas(RolExamenes rolExamenes, Seccion seccion, Aula aula) {
+        CicloAcademico cicloAcademico = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
+        List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
+
+        final RolExamenes rolExamParcial = rolexamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloAcademico, null, EventoAcademicoEnum.EXAMEN_PARC);
+        EventoCicloAcademico dictadoClases = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
+
+        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAcademico(rolExamenes.getEventoCicloAcademico().getCicloAcademico());
+        if (seccion != null && aula != null) {
+            horariosAulasByCiclo.removeIf(x -> !x.getSeccion().equals(seccion));
+            horariosAulasByCiclo.removeIf(x -> !x.getAula().equals(aula));
+        }
+        if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
+            //removemos todos los horarios generados antes del examen parcial
+            horariosAulasByCiclo.removeIf(x
+                    -> x.getFechaFinDateTime().toLocalDate().isBefore(rolExamParcial.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
+                    || x.getFechaFinDateTime().toLocalDate().isEqual(rolExamParcial.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
+        }
+        for (SemanaExamen semana : semanas) {
+            List<HorarioAula> horariosAulasFull = horarioAulaDAO.allByCicloAndSemanaExamenLimitByHours(rolExamenes.getEventoCicloAcademico(), semana);
+            if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
+                //removemos todos los horarios generados antes del examen parcial
+                horariosAulasFull.removeIf(x
+                        -> x.getFechaFinDateTime().toLocalDate().isBefore(rolExamParcial.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
+                        || x.getFechaFinDateTime().toLocalDate().isEqual(rolExamParcial.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
+            }
+            Map<Long, List<HorarioAula>> mapHorariosBySeccion = TypesUtil.convertListToMapList("seccion.id", horariosAulasFull);
+            for (Map.Entry<Long, List<HorarioAula>> entry : mapHorariosBySeccion.entrySet()) {
+                Seccion iSeccion = new Seccion(entry.getKey());
+                List<HorarioAula> horariosAulasBySeccion = entry.getValue();
+
+                Map<Long, List<HorarioAula>> mapHorariosBySeccionAndDia = TypesUtil.convertListToMapList("dia.id", horariosAulasBySeccion);
+                for (Map.Entry<Long, List<HorarioAula>> entry1 : mapHorariosBySeccionAndDia.entrySet()) {
+                    Dia dia = new Dia(entry1.getKey());
+                    //  List<HorarioAula> horariosAulasBySeccionAndDia = entry1.getValue();
+                    List<HorarioAula> horariosAulasBySeccionAndDia = horariosAulasByCiclo.stream()
+                            .filter(x -> x.getSeccion().equals(iSeccion))
+                            .filter(x -> x.getDia().equals(dia))
+                            .filter(x -> !x.isTipoExamen())
+                            .collect(Collectors.toList());
+                    for (HorarioAula horarioAula : horariosAulasBySeccionAndDia) {
+                        if (horarioAula.getFechaFinDateTime().plusDays(1).toLocalDate()
+                                .equals(semana.getFechaInicioDateTime().toLocalDate())) {
+                            horarioAula.setFechaFin(dictadoClases.getFechaFin());
+                            horarioAulaDAO.update(horarioAula);
+                        }
+                        if (horarioAula.getFechaInicioDateTime().plusDays(-1).toLocalDate()
+                                .equals(semana.getFechaFinDateTime().toLocalDate())) {
+                            horarioAulaDAO.delete(horarioAula);
+                        }
+                    }
+
+                }
+            }
+            //to delete
+            /*
+            List<HorarioAula> horariosAulasByCicloOcupadas = horarioAulaDAO.allOcupadasByCicloAndSemanaExamen(cicloAcademico, semana);
+            for (HorarioAula horariosAulasByCicloOcupada : horariosAulasByCicloOcupadas) {
+                horarioAulaDAO.delete(horariosAulasByCicloOcupada);
+
+            }*/
+        }
+        horarioAulaDAO.deleteByRolExamenes(rolExamenes);
     }
 
     @Override

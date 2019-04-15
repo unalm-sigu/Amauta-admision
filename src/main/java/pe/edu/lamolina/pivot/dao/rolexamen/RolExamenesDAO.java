@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 
@@ -20,6 +21,9 @@ public interface RolExamenesDAO extends EasyDAO<RolExamenes> {
     void updatePublicacion(RolExamenes rolExamenes);
 
     void updateEstadoAndSituacion(RolExamenes rolExamenes);
+
     RolExamenes findByEstadoCiclo(RolExamenesEstadoEnum rolExamenesEstadoEnum, CicloAcademico cicloAcademico);
+
+    RolExamenes findByCicloAndEstadoAndEventoAcademico(CicloAcademico cicloAcademico, RolExamenesEstadoEnum rolExamenesEstadoEnum, EventoAcademicoEnum eventoAcademicoEnum);
 
 }

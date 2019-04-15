@@ -26,9 +26,12 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
+import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.rolexamen.AulaCursoMasivo;
@@ -139,7 +142,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolExamenes.setFechaRegistro(new Date());
         rolExamenes.setUserRegistro(ds.getUsuario());
         rolExamenes.setHorasExamen(Constantine.CANTIDAD_HORAS_POR_EXAMEN);
-        rolExamenes.setSituacionEnum(SituacionRolExamenesEnum.CONF_ROL);
+        rolExamenes.setSituacionEnum(SituacionRolExamenesEnum.CFG_ROL);
 
         List<String> errors = new ArrayList<>();
         for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
@@ -200,9 +203,10 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
-        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_ROL);
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CFG_ROL);
         rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CRE);
         rolexamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
+
     }
 
     public void deleteSeccionesExcluidasByRolExamenes(RolExamenes rolExamenes) {
@@ -318,8 +322,8 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
             for (HorarioAula horarioAula : horarioAulas) {
 
-                boolean test = (numerosemana % 2 == 0) ? 8<= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <=13
-                        :14<= horarioAula.getHora().getNumero()  && horarioAula.getHora().getNumero() <=18;
+                boolean test = (numerosemana % 2 == 0) ? 8 <= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <= 13
+                        : 14 <= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <= 18;
 
                 if (test) {
                     continue;
@@ -355,7 +359,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
                 horarioAulaNew.setReservaAula(horarioAula.getReservaAula());
                 horarioAulaNew.setCursoMasivoExamen(horarioAula.getCursoMasivoExamen());
                 horarioAulaDAO.save(horarioAulaNew);
-                
+
                 horarioAula.setFechaFin(fechafin);
                 horarioAulaDAO.update(horarioAula);
 
@@ -412,8 +416,8 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
             for (HorarioAula horarioAula : horarioAulas) {
 
-                 boolean test = (numerosemana % 2 == 0) ? 8<= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <=13
-                        :14<= horarioAula.getHora().getNumero()  && horarioAula.getHora().getNumero() <=18;
+                boolean test = (numerosemana % 2 == 0) ? 8 <= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <= 13
+                        : 14 <= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <= 18;
 
                 if (test) {
                     continue;
@@ -508,8 +512,8 @@ public class RolExamenesServiceImp implements RolExamenesService {
 
             for (HorarioAula horarioAula : horarioAulas) {
 
-                boolean test = (numerosemana % 2 == 0) ? 8<= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <=13
-                        :14<= horarioAula.getHora().getNumero()  && horarioAula.getHora().getNumero() <=18;
+                boolean test = (numerosemana % 2 == 0) ? 8 <= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <= 13
+                        : 14 <= horarioAula.getHora().getNumero() && horarioAula.getHora().getNumero() <= 18;
 
                 if (test) {
                     continue;

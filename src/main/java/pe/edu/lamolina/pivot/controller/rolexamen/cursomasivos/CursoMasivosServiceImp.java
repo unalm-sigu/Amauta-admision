@@ -31,8 +31,10 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
+import pe.edu.lamolina.model.enums.TipoGrupoRolExamenesEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.AulaCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.CursoExcluido;
@@ -54,6 +56,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoCursoMasivoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoEspecialDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoRegularDAO;
@@ -156,6 +159,12 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Autowired
     CursoExcluidoDAO cursoExcluidoDAO;
 
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+
+    @Autowired
+    HorarioAulaDAO HorarioAulaDAO;
+
     private void checkNoPublicado(RolExamenes rol) {
         Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de exámenes ya ha sido publicado");
     }
@@ -178,7 +187,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void save(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds) {
 
         RolExamenes rolExamenes = rolExamenesDAO.find(cursoMasivosExamen.getRolExamenes().getId());
-        Assert.isTrue(rolExamenes.isEstadoConfigurando() && (rolExamenes.isSituacionConfigurarHorario() || rolExamenes.isSituacionConfigurarCursoMasivo()), "No puede agregar cursos masivos en este momento");
+        Assert.isTrue(rolExamenes.isEstadoConfigurando() && (rolExamenes.isSituacionHorarioConfirmado() || rolExamenes.isSituacionConfigurarCursoMasivo()), "No puede agregar cursos masivos en este momento");
 
         List<String> validationsHorariosExamen = this.validarHorariosExamen(rolExamenes);
         Assert.isTrue(validationsHorariosExamen.isEmpty(), String.join("\n", validationsHorariosExamen));
@@ -190,7 +199,6 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         List<MatriculaSeccion> matriculadosSecciones = matriculaSeccionDAO.allMatriculadosBySecciones(secciones);
         Map<Long, List<MatriculaSeccion>> mapMatriculadoSeccion = TypesUtil.convertListToMapList("seccion.id", matriculadosSecciones);
 
-        //adadad
         cursoMasivosExamen.setUserRegistro(ds.getUsuario());
         cursoMasivosExamen.setFechaRegistro(new Date());
         cursoMasivosExamen.setEstadoEnum(EstadoCursoMasivoEnum.ACT);
@@ -261,7 +269,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 //        cursoMasivosExamen.setSecciones(secciones.size());
 //        cursoMasivoExamenDAO.update(cursoMasivosExamen);
         RolExamenes rolExamenesUpd = new RolExamenes(rolExamenes.getId());
-        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_MAS);
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CFG_MAS);
         rolExamenesDAO.updateSituacion(rolExamenesUpd);
     }
 
@@ -381,6 +389,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     public void saveAula(CursoMasivoExamen cursoMasivo, CicloAcademico cicloAcademico, DataSessionPivot ds) {
 
         CursoMasivoExamen cursoMasivoBD = cursoMasivoExamenDAO.find(cursoMasivo.getId());
+        RolExamenes rolExamenes = rolExamenesDAO.find(cursoMasivoBD.getRolExamenes().getId());
 
         Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
                 rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
@@ -424,6 +433,20 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         this.rolExamenesLogger.iniciarCursoMasivo();
 
+        ///eliminar horario aulas
+        horarioAulaDAO.deleteByCursoMasivo(cursoMasivoBD);
+
+        List<Aula> aulasOera = grupoRegularConnector.allAulasOeraWithHorarioByRolExamenes(rolExamenes);
+        rolExamenesLogger.setAulasOera(new ArrayList<>(aulasOera));
+
+        GrupoHorasExamen grupoHorasExamen = null;
+        if (ObjectUtil.getParent(cursoMasivoBD, "grupoHorasExamen.id") != null) {
+            grupoHorasExamen = cursoMasivoBD.getGrupoHorasExamen().clone();
+            List<FechaHoraGrupoExamen> fechasHorasGrupos = fechaHoraGrupoExamenDAO.allByGrupoHorasExamenOrderByDiaHora(grupoHorasExamen);
+            grupoHorasExamen.setFechasHorasGruposExamen(fechasHorasGrupos);
+            this.verificarAulas(cursoMasivo, grupoHorasExamen);
+        }
+
         List<AlumnoCursoMasivo> alumnosCursoMasivo = alumnoCursoMasivoDAO.allByCursoMasivo(cursoMasivoBD, AlumnoRolExamenEstadoEnum.ACT);
         List<DocenteCursoMasivo> docenteCursoMasivo = docenteCursoMasivoDAO.allByCursoMasivo(cursoMasivoBD, DocenteRolExamenEstadoEnum.ACT);
 
@@ -438,7 +461,18 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         if (!validacionCursosMasivos || !validacionGruposRegulares || !validacionSeccionesEspeciales) {
             throw new PhobosException("Conflictos encontrados.");
         }
-
+        if (ObjectUtil.getParent(cursoMasivoBD, "grupoHorasExamen.id") != null) {
+            List<SeccionCursoMasivo> seccionesCursoMasivos = seccionCursoMasivoDAO.allByCursoMasivo(cursoMasivo, SeccionRolExamenEstadoEnum.ACT);
+            for (SeccionCursoMasivo seccionesCursoMasivo : seccionesCursoMasivos) {
+                for (FechaHoraGrupoExamen fechaHoraGrupoExamen : grupoHorasExamen.getFechasHorasGruposExamen()) {
+                    HorarioAula horarioAula = new HorarioAula(fechaHoraGrupoExamen, seccionesCursoMasivo.getSeccion());
+                    horarioAula.setRolExamenes(rolExamenes);
+                    horarioAula.setCursoMasivoExamen(cursoMasivo);
+                    horarioAula.setSeccion(null);
+                    HorarioAulaDAO.save(horarioAula);
+                }
+            }
+        }
     }
 
     @Override
@@ -703,7 +737,6 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Override
     @Transactional
     public void saveHorarioExamen(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds) {
-        //   SemanaExamen semanaExamen = cursoMasivoExamen.getGrupoHorasExamen().getSemanaExamen();
         RolExamenes rolExamenes = rolExamenesDAO.find(cursoMasivoExamen.getRolExamenes().getId());
         this.checkNoPublicado(rolExamenes);
 
@@ -713,22 +746,32 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         this.rolExamenesLogger.iniciarCursoMasivo();
 
-        GrupoHorasExamen grupoHorasExamen = cursoMasivoExamen.getGrupoHorasExamen();
+        CursoMasivoExamen cursoMasivoExamenDB = cursoMasivoExamenDAO.find(cursoMasivoExamen.getId());
+        if (!cursoMasivoExamen.getGrupoHorasExamen().equals(cursoMasivoExamenDB.getGrupoHorasExamen())) {
+            this.deleteHorarioByCursoMasivo(cursoMasivoExamen);
+        }
 
-        List<AulaCursoMasivo> aulasCursoMasivo = aulaCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamen);
-        Assert.isFalse(aulasCursoMasivo.isEmpty(), "Debe asignar aulas al curso masivo.");
+        GrupoHorasExamen grupoHorasExamenDB = grupoHorasExamenDAO.find(cursoMasivoExamen.getGrupoHorasExamen().getId());
+        GrupoHorasExamen grupoHorasExamen = cursoMasivoExamen.getGrupoHorasExamen();
+        List<FechaHoraGrupoExamen> fechasHorasGrupos = fechaHoraGrupoExamenDAO.allByGrupoHorasExamenOrderByDiaHora(grupoHorasExamen);
+        grupoHorasExamen.setFechasHorasGruposExamen(fechasHorasGrupos);
+        grupoHorasExamen.setSemanaExamen(fechasHorasGrupos != null && !fechasHorasGrupos.isEmpty() ? fechasHorasGrupos.get(0).getSemanaExamen() : null);
+        grupoHorasExamen.setGrupoHoras(grupoHorasExamenDB.getGrupoHoras());
+
+        List<Aula> aulasOera = grupoRegularConnector.allAulasOeraWithHorarioByRolExamenes(rolExamenes);
+        rolExamenesLogger.setAulasOera(new ArrayList<>(aulasOera));
+        this.verificarAulas(cursoMasivoExamen, grupoHorasExamen);
+
         List<AlumnoCursoMasivo> alumnosCursoMasivo = alumnoCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamen, AlumnoRolExamenEstadoEnum.ACT);
         List<DocenteCursoMasivo> docenteCursoMasivo = docenteCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamen, DocenteRolExamenEstadoEnum.ACT);
 
         cursoMasivoExamen.setAlumnosCursosMasivos(alumnosCursoMasivo);
-        cursoMasivoExamen.setAulasCursosMasivos(aulasCursoMasivo);
         cursoMasivoExamen.setDocentesCursosMasivos(docenteCursoMasivo);
 
         List<Alumno> alumnos = cursoMasivoExamen.getAlumnosCursosMasivos().stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<Aula> aulas = cursoMasivoExamen.getAulasCursosMasivos().stream().map(x -> x.getAula()).collect(Collectors.toList());
         List<Docente> docentes = cursoMasivoExamen.getDocentesCursosMasivos().stream().map(x -> x.getDocente()).collect(Collectors.toList());
 
-        //validar cruce horario docentes !!!!!!!!!!!!!!!!!!!!!!!!!!!!
         boolean validacionCursosMasivos = this.validateCruceCursosMasivos(cursoMasivoExamen, alumnos, docentes, aulas);
         boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(grupoHorasExamen, alumnos, docentes, aulas);
         boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(cursoMasivoExamen.getGrupoHorasExamen(), docentes, aulas, alumnos);
@@ -737,7 +780,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             CursoMasivoExamen cursoMasivoUpd = new CursoMasivoExamen();
             cursoMasivoUpd.setId(cursoMasivoExamen.getId());
             cursoMasivoUpd.setGrupoHorasExamen(grupoHorasExamen);
-            cursoMasivoExamenDAO.updateFechaExamen(cursoMasivoExamen);
+            cursoMasivoExamenDAO.updateFechaExamen(cursoMasivoUpd);
 
             List<CursoMasivoExamen> cursosMasivosByRolExamen = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
             CursoMasivoExamen cursoMasivoSinHorario = cursosMasivosByRolExamen.stream()
@@ -747,12 +790,39 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             if (cursoMasivoSinHorario == null) {
                 RolExamenes rolExamenesUpd = new RolExamenes();
                 rolExamenesUpd.setId(cursoMasivoExamen.getRolExamenes().getId());
-                rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR_MAS);
+                rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CFG_HOR_MAS);
                 rolExamenesDAO.updateSituacion(rolExamenesUpd);
+            }
+            List<SeccionCursoMasivo> seccionesCursoMasivos = seccionCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamen, SeccionRolExamenEstadoEnum.ACT);
+            for (SeccionCursoMasivo seccionesCursoMasivo : seccionesCursoMasivos) {
+                for (FechaHoraGrupoExamen fechaHoraGrupoExamen : grupoHorasExamen.getFechasHorasGruposExamen()) {
+                    HorarioAula horarioAula = new HorarioAula(fechaHoraGrupoExamen, seccionesCursoMasivo.getSeccion());
+                    horarioAula.setRolExamenes(rolExamenes);
+                    horarioAula.setCursoMasivoExamen(cursoMasivoExamen);
+                    horarioAula.setSeccion(null);
+                    HorarioAulaDAO.save(horarioAula);
+                }
             }
         } else {
             throw new PhobosException("Conflictos encontrados.");
         }
+    }
+
+    public void verificarAulas(CursoMasivoExamen cursoMasivoExamen, GrupoHorasExamen grupoHorasExamen) {
+        List<AulaCursoMasivo> aulasCursoMasivo = aulaCursoMasivoDAO.allByCursoMasivo(cursoMasivoExamen);
+        Assert.isFalse(aulasCursoMasivo.isEmpty(), "Debe asignar aulas al curso masivo.");
+        cursoMasivoExamen.setAulasCursosMasivos(aulasCursoMasivo);
+
+        for (AulaCursoMasivo aulaCursoMasivo : aulasCursoMasivo) {
+            boolean checkDisponibilidadAula = grupoRegularConnector.checkDisponibilidadAula(aulaCursoMasivo.getAula(), grupoHorasExamen);
+            if (!checkDisponibilidadAula) {
+                rolExamenesLogger.aulaOcupada(aulaCursoMasivo.getAula(), grupoHorasExamen);
+            }
+        }
+        if (rolExamenesLogger.isCruce()) {
+            throw new PhobosException("Error al asignar horario");
+        }
+
     }
 
     @Override
@@ -846,7 +916,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
-        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR);
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CFG_HOR);
         rolExamenesDAO.updateSituacion(rolExamenesUpd);
     }
 
@@ -866,6 +936,13 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             seccionCursoMasivoDAO.deleteByCursoMasivo(cursosMasivo);
         }
         cursoMasivoExamenDAO.deleteByRolExamenes(rolExamenes);
+    }
+
+    public void deleteHorarioByCursoMasivo(CursoMasivoExamen cursoMasivoExamen) {
+        List<HorarioAula> cursosMasivos = horarioAulaDAO.allByCursoMasivo(cursoMasivoExamen);
+        for (HorarioAula cursosMasivo : cursosMasivos) {
+            HorarioAulaDAO.delete(cursosMasivo);
+        }
     }
 
 }

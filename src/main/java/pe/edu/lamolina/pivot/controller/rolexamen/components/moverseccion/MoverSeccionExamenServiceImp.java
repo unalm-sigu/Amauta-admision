@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.rolexamen.components;
+package pe.edu.lamolina.pivot.controller.rolexamen.components.moverseccion;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
+import pe.edu.lamolina.pivot.controller.rolexamen.components.CambioHorarioExamenSeccion;
 import pe.edu.lamolina.pivot.controller.rolexamen.cursomasivos.CursoMasivosService;
 import pe.edu.lamolina.pivot.controller.rolexamen.gruporegular.GrupoRegularConnector;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
@@ -98,6 +99,7 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
 
     @Autowired
     AlumnoGrupoEspecialDAO alumnoGrupoEspecialDAO;
+
 
     @Override
     public List<CursoMasivoExamen> allActiveCursosMasivosByRolExamenes(RolExamenes rolExamenes) {
@@ -209,14 +211,13 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
                 seccionGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
             }
             seccionGrupoRegularDAO.save(seccionGrupoRegular);
-            alumnoGrupoRegularDAO.createForSeccionGrupoRegular(seccionGrupoRegular.getAlumnosGruposRegulares(), seccionGrupoRegular, ds.getFechaAccionAudit(), ds.getUsuario());
             this.cambiarEstadoSeccionCursoMasivo(seccionCursoMasivoOrigen, alumnosCursoMasivosOrigen);
         } else {
             throw new PhobosException("Conflictos encontrados.");
         }
     }
 
-    public void trasladarToLetraGrupoRegular(SeccionGrupoRegular seccionGrupoRegularOrigen, LetraGrupoRegular letraGrupoRegular, DataSessionPivot ds) {
+    public void trasladarToLetraGrupoRegular(SeccionGrupoRegular seccionGrupoRegularOrigen, LetraGrupoRegular letraGrupoRegularDestino, DataSessionPivot ds) {
         Seccion seccion = seccionDAO.find(seccionGrupoRegularOrigen.getSeccion());
         seccion = seccion.clone();
         List<Aula> aulas = Arrays.asList(seccion.getAula());
@@ -229,18 +230,17 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
 
         this.rolExamenesLogger.iniciarTrasladoToGrupoRegular();
 
-        boolean validacionCursosMasivos = grupoRegularConnector.validarCursosMasivos(letraGrupoRegular.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
-        boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(letraGrupoRegular.getGrupoHorasExamen(), alumnosOrigen, docentesOrigen, aulas);
-        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(letraGrupoRegular.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
+        boolean validacionCursosMasivos = grupoRegularConnector.validarCursosMasivos(letraGrupoRegularDestino.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
+        boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(letraGrupoRegularDestino.getGrupoHorasExamen(), alumnosOrigen, docentesOrigen, aulas);
+        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(letraGrupoRegularDestino.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
 
         if (validacionCursosMasivos && validacionGruposRegulares && validacionSeccionesEspeciales) {
-            SeccionGrupoRegular seccionGrupoRegular = grupoRegularConnector.crearObjectSeccionGrupoRegular(seccion, letraGrupoRegular, ds);
+            SeccionGrupoRegular seccionGrupoRegular = grupoRegularConnector.crearObjectSeccionGrupoRegular(seccion, letraGrupoRegularDestino, ds);
             for (AlumnoGrupoRegular alumnoGrupoRegularEach : alumnosSeccionRegularOrigen) {
                 AlumnoGrupoRegular alumnoGrupoRegular = grupoRegularConnector.crearObjectAlumnoGrupoRegular(alumnoGrupoRegularEach.getAlumno(), seccionGrupoRegular, ds);
                 seccionGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
             }
             seccionGrupoRegularDAO.save(seccionGrupoRegular);
-            alumnoGrupoRegularDAO.createForSeccionGrupoRegular(seccionGrupoRegular.getAlumnosGruposRegulares(), seccionGrupoRegular, ds.getFechaAccionAudit(), ds.getUsuario());
             this.cambiarEstadoSeccionGrupoRegular(seccionGrupoRegularOrigen, alumnosSeccionRegularOrigen);
         } else {
             throw new PhobosException("Conflictos encontrados.");
@@ -271,7 +271,6 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
                 seccionGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
             }
             seccionGrupoRegularDAO.save(seccionGrupoRegular);
-            alumnoGrupoRegularDAO.createForSeccionGrupoRegular(seccionGrupoRegular.getAlumnosGruposRegulares(), seccionGrupoRegular, ds.getFechaAccionAudit(), ds.getUsuario());
             this.cambiarEstadoSeccionGrupoEspecial(seccionCursoMasivoOrigen, alumnosSeccionEspecialOrigen);
         } else {
             throw new PhobosException("Conflictos encontrados.");
@@ -500,5 +499,5 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
     public SeccionGrupoRegular findSeccionGrupoRegularBySeccionRolExamenes(Seccion seccion, RolExamenes rol) {
         return seccionGrupoRegularDAO.findByRolExamenesSeccion(rol, seccion, SeccionRolExamenEstadoEnum.ACT);
     }
-
+  
 }

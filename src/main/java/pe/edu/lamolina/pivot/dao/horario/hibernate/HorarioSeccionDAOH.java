@@ -132,6 +132,18 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
     }
 
     @Override
+    public List<HorarioSeccion> allByCicloOrderByDiaHora(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(HorarioSeccion.class, "hs")
+                .join("dia di", "hora ho", "seccion sec", "sec.grupoSeccion gs", "gs.curso")
+                .join("gs.cicloAcademico ca")
+                .leftJoin("sec.aula", "sec.grupoHoras")
+                .orderBy("di.numeroDia", "ho.numero")
+                .filter("ca.id", cicloAcademico);
+        return all(sql);
+    }
+
+    @Override
     public void deleteAllByCiclo(CicloAcademico ciclo) {
         StringBuilder sql = new StringBuilder("")
                 .append(" DELETE ").append(HorarioSeccion.class.getSimpleName()).append(" hs ")
@@ -173,7 +185,7 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
                 .from(HorarioSeccion.class, "hs")
                 .join("dia di", "hora ho", "seccion sec", "sec.grupoSeccion gs")
                 .join("gs.curso cur", "gs.cicloAcademico ca")
-                .leftJoin("aula au","cur.modalidadEstudio me")
+                .leftJoin("aula au", "cur.modalidadEstudio me")
                 .filter("gs.id", grupoSeccion);
         return all(sql);
     }

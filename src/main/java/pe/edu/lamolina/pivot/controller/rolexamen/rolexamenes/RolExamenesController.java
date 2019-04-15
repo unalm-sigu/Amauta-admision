@@ -44,7 +44,7 @@ public class RolExamenesController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        logger.debug("cicloAcademico {}",ds.getCicloAcademico()!=null?ds.getCicloAcademico().getId():0);
+        logger.debug("cicloAcademico {}", ds.getCicloAcademico() != null ? ds.getCicloAcademico().getId() : 0);
 
         List<Hora> horas = service.allHoras();
         ArrayNode jHoras = new ArrayNode(jc);
@@ -259,7 +259,7 @@ public class RolExamenesController {
             ds.setFechaAccionAudit(new Date());
             service.eliminarConfiguracion(rolExamenes, ds);
             response.setSuccess(true);
-            response.setMessage("Rol examen publicado.");
+            response.setMessage("Condiguración del rol examen eliminada.");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

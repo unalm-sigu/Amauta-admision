@@ -382,4 +382,23 @@ public class PlantillaHorarioController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "confirmarPlantillaHorario", method = RequestMethod.POST)
+    public JsonResponse confirmarPlantillaHorario(@RequestBody RolExamenes rolExamenes,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.confirmarPlantillaHorario(rolExamenes, ds);
+            logger.debug("changeSemanaExamen");
+            response.setMessage("Horarios confirmados correctamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }

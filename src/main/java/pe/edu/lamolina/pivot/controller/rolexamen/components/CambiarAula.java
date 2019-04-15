@@ -3,17 +3,14 @@ package pe.edu.lamolina.pivot.controller.rolexamen.components;
 import pe.edu.lamolina.model.enums.TipoGrupoRolExamenesEnum;
 import java.io.Serializable;
 
-public class CambioHorarioExamenSeccion implements Serializable {
-    
-    
+public class CambiarAula implements Serializable {
 
     private String tipoGrupoRolExamenOrigen;
     private Long idSeccionRolExamenesOrigen;
 
-    private String tipoGrupoRolExamenDestino;
-    private Long idTipoGrupoExamenDestino;
+    private Long idAulaDestino;
 
-    public CambioHorarioExamenSeccion() {
+    public CambiarAula() {
     }
 
     public String getTipoGrupoRolExamenOrigen() {
@@ -32,34 +29,11 @@ public class CambioHorarioExamenSeccion implements Serializable {
         this.idSeccionRolExamenesOrigen = idSeccionRolExamenesOrigen;
     }
 
-    public String getTipoGrupoRolExamenDestino() {
-        return tipoGrupoRolExamenDestino;
-    }
-
-    public void setTipoGrupoRolExamenDestino(String tipoGrupoRolExamenDestino) {
-        this.tipoGrupoRolExamenDestino = tipoGrupoRolExamenDestino;
-    }
-
-    public Long getIdTipoGrupoExamenDestino() {
-        return idTipoGrupoExamenDestino;
-    }
-
-    public void setIdTipoGrupoExamenDestino(Long idTipoGrupoExamenDestino) {
-        this.idTipoGrupoExamenDestino = idTipoGrupoExamenDestino;
-    }
-
     public TipoGrupoRolExamenesEnum getTipoGrupoRolExamenOrigenEnum() {
         if (this.getTipoGrupoRolExamenOrigen() == null) {
             return null;
         }
         return TipoGrupoRolExamenesEnum.valueOf(this.getTipoGrupoRolExamenOrigen());
-    }
-
-    public TipoGrupoRolExamenesEnum getTipoGrupoRolExamenDestinoEnum() {
-        if (this.getTipoGrupoRolExamenDestino() == null) {
-            return null;
-        }
-        return TipoGrupoRolExamenesEnum.valueOf(this.getTipoGrupoRolExamenDestino());
     }
 
     public boolean isTipoGrupMasivooOrigen() {
@@ -83,25 +57,12 @@ public class CambioHorarioExamenSeccion implements Serializable {
         return TipoGrupoRolExamenesEnum.GRU_ESP.equals(this.getTipoGrupoRolExamenOrigenEnum());
     }
 
-    public boolean isTipoGrupoMasivoDestino() {
-        if (this.tipoGrupoRolExamenDestino == null) {
-            return false;
-        }
-        return TipoGrupoRolExamenesEnum.CUR_MAS.equals(this.getTipoGrupoRolExamenDestinoEnum());
+    public Long getIdAulaDestino() {
+        return idAulaDestino;
     }
 
-    public boolean isTipoGrupRegularoDestino() {
-        if (this.tipoGrupoRolExamenDestino == null) {
-            return false;
-        }
-        return TipoGrupoRolExamenesEnum.GRU_REG.equals(this.getTipoGrupoRolExamenDestinoEnum());
-    }
-
-    public boolean isTipoGrupoEspecialDestino() {
-        if (this.tipoGrupoRolExamenDestino == null) {
-            return false;
-        }
-        return TipoGrupoRolExamenesEnum.GRU_ESP.equals(this.getTipoGrupoRolExamenDestinoEnum());
+    public void setIdAulaDestino(Long idAulaDestino) {
+        this.idAulaDestino = idAulaDestino;
     }
 
 }

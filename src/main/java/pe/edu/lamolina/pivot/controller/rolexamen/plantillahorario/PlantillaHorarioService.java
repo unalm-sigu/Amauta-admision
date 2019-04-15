@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.rolexamen.FechaHoraGrupoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PlantillaHorarioService {
 
@@ -42,5 +43,7 @@ public interface PlantillaHorarioService {
     void deleteGrupoHoraExamen(GrupoHorasExamen grupoHoraExamen);
 
     void deletePlantillaHorario(RolExamenes rolExamenes);
+
+    void confirmarPlantillaHorario(RolExamenes rolExamenes, DataSessionPivot ds);
 
 }

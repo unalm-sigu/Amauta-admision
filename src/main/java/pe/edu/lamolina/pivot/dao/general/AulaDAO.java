@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.general;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
@@ -51,5 +52,9 @@ public interface AulaDAO extends EasyDAO<Aula> {
     List<Aula> allByTipoAula(TipoAulaEnum tipoAulaEnum);
 
     List<Aula> allByOficinaSupervisora(OficinaEnum oficinaEnum);
+
+    List<Aula> allByOficinaSupervisora(OficinaEnum oficinaEnum, EstadoEnum estadoEnum);
+
+    Aula findAulaMaxAforo(OficinaEnum oficinaEnum, EstadoEnum estadoEnum);
 
 }

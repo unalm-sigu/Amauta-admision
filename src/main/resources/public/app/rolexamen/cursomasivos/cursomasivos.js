@@ -67,7 +67,7 @@ new Vue({
                     && (this.rolExamenes.isSituacionConfigurarGrupoRegular || this.rolExamenes.isSituacionAsignarHorarioCursosMasivos || this.rolExamenes.isSituacionConfigurarGrupoEspecial);
         },
         agregarCursoDisponible() {
-            return this.rolExamenes && this.rolExamenes.isEstadoConfigurando && (this.rolExamenes.isSituacionConfigurarHorario || this.rolExamenes.isSituacionConfigurarCursoMasivo)
+            return this.rolExamenes && this.rolExamenes.isEstadoConfigurando && (this.rolExamenes.isSituacionHorarioConfirmado || this.rolExamenes.isSituacionConfigurarCursoMasivo)
         },
         modificarAulaHorarioDisponible() {
             return this.rolExamenes && this.rolExamenes.isEstadoConfigurando && this.rolExamenes.isSituacionConfigurarGrupoRegular;
