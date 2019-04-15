@@ -1,5 +1,4 @@
 Vue.component("multiselect", window.VueMultiselect.default);
-Vue.component('file-upload', VueUploadComponent);
 
 new Vue({
     el: '#rolexamenesVUE',

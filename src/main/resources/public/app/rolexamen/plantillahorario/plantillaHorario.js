@@ -14,7 +14,7 @@ new Vue({
     },
     computed: {
         generarDisponible() {
-            return this.rolExamen && (this.rolExamen.isSituacionConfigurarRol || this.rolExamen.isSituacionConfigurarHorario);
+            return this.rolExamen && (this.rolExamen.isSituacionConfigurarRol || this.rolExamen.isSituacionConfigurarHorario || this.rolExamen.isSituacionHorarioConfirmado);
         },
         modificarHorarioDisponible() {
             return this.rolExamen && this.rolExamen.isEstadoCreado && this.rolExamen.isSituacionConfigurarHorario;

@@ -46,8 +46,8 @@
                                         </div>
                                     </div>
                                     <!-- v-if="generarDisponible" -->
-                                    
-                                    <div class="form-group col-md-1" v-if="rolExamen!=null &amp;&amp; (rolExamen.isSituacionConfigurarRol || rolExamen.isSituacionConfigurarHorario || rolExamen.isSituacionHorarioConfirmado)">
+
+                                    <div class="form-group col-md-1" v-if="generarDisponible">
                                         <a class="btn btn-success "
                                            v-on:click.prevent="calcularPlantillaHorario">
                                             Generar
