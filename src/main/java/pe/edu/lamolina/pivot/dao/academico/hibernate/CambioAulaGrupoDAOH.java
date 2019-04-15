@@ -16,7 +16,7 @@ public class CambioAulaGrupoDAOH extends AbstractEasyDAO<CambioAulaGrupo> implem
         Octavia sql = Octavia.query()
                 .from(CambioAulaGrupo.class, "cag")
                 .join("seccion se", "colaborador co", "co.cargo ca", "oficina ofi", "co.persona")
-                .leftJoin("se.seccionSuperior","aulaInicio", "aulaFin", "grupoHorasInicio", "grupoHorasFin")
+                .leftJoin("se.seccionSuperior", "aulaInicio", "aulaFin", "grupoHorasInicio", "grupoHorasFin")
                 .filter("cag.id", cambioAulaGrupo);
         return find(sql);
     }
@@ -29,6 +29,16 @@ public class CambioAulaGrupoDAOH extends AbstractEasyDAO<CambioAulaGrupo> implem
                 .leftJoin("aulaInicio", "aulaFin", "grupoHorasInicio", "grupoHorasFin")
                 .filter("se.id", seccion)
                 .orderBy("cag.fechaSolicitud desc");
+        return all(sql);
+    }
+
+    @Override
+    public List<CambioAulaGrupo> allBySecciones(List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(CambioAulaGrupo.class, "cag")
+                .join("seccion se", "colaborador co", "co.cargo ca", "oficina ofi", "co.persona")
+                .leftJoin("aulaInicio", "aulaFin", "grupoHorasInicio", "grupoHorasFin")
+                .in("se.id", secciones);
         return all(sql);
     }
 }

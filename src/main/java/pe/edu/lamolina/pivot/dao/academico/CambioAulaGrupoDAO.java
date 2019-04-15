@@ -10,7 +10,8 @@ public interface CambioAulaGrupoDAO extends EasyDAO<CambioAulaGrupo> {
     CambioAulaGrupo find(CambioAulaGrupo cambioAulaGrupo);
 
 //   void save(CambioAulaGrupo cambioAulaGrupo);
-
     List<CambioAulaGrupo> allBySeccion(Seccion seccion);
+
+    List<CambioAulaGrupo> allBySecciones(List<Seccion> secciones);
 
 }

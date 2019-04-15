@@ -95,6 +95,7 @@ var app = new Vue({
             header: true,
             title: 'Solicitud de ampliación de vacantes',
             okbtn: 'Solicitar',
+            showaccept: true,
             modalsize: 'modal-md'
         },
         enviarCambioAulaGrupoModal: {
@@ -102,6 +103,7 @@ var app = new Vue({
             header: true,
             title: 'Cambio Aula / Grupo',
             okbtn: 'Solicitar',
+            showaccept: true,
             modalsize: 'modal-lg'
         },
         cambioaulagrupos: [],
@@ -140,6 +142,7 @@ var app = new Vue({
             header: true,
             title: 'Aceptar ampliación de vacantes',
             okbtn: 'Si, aceptar',
+            showaccept: true,
             modalsize: 'modal-md'
         },
         rechazarSolicitudIncrementoModal: {
@@ -147,6 +150,7 @@ var app = new Vue({
             header: true,
             title: 'Rechazar ampliación de vacantes',
             okbtn: 'Rechazar',
+            showaccept: true,
             modalsize: 'modal-md'
         },
         activarFusion: false,

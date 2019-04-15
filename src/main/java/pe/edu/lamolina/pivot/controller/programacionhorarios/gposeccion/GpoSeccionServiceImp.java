@@ -42,6 +42,7 @@ import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.CambioAulaGrupo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -117,6 +118,7 @@ import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.AmpliacionVacantesDAO;
+import pe.edu.lamolina.pivot.dao.academico.CambioAulaGrupoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
 import pe.edu.lamolina.pivot.dao.finanza.PagoHoraDocenteDAO;
@@ -219,6 +221,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     AmpliacionVacantesDAO ampliacionVacanteDAO;
     @Autowired
     CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
+    @Autowired
+    CambioAulaGrupoDAO cambioAulaGrupoDAO;
 
     @Autowired
     PrecioCursoEstructuraDAO precioCursoEstructuraDAO;
@@ -275,12 +279,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<RestriccionCarrera> restriccionesCarr = restriccionCarreraDAO.allActivasBySecciones(secciones);
         List<RestriccionRepitencia> restriccionesRep = restriccionRepitenciaDAO.allActivasBySecciones(secciones);
         List<AmpliacionVacantes> ampliaciones = ampliacionVacanteDAO.allBySecciones(secciones);
+        List<CambioAulaGrupo> cambiosAulaGpo = cambioAulaGrupoDAO.allBySecciones(secciones);
 
         Map<Long, List<RestriccionModalidad>> mapRestriccionMod = TypesUtil.convertListToMapList("seccion.id", restriccionesMod);
         Map<Long, List<RestriccionFacultad>> mapRestriccionFac = TypesUtil.convertListToMapList("seccion.id", restriccionesFac);
         Map<Long, List<RestriccionCarrera>> mapRestriccionCarr = TypesUtil.convertListToMapList("seccion.id", restriccionesCarr);
         Map<Long, List<RestriccionRepitencia>> mapRestriccionRep = TypesUtil.convertListToMapList("seccion.id", restriccionesRep);
         Map<Long, List<AmpliacionVacantes>> mapAmpliaciones = TypesUtil.convertListToMapList("seccion.id", ampliaciones);
+        Map<Long, List<CambioAulaGrupo>> mapCambioAulaGpo = TypesUtil.convertListToMapList("seccion.id", cambiosAulaGpo);
 
         for (Seccion seccion : secciones) {
             seccion.setDocenteSeccion(getList(mapDocSeccion.get(seccion.getId())));
@@ -289,6 +295,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccion.setRestriccionesCarrera(getList(mapRestriccionCarr.get(seccion.getId())));
             seccion.setRestriccionesRepitencia(getList(mapRestriccionRep.get(seccion.getId())));
             seccion.setAmpliacionesVacantes(getList(mapAmpliaciones.get(seccion.getId())));
+            seccion.setCambioAulaGrupos(getList(mapCambioAulaGpo.get(seccion.getId())));
         }
 
         return gpoSecc;
@@ -319,20 +326,20 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Map<Long, List<RestriccionRepitencia>> mapRestriccionRep = TypesUtil.convertListToMapList("seccion.id", restriccionesRep);
 
         for (Seccion seccion : secciones) {
-            List<DocenteSeccion> doceentesSecc = mapDocSeccion.get(seccion.getId());
-            seccion.setDocenteSeccion(doceentesSecc == null ? new ArrayList() : doceentesSecc);
+            List<DocenteSeccion> doceentesSecc = getList(mapDocSeccion.get(seccion.getId()));
+            seccion.setDocenteSeccion(doceentesSecc);
 
-            List<RestriccionModalidad> restriccionesModSecc = mapRestriccionMod.get(seccion.getId());
-            seccion.setRestriccionesModalidad(restriccionesModSecc == null ? new ArrayList() : restriccionesModSecc);
+            List<RestriccionModalidad> restriccionesModSecc = getList(mapRestriccionMod.get(seccion.getId()));
+            seccion.setRestriccionesModalidad(restriccionesModSecc);
 
-            List<RestriccionFacultad> restriccionesFacSecc = mapRestriccionFac.get(seccion.getId());
-            seccion.setRestriccionesFacultad(restriccionesFacSecc == null ? new ArrayList() : restriccionesFacSecc);
+            List<RestriccionFacultad> restriccionesFacSecc = getList(mapRestriccionFac.get(seccion.getId()));
+            seccion.setRestriccionesFacultad(restriccionesFacSecc);
 
-            List<RestriccionCarrera> restriccionesCarrSecc = mapRestriccionCarr.get(seccion.getId());
-            seccion.setRestriccionesCarrera(restriccionesCarrSecc == null ? new ArrayList() : restriccionesCarrSecc);
+            List<RestriccionCarrera> restriccionesCarrSecc = getList(mapRestriccionCarr.get(seccion.getId()));
+            seccion.setRestriccionesCarrera(restriccionesCarrSecc);
 
-            List<RestriccionRepitencia> restriccionesRepSecc = mapRestriccionRep.get(seccion.getId());
-            seccion.setRestriccionesRepitencia(restriccionesRepSecc == null ? new ArrayList() : restriccionesRepSecc);
+            List<RestriccionRepitencia> restriccionesRepSecc = getList(mapRestriccionRep.get(seccion.getId()));
+            seccion.setRestriccionesRepitencia(restriccionesRepSecc);
         }
 
         return gsecciones;
@@ -1521,7 +1528,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public Seccion findSeccion(Long seccionId) {
-        return seccionDAO.find(seccionId);
+        Seccion seccion = seccionDAO.find(seccionId);
+
+        List<HorarioSeccion> horariosSecc = horarioSeccionDAO.allBySeccion(seccion);
+        seccion.setHorarioSeccion(horariosSecc);
+
+        return seccion;
     }
 
     @Override
