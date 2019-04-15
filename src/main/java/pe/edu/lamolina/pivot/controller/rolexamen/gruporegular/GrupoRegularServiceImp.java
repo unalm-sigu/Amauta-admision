@@ -234,7 +234,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<Seccion> secciones = this.allSeccionesWithHorario(cicloAcademico, TipoGrupoHorasEnum.REGULAR, null);
 
         this.quitarSeccionesExcluidas(secciones, seccionesExcluidasByRolExamen, cursosExcluidos);
-        List<Aula> aulasOera = grupoRegularConnector.allAulasOeraWithHorarioByRolExamenes(rolExamenes);
+        List<Aula> aulasOera = grupoRegularConnector.allAulasOeraWithHorarioByRolExamenes(rolBD);
         rolExamenesLogger.setAulasOera(new ArrayList<>(aulasOera));
 
         Aula aulaMaxAforo = aulaDAO.findAulaMaxAforo(OficinaEnum.OERA, EstadoEnum.ACT);
@@ -319,24 +319,42 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         this.saveSeccionesEspeciales(seccionesEspecialesRecolected, rolExamenes, ds);
 
         logger.info("letras grupos regulares a guardar {}", letrasGruposRegulares.size());
+        List<Seccion> listSeccionesNoOera = new ArrayList<>();
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
             logger.debug("guardara la letra {}", letraGrupoRegular.getLetra());
             letraGrupoRegularDAO.save(letraGrupoRegular);
 
             List<SeccionGrupoRegular> seccionesGpoRegular = letraGrupoRegular.getSeccionesGruposRegulares();
-            seccionGrupoRegularDAO.createForLetraGrupoRegular(seccionesGpoRegular, letraGrupoRegular, ds.getFechaAccionAudit(), ds.getUsuario());
+            List<SeccionGrupoRegular> seccionGpoRegularOera = seccionesGpoRegular.stream()
+                    .filter(x -> seccionesOera.contains(x.getSeccion()))
+                    .collect(Collectors.toList());
+            seccionGrupoRegularDAO.createForLetraGrupoRegular(seccionGpoRegularOera, letraGrupoRegular, ds.getFechaAccionAudit(), ds.getUsuario());
+
+            List<SeccionGrupoRegular> seccionGpoRegularNoOera = new ArrayList<>(seccionesGpoRegular);
+            for (SeccionGrupoRegular seccionGrupoRegularOera : seccionGpoRegularOera) {
+                seccionGpoRegularNoOera.removeIf(x -> x.getSeccion().equals(seccionGrupoRegularOera.getSeccion()));
+            }
+            for (SeccionGrupoRegular seccionGrupoRegular : seccionGpoRegularNoOera) {
+                seccionGrupoRegularDAO.save(seccionGrupoRegular);
+            }
 
             List<Seccion> seccionesAfectadas = seccionesGpoRegular.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
             List<SeccionGrupoRegular> seccionesGpoRegularBD = seccionGrupoRegularDAO.allByLetraGrupoRegularAndSecciones(letraGrupoRegular, seccionesAfectadas);
             Map<Long, SeccionGrupoRegular> mapSeccionGpoRegularBD = TypesUtil.convertListToMap("seccion.id", seccionesGpoRegularBD);
             for (SeccionGrupoRegular seccionGpoRegular : seccionesGpoRegular) {
                 SeccionGrupoRegular seccionGpoRegularBD = mapSeccionGpoRegularBD.get(seccionGpoRegular.getSeccion().getId());
+                /*if (seccionGpoRegularBD == null) {
+                    continue; //todo
+                }*/
                 alumnoGrupoRegularDAO.createForSeccionGrupoRegular(seccionGpoRegular.getAlumnosGruposRegulares(), seccionGpoRegularBD, ds.getFechaAccionAudit(), ds.getUsuario());
 
                 List<HorarioAula> horariosAulaBySeccionGpoRegular = seccionGpoRegular.getHorariosAula();
                 for (HorarioAula horarioAula : horariosAulaBySeccionGpoRegular) {
                     horarioAula.setSeccionGrupoRegular(seccionGpoRegularBD);
                     horarioAulaDAO.save(horarioAula);
+                }
+                if (!seccionGpoRegular.getAula().getOficinaSupervisora().isOficinaOera()) {
+                    listSeccionesNoOera.add(seccionGpoRegular.getSeccion());
                 }
             }
         }
@@ -345,6 +363,12 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         rolExamenesUpd.setId(rolExamenes.getId());
         rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CFG_REG);
         rolExamenesDAO.updateSituacion(rolExamenesUpd);
+
+        for (Seccion seccion : listSeccionesNoOera) {
+            logger.info("Seccion no oera : {} {}", seccion.getId(), seccion.getTipoSeccion());
+        }
+
+        //   throw new PhobosException("No pasaras");
     }
 
     public void analizarAulaEstudios(List<Seccion> secciones, List<Aula> aulaEstudios) {
@@ -592,18 +616,18 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<LetraGrupoRegular> letrasGruposRegular = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
         logger.debug("Letras Grupos Regulares a eliminar {}", letrasGruposRegular.size());
 
+        for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegular) {
+            grupoRegularExamenDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
+            alumnoGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
+            seccionGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
+        }
+
         List<SeccionGrupoRegular> seccionesGruposRegularesExc = seccionGrupoRegularDAO.allByRolExamenes(rolExamenes, SeccionRolExamenEstadoEnum.EXC);
         List<Seccion> seccionesExcluidas = seccionesGruposRegularesExc.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
         if (!seccionesExcluidas.isEmpty()) {
             seccionExcluidoDAO.deleteBySecciones(seccionesExcluidas);
         }
-        for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegular) {
-            alumnoGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
-            seccionGrupoRegularDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
-            grupoRegularExamenDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
-            horarioAulaDAO.deleteByLetraGrupoRegular(letraGrupoRegular);
-            //    letraGrupoRegularDAO.delete(letraGrupoRegular);
-        }
+
         letraGrupoRegularDAO.deleteByRolExamenes(rolExamenes);
     }
 

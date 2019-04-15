@@ -564,7 +564,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
     
     @Override
-    public void updateMatriculados(Seccion seccion, Integer matriculados) {
+    public void updateMatriculados(Seccion seccion, Integer matriculados) { 
         StringBuilder sql = new StringBuilder();
         sql.append("update Seccion set matriculados = :MATRICULADOS where id = :SECCION ");
         

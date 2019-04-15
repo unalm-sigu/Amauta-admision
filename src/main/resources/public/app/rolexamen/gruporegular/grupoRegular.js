@@ -21,7 +21,7 @@ new Vue({
     computed: {
         generarDisponible() {
             try {
-                return this.rolExamen && this.rolExamen.isEstadoConfigurando && (this.rolExamen.isSituacionConfigurarCursoMasivo || this.rolExamen.isSituacionConfiguraGrupoRegular);
+                return this.rolExamen && this.rolExamen.isEstadoConfigurando && (this.rolExamen.isSituacionConfigurarCursoMasivo || this.rolExamen.isSituacionConfigurarGrupoRegular);
             } catch (error) {
                 return false;
             }

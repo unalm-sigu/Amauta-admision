@@ -166,18 +166,20 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
             boolean result = false;
             if (seccionClone.getAula().getOficinaSupervisora().isOficinaOera()) {
+                //  logger.info("Aula OERA {} {}", seccionClone.getAula().getId(), seccionClone.getAula().getCodigo());
                 result = this.procesarSeccionesByLetra(letraGrupoRegular, cursosMasivosExamen, seccionesGrupoEspecial, seccionClone, seccionesByLetra, ds);
             } else {
                 Aula aulaSeccionOriginal = seccionClone.getAula();
-                logger.info("seccion {}, aula {}, no es aula oera", seccion.getCodigo2(), aulaSeccionOriginal.getId());
+                logger.info("seccion {}, aula {}, no es aula oera", seccion.getId(), aulaSeccionOriginal.getId());
                 logger.info("aula superior {}", ObjectUtil.getParentTree(aulaSeccionOriginal, "aulaSuperior.id"));
 
                 Map<Long, List<Aula>> mapAulasAgrupadasPorModulo = this.aulasAgrupadasPorModulo(aulaSeccionOriginal);
 
+                Aula aulaResult = null;
                 for (int i = seccion.getMatriculados(); i <= rolExamenesLogger.getMaximoAforoAula(); i += AFORO_INCREMENTO) {
                     int inicio = i;
                     int fin = i + AFORO_INCREMENTO - 1;
-                    Aula aulaResult = this.buscarAulaOeraBySeccion(seccion,
+                    aulaResult = this.buscarAulaOeraBySeccion(seccion,
                             letraGrupoRegular,
                             mapAulasAgrupadasPorModulo,
                             cursosMasivosExamen,
@@ -187,9 +189,12 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                             ds);
                     if (!aulaResult.equals(seccion.getAula())) {
                         result = true;
+                        logger.info("Encontro el aula {}, {}, oficina {}", aulaResult.getId(), aulaResult.getCodigo(), aulaResult.getOficinaSupervisora().getCodigo());
                         break;
                     }
-
+                }
+                if (aulaResult.equals(seccion.getAula())) {
+                    logger.info("no encontro aula oera para el aula {}, {}", aulaResult.getId(), aulaResult.getCodigo());
                 }
             }
             if (!result) {
@@ -208,11 +213,18 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         Map<Long, List<Aula>> mapAulasAgrupadasPorModuloOrdered = new LinkedHashMap();
         boolean hasAulaSuperior = ObjectUtil.getParentTree(aulaSeccionOriginal, "aulaSuperior.id") != null;
         if (hasAulaSuperior) {
-            mapAulasAgrupadasPorModuloOrdered.put(aulaSeccionOriginal.getAulaSuperior().getId(), mapAulasAgrupadasPorModulo.get(aulaSeccionOriginal.getAulaSuperior().getId()));
+            List<Aula> aulas = mapAulasAgrupadasPorModulo.get(aulaSeccionOriginal.getAulaSuperior().getId());
+            if (aulas == null) {
+                aulas = new ArrayList<Aula>();
+            }
+            mapAulasAgrupadasPorModuloOrdered.put(aulaSeccionOriginal.getAulaSuperior().getId(), aulas);
         }
         for (Map.Entry<Long, List<Aula>> entry : mapAulasAgrupadasPorModulo.entrySet()) {
             Long key = entry.getKey();
             List<Aula> value = entry.getValue();
+            if (value == null) {
+                value = new ArrayList<>();
+            }
             if (hasAulaSuperior && key.compareTo(aulaSeccionOriginal.getAulaSuperior().getId()) == 0) {
                 continue;
             }
@@ -231,7 +243,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             Integer inicio,
             Integer fin,
             DataSessionPivot ds) {
-        logger.info("Entro a busca raula");
+        logger.info("Entro a buscar aula");
         Seccion seccionClone = seccion.clone();
         Aula aulaSeccionOriginal = seccion.getAula();
         GrupoHorasExamen grupoHorasExamen = letraGrupoRegular.getGrupoHorasExamen();
@@ -240,7 +252,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             List<Aula> aulasByModulo = entry.getValue();
             AULA_EACH:
             for (Aula aula : aulasByModulo) {
-                if (!(aula.getAforo() >= inicio && aula.getAforo() < fin)) {
+                if (!(aula.getAforo() >= inicio && aula.getAforo() <= fin)) {
                     continue;
                 }
                 for (String diaHora : grupoHorasExamen.getDiaHoraList()) {
@@ -555,7 +567,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             HorarioAula horarioAula = new HorarioAula(fechaHoraGrupoExamen, seccion);
             horarioAula.setSeccionGrupoRegular(seccionGrupoRegular);
             horarioAula.setRolExamenes(letraGrupoRegular.getRolExamenes());
-            // horarioAula.setTipoGrupoRolExamenesEnum(TipoGrupoRolExamenesEnum.GRU_REG);
             //  horarioAulaDAO.save(horarioAula);
             aulaSeccionLogger.getHorariosAula().add(horarioAula.clone());
             if (seccionGrupoRegular.getHorariosAula() == null) {

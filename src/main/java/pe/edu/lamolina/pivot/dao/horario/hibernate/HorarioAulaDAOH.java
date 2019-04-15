@@ -493,10 +493,20 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     @Override
     public void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
         StringBuilder strb = new StringBuilder();
-        strb.append(" delete from  HorarioAula ha where ha.seccionGrupoRegular.letraGrupoRegular.id=:LETRA");
+        strb.append(" delete from  HorarioAula ha where ha.seccionGrupoRegular.id in ");
+        strb.append(" (Select ssgr.id from SeccionGrupoRegular ssgr where  ssgr.letraGrupoRegular.id=:LETRA) ");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("LETRA", letraGrupoRegular.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void deleteByCursoMasivo(CursoMasivoExamen cursoMasivoExamen) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  HorarioAula ha where ha.cursoMasivoExamen.id=:CURSOMASIVO ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("CURSOMASIVO", cursoMasivoExamen.getId());
         query.executeUpdate();
     }
 

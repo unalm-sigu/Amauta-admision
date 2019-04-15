@@ -73,8 +73,9 @@ new Vue({
                             AXIOS.post(`${vue.URL}/calcularPlantillaHorario`, vue.rolExamen)
                                     .then(response => {
                                         if (response.data.success) {
-                                            vue.listarGruposExamenByRolExamen();
-                                            vue.listarHorarioSemanal();
+                                            //  vue.listarGruposExamenByRolExamen();
+                                            //   vue.listarHorarioSemanal();
+                                            vue.changeRolExamen();
                                         }
                                         MODAL.hideWait();
                                     });
@@ -86,8 +87,9 @@ new Vue({
                 AXIOS.post(`${vue.URL}/calcularPlantillaHorario`, vue.rolExamen)
                         .then(response => {
                             if (response.data.success) {
-                                vue.listarGruposExamenByRolExamen();
-                                vue.listarHorarioSemanal();
+                                vue.changeRolExamen();
+                                // vue.listarGruposExamenByRolExamen();
+                                // vue.listarHorarioSemanal();
                             }
                             MODAL.hideWait();
                         });
@@ -300,6 +302,7 @@ new Vue({
                                         vue.listarGruposExamenByRolExamen();
                                         vue.listarHorarioSemanal();
                                     }
+                                    vue.changeRolExamen();
                                     MODAL.hideWait();
                                 });
                     }

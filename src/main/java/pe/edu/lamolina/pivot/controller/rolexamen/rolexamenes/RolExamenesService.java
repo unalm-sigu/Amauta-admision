@@ -37,6 +37,4 @@ public interface RolExamenesService {
 
     void modificar(RolExamenes rolExamenes, DataSessionPivot ds);
 
-    void restoreHorariosAulas(RolExamenes rolExamenes, Seccion seccion, Aula aula);
-
 }
