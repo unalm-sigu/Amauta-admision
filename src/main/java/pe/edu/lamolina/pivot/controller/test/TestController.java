@@ -28,7 +28,6 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.ContadorComponent;
@@ -114,6 +113,9 @@ public class TestController {
     @Autowired
     ContadorComponent contadorComponent;
 
+    @Autowired
+    TestService service;
+
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
     public String crearEvaluacionByExp(@RequestParam("idGrupoSeccion") Long idGpoSecc) {
@@ -170,30 +172,12 @@ public class TestController {
     @ResponseBody
     @RequestMapping("/calcularAllResumenEvaluacion/{seccion}")
     public String calcularAllResumenEvaluacion(@PathVariable("seccion") Long seccionId, HttpSession session) {
-        int loop = 1;
-        visorCalculoNotas.iniciar();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            service.calcularAllResumenEvaluacion(seccionId, ciclo, ds);
 
-        Seccion seccionPV = seccionDAO.find(seccionId);
-
-        List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(seccionPV.getGrupoSeccion(), ciclo);
-        for (MatriculaSeccion ms : alumnosSeccion) {
-            Seccion seccion = ms.getSeccion();
-            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
-            Alumno alumno = ms.getMatriculaResumen().getAlumno();
-
-            if (gpoSecc.getPlanCalificacion() == null) {
-                break;
-            }
-
-            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
-                continue;
-            }
-
-            calculoNotasService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
-            loop++;
-
+        } catch (Exception e) {
         }
 
         return "yeah";
