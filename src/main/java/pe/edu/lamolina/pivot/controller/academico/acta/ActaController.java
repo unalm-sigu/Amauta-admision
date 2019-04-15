@@ -232,7 +232,8 @@ public class ActaController {
                             grupoHoras += sec.getGrupoHoras().getId() + "|" + sec.getGrupoHoras().getCodigo() + ",";
                         }
 
-                        docentesSeccion = service.allDocenteSeccionByFilter(null, sec);
+//                        docentesSeccion = service.allDocenteSeccionByFilter(null, sec);
+                        docentesSeccion = sec.getDocenteSeccion();
                         for (DocenteSeccion docentesSeccionEach : docentesSeccion) {
                             if (docentesSeccionEach.getEstadoEnum().equals(EstadoEnum.ACT)) {
                                 if (docentesSeccionEach.esDocentePrincipal()) {
@@ -310,7 +311,10 @@ public class ActaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+            List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByCiclo(ds.getCicloAcademico());
+            model.addAttribute("gruposSecciones", gpoSecciones);
+            model.addAttribute("cantidadAlumnosByGrupo", service.mapCantidadAlumnoByGrupo(gpoSecciones));
+            model.addAttribute("cantidadAlumnosByGrupoNF", service.mapCantidadAlumnoByGrupoNF(gpoSecciones));
             model.addAttribute(RecordDeActasExcelView.TIPO, RecordDeActasExcelView.PRE_GRADO);
 
         } catch (PhobosException e) {
@@ -331,7 +335,10 @@ public class ActaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+            List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByCiclo(ds.getCicloAcademico());
+            model.addAttribute("gruposSecciones", gpoSecciones);
+            model.addAttribute("cantidadAlumnosByGrupo", service.mapCantidadAlumnoByGrupo(gpoSecciones));
+            model.addAttribute("cantidadAlumnosByGrupoNF", service.mapCantidadAlumnoByGrupoNF(gpoSecciones));
             model.addAttribute(RecordDeActasExcelView.TIPO, RecordDeActasExcelView.POST_GRADO);
 
         } catch (PhobosException e) {

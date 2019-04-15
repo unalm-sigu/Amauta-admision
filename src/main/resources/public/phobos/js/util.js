@@ -418,15 +418,6 @@ APP = {
 
         $this.val(nom);
     },
-    revisarNombre2: function (string) {
-        var nom = string.toLowerCase().replace(/[^a-zçñáéíóúü\s'\-]/g, '');
-        nom = nom.replace(/[\n\f\b\r|,\t]/g, ' ').replace(/\s\s+/g, ' ').trim();
-        nom = APP.capitalize(nom, " ");
-        nom = APP.capitalize(nom, "'");
-        nom = APP.capitalize(nom, "-");
-
-        return nom;
-    },
     capitalize: function (string, separator) {
         var arr = string.split(separator);
         $.each(arr, function (i, value) {
@@ -518,6 +509,47 @@ APP = {
         link.click();
     }
 };
+
+VUE = {
+    revisarEmail(string) {
+        var conte = string.toLowerCase().replace(/[\n\f\b\r\t\s|,'"!$%&/]/g, '').trim();
+        return APP.stripAccents(conte).toLowerCase();
+    },
+    revisarApellido(string) {
+        var nom = string.toLowerCase().replace(/[^a-zçñáéíóúü\s'\-]/g, '');
+        nom = nom.replace(/[\n\f\b\r|,\t]/g, ' ').replace(/\s\s+/g, ' ').trim();
+        nom = APP.capitalize(nom, " ");
+        nom = APP.capitalize(nom, "'");
+        nom = APP.capitalize(nom, "-");
+
+        return nom;
+    },
+    revisarNombreObjeto(string) {
+        var nom = string.replace(/[^A-Za-zÇÑÁÉÍÓÚÜçñáéíóúü,\s'\-]/g, '');
+        return nom.replace(/[\n\f\b\r|\t]/g, ' ').replace(/\s\s+/g, ' ').trim();
+    },
+    revisarCodigo(string) {
+        var str = string.replace(/[\s\n\f\b\r\t]/g, '');
+        return str.toUpperCase();
+    },
+    revisarAnexos(string) {
+        var str = string.replace(/[\-\/\,]/g, ' ');
+        str = str.replace(/[^0-9\s]/g, '');
+        str = str.replace(/ +(?= )/g, '').trim();
+        var arr = str.split(" ");
+        str = arr.join(" / ");
+        return str;
+    },
+    revisarTelefonos(string) {
+        var str = string.replace(/[\/\,]/g, ' ');
+        str = str.replace(/[^0-9\s\-]/g, '');
+        str = str.replace(/ +(?= )/g, '').trim();
+        str = str.replace(/ - /g, '-');
+        var arr = str.split(" ");
+        str = arr.join(" / ");
+        return str;
+    },
+}
 
 MESSAGES = {
     errorComunicacion: 'Error de conexión con el servidor.',

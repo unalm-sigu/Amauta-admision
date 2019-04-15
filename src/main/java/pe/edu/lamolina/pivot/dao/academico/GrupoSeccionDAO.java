@@ -18,8 +18,6 @@ import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.DocenteCurso
 
 public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
-    GrupoSeccion find(Long idGrupoSeccion);
-
     List<GrupoSeccion> allByFilter(List<Long> ids, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, EstadoEnum estadoEnum);
 
     List<GrupoSeccion> allByDynatableCicloDpto(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, DynatableFilter filter);

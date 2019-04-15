@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.controller.general.oficina.colaborador;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Strings;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -31,7 +30,6 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import pe.edu.lamolina.model.enums.SexoEnum;
@@ -106,7 +104,7 @@ public class ColaboradorController {
             "cargo.codigo",
             "cargo.nombre",});
 
-        List<TipoDocIdentidad> tipoDoc = service.allDocumentosIdentidad();
+        List<TipoDocIdentidad> tiposDocumentos = service.allDocumentosIdentidad();
         List<Oficina> oficinas = service.allOficinasByOficinaMain(new Oficina(idOficina));
 
         List<PerfilCompania> cargos = service.allCargoByOficina(new Oficina(idOficina));
@@ -126,27 +124,33 @@ public class ColaboradorController {
             arrayCargos.add(node);
         }
 
-        ArrayNode arrayFunsiones = new ArrayNode(jFactory);
+        ArrayNode arrayFunciones = new ArrayNode(jFactory);
         for (PerfilCompania funcion : funciones) {
             ObjectNode node = JsonHelper.createJson(funcion, jFactory, true, new String[]{"*"});
-            arrayFunsiones.add(node);
+            arrayFunciones.add(node);
         }
 
-        ArrayNode arrayMisFunsiones = new ArrayNode(jFactory);
+        ArrayNode arrayMisFunciones = new ArrayNode(jFactory);
         for (PerfilCompania mifuncion : misfunciones) {
             ObjectNode node = JsonHelper.createJson(mifuncion, jFactory, true, new String[]{"*"});
-            arrayMisFunsiones.add(node);
+            arrayMisFunciones.add(node);
+        }
+
+        ArrayNode arrayTiposDocumentos = new ArrayNode(jFactory);
+        for (TipoDocIdentidad tipoDoc : tiposDocumentos) {
+            ObjectNode node = JsonHelper.createJson(tipoDoc, JsonNodeFactory.instance, true, new String[]{"*"});
+            arrayTiposDocumentos.add(node);
         }
 
         model.addAttribute("colaborador", jsonColaborador);
         model.addAttribute("oficina", idOficina);
-        model.addAttribute("tipoDocumento", new TipoDocIdentidad().toJsonArray(tipoDoc));
+        model.addAttribute("tipoDocumento", arrayTiposDocumentos);
         model.addAttribute("sexo", SexoEnum.values());
         model.addAttribute("area", arrayOficinas);
 
-        model.addAttribute("funciones", arrayFunsiones);
+        model.addAttribute("funciones", arrayFunciones);
         model.addAttribute("cargos", arrayCargos);
-        model.addAttribute("misfunciones", arrayMisFunsiones);
+        model.addAttribute("misfunciones", arrayMisFunciones);
         model.addAttribute("origen", getOrigen(origen));
 
         return "general/oficina/colaborador/colaboradorForm";
@@ -188,7 +192,7 @@ public class ColaboradorController {
             @PathVariable("idOficina") Long idOficina,
             @RequestParam(value = "origen", required = false) String origen, Model model) {
 
-        List<TipoDocIdentidad> tipoDoc = service.allDocumentosIdentidad();
+        List<TipoDocIdentidad> tiposDocumentos = service.allDocumentosIdentidad();
         List<Oficina> oficinas = service.allOficinasByOficinaMain(new Oficina(idOficina));
         List<PerfilCompania> cargos = service.allCargoByOficina(new Oficina(idOficina));
         List<PerfilCompania> funciones = service.allFuncionByOficina(new Oficina(idOficina));
@@ -213,9 +217,15 @@ public class ColaboradorController {
             arrayOficinas.add(node);
         }
 
+        ArrayNode arrayTiposDocumentos = new ArrayNode(jFactory);
+        for (TipoDocIdentidad tipoDoc : tiposDocumentos) {
+            ObjectNode node = JsonHelper.createJson(tipoDoc, JsonNodeFactory.instance, true, new String[]{"*"});
+            arrayTiposDocumentos.add(node);
+        }
+
         model.addAttribute("oficina", idOficina);
         model.addAttribute("colaborador", colaboradorJson);
-        model.addAttribute("tipoDocumento", new TipoDocIdentidad().toJsonArray(tipoDoc));
+        model.addAttribute("tipoDocumento", arrayTiposDocumentos);
         model.addAttribute("sexo", SexoEnum.values());
         model.addAttribute("area", arrayOficinas);
         model.addAttribute("cargos", createPerfilesJson(cargos));

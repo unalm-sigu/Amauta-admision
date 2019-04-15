@@ -7,11 +7,9 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -33,7 +31,6 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -154,8 +151,9 @@ public class OficinaController {
             tiposOficinaJson.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{"*"}));
         }
 
-        ObjectNode oficinaJson = JsonHelper.createJson(new Oficina(), JsonNodeFactory.instance, new String[]{
-            "*", "tipoOficina.*", "cargoJefe.*", "oficinaSuperior.*"});
+        Oficina oficina = new Oficina();
+        oficina.setCompania(ds.getCompania());
+        ObjectNode oficinaJson = createOficinaJson(oficina);
         oficinaJson.put("instanciaReferencia", "");
 
         model.addAttribute("tiposOficina", tiposOficinaJson.toString());
@@ -179,8 +177,7 @@ public class OficinaController {
             tiposOficinaJson.add(JsonHelper.createJson(tipoOficina1, JsonNodeFactory.instance, new String[]{"*"}));
         }
 
-        ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
-            "*", "tipoOficina.*", "cargoJefe.*", "oficinaSuperior.*"});
+        ObjectNode oficinaJson = createOficinaJson(oficina);
         oficinaJson.put("instanciaReferencia", "");
 
         model.addAttribute("tiposOficina", tiposOficinaJson.toString());
@@ -266,8 +263,8 @@ public class OficinaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
             ArrayNode array = new ArrayNode(jsonFactory);
-            TipoOficina oficina = service.findTipoById(tipo);
-            if (TipoOficinaEnum.DPTO.name().equalsIgnoreCase(oficina.getCodigo())) {
+            TipoOficina tipoOficina = service.findTipoById(tipo);
+            if (TipoOficinaEnum.DPTO == tipoOficina.getCodigoEnum()) {
                 List<DepartamentoAcademico> departamentos = service.allDepartamento(compania);
                 for (DepartamentoAcademico departamento : departamentos) {
                     ObjectNode a = JsonHelper.createJson(departamento, jsonFactory, columnas.split(","));
@@ -276,7 +273,7 @@ public class OficinaController {
                     array.add(a);
                 }
             }
-            if (TipoOficinaEnum.ESP.name().equalsIgnoreCase(oficina.getCodigo())) {
+            if (TipoOficinaEnum.ESP == tipoOficina.getCodigoEnum()) {
                 List<Carrera> carreras = service.allCarrera(compania);
                 for (Carrera carrera : carreras) {
 
@@ -294,7 +291,7 @@ public class OficinaController {
                     array.add(a);
                 }
             }
-            if (TipoOficinaEnum.FAC.name().equalsIgnoreCase(oficina.getCodigo())) {
+            if (TipoOficinaEnum.FAC == tipoOficina.getCodigoEnum()) {
                 List<Facultad> facultades = service.allFacultad(compania);
                 for (Facultad facultad : facultades) {
                     ObjectNode a = JsonHelper.createJson(facultad, jsonFactory, columnas.split(","));
@@ -592,12 +589,20 @@ public class OficinaController {
 
     private ObjectNode createOficinaJson(Oficina oficina) {
         ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
-            "id", "nombre", "codigo", "estadoEnum", "estado", "motivoAusenciaJefe",
-            "fechaInicioJefatura", "fechaEncargatura",
+            "id", "nombre", "codigo", "estadoEnum", "estado", "motivoAusenciaJefe", "referenciaUbicacion",
+            "fechaInicioJefatura", "fechaEncargatura", "telefonos", "anexos", "email",
+            "instanciaOficina",
+            "instanciaOficinaCodigo",
+            "instanciaOficinaNombre",
+            "compania.telefonos",
+            "tipoOficina.id",
+            "tipoOficina.codigo",
+            "tipoOficina.nombre",
             "tipoOficina.nivelEnum",
             "tipoOficina.codigoEnum",
             "oficinaSuperior.id",
             "oficinaSuperior.nombre",
+            "cargoJefe.id",
             "cargoJefe.nombre",
             "jefeEncargado.id",
             "jefeEncargado.nombreConTitulo",

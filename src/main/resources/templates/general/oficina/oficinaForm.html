@@ -5,126 +5,208 @@
     <body>
         <section layout:fragment="main" >
             <div id="oficinaFormVUE" >
+
                 <header class="header b-b padder-lg">                
                     <a th:href="${origen}" class="btn btn-default btn-sm pull-right">Regresar</a>
-                    <h2 v-text="oficina.id != null ? oficina.nombre : 'Nueva Oficina' " >Nuevo Oficina</h2> 
+                    <h2 v-text="oficina.id != '' ? oficina.nombre : 'Nueva Oficina' " >Nuevo Oficina</h2> 
                 </header>
 
-                <section class="panel">
-                    <section class="panel-body bg-white b">
-                        <!--<pre>{{oficina}}</pre>-->
+                <section class="wrapper-lg">
+                    <section class="panel m-b-xs">
+                        <section class="panel-body">
 
-                        <form id="formControl" class="form-horizontal m-t-lg" data-parsley-validate="true">
-                            
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Nombre</label>
-                                <div class="col-sm-9">
-                                    <input  type="text" 
-                                            class="inline numeric form-control" 
-                                            required="true" 
-                                            maxlength="200"
-                                            v-model="oficina.nombre"/>
+                            <form id="formOficina" data-parsley-validate="true">
+
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label>Código</label>
+                                            <input type="text" class="form-control" required="true" maxlength="20" 
+                                                   v-on:blur="revisar('CODIGO',oficina,'codigo')"
+                                                   v-model="oficina.codigo"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-10">
+                                        <div class="form-group">
+                                            <label>Nombre</label>
+                                            <input type="text" class="form-control" required="true" maxlength="200"
+                                                   data-parsley-nombre-objeto=""
+                                                   v-on:blur="revisar('NOMBRE',oficina,'nombre')"
+                                                   v-model="oficina.nombre"/>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label for="codigo" class="col-sm-3 control-label">Código</label>
-                                <div class="col-sm-4">
-                                    <input  type="text" 
-                                            class="inline numeric form-control " 
-                                            required="true" 
-                                            name="codigo" 
-                                            maxlength="20"
-                                            v-model="oficina.codigo"/>
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="form-group ">
+                                            <label class="control-label"> Tipo Oficina</label>
+                                            <multiselect v-model="oficina.tipoOficina" 
+                                                         v-bind:options='tiposOficina'
+                                                         label='nombre'
+                                                         track-by='id'
+                                                         v-bind:allow-empty="false"
+                                                         v-on:input ="loadReferencias"
+                                                         placeholder="Seleccione tipo de oficina">
+
+                                            </multiselect>
+                                            <input type="text" v-model="oficina.tipoOficina.id" class="hide" required="true" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-8">
+                                        <div class="form-group" v-if="hayInstancia">
+                                            <label class="control-label">{{oficina.tipoOficina.nombre}} Referencia</label>
+                                            <multiselect v-model="oficina.instanciaReferencia" 
+                                                         v-bind:options='referencias'
+                                                         label='descripcion'
+                                                         track-by='id'
+                                                         v-bind:allow-empty="false"
+                                                         v-on:input ="verRef"
+                                                         placeholder="Seleccione Referencia">
+                                                <template slot="option" slot-scope="props">    
+                                                    <div class="option__desc">
+                                                        <span class="bold block" > {{ props.option.codigo }} - {{ props.option.nombre }}</span>
+                                                        <small v-if="props.option.modalidad == 'EPG' " class="block">{{props.option.tipoEnum.value}}</small>
+                                                        <div class="block"><span class="label" v-bind:class="classLabel(props.option)">  {{props.option.estadoEnum.value}}  </span></div>
+                                                    </div>                                 
+                                                </template>
+                                            </multiselect>
+                                            <input type="text" v-model="oficina.instanciaReferencia.id" class="hide" required="true" />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group ">
-                                <label class="col-sm-3 control-label"> Tipo</label>
-                                <div class="col-sm-4">
-                                    <multiselect v-model="oficina.tipoOficina" 
-                                                 v-bind:options='tiposOficina'
-                                                 label='nombre'
-                                                 track-by='id'
-                                                 v-bind:allow-empty="false"
-                                                 v-on:input ="loadReferencias"
-                                                 placeholder="Seleccione tipo de oficina">
-
-                                    </multiselect>
-                                    <input type="text" v-model="oficina.tipoOficina.id" class="hide" required="true" />
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label class="control-label">Unidad Superior</label>
+                                            <multiselect v-model="oficina.oficinaSuperior" 
+                                                         v-on:search-change="findOficinaSuperior"
+                                                         v-bind:options='oficinaSuperior'
+                                                         label='nombre'
+                                                         track-by='id'
+                                                         v-bind:allow-empty="false"
+                                                         placeholder="Seleccione Unidad superior">
+                                            </multiselect>
+                                            <input type="text" v-model="oficina.oficinaSuperior.id" class="hide" required="true" />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div class="form-group" v-if="hayInstancia">
-                                <label class="col-sm-3 control-label">Referencia</label>
-                                <div class="col-sm-4">
-                                    <multiselect v-model="oficina.instanciaReferencia" 
-                                                 v-bind:options='referencias'
-                                                 label='descripcion'
-                                                 track-by='id'
-                                                 v-bind:allow-empty="false"
-                                                 v-on:input ="verRef"
-                                                 placeholder="Seleccione Referencia">
-                                        <template slot="option" slot-scope="props">    
-                                            <div class="option__desc">
-                                                <span class="bold block" > {{ props.option.codigo }} - {{ props.option.nombre }}</span>
-                                                <small v-if="props.option.modalidad == 'EPG' " class="block">{{props.option.tipoEnum.value}}</small>
-                                                <div class="block"><span class="label" v-bind:class="classLabel(props.option)">  {{props.option.estadoEnum.value}}  </span></div>
-                                            </div>                                 
-                                        </template>
-                                    </multiselect>
-                                    <input type="text" v-model="oficina.instanciaReferencia.id" class="hide" required="true" />
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Unidad Superior</label>
-                                <div class="col-sm-4">
-                                    <multiselect v-model="oficina.oficinaSuperior" 
-                                                 v-on:search-change="findOficinaSuperior"
-                                                 v-bind:options='oficinaSuperior'
-                                                 label='nombre'
-                                                 track-by='id'
-                                                 v-bind:allow-empty="false"
-                                                 placeholder="Seleccione Unidad superior">
-                                    </multiselect>
-                                    <input type="text" v-model="oficina.oficinaSuperior.id" class="hide" required="true" />
-                                </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label class="col-sm-3 control-label">Cargo Jefe</label>
-                                <div class="col-sm-4">
-                                    <multiselect v-model="oficina.cargoJefe" 
-                                                 v-bind:options='cargosJefe'
-                                                 v-on:search-change="allCargoJefe"
-                                                 label='nombre'
-                                                 track-by='id'
-                                                 v-bind:allow-empty="false"
-                                                 placeholder="Seleccione Cargo">
-                                    </multiselect>
-                                    <input type="text" v-model="oficina.cargoJefe" class="hide"   required="true" />
+                                <h3 class="">Información de contacto de la oficina</h3>
+
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label class="">Central telefónica</label>
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-phone fa-lg text-primary"></i></span>
+                                                <span class="form-control text-primary" v-text="oficina.compania.telefonos"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="codigo" class=" control-label">Anexos</label>
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-volume-control-phone fa-lg"></i></span>
+                                                <input  type="text" class="form-control" maxlength="200" 
+                                                        v-on:blur="revisar('ANEXOS',oficina,'anexos')"
+                                                        v-model="oficina.anexos"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label">Teléfonos directos</label>
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-phone fa-lg"></i></span>
+                                                <input  type="text" class="form-control" maxlength="400" 
+                                                        v-on:blur="revisar('TELEFONOS',oficina,'telefonos')"
+                                                        v-model="oficina.telefonos"/>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group m-t-xxlg">
-                                <div id="footerOficina" class="col-sm-10 col-sm-offset-4">
-                                    <a class="btn btn-primary"
-                                       v-text="oficina.id != null ? 'Actualizar' :'Guardar'" v-on:click='save'></a>                                        
-                                    <a th:href="${origen}" class="btn btn-link" >Regresar</a>
+                                <div class="row">
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label">Correo electrónico</label>
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-envelope-o fa-lg"></i></span>
+                                                <input  type="email" class="form-control" maxlength="200"
+                                                        data-parsley-type="email"
+                                                        v-on:blur="revisar('EMAIL',oficina,'email')"
+                                                        v-model="oficina.email"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label">Referencia sobre ubicación</label>
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-map-marker fa-lg"></i></span>
+                                                <input  type="text" class="form-control" maxlength="200"
+                                                        v-model="oficina.referenciaUbicacion"/>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
-                        </form>
+                                <h3 class="">Jefatura</h3>
 
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label">Cargo Jefe</label>
+                                            <multiselect v-model="oficina.cargoJefe" 
+                                                         v-bind:options='cargosJefe'
+                                                         v-on:search-change="allCargoJefe"
+                                                         label='nombre'
+                                                         track-by='id'
+                                                         v-bind:allow-empty="false"
+                                                         placeholder="Seleccione Cargo">
+                                            </multiselect>
+                                            <input type="text" v-model="oficina.cargoJefe" class="hide" required="true" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div v-if="oficina.personaJefe.id != '' " class="form-group">
+                                            <label class="control-label">Jefe(a)</label>                                    
+                                            <span class="form-control text-primary" v-text="oficina.personaJefe.nombreConTitulo"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </section>     
                     </section>
 
-                </section>
+                    <section class="panel m-t-xs">
+                        <section class="panel-body">
+                            <div class="form-group">
+                                <div id="footerOficina" class="text-center">
+                                    <a th:href="${origen}" class="btn btn-default" >Regresar</a>
+                                    <a class="btn btn-primary"
+                                       v-text="oficina.id != '' ? 'Actualizar' :'Guardar'" v-on:click='save'></a>
+                                </div>
+                            </div>
+                        </section>
+
+                    </section>
+                </section>                
             </div>
         </section>
 
         <div layout:fragment="js" >
-            <script  th:inline="javascript" >
+            <script th:inline="javascript" >
                 /*<![CDATA[*/
                 var oficinaJson = /*[[${oficina}]]*/'';
                 var tiposOficinaJson = /*[[${tiposOficina}]]*/'';

@@ -65,27 +65,48 @@ new Vue({
                 return;
             }
             if ($vue.persona.id == null || $vue.persona.id == undefined) {
-                $vue.temp = $vue.persona;
+                $vue.temp = Object.assign({}, $vue.persona, {});
             }
-            $.ajax({
-                url: APP.url('general/oficina/validarDoc'),
-                type: 'POST',
-                contentType: "application/json",
-                data: JSON.stringify($vue.persona),
-                success: function (response) {
-                    if (!response.success) {
-                        $vue.persona = response.data;
-                        $vue.restringirValores();
-                    } else {
-                        $vue.temp.numeroDocIdentidad = $vue.persona.numeroDocIdentidad;
-                        $vue.temp.tipoDocumento = $vue.persona.tipoDocumento;
-                        $vue.persona = {};
-                        $vue.personaValidTemp = {};
-                        $vue.persona.numeroDocIdentidad = $vue.temp.numeroDocIdentidad;
-                        $vue.persona.tipoDocumento = $vue.temp.tipoDocumento;
-                    }
-                }
-            });
+
+            axios.post(APP.url(rutaModulo + '/validarDoc'), $vue.persona)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.temp.numeroDocIdentidad = $vue.persona.numeroDocIdentidad;
+                            $vue.temp.tipoDocumento = $vue.persona.tipoDocumento;
+                            $vue.persona = {};
+                            $vue.personaValidTemp = {};
+                            $vue.persona.numeroDocIdentidad = $vue.temp.numeroDocIdentidad;
+                            $vue.persona.tipoDocumento = $vue.temp.tipoDocumento;
+                        } else {
+                            $vue.persona = response.data.data;
+                            $vue.restringirValores();
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+
+//            $.ajax({
+//                url: APP.url('general/oficina/validarDoc'),
+//                type: 'POST',
+//                contentType: "application/json",
+//                data: JSON.stringify($vue.persona),
+//                success: function (response) {
+//                    if (!response.success) {
+//                        $vue.persona = response.data;
+//                        $vue.restringirValores();
+//                    } else {
+//                        $vue.temp.numeroDocIdentidad = $vue.persona.numeroDocIdentidad;
+//                        $vue.temp.tipoDocumento = $vue.persona.tipoDocumento;
+//                        $vue.persona = {};
+//                        $vue.personaValidTemp = {};
+//                        $vue.persona.numeroDocIdentidad = $vue.temp.numeroDocIdentidad;
+//                        $vue.persona.tipoDocumento = $vue.temp.tipoDocumento;
+//                    }
+//                }
+//            });
+//
         },
         verificarEmail(e) {
             let $vue = this;
@@ -241,6 +262,9 @@ new Vue({
             })
             $vue.removerError();
 
+        },
+        revisarNombre(e) {
+            e.target.value = APP.revisarNombre2(e.target.value);
         }
     }
 });

@@ -30,7 +30,6 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacionElim;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -336,11 +335,6 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     public Seccion findSeccion(Long idSeccion) {
         return seccionDAO.find(idSeccion);
-//        Seccion seccion = seccionDAO.find(idSeccion);
-//        System.out.println("SECC ::::: " + seccion);
-//        SistemaNotas sn = seccion.getGrupoSeccion().getPlanCalificacion().getSistemaNotas();
-//        System.out.println("SN ::::: " + sn);
-//        return seccion;
     }
 
     @Override

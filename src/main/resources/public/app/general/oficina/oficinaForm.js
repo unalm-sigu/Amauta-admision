@@ -17,6 +17,12 @@ new Vue({
         if ($vue.oficina.tipoOficina.id != undefined) {
             $vue.loadReferencias($vue.oficina.tipoOficina);
         }
+        $vue.oficina.codigo = VUE.revisarCodigo($vue.oficina.codigo);
+        $vue.oficina.nombre = VUE.revisarNombreObjeto($vue.oficina.nombre);
+        $vue.oficina.anexos = VUE.revisarAnexos($vue.oficina.anexos);
+        $vue.oficina.telefonos = VUE.revisarTelefonos($vue.oficina.telefonos);
+        $vue.oficina.email = VUE.revisarEmail($vue.oficina.email);
+
     },
     watch: {
     },
@@ -118,12 +124,15 @@ new Vue({
         },
         save() {
             let $vue = this;
-            let target = $("#formControl");
-            target.parsley().destroy();
-            target.parsley();
-            if (target.parsley().validate() !== true) {
+
+
+            let form = $("#formOficina");
+            form.parsley().destroy();
+            form.parsley();
+            if (form.parsley().validate() !== true) {
                 return;
             }
+
             var data = Object.assign({}, $vue.oficina);
             if ($vue.oficina.instanciaReferencia.id != undefined) {
                 data.instanciaOficina = $vue.oficina.instanciaReferencia.id;
@@ -151,7 +160,37 @@ new Vue({
             var color = {ACT: "success", CRE: "warning", INA: "danger", RES: "primary"};
             return "label-" + color[item.estado];
 
+        },
+        revisar(tipo, ofi, campo) {
+            let $vue = this;
+
+            if (tipo == 'CODIGO') {
+                ofi[campo] = VUE.revisarCodigo(ofi[campo]);
+
+            } else if (tipo == 'EMAIL') {
+                ofi[campo] = VUE.revisarEmail(ofi[campo]);
+
+            } else if (tipo == 'NOMBRE') {
+                ofi[campo] = VUE.revisarNombreObjeto(ofi[campo]);
+
+            } else if (tipo == 'ANEXOS') {
+                ofi[campo] = VUE.revisarAnexos(ofi[campo]);
+
+            } else if (tipo == 'TELEFONOS') {
+                ofi[campo] = VUE.revisarTelefonos(ofi[campo]);
+            }
         }
     }
 });
+
+window.Parsley
+        .addValidator('nombreObjeto', {
+            requirementType: 'string',
+            validateString(value) {
+                return value !== value.toUpperCase();
+            },
+            messages: {
+                es: 'Este valor no pueder ser todo en mayúsculas'
+            }
+        });
     
