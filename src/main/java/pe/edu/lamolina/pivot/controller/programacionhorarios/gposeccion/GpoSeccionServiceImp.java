@@ -80,6 +80,7 @@ import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
+import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.finanzas.PagoHoraDocente;
@@ -664,33 +665,30 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allActivosBySeccion(seccion);
         BigDecimal porcentaj = BigDecimal.ZERO;
 
-        Date fechaInicio = null;
         for (DocenteSeccion profeSecc : docenteSeccions) {
             porcentaj = porcentaj.add(profeSecc.getPorcentajeCarga());
-            fechaInicio = profeSecc.getFechaFin();
         }
-
-        if (fechaInicio == null) {
-            fechaInicio = eventoDictadoClases.getFechaInicio();
-        } else {
-            fechaInicio = new DateTime(fechaInicio).plusDays(1).toDate();
-        }
-
         BigDecimal rest = BigDecimal.valueOf(100).subtract(porcentaj);
+
         DocenteSeccion docenteSeccion = new DocenteSeccion();
         docenteSeccion.setDocente(docenteDefault);
         docenteSeccion.setCodigoSeccion(seccion.getCodigo());
         docenteSeccion.setEstado(EstadoEnum.ACT.name());
-        docenteSeccion.setFechaInicio(fechaInicio);
-        docenteSeccion.setFechaFin(eventoDictadoClases.getFechaFin());
+        if (TipoDictadoGrupoSeccionEnum.MOD.equals(seccion.getGrupoSeccion().getTipoDictadoEnum())) {
+            docenteSeccion.setFechaInicio(seccion.getGrupoSeccion().getFechaInicioModular());
+            docenteSeccion.setFechaFin(seccion.getGrupoSeccion().getFechaFinModular());
+        } else {
+            docenteSeccion.setFechaInicio(eventoDictadoClases.getFechaInicio());
+            docenteSeccion.setFechaFin(eventoDictadoClases.getFechaFin());
+        }
         docenteSeccion.setPrincipal(BigDecimal.ZERO.intValue());
         docenteSeccion.setSeccion(seccion);
         docenteSeccion.setPorcentajeCarga(rest);
         docenteSeccionDAO.save(docenteSeccion);
 
         docenteSeccions.add(docenteSeccion);
-        EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, seccion.getGrupoSeccion().getCurso());
-        this.analizedDocenteSeccion(seccion, docenteSeccions, eventoClases);
+        //    EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, seccionDB.getGrupoSeccion().getCurso());
+        this.analizedDocenteSeccion(seccion, docenteSeccions, eventoDictadoClases);
     }
 
     @Override
@@ -1451,9 +1449,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         //EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, seccion.getGrupoSeccion().getCurso());
         DateTime fechaIniClases = new DateTime(eventoClases.getFechaInicio());
         DateTime fechaFinClases = new DateTime(eventoClases.getFechaFin());
+        if (TipoDictadoGrupoSeccionEnum.MOD.equals(seccion.getGrupoSeccion().getTipoDictadoEnum())) {
+            fechaIniClases = new DateTime(seccion.getGrupoSeccion().getFechaInicioModular());
+            fechaFinClases = new DateTime(seccion.getGrupoSeccion().getFechaFinModular());
+        }
 
         Collections.sort(docentesSeccion, (DocenteSeccion va1, DocenteSeccion va2) -> va1.getId().compareTo(va2.getId()));
-
+        /*
         BigDecimal porcentajeCarga = BigDecimal.ZERO;
         for (DocenteSeccion docenteSeccion : docentesSeccion) {
             if (docenteSeccion.getPorcentajeCarga() == null) {
@@ -1466,7 +1468,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         if (porcentajeCarga == null || porcentajeCarga.compareTo(BigDecimal.valueOf(100)) != 0) {
             errorPorcentajeCarga = Boolean.TRUE;
-        }
+        }*/
 
         List<Date> fechasPeriodos = new ArrayList();
         for (DocenteSeccion docenteSeccion : docentesSeccion) {
@@ -2290,6 +2292,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         Collections.sort(fechas, (Date va1, Date va2) -> va1.compareTo(va2));
         return fechas;
+    }
+
+    @Override
+    public EventoCicloAcademico findEventoAcademico(CicloAcademico cicloAcademico, Curso curso) {
+        return this.getEventoDictadoClases(cicloAcademico, curso);
     }
 
     @Override

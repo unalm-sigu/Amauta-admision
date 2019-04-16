@@ -2015,10 +2015,8 @@ var app = new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-
                         $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
                         $(".btn-modal").prop('disabled', true);
-
                         $.ajax({
                             method: 'POST',
                             url: APP.url('academico/gposeccion/asignarGrupoSeccionModular'),
@@ -2032,14 +2030,11 @@ var app = new Vue({
                                 if (response.success) {
                                     notify(response.message, "info");
                                 } else {
-
                                     mm.modal("hide");
                                     notify(response.message, "error");
                                 }
                                 $vue.loadGpoSeccionFlash(mm);
-
                             }, error: function () {
-
                                 $vue.loadGpoSeccionFlash(mm);
                                 mm.modal("hide");
                                 notify(MESSAGES.errorComunicacion, "error");

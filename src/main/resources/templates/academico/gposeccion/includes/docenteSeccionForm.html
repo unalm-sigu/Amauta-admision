@@ -83,6 +83,7 @@
             <td class="text-center">
 
                 <div class="col-md-12">
+
                     <v-date-picker v-model="docSeccion.fechaInicio"
                                    v-bind:id="'fechaInicio'+index"
                                    v-bind:startdate="docSeccion.fechaInicioMin"
@@ -92,7 +93,6 @@
                                    required="true"
                                    class="col-md-6"
                                    ></v-date-picker>
-
                     <v-date-picker v-model="docSeccion.fechaFin"
                                    v-bind:id="'fechaFin'+index"
                                    v-bind:startdate="docSeccion.fechaInicioMin"
@@ -101,7 +101,6 @@
                                    v-if="docSeccion.estado == 'ACT'"
                                    required="true"
                                    class="col-md-6"
-                                   ref="datePicker"
                                    ></v-date-picker>
                     <div v-if="docSeccion.estado != 'ACT'" class="col-md-6">
                         <input type="text" readonly="" class="form-control" 

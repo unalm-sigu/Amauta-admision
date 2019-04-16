@@ -51,6 +51,8 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.EventoAcademico;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -208,15 +210,16 @@ public class GpoSeccionController {
             Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        List<Date> fechas = service.allDatesEventoCicloAcademicoForPeriodo(ds.getCicloAcademico());
+        GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId);
+
         String fechaMin = null;
         String fechaMax = null;
+        List<String> fechas = this.getFechasByGrupoSeccion(gpoSeccion);
         if (!fechas.isEmpty()) {
-            fechaMin = TypesUtil.getStringDate(fechas.get(0), "dd/MM/yyyy");
-            fechaMax = TypesUtil.getStringDate(fechas.get(fechas.size() - 1), "dd/MM/yyyy");
+            fechaMin = fechas.get(0);
+            fechaMax = fechas.get(1);
         }
 
-        GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId);
         ObjectNode gpoSeccionJson = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax, ds);
         String ruta = getOrigen(origen);
         Persona persona = ds.getPersona();
@@ -243,15 +246,19 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<Date> fechas = service.allDatesEventoCicloAcademicoForPeriodo(ds.getCicloAcademico());
+            GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId);
+
             String fechaMin = null;
             String fechaMax = null;
-            if (!fechas.isEmpty()) {
-                fechaMin = TypesUtil.getStringDate(fechas.get(0), "dd/MM/yyyy");
-                fechaMax = TypesUtil.getStringDate(fechas.get(fechas.size() - 1), "dd/MM/yyyy");
+            EventoCicloAcademico eventoCicloAcademico = service.findEventoAcademico(gpoSeccion.getCicloAcademico(), gpoSeccion.getCurso());
+            if (gpoSeccion.getTipoDictadoEnum() == TipoDictadoGrupoSeccionEnum.MOD) {
+                fechaMin = TypesUtil.getStringDate(gpoSeccion.getFechaInicioModular(), "dd/MM/yyyy");
+                fechaMax = TypesUtil.getStringDate(gpoSeccion.getFechaFinModular(), "dd/MM/yyyy");
+            } else {
+                fechaMin = TypesUtil.getStringDate(eventoCicloAcademico.getFechaInicio(), "dd/MM/yyyy");
+                fechaMax = TypesUtil.getStringDate(eventoCicloAcademico.getFechaFin(), "dd/MM/yyyy");
             }
 
-            GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId);
             ObjectNode nodeGpoSecc = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax, ds);
 
             ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
@@ -480,20 +487,27 @@ public class GpoSeccionController {
     @ResponseBody
     @RequestMapping("findDocentesSecciones")
     public JsonResponse findDocentesSecciones(
-            @RequestParam("seccion") String seccionId,
+            @RequestParam("seccion") Long seccionId,
             HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse jsonResponse = new JsonResponse();
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        Seccion seccion = service.findSeccion(seccionId);
+        GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
+
         List<DocenteSeccion> docentesSeccion = service.allDocentesSeccionBySeccion(new Seccion(seccionId));
 
-        List<Date> fechas = service.allDatesEventoCicloAcademicoForPeriodo(ds.getCicloAcademico());
         String fechaMin = null;
         String fechaMax = null;
-        if (!fechas.isEmpty()) {
-            fechaMin = TypesUtil.getStringDate(fechas.get(0), "dd/MM/yyyy");
-            fechaMax = TypesUtil.getStringDate(fechas.get(fechas.size() - 1), "dd/MM/yyyy");
+        Date fecha = new Date();
+        EventoCicloAcademico eventoCicloAcademico = service.findEventoAcademico(grupoSeccion.getCicloAcademico(), grupoSeccion.getCurso());
+        if (grupoSeccion.getTipoDictadoEnum() == TipoDictadoGrupoSeccionEnum.MOD) {
+            fechaMin = TypesUtil.getStringDate(grupoSeccion.getFechaInicioModular(), "dd/MM/yyyy");
+            fechaMax = TypesUtil.getStringDate(grupoSeccion.getFechaFinModular(), "dd/MM/yyyy");
+        } else {
+            fechaMin = TypesUtil.getStringDate(eventoCicloAcademico.getFechaInicio(), "dd/MM/yyyy");
+            fechaMax = TypesUtil.getStringDate(eventoCicloAcademico.getFechaFin(), "dd/MM/yyyy");
         }
 
         for (DocenteSeccion docSeccion : docentesSeccion) {
@@ -513,6 +527,23 @@ public class GpoSeccionController {
         jsonResponse.setSuccess(true);
         jsonResponse.setData(array);
         return jsonResponse;
+    }
+
+    public List<String> getFechasByGrupoSeccion(GrupoSeccion grupoSeccion) {
+        List<String> fechas = new ArrayList<>();
+        EventoCicloAcademico eventoCicloAcademico = service.findEventoAcademico(grupoSeccion.getCicloAcademico(), grupoSeccion.getCurso());
+        String fechaMin = null;
+        String fechaMax = null;
+        if (grupoSeccion.getTipoDictadoEnum() == TipoDictadoGrupoSeccionEnum.MOD) {
+            fechaMin = TypesUtil.getStringDate(grupoSeccion.getFechaInicioModular(), "dd/MM/yyyy");
+            fechaMax = TypesUtil.getStringDate(grupoSeccion.getFechaFinModular(), "dd/MM/yyyy");
+        } else {
+            fechaMin = TypesUtil.getStringDate(eventoCicloAcademico.getFechaInicio(), "dd/MM/yyyy");
+            fechaMax = TypesUtil.getStringDate(eventoCicloAcademico.getFechaFin(), "dd/MM/yyyy");
+        }
+        fechas.add(fechaMin);
+        fechas.add(fechaMax);
+        return fechas;
     }
 
     @RequestMapping("nuevo")
@@ -2393,7 +2424,7 @@ public class GpoSeccionController {
     private ObjectNode createGpoSeccionJson(GrupoSeccion gpoSeccion, String fechaMin, String fechaMax, DataSessionPivot ds) {
         ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
             "id", "estado", "estadoEnum", "codigo2", "cursoDirigido",
-            "tipoDictado","fechaInicioModular","fechaFinModular",
+            "tipoDictado", "fechaInicioModular", "fechaFinModular",
             "curso.id",
             "curso.codigo",
             "curso.nombre",
@@ -2411,9 +2442,8 @@ public class GpoSeccionController {
             "anexoBoletin.anexoSuperior.codigo",
             "anexoBoletin.anexoSuperior.nombre"
         });
-        
-        nodeGpoSecc.put("tipoDictadoCheck",TipoDictadoGrupoSeccionEnum.MOD.name().equalsIgnoreCase(gpoSeccion.getTipoDictado()));
-        
+
+        nodeGpoSecc.put("tipoDictadoCheck", TipoDictadoGrupoSeccionEnum.MOD.name().equalsIgnoreCase(gpoSeccion.getTipoDictado()));
 
         CursoCicloAcademico cca = service.findCursoCicloAcademico(gpoSeccion.getCurso(), ds.getCicloAcademico());
 
@@ -2480,12 +2510,11 @@ public class GpoSeccionController {
 
             List<DocenteSeccion> docentesSeccion = seccion.getDocenteSeccion();
             ArrayNode arrayProfeSecc = new ArrayNode(JsonNodeFactory.instance);
-            
-            if(TipoDictadoGrupoSeccionEnum.MOD.name().equalsIgnoreCase(gpoSeccion.getTipoDictado())){
-                fechaMin=TypesUtil.getStringDate(gpoSeccion.getFechaInicioModular(), "dd/MM/yyyy");
-                fechaMax=TypesUtil.getStringDate(gpoSeccion.getFechaFinModular(), "dd/MM/yyyy");
-            }
 
+//            if (TipoDictadoGrupoSeccionEnum.MOD.name().equalsIgnoreCase(gpoSeccion.getTipoDictado())) {
+//                fechaMin = TypesUtil.getStringDate(gpoSeccion.getFechaInicioModular(), "dd/MM/yyyy");
+//                fechaMax = TypesUtil.getStringDate(gpoSeccion.getFechaFinModular(), "dd/MM/yyyy");
+//            }
             for (DocenteSeccion docSeccion : docentesSeccion) {
                 ObjectNode nodeProfe = JsonHelper.createJson(docSeccion, JsonNodeFactory.instance, true, new String[]{
                     "*",
