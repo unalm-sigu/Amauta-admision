@@ -2,6 +2,8 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -307,4 +309,30 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
         return all(sqlUtil);
     }
 
+    @Override
+    public List<MatriculaSeccion> allByMatriculaResumenes(List<MatriculaResumen> resumenes, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .join("gs.curso cur", "alu.persona per")
+                .left("per.tipoDocumento tdoc", "sec.aula", "sec.grupoHoras")
+                .filter("ms.estado", EstadoMatriculaEnum.PMAT)
+                .filter("ca.id", cicloAcademico)
+                .in("mr.id", resumenes);
+        return all(sql);
+    }
+
+    @Override
+    public void updateEstado(List<MatriculaSeccion> matriculaSeccionMatTemp, EstadoMatriculaEnum eme) {
+        List<Long> longs = matriculaSeccionMatTemp.stream().map(x -> x.getId()).collect(Collectors.toList());
+        StringBuilder sql = new StringBuilder();
+        sql.append("  update  ").append(MatriculaSeccion.class.getName()).append(" ms ");
+        sql.append("  set estado = :estado ");
+        sql.append("  where ms.id in (:ids )");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameterList("ids", longs);
+        query.setString("estado", eme.name());
+        query.executeUpdate();
+    }
 }
