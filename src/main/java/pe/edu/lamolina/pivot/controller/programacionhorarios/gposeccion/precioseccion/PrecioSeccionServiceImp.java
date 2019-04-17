@@ -261,7 +261,7 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
                 docentesSecciones = new ArrayList();
             }
             docentesSecciones.add(docenteSeccion);
-            docentesSeccionMap.put(key, docenteSecciones);
+            docentesSeccionMap.put(key, docentesSecciones);
         }
 
         for (DocenteSeccion docenteSeccione : docenteSecciones) {
@@ -326,20 +326,18 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
                 docentesSecciones = new ArrayList();
             }
             docentesSecciones.add(docenteSeccion);
-            docentesSeccionMap.put(key, docenteSecciones);
+            docentesSeccionMap.put(key, docentesSecciones);
         }
-
+        /*
         for (DocenteSeccion docenteSeccione : docenteSecciones) {
-
             Seccion seccion = docenteSeccione.getSeccion();
             List<DocenteSeccion> docs = docentesSeccionMap.get(seccion.getId());
             if (docs != null && docs.size() > 0) {
                 seccion.setSituacionDocente(SituacionDocenteEnum.ERR.name());
                 seccionDAO.update(seccion);
             }
-
         }
-
+         */
         List<Seccion> secciones = seccionDAO.allActivosByGpoSeccion(grupoSeccion);
 
         Map<Long, Aula> aulasMAp = TypesUtil.convertListToMap("aula.id", "aula", secciones);
