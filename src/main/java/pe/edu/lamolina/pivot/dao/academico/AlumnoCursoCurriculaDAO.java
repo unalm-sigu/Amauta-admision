@@ -28,11 +28,13 @@ public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
 
     public List<AlumnoCursoCurricula> allByAlumnosCurso(List<Alumno> alumnos, Curso curso);
 
-    public List<AlumnoCursoCurricula> allByAlumnos(List<Alumno> alumnos);
+    public List<AlumnoCursoCurricula> allByAlumnosApr(List<Alumno> alumnos);
 
     public List<AlumnoCursoCurricula> allByAlumnoApro(Alumno alumnoBD);
 
     List<AlumnoCursoCurricula> allByAlumnoCursosOpcional(Alumno alumno);
     
     List<AlumnoCursoCurricula> allByAlumnoComodin(Alumno alumno);
+
+    public List<AlumnoCursoCurricula> allByAlumnos(List<Alumno> alumnos);
 }

@@ -107,4 +107,8 @@ public interface Constantine {
 
     Long BOLS_TRABAJO_ID = 1l;
     Long ID_CONSEJERO_NN = 1l;
+
+    String COLOR_WARNING = "warning";
+    String COLOR_SUCCESS = "success";
+    String COLOR_DANGER = "danger";
 }
