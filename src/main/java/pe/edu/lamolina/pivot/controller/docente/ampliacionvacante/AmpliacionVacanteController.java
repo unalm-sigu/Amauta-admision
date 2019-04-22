@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.docente.ampliacionvacante;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -41,15 +42,15 @@ public class AmpliacionVacanteController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        
+
         model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
-        
+
         return "docente/ampliacionvacante/ampliacionvacante";
-        
+
     }
 
     @ResponseBody
@@ -99,6 +100,7 @@ public class AmpliacionVacanteController {
                     "secciones.matriculados",
                     "secciones.tipoSeccion",
                     "secciones.ampliacionVacante",
+                    "secciones.solicitudesMatricula",
                     "secciones.grupoHoras.id",
                     "secciones.grupoHoras.codigo",
                     "secciones.aula.id",
@@ -117,8 +119,7 @@ public class AmpliacionVacanteController {
                     "secciones.seccionSuperior.grupoHoras.id",
                     "secciones.seccionSuperior.grupoHoras.codigo",
                     "secciones.docentePrincipal.codigo",
-                    "secciones.docentePrincipal.persona.nombreCompleto",
-                });
+                    "secciones.docentePrincipal.persona.nombreCompleto",});
 
                 array.add(nodeGpoSecc);
             }
@@ -186,6 +187,7 @@ public class AmpliacionVacanteController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds.setFechaAccionAudit(new Date());
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             service.matricular(ampliacionVacanteForm, cicloAcademico, ds);
             response.setMessage(Messages.UPDATED);
