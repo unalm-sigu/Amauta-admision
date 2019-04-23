@@ -224,6 +224,9 @@ public class MatricularServiceImp implements MatricularService {
                 listMatriculados,
                 ds);
 
+        for (MatriculaCurso matriculaCursosFiltrado : matriculaCursosFiltrados) {
+            matriculaCursoDAO.update(matriculaCursosFiltrado);
+        }
         matriculaCursosFiltrados = data(cursoCurriculaEnum, matriculaCursoSim, matriculaSeccions);
         if (!matriculaCursosFiltrados.isEmpty()) {
 
@@ -240,6 +243,9 @@ public class MatricularServiceImp implements MatricularService {
                     vacantesAlumnoTemp,
                     listMatriculados,
                     ds);
+        }
+        for (MatriculaCurso matriculaCursosFiltrado : matriculaCursosFiltrados) {
+            matriculaCursoDAO.update(matriculaCursosFiltrado);
         }
         if (!vacantesAlumnoTemp.isEmpty()) {
             vacanteAlumnoDAO.updateEstado(vacantesAlumnoTemp);
@@ -329,7 +335,7 @@ public class MatricularServiceImp implements MatricularService {
     }
 
     private void matSimObligatorios(
-            List<MatriculaCurso> matriculaCursosFiltrados,
+            List<MatriculaCurso> matriculaCursoTemp,
             List<MatriculaSimultaneo> matriculaCursosSim,
             List<MatriculaCurso> matriculaCursoMatriculados,
             Map<Long, Integer> mapVacantesDisponibles,
@@ -344,7 +350,7 @@ public class MatricularServiceImp implements MatricularService {
             DataSessionPivot ds
     ) {
         Map<Long, MatriculaCurso> map = TypesUtil.convertListToMap("matriculaCurso.id", "matriculaCursoSimultaneo", matriculaCursosSim);
-        for (MatriculaCurso matriculaCurso : matriculaCursosFiltrados) {
+        for (MatriculaCurso matriculaCurso : matriculaCursoTemp) {
             grupoSeccionDAO.findLock(matriculaCurso.getGrupoSeccion().getId());
             Curso curso = matriculaCurso.getCurso();
             MatriculaResumen mr = matriculaCurso.getMatriculaResumen();
@@ -372,7 +378,7 @@ public class MatricularServiceImp implements MatricularService {
                         mapMatriculadosSeccion,
                         mr,
                         mapVacantesDisponibles,
-                        matriculaCursosFiltrados,
+                        matriculaCursoTemp,
                         matriculaSeccion,
                         vac, vacantesAlumnoTemp, listMatriculados, ds);
             }
@@ -411,8 +417,8 @@ public class MatricularServiceImp implements MatricularService {
                         && x.getCurso().getId() == curso.getId()
                         ).findAny().orElse(null);
                 this.actualizarAlumnoCursoCurricula(EstadoMatriculaEnum.MAT, alumnoCursoCurricula);
-//                                                matriculaCursoDAO.update(matriculaCurso);
-                matriculaCursoTemp.add(matriculaCurso);
+                matriculaCursoDAO.update(matriculaCurso);
+//                matriculaCursoTemp.add(matriculaCurso);
 
             }
 
@@ -438,6 +444,9 @@ public class MatricularServiceImp implements MatricularService {
             vac -= 1;
             mapVacantesDisponibles.replace(matriculaSeccion.getSeccion().getId(), vac);
         } else {
+            matriculaCurso.setEstadoEnum(NVAC);
+            matriculaCursoDAO.update(matriculaCurso);
+//            matriculaCursoTemp.add(matriculaCurso);
             notify.setCurrentSeccion(notify.getCurrentSeccion() + 1);
             StringBuilder sd = new StringBuilder();
             sd.append("alumno ");
@@ -461,6 +470,9 @@ public class MatricularServiceImp implements MatricularService {
         alumnoCursoCurriculaUpd.setEstadoEnum(cursoCurriculaEstadoEnum);
         if (alumnoCursoCurricula.getEsSimultaneo()) {
             alumnoCursoCurriculaUpd.setEstadoEnum(CursoCurriculaEstadoEnum.SIM);
+        }
+        if (alumnoCursoCurricula.getTipoCursoCurriculaOrigen() != null) {
+            alumnoCursoCurriculaUpd.setTipoCursoCurricula(alumnoCursoCurricula.getTipoCursoCurriculaOrigen());
         }
         alumnoCursoCurriculaDAO.updateEstado(alumnoCursoCurriculaUpd);
     }
