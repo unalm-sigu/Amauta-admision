@@ -12,8 +12,10 @@ public interface AmpliacionVacanteService {
 
     List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds);
 
-    List<Alumno> allAlumnoByName(String nombre, CicloAcademico cicloAcademico,Seccion seccion);
+    List<Alumno> allAlumnoByName(String nombre, CicloAcademico cicloAcademico, Seccion seccion);
 
     void matricular(AmpliacionVacanteForm ampliacionVacanteForm, CicloAcademico cicloAcademico, DataSessionPivot ds);
+
+    void solicitarAmpliacion(Seccion seccion, AmpliacionVacanteForm ampliacionVacanteForm, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
 }

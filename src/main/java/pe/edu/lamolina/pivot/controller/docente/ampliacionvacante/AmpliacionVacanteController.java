@@ -181,24 +181,19 @@ public class AmpliacionVacanteController {
     @ResponseBody
     @RequestMapping("matricular")
     public JsonResponse matricular(@RequestBody AmpliacionVacanteForm ampliacionVacanteForm, HttpSession session) {
-
         JsonResponse response = new JsonResponse();
-
         try {
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             service.matricular(ampliacionVacanteForm, cicloAcademico, ds);
             response.setMessage(Messages.UPDATED);
             response.setSuccess(true);
-
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-
         return response;
     }
 
