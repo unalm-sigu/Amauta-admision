@@ -19,5 +19,7 @@ public interface CursoEquivalenteElectivoDAO extends EasyDAO<CursoEquivalenteEle
 
     List<CursoEquivalenteElectivo> allActivoByPlanCurricular(PlanCurricular planCurricular);
 
-    public CursoEquivalenteElectivo findCursoPlanCurricula(Curso curso, PlanCurricular planCurricular);
+    CursoEquivalenteElectivo findCursoPlanCurricula(Curso curso, PlanCurricular planCurricular);
+
+    List<CursoEquivalenteElectivo> allCursoPlanCurricula(List<PlanCurricular> planCurricular);
 }

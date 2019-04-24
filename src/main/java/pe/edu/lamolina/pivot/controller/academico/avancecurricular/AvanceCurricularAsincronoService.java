@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.CursoEquivalenteElectivo;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.PlanCurricular;
@@ -32,6 +33,8 @@ public interface AvanceCurricularAsincronoService {
             List<TipoCursoCurricula> tipoCursoCurriculas,
             List<ResumenPlanCurricular> resumenPlanCurriculars,
             List<AlumnoAvanceCurricular> alumnoAvanceCurriculars,
+            List<CursoEquivalenteElectivo> equivalenteElectivos,
+            Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
             DataSessionPivot ds);
 
     void procesarAlumnoSincrono(
@@ -48,6 +51,8 @@ public interface AvanceCurricularAsincronoService {
             List<TipoCursoCurricula> tipoCursoCurriculas,
             List<ResumenPlanCurricular> resumenPlanCurriculars,
             List<AlumnoAvanceCurricular> alumnoAvanceCurriculars,
+            List<CursoEquivalenteElectivo> equivalenteElectivos,
+            Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
             DataSessionPivot ds);
 
     void deleteAllAlumnoCursoSimultaneoByAlumno(Alumno alumno);
@@ -73,5 +78,7 @@ public interface AvanceCurricularAsincronoService {
             List<TipoCursoCurricula> tipoCursoCurriculas,
             List<ResumenPlanCurricular> resumenPlanCurriculars,
             List<AlumnoAvanceCurricular> alumnoAvanceCurriculars,
+            List<CursoEquivalenteElectivo> equivalenteElectivos,
+            Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
             DataSessionPivot ds);
 }
