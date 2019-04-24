@@ -104,4 +104,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     void updateAsignacionAula(Seccion seccion);
 
+    public void updateMatriculados(Seccion seccion);
+
 }

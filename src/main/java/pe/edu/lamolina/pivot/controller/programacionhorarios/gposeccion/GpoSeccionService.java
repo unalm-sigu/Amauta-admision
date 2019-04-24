@@ -201,4 +201,6 @@ public interface GpoSeccionService {
 
     void recrearVacanteAlumno(CicloAcademico ciclo, DataSessionPivot ds);
 
+    EventoCicloAcademico findEventoAcademico(CicloAcademico cicloAcademico, Curso curso);
+
 }

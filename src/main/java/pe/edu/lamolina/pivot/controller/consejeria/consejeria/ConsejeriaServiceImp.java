@@ -197,7 +197,7 @@ public class ConsejeriaServiceImp implements ConsejeriaService {
         int i = 1;
         Collections.shuffle(alumnos);
         for (Alumno alumno : alumnos) {
-            alumno.setIndex(i);
+//            alumno.setIndex(i);
             i++;
         }
         List<Consejero> consejeros = consejeroDAO.findConsejeroByEstado(carrera);

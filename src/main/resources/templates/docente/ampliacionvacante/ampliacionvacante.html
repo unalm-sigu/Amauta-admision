@@ -64,6 +64,7 @@
                                                 <th class="col-md-1 text-center">Aula</th>
                                                 <th class="col-md-1 text-center">Vac</th>
                                                 <th class="col-md-1 text-center">Mat</th>
+                                                <th class="col-md-1 text-center">Solicitudes <br/> Pendientes</th>
                                                 <th class="col-md-1 text-center">Ampliación de Vacante</th>
                                                 <th class="col-md-3 text-center">Docentes</th>
                                             </tr>
@@ -72,7 +73,7 @@
                                             <tr v-for="gposeccion in props.data">
 
                                                 <td class="v-middle padder-v" >
-
+                                                    (borrar curso id {{gposeccion.curso.id}})
                                                     <p class="h4 text-info">{{gposeccion.curso.nombre}}</p>
 
                                                     <div class="row m-b-xs">
@@ -104,6 +105,7 @@
                                                 <td class="text-center">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted">
+                                                        (borrar {{seccion.id}})
                                                         {{seccion.codigo2}}
                                                     </small>
 
@@ -140,7 +142,11 @@
                                                     </small>
 
                                                 </td>
-
+                                                <td class="text-center">
+                                                    <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted">
+                                                        {{seccion.solicitudesMatricula}} 
+                                                    </small>
+                                                </td>                                   
                                                 <td class="text-center">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones "  class="block text-muted"> 
@@ -159,8 +165,8 @@
                                                 <td class="">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted"> 
-                                                        <p v-if="seccion.docentePrincipal.codigo != 'N.N.' " >{{seccion.docentePrincipal.persona.nombreCompleto}}</p>
-                                                        <p v-else="">Desconocido</p>
+                                                        <p v-if="seccion.docentePrincipal.codigo != 'N.N.' " >* {{seccion.docentePrincipal.persona.nombreCompleto}}</p>
+                                                        <p v-else="">* Desconocido</p>
                                                     </small>
 
                                                 </td>
@@ -257,7 +263,7 @@
                                 <input type="text" class="hide" required="" v-model="alumnoeleccionado.id"/>
 
                             </div>
-                            
+
                             <div v-if="alumnoeleccionado.situacion=='1' " class="form-group  col-sm-2">  
                                 <button v-on:click="agregarAlumno" class="btn btn-primary btn-sm">Agregar</button>
                             </div>

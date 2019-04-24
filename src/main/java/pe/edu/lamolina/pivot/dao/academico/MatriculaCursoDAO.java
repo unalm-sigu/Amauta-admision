@@ -46,6 +46,10 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
     MatriculaCurso findByMatriculaCurso(MatriculaResumen matriculaResumen, Curso curso);
 
+    List<MatriculaCurso> allByMatriculaResumenes(List<MatriculaResumen> resumenes);
+
+    List<MatriculaCurso> allByMatriculaSimResumenes(List<MatriculaResumen> resumenes);
+
     void updateInasistencias(MatriculaCurso matCurso);
 
 }

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -17,6 +18,7 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
+import pe.edu.lamolina.model.matricula.MatriculaSimultaneo;
 
 @Repository
 public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implements MatriculaCursoDAO {
@@ -242,6 +244,42 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .filter("cu.id", curso);
 
         return find(sql);
+    }
+
+    @Override
+    public List<MatriculaCurso> allByMatriculaResumenes(List<MatriculaResumen> resumenes) {
+        Octavia sqlSub = new Octavia()
+                .from(MatriculaSimultaneo.class, "ms")
+                .join("matriculaCurso mcs");
+
+        Octavia sql = new Octavia()
+                .from(MatriculaCurso.class, "mc")
+                .left("tipoCursoCurricula tc", "curso cu")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
+                .notExists(sqlSub)
+                .linkedBy("mc.id", "mcs.id")
+                .in("mr.id", resumenes)
+                .filter("mc.estado", EstadoMatriculaEnum.PMAT)
+                .orderBy("mr.prioridad");
+        return all(sql);
+    }
+
+    @Override
+    public List<MatriculaCurso> allByMatriculaSimResumenes(List<MatriculaResumen> resumenes) {
+        Octavia sqlSub = new Octavia()
+                .from(MatriculaSimultaneo.class, "ms")
+                .join("matriculaCurso mcs");
+
+        Octavia sql = new Octavia()
+                .from(MatriculaCurso.class, "mc")
+                .left("tipoCursoCurricula tc", "curso cu")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
+                .exists(sqlSub)
+                .linkedBy("mc.id", "mcs.id")
+                .in("mr.id", resumenes)
+                .filter("mc.estado", EstadoMatriculaEnum.PMAT)
+                .orderBy("mr.prioridad");
+        return all(sql);
     }
 
     @Override

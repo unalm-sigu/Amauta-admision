@@ -1243,7 +1243,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Map<String, AlumnoCicloCurso> mapTodosCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", cursosVecesLlevado);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCursosVecesLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosVecesLlevado);
 
-        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnos(alumnos);
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnosApr(alumnos);
         Map<Long, List<AlumnoCursoCurricula>> mapAlumnoCursoCurricula = TypesUtil.convertListToMapList("alumno.id", alumnoCursoCurriculas);
 
         for (AlumnoCicloCurso cursoAprobado : cursosAprobados) {

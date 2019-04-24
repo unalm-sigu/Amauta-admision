@@ -3,7 +3,7 @@ var app = new Vue({
     el: '#main',
     mixins: [VueLoader],
     data: {
-        docenteSession:{id:parseInt(sessiondocente)},
+        docenteSession: {id: parseInt(sessiondocente)},
         raptorurl: APP.url('docente/ampliacionvacante/list'),
         dataModalAmpliacionVacante: {
             id: 'idModalAmpliacionVacante',
@@ -11,6 +11,7 @@ var app = new Vue({
             title: 'Ampliación Vacante',
             okbtn: 'Matricular',
             modalsize: "modal-lg",
+            showaccept: true
         },
         seccion: {grupoHoras: {}, aula: {}, seccionSuperior: {grupoHoras: {}, aula: {}}},
         alumnos: [],
@@ -40,10 +41,10 @@ var app = new Vue({
             }
 
             $vue.showLoader();
-            
-            $vue.formm={};
-            $vue.formm.alumnos= $vue.alumnoeleccionados;
-            $vue.formm.seccion= $vue.seccion;
+
+            $vue.formm = {};
+            $vue.formm.alumnos = $vue.alumnoeleccionados;
+            $vue.formm.seccion = $vue.seccion;
 
             $.ajax({
                 url: APP.url('docente/ampliacionvacante/matricular'),
@@ -101,7 +102,7 @@ var app = new Vue({
             $.ajax({
                 url: APP.url('docente/ampliacionvacante/allAlumno'),
                 type: 'POST',
-                data: {nombre: search,id:$vue.seccion.id},
+                data: {nombre: search, id: $vue.seccion.id},
                 success(response) {
                     $vue.isLoadingAlumnos = false;
                     if (response.success) {

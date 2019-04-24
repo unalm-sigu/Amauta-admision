@@ -77,7 +77,7 @@ Vue.component("v-date-picker", {
                     $vue.$emit('input', newDate.format("DD/MM/YYYY"));
                     $vue.value = newDate.format("DD/MM/YYYY");
                     $vue.$emit("changedate");
-                 //    this.elem.datepicker().datepicker('setDate', newValue);
+                    //    this.elem.datepicker().datepicker('setDate', newValue);
                 }
             });
 

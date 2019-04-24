@@ -101,7 +101,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .from(AlumnoCursoCurricula.class, "acc")
                 .join("tipoCursoCurricula tc")
                 .filter("acc.alumno", alumno)
-                .notIn("tc.codigo", Arrays.asList(EEP.name(),ELE.name()))
+                .notIn("tc.codigo", Arrays.asList(EEP.name(), ELE.name()))
                 .orderBy("acc.numeroCiclo");
         return all(sql);
     }
@@ -121,7 +121,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
         Octavia sql = Octavia.query()
                 .from(AlumnoCursoCurricula.class, "acc")
                 .join("alumno al", "curso cu")
-                .leftJoin("cicloAprobado ci", "cursoCurricula cc", "cursoOpcional co")
+                .leftJoin("cicloAprobado ci", "cursoCurricula cc", "cursoOpcional co", "tipoCursoCurriculaOrigen")
                 .filter("al.id", alumno)
                 .filter("cu.id", curso)
                 .orderBy("cu.nombre");
@@ -133,6 +133,9 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
         Octavia octavia = Octavia.update(AlumnoCursoCurricula.class);
         octavia.set(alumnoCursoCurricula, "estado");
         octavia.set(alumnoCursoCurricula, "estadoMatricula");
+        if (alumnoCursoCurricula.getTipoCursoCurricula() != null) {
+            octavia.set(alumnoCursoCurricula, "tipoCursoCurricula");
+        }
         this.update(octavia);
     }
 
@@ -161,7 +164,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
     }
 
     @Override
-    public List<AlumnoCursoCurricula> allByAlumnos(List<Alumno> alumnos) {
+    public List<AlumnoCursoCurricula> allByAlumnosApr(List<Alumno> alumnos) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCursoCurricula.class, "acc")
                 .join("alumno alu", "curso cur")
@@ -177,6 +180,16 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .from(AlumnoCursoCurricula.class, "acc")
                 .join("alumno alu", "curso cur")
                 .filter("alu.id", alumnoBD)
+                .orderBy("acc.numeroCiclo");
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCursoCurricula> allByAlumnos(List<Alumno> alumnos) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoCurricula.class, "acc")
+                .join("alumno alu", "curso cur")
+                .in("alu.id", alumnos)
                 .orderBy("acc.numeroCiclo");
         return all(sql);
     }

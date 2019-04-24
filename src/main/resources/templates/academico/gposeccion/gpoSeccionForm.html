@@ -221,7 +221,7 @@
                                             <th class="col-md-1 text-center v-middle">Restricción CAPA</th>
                                             <th class="col-md-1 text-center v-middle">Vac</th>
                                             <th class="col-md-1 text-center v-middle">Mat</th>
-                                            <th class="col-md-1 text-center v-middle">Docentes</th>
+                                            <th class="col-md-1 text-center v-middle" th:if="${false}">Docentes</th>
                                             <th class="col-md-1 text-center v-middle">Estado</th>
                                             <th class="text-center">
                                                 <input type="checkbox"
@@ -439,7 +439,7 @@
                                             <td class="text-center v-middle">
                                                 {{ seccion.matriculados }}
                                             </td>
-                                            <td class="text-center v-middle">
+                                            <td class="text-center v-middle" th:if="${false}">
                                                 <span v-if="seccion.situacionDocente=='COR'"  class="label label-success" >
                                                     {{ seccion.situacionDocenteEnum.value }}
                                                 </span>

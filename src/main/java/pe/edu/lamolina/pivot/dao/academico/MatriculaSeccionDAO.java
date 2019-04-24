@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
 public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
@@ -47,5 +48,9 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
     MatriculaSeccion findByMatriculaMatSeccion(MatriculaResumen matriculaResumen, Seccion seccion);
 
     List<MatriculaSeccion> allByMatriculaMatSeccion(List<MatriculaResumen> matriculasResumen, Seccion seccion);
+
+    public List<MatriculaSeccion> allByMatriculaResumenes(List<MatriculaResumen> resumenes, CicloAcademico ciclo);
+
+    public void updateEstado(List<MatriculaSeccion> matriculaSeccionMatTemp, EstadoMatriculaEnum eme);
 
 }
