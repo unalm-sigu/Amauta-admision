@@ -1,7 +1,7 @@
 var app = new Vue({
     el: '#asistenciaAcademicaApp',
     data: {
-        URL_GRUPOS_SECCION: APP.url('academico/docente/asistenciaacademica/listGruposSecciones'),
+        URL_GRUPOS_SECCION: APP.url(rutaModulo + '/listGruposSecciones'),
         hola: "chau"
     }, created: function () {
 
@@ -14,7 +14,7 @@ var app = new Vue({
         }, controlarSeccion(seccion, e) {
             console.log(seccion);
             e.preventDefault();
-            location.href = APP.url('academico/docente/asistenciaacademica/' + seccion.id + '/lecciones');
+            location.href = APP.url(rutaModulo + '/' + seccion.id + '/lecciones');
         }
     }
 })
