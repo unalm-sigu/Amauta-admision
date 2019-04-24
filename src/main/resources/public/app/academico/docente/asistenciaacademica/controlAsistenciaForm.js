@@ -1,10 +1,12 @@
 var app = new Vue({
     el: '#controlAsistenciaApp',
     data: {
-        URL_MATRICULAS_SECCION: APP.url("academico/docente/asistenciaacademica/listMatriculasSeccionDyna"),
+        URL_MATRICULAS_SECCION: APP.url(rutaModulo + "/listMatriculasSeccionDyna"),
         seccion: null,
         matriculasSeccion: null,
-        temaLeccion: null
+        temaLeccion: null,
+        btnSaveDisabled: false,
+        btnSaveTexto: 'Guardar Asistencia'
     }, created: function () {
         this.seccion = JSON.parse(seccionJson);
         this.temaLeccion = JSON.parse(temaLeccionJson);
@@ -26,23 +28,28 @@ var app = new Vue({
             }
 
             let $vue = this;
+            $vue.btnSaveDisabled = true;
+            $vue.btnSaveTexto = '<i class="fa fa-spinner fa-spin fa-fw"></i> Espere por favor...';
+
             $vue.seccion.matriculaSeccion = $vue.$refs.tblMatriculasSeccion.data;
             $vue.temaLeccion.seccion = $vue.seccion;
             $.ajax({
-                url: APP.url('academico/docente/asistenciaacademica/saveAsistencia'),
+                url: APP.url(rutaModulo + '/saveAsistencia'),
                 dataType: "json",
                 contentType: "application/json",
                 type: 'POST',
-                async: false,
                 data: JSON.stringify($vue.temaLeccion),
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
+                        $vue.temaLeccion.id = response.data.id;
                         $vue.$refs.tblMatriculasSeccion.loadRemoteData();
                     } else {
                         notify(response.message, "error");
                         $vue.$refs.tblMatriculasSeccion.loadRemoteData();
                     }
+                    $vue.btnSaveDisabled = false;
+                    $vue.btnSaveTexto = 'Guardar Asistencia';
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -51,13 +58,10 @@ var app = new Vue({
         },
         selectAllHour(horSeccion) {
             let $vue = this;
-            console.dir(horSeccion);
             let matriculasSeccion = $vue.$refs.tblMatriculasSeccion.data;
             $(matriculasSeccion).each(function () {
-
                 $(this.seccion.horarioSeccion).each(function () {
                     if (this.hora.id == horSeccion.hora.id) {
-                        console.dir(this);
                         this.seleccionado = horSeccion.seleccionado;
                     }
                 });

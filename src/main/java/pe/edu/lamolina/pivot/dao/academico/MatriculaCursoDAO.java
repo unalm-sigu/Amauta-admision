@@ -16,8 +16,6 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
     List<MatriculaCurso> allByMatriculaResumen(MatriculaResumen resumen);
 
-    List<MatriculaCurso> allByMatriculaResumen(List<MatriculaResumen> resumenes);
-
     List<MatriculaCurso> allByMatriculaResumenCurso(List<MatriculaResumen> resumenes, Curso curso);
 
     List<MatriculaCurso> allByAlumno(Long idAlumno);
@@ -47,5 +45,7 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
     List<MatriculaCurso> allActivoByAlumnoCicloActivo(Alumno alumno);
 
     MatriculaCurso findByMatriculaCurso(MatriculaResumen matriculaResumen, Curso curso);
+
+    void updateInasistencias(MatriculaCurso matCurso);
 
 }

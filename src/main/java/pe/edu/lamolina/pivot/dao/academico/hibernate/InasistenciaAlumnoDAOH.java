@@ -18,13 +18,24 @@ public class InasistenciaAlumnoDAOH extends AbstractEasyDAO<InasistenciaAlumno> 
     }
 
     @Override
-    public List<InasistenciaAlumno> allByTemaLeccionActives(TemaLeccion temaCiclo) {
+    public List<InasistenciaAlumno> allActivosByTemaLeccion(TemaLeccion temaCiclo) {
         Octavia sql = Octavia.query()
                 .from(InasistenciaAlumno.class, "ia")
                 .join("temaLeccion tl", "matriculaCurso mc")
                 .join("mc.matriculaResumen mr", "mr.alumno alu")
                 .filter("tl.id", temaCiclo)
                 .filter("ia.estado", EstadoEnum.ACT);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<InasistenciaAlumno> allByTemaLeccion(TemaLeccion temaCiclo) {
+        Octavia sql = Octavia.query()
+                .from(InasistenciaAlumno.class, "ia")
+                .join("temaLeccion tl", "matriculaCurso mc")
+                .join("mc.matriculaResumen mr", "mr.alumno alu")
+                .filter("tl.id", temaCiclo);
 
         return all(sql);
     }

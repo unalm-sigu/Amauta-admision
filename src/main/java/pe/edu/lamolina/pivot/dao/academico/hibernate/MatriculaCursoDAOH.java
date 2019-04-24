@@ -60,15 +60,6 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
     }
 
     @Override
-    public List<MatriculaCurso> allByMatriculaResumen(List<MatriculaResumen> resumenes) {
-        Octavia sql = Octavia.query()
-                .from(MatriculaCurso.class, "mc")
-                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
-                .in("mr.id", resumenes);
-        return all(sql);
-    }
-
-    @Override
     public List<MatriculaCurso> allByMatriculaResumenCurso(List<MatriculaResumen> resumenes, Curso curso) {
         Octavia sql = Octavia.query()
                 .from(MatriculaCurso.class, "mc")
@@ -252,4 +243,12 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
 
         return find(sql);
     }
+
+    @Override
+    public void updateInasistencias(MatriculaCurso matCurso) {
+        Octavia updateSql = Octavia.update(MatriculaCurso.class);
+        updateSql.set(matCurso, "inasistencias");
+        this.update(updateSql);
+    }
+
 }

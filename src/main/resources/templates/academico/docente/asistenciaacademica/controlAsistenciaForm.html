@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Registro de Notas</title>
+        <title>Control de Asistencia</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
 </head>
 
@@ -9,127 +9,151 @@
         <header class="header b-b padder-lg">     
 
             <div class="pull-right panel-body" >
-                <a class="btn btn-default" th:href="@{'/academico/docente/asistenciaacademica/'+${seccion.id}+'/lecciones'}"  >Regresar</a>
+                <a class="btn btn-default" th:href="@{'/docente/asistenciaacademica/'+${seccion.id}+'/lecciones'}"  >Regresar</a>
             </div>
 
-            <h2><span th:text='|${curso.nombre} - ${session["SESSION_USUARIO"].cicloAcademico.descripcion}: Control de Asistencia|'>2016-II</span></h2>
-
+            <h4 class="block m-b-xxs">Control de Asistencia <span th:text='${session["SESSION_USUARIO"].cicloAcademico.descripcion} '>2016-II</span></h4>
+            <h3 class="m-t-xxs text-primary m-b-xxs" th:inline="text">
+                [[${curso.codigo}]] <i class="fa fa-bookmark"></i> [[${curso.tpc}]] &nbsp; [[${curso.nombre}]]
+            </h3>
 
             <div class="row">
                 <div class="form-group">
-                    <label class="col-md-2 control-label bold"><strong>Tipo sección:</strong></label>
-                    <div class="col-md-2">
-                        <span th:text="${seccion.tipoSeccionEnum.value}">Teoría</span>
-                    </div>
-
-                    <label for="cboCategoria" class="col-md-2 control-label bold"><strong>Clave:</strong></label>
-                    <div class="col-md-2">
+                    <div class="col-md-6 m-b">
+                        <strong>Sección:</strong>
                         <span th:text="${seccion.codigo2}">2130</span>
-                    </div>
-
-
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label  class="col-md-2 control-label bold"><strong>Estado del Acta:</strong></label>
-                    <div class="col-md-2">
-                        <span th:text="${grupoSeccion.estadoGrupoEnum.value}">2130</span>
-                    </div>
-
-
-                    <label  class="col-md-2 control-label bold"><strong>Creditos:</strong></label>
-                    <div class="col-md-2">
-                        <span th:text="${curso.creditos}">2130</span>
+                        /
+                        <strong>Grupo:</strong>
+                        <span th:text="${seccion.grupoHoras.codigo}">2130</span>
+                        /
+                        <strong>Aula:</strong>
+                        <span th:text="${seccion.aula.codigo}">2130</span>
                     </div>
                 </div>
             </div>
 
         </header>
 
-        <section id="controlAsistenciaApp" class="wrapper-lg">
-            <section class="panel">
-                <section class="panel-body"> 
-                    <form id="frmAsistencia" th:if="${not #lists.isEmpty(seccion.horarioSeccion)}">
-                        <div class="form-group">
-                            <label  class="col-sm-2 control-label">Tema</label>
+        <div id="controlAsistenciaApp" v-cloak="">
+            <section class="wrapper-md">
+                <section class="panel">
+                    <section class="panel-body"> 
 
-                            <div class="col-sm-10">
-                                <input type="text" 
-                                       class="inline form-control" 
-                                       required="true" 
-                                       v-model="temaLeccion.tema"
-                                       maxlength="200" 
-                                       autocomplete="off"/>
+                        <form id="frmAsistencia" th:if="${not #lists.isEmpty(seccion.horarioSeccion)}">
+
+                            <raptor-table v-bind:url="URL_MATRICULAS_SECCION" 
+                                          v-bind:ajaxdata="{seccion:seccion.id,temaLeccion:temaLeccion.id}"
+                                          v-bind:searcher="false"
+                                          ref="tblMatriculasSeccion"
+                                          v-bind:paginate="false">
+
+                                <div slot="header">
+                                    <div class="form-group col-sm-2">
+                                        <label  class="text-primary">Fecha</label>
+                                        <div class="input-group">
+                                            <span class="form-control text-primary" v-text="temaLeccion.fecha"></span>
+                                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-10">
+                                        <label  class="control-label">Tema de la clase</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               required="true" 
+                                               maxlength="200" 
+                                               v-model="temaLeccion.tema"
+                                               autocomplete="off"/>
+
+                                    </div>     
+                                </div>
+
+                                <template scope="props">
+
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th class="col-sm-6">
+                                                    Alumno
+                                                </th>
+                                                <th v-for="(horSec, ind) in seccion.horarioSeccion">
+                                                    <label class="switch">
+                                                        <input type="checkbox" 
+                                                               v-bind:alt="horSec.hora.codigo"
+                                                               v-bind:dir="horSec.hora.codigo" 
+                                                               v-model="horSec.seleccionado"
+                                                               v-on:change="selectAllHour(horSec)"/>
+                                                        <span></span>
+                                                    </label>
+                                                    <span class="">{{horSec.hora.descripcion}}</span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>   
+                                            <tr v-for="(mSec, indice) in props.data"> 
+                                                <td  class="v-middle text-center">
+                                                    <span class="h3 text-dark" >{{(indice+1)}}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-primary h4">{{mSec.matriculaResumen.alumno.persona.apellidosNombres}}</span>
+                                                    <span class="block small text-muted">
+                                                        {{mSec.matriculaResumen.alumno.codigo}}
+                                                    </span>
+
+                                                    <span v-if="mSec.matriculaResumen.alumno.pregrado">
+                                                        <span class="block small text-muted">
+                                                            {{mSec.matriculaResumen.alumno.carrera.nombre}}
+                                                        </span>
+                                                        <span class="block small text-muted" 
+                                                              v-if="mSec.matriculaResumen.alumno.carrera.nombre != mSec.matriculaResumen.alumno.carrera.facultad.nombre">
+                                                            Facultad de {{mSec.matriculaResumen.alumno.carrera.facultad.nombre}}
+                                                        </span>
+                                                    </span>
+
+                                                    <span v-else-if="mSec.matriculaResumen.alumno.postgrado">
+                                                        <span class="block small text-muted">
+                                                            {{mSec.matriculaResumen.alumno.carrera.nombre}}
+                                                        </span>
+                                                        <span class="block small text-muted">
+                                                            {{mSec.matriculaResumen.alumno.carrera.tipoEnum.value}}
+                                                        </span>
+                                                    </span>
+
+                                                    <span v-else="">
+                                                        <span class="block small text-muted">
+                                                            {{mSec.matriculaResumen.alumno.modalidadEstudio.nombre}}
+                                                        </span>
+                                                    </span>
+                                                </td>
+                                                <td v-for="horSeccion in mSec.seccion.horarioSeccion">
+
+                                                    <label class="switch">
+                                                        <input type="checkbox" v-bind:dir="horSeccion.hora.codigo" v-model="horSeccion.seleccionado"/>
+                                                        <span></span>
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                            <div class="pull-right panel-body" >
+                                <button v-on:click="saveAsistencia($event)" 
+                                   v-bind:disabled="btnSaveDisabled"
+                                   v-html="btnSaveTexto"
+                                   class="btn btn-success">Grabar Asistencia</button>
                             </div>
+                        </form>
 
-                        </div>      
-
-                        <raptor-table v-bind:url="URL_MATRICULAS_SECCION" 
-                                      v-bind:ajaxdata="{seccion:seccion.id,temaLeccion:temaLeccion.id}"
-                                      v-bind:searcher="false"
-                                      ref="tblMatriculasSeccion"
-                                      v-bind:paginate="false">
-
-                            <template scope="props">
-
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 10px;">
-
-                                            </th>
-                                            <th style="width: 150px">
-
-                                            </th>
-                                            <th v-for="(horSec, ind) in seccion.horarioSeccion"
-                                                style="width: 25%">
-                                                <input type="checkbox"
-                                                       v-bind:alt="horSec.hora.codigo"
-                                                       v-model="horSec.seleccionado"
-                                                       v-on:change="selectAllHour(horSec)"
-                                                       v-bind:dir="horSec.hora.codigo"/> 
-                                                {{horSec.hora.descripcion}}
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>   
-                                        <tr v-for="(mSec, indice) in props.data"> 
-                                            <td  class="v-middle">
-                                                <span class="small text-muted" >({{(indice+1)}})</span>
-                                            </td>
-                                            <td>
-                                                <span class="text-primary">{{mSec.matriculaResumen.alumno.persona.apellidosNombres}}</span>
-                                                <span class="block small text-muted">
-                                                    {{mSec.matriculaResumen.alumno.codigo}}
-                                                </span>
-                                            </td>
-                                            <td v-for="horSeccion in mSec.seccion.horarioSeccion">
-
-                                                <input type="checkbox"
-                                                       v-bind:dir="horSeccion.hora.codigo"
-                                                       v-model="horSeccion.seleccionado"/> 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </template>
-                        </raptor-table>
-
-                        <div class="pull-right panel-body" >
-                            <a href="#" 
-                               v-on:click="saveAsistencia($event)"
-                               class="btn btn-success"
-                               >Grabar Notas</a>
+                        <div th:if="${#lists.isEmpty(seccion.horarioSeccion)}">
+                            No tiene horario para el día de hoy. 
                         </div>
-                    </form>
-                    <div th:if="${#lists.isEmpty(seccion.horarioSeccion)}">
-                        No tiene horario para el día de hoy. 
-                    </div>
-                </section>
 
+                    </section>
+                </section>
             </section>
-        </section>
+        </div>
 
         <div th:substituteby="templates/modal"/>
 
@@ -138,12 +162,9 @@
     <div layout:fragment="js">
         <div th:substituteby="_modules/vue-raptor-table"/>
         <script th:inline="javascript">
-            var seccionJson = [[${
-                seccionJson
-            }
-            ]];
-            var temaLeccionJson = [[${temaLeccionJson}
-            ]];
+            var seccionJson = /*[[${seccionJson}]]*/ {}
+            var temaLeccionJson = /*[[${temaLeccionJson}]]*/ {}
+            var rutaModulo = "docente/asistenciaacademica";
         </script>
         <script th:src="@{/app/academico/docente/asistenciaacademica/controlAsistenciaForm.js}" charset="utf-8"></script>
     </div>

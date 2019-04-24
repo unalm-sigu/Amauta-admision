@@ -27,9 +27,9 @@ public interface AsistenciaAcademicaService {
 
     Seccion findSeccion(Long idSeccion);
 
-    void saveInasistencia(TemaLeccion temaLeccion, Docente docente, Usuario usuario, CicloAcademico cicloAcademico);
+    void saveInasistencia(TemaLeccion temaLeccion, Docente docente, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
-    void updateInasistencia(TemaLeccion temaLeccion, Docente docente, Usuario usuario, CicloAcademico cicloAcademico);
+    void updateInasistencia(TemaLeccion temaLeccion, Docente docente, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     List<TemaLeccion> allTemaLeccionBySeccionDocenteDyna(Seccion seccion, Docente docente, DynatableFilter filter);
 
