@@ -1,14 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title> Docente </title>
-        <style>
-            .img-foto-list{
-                left: 0px;
-            }
-            .header-docente {
-                padding-top: 20px;
-            }
-        </style>
     </head>
     <body>
         <section layout:fragment="main">
@@ -16,106 +8,130 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <h2>Mi Carga Académica - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
-                    <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
-                    <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>    
+                    <h2 class="m-b-xxs">Carga Académica <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+                    <span class="block h4 text-primary m-t-xxs m-b-xxs"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>    
+                    <span class="block m-b"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
                 </header>
 
                 <section class="wrapper-lg">
-                    <section class="panel">
+                    <section class="panel m-b" 
+                             v-for="(cm,index) in cursos"
+                             v-if="cm.cursosModalidad.length > 0 ">
                         <section class="panel-body">
-                            <raptor-table v-bind:url="`/docente/cargaacademica/list`" v-bind:searcher="false" v-bind:paginate="false">
-                                <template scope="props">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th class="col-md-5">Curso</th>
-                                                <th class="col-md-1 text-center">Tipo</th>
-                                                <th class="col-md-1 text-center">Sección</th>
-                                                <th class="col-md-1 text-center">Aula</th>
-                                                <th class="col-md-1 text-center">Grupo</th>
-                                                <th class="col-md-1 text-center">Alumnos</th>
-                                                <th class="col-md-1 text-center">% Carga</th>
-                                                <th class="col-md-2 text-center">Periodo</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody v-for="item in props.data">
-                                            <tr> 
-                                                <td class="v-middle padder-v" v-bind:style="item.styleHijo"
-                                                    v-bind:rowspan="item.secciones.length">
-                                                    <div class="h4 text-primary m-t-xs m-b-xs">{{item.curso.nombre}}</div>
-                                                    <span class="block m-b-xs">
-                                                        {{item.curso.codigo}} &nbsp;&nbsp; <i class="fa fa-bookmark-o"></i> {{item.curso.tpc}}
-                                                    </span>
-                                                </td>
 
-                                        <template v-for="(seccion,idx) in item.secciones"
-                                                  v-if="idx==0">
-                                            <td class="v-middle text-center">
-                                                <span v-if="seccion.tipoSeccionEnum.name==='PCUR'" class="fa fa-flask fa-lg"/>
-                                                <span v-else-if="seccion.tipoSeccionEnum.name==='PRA'" class="fa fa-flask  fa-lg"/>
-                                                <span v-else="" class="fa fa-book"/>
-                                                <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                {{seccion.codigo2}}
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                {{seccion.aula.codigo}}
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                {{seccion.grupoHoras.codigo}}
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                {{seccion.matriculados}}
-                                            </td>
-                                            <template v-for="profeSecc in seccion.docenteSeccion">
-                                                <td class="v-middle text-center">
-                                                    <span v-if="profeSecc.porcentajeCarga != '' ">{{profeSecc.porcentajeCarga.toFixed(2)}} </span>
-                                                </td>
-                                                <td class="v-middle text-center">
-                                                    {{profeSecc.fechaInicio}}
-                                                    {{profeSecc.fechaFin}}
-                                                </td>
-                                            </template>
-                                        </template>
-                                        </tr>
+                            <h3 v-if="index==0" class="m-t-xs">Cursos de Pregrado</h3>
+                            <h3 v-if="index==1" class="m-t-xs">Cursos de Posgrado</h3>
 
-                                        <tr v-for="(seccion,idx) in item.secciones"
-                                            v-if="idx>0"> 
-                                            <td class="v-middle text-center">
-                                                <span v-if="seccion.tipoSeccionEnum.name==='PCUR'" class="fa fa-flask  fa-lg"/>
-                                                <span v-else-if="seccion.tipoSeccionEnum.name==='PRA'" class="fa fa-flask  fa-lg"/>
-                                                <span v-else="" class="fa fa-book"/>
-                                                <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                {{seccion.codigo2}}
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                {{seccion.aula.codigo}}
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                {{seccion.grupoHoras.codigo}}
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                {{seccion.matriculados}}
-                                            </td>
-                                        <template v-for="profeSecc in seccion.docenteSeccion">
-                                            <td class="v-middle text-center">
-                                                <span v-if="profeSecc.porcentajeCarga != '' ">{{profeSecc.porcentajeCarga.toFixed(2)}} </span>
-                                            </td>
-                                            <td class="v-middle text-center">
-                                                {{profeSecc.fechaInicio}}
-                                                {{profeSecc.fechaFin}}
-                                            </td>
-                                        </template>
-                                        </tr>
 
-                                        </tbody>
-                                    </table>
+                            <table class="table table-striped tableqq-bordered">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-6 v-middle">Curso</th>
+                                        <!--<th class="text-center v-middle"></th>-->
+                                        <th class="text-center v-middle" colspan="2">Sección</th>
+                                        <th class="col-md-1 text-center v-middle">Aula<br/>Grupo</th>
+                                        <th class="col-md-2 text-center v-middle">Horario</th>
+                                        <th class="text-center v-middle"><i class="fa fa-users"></i></th>
+                                        <th class="col-md-1 text-center v-middle">% Carga</th>
+                                        <th class="text-center v-middle">Créditos<br/>Carga</th>
+                                        <th class="col-md-2 text-center v-middle">Periodo Clases</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-for="item in cm.cursosModalidad">
+                                    <tr> 
+                                        <td class="v-middle padder-v" v-bind:style="item.styleHijo"
+                                            v-bind:rowspan="item.secciones.length">
+                                            <div class="h4 text-primary m-t-xs m-b-xs">{{item.curso.nombre}}</div>
+                                            <span class="block m-b-xs">
+                                                {{item.curso.codigo}} &nbsp;<i class="fa fa-bookmark-o"></i> {{item.curso.tpc}}
+                                            </span>
+                                        </td>
+
+                                <template v-for="(seccion,idx) in item.secciones"
+                                          v-if="idx==0">
+                                    <td class="v-middle text-center">
+                                        <i v-if="seccion.tipoSeccionEnum.name==='PCUR'" class="fa fa-flask fa-lg"/>
+                                        <i v-else-if="seccion.tipoSeccionEnum.name==='PRA'" class="fa fa-flask  fa-lg"/>
+                                        <i v-else="" class="fa fa-book fa-lg"/>
+                                    </td>
+                                    
+                                    <td class="v-middle text-center">
+                                        <span class="block">{{seccion.codigo2}}</span>
+                                        <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
+                                    </td>
+                                    
+                                    <td class="v-middle text-center">
+                                        <span class="block" v-if="seccion.aula.codigo != '' "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
+                                        <span class="block" v-if="seccion.grupoHoras.codigo != '' "><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
+                                    </td>
+
+                                    <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
+
+                                    <td class="v-middle text-center">
+                                        {{seccion.matriculados}}
+                                    </td>
+                                    <template v-for="profeSecc in seccion.docenteSeccion">
+                                        <td class="v-middle text-center">
+                                            <span v-if="profeSecc.porcentajeCarga != '' ">{{profeSecc.porcentajeCarga.toFixed(2)}} </span>
+                                        </td>
+                                        <td class="text-right v-middle text-primary">
+                                            <span v-if="profeSecc.creditosCarga != '' "> {{profeSecc.creditosCarga.toFixed(2)}} </span>
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            <span v-if="profeSecc.fechaInicio != '' " class="block">Desde el {{profeSecc.fechaInicio}}</span>
+                                            <span v-if="profeSecc.fechaFin != '' " class="block">Hasta el {{profeSecc.fechaFin}}</span>
+                                        </td>
+                                    </template>
                                 </template>
-                            </raptor-table>
+                                </tr>
+
+                                <tr v-for="(seccion,idx) in item.secciones"
+                                    v-if="idx>0"> 
+                                    <td class="v-middle text-center">
+                                        <i v-if="seccion.tipoSeccionEnum.name === 'PCUR'" class="fa fa-flask  fa-lg"/>
+                                        <i v-else-if="seccion.tipoSeccionEnum.name === 'PRA'" class="fa fa-flask  fa-lg"/>
+                                        <i v-else="" class="fa fa-book fa-lg"/>
+                                        
+                                    </td>
+                                    <td class="v-middle text-center">
+                                        <span class="block">{{seccion.codigo2}}</span>
+                                        <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
+                                    </td>
+                                    <td class="v-middle text-center">
+                                        <span class="block" v-if="seccion.aula.codigo != '' "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
+                                        <span class="block" v-if="seccion.grupoHoras.codigo != '' "><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
+                                    </td>
+
+                                    <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
+
+                                    <td class="v-middle text-center">
+                                        {{seccion.matriculados}}
+                                    </td>
+                                <template v-for="profeSecc in seccion.docenteSeccion">
+                                    <td class="v-middle text-center">
+                                        <span v-if="profeSecc.porcentajeCarga != '' "> {{profeSecc.porcentajeCarga.toFixed(2)}} </span>
+                                    </td>
+                                    <td class="text-right v-middle text-primary">
+                                        <span v-if="profeSecc.creditosCarga != '' "> {{profeSecc.creditosCarga.toFixed(2)}} </span>
+                                    </td>
+                                    <td class="v-middle text-center">
+                                        <span v-if="profeSecc.fechaInicio != '' " class="block">Desde el {{profeSecc.fechaInicio}}</span>
+                                        <span v-if="profeSecc.fechaFin != '' " class="block">Hasta el {{profeSecc.fechaFin}}</span>
+                                    </td>
+                                </template>
+                                </tr>
+                                </tbody>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="7" class="text-right bold h4">Total créditos carga</td>
+                                        <td class="text-right bold text-primary h4">
+                                            {{cm.creditos.toFixed(2)}}
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
                         </section>
                     </section>
                 </section>
@@ -123,16 +139,18 @@
             </div>
 
 
-            <script  th:inline="javascript" >
-                /*<![CDATA[*/
-                var iddocente = /*[[${docente.id}]]*/'';
-                /*]]>*/
-            </script>
+
 
 
         </section>
 
         <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var iddocente = /*[[${docente.id}]]*/'';
+                var rutaModulo = '/docente/cargaacademica';
+                /*]]>*/
+            </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/docente/cargaacademica.js}" charset="utf-8"></script>
         </div>

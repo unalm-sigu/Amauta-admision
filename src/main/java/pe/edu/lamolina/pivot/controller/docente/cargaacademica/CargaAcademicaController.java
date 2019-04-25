@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.docente.cargaacademica;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -13,11 +14,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.Seccion;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -41,20 +48,40 @@ public class CargaAcademicaController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+    public JsonResponse list(HttpSession session) {
 
-        logger.debug("??????");
-        DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        JsonResponse response = new JsonResponse();
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode arrayPregrado = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode arrayPosgrado = new ArrayNode(JsonNodeFactory.instance);
+            ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
+
             CicloAcademico ciclo = ds.getCicloAcademico();
-
             List<GrupoSeccion> gruposSeccion = service.allGpoSecciones(ds.getDocente(), ciclo);
 
+            BigDecimal creditosPregrado = BigDecimal.ZERO;
+            BigDecimal creditosPosgrado = BigDecimal.ZERO;
+
             for (GrupoSeccion grupoSeccion : gruposSeccion) {
+                ModalidadEstudio modalidad = grupoSeccion.getCurso().getModalidadEstudio();
+
+                List<Seccion> secciones = grupoSeccion.getSecciones();
+                for (Seccion seccion : secciones) {
+                    List<DocenteSeccion> profesSeccion = seccion.getDocenteSeccion();
+                    for (DocenteSeccion profeSecc : profesSeccion) {
+                        if (profeSecc.getCreditosCarga() == null) {
+                            continue;
+                        }
+                        if (modalidad.getCodigoEnum() == PRE) {
+                            creditosPregrado = creditosPregrado.add(profeSecc.getCreditosCarga());
+                        } else if (modalidad.getCodigoEnum() == EPG) {
+                            creditosPosgrado = creditosPosgrado.add(profeSecc.getCreditosCarga());
+                        }
+                    }
+                }
+
                 ObjectNode node = JsonHelper.createJson(grupoSeccion, JsonNodeFactory.instance, true, new String[]{
                     "id", "estadoEnum", "estadoGrupoEnum",
                     "cicloAcademico.tipoEnum",
@@ -68,21 +95,36 @@ public class CargaAcademicaController {
                     "secciones.aula.codigo",
                     "secciones.aula.nombre",
                     "secciones.grupoHoras.codigo",
-                    "secciones.docenteSeccion.*",
-                    "secciones.verInformacion"
+                    "secciones.docenteSeccion.id",
+                    "secciones.docenteSeccion.estado",
+                    "secciones.docenteSeccion.porcentajeCarga",
+                    "secciones.docenteSeccion.fechaInicio",
+                    "secciones.docenteSeccion.fechaFin",
+                    "secciones.docenteSeccion.creditosCarga",
+                    "secciones.verInformacion",
+                    "secciones.horarioTexto"
                 });
 
-                array.add(node);
+                if (modalidad.getCodigoEnum() == PRE) {
+                    arrayPregrado.add(node);
+                } else if (modalidad.getCodigoEnum() == EPG) {
+                    arrayPosgrado.add(node);
+                }
             }
 
-            json.setData(array);
-            json.setTotal(gruposSeccion.size());
-            json.setFiltered(gruposSeccion.size());
+            data.set("pregrado", arrayPregrado);
+            data.set("posgrado", arrayPosgrado);
+            data.put("creditosPregrado", creditosPregrado);
+            data.put("creditosPosgrado", creditosPosgrado);
 
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
+            ExceptionHandler.handleException(e, response);
         }
-        return json;
+        return response;
     }
 }
