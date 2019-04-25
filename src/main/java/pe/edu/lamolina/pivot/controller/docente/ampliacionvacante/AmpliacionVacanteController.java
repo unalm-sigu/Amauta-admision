@@ -122,7 +122,8 @@ public class AmpliacionVacanteController {
                     "secciones.seccionSuperior.grupoHoras.codigo",
                     "secciones.docentePrincipal.codigo",
                     "secciones.docentePrincipal.persona.nombreCompleto",
-                    "secciones.docentePrincipalLogeado"});
+                    "secciones.docentePrincipalLogeado",
+                    "secciones.docentePrincipaTcurLogeado"});
 
                 array.add(nodeGpoSecc);
             }

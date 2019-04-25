@@ -110,6 +110,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                     seccionSuper = grupoSeccionTcurMap.get(seccion.getGrupoSeccion().getId());
                     seccion.setSeccionSuperior(seccionSuper);
                 }
+                seccion.setDocentePrincipaTcurLogeado(ds.getDocente().equals(seccionSuper.getDocentePrincipal()));
             }
         }
         Map<Long, List<Seccion>> mapSeccionesByGrupoSeccion = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);

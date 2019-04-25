@@ -162,7 +162,7 @@
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones "  class="block text-muted"> 
                                                         <!-- v-if="docenteSession.id==gposeccion.docenteResponsable.id" -->
                                                         <span v-if="seccion.tipoSeccion!='TCUR' ">
-                                                            <a v-if="seccion.docentePrincipalLogeado" 
+                                                            <a v-if="seccion.docentePrincipalLogeado || seccion.docentePrincipaTcurLogeado" 
                                                                v-on:click.prevent="changeVacante(seccion)" href="#" 
                                                                class="btn btn-primary btn-sm-plus">
                                                                 <i class="fa fa-plus" aria-hidden="true"></i>
