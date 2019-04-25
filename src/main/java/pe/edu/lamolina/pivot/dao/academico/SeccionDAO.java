@@ -106,4 +106,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     public void updateMatriculados(Seccion seccion);
 
+    void updateColumns(Seccion seccion, String... columns);
+
 }

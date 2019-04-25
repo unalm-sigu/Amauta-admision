@@ -72,5 +72,7 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     public List<MatriculaResumen> allByCicloMat(CicloAcademico ciclo);
 
-    public void updateCreditos(MatriculaResumen matri);
+    void updateCreditos(MatriculaResumen matri);
+
+    void updateColumns(MatriculaResumen matriculaResumenUpd, String... columns);
 }

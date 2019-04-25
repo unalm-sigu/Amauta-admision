@@ -649,11 +649,20 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
 
     @Override
     public void updateCreditos(MatriculaResumen matri) {
-      Octavia sql = Octavia.update(MatriculaResumen.class);
-      sql.set(matri, "estado");
-      sql.set(matri, "cursosMatriculados");
-      sql.set(matri, "creditosMatriculados");
-       this.update(sql);
+        Octavia sql = Octavia.update(MatriculaResumen.class);
+        sql.set(matri, "estado");
+        sql.set(matri, "cursosMatriculados");
+        sql.set(matri, "creditosMatriculados");
+        this.update(sql);
+    }
+
+    @Override
+    public void updateColumns(MatriculaResumen matriculaResumenUpd, String... columns) {
+        Octavia sql = Octavia.update(MatriculaResumen.class);
+        for (String column : columns) {
+            sql.set(matriculaResumenUpd, column);
+        }
+        this.update(sql);
     }
 
 }

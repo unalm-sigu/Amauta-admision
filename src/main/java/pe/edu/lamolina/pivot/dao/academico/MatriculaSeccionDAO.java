@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 
 public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
@@ -49,8 +50,18 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<MatriculaSeccion> allByMatriculaMatSeccion(List<MatriculaResumen> matriculasResumen, Seccion seccion);
 
-    public List<MatriculaSeccion> allByMatriculaResumenes(List<MatriculaResumen> resumenes, CicloAcademico ciclo);
+    List<MatriculaSeccion> allByMatriculaResumenes(List<MatriculaResumen> resumenes, CicloAcademico ciclo);
 
-    public void updateEstado(List<MatriculaSeccion> matriculaSeccionMatTemp, EstadoMatriculaEnum eme);
+    void updateEstado(List<MatriculaSeccion> matriculaSeccionMatTemp, EstadoMatriculaEnum eme);
+
+    void updateColumns(MatriculaSeccion matriculaSeccion, String... columns);
+
+    MatriculaSeccion findByMatResumenAndTipoSecAndEstado(MatriculaResumen matriculaResumen, TipoSeccionEnum tipoSeccionEnum, EstadoMatriculaEnum... estadoMatriculaEnum);
+
+    MatriculaSeccion findByMatResumenAndTipoSecAndNoEstado(MatriculaResumen matriculaResumen, TipoSeccionEnum tipoSeccionEnum, EstadoMatriculaEnum... estadoMatriculaEnum);
+
+    MatriculaSeccion findByMatriculaMatSeccion(MatriculaResumen matriculaResumen, Seccion seccion, EstadoMatriculaEnum... estado);
+
+    MatriculaSeccion findByMatriculaMatSeccionAndNoEstado(MatriculaResumen matriculaResumen, Seccion seccion, EstadoMatriculaEnum... estado);
 
 }

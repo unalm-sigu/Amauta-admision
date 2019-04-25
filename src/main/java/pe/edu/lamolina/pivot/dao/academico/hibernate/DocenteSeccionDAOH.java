@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.math.BigDecimal;
 import java.util.List;
 import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -104,6 +105,23 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
     }
 
     @Override
+    public List<DocenteSeccion> allDocentesPrincipalesByGpoSecciones(List<GrupoSeccion> gruposSeccion) {
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .leftJoin("gs.planCalificacion pc", "cur.planCalificacion pc2", "cur.planCalificacionRegular pcr", "sec.seccionSuperior")
+                .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
+                .in("gs.id", gruposSeccion)
+                .filter("ds.principal", 1)
+                .filter("gs.estado", EstadoEnum.ACT)
+                .filter("sec.estado", EstadoEnum.ACT)
+                .filter("ds.estado", EstadoEnum.ACT);
+
+        return all(sql);
+    }
+
+    @Override
     public List<DocenteSeccion> allBySeccion(Seccion seccion) {
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
@@ -113,8 +131,19 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
                 .filter("sec.id", seccion)
                 .orderBy("ds.estado", "ds.id");
-
         return all(sql);
+    }
+
+    @Override
+    public DocenteSeccion findPrincipalBySeccion(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "docente doc")
+                .leftJoin("doc.persona per", "per.tipoDocumento")
+                .filter("sec.id", seccion)
+                .filter("ds.estado", EstadoEnum.ACT)
+                .filter("ds.principal", BigDecimal.ONE.intValue());
+        return find(sql);
     }
 
     @Override
@@ -501,7 +530,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
     public List<DocenteSeccion> allResponsableBySeccionCiclo(List<Seccion> secciones, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
-                .join("seccion sec", "sec.grupoSeccion gs","gs.curso cur",  "gs.cicloAcademico ca", "docente doc")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
                 .leftJoin("cur.departamentoAcademico da", "da.facultad")
                 .leftJoin("gs.planCalificacion pc", "cur.planCalificacion pc2", "cur.planCalificacionRegular pcr", "sec.seccionSuperior")
                 .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")

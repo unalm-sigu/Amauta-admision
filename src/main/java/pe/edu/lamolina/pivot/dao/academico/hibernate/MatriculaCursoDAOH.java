@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,6 +13,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
@@ -245,12 +247,23 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
 
     @Override
     public MatriculaCurso findByMatriculaCurso(MatriculaResumen matriculaResumen, Curso curso) {
-
         Octavia sql = Octavia.query()
                 .from(MatriculaCurso.class, "mc")
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
                 .filter("mr.id", matriculaResumen)
                 .filter("cu.id", curso);
+
+        return find(sql);
+    }
+
+    @Override
+    public MatriculaCurso findByMatriculaCursoAndNotEstado(MatriculaResumen matriculaResumen, Curso curso, EstadoMatriculaEnum... estadoMatriculaEnum) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
+                .filter("mr.id", matriculaResumen)
+                .filter("cu.id", curso)
+                .notIn("mc,estado", Arrays.asList(estadoMatriculaEnum));
 
         return find(sql);
     }
@@ -291,5 +304,14 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .filter("mc.estado", EstadoMatriculaEnum.PMAT)
                 .orderBy("mr.prioridad");
         return all(sql);
+    }
+
+    @Override
+    public void updateColumns(MatriculaCurso matriculaCurso, String... columns) {
+        Octavia sql = Octavia.update(MatriculaCurso.class, "se");
+        for (String column : columns) {
+            sql.set(matriculaCurso, column);
+        }
+        this.update(sql);
     }
 }

@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
 public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
@@ -48,8 +49,12 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
     MatriculaCurso findByMatriculaCurso(MatriculaResumen matriculaResumen, Curso curso);
 
-    public List<MatriculaCurso> allByMatriculaResumenes(List<MatriculaResumen> resumenes);
+    List<MatriculaCurso> allByMatriculaResumenes(List<MatriculaResumen> resumenes);
 
-    public List<MatriculaCurso> allByMatriculaSimResumenes(List<MatriculaResumen> resumenes);
+    List<MatriculaCurso> allByMatriculaSimResumenes(List<MatriculaResumen> resumenes);
+
+    void updateColumns(MatriculaCurso matriculaCursoUpd, String... columns);
+
+    MatriculaCurso findByMatriculaCursoAndNotEstado(MatriculaResumen matriculaResumen, Curso curso, EstadoMatriculaEnum... estadoMatriculaEnum);
 
 }
