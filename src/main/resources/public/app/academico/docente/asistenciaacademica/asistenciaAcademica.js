@@ -1,7 +1,7 @@
 var app = new Vue({
     el: '#asistenciaAcademicaApp',
     data: {
-        URL_GRUPOS_SECCION: APP.url(rutaModulo + '/listGruposSecciones'),
+        rutaListaGposSeccion: APP.url(rutaModulo + '/listGruposSecciones'),
         hola: "chau"
     }, created: function () {
 

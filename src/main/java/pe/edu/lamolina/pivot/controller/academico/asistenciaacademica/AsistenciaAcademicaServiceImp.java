@@ -475,6 +475,8 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
                 seccion.setDocenteSeccion(profesSeccion);
             }
         }
+        
+        Collections.sort(gruposSecciones, new GrupoSeccion.CompareNombreCurso());
 
         return gruposSecciones;
 
