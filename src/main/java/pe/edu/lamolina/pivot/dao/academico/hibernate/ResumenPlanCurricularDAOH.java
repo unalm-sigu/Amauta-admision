@@ -51,4 +51,14 @@ public class ResumenPlanCurricularDAOH extends AbstractEasyDAO<ResumenPlanCurric
 
         return all(sql);
     }
+
+    @Override
+    public List<ResumenPlanCurricular> allByPlanes(List<PlanCurricular> planesAlumnos) {
+        Octavia sql = Octavia.query()
+                .from(ResumenPlanCurricular.class, "rpc")
+                .join("planCurricular pc", "tipoCursoCurricula tcc")
+                .in("pc.id", planesAlumnos);
+
+        return all(sql);
+    }
 }

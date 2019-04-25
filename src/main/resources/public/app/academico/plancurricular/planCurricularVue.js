@@ -9,6 +9,7 @@ new Vue({
             title: 'Asignación Masiva',
             okbtn: 'Asignar planes',
             okclass: 'btn-success btn-asignar',
+            showaccept:true
         },
         procesando: false,
         revisando: false,
