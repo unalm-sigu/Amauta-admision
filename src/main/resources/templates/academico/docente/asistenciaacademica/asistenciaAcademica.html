@@ -8,35 +8,40 @@
     <div layout:fragment="main">
         <header class="header b-b padder-lg">        
             <h2>Control de Asistencia <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
-            <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
-            <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>          
+            <span class="block h4 text-primary m-t-xxs m-b-xxs"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>    
+            <span class="block m-b"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>      
         </header>
 
         <section id="asistenciaAcademicaApp" class="wrapper-lg">
             <section class="panel">
                 <section class="panel-body">
 
-                    <raptor-table v-bind:url="URL_GRUPOS_SECCION" >
+                    <raptor-table v-bind:url="rutaListaGposSeccion" v-bind:searcher="false" v-bind:paginate="false">
 
                         <template scope="props">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th class="col-md-4">Curso</th>
-                                        <th class="col-md-1 text-center">Tipo Ciclo</th>
-                                        <th class="col-md-3 text-center">Secciones</th>
+                                        <th class="col-md-6 v-middle">Curso</th>
+                                        <th class="col-md-3 text-center v-middle">Horario de Clases</th>
+                                        <th class="col-md-3 text-center v-middle">Secciones</th>
 
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="item in props.data"> 
                                         <td class="v-middle"> 
-                                            <span class="block h4 text-primary m-b-xs">{{item.curso.nombre}}</span>
-                                            <small class="block text-muted">Código: {{item.curso.codigo}}</small>
-                                            <small class="block text-muted m-b">TPC: {{item.curso.tpc}}</small>
+                                            <span class="block h4 text-primary m-b-xs m-t-xs">{{item.curso.nombre}}</span>
+                                            <div class="block text-muted">{{item.curso.codigo}} <i class="fa fa-bookmark"></i> {{item.curso.tpc}} </div>
+                                            <small class="block text-muted">{{item.curso.departamentoAcademico.nombre}} </small>
+
                                         </td>
-                                        <td class="v-middle text-center">
-                                            {{ item.cicloAcademico.tipoEnum.value}}
+                                        <td class="v-middle">
+                                            <div v-for="sec in item.secciones" 
+                                                 v-if="sec.horarioTexto != '' " class="block">
+                                                <span v-text="sec.codigo2" class="bold text-success"></span>:
+                                                <span v-text="sec.horarioTexto"></span>
+                                            </div>
                                         </td>
                                         <td class="v-middle text-center">
                                             <div v-for="sec in item.secciones" class="m-l-md inline">
@@ -44,13 +49,22 @@
                                                    v-if="sec.verInformacion"
                                                    v-on:click="controlarSeccion(sec,$event)">
                                                     {{sec.codigo2}}
-                                                    -
+                                                    /
                                                     {{sec.grupoHoras.codigo}}
+                                                    / <i class="fa fa-users"></i> {{sec.matriculados}}
                                                 </a>
-                                                <span v-if="sec.verInformacion==false">
+                                                <span v-if="sec.verInformacion==false &amp;&amp; sec.matriculados>0">
                                                     {{sec.codigo2}}
-                                                    -
+                                                    /
                                                     {{sec.grupoHoras.codigo}}
+                                                    / <i class="fa fa-users"></i> {{sec.matriculados}}
+                                                </span>
+                                                <span v-if="sec.verInformacion==false &amp;&amp; sec.matriculados==0"
+                                                      class="text-danger">
+                                                    {{sec.codigo2}}
+                                                    /
+                                                    {{sec.grupoHoras.codigo}}
+                                                    / <i class="fa fa-users"></i> {{sec.matriculados}}
                                                 </span>
                                             </div>
                                         </td>
@@ -75,6 +89,7 @@
         <div th:substituteby="_modules/vue-raptor-table"/>
         <script th:inline="javascript">
             var seccionJson = [[${seccionJson}]];
+            var rutaModulo = "docente/asistenciaacademica";
         </script>
         <script th:src="@{/app/academico/docente/asistenciaacademica/asistenciaAcademica.js}" charset="utf-8"></script>
     </div>

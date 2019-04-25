@@ -49,4 +49,14 @@ public class AlumnoAvanceCurricularDAOH extends AbstractEasyDAO<AlumnoAvanceCurr
         query.executeUpdate();
     }
 
+    @Override
+    public List<AlumnoAvanceCurricular> allByAlumnos(List<Alumno> alumnos) {
+                Octavia sql = Octavia.query()
+                .from(AlumnoAvanceCurricular.class, "ac")
+                .join("alumno al", "tipoCursoCurricula")
+                .in("al.id", alumnos);
+
+        return sql.all(getCurrentSession());
+    }
+
 }

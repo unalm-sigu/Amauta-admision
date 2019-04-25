@@ -64,15 +64,6 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
     }
 
     @Override
-    public List<MatriculaCurso> allByMatriculaResumen(List<MatriculaResumen> resumenes) {
-        Octavia sql = Octavia.query()
-                .from(MatriculaCurso.class, "mc")
-                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
-                .in("mr.id", resumenes);
-        return all(sql);
-    }
-
-    @Override
     public List<MatriculaCurso> allByMatriculaResumenCurso(List<MatriculaResumen> resumenes, Curso curso) {
         Octavia sql = Octavia.query()
                 .from(MatriculaCurso.class, "mc")
@@ -270,7 +261,6 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
 
     @Override
     public List<MatriculaCurso> allByMatriculaResumenes(List<MatriculaResumen> resumenes) {
-        List<Long> ids = resumenes.stream().map(x -> x.getId()).collect(Collectors.toList());
         Octavia sqlSub = new Octavia()
                 .from(MatriculaSimultaneo.class, "ms")
                 .join("matriculaCurso mcs");
@@ -289,7 +279,6 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
 
     @Override
     public List<MatriculaCurso> allByMatriculaSimResumenes(List<MatriculaResumen> resumenes) {
-        List<Long> ids = resumenes.stream().map(x -> x.getId()).collect(Collectors.toList());
         Octavia sqlSub = new Octavia()
                 .from(MatriculaSimultaneo.class, "ms")
                 .join("matriculaCurso mcs");
@@ -307,6 +296,12 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
     }
 
     @Override
+    public void updateInasistencias(MatriculaCurso matCurso) {
+        Octavia updateSql = Octavia.update(MatriculaCurso.class);
+        updateSql.set(matCurso, "inasistencias");
+        this.update(updateSql);
+    }
+
     public void updateColumns(MatriculaCurso matriculaCurso, String... columns) {
         Octavia sql = Octavia.update(MatriculaCurso.class, "se");
         for (String column : columns) {

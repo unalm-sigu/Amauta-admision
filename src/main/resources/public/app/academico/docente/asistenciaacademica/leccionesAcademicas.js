@@ -3,7 +3,7 @@ Vue.component("multiselect", window.VueMultiselect.default);
 var app = new Vue({
     el: '#asistenciaAcademicaApp',
     data: {
-        URL_LECCIONES: APP.url('academico/docente/asistenciaacademica/listLeccionesAcademicas'),
+        URL_LECCIONES: APP.url(rutaModulo + '/listLeccionesAcademicas'),
         seccion: null,
         reprogramacionModal: {
             id: 'modalReprogramacion',
@@ -37,7 +37,7 @@ var app = new Vue({
             return "label " + APP.getEstadoClass(estado);
         }, editarLeccion(temaLeccion, e) {
             e.preventDefault();
-            location.href = APP.url('academico/docente/asistenciaacademica/' + temaLeccion.id + '/editar');
+            location.href = APP.url(rutaModulo + '/' + temaLeccion.id + '/editar');
         }, saveReprogramacion() {
             let $vue = this;
             $vue.leccionReprogramada.seccion = $vue.seccion;
@@ -54,7 +54,7 @@ var app = new Vue({
             }
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
-                url: APP.url('academico/docente/asistenciaacademica/saveReprogramacion'),
+                url: APP.url(rutaModulo + '/saveReprogramacion'),
                 dataType: "json",
                 contentType: "application/json",
                 type: 'POST',
@@ -79,7 +79,7 @@ var app = new Vue({
         }, reprogramarClase() {
             let $vue = this;
             $.ajax({
-                url: APP.url('academico/docente/asistenciaacademica/loadModalReprogramacion'),
+                url: APP.url(rutaModulo + '/loadModalReprogramacion'),
                 type: 'post',
                 data: {
                     seccion: $vue.seccion.id
@@ -107,7 +107,7 @@ var app = new Vue({
             console.dir(nombre);
             if (nombre != null && nombre != "") {
                 $.ajax({
-                    url: APP.url("academico/docente/asistenciaacademica/asyncFindAulas"),
+                    url: APP.url(rutaModulo + "/asyncFindAulas"),
                     dataType: 'json',
                     type: 'post',
                     data: {nombre: nombre},

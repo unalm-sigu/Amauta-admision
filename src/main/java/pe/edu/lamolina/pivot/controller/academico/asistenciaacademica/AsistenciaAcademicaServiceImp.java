@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ListsInspector;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -26,6 +28,7 @@ import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.InasistenciaAlumno;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -127,7 +130,6 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
     DocenteSeccionDAO docenteSeccionDAO;
 
     @Override
-    @Transactional(readOnly = true)
     public List<Date> findStartEndDateReschedule(Seccion seccion, Docente docente, CicloAcademico cicloAcademico) {
         seccion = seccionDAO.find(seccion.getId());
         GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
@@ -175,19 +177,20 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion, Docente docente, DateTime today) {
 
         TemaLeccion temaLeccion = temaLeccionDAO.findBySeccionDocenteFecha(seccion, docente, today.toDate());
         seccion = this.findSeccionDia(seccion, today);
 
-        List<InasistenciaAlumno> inasistenciasAlumnos = null;
+        List<InasistenciaAlumno> inasistenciasAlumnos = new ArrayList();
         if (temaLeccion != null) {
-            inasistenciasAlumnos = inasistenciaAlumnoDAO.allByTemaLeccionActives(temaLeccion);
+            inasistenciasAlumnos = inasistenciaAlumnoDAO.allActivosByTemaLeccion(temaLeccion);
         }
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
+        Map<String, InasistenciaAlumno> mapInasistenicias = TypesUtil.convertListToMap("keyMatResumen", inasistenciasAlumnos);
 
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
         for (MatriculaSeccion matriculaSeccionEach : matriculasSeccion) {
+            MatriculaResumen resumenAlumno = matriculaSeccionEach.getMatriculaResumen();
             Seccion seccionClone = seccion.clone();
             seccionClone.setHorarioSeccion(new ArrayList<>());
             for (HorarioSeccion horSeccion : seccion.getHorarioSeccion()) {
@@ -196,15 +199,15 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
 
             matriculaSeccionEach.setSeccion(seccionClone);
 
-            for (HorarioSeccion horaSeccion : matriculaSeccionEach.getSeccion().getHorarioSeccion()) {
-                //    horaSeccion.setSeleccionado(true);
-                if (inasistenciasAlumnos != null) {
-                    InasistenciaAlumno inasistencia = inasistenciasAlumnos.stream()
-                            .filter(x -> x.getMatriculaCurso().getMatriculaResumen().getAlumno().getId().compareTo(matriculaSeccionEach.getMatriculaResumen().getAlumno().getId()) == 0)
-                            .filter(x -> x.getHora().getId().compareTo(horaSeccion.getHora().getId()) == 0).findFirst().orElse(null);
+            if (!inasistenciasAlumnos.isEmpty()) {
+
+                for (HorarioSeccion horaSeccion : matriculaSeccionEach.getSeccion().getHorarioSeccion()) {
+                    Hora hora = horaSeccion.getHora();
+                    InasistenciaAlumno inasistencia = mapInasistenicias.get(hora.getId() + "-" + resumenAlumno.getId());
                     if (inasistencia != null) {
                         horaSeccion.setSeleccionado(false);
                     }
+
                 }
             }
         }
@@ -228,7 +231,7 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional
     public Seccion findSeccion(Long idSeccion) {
         Seccion seccion = seccionDAO.find(idSeccion);
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
@@ -243,129 +246,126 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
     }
 
     @Override
-    @Transactional(readOnly = false)
-    public void saveInasistencia(TemaLeccion temaLeccion, Docente docente, Usuario usuario, CicloAcademico cicloAcademico) {
+    @Transactional
+    public void saveInasistencia(TemaLeccion temaLeccion, Docente docente, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
         temaLeccion.setDocente(docente);
         temaLeccion.setFecha(today.toDate());
-        temaLeccion.setUsuarioRegistro(usuario);
+        temaLeccion.setUsuarioRegistro(ds.getUsuario());
         temaLeccion.setFechaRegistro(today.toDate());
         temaLeccion.setTipoEnum(TipoLeccionEnum.REG);
-
-        Seccion seccion = temaLeccion.getSeccion();
-        List<MatriculaSeccion> matriculasSeccion = seccion.getMatriculaSeccion();
-        Curso curso = seccion.getGrupoSeccion().getCurso();
-
-        InasistenciaAlumno inasistenciaAlumno;
-
         temaLeccionDAO.save(temaLeccion);
 
-        for (MatriculaSeccion matriculaSeccion : matriculasSeccion) {
+        Curso curso = temaLeccion.getSeccion().getGrupoSeccion().getCurso();
+        List<MatriculaSeccion> matriculasSeccionForm = temaLeccion.getSeccion().getMatriculaSeccion();
+        List<MatriculaResumen> resumenes = matriculasSeccionForm.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
+        List<MatriculaCurso> matriculasCursosBD = matriculaCursoDAO.allByMatriculaResumenCurso(resumenes, curso);
+        Map<Long, MatriculaCurso> mapMatriculaCurso = TypesUtil.convertListToMap("matriculaResumen.id", matriculasCursosBD);
 
-            if (matriculaSeccion.getSeccion().getHorarioSeccion() != null
-                    && !matriculaSeccion.getSeccion().getHorarioSeccion().isEmpty()) {
-
-                MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(
-                        matriculaSeccion.getMatriculaResumen().getAlumno(),
-                        curso,
-                        cicloAcademico);
-
-                for (HorarioSeccion horarioSeccion : matriculaSeccion.getSeccion().getHorarioSeccion()) {
-                    inasistenciaAlumno = new InasistenciaAlumno();
-                    inasistenciaAlumno.setEsReprogramado(BigDecimal.ZERO.intValue());
-                    inasistenciaAlumno.setEstadoEnum(EstadoEnum.ACT);
-                    inasistenciaAlumno.setHora(horarioSeccion.getHora());
-                    inasistenciaAlumno.setMatriculaCurso(matriculaCurso);
-                    inasistenciaAlumno.setTemaLeccion(temaLeccion);
-
-                    inasistenciaAlumno.setFechaRegistro(today.toDate());
-                    inasistenciaAlumno.setFechaModificacion(today.toDate());
-                    inasistenciaAlumno.setUsuarioModificacion(usuario);
-                    inasistenciaAlumno.setUsuarioRegistro(usuario);
-                    inasistenciaAlumnoDAO.save(inasistenciaAlumno);
-                }
-
-            }
+        List<InasistenciaAlumno> inasistencias = createInasistencias(temaLeccion, matriculasSeccionForm, mapMatriculaCurso, today, ds);
+        for (InasistenciaAlumno inasistencia : inasistencias) {
+            inasistenciaAlumnoDAO.save(inasistencia);
+            MatriculaCurso matCurso = inasistencia.getMatriculaCurso();
+            matCurso.setInasistencias(matCurso.getInasistencias() + 1);
         }
+
     }
 
-    @Override
-    @Transactional(readOnly = false)
-    public void updateInasistencia(TemaLeccion temaLeccion, Docente docente, Usuario usuario, CicloAcademico cicloAcademico) {
-        DateTime today = new DateTime();
+    private List<InasistenciaAlumno> createInasistencias(
+            TemaLeccion temaLeccion,
+            List<MatriculaSeccion> matriculasSeccionForm,
+            Map<Long, MatriculaCurso> mapMatriculaCurso,
+            DateTime today,
+            DataSessionPivot ds) {
 
-        Seccion seccion = temaLeccion.getSeccion();
-        List<MatriculaSeccion> matriculasSeccionForm = seccion.getMatriculaSeccion();
-        Curso curso = seccion.getGrupoSeccion().getCurso();
+        List<InasistenciaAlumno> inasistencias = new ArrayList();
+        for (MatriculaSeccion matriculaSeccion : matriculasSeccionForm) {
+            List<HorarioSeccion> horarioSeccionAlu = matriculaSeccion.getSeccion().getHorarioSeccion();
+            if (!horarioSeccionAlu.isEmpty()) {
 
-        TemaLeccion temaLeccionUpd = new TemaLeccion();
-        temaLeccionUpd.setId(temaLeccion.getId());
-        temaLeccionUpd.setTema(temaLeccion.getTema());
-        temaLeccionDAO.updateTema(temaLeccionUpd);
+                MatriculaCurso matriculaCurso = mapMatriculaCurso.get(matriculaSeccion.getMatriculaResumen().getId());
 
-        List<InasistenciaAlumno> inasistenciasDB = inasistenciaAlumnoDAO.allByTemaLeccionActives(temaLeccion);
+                for (HorarioSeccion horarioSeccion : horarioSeccionAlu) {
+                    if (!horarioSeccion.isSeleccionado()) {
+                        InasistenciaAlumno inasistencia = new InasistenciaAlumno();
+                        inasistencia.setEsReprogramado(BigDecimal.ZERO.intValue());
+                        inasistencia.setEstadoEnum(EstadoEnum.ACT);
+                        inasistencia.setHora(horarioSeccion.getHora());
+                        inasistencia.setMatriculaCurso(matriculaCurso);
+                        inasistencia.setTemaLeccion(temaLeccion);
 
-        //Anulamos los deseleccionados
-        for (InasistenciaAlumno inasistenciaAlumno : inasistenciasDB) {
-            MatriculaSeccion matriculaSeccionByAlumno = matriculasSeccionForm
-                    .stream()
-                    .filter(x -> x.getMatriculaResumen().getAlumno().getId().compareTo(inasistenciaAlumno.getMatriculaCurso().getMatriculaResumen().getAlumno().getId()) == 0)
-                    .findFirst().orElse(null);
-            HorarioSeccion horarioSeccion = matriculaSeccionByAlumno.getSeccion().getHorarioSeccion().stream()
-                    .filter(x -> x.getHora().getId().compareTo(inasistenciaAlumno.getHora().getId()) == 0)
-                    .findFirst().orElse(null);
-            if (horarioSeccion == null) {
-                InasistenciaAlumno inasistenciaAlumnoUpd = new InasistenciaAlumno();
-                inasistenciaAlumnoUpd.setId(inasistenciaAlumno.getId());
-                inasistenciaAlumnoUpd.setEstadoEnum(EstadoEnum.ANU);
-                inasistenciaAlumnoUpd.setFechaModificacion(today.toDate());
-                inasistenciaAlumnoUpd.setUsuarioModificacion(usuario);
-                inasistenciaAlumnoDAO.updateEstado(inasistenciaAlumnoUpd);
-            }
-
-        }
-
-        //agregamos las nuevas inasistencias
-        for (MatriculaSeccion matriculaSeccionEach : matriculasSeccionForm) {
-            if (matriculaSeccionEach.getSeccion().getHorarioSeccion() != null
-                    && !matriculaSeccionEach.getSeccion().getHorarioSeccion().isEmpty()) {
-
-                MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(
-                        matriculaSeccionEach.getMatriculaResumen().getAlumno(),
-                        curso,
-                        cicloAcademico);
-
-                for (HorarioSeccion horarioSeccion : matriculaSeccionEach.getSeccion().getHorarioSeccion()) {
-
-                    InasistenciaAlumno inasistenciaByAlumno = inasistenciasDB.stream()
-                            .filter(x -> x.getMatriculaCurso().getMatriculaResumen().getAlumno().getId()
-                            .compareTo(matriculaSeccionEach.getMatriculaResumen().getAlumno().getId()) == 0)
-                            .filter(x -> x.getHora().getId().compareTo(horarioSeccion.getHora().getId()) == 0)
-                            .findFirst().orElse(null);
-                    if (inasistenciaByAlumno == null) {
-                        inasistenciaByAlumno = new InasistenciaAlumno();
-                        inasistenciaByAlumno.setEsReprogramado(BigDecimal.ZERO.intValue());
-                        inasistenciaByAlumno.setEstadoEnum(EstadoEnum.ACT);
-                        inasistenciaByAlumno.setHora(horarioSeccion.getHora());
-                        inasistenciaByAlumno.setMatriculaCurso(matriculaCurso);
-                        inasistenciaByAlumno.setTemaLeccion(temaLeccion);
-
-                        inasistenciaByAlumno.setFechaRegistro(today.toDate());
-                        inasistenciaByAlumno.setFechaModificacion(today.toDate());
-                        inasistenciaByAlumno.setUsuarioModificacion(usuario);
-                        inasistenciaByAlumno.setUsuarioRegistro(usuario);
-                        inasistenciaAlumnoDAO.save(inasistenciaByAlumno);
+                        inasistencia.setFechaRegistro(today.toDate());
+                        inasistencia.setUsuarioRegistro(ds.getUsuario());
+                        inasistencias.add(inasistencia);
                     }
                 }
 
             }
         }
 
+        return inasistencias;
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional
+    public void updateInasistencia(TemaLeccion temaLeccion, Docente docente, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+
+        TemaLeccion temaLeccionUpd = new TemaLeccion();
+        temaLeccionUpd.setId(temaLeccion.getId());
+        temaLeccionUpd.setTema(temaLeccion.getTema());
+        temaLeccionDAO.updateTema(temaLeccionUpd);
+
+        Curso curso = temaLeccion.getSeccion().getGrupoSeccion().getCurso();
+        List<MatriculaSeccion> matriculasSeccionForm = temaLeccion.getSeccion().getMatriculaSeccion();
+        List<MatriculaResumen> resumenes = matriculasSeccionForm.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
+        List<MatriculaCurso> matriculasCursosBD = matriculaCursoDAO.allByMatriculaResumenCurso(resumenes, curso);
+        Map<Long, MatriculaCurso> mapMatriculaCurso = TypesUtil.convertListToMap("matriculaResumen.id", matriculasCursosBD);
+
+        List<InasistenciaAlumno> inasistenciasForm = createInasistencias(temaLeccion, matriculasSeccionForm, mapMatriculaCurso, today, ds);
+        List<InasistenciaAlumno> inasistenciasDB = inasistenciaAlumnoDAO.allByTemaLeccion(temaLeccion);
+        ListsInspector inspector = TypesUtil.analizeLists(inasistenciasDB, inasistenciasForm, "key");
+
+        List<InasistenciaAlumno> inasistenciasNuevos = inspector.getNewList();
+        for (InasistenciaAlumno inasistencia : inasistenciasNuevos) {
+            inasistenciaAlumnoDAO.save(inasistencia);
+            MatriculaCurso matCurso = inasistencia.getMatriculaCurso();
+            matCurso.setInasistencias(matCurso.getInasistencias() + 1);
+            matriculaCursoDAO.updateInasistencias(matCurso);
+        }
+
+        List<InasistenciaAlumno> inasistenciasRepetidosBD = inspector.getOldListDB();
+        for (InasistenciaAlumno inasistencia : inasistenciasRepetidosBD) {
+            if (inasistencia.getEstadoEnum() != EstadoEnum.ACT) {
+                inasistencia.setEstadoEnum(EstadoEnum.ACT);
+                inasistencia.setFechaModificacion(today.toDate());
+                inasistencia.setUsuarioModificacion(ds.getUsuario());
+                inasistenciaAlumnoDAO.update(inasistencia);
+
+                MatriculaCurso matCurso = inasistencia.getMatriculaCurso();
+                matCurso.setInasistencias(matCurso.getInasistencias() + 1);
+                matriculaCursoDAO.updateInasistencias(matCurso);
+            }
+        }
+
+        List<InasistenciaAlumno> inasistenciasMuertos = inspector.getDeadList();
+        for (InasistenciaAlumno inasistencia : inasistenciasMuertos) {
+            if (inasistencia.getEstadoEnum() != EstadoEnum.ANU) {
+                inasistencia.setEstadoEnum(EstadoEnum.ANU);
+                inasistencia.setFechaModificacion(today.toDate());
+                inasistencia.setUsuarioModificacion(ds.getUsuario());
+                inasistenciaAlumnoDAO.update(inasistencia);
+
+                MatriculaCurso matCurso = inasistencia.getMatriculaCurso();
+                matCurso.setInasistencias(matCurso.getInasistencias() - 1);
+                matriculaCursoDAO.updateInasistencias(matCurso);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
     public void saveReprogramacion(LeccionReprogramada leccionReprogramada, Usuario usuario, Docente docente, CicloAcademico cicloAcademico) {
         DateTime today = new DateTime();
         DateTime fechaReprogramada = new DateTime(leccionReprogramada.getFechaReprogramada());
@@ -456,19 +456,27 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
     public List<GrupoSeccion> allGposSeccionesByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
 
         List<GrupoSeccion> gruposSecciones = grupoSeccionDAO.allActivosByDocenteCiclo(docente, ciclo);
-        List<Seccion> seccionesTodos = seccionDAO.allActivosByGposSeccion(gruposSecciones);
-        List<DocenteSeccion> profesSeccionesTodos = docenteSeccionDAO.allActivosBySecciones(seccionesTodos);
-        Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", seccionesTodos);
-        Map<Long, List<DocenteSeccion>> mapProfeSecciones = TypesUtil.convertListToMapList("seccion.id", profesSeccionesTodos);
+        List<Seccion> secciones = seccionDAO.allActivosByGposSeccion(gruposSecciones);
+        List<DocenteSeccion> profesoresSecciones = docenteSeccionDAO.allActivosBySecciones(secciones);
+        List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allBySecciones(secciones);
+
+        Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
+        Map<Long, List<DocenteSeccion>> mapProfeSecciones = TypesUtil.convertListToMapList("seccion.id", profesoresSecciones);
+        Map<Long, List<HorarioSeccion>> mapHorariosSecciones = TypesUtil.convertListToMapList("seccion.id", horariosSecciones);
 
         for (GrupoSeccion gpoSecc : gruposSecciones) {
-            List<Seccion> secciones = mapSecciones.get(gpoSecc.getId());
-            gpoSecc.setSecciones(secciones);
-            for (Seccion seccion : secciones) {
-                List<DocenteSeccion> profesSecciones = mapProfeSecciones.get(seccion.getId());
-                seccion.setDocenteSeccion(profesSecciones);
+            List<Seccion> seccionesGpo = TypesUtil.getListNotNull(mapSecciones.get(gpoSecc.getId()));
+            gpoSecc.setSecciones(seccionesGpo);
+            for (Seccion seccion : seccionesGpo) {
+                List<HorarioSeccion> horariosSeccion = TypesUtil.getListNotNull(mapHorariosSecciones.get(seccion.getId()));
+                seccion.setHorarioSeccion(horariosSeccion);
+
+                List<DocenteSeccion> profesSeccion = TypesUtil.getListNotNull(mapProfeSecciones.get(seccion.getId()));
+                seccion.setDocenteSeccion(profesSeccion);
             }
         }
+        
+        Collections.sort(gruposSecciones, new GrupoSeccion.CompareNombreCurso());
 
         return gruposSecciones;
 

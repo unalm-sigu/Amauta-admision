@@ -9,12 +9,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -24,10 +27,13 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
+    @Autowired
+    HorarioSeccionDAO horarioSeccionDAO;
 
     @Override
     public List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo) {
         Map<Long, GrupoSeccion> mapGpoSecc = new LinkedHashMap();
+        List<Seccion> secciones = new ArrayList();
 
         List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosByDocenteCiclo(docente, ciclo);
         for (DocenteSeccion profeSecc : profeSecciones) {
@@ -42,7 +48,18 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 gpoSecc.setSecciones(new ArrayList());
             }
             gpoSecc.getSecciones().add(secc);
+            secc.setGrupoSeccion(gpoSecc);
+            secciones.add(secc);
         }
+
+        List<HorarioSeccion> horarios = horarioSeccionDAO.allBySecciones(secciones);
+        Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horarios);
+
+        for (Seccion secc : secciones) {
+            List<HorarioSeccion> horariosSeccion = TypesUtil.getListNotNull(mapHorarios.get(secc.getId()));
+            secc.setHorarioSeccion(horariosSeccion);
+        }
+
         return new ArrayList(mapGpoSecc.values());
     }
 

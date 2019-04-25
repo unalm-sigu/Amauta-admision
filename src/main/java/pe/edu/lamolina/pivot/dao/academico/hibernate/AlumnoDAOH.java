@@ -503,7 +503,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa")
-                .leftJoin("per.tipoDocumento td", "cicloActivo ci")
+                .leftJoin("per.tipoDocumento td", "cicloActivo ci", "planCurricular")
                 .leftJoin("modalidadEstudio me", "situacionAcademica situ")
                 .leftJoin("cicloIngreso cci")
                 .filter("car.id", carrera)

@@ -88,7 +88,7 @@ public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCur
     }
 
     @Override
-    public CursoOpcionalCurricula allByPlanCurricularAndCurso(PlanCurricular planCurricular, Curso curso) {
+    public CursoOpcionalCurricula findByPlanCurricularAndCurso(PlanCurricular planCurricular, Curso curso) {
         Octavia sql = Octavia.query()
                 .from(CursoOpcionalCurricula.class, "cc")
                 .join("curso cur", "planCurricular pc", "tipoCursoCurricula tcc")
@@ -96,6 +96,26 @@ public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCur
                 .filter("cur.id", curso);
 
         return find(sql);
+    }
+
+    @Override
+    public List<CursoOpcionalCurricula> allByPlanCurricular(List<PlanCurricular> planCurricular) {
+        Octavia sql = Octavia.query()
+                .from(CursoOpcionalCurricula.class, "cc")
+                .join("curso cur", "planCurricular pc", "tipoCursoCurricula tcc")
+                .in("pc.id", planCurricular);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoOpcionalCurricula> allNotPlanCurricularAndCurso(List<PlanCurricular> planesCurricular) {
+         Octavia sql = Octavia.query()
+                .from(CursoOpcionalCurricula.class, "cc")
+                .join("curso cur", "planCurricular pc", "tipoCursoCurricula tcc")
+                .notIn("pc.id", planesCurricular);
+
+        return all(sql);
     }
 
 }

@@ -15,4 +15,6 @@ public interface ResumenPlanCurricularDAO extends EasyDAO<ResumenPlanCurricular>
 
     List<ResumenPlanCurricular> allByPlan(PlanCurricular planBD);
 
+    public List<ResumenPlanCurricular> allByPlanes(List<PlanCurricular> planesAlumnos);
+
 }

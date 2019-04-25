@@ -7,7 +7,9 @@ import pe.edu.lamolina.model.academico.TemaLeccion;
 
 public interface InasistenciaAlumnoDAO extends EasyDAO<InasistenciaAlumno> {
 
-    List<InasistenciaAlumno> allByTemaLeccionActives(TemaLeccion temaCiclo);
+    List<InasistenciaAlumno> allActivosByTemaLeccion(TemaLeccion temaCiclo);
+
+    List<InasistenciaAlumno> allByTemaLeccion(TemaLeccion temaCiclo);
 
     void updateEstado(InasistenciaAlumno inasistenciaAlumno);
 

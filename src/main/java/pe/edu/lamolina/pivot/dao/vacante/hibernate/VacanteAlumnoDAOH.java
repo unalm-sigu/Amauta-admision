@@ -33,6 +33,7 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
                 .join("seccion se")
                 .leftJoin("alumno alu")
                 .in("se.id", secciones)
+                .filter("activo", 1)
                 .orderBy("seccion.id", "va.numero");
         return sql.all(getCurrentSession());
     }
@@ -43,6 +44,7 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
                 .from(VacanteAlumno.class, "va")
                 .join("seccion se")
                 .left("alumno alu")
+                .filter("activo", 1)
                 .filter("se.id", seccion);
         return sql.all(getCurrentSession());
     }
@@ -54,6 +56,7 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
                 .join("seccion se")
                 .left("alumno alu")
                 .filter("se.id", seccion)
+                .filter("activo", 1)
                 .in("va.estado", Arrays.asList(DISP, RSV, RSVR, OCUP));
         return sql.all(getCurrentSession());
     }
@@ -63,6 +66,7 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
         Octavia sql = Octavia.query()
                 .from(VacanteAlumno.class, "va")
                 .join("seccion se", "alumno alu")
+                .filter("activo", 1)
                 .filter("alu.id", alumno);
         return sql.all(getCurrentSession());
     }
@@ -109,6 +113,7 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
                 .from(VacanteAlumno.class, "va")
                 .join("seccion se", "alumno alu")
                 .filter("se.id", seccion)
+                .filter("activo", 1)
                 .filter("alu.id", alumno);
         return find(sql);
     }
