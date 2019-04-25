@@ -8,15 +8,15 @@
     <div layout:fragment="main">
         <header class="header b-b padder-lg">        
             <h2>Control de Asistencia <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
-            <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
-            <span class="block m-b"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>          
+            <span class="block h4 text-primary m-t-xxs m-b-xxs"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>    
+            <span class="block m-b"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>      
         </header>
 
         <section id="asistenciaAcademicaApp" class="wrapper-lg">
             <section class="panel">
                 <section class="panel-body">
 
-                    <raptor-table v-bind:url="URL_GRUPOS_SECCION" >
+                    <raptor-table v-bind:url="rutaListaGposSeccion" v-bind:searcher="false" v-bind:paginate="false">
 
                         <template scope="props">
                             <table class="table table-striped">
