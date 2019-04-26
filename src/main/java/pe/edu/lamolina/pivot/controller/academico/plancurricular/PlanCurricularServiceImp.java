@@ -1342,6 +1342,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         logger.debug("*********carrera {}", carrera.getId());
         List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
         logger.debug("*********planesCurricular {}", planesCurricular.size());
+       Assert.isFalse(planesCurricular.isEmpty(), "La especialización no cuenta con planes curriculares activos.");
         CicloAcademico cicloInicia = null;
         for (PlanCurricular plan : planesCurricular) {
             CicloAcademico cicloPlan = plan.getCicloInicioVigencia();
