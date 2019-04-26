@@ -3,9 +3,11 @@ package pe.edu.lamolina.pivot.controller.docente.ampliacionvacante;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -26,11 +29,14 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
@@ -75,6 +81,12 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -285,11 +297,21 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         }
     }
 
+    public void validarEventoAcademico(Date fecha, CicloAcademico cicloAcademico) {
+        DateTime fechaAudit = new DateTime(fecha);
+        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.MAT_AMP_DOC);
+
+        Assert.isTrue(eventoCicloAcademico != null, "El evento de ampliación de vacantes no configurado.");
+        Assert.isFalse(fechaAudit.isBefore(eventoCicloAcademico.getFechaInicioDateTime()) || fechaAudit.isAfter(eventoCicloAcademico.getFechaFinDateTime()),
+                "No se permite ampliar vacante en este momento");
+    }
+
     @Override
     @Transactional
     public void matricular(AmpliacionVacanteForm ampliacionVacanteForm, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         Seccion seccion = seccionDAO.find(ampliacionVacanteForm.getSeccion());
         logger.debug("seccion {} ", seccion.getId());
+        this.validarEventoAcademico(ds.getFechaAccionAudit(), ds.getCicloAcademico());
 
         GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
         Curso curso = grupoSeccion.getCurso();
@@ -359,6 +381,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
     @Override
     @Transactional
     public void aceptarSolicitudMatricula(MatriculaSeccion matriculaSeccion, DataSessionPivot ds) {
+        this.validarEventoAcademico(ds.getFechaAccionAudit(), ds.getCicloAcademico());
         matriculaSeccion = matriculaSeccionDAO.find(matriculaSeccion.getId());
         Seccion seccion = seccionDAO.find(matriculaSeccion.getSeccion());
 
@@ -406,6 +429,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
     @Override
     @Transactional
     public void rechazarSolicitudMatricula(MatriculaSeccion matriculaSeccion, DataSessionPivot ds) {
+        this.validarEventoAcademico(ds.getFechaAccionAudit(), ds.getCicloAcademico());
         matriculaSeccion = matriculaSeccionDAO.find(matriculaSeccion.getId());
         Seccion seccion = seccionDAO.find(matriculaSeccion.getSeccion());
 
