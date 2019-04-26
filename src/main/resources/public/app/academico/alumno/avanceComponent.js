@@ -95,7 +95,13 @@ Vue.component("avance-component", {
         },
         active(index) {
             let $vue = this;
-            let tabSize = $vue.showCiclo - 1;
+            let tabSize = 0;
+            if ($vue.cursosCurricula[0].numeroCiclo == 0) {
+                tabSize = $vue.showCiclo;
+            } else {
+                tabSize = $vue.showCiclo - 1;
+            }
+
             if (index === tabSize) {
                 return "active";
             }
@@ -131,6 +137,9 @@ Vue.component("avance-component", {
                 contentType: "application/json",
                 success: function (response) {
                     $vue.cursosCurricula = response.data.cursos;
+                    if ($vue.cursosCurricula[0].numeroCiclo == 0) {
+                        $vue.showCiclo = 0;
+                    }
                     $vue.ciclosCurricula = response.data.ciclos;
                     $vue.resumenAlumno = response.data.resumenAlumno;
                     $vue.resumenPlan = response.data.resumenPlan;

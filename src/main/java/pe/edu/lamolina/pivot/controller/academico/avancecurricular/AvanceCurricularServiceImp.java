@@ -190,9 +190,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
         List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
         for (CursoCurricula cursoCurricula : cursosCurricula) {
-            if (cursoCurricula.getNumeroCiclo() == 0) {
-                continue;
-            }
+          
             mapCursoCurricula.put(cursoCurricula.getId(), cursoCurricula);
             mapCursoCurriculaByCurso.put(cursoCurricula.getCurso().getId(), cursoCurricula);
         }

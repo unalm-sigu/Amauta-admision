@@ -1381,9 +1381,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         List<CursoCurricula> cursosCurri = cursoCurriculaDAO.allByPlanes(planes);
         for (CursoCurricula cursoCurr : cursosCurri) {
-            if (cursoCurr.getNumeroCiclo() == 0) {
-                continue;
-            }
+           
             PlanCurricular plan = cursoCurr.getPlanCurricular();
 
             List<CursoCurricula> cursosCurriculaPlan = mapCursoCurricula.get(plan.getId());
