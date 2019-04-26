@@ -44,6 +44,7 @@ import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
+import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
@@ -301,6 +302,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             gpoSeccNew.setHorasTeoria(horasTeoria);
             gpoSeccNew.setAnexoBoletin(gpoSeccOrigen.getAnexoBoletin());
             gpoSeccNew.setEstado(gpoSeccOrigen.getEstado());
+            gpoSeccNew.setTipoDictadoEnum(TipoDictadoGrupoSeccionEnum.SEM);
 
             grupoSeccionDAO.save(gpoSeccNew);
 
@@ -322,6 +324,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 seccNew.setReservados(0);
                 seccNew.setPrematriculados(0);
                 seccNew.setRetirados(0);
+                seccNew.setAmpliacionVacante(0);
                 seccNew.setGrupoHoras(seccOrigen.getGrupoHoras());
                 seccNew.setRestriccionCapa(seccOrigen.getRestriccionCapa());
                 seccNew.setFechaRegistro(today);

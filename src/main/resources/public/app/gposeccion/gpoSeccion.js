@@ -36,6 +36,7 @@ new Vue({
             id: 'modalCloneCiclo',
             title: 'Copiar Ciclo',
             header: true,
+            showaccept: true
         },
         seccionSelect: {},
         tipoRestriccion: '',
