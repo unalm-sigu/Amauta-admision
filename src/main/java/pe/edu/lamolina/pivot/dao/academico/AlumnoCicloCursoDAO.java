@@ -85,4 +85,6 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
     List<AlumnoCicloCurso> allOperativesPendingByYear(String year);
 
     Long countByAlumnoCiclo(AlumnoCiclo alumnoCiclo);
+
+    public void updateCurso(AlumnoCicloCurso cursosAprobado);
 }

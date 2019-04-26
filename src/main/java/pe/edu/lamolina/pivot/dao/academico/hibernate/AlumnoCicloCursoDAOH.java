@@ -510,4 +510,13 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
         this.update(octavia);
     }
 
+    @Override
+    public void updateCurso(AlumnoCicloCurso cursosAprobado) {
+        Octavia octavia = Octavia.update(AlumnoCicloCurso.class);
+        octavia.set(cursosAprobado, "tipoCursoCurricula");
+        octavia.set(cursosAprobado, "esEquivalente");
+        octavia.set(cursosAprobado, "cursoEquivalente");
+        this.update(octavia);
+    }
+
 }

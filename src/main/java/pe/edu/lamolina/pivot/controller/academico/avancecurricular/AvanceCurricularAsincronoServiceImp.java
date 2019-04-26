@@ -478,7 +478,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
         }
         for (AlumnoCicloCurso cursosAprobado : cursosAprobados) {
-            alumnoCicloCursoDAO.update(cursosAprobado);
+            alumnoCicloCursoDAO.updateCurso(cursosAprobado);
         }
 
     }
