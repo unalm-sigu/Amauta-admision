@@ -79,11 +79,15 @@ public class ConfiguracionTurnoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<EventoCicloAcademico> eventosCiclo = service.allEventoCiclo(ds.getCicloAcademico());
         List<ConfiguracionTurnosAtencion> configuraciones = service.allConfiguraciones(ds.getCicloAcademico());
+        ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
 
+        for (TipoMatriculaEnum d : TipoMatriculaEnum.values()) {
+            objNode.put(d.name(), d.getValue());
+        };
         model.addAttribute("eventos", createEventosCicloJson(eventosCiclo));
         model.addAttribute("configuraciones", createCfgTurnosAtencionJson(configuraciones));
         model.addAttribute("ciclo", createCicloJson(ds.getCicloAcademico()));
-        model.addAttribute("tipoMatricula", JsonHelper.enumToJson(TipoMatriculaEnum.values()));
+        model.addAttribute("tipoMatricula", objNode.toString());
 
         return "academico/matricula/matriculaConfiguracion";
     }

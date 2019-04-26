@@ -1,0 +1,184 @@
+<modal-vik ref="modalAmpliacionVacante"
+           v-bind="dataModalAmpliacionVacante"
+           v-bind:okaction="saveModalAmpliacionVacante"  >
+    <div slot="body">
+
+        <div class="thumbnail">
+
+
+            <p  v-if="seccion.tipoSeccion=='PCUR' " >
+                <b class=" text-primary">Teoría</b> 
+                {{seccion.seccionSuperior.codigo2?'Sección '+seccion.seccionSuperior.codigo2:''}} 
+                {{seccion.seccionSuperior.grupoHoras.codigo?'Grupo '+seccion.seccionSuperior.grupoHoras.codigo:''}} 
+                {{seccion.seccionSuperior.aula.codigo?'Aula '+seccion.seccionSuperior.aula.codigo:''}} 
+                {{seccion.seccionSuperior.aula.capacidadAula?'Capacidad '+seccion.seccionSuperior.aula.capacidadAula:''}}
+            </p>
+
+
+            <p>
+                <b v-if="seccion.tipoSeccion=='PCUR' " class=" text-primary">Práctica</b> 
+                <b v-if="seccion.tipoSeccion=='TCUR' " class=" text-primary">Teoría</b> 
+                <b v-if="seccion.tipoSeccion=='TEO' "  class=" text-primary">Teoría</b> 
+                <b v-if="seccion.tipoSeccion=='PRA' " class=" text-primary">Práctica</b> 
+                <b class=" text-primary">Práctica</b> 
+                {{seccion.codigo2?'Sección '+seccion.codigo2:''}} 
+                {{seccion.grupoHoras.codigo?'Grupo '+seccion.grupoHoras.codigo:''}} 
+                {{seccion.aula.codigo?'Aula '+seccion.aula.codigo:''}} 
+                {{seccion.aula.capacidadAula?'Capacidad '+seccion.aula.capacidadAula:''}}
+            </p>
+
+
+        </div>
+
+        <div class="row">
+
+            <div class="form-group col-sm-10">
+                <multiselect v-model='alumnoeleccionado'
+                             label='nombre'
+                             placeholder="Seleccione un alumno"
+                             deselect-label=""
+                             select-label=""
+                             track-by='id'
+                             v-bind:internal-search="false"
+                             v-bind:allow-empty="false"
+                             v-bind:options='alumnos'
+                             v-bind:hide-selected="true"
+                             v-bind:custom-label="labelAlumno"
+                             v-bind:loading="isLoadingAlumnos"
+                             v-on:search-change="searchAlumnos">
+
+                    <template slot="option" slot-scope="props">
+
+                        <span class="row">
+
+                            <div class="col-sm-2">
+                                <img style="min-height:  40px;max-height: 40px;min-width: 40px;max-width: 40px;"
+                                     onerror="this.src=APP.url('phobos/images/avatar.png');"
+                                     v-bind:src="props.option.persona.rutaFotoPostulante" 
+                                     class="img-circle" />
+                            </div>
+
+                            <div class="col-sm-5">
+                                <p class="text-primary block">{{props.option.persona.nombreCompleto}}</p> 
+                                <p class="block">{{props.option.codigo}}</p>
+                                <span v-if="props.option.situacion=='0' " class="text-xs bold text-danger">No Matriculable</span>
+                                <span v-if="props.option.situacion=='1' " class="text-xs bold text-primary">Matriculable</span>
+                            </div>
+
+                            <div  class="col-sm-5">
+                                <p class="block">{{props.option.carrera.nombre}}</p>
+                                <p v-if="props.option.carrera.facultad.nombre==props.option.carrera.nombre"></p>
+                                <p v-else="">{{props.option.carrera.facultad.nombre}}</p>
+                            </div>
+
+                        </span>
+
+                    </template>
+
+                </multiselect>
+                <input type="text" class="hide" required="" v-model="alumnoeleccionado.id"/>
+
+            </div>
+
+            <div v-if="alumnoeleccionado.situacion=='1' " class="form-group  col-sm-2">  
+                <button v-on:click="agregarAlumno" class="btn btn-primary btn-sm">Agregar</button>
+            </div>
+
+            <div v-if="alumnoeleccionado.situacion=='0' " class="col-sm-12">
+                <div class="alert alert-danger">
+                    <strong>No Matriculable</strong> {{alumnoeleccionado.motivoMatriculable}}
+                </div>
+            </div>
+
+        </div>
+
+        <table class="table table-condensed m-t-md">
+            <tbody>
+                <tr v-for="item in alumnoeleccionados">
+                    <td class="v-middle">
+                        <img style="min-height:  40px;max-height: 40px;min-width: 40px;max-width: 40px;"
+                             onerror="this.src=APP.url('phobos/images/avatar.png');"
+                             v-bind:src="item.persona.rutaFotoPostulante" 
+                             class="img-circle" />
+                    </td>
+                    <td class="col-sm-8 v-middle">
+                        <p class="text-primary block">{{item.persona.nombreCompleto}}</p> 
+                        {{item.codigo}}
+                        <span v-if="item.situacion=='0' " class="text-xs bold block text-danger">No Matriculable</span>
+                        <span v-if="item.situacion=='1' " class="text-xs bold block text-primary">Matriculable</span>
+                    </td>
+                    <td  class="col-sm-4  v-middle">
+                        <p class="block">{{item.carrera.nombre}}</p>
+                        <p v-if="item.carrera.facultad.nombre==item.carrera.nombre" class="block"></p>
+                        <p v-else="" class="block">{{item.carrera.facultad.nombre}}</p>
+                    </td>
+                    <td  class="v-middle">
+                        <a v-on:click.prevent="eliminarAlumno(item)" class="text-danger"  href="#">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>                            
+        </table>
+
+    </div>
+</modal-vik>
+
+<modal-vik ref="refModalAceptarSolicitud"
+           id="modalAceptarSolicitudId"
+           modalsize="modal-lg"
+           header="true">
+    <div slot="body">
+        <table class="table table-striped table-hover" v-if="solicitudesMatriculaSec">
+            <thead> 
+                <tr class=""> 
+                    <th class="col-md-3"></th>
+                    <th class="col-md-4 text-center">Alumno</th>
+                    <th class="col-md-4 text-center">Carrera</th>
+                    <th class="col-md-1 text-center"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="matSec in solicitudesMatriculaSec">
+
+                    <td class="v-middle padder-v" >
+                        <img style="min-height:  40px;max-height: 40px;min-width: 40px;max-width: 40px;"
+                             onerror="this.src=APP.url('phobos/images/avatar.png');"
+                             v-bind:src="matSec.matriculaResumen.alumno.persona.rutaFotoPostulante" 
+                             class="img-circle" />
+                    </td>
+
+                    <td class="v-middle text-center">
+                        <p class="text-primary block">{{matSec.matriculaResumen.alumno.persona.nombreCompleto}}</p> 
+                        <span class="text-xs bold block text-danger">{{matSec.estadoEnum.value}}</span>
+                    </td>
+
+                    <td class="text-center">
+                        <p class="block">{{matSec.matriculaResumen.alumno.carrera.nombre}}</p>
+                        <p v-if="matSec.matriculaResumen.alumno.carrera.facultad.nombre==matSec.matriculaResumen.alumno.carrera.nombre" class="block"></p>
+                        <p v-else="" class="block">{{matSec.matriculaResumen.alumno.carrera.facultad.nombre}}</p>
+                    </td>
+                    <td class="text-center">
+                        <div class="dropdown actions">
+                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="glyphicon glyphicon-cog"></i>
+                            </a> 
+                            <ul class="dropdown-menu pull-right"> 
+                                <li>
+                                    <a class="btn-link pointer"
+                                       v-on:click="aceptarSolicitud(matSec)">
+                                        Aceptar</a>
+                                </li>
+                                <li>
+                                    <a class="btn-link pointer"
+                                       v-on:click="rechazarSolicitud(matSec)">
+                                        Rechazar</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</modal-vik>

@@ -663,4 +663,13 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         this.update(sql);
     }
 
+    @Override
+    public void updateColumns(MatriculaResumen matriculaResumenUpd, String... columns) {
+        Octavia sql = Octavia.update(MatriculaResumen.class);
+        for (String column : columns) {
+            sql.set(matriculaResumenUpd, column);
+        }
+        this.update(sql);
+    }
+
 }

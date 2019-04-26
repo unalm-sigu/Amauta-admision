@@ -422,6 +422,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         List<TipoCursoCurriculaEnum> tipoCursoGENEnum = Arrays.asList(GEN, OBL);
         List<PlanCurricular> planCurriculars = planCurricularDAO.all();
+        cursoOpcionalCurriculas = cursoOpcionalCurriculas == null ? new ArrayList<>() : cursoOpcionalCurriculas;
         Map<Long, CursoOpcionalCurricula> mapCursoOpcional = TypesUtil.convertListToMap("curso.id", cursoOpcionalCurriculas);
         Set<String> codsCursosComodines = new HashSet(Arrays.asList("EG1006"));
         List<String> departamentos = Arrays.asList("ME", "OE", "FS");

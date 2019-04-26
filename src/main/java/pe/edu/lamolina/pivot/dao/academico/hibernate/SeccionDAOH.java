@@ -10,6 +10,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
@@ -627,6 +628,15 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         Octavia octavia = Octavia.update(Seccion.class);
         octavia.set(seccion, "matriculados");
         this.update(octavia);
+    }
+
+    @Override
+    public void updateColumns(Seccion seccion, String... columns) {
+        Octavia sql = Octavia.update(Seccion.class, "se");
+        for (String column : columns) {
+            sql.set(seccion, column);
+        }
+        this.update(sql);
     }
 
 }

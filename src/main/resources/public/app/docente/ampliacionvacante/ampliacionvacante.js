@@ -17,7 +17,8 @@ var app = new Vue({
         alumnos: [],
         alumnoeleccionado: {},
         alumnoeleccionados: [],
-        isLoadingAlumnos: false
+        isLoadingAlumnos: false,
+        solicitudesMatriculaSec: []
     },
     created: function () {
         let $vue = this;
@@ -54,8 +55,8 @@ var app = new Vue({
                 data: JSON.stringify($vue.formm),
                 success(response) {
                     if (response.success) {
-                        $vue.$refs.modalAmpliacionVacante.close();
                         $vue.$refs.raptor.repreload();
+                        $vue.$refs.modalAmpliacionVacante.open();
                     } else {
                         notify(response.message, "error");
                     }
@@ -119,6 +120,73 @@ var app = new Vue({
         eliminarAlumno(alumno) {
             let $vue = this;
             $vue.alumnoeleccionados.splice($vue.alumnoeleccionados.indexOf(alumno), 1);
+        },
+        showModalSolicitudes(seccion) {
+            console.log("la seccion es")
+            console.dir(seccion);
+            let $vue = this;
+            $vue.solicitudesMatriculaSec = [];
+            $vue.$refs.refModalAceptarSolicitud.title = 'Solicitudes de la Sección ' + seccion.codigo2;
+            $.ajax({
+                url: APP.url('docente/ampliacionvacante/loadModalSolicitudes'),
+                type: 'POST',
+                dataType: 'json',
+                contentType: "application/json",
+                data: JSON.stringify(seccion),
+                success(response) {
+                    if (response.success) {
+                        $vue.solicitudesMatriculaSec = response.data;
+                        $vue.$refs.refModalAceptarSolicitud.open();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        }, aceptarSolicitud(matSeccion) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url('docente/ampliacionvacante/aceptarSolicitudMatricula'),
+                type: 'POST',
+                dataType: 'json',
+                contentType: "application/json",
+                data: JSON.stringify(matSeccion),
+                success(response) {
+                    if (response.success) {
+                        $vue.solicitudesMatriculaSec = response.data;
+                        $vue.$refs.raptor.repreload();
+                        // $vue.$refs.refModalAceptarSolicitud.open();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        }, rechazarSolicitud(matSeccion) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url('docente/ampliacionvacante/rechazarSolicitudMatricula'),
+                type: 'POST',
+                dataType: 'json',
+                contentType: "application/json",
+                data: JSON.stringify(matSeccion),
+                success(response) {
+                    if (response.success) {
+                        $vue.solicitudesMatriculaSec = response.data;
+                        $vue.$refs.raptor.repreload();
+                        // $vue.$refs.refModalAceptarSolicitud.open();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     }
 });
