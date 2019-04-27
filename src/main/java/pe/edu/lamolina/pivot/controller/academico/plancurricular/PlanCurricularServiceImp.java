@@ -1347,16 +1347,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         logger.debug("*********planesCurricular {}", planesCurricular.size());
         Assert.isFalse(planesCurricular.isEmpty(), "La especialización no cuenta con planes curriculares activos.");
         CicloAcademico cicloInicia = null;
-        for (PlanCurricular plan : planesCurricular) {
-            CicloAcademico cicloPlan = plan.getCicloInicioVigencia();
-            if (cicloInicia == null) {
-                cicloInicia = cicloPlan;
-                continue;
-            }
-            if (cicloInicia.getCodigo().compareTo(cicloPlan.getCodigo()) == -1) {
-                cicloInicia = cicloPlan;
-            }
-        }
+        cicloInicia = planesCurricular.stream().map(x -> x.getCicloInicioVigencia()).min(Comparator.comparing(CicloAcademico::getCodigo)).get();
+        logger.debug("*********Ciclo Inicia {}", cicloInicia.getCodigo());
 
         List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
         visorAsignaCurricula.putTope(carrera, alumnos.size() * 2);
