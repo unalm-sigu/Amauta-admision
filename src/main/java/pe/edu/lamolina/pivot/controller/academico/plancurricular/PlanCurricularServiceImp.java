@@ -1201,6 +1201,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         CicloAcademico cicloInicia = null;
         cicloInicia = planesCurricular.stream().map(x->x.getCicloInicioVigencia()).min(Comparator.comparing(CicloAcademico::getCodigo)).get();
+        
 //        for (PlanCurricular plan : planesCurricular) {
 //            CicloAcademico cicloPlan = plan.getCicloInicioVigencia();
 //            if (cicloInicia == null) {
