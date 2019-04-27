@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -1199,16 +1200,17 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
 
         CicloAcademico cicloInicia = null;
-        for (PlanCurricular plan : planesCurricular) {
-            CicloAcademico cicloPlan = plan.getCicloInicioVigencia();
-            if (cicloInicia == null) {
-                cicloInicia = cicloPlan;
-                continue;
-            }
-            if (cicloInicia.getCodigo().compareTo(cicloPlan.getCodigo()) == -1) {
-                cicloInicia = cicloPlan;
-            }
-        }
+        cicloInicia = planesCurricular.stream().map(x->x.getCicloInicioVigencia()).min(Comparator.comparing(CicloAcademico::getCodigo)).get();
+//        for (PlanCurricular plan : planesCurricular) {
+//            CicloAcademico cicloPlan = plan.getCicloInicioVigencia();
+//            if (cicloInicia == null) {
+//                cicloInicia = cicloPlan;
+//                continue;
+//            }
+//            if (cicloInicia.getCodigo().compareTo(cicloPlan.getCodigo()) == -1) {
+//                cicloInicia = cicloPlan;
+//            }
+//        }
 
         Map<String, PlanCurricular> mapPlanesByCiclo = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", planesCurricular);
 
@@ -1237,7 +1239,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         List<CursoOpcionalCurricula> cursoOpcionalCurriculas = cursoOpcionalCurriculaDAO.allByPlanCurricular(planesCurricular);
         Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcional = TypesUtil.convertListToMapList("planCurricular.id", cursoOpcionalCurriculas);
-       
+
         List<CursoOpcionalCurricula> cursoOpcionalAllPlanes = cursoOpcionalCurriculaDAO.allNotPlanCurricularAndCurso(planesCurricular);
         Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll = TypesUtil.convertListToMapList("planCurricular.id", cursoOpcionalAllPlanes);
 
@@ -1342,7 +1344,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         logger.debug("*********carrera {}", carrera.getId());
         List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
         logger.debug("*********planesCurricular {}", planesCurricular.size());
-       Assert.isFalse(planesCurricular.isEmpty(), "La especialización no cuenta con planes curriculares activos.");
+        Assert.isFalse(planesCurricular.isEmpty(), "La especialización no cuenta con planes curriculares activos.");
         CicloAcademico cicloInicia = null;
         for (PlanCurricular plan : planesCurricular) {
             CicloAcademico cicloPlan = plan.getCicloInicioVigencia();
@@ -1381,7 +1383,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         List<CursoCurricula> cursosCurri = cursoCurriculaDAO.allByPlanes(planes);
         for (CursoCurricula cursoCurr : cursosCurri) {
-           
+
             PlanCurricular plan = cursoCurr.getPlanCurricular();
 
             List<CursoCurricula> cursosCurriculaPlan = mapCursoCurricula.get(plan.getId());

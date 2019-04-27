@@ -98,7 +98,7 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .from(PlanCurricular.class, "pc")
                 .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
                 .left("cicloInicioVigencia cic", "orientacionCarrera ocar")
-                .filter("estado", EstadoEnum.ACT)
+//                .filter("estado", EstadoEnum.ACT)
                 .filter("carrera", carrera);
         return all(sql);
     }
