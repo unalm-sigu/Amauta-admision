@@ -320,7 +320,7 @@ public class NotaAcademicaController {
                                 evaluacionNieta.getId(),
                                 evaluacionNieta.getTipoEvaluacion().getNombre() + " " + evaluacionNieta.getNumero(),
                                 evaluacionNieta.getPeso());
-
+                        evaluacionNieta.setEvaluacionesExpandidas(new ArrayList<>()); //las nietas no tienen hijos
                         ObjectNode nodeNieta = castEvaluacionExpandida(evaluacionNieta);
                         nodeNieta.put("editarPorcentaje", false);
                         nodeNieta.put("esNieto", true);
