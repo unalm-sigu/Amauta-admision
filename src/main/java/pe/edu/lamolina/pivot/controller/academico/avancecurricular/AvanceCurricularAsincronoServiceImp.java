@@ -254,7 +254,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     }
 
                     sum = tmp + prevCreditos;
-                    if (sum > resumenPlanCurricular.getCreditos() || (tipo == ELE && resumenPlanCurricularELE.getCreditos() == 0)) {
+                    if ((resumenPlanCurricular != null && sum > resumenPlanCurricular.getCreditos())
+                            || (resumenPlanCurricularELE != null && tipo == ELE && resumenPlanCurricularELE.getCreditos() == 0)) {
                         tipo = EEP;
                         prevCreditos = creditos.get(tipo);
                         prevCreditos += curso.getCreditos();
