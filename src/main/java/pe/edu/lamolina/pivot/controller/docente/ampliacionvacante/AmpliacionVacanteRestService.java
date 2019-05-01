@@ -8,4 +8,10 @@ public interface AmpliacionVacanteRestService {
 
     JsonResponse validarAmpliacionVacante(MatriculaSeccion matriculaSeccion, DataSessionPivot ds);
 
+    JsonResponse matricularAmpliacionVacante(MatriculaSeccion matriculaSeccion, DataSessionPivot ds);
+
+    JsonResponse confirmarAmpliacionVacante(MatriculaSeccion matriculaSeccion, DataSessionPivot ds);
+
+    JsonResponse solicitarAmpliacionVacante(MatriculaSeccion matriculaSeccion, DataSessionPivot ds);
+
 }
