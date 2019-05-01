@@ -285,6 +285,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Integer cred = 0;
         Integer credCarrera = 0;
         Integer cur = 0;
+        Integer curCarrera = 0;
         for (TipoCursoCurricula tipo : tipos.values()) {
             AlumnoAvanceCurricular avance = avances.get(tipo.getCodigoEnum());
             if (avance == null) {
@@ -300,9 +301,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             cur = cur + cursos.get(tipo.getCodigoEnum());
             if (tipo.getCodigoEnum() != EEP) {
                 credCarrera = credCarrera + creditos.get(tipo.getCodigoEnum());
+                curCarrera = +cursos.get(tipo.getCodigoEnum());
             }
         }
-
+        alumno.setCursosCarreraAprobados(curCarrera);
         alumno.setCreditosAprobados(cred);
         alumno.setCreditosCarreraAprobados(credCarrera);
         alumno.setCursosAprobados(cur);
