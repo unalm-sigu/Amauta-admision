@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -942,9 +943,10 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     @Transactional
     public void beneficiar(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        ObjectUtil.eliminarAttrSinId(matriculaResumen);
         matriculaResumen.setEsBeneficiadoUltimoCiclo(true);
         matriculaResumen.setFechaBeneficiadoUtlCiclo(new Date());
-        matriculaResumenDAO.update(matriculaResumen);
+        matriculaResumenDAO.updateBeneficiado(matriculaResumen);
     }
 
 }

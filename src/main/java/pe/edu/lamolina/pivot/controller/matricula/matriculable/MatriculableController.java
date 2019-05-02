@@ -147,7 +147,7 @@ public class MatriculableController {
             for (MatriculaResumen matriculable : matriculables) {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable",
+                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo",
                             "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",
                             "promedioSemestral",
@@ -534,7 +534,7 @@ public class MatriculableController {
         try {
 
             service.beneficiar(matriculaResumen, ds);
-            response.setMessage("Se verificó satisfactoriamente.");
+            response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
