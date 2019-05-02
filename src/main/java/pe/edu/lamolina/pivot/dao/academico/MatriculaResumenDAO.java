@@ -75,4 +75,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
     void updateCreditos(MatriculaResumen matri);
 
     void updateColumns(MatriculaResumen matriculaResumenUpd, String... columns);
+
+    public void updateBeneficiado(MatriculaResumen matriculaResumen);
 }
