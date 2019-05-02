@@ -87,7 +87,8 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
         json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.SOL.name());
         String url = String.format("%s/matriculaSeccion/solicitud",
                 parametro.getValor());
-
+        System.out.println("url: " + url);
+        
         return this.postToBackEnd(url, json);
     }
 
