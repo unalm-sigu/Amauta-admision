@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
+import pe.edu.lamolina.model.enums.AmpliacionVacanteOperacionEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.seguridad.Sistema;
@@ -32,8 +32,59 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
         Parametro parametro = this.findParametro();
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
-        json.put("idMatriculaSeccion", "");
+        json.put("seccion", matriculaSeccion.getSeccion().getId());
+        json.put("alumno", matriculaSeccion.getMatriculaResumen().getAlumno().getId());
+        json.put("usuario", ds.getUsuario().getId());
+        json.put("docente", ds.getDocente().getId());
+        json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.MAT.name());
+        String url = String.format("%s/matriculaSeccion/solicitud",
+                parametro.getValor());
 
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse matricularAmpliacionVacante(MatriculaSeccion matriculaSeccion, DataSessionPivot ds) {
+        Parametro parametro = this.findParametro();
+
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("seccion", matriculaSeccion.getSeccion().getId());
+        json.put("alumno", matriculaSeccion.getMatriculaResumen().getAlumno().getId());
+        json.put("usuario", ds.getUsuario().getId());
+        json.put("docente", ds.getDocente().getId());
+        json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.MAT.name());
+        String url = String.format("%s/matriculaSeccion/solicitud",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse confirmarAmpliacionVacante(MatriculaSeccion matriculaSeccion, DataSessionPivot ds) {
+        Parametro parametro = this.findParametro();
+
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("seccion", matriculaSeccion.getSeccion().getId());
+        json.put("alumno", matriculaSeccion.getMatriculaResumen().getAlumno().getId());
+        json.put("usuario", ds.getUsuario().getId());
+        json.put("docente", ds.getDocente().getId());
+        json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.CONF.name());
+        String url = String.format("%s/matriculaSeccion/solicitud",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse solicitarAmpliacionVacante(MatriculaSeccion matriculaSeccion, DataSessionPivot ds) {
+        Parametro parametro = this.findParametro();
+
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("seccion", matriculaSeccion.getSeccion().getId());
+        json.put("alumno", matriculaSeccion.getMatriculaResumen().getAlumno().getId());
+        json.put("usuario", ds.getUsuario().getId());
+        json.put("docente", ds.getDocente().getId());
+        json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.SOL.name());
         String url = String.format("%s/matriculaSeccion/solicitud",
                 parametro.getValor());
 

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -27,6 +28,7 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
@@ -187,27 +189,20 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                 continue;
             }
 
-            /* AlumnoCursoCurricula alumnoCursoCurricula = alumnosCursoCurriculaMap.get(alumno.getId());
+            AlumnoCursoCurricula alumnoCursoCurricula = alumnosCursoCurriculaMap.get(alumno.getId());
 
             if (alumnoCursoCurricula == null) {
-                alumno.setMotivoMatriculable("No cumple requisito");
+                alumno.setMotivoMatriculable("Curso no disponible en su curricula en este momento.");
                 continue;
             }
 
-            if (alumnoCursoCurricula.getEstadoEnum() == CursoCurriculaEstadoEnum.APR) {
-                alumno.setMotivoMatriculable("Ya aprobó");
+            if (!Arrays.asList(
+                    CursoCurriculaEstadoEnum.HAB,
+                    CursoCurriculaEstadoEnum.SIM,
+                    CursoCurriculaEstadoEnum.SUL).contains(alumnoCursoCurricula.getEstadoEnum())) {
+                alumno.setMotivoMatriculable("El curso no cumple requisito en su curricula.");
                 continue;
             }
-
-            if (alumnoCursoCurricula.getEstadoEnum() == CursoCurriculaEstadoEnum.NREQ) {
-                alumno.setMotivoMatriculable("No cumple requisito");
-                continue;
-            }
-
-            if (!Arrays.asList(CursoCurriculaEstadoEnum.HAB, CursoCurriculaEstadoEnum.SIM).contains(alumnoCursoCurricula.getEstadoEnum())) {
-                alumno.setMotivoMatriculable("No cumple requisito");
-                continue;
-            }*/
             alumno.setSituacion("1");
         }
 
@@ -291,8 +286,9 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             matriculaSeccionDAO.save(matriculaSeccionTCUR);
 
             //validar con el rest solicitud a matricula
-            this.calcularSeccionInfoMatriculas(seccion);
-            this.calcularSeccionInfoMatriculas(seccionTCUR);
+            ampliacionVacanteRestService.solicitarAmpliacionVacante(matriculaSeccion, ds);
+            //this.calcularSeccionInfoMatriculas(seccion);
+            //this.calcularSeccionInfoMatriculas(seccionTCUR);
             this.calcularMatriculaResumenInfoMatriculas(matriculaResumen, EstadoMatriculaEnum.MAT);
         }
     }
@@ -363,11 +359,16 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                     ds.getUsuario(),
                     ds.getFechaAccionAudit());
             matriculaSeccion.setEsAmpliacionVacante(Boolean.TRUE);
-            matriculaSeccionDAO.save(matriculaSeccion);
 
-            //HERE validar con el rest aeptar matricula
-            this.calcularSeccionInfoMatriculas(seccion);
-            this.calcularMatriculaResumenInfoMatriculas(matriculaResumen, EstadoMatriculaEnum.MAT);
+            JsonResponse responseRest = ampliacionVacanteRestService.matricularAmpliacionVacante(matriculaSeccion, ds);
+            if (responseRest.getSuccess()) {
+                matriculaSeccionDAO.save(matriculaSeccion);
+                //HERE validar con el rest aeptar matricula
+                //   this.calcularSeccionInfoMatriculas(seccion);
+                this.calcularMatriculaResumenInfoMatriculas(matriculaResumen, EstadoMatriculaEnum.MAT);
+            } else {
+                throw new PhobosException("Error en el rest");
+            }
         }
     }
 
@@ -408,9 +409,9 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             MatriculaSeccion matriculaSeccionPCUR = matriculaSeccionDAO.findByMatResumenAndTipoSecAndNoEstado(matriculaCurso.getMatriculaResumen(), TipoSeccionEnum.PCUR, EstadoMatriculaEnum.RHZ);
             this.aceptarMatriculaSeccion(matriculaSeccionPCUR, ds);
         }
-        //consultar el rest a pivot
 
-        this.calcularSeccionInfoMatriculas(seccion);
+        ampliacionVacanteRestService.confirmarAmpliacionVacante(matriculaSeccion, ds);
+        //this.calcularSeccionInfoMatriculas(seccion);
         this.calcularMatriculaResumenInfoMatriculas(matriculaCurso.getMatriculaResumen(), EstadoMatriculaEnum.MAT);
         //      throw new PhobosException("no pasaras papu");
     }
