@@ -57,7 +57,7 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
 
         return this.postToBackEnd(url, json);
     }
-
+ 
     @Override
     public JsonResponse confirmarAmpliacionVacante(MatriculaSeccion matriculaSeccion, boolean esDocenteTCUR, DataSessionPivot ds) {
         Parametro parametro = this.findParametro();

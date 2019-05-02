@@ -164,27 +164,27 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
         for (Alumno alumno : alumnos) {
 
-            MatriculaResumen matricula = matriculasMap.get(alumno.getId());
+            MatriculaResumen matriculaResumen = matriculasMap.get(alumno.getId());
             alumno.setMotivoMatriculable("No cuenta con registro en matricula para el presente ciclo académico");
 
             alumno.setSituacion("0");
-            if (matricula == null) {
+            if (matriculaResumen == null) {
                 continue;
             }
 
-            if (!Arrays.asList(EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.NMAT).contains(matricula.getEstadoEnum())) {
+            if (!Arrays.asList(EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.NMAT).contains(matriculaResumen.getEstadoEnum())) {
                 alumno.setMotivoMatriculable("No matriculable");
                 continue;
             }
 
-            MatriculaCurso matriculaCurso = matriculaCursosMap.get(matricula.getId());
+            MatriculaCurso matriculaCurso = matriculaCursosMap.get(matriculaResumen.getId());
 
             if (matriculaCurso != null && matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
                 alumno.setMotivoMatriculable("Ya se matriculó");
                 continue;
             }
 
-            MatriculaSeccion matriculaSeccion = matriculaSeccionesMap.get(matricula.getId());
+            MatriculaSeccion matriculaSeccion = matriculaSeccionesMap.get(matriculaResumen.getId());
             if (matriculaSeccion != null) {
                 alumno.setMotivoMatriculable("Ya se matriculó");
                 continue;
