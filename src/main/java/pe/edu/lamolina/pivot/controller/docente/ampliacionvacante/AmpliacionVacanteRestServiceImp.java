@@ -7,7 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.AmpliacionVacanteOperacionEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
@@ -44,12 +47,12 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
     }
 
     @Override
-    public JsonResponse matricularAmpliacionVacante(MatriculaSeccion matriculaSeccion, DataSessionPivot ds) {
+    public JsonResponse matricularAmpliacionVacante(Seccion seccion, Alumno alumno, DataSessionPivot ds) {
         Parametro parametro = this.findParametro();
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
-        json.put("seccion", matriculaSeccion.getSeccion().getId());
-        json.put("alumno", matriculaSeccion.getMatriculaResumen().getAlumno().getId());
+        json.put("seccion", seccion.getId());
+        json.put("alumno", alumno.getId());
         json.put("usuario", ds.getUsuario().getId());
         json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.MAT.name());
         String url = String.format("%s/matriculaSeccion/solicitud",
@@ -57,7 +60,7 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
 
         return this.postToBackEnd(url, json);
     }
- 
+
     @Override
     public JsonResponse confirmarAmpliacionVacante(MatriculaSeccion matriculaSeccion, boolean esDocenteTCUR, DataSessionPivot ds) {
         Parametro parametro = this.findParametro();
@@ -101,12 +104,12 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
     }
 
     @Override
-    public JsonResponse solicitarAmpliacionVacante(MatriculaSeccion matriculaSeccion, boolean esDocenteTCUR, DataSessionPivot ds) {
+    public JsonResponse solicitarAmpliacionVacante(Seccion seccion, Alumno alumno, boolean esDocenteTCUR, DataSessionPivot ds) {
         Parametro parametro = this.findParametro();
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
-        json.put("seccion", matriculaSeccion.getSeccion().getId());
-        json.put("alumno", matriculaSeccion.getMatriculaResumen().getAlumno().getId());
+        json.put("seccion", seccion.getId());
+        json.put("alumno", alumno.getId());
         json.put("usuario", ds.getUsuario().getId());
         json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.SOL.name());
         json.put("esDocenteTCUR", esDocenteTCUR);

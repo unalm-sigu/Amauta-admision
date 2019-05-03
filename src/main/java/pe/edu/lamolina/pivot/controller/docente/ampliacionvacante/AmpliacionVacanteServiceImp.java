@@ -253,7 +253,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
             if (matriculaCurso == null) {
                 matriculaCurso = new MatriculaCurso(curso, matriculaResumen, EstadoMatriculaEnum.SOL);
-                matriculaCursoDAO.save(matriculaCurso);
+                //  matriculaCursoDAO.save(matriculaCurso);
             } else {
                 Assert.isFalse(matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.MAT,
                         String.format("alumno %S ya se matriculo", alumno.getPersona().getApellidosNombres()));
@@ -262,6 +262,21 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                 Assert.isTrue(Arrays.asList(EstadoMatriculaEnum.RET, EstadoMatriculaEnum.NVAC).contains(matriculaCurso.getEstadoEnum()),
                         String.format("alumno %S no es matriculable", alumno.getPersona().getApellidosNombres()));
 
+                matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.SOL);
+                //   matriculaCursoDAO.update(matriculaCurso);
+            }
+            String tipoAmpliacion = null;
+            if (!seccionTCUR.getDocentePrincipal().equals(seccionPCUR.getDocentePrincipal())) {
+                JsonResponse response = ampliacionVacanteRestService.solicitarAmpliacionVacante(seccionPCUR, matriculaResumen.getAlumno(), isDocentePrincipalTcurLogged, ds);
+                tipoAmpliacion = (String) response.getData();
+            } else {
+                ampliacionVacanteRestService.matricularAmpliacionVacante(seccionPCUR, matriculaResumen.getAlumno(), ds);
+            }
+
+            if (matriculaCurso.getId() == null) {
+                matriculaCurso = new MatriculaCurso(curso, matriculaResumen, EstadoMatriculaEnum.SOL);
+                matriculaCursoDAO.save(matriculaCurso);
+            } else {
                 matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.SOL);
                 matriculaCursoDAO.update(matriculaCurso);
             }
@@ -285,15 +300,9 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             matriculaSeccionDAO.save(matriculaSeccionTCUR);
 
             if (!seccionTCUR.getDocentePrincipal().equals(seccionPCUR.getDocentePrincipal())) {
-                //validar con el rest solicitud a matricula
-                JsonResponse response = ampliacionVacanteRestService.solicitarAmpliacionVacante(matriculaSeccionPCUR, isDocentePrincipalTcurLogged, ds);
-                String tipoAmpliacion = (String) response.getData();
-
                 matriculaSeccionPCUR = matriculaSeccionDAO.find(matriculaSeccionPCUR.getId());
                 matriculaSeccionPCUR.setTipoAmpliacionEnum(TipoAmpliacionEnum.valueOf(tipoAmpliacion));
                 matriculaSeccionDAO.update(matriculaSeccionPCUR);
-            } else {
-                ampliacionVacanteRestService.matricularAmpliacionVacante(matriculaSeccionPCUR, ds);
             }
             this.calcularMatriculaResumenInfoMatriculas(matriculaResumen, EstadoMatriculaEnum.MAT);
         }
@@ -373,7 +382,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                     ds.getFechaAccionAudit());
             matriculaSeccion.setEsAmpliacionVacante(Boolean.TRUE);
 
-            JsonResponse responseRest = ampliacionVacanteRestService.matricularAmpliacionVacante(matriculaSeccion, ds);
+            JsonResponse responseRest = ampliacionVacanteRestService.matricularAmpliacionVacante(seccion, matriculaResumen.getAlumno(), ds);
             if (responseRest.getSuccess()) {
                 matriculaSeccionDAO.save(matriculaSeccion);
                 this.calcularMatriculaResumenInfoMatriculas(matriculaResumen, EstadoMatriculaEnum.MAT);
