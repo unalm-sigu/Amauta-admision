@@ -672,4 +672,12 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         this.update(sql);
     }
 
+    @Override
+    public void updateBeneficiado(MatriculaResumen matriculaResumen) {
+    Octavia octavia = Octavia.update(MatriculaResumen.class);
+        octavia.set(matriculaResumen, "esBeneficiadoUltimoCiclo");
+        octavia.set(matriculaResumen, "fechaBeneficiadoUtlCiclo");
+        this.update(octavia);
+    }
+
 }

@@ -34,6 +34,7 @@ public class RolExamenesLogger {
     }
 
     public void iniciarCursoMasivo() {
+        this.cruce = false;
         this.tipo = TipoRolExamenesLoggerEnum.CUR_MAS.name();
         this.message = "Calculo de " + this.getTipoEnum().getValue();
         this.running = true;

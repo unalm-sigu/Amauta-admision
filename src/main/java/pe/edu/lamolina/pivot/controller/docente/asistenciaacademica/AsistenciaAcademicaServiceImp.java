@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.asistenciaacademica;
+package pe.edu.lamolina.pivot.controller.docente.asistenciaacademica;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;

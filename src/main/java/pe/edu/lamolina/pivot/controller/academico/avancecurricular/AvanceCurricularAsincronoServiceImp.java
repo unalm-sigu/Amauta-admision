@@ -283,7 +283,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             alumnoCursoNew.add(alumnoCursoCurricula);
         }
         Integer cred = 0;
+        Integer credCarrera = 0;
         Integer cur = 0;
+        Integer curCarrera = 0;
         for (TipoCursoCurricula tipo : tipos.values()) {
             AlumnoAvanceCurricular avance = avances.get(tipo.getCodigoEnum());
             if (avance == null) {
@@ -295,13 +297,16 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             avance.setCursos(cursos.get(tipo.getCodigoEnum()));
             System.out.println("Avance " + avance.getTipoCursoCurricula().getCodigo() + " - " + avance.getCreditos() + " - " + avance.getCursos());
             avanceCurricularDAO.save(avance);
+            cred = cred + creditos.get(tipo.getCodigoEnum());
+            cur = cur + cursos.get(tipo.getCodigoEnum());
             if (tipo.getCodigoEnum() != EEP) {
-                cred = cred + creditos.get(tipo.getCodigoEnum());
-                cur = cur + cursos.get(tipo.getCodigoEnum());
+                credCarrera = credCarrera + creditos.get(tipo.getCodigoEnum());
+                curCarrera = +cursos.get(tipo.getCodigoEnum());
             }
         }
-
+        alumno.setCursosCarreraAprobados(curCarrera);
         alumno.setCreditosAprobados(cred);
+        alumno.setCreditosCarreraAprobados(credCarrera);
         alumno.setCursosAprobados(cur);
         alumnoDAO.update(alumno);
     }
