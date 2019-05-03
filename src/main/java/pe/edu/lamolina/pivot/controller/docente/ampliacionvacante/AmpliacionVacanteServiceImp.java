@@ -252,10 +252,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
             MatriculaCurso matriculaCurso = matriculaCursoDAO.findByMatriculaCurso(matriculaResumen, curso);
 
-            if (matriculaCurso == null) {
-                matriculaCurso = new MatriculaCurso(curso, matriculaResumen, EstadoMatriculaEnum.SOL);
-                //  matriculaCursoDAO.save(matriculaCurso);
-            } else {
+            if (matriculaCurso != null) {
                 Assert.isFalse(matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.MAT,
                         String.format("alumno %S ya se matriculo", alumno.getPersona().getApellidosNombres()));
                 Assert.isFalse(matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.SOL,
@@ -274,7 +271,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                 ampliacionVacanteRestService.matricularAmpliacionVacante(seccionPCUR, matriculaResumen.getAlumno(), ds);
             }
 
-            if (matriculaCurso.getId() == null) {
+            if (matriculaCurso == null) {
                 matriculaCurso = new MatriculaCurso(curso, matriculaResumen, EstadoMatriculaEnum.SOL);
                 matriculaCursoDAO.save(matriculaCurso);
             } else {
@@ -359,6 +356,11 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
             MatriculaCurso matriculaCurso = matriculaCursoDAO.findByMatriculaCurso(matriculaResumen, curso);
 
+            JsonResponse responseRest = ampliacionVacanteRestService.matricularAmpliacionVacante(seccion, matriculaResumen.getAlumno(), ds);
+            if (!responseRest.getSuccess()) {
+                throw new PhobosException(responseRest.getMessage());
+            }
+
             if (matriculaCurso == null) {
                 matriculaCurso = new MatriculaCurso(curso, matriculaResumen, EstadoMatriculaEnum.MAT);
                 matriculaCursoDAO.save(matriculaCurso);
@@ -383,13 +385,9 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                     ds.getFechaAccionAudit());
             matriculaSeccion.setEsAmpliacionVacante(Boolean.TRUE);
 
-            JsonResponse responseRest = ampliacionVacanteRestService.matricularAmpliacionVacante(seccion, matriculaResumen.getAlumno(), ds);
-            if (responseRest.getSuccess()) {
-                matriculaSeccionDAO.save(matriculaSeccion);
-                this.calcularMatriculaResumenInfoMatriculas(matriculaResumen, EstadoMatriculaEnum.MAT);
-            } else {
-                throw new PhobosException("Error en el rest");
-            }
+            matriculaSeccionDAO.save(matriculaSeccion);
+            this.calcularMatriculaResumenInfoMatriculas(matriculaResumen, EstadoMatriculaEnum.MAT);
+
         }
     }
 
@@ -407,6 +405,16 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         matriculaSeccion = matriculaSeccionDAO.find(matriculaSeccion.getId());
         Seccion seccion = seccionDAO.find(matriculaSeccion.getSeccion());
 
+        boolean esDocenteTcurLogged = false;
+        if (seccion.isTipoSeccionPCUR()) {
+            Seccion seccionTCUR = seccion.getSeccionSuperior();
+            esDocenteTcurLogged = seccionTCUR.getDocentePrincipal().equals(ds.getDocente());
+        }
+        if (seccion.isTipoSeccionTCUR()) {
+            esDocenteTcurLogged = true;
+        }
+        ampliacionVacanteRestService.confirmarAmpliacionVacante(matriculaSeccion, esDocenteTcurLogged, ds);
+
         DocenteSeccion docenteSeccion = docenteSeccionDAO.findPrincipalBySeccion(seccion);
         seccion.setDocentePrincipal(docenteSeccion.getDocente());
         Assert.isTrue(ds.getDocente().equals(seccion.getDocentePrincipal()), String.format("%s, no es el docente principal de la sección", ds.getDocente().getPersona().getApellidosNombres()));
@@ -421,23 +429,17 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         matriculaCursoDAO.updateColumns(matriculaCursoUpd, "estado");
 
         this.aceptarMatriculaSeccion(matriculaSeccion, ds);
-        boolean esDocenteTcurLogged = false;
+
         if (seccion.isTipoSeccionPCUR()) {
             Seccion seccionTCUR = seccion.getSeccionSuperior();
-            esDocenteTcurLogged = seccionTCUR.getDocentePrincipal().equals(ds.getDocente());
             MatriculaSeccion matriculaSeccionTCUR = matriculaSeccionDAO.findByMatriculaMatSeccionAndNoEstado(matriculaCurso.getMatriculaResumen(), seccionTCUR, EstadoMatriculaEnum.RHZ);
             this.aceptarMatriculaSeccion(matriculaSeccionTCUR, ds);
         }
         if (seccion.isTipoSeccionTCUR()) {
-            esDocenteTcurLogged = true;
             MatriculaSeccion matriculaSeccionPCUR = matriculaSeccionDAO.findByMatResumenAndTipoSecAndNoEstado(matriculaCurso.getMatriculaResumen(), TipoSeccionEnum.PCUR, EstadoMatriculaEnum.RHZ);
             this.aceptarMatriculaSeccion(matriculaSeccionPCUR, ds);
         }
-
-        ampliacionVacanteRestService.confirmarAmpliacionVacante(matriculaSeccion, esDocenteTcurLogged, ds);
-        //this.calcularSeccionInfoMatriculas(seccion);
         this.calcularMatriculaResumenInfoMatriculas(matriculaCurso.getMatriculaResumen(), EstadoMatriculaEnum.MAT);
-        //      throw new PhobosException("no pasaras papu");
     }
 
     public void aceptarMatriculaSeccion(MatriculaSeccion matriculaSeccion, DataSessionPivot ds) {
