@@ -404,6 +404,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         this.validarEventoAcademico(ds.getFechaAccionAudit(), ds.getCicloAcademico());
         matriculaSeccion = matriculaSeccionDAO.find(matriculaSeccion.getId());
         Seccion seccion = seccionDAO.find(matriculaSeccion.getSeccion());
+        DocenteSeccion docenteSeccion = docenteSeccionDAO.findPrincipalBySeccion(seccion);
+        seccion.setDocentePrincipal(docenteSeccion.getDocente());
 
         boolean esDocenteTcurLogged = true;
         if (seccion.isTipoSeccionPCUR()) {
@@ -415,8 +417,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         }*/
         ampliacionVacanteRestService.confirmarAmpliacionVacante(matriculaSeccion, esDocenteTcurLogged, ds);
 
-        DocenteSeccion docenteSeccion = docenteSeccionDAO.findPrincipalBySeccion(seccion);
-        seccion.setDocentePrincipal(docenteSeccion.getDocente());
         Assert.isTrue(ds.getDocente().equals(seccion.getDocentePrincipal()), String.format("%s, no es el docente principal de la sección", ds.getDocente().getPersona().getApellidosNombres()));
 
         MatriculaCurso matriculaCurso = matriculaCursoDAO.findByMatriculaCurso(matriculaSeccion.getMatriculaResumen(), seccion.getGrupoSeccion().getCurso());
