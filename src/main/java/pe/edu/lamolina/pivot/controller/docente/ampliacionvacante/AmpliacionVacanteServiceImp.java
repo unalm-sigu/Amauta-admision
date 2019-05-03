@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoAmpliacionEnum;
@@ -310,7 +311,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
     public Map<Long, DocenteSeccion> getMapDocentesSeccionGroupBySeccion(GrupoSeccion grupoSeccion) {
         List<DocenteSeccion> docentesSeccionesPrincipales = docenteSeccionDAO.allByGrupoSeccion(grupoSeccion);
-        docentesSeccionesPrincipales = docentesSeccionesPrincipales.stream().filter(x -> x.getPrincipal() == 1).collect(Collectors.toList());
+        docentesSeccionesPrincipales = docentesSeccionesPrincipales.stream().filter(x -> x.getPrincipal() == 1 && x.getEstadoEnum() == ACT).collect(Collectors.toList());
         Map<Long, DocenteSeccion> mapDocentePrincipalBySeccion = TypesUtil.convertListToMap("seccion.id", docentesSeccionesPrincipales);
         return mapDocentePrincipalBySeccion;
     }

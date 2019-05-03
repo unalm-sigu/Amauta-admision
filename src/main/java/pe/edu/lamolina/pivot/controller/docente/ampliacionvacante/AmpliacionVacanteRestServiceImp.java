@@ -57,7 +57,10 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
         json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.MAT.name());
         String url = String.format("%s/matriculaSeccion/solicitud",
                 parametro.getValor());
-
+        JsonResponse response = this.postToBackEnd(url, json);
+        if (!response.getSuccess()) {
+            throw new PhobosException(response.getMessage());
+        }
         return this.postToBackEnd(url, json);
     }
 
