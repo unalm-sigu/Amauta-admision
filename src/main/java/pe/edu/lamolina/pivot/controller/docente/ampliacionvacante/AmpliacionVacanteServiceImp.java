@@ -405,14 +405,14 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         matriculaSeccion = matriculaSeccionDAO.find(matriculaSeccion.getId());
         Seccion seccion = seccionDAO.find(matriculaSeccion.getSeccion());
 
-        boolean esDocenteTcurLogged = false;
+        boolean esDocenteTcurLogged = true;
         if (seccion.isTipoSeccionPCUR()) {
             Seccion seccionTCUR = seccion.getSeccionSuperior();
             esDocenteTcurLogged = seccionTCUR.getDocentePrincipal().equals(ds.getDocente());
         }
-        if (seccion.isTipoSeccionTCUR()) {
+        /* if (seccion.isTipoSeccionTCUR()) {
             esDocenteTcurLogged = true;
-        }
+        }*/
         ampliacionVacanteRestService.confirmarAmpliacionVacante(matriculaSeccion, esDocenteTcurLogged, ds);
 
         DocenteSeccion docenteSeccion = docenteSeccionDAO.findPrincipalBySeccion(seccion);
@@ -468,23 +468,30 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         Curso curso = seccion.getGrupoSeccion().getCurso();
         Assert.isTrue(curso.isTipoCursoTEOPRA(), "El curso debe ser teórico practico, verifique.");
 
-        matriculaCursoDAO.delete(matriculaCurso);
-        this.rechazarMatriculaSeccion(matriculaSeccion, ds);
-        boolean esDocenteTcurLogged = false;
+        boolean esDocenteTcurLogged = true;
         if (seccion.isTipoSeccionPCUR()) {
             Seccion seccionTCUR = seccion.getSeccionSuperior();
             esDocenteTcurLogged = seccionTCUR.getDocentePrincipal().equals(ds.getDocente());
+        }
+        /* if (seccion.isTipoSeccionTCUR()) {
+            esDocenteTcurLogged = true;
+        }*/
+        ampliacionVacanteRestService.rechazarAmpliacionVacante(matriculaSeccion, esDocenteTcurLogged, ds);
+
+        matriculaCursoDAO.delete(matriculaCurso);
+        this.rechazarMatriculaSeccion(matriculaSeccion, ds);
+
+        if (seccion.isTipoSeccionPCUR()) {
+            Seccion seccionTCUR = seccion.getSeccionSuperior();
             MatriculaSeccion matriculaSeccionTCUR = matriculaSeccionDAO.findByMatriculaMatSeccionAndNoEstado(matriculaCurso.getMatriculaResumen(), seccionTCUR, EstadoMatriculaEnum.RHZ);
             this.rechazarMatriculaSeccion(matriculaSeccionTCUR, ds);
         }
         if (seccion.isTipoSeccionTCUR()) {
-            esDocenteTcurLogged = true;
             MatriculaSeccion matriculaSeccionPCUR = matriculaSeccionDAO.findByMatResumenAndTipoSecAndNoEstado(matriculaCurso.getMatriculaResumen(), TipoSeccionEnum.PCUR, EstadoMatriculaEnum.RHZ);
             this.rechazarMatriculaSeccion(matriculaSeccionPCUR, ds);
         }
-        ampliacionVacanteRestService.rechazarAmpliacionVacante(matriculaSeccion, esDocenteTcurLogged, ds);
+
         this.calcularSeccionInfoMatriculas(seccion);
-//        throw new PhobosException("no pasaras papu");
     }
 
     public void rechazarMatriculaSeccion(MatriculaSeccion matriculaSeccion, DataSessionPivot ds) {
