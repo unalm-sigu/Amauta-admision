@@ -13,7 +13,6 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
@@ -23,8 +22,8 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.consejeria.consejeria.AConsejeroEstado;
-import pe.edu.lamolina.pivot.controller.consejeria.consejeria.ConsejeriaEstado;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.AConsejeroEstado;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.ConsejeriaEstado;
 import pe.edu.lamolina.pivot.dao.consejeria.ConsejeroDAO;
 
 @Service
@@ -40,6 +39,8 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
         DynatableSql sql = new DynatableSql(filter)
                 .from(Consejero.class, "con")
                 .join("carrera car", "colaborador col", "col.persona per", "per.docente doc")
+                .leftJoin("per.tipoDocumento")
+                .searchFields("per.numeroDocIdentidad", "doc.codigo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .filter("car.id", carrera)
@@ -60,10 +61,7 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
             if (key.equals("search")) {
                 continue;
             }
-//            if (key.equals("carrera")) {
-//                String values = (String) queries.get(key);
-//                sql.filter("car.nombre", values);
-//            }
+
             if (key.equals("status")) {
                 String values = (String) queries.get(key);
                 if (values.equals("Habilitado")) {

@@ -20,7 +20,7 @@
                                  placeholder="Ingrese y seleccione el nombre de un docente"
                                  v-bind:internal-search="false"
                                  v-on:search-change="getDocentes"
-                                 v-on:input="CargaDepartamento">
+                                 v-on:input="cargaDepartamento">
 
                         <template slot="option" slot-scope="props">
                             <span class="option__title">{{ props.option.persona.nombreCompleto }}</span>

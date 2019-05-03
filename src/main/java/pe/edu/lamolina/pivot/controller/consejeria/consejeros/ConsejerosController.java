@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.consejeria.consejeria;
+package pe.edu.lamolina.pivot.controller.consejeria.consejeros;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -34,12 +34,12 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("consejeria/consejeros")
-public class ConsejeriaController {
+public class ConsejerosController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ConsejeriaService service;
+    ConsejerosService service;
 
     @Autowired
     CarreraService carreraService;
@@ -57,7 +57,7 @@ public class ConsejeriaController {
         model.addAttribute("ciclo", createCicloJson(ds.getCicloAcademico()).toString());
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());
 
-        return "consejeria/consejeria";
+        return "consejeria/consejeros/consejeros";
     }
 
     @ResponseBody
@@ -67,21 +67,19 @@ public class ConsejeriaController {
             DynatableFilter filter, HttpSession session, HttpServletRequest request) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-
-            Carrera carrera = new Carrera(idCarrera);
-            List<Consejero> consejeros = service.allByCarreraDynatable(carrera, filter);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
-            for (Consejero consjros : consejeros) {
-                ObjectNode node = JsonHelper.createJson(consjros, JsonNodeFactory.instance, true,
+            for (Consejero consejero : consejeros) {
+                ObjectNode node = JsonHelper.createJson(consejero, JsonNodeFactory.instance, true,
                         new String[]{
                             "id", "estado", "alumnosActivos", "alumnosInactivos",
                             "colaborador.persona.nombreCompleto",
                             "colaborador.persona.numeroDocIdentidad",
+                            "colaborador.persona.tipoDocumento.simbolo",
                             "colaborador.persona.docente.departamentoAcademico.nombre",
                             "colaborador.persona.docente.codigo",
                             "colaborador.persona.docente.departamentoAcademico.id"
@@ -92,6 +90,7 @@ public class ConsejeriaController {
 
             json.setData(array);
             json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -277,9 +276,6 @@ public class ConsejeriaController {
         return JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{"id", "descripcion", "descripcion2"});
     }
 
-//    private ObjectNode createConsejeroJson(ConsejeroEstado consejero) {
-//        return JsonHelper.createJson(consejero, JsonNodeFactory.instance, true, new String[]{"activo", "inactivo"});
-//    }
     private ArrayNode createCarrerasJson(List<Carrera> carreras) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (Carrera carrera : carreras) {
@@ -293,4 +289,5 @@ public class ConsejeriaController {
         }
         return array;
     }
+
 }

@@ -27,10 +27,25 @@
                 background-color: #2ECC71;
                 color: #fff;
             }
+            
+            .circle-recorrido.bgr-danger {
+                background-color: #E74C3C;
+                color: #fff;
+            }
 
-            .circle-recorrido.bgr-default {
+            .circle-recorrido.bgr-black {
                 background-color: #3C4043;
                 color: #fff;
+            }
+
+            .circle-recorrido.bgr-default {
+                background-color: #979595;
+                color: #fff;
+            }
+
+            .col-md-ver {
+                width: 11.666666666%;
+                float: left;
             }
 
         </style>
@@ -53,14 +68,14 @@
                                 <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Desasignar Alumnos</a></li>
                             </ul>
                         </div>
-                        <h2>Listado de Consejeros <span v-text='ciclo.descripcion'></span></h2>
+                        <h2>Listado de Tutores <span v-text='ciclo.descripcion'></span></h2>
                     </header>
                     <section class="wrapper-lg">
                         <section class="panel">
                             <section class="panel-body">
-                                <raptor-table v-bind:url="consjerosURL" v-bind:preload="false" ref="raptorConsejero">      
+                                <raptor-table ref="raptorConsejero">      
                                     <div slot="header">
-                                        <div class="col-md-10 preguntas-col">
+                                        <div class="">
                                             <div class="row">
                                                 <div class="col-md-5" >
                                                     <multiselect v-model="carreraSelect" 
@@ -75,33 +90,38 @@
                                                                  v-on:input="cargaConsejeros">
                                                     </multiselect>
                                                 </div>
-                                                <div class="col-md-2 text-center" v-bind:class="bgColorClass['activos']">
+                                                <div class="col-md-ver text-center" v-bind:class="bgColorClass['activos']">
                                                     <a v-on:click="filtroConsejeros('Habilitado')" class="text-success pointer" >
                                                         <span class="h2 bold" v-text="cantidadActivo"></span>
+                                                        <small class="block m-b-xxs">Tutores</small>
                                                         <small class="block m-b-xs">Activos</small>
                                                     </a>
                                                 </div>
-                                                <div class="col-md-1 text-center" v-bind:class="bgColorClass['inactivos']">
+                                                <div class="col-md-ver text-center" v-bind:class="bgColorClass['inactivos']">
                                                     <a v-on:click="filtroConsejeros('Inhabilitado')" class="text-black pointer" >
                                                         <span class="h2 bold" v-text="cantidadInactivo"></span>
+                                                        <small class="block m-b-xxs">Tutores</small>
                                                         <small class="block m-b-xs">Inactivos</small>
                                                     </a>
                                                 </div>
-                                                <div class="col-md-2 text-center">
+                                                <div class="col-md-ver text-center">
                                                     <div class="text-info" >
                                                         <span class="h2 bold" v-text="cantidadConConnsejo"></span>
-                                                        <small class="block m-b-xs">Aconsejados</small>
+                                                        <small class="block m-b-xxs">Alumnos</small>
+                                                        <small class="block m-b-xs">Con tutor</small>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-2 text-center">
+                                                <div class="col-md-ver text-center">
                                                     <div  class="text-danger" >
                                                         <span class="h2 bold" v-text="cantidadSinConsejero"></span>
-                                                        <small class="block m-b-xs">Sin consejero</small>
+                                                        <small class="block m-b-xxs">Alumnos</small>
+                                                        <small class="block m-b-xs">Sin tutor</small>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-2 text-center">
+                                                <div class="col-md-ver text-center">
                                                     <div  class="text-default" >
                                                         <span class="h2 bold" v-text="cantidadConsejeroRetirado"></span>
+                                                        <small class="block m-b-xxs">Alumnos</small>
                                                         <small class="block m-b-xs">Sin asignación</small>
                                                     </div>
                                                 </div>
@@ -112,10 +132,10 @@
                                         <table id="dynaTable" class="table table-striped">
                                             <thead class="panel panel-heading">
                                                 <tr>
-                                                    <th class="col-md-2 v-middle"><span>Consejeros</span></th>
-                                                    <th class="col-md-2 text-center v-middle" colspan="2">Estudiantes</th>
-                                                    <th class="col-md-2 v-middle text-center">Estado</th>
-                                                    <th class="col-md-1 v-middle"></th>
+                                                    <th class="col-md-8 v-middle">Tutor</th>
+                                                    <th class="col-md-3 text-center v-middle" colspan="2">Estudiantes</th>
+                                                    <th class="col-md-1 v-middle text-center">Estado</th>
+                                                    <th class=""></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -123,33 +143,41 @@
                                                     <td class="v-middle">
 
                                                         <a class="block text-primary bold ">{{item.colaborador.persona.nombreCompleto}}</a> 
-                                                        <small class="block bold">DNI: {{item.colaborador.persona.numeroDocIdentidad}}</small>
+                                                        <small class="block bold">
+                                                            {{item.colaborador.persona.tipoDocumento.simbolo}}: {{item.colaborador.persona.numeroDocIdentidad}}
+                                                        </small>
                                                         <small class="block bold">Codigo: 
                                                             <small class="bold" v-for="docente in item.colaborador.persona.docente"> {{docente.codigo}}</small>
                                                         </small> 
                                                         <small class="block bold">Departamento: 
                                                             <small v-for="docente in item.colaborador.persona.docente">
-                                                                <span v-for="departamento in docente">
-                                                                    <span v-if="departamento.nombre == null" ></span>
-                                                                    <span v-else="" class="bold label label-default" id="departs" >{{ departamento.nombre }} </span>
-                                                                </span>
+                                                                <!--<span v-for="departamento in docente.docente">-->
+                                                                <!--<span v-if="departamento.nombre == null" ></span>-->
+                                                                <span class="bold label label-default" id="departs" >{{ docente.departamentoAcademico.nombre }} </span>
+                                                                <!--</span>-->
                                                             </small>
                                                         </small> 
                                                     </td>
+                                                    
                                                     <td class="v-middle text-center b-r">
-                                                        <label>Activos</label>
+                                                        <label>Matriculados</label>
                                                         <div class="v-middle text-center">
-                                                            <div class=" circle-recorrido bgr-success text-center" v-text="item.alumnosActivos"></div>
+                                                            <div v-if="item.alumnosActivos > 0" class=" circle-recorrido bgr-success text-center" v-text="item.alumnosActivos"></div>
+                                                            <div v-else="" class=" circle-recorrido bgr-danger text-center" v-text="item.alumnosActivos"></div>
                                                         </div>
                                                     </td>
+                                                    
                                                     <td class="v-middle text-center">
-                                                        <label>Inactivos</label>
-                                                        <div class="circle-recorrido bgr-default text-center" v-text="item.alumnosInactivos"></div>
+                                                        <label>No matriculados</label>
+                                                        <div v-if="item.alumnosInactivos > 0" class="circle-recorrido bgr-black text-center" v-text="item.alumnosInactivos"></div>
+                                                        <div v-else="" class="circle-recorrido bgr-default text-center" v-text="item.alumnosInactivos"></div>
                                                     </td>
+                                                    
                                                     <td class="v-middle text-center">
                                                         <small v-if="item.estado == 'ACT' " class="label label-success">Activo</small>
                                                         <span v-else="" class="label label-default">Inactivo</span>
                                                     </td>
+                                                    
                                                     <td class="v-middle">
                                                         <div class="dropdown actions">
                                                             <a class="dropdown-toggle" data-toggle="dropdown">
@@ -170,7 +198,7 @@
                             </section>
                         </section>
                     </section>
-                    <div th:substituteby="consejeria/consejeroDocentesModal"></div>
+                    <div th:substituteby="consejeria/consejeros/consejerosModal"></div>
                 </div>
             </div>
             <div th:substituteby="_modules/vue-modal"/>
@@ -182,10 +210,11 @@
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclo}]]*/ 'json';
                 var carrerasJson = /*[[${carreras}]]*/ 'json';
+                var rutaModulo = 'consejeria/consejeros';
                 /*]]>*/
             </script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-            <script th:src="@{/app/consejeria/consejeria.js}" charset="utf-8"></script>
+            <script th:src="@{/app/consejeria/consejeros/consejeros.js}" charset="utf-8"></script>
         </div>
 
     </body>

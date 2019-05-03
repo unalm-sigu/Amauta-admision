@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.consejeria.consejeria;
+package pe.edu.lamolina.pivot.controller.consejeria.consejeros;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,10 +36,13 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
-public class ConsejeriaServiceImp implements ConsejeriaService {
+@Transactional(readOnly = true)
+public class ConsejerosServiceImp implements ConsejerosService {
 
     @Autowired
-    DocenteDAO docenteDAO;
+    AlumnoDAO AlumnoDAO;
+    @Autowired
+    AlumnoConsejeroDAO alumnoConsejeroDAO;
     @Autowired
     ConsejeroDAO consejeroDAO;
     @Autowired
@@ -47,15 +50,12 @@ public class ConsejeriaServiceImp implements ConsejeriaService {
     @Autowired
     ColaboradorDAO colaboradorDAO;
     @Autowired
-    AlumnoDAO AlumnoDAO;
+    DocenteDAO docenteDAO;
 
     @Autowired
     OficinaService oficinaService;
     @Autowired
     AlumnoService alumnoService;
-
-    @Autowired
-    AlumnoConsejeroDAO alumnoConsejeroDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

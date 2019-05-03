@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.consejeria.consejeria;
+package pe.edu.lamolina.pivot.controller.consejeria.consejeros;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -12,7 +12,7 @@ import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-public interface ConsejeriaService {
+public interface ConsejerosService {
 
     void saveConsejeroByDocente(Docente docente, DataSessionPivot ds);
 

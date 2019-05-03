@@ -290,7 +290,8 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .selectDistinct("carr")
                 .from(MatriculaResumen.class, "mr")
-                .join("mr.alumno al", "al.modalidadEstudio me", "al.carrera carr", "mr.cicloAcademico ci", "carr.facultad")
+                .join("alumno al", "cicloAcademico ci")
+                .join("al.modalidadEstudio me", "al.carrera carr", "carr.facultad")
                 .filter("ci.id", ciclo)
                 .filter("me.codigo", ModalidadEstudioEnum.PRE)
                 .orderBy("carr.nombre");

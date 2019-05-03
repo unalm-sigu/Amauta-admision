@@ -1,6 +1,6 @@
 package pe.edu.lamolina.pivot.controller.consejeria.aconsejados;
 
-import pe.edu.lamolina.pivot.controller.consejeria.consejeria.*;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.ConsejerosService;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -24,7 +24,6 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
@@ -41,8 +40,7 @@ public class AconsejadoController {
     @Autowired
     AconsejadoService service;
     @Autowired
-    ConsejeriaService consejeroService;
-
+    ConsejerosService consejeroService;
     @Autowired
     CarreraService carreraService;
 
@@ -68,28 +66,38 @@ public class AconsejadoController {
 
         try {
 
-            List<AlumnoConsejero> consejeros = service.allAconsejadoByDynatableCarrera(filter, ds.getCicloAcademico());
+            List<AlumnoConsejero> alumnosTutores = service.allAconsejadoByDynatableCarrera(filter, ds.getCicloAcademico());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (AlumnoConsejero consjros : consejeros) {
-                ObjectNode node = JsonHelper.createJson(consjros, JsonNodeFactory.instance, true,
+            for (AlumnoConsejero alumnoTutor : alumnosTutores) {
+                ObjectNode node = JsonHelper.createJson(alumnoTutor, JsonNodeFactory.instance, true,
                         new String[]{
                             "*",
-                            "alumno.*",
-                            "alumno.cicloIngreso.*",
-                            "alumno.situacionAcademica.*",
-                            "alumno.persona.*",
-                            "alumno.persona.tipoDocumento.*",
-                            "alumno.persona.tipoDocumento.*",
+                            "alumno.codigo",
+                            "alumno.creditosCursados",
+                            "alumno.creditosAprobados",
+                            "alumno.promedioAcumulado",
+                            "alumno.cicloIngreso.descripcion",
+                            "alumno.situacionAcademica.codigo",
+                            "alumno.situacionAcademica.nombre",
+                            "alumno.persona.tipoFoto",
+                            "alumno.persona.rutaFoto",
+                            "alumno.persona.apellidosNombres",
+                            "alumno.persona.numeroDocIdentidad",
+                            "alumno.persona.tipoDocumento.simbolo",
+                            "alumno.carrera.nombre",
+                            "alumno.carrera.facultad.nombre",
                             "consejero.*",
-                            "consejero.colaborador.persona.*",
-                            "consejero.colaborador.persona.tipoDocumento.*",});
+                            "consejero.colaborador.persona.numeroDocIdentidad",
+                            "consejero.colaborador.persona.apellidosNombres",
+                            "consejero.colaborador.persona.tipoDocumento.simbolo",});
 
                 array.add(node);
             }
-            json.setFiltered(filter.getFiltered());
+            
             json.setData(array);
+            json.setFiltered(filter.getFiltered());
             json.setTotal(filter.getTotal());
 
         } catch (Exception e) {

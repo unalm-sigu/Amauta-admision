@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.consejeria.consejero;
+package pe.edu.lamolina.pivot.controller.consejeria.aconsejadostutor;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -14,7 +14,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -28,12 +27,12 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("consejeria/aconsejadosdocente")
-public class AconsejadosDocenteController {
+public class AconsejadosTutorController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    AconsejadosDocentesService service;
+    AconsejadosTutorService service;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -41,7 +40,7 @@ public class AconsejadosDocenteController {
         model.addAttribute("ciclo", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{
             "*"
         }));
-        return "consejeria/consejero/consejero";
+        return "consejeria/aconsejadostutor/aconsejadosTutor";
     }
 
     @ResponseBody
@@ -52,12 +51,7 @@ public class AconsejadosDocenteController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-
-            logger.debug("imprimiendo ::: {} ", ds.getCicloAcademico());
-            logger.debug("imprimiendo ::: {} ", ds.getPersona().getId());
-
             List<AlumnoConsejero> consejeros = service.allByDynatable(filter, ds.getCicloAcademico(), ds.getPersona());
-
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (AlumnoConsejero consjros : consejeros) {
