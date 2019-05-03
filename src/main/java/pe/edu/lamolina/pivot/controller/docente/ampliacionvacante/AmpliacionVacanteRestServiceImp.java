@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.AmpliacionVacanteOperacionEnum;
@@ -35,7 +36,6 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
         json.put("seccion", matriculaSeccion.getSeccion().getId());
         json.put("alumno", matriculaSeccion.getMatriculaResumen().getAlumno().getId());
         json.put("usuario", ds.getUsuario().getId());
-        json.put("docente", ds.getDocente().getId());
         json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.MAT.name());
         String url = String.format("%s/matriculaSeccion/solicitud",
                 parametro.getValor());
@@ -51,45 +51,73 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
         json.put("seccion", matriculaSeccion.getSeccion().getId());
         json.put("alumno", matriculaSeccion.getMatriculaResumen().getAlumno().getId());
         json.put("usuario", ds.getUsuario().getId());
-        json.put("docente", ds.getDocente().getId());
         json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.MAT.name());
         String url = String.format("%s/matriculaSeccion/solicitud",
                 parametro.getValor());
 
         return this.postToBackEnd(url, json);
     }
-
+ 
     @Override
-    public JsonResponse confirmarAmpliacionVacante(MatriculaSeccion matriculaSeccion, DataSessionPivot ds) {
+    public JsonResponse confirmarAmpliacionVacante(MatriculaSeccion matriculaSeccion, boolean esDocenteTCUR, DataSessionPivot ds) {
         Parametro parametro = this.findParametro();
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("seccion", matriculaSeccion.getSeccion().getId());
         json.put("alumno", matriculaSeccion.getMatriculaResumen().getAlumno().getId());
         json.put("usuario", ds.getUsuario().getId());
-        json.put("docente", ds.getDocente().getId());
         json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.CONF.name());
+        json.put("esDocenteTCUR", esDocenteTCUR);
+        json.put("tipoAmpliacion", matriculaSeccion.getTipoAmpliacion());
         String url = String.format("%s/matriculaSeccion/solicitud",
                 parametro.getValor());
 
+        JsonResponse response = this.postToBackEnd(url, json);
+        if (!response.getSuccess()) {
+            throw new PhobosException(response.getMessage());
+        }
         return this.postToBackEnd(url, json);
     }
 
     @Override
-    public JsonResponse solicitarAmpliacionVacante(MatriculaSeccion matriculaSeccion, DataSessionPivot ds) {
+    public JsonResponse rechazarAmpliacionVacante(MatriculaSeccion matriculaSeccion, boolean esDocenteTCUR, DataSessionPivot ds) {
         Parametro parametro = this.findParametro();
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("seccion", matriculaSeccion.getSeccion().getId());
         json.put("alumno", matriculaSeccion.getMatriculaResumen().getAlumno().getId());
         json.put("usuario", ds.getUsuario().getId());
-        json.put("docente", ds.getDocente().getId());
-        json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.SOL.name());
+        json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.RHZR.name());
+        json.put("esDocenteTCUR", esDocenteTCUR);
+        json.put("tipoAmpliacion", matriculaSeccion.getTipoAmpliacion());
         String url = String.format("%s/matriculaSeccion/solicitud",
                 parametro.getValor());
-        System.out.println("url: " + url);
-        
+
+        JsonResponse response = this.postToBackEnd(url, json);
+        if (!response.getSuccess()) {
+            throw new PhobosException(response.getMessage());
+        }
         return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse solicitarAmpliacionVacante(MatriculaSeccion matriculaSeccion, boolean esDocenteTCUR, DataSessionPivot ds) {
+        Parametro parametro = this.findParametro();
+
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("seccion", matriculaSeccion.getSeccion().getId());
+        json.put("alumno", matriculaSeccion.getMatriculaResumen().getAlumno().getId());
+        json.put("usuario", ds.getUsuario().getId());
+        json.put("tipoOperacion", AmpliacionVacanteOperacionEnum.SOL.name());
+        json.put("esDocenteTCUR", esDocenteTCUR);
+        String url = String.format("%s/matriculaSeccion/solicitud",
+                parametro.getValor());
+
+        JsonResponse response = this.postToBackEnd(url, json);
+        if (!response.getSuccess()) {
+            throw new PhobosException(response.getMessage());
+        }
+        return response;
     }
 
     public Parametro findParametro() {
