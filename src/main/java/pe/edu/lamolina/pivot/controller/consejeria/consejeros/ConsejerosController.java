@@ -80,9 +80,9 @@ public class ConsejerosController {
                             "colaborador.persona.nombreCompleto",
                             "colaborador.persona.numeroDocIdentidad",
                             "colaborador.persona.tipoDocumento.simbolo",
-                            "colaborador.persona.docente.departamentoAcademico.nombre",
-                            "colaborador.persona.docente.codigo",
-                            "colaborador.persona.docente.departamentoAcademico.id"
+                            "docente.departamentoAcademico.nombre",
+                            "docente.codigo",
+                            "docente.departamentoAcademico.id"
                         });
 
                 array.add(node);

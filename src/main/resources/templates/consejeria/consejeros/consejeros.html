@@ -27,7 +27,7 @@
                 background-color: #2ECC71;
                 color: #fff;
             }
-            
+
             .circle-recorrido.bgr-danger {
                 background-color: #E74C3C;
                 color: #fff;
@@ -142,23 +142,21 @@
                                                 <tr v-for="item in props.data">
                                                     <td class="v-middle">
 
-                                                        <a class="block text-primary bold ">{{item.colaborador.persona.nombreCompleto}}</a> 
-                                                        <small class="block bold">
-                                                            {{item.colaborador.persona.tipoDocumento.simbolo}}: {{item.colaborador.persona.numeroDocIdentidad}}
+                                                        <a class="block text-primary h4 m-t-xxs m-b-xxs">{{item.colaborador.persona.nombreCompleto}}</a> 
+                                                        <small class="block">
+                                                            <strong>{{item.colaborador.persona.tipoDocumento.simbolo}}:</strong> 
+                                                            {{item.colaborador.persona.numeroDocIdentidad}}
                                                         </small>
-                                                        <small class="block bold">Codigo: 
-                                                            <small class="bold" v-for="docente in item.colaborador.persona.docente"> {{docente.codigo}}</small>
+                                                        <small class="block">
+                                                            <strong>Codigo: </strong>
+                                                            {{item.docente.codigo}}
                                                         </small> 
-                                                        <small class="block bold">Departamento: 
-                                                            <small v-for="docente in item.colaborador.persona.docente">
-                                                                <!--<span v-for="departamento in docente.docente">-->
-                                                                <!--<span v-if="departamento.nombre == null" ></span>-->
-                                                                <span class="bold label label-default" id="departs" >{{ docente.departamentoAcademico.nombre }} </span>
-                                                                <!--</span>-->
-                                                            </small>
+                                                        <small class="block">
+                                                            <strong>Departamento: </strong>
+                                                            {{ item.docente.departamentoAcademico.nombre }}
                                                         </small> 
                                                     </td>
-                                                    
+
                                                     <td class="v-middle text-center b-r">
                                                         <label>Matriculados</label>
                                                         <div class="v-middle text-center">
@@ -166,18 +164,18 @@
                                                             <div v-else="" class=" circle-recorrido bgr-danger text-center" v-text="item.alumnosActivos"></div>
                                                         </div>
                                                     </td>
-                                                    
+
                                                     <td class="v-middle text-center">
                                                         <label>No matriculados</label>
                                                         <div v-if="item.alumnosInactivos > 0" class="circle-recorrido bgr-black text-center" v-text="item.alumnosInactivos"></div>
                                                         <div v-else="" class="circle-recorrido bgr-default text-center" v-text="item.alumnosInactivos"></div>
                                                     </td>
-                                                    
+
                                                     <td class="v-middle text-center">
                                                         <small v-if="item.estado == 'ACT' " class="label label-success">Activo</small>
                                                         <span v-else="" class="label label-default">Inactivo</span>
                                                     </td>
-                                                    
+
                                                     <td class="v-middle">
                                                         <div class="dropdown actions">
                                                             <a class="dropdown-toggle" data-toggle="dropdown">

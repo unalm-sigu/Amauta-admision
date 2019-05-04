@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -71,7 +73,24 @@ public class ConsejerosServiceImp implements ConsejerosService {
 
     @Override
     public List<Consejero> allByCarreraDynatable(Carrera carrera, DynatableFilter filter) {
-        return consejeroDAO.allByCarreraDynatable(carrera, filter);
+        List<Consejero> consejeros = consejeroDAO.allByCarreraDynatable(carrera, filter);
+        List<Colaborador> colaboradores = consejeros.stream().map(x -> x.getColaborador()).collect(Collectors.toList());
+        Map<String, Colaborador> mapColaborador = TypesUtil.convertListToMap("codigo", colaboradores);
+        List<Persona> personas = consejeros.stream().map(x -> x.getColaborador().getPersona()).collect(Collectors.toList());
+
+        List<Docente> docentes = docenteDAO.allByPersonas(personas);
+        for (Persona persona : personas) {
+            persona.setDocente(new ArrayList());
+        }
+
+        for (Docente docente : docentes) {
+            Colaborador colaborador = mapColaborador.get(docente.getCodigo());
+            if (colaborador != null) {
+                colaborador.getPersona().getDocente().add(docente);
+            }
+        }
+
+        return consejeros;
     }
 
     @Override
