@@ -202,6 +202,11 @@ public class OAuthController {
     }
 
     private String findRuta(List<Menu> menus) {
+        logger.debug("Tiene {} menus", menus.size());
+
+        for (Menu menu : menus) {
+            logger.debug("\tMenu:{} tipo:{}", menu.getNombre(), menu.getTipo());
+        }
         for (Menu menu : menus) {
             if (menu.getTipoEnum() == MenuTipoEnum.MENU) {
                 return "redirect:" + menu.getRuta();

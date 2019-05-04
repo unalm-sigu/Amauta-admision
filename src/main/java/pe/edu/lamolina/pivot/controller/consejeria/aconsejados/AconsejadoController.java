@@ -74,6 +74,7 @@ public class AconsejadoController {
                 ObjectNode node = JsonHelper.createJson(alumnoTutor, JsonNodeFactory.instance, true,
                         new String[]{
                             "*",
+                            "alumno.id",
                             "alumno.codigo",
                             "alumno.creditosCursados",
                             "alumno.creditosAprobados",
