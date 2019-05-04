@@ -65,8 +65,8 @@ public class AconsejadoServiceImp implements AconsejadoService {
 
         AconsejadoEstadoBean aconsejadoEstadoBean = new AconsejadoEstadoBean();
         aconsejadoEstadoBean.setActivos(countActivos);
-        aconsejadoEstadoBean.setSinConsejero(countSinConsejero);
-        aconsejadoEstadoBean.setSinAsignar(countConConsejeroNN);
+        aconsejadoEstadoBean.setSinConsejero(countConConsejeroNN);
+        aconsejadoEstadoBean.setSinAsignar(countSinConsejero);
         return aconsejadoEstadoBean;
     }
 
