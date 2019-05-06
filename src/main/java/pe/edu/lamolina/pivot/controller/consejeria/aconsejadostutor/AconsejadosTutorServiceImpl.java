@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.consejeria.consejero;
+package pe.edu.lamolina.pivot.controller.consejeria.aconsejadostutor;
 
 import java.util.Date;
 import java.util.List;
@@ -20,7 +20,7 @@ import pe.edu.lamolina.pivot.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
-public class AconsejadosDocenteServiceImpl implements AconsejadosDocentesService {
+public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -38,8 +38,7 @@ public class AconsejadosDocenteServiceImpl implements AconsejadosDocentesService
         alumnoConsejeros.forEach(x -> {
             x.setEstadoMatriculableEnum(alumnoResumen.get(x.getAlumno().getId()).getEstadoEnum());
             x.setEstadoMatriculaAutorizacion(alumnoResumen.get(x.getAlumno().getId()).getAutorizacionMatricula());
-        }
-        );
+        });
         return alumnoConsejeros;
     }
 

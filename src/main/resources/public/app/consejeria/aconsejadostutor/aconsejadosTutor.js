@@ -4,7 +4,7 @@ new Vue({
     el: '#consejeriaVUE',
     data: {
         bgColorClass: {sinconsejero: '', activo: ''},
-        aconsejadosURL: APP.url('consejeria/aconsejadosdocente/list'),
+        aconsejadosURL: APP.url(rutaModulo + '/list'),
         ciclo: JSON.parse(cicloJson),
         isLoading: false,
         consejeroModal: {
@@ -54,7 +54,7 @@ new Vue({
             let $vue = this;
             $vue.isLoading = true;
             $.ajax({
-                url: APP.url("consejeria/aconsejadosdocente/countData"),
+                url: APP.url(rutaModulo + "/countData"),
                 data: {idCarrera: $vue.carreraSelect.id},
                 dataType: 'json',
                 type: 'post',
@@ -87,7 +87,7 @@ new Vue({
                     if (result) {
                         $.ajax({
                             method: 'POST',
-                            url: APP.url("consejeria/aconsejadosdocente/matriculaAutorizacion"),
+                            url: APP.url(rutaModulo + "/matriculaAutorizacion"),
                             data: JSON.stringify({
                                 alumno: item.alumno,
                                 autorizacionMatricula: matriculaAutorizacion

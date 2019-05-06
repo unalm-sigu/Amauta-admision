@@ -4,7 +4,7 @@ new Vue({
     el: '#consejeriaVUE',
     data: {
         bgColorClass: {sinconsejero: '', activo: ''},
-        aconsejadosURL: APP.url('consejeria/aconsejado/list'),
+        aconsejadosURL: APP.url(rutaModulo + '/list'),
         ciclo: JSON.parse(cicloJson),
         carreras: JSON.parse(carrerasJson),
         isLoading: false,
@@ -23,43 +23,47 @@ new Vue({
     },
     mounted: function () {
         let $vue = this;
-        let query = $vue.$refs.load.getParameterByName('queries[carrera]');
+        let query = $vue.$refs.raptorAconsejados.getParameterByName('queries[carrera]');
         query = (query == null) ? '' : query;
         if (query != '') {
             $vue.carreraSelect = $vue.carreras.filter(value => value.id == query)[0];
-            $vue.$refs.load.querie.push({name: 'carrera', value: query});
+            $vue.$refs.raptorAconsejados.querie.push({name: 'carrera', value: query});
             $vue.countData();
-            $vue.$refs.load.repreload();
+            $vue.$refs.raptorAconsejados.repreload();
         }
     },
     methods: {
         findAconsejado(tipo) {
             let $vue = this;
-            $vue.$refs.load.querie = [];
+            $vue.$refs.raptorAconsejados.querie = [];
+
+            if ($vue.carreraSelect.id != undefined) {
+                $vue.$refs.raptorAconsejados.querie.push({name: 'carrera', value: $vue.carreraSelect.id});
+            }
 
             if ($vue.seleccionado === '') {
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
-                $vue.$refs.load.querie.push({name: tipo, value: tipo});
+                $vue.$refs.raptorAconsejados.querie.push({name: tipo, value: tipo});
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
-                $vue.$refs.load.querie.push({name: tipo, value: tipo});
+                $vue.$refs.raptorAconsejados.querie.push({name: tipo, value: tipo});
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.seleccionado = '';
-                $vue.$refs.load.changeUrl('queries[' + tipo + ' ]', null);
+                $vue.$refs.raptorAconsejados.changeUrl('queries[' + tipo + ' ]', null);
             }
-            $vue.$refs.load.loadRemoteData();
+            $vue.$refs.raptorAconsejados.loadRemoteData();
         },
         countData() {
             let $vue = this;
             $vue.isLoading = true;
             $.ajax({
-                url: APP.url("consejeria/aconsejado/countData"),
+                url: APP.url(rutaModulo + "/countData"),
                 data: {idCarrera: $vue.carreraSelect.id},
                 dataType: 'json',
                 type: 'post',
@@ -74,7 +78,7 @@ new Vue({
             let $vue = this;
             $vue.isLoading = true;
             $.ajax({
-                url: APP.url("consejeria/aconsejado/listConsejero"),
+                url: APP.url(rutaModulo + "/listConsejero"),
                 data: {idCarrera: $vue.carreraSelect.id, nombre: nombreDoc},
                 dataType: 'json',
                 type: 'post',
@@ -86,11 +90,11 @@ new Vue({
         cargaAconsejados(item) {
             let $vue = this;
             $vue.carreraSelect = item;
-            $vue.$refs.load.querie = [];
+            $vue.$refs.raptorAconsejados.querie = [];
             if ($vue.carreraSelect != null) {
                 $vue.countData();
-                $vue.$refs.load.querie.push({name: 'carrera', value: $vue.carreraSelect.id});
-                $vue.$refs.load.loadRemoteData();
+                $vue.$refs.raptorAconsejados.querie.push({name: 'carrera', value: $vue.carreraSelect.id});
+                $vue.$refs.raptorAconsejados.loadRemoteData();
             }
         },
         model(item) {
@@ -102,13 +106,13 @@ new Vue({
             let $vue = this;
 
             $.ajax({
-                url: APP.url("consejeria/aconsejado/update"),
+                url: APP.url(rutaModulo + "/update"),
                 contentType: "application/json",
                 data: JSON.stringify($vue.alumnoConsejeroForm),
                 type: 'post',
             }).then(response => {
                 if (response.success) {
-                    $vue.$refs.load.loadRemoteData();
+                    $vue.$refs.raptorAconsejados.loadRemoteData();
                     notify(response.message, "success");
                 }
                 $vue.$refs.consejeroModal.close();

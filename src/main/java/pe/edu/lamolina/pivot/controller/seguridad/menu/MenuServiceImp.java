@@ -96,7 +96,10 @@ public class MenuServiceImp implements MenuService {
 
     @Override
     public Menu find(Menu menu) {
-        return menuDAO.find(menu.getId());
+        Menu menuBD = menuDAO.find(menu.getId());
+        List<Menu> menusHijos = menuDAO.allBySuperMenu(menuBD.getSistema(), menuBD);
+        menuBD.setMenus(menusHijos);
+        return menuBD;
     }
 
     @Override
