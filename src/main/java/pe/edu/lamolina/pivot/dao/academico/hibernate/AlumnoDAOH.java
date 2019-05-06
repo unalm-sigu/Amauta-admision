@@ -23,8 +23,6 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.PlanCurricular;
-import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.consejeria.Consejero;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
@@ -41,7 +39,6 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableResumen;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
 public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
@@ -80,10 +77,10 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public Alumno findAllInfo(Long id) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
-                .join("modalidadEstudio me", "carrera ca", "ca.facultad")
+                .join("modalidadEstudio me", "carrera ca", "ca.facultad", "persona per")
                 .left("planCurricular pc", "situacionAcademica sa", "pc.cicloInicioVigencia", "pc.carrera")
                 .left("cicloIngreso", "cicloActivo", "postulantePregrado pp", "pp.modalidadIngreso mi")
-                .left("orientacionCarrera")
+                .left("orientacionCarrera", "per.tipoDocumento")
                 .filter("alu.id", id);
 
         return (Alumno) sql.find(getCurrentSession());
@@ -758,26 +755,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .linkedBy("alu.id", "alum.id")
                 .in("ac.estado", Arrays.asList(MAT, RCI))
                 .in("ci.id", ciclosPrevios);
-
-        return all(sql);
-    }
-
-    @Override
-    public List<Alumno> findAlumnosConsejeria(Long carrera, CicloAcademico cicloAcademico) {
-        Consejero consejeroNN = new Consejero();
-        consejeroNN.setId(Constantine.ID_CONSEJERO_NN);
-
-        Octavia sql = Octavia.query().selectDistinct("alu")
-                .from(MatriculaResumen.class, "mr")
-                .join("alumno alu", "cicloAcademico ci", "alu.carrera car")
-                .leftJoin("alu.consejero conse")
-                .filter("ci.id", cicloAcademico)
-                .filter("car.id", carrera)
-                .in("mr.estado", Arrays.asList(NMAT, MAT, RCI))
-                .beginBlock()
-                .__().isNull("alu.consejero")
-                .__().filter("alu.consejero", consejeroNN)
-                .endBlock();
 
         return all(sql);
     }

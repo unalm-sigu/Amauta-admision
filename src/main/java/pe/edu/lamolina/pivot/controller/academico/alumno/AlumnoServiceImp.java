@@ -640,9 +640,4 @@ public class AlumnoServiceImp implements AlumnoService {
         return paramRutaIntranet;
     }
 
-    @Override
-    public List<Alumno> findAlumnoConsejeria(Long carrera, CicloAcademico cicloAcademico) {
-        return alumnoDAO.findAlumnosConsejeria(carrera, cicloAcademico);
-    }
-
 }

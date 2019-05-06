@@ -23,10 +23,12 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -70,6 +72,7 @@ public class ConsejerosController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.revisarConsejeria(new Carrera(idCarrera), ds.getCicloAcademico(), false, ds);
             List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -77,6 +80,7 @@ public class ConsejerosController {
                 ObjectNode node = JsonHelper.createJson(consejero, JsonNodeFactory.instance, true,
                         new String[]{
                             "id", "estado", "alumnosActivos", "alumnosInactivos",
+                            "colaborador.persona.emailCompania",
                             "colaborador.persona.nombreCompleto",
                             "colaborador.persona.numeroDocIdentidad",
                             "colaborador.persona.tipoDocumento.simbolo",
@@ -130,9 +134,10 @@ public class ConsejerosController {
             json.setTotal(array.size());
             json.setMessage("Búsqueda Exitosa");
 
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
         } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
+            ExceptionHandler.handleException(e, json);
         }
         return json;
     }
@@ -149,13 +154,9 @@ public class ConsejerosController {
 
         try {
 
-            if (service.finByIdPersona(docente.getPersona()) != null) {
-                json.setMessage("El docente seleccionado ya se encuntra como consejero ");
-            } else {
-                service.saveConsejeroByDocente(docente, ds);
-                json.setMessage("El Docente seleccionado ahora es Consejero.");
-                json.setSuccess(true);
-            }
+            service.saveConsejeroByDocente(docente, ds.getCicloAcademico(), ds);
+            json.setMessage("El Docente seleccionado ahora es Consejero.");
+            json.setSuccess(true);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, json);
@@ -169,12 +170,11 @@ public class ConsejerosController {
     @RequestMapping("cambiarEstado")
     public JsonResponse cambiarEstado(@RequestBody Consejero consejero, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
-
-            service.updateEstado(consejero, ds);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.updateEstado(consejero, ds.getCicloAcademico(), ds);
 
             response.setMessage("El estado del consejero fue modificado satisfactoriamente.");
             response.setSuccess(true);
@@ -188,58 +188,34 @@ public class ConsejerosController {
     }
 
     @ResponseBody
-    @RequestMapping("filtroEstado")
-    public JsonResponse filtroEstado(@RequestParam Long carrera, HttpSession session) {
+    @RequestMapping("resumenCarrera")
+    public JsonResponse resumenCarrera(@RequestParam("carrera") Long idCarrera, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse json = new JsonResponse();
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            System.out.println("Probando : " + carrera);
-            ConsejeriaEstado consejeroEstado = service.findConsejeroByStateAndCarrera(carrera);
-            ObjectNode consejeroJson = JsonHelper.createJson(consejeroEstado, JsonNodeFactory.instance, true, new String[]{
-                "*"
-            });
+            ConsejeriaResumen resumen = service.getResumenByCarreraCiclo(new Carrera(idCarrera), ds.getCicloAcademico());
+            ObjectNode consejeroJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
             json.setData(consejeroJson);
+            json.setSuccess(Boolean.TRUE);
 
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
         } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
-        }
-        return json;
-    }
-
-    @ResponseBody
-    @RequestMapping("cantidadAconsejados")
-    public JsonResponse cantidadAconsejados(@RequestParam Long carrera, HttpSession session) {
-
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        JsonResponse json = new JsonResponse();
-        try {
-
-            AConsejeroEstado aconsejeroEstado = service.findAConsejadosByStateCarrera(carrera, ds);
-            ObjectNode aconsejadoJson = JsonHelper.createJson(aconsejeroEstado, JsonNodeFactory.instance, true, new String[]{
-                "*"
-            });
-            json.setData(aconsejadoJson);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
+            ExceptionHandler.handleException(e, json);
         }
         return json;
     }
 
     @ResponseBody
     @RequestMapping("asignarAlumno")
-    public JsonResponse asignarAlumno(@RequestParam Long carrera, HttpSession session) {
+    public JsonResponse asignarAlumno(@RequestParam("carrera") Long idCarrera, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse json = new JsonResponse();
-
         try {
-
-            service.asignarAlumnosAleatorio(carrera, ds);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.asignarAlumnosAleatorio(new Carrera(idCarrera), ds.getCicloAcademico(), ds);
             json.setMessage("Los alumnos se asignaron de manera aleatoria satisfactoriamente");
             json.setSuccess(true);
 
@@ -253,15 +229,13 @@ public class ConsejerosController {
 
     @ResponseBody
     @RequestMapping("desasignarAlumno")
-    public JsonResponse desasignarAlumno(@RequestParam Long carrera, HttpSession session) {
+    public JsonResponse desasignarAlumno(@RequestParam("carrera") Long idCarrera, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse json = new JsonResponse();
-
         try {
-
-            service.desasignarAlumnos(carrera, ds);
-            json.setMessage("Los alumnos fueron desasignados satisfactoriamente");
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.desasignarAlumnos(new Carrera(idCarrera), ds.getCicloAcademico(), ds);
+            json.setMessage("Se retiraron los tutores a todos los alumnos satisfactoriamente");
             json.setSuccess(true);
 
         } catch (PhobosException e) {

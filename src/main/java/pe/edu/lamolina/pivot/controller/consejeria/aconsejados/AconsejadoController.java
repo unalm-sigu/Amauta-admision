@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,8 +25,8 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
+import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -58,15 +59,18 @@ public class AconsejadoController {
     }
 
     @ResponseBody
-    @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
+    @RequestMapping("list/{carrera}")
+    public DynatableResponse list(
+            @PathVariable("carrera") Long idCarrera,
+            DynatableFilter filter, HttpSession session, HttpServletRequest request) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            List<AlumnoConsejero> alumnosTutores = service.allAconsejadoByDynatableCarrera(filter, ds.getCicloAcademico());
+            consejeroService.revisarConsejeria(new Carrera(idCarrera), ds.getCicloAcademico(), false, ds);
+            List<AlumnoConsejero> alumnosTutores = service.allAconsejadoByDynatable(new Carrera(idCarrera), filter, ds.getCicloAcademico());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -90,13 +94,15 @@ public class AconsejadoController {
                             "alumno.carrera.nombre",
                             "alumno.carrera.facultad.nombre",
                             "consejero.*",
+                            "consejero.colaborador.persona.emailCompania",
                             "consejero.colaborador.persona.numeroDocIdentidad",
                             "consejero.colaborador.persona.apellidosNombres",
-                            "consejero.colaborador.persona.tipoDocumento.simbolo",});
+                            "consejero.colaborador.persona.tipoDocumento.simbolo"
+                        });
 
                 array.add(node);
             }
-            
+
             json.setData(array);
             json.setFiltered(filter.getFiltered());
             json.setTotal(filter.getTotal());
@@ -142,24 +148,22 @@ public class AconsejadoController {
     }
 
     @ResponseBody
-    @RequestMapping("countData")
-    public JsonResponse countData(
-            @RequestParam Long idCarrera, HttpSession session) {
+    @RequestMapping("resumenCarrera")
+    public JsonResponse resumenCarrera(@RequestParam("carrera") Long idCarrera, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse json = new JsonResponse();
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            AconsejadoEstadoBean aconsejadoEstadoBean = service.allByCarrera(new Carrera(idCarrera), ds.getCicloAcademico());
+            ConsejeriaResumen resumen = service.getResumenByCarreraCiclo(new Carrera(idCarrera), ds.getCicloAcademico());
+            ObjectNode consejeroJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
+            json.setData(consejeroJson);
+            json.setSuccess(Boolean.TRUE);
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
-            json.setData(JsonHelper.createJson(aconsejadoEstadoBean, JsonNodeFactory.instance, new String[]{"*"}));
-            json.setMessage("Búsqueda Exitosa");
-
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
         } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
+            ExceptionHandler.handleException(e, json);
         }
         return json;
     }

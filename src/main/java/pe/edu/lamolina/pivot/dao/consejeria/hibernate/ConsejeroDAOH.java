@@ -23,7 +23,7 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.AConsejeroEstado;
-import pe.edu.lamolina.pivot.controller.consejeria.consejeros.ConsejeriaEstado;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.ConsejeroEstado;
 import pe.edu.lamolina.pivot.dao.consejeria.ConsejeroDAO;
 
 @Service
@@ -84,10 +84,10 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     }
 
     @Override
-    public ConsejeriaEstado findByStateAndCarrera(Long carrera) {
+    public ConsejeroEstado countConsejerosByCarrera(Carrera carrera) {
         StringBuilder sql = new StringBuilder();
 
-        sql.append("select new ").append(ConsejeriaEstado.class.getName());
+        sql.append("select new ").append(ConsejeroEstado.class.getName());
         sql.append(" (   ");
         sql.append("   sum(case conse.estado when :ACT then 1 else 0 end),   ");
         sql.append("   sum(case conse.estado when :INA then 1 else 0 end)   ");
@@ -100,19 +100,20 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
 
         query.setString("ACT", ACT.name());
         query.setString("INA", INA.name());
-        query.setLong("CARRERA", carrera);
+        query.setLong("CARRERA", carrera.getId());
 
-        return (ConsejeriaEstado) query.uniqueResult();
+        return (ConsejeroEstado) query.uniqueResult();
     }
 
     @Override
-    public List<Consejero> findConsejeroByEstado(Long carrera) {
+    public List<Consejero> allActivosByCarrera(Carrera carrera) {
         Octavia sql = Octavia.query()
                 .from(Consejero.class, "conse")
-                .join("carrera ca")
-                .filter("ca.id", carrera)
+                .join("carrera car", "colaborador cola")
+                .filter("car.id", carrera)
                 .filter("estado", ACT);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -197,4 +198,15 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
 
         return (AConsejeroEstado) query.uniqueResult();
     }
+
+    @Override
+    public Consejero findByColaboradorCarrera(Colaborador colaborador, Carrera carrera) {
+        Octavia sql = Octavia.query()
+                .from(Consejero.class, "conse")
+                .join("carrera ca", "colaborador cola", "cola.persona per")
+                .filter("cola.id", colaborador)
+                .filter("ca.id", carrera);
+        return find(sql);
+    }
+
 }

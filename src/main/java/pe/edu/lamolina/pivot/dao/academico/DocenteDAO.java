@@ -5,7 +5,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.general.Persona;
 
@@ -35,6 +34,6 @@ public interface DocenteDAO extends EasyDAO<Docente> {
 
     List<Docente> allByName(String nombre);
 
-    List<Docente> allByNombreFacultad(String nombre, Facultad facultad);
+    List<Docente> allByNombreDepartamentos(String nombre, List<DepartamentoAcademico> departamentos);
 
 }

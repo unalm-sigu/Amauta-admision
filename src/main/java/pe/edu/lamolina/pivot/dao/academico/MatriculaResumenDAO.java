@@ -22,7 +22,7 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     List<MatriculaResumen> allByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros);
 
-    public MatriculaResumen findMatriculadoByAlumno(CicloAcademico cicloAcademico, Alumno alumno);
+    MatriculaResumen findMatriculadoByAlumno(CicloAcademico cicloAcademico, Alumno alumno);
 
     AlumnoResumen findResumenByCicloRolDynateable(CicloAcademico ciclo, String codigo, List<Long> filtros);
 
@@ -40,41 +40,37 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     List<MatriculaResumen> findNotasIncompletas(List<Alumno> alumnos, CicloAcademico cicloAcademico);
 
-    public void updateList(List<Long> matriculables);
+    void updateList(List<Long> matriculables);
 
-    public void deleteMatriculable(CicloAcademico cicloAcademico);
+    void deleteMatriculable(CicloAcademico cicloAcademico);
 
-    public void saveMatriculables(List<Long> alumnos, CicloAcademico cicloAcademico);
+    void saveMatriculables(List<Long> alumnos, CicloAcademico cicloAcademico);
 
-    public MatriculaResumen findByAntPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
+    MatriculaResumen findByAntPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
 
-    public MatriculaResumen findByDesPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
+    MatriculaResumen findByDesPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
 
-    public void savePosGradoVerano(List<String> situacionesPregrado, CicloAcademico cicloAcademicoAnterior, CicloAcademico cicloAcademico);
+    void savePosGradoVerano(List<String> situacionesPregrado, CicloAcademico cicloAcademicoAnterior, CicloAcademico cicloAcademico);
 
-    public void savePreGradoVerano(List<String> situacionesPregrado, CicloAcademico cicloAcademicoAnterior, CicloAcademico cicloAcademico);
+    void savePreGradoVerano(List<String> situacionesPregrado, CicloAcademico cicloAcademicoAnterior, CicloAcademico cicloAcademico);
 
     List<MatriculaResumen> allByCicloFull(CicloAcademico ciclo);
 
-    public Long allSinConsejero(Carrera carrera, CicloAcademico cicloAcademico);
+    Long countMatriculablesByConsejero(Persona persona, CicloAcademico cicloAcademico);
 
-    public Long allConConsejero(Carrera carrera, CicloAcademico cicloAcademico);
+    Long countNoMatriculablesByConsejero(Persona persona, CicloAcademico cicloAcademico);
 
-    public Long allConConsejeroNN(Carrera carrera, CicloAcademico cicloAcademico);
+    Long countRetiroCicloByConsejero(Persona persona, CicloAcademico cicloAcademico);
 
-    public Long countMatriculablesByConsejero(Persona persona, CicloAcademico cicloAcademico);
+    List<MatriculaResumen> allByCicloMATAndNMAT(CicloAcademico cicloBD);
 
-    public Long countNoMatriculablesByConsejero(Persona persona, CicloAcademico cicloAcademico);
-
-    public Long countRetiroCicloByConsejero(Persona persona, CicloAcademico cicloAcademico);
-
-    public List<MatriculaResumen> allByCicloMATAndNMAT(CicloAcademico cicloBD);
-
-    public List<MatriculaResumen> allByCicloMat(CicloAcademico ciclo);
+    List<MatriculaResumen> allByCicloMat(CicloAcademico ciclo);
 
     void updateCreditos(MatriculaResumen matri);
 
     void updateColumns(MatriculaResumen matriculaResumenUpd, String... columns);
 
-    public void updateBeneficiado(MatriculaResumen matriculaResumen);
+    void updateBeneficiado(MatriculaResumen matriculaResumen);
+
+    List<MatriculaResumen> allSinConsejeria(Carrera carrera, CicloAcademico ciclo);
 }

@@ -49,5 +49,4 @@ public interface AlumnoService {
 
     String goMatricula(Long idAlumno, Usuario usuario);
 
-    public List<Alumno> findAlumnoConsejeria(Long carrera, CicloAcademico cicloAcademico);
 }
