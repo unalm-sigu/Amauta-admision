@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.consejeria.aconsejados;
+package pe.edu.lamolina.pivot.controller.consejeria.aconsejadoscarrera;
 
 import java.util.Date;
 import java.util.List;
@@ -23,7 +23,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = false)
-public class AconsejadoServiceImp implements AconsejadoService {
+public class AconsejadosCarreraServiceImp implements AconsejadosCarreraService {
 
     @Autowired
     AlumnoConsejeroDAO alumnoConsejeroDAO;

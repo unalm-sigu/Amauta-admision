@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.consejeria.aconsejados;
+package pe.edu.lamolina.pivot.controller.consejeria.aconsejadoscarrera;
 
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.ConsejerosService;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -33,13 +33,13 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("consejeria/aconsejado")
-public class AconsejadoController {
+@RequestMapping("consejeria/aconsejadoscarrera")
+public class AconsejadosCarreraController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    AconsejadoService service;
+    AconsejadosCarreraService service;
     @Autowired
     ConsejerosService consejeroService;
     @Autowired
@@ -55,7 +55,7 @@ public class AconsejadoController {
         }));
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());
 
-        return "consejeria/aconsejado/aconsejado";
+        return "consejeria/aconsejadoscarrera/aconsejadosCarrera";
     }
 
     @ResponseBody
@@ -86,6 +86,7 @@ public class AconsejadoController {
                             "alumno.cicloIngreso.descripcion",
                             "alumno.situacionAcademica.codigo",
                             "alumno.situacionAcademica.nombre",
+                            "alumno.persona.emailCompania",
                             "alumno.persona.tipoFoto",
                             "alumno.persona.rutaFoto",
                             "alumno.persona.apellidosNombres",

@@ -66,6 +66,7 @@ public class AconsejadosTutorController {
                             "alumno.cicloIngreso.descripcion",
                             "alumno.situacionAcademica.codigo",
                             "alumno.situacionAcademica.nombre",
+                            "alumno.persona.emailCompania",
                             "alumno.persona.tipoFoto",
                             "alumno.persona.rutaFoto",
                             "alumno.persona.apellidosNombres",

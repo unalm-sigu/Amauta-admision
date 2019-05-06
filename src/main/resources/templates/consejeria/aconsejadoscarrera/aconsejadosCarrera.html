@@ -128,6 +128,9 @@
                                                     <span class="block">
                                                         {{item.alumno.codigo}}
                                                     </span>
+                                                    <small v-if="item.alumno.persona.emailCompania != '' " class="block text-primary">
+                                                        <i class="fa fa-envelope-o"></i> {{item.alumno.persona.emailCompania}}
+                                                    </small>
                                                     <!--small v-if="item.alumno.persona.numeroDocIdentidad != '' " class="block bold">
                                                         {{item.alumno.persona.tipoDocumento.simbolo}}: {{item.alumno.persona.numeroDocIdentidad}}
                                                     </small-->
@@ -206,7 +209,7 @@
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="consejeria/aconsejado/aconsejadoModal"></div>
+                <div th:substituteby="consejeria/aconsejadoscarrera/aconsejadoModal"></div>
             </div>
 
             <div th:substituteby="_modules/vue-modal"/>
@@ -218,11 +221,11 @@
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 var carrerasJson = /*[[${carreras}]]*/ 'json';
-                var rutaModulo = 'consejeria/aconsejado';
+                var rutaModulo = 'consejeria/aconsejadoscarrera';
                 /*]]>*/
             </script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-            <script th:src="@{/app/consejeria/aconsejado/aconsejado.js}" charset="utf-8"></script>
+            <script th:src="@{/app/consejeria/aconsejadoscarrera/aconsejadosCarrera.js}" charset="utf-8"></script>
         </div>
 
     </body>

@@ -111,6 +111,9 @@
                                                     <span class="block">
                                                         {{item.alumno.codigo}}
                                                     </span>
+                                                    <small v-if="item.alumno.persona.emailCompania != '' " class="block text-primary">
+                                                        <i class="fa fa-envelope-o"></i> {{item.alumno.persona.emailCompania}}
+                                                    </small>
                                                     <!--small v-if="item.alumno.persona.numeroDocIdentidad != '' " class="block bold">
                                                         {{item.alumno.persona.tipoDocumento.simbolo}}: {{item.alumno.persona.numeroDocIdentidad}}
                                                     </small-->
