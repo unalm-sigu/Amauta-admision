@@ -34,12 +34,12 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
     MatriculaResumenDAO matriculaResumenDAO;
 
     @Override
-    public List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona persona) {
-        List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByPersona(filter, cicloAcademico, persona);
+    public List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor) {
+        List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByPersonaTutor(filter, cicloAcademico, tutor);
         List<Alumno> alumnos = alumnoConsejeros.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
         Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
-        logger.debug(" alumno consejero{}", alumnoConsejeros.size());
+        logger.debug("alumno consejero {}", alumnoConsejeros.size());
 
         for (AlumnoConsejero alumnoTutor : alumnoConsejeros) {
             MatriculaResumen matResumen = mapMatriculaResumen.get(alumnoTutor.getAlumno().getId());

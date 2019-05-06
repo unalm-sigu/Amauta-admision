@@ -50,9 +50,7 @@ public class AconsejadosCarreraController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<Carrera> carreras = consejeroService.allCarreraByPersonaCiclo(ds.getPersona(), ds.getCicloAcademico());
 
-        model.addAttribute("ciclo", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{
-            "*"
-        }));
+        model.addAttribute("ciclo", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{"*"}));
         model.addAttribute("carreras", createCarrerasJson(carreras).toString());
 
         return "consejeria/aconsejadoscarrera/aconsejadosCarrera";
