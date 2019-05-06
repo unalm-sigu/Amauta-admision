@@ -7,9 +7,10 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.AConsejeroEstado;
-import pe.edu.lamolina.pivot.controller.consejeria.consejeros.ConsejeriaEstado;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.ConsejeroEstado;
 
 public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
@@ -17,17 +18,19 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
     Consejero finByIdPersona(Persona persona);
 
-    ConsejeriaEstado findByStateAndCarrera(Long carrera);
+    ConsejeroEstado countConsejerosByCarrera(Carrera carrera);
 
-    List<Consejero> findConsejeroByEstado(Long carrera);
+    List<Consejero> allActivosByCarrera(Carrera carrera);
 
     List<Consejero> allByNombreAndCarrera(String nombre, Carrera carrera);
 
     List<Alumno> allAlumnosByConsejero(Consejero consejero);
 
-    public Long findByMatriculaActivo(List<Alumno> alumos, Long carrera, CicloAcademico cicloacademico);
+    Long findByMatriculaActivo(List<Alumno> alumos, Long carrera, CicloAcademico cicloacademico);
 
-    public Long findByMatriculaInactivo(List<Alumno> alumos, Long carrera, CicloAcademico cicloacademico);
+    Long findByMatriculaInactivo(List<Alumno> alumos, Long carrera, CicloAcademico cicloacademico);
 
-    public AConsejeroEstado findAconsejadosByMatricula(Long carrera, CicloAcademico cicloAcademico);
+    AConsejeroEstado findAconsejadosByMatricula(Long carrera, CicloAcademico cicloAcademico);
+
+    Consejero findByColaboradorCarrera(Colaborador colaborador, Carrera carrera);
 }

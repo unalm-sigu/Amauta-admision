@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.consejeria.aconsejados;
+package pe.edu.lamolina.pivot.controller.consejeria.aconsejadoscarrera;
 
 import java.util.Date;
 import java.util.List;
@@ -13,26 +13,29 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
+import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.consejeria.AlumnoConsejeroDAO;
+import pe.edu.lamolina.pivot.dao.consejeria.ConsejeriaResumenDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = false)
-public class AconsejadoServiceImp implements AconsejadoService {
+public class AconsejadosCarreraServiceImp implements AconsejadosCarreraService {
 
     @Autowired
     AlumnoConsejeroDAO alumnoConsejeroDAO;
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+    @Autowired
+    ConsejeriaResumenDAO consejeriaResumenDAO;
 
     @Override
-    public List<AlumnoConsejero> allAconsejadoByDynatableCarrera(DynatableFilter filter, CicloAcademico cicloAcademico) {
+    public List<AlumnoConsejero> allAconsejadoByDynatable(Carrera carrera, DynatableFilter filter, CicloAcademico cicloAcademico) {
 
-        List<AlumnoConsejero> aconsejadosCarrera = alumnoConsejeroDAO.allByCarrera(filter);
+        List<AlumnoConsejero> aconsejadosCarrera = alumnoConsejeroDAO.allByDynatableCarrera(carrera, filter, cicloAcademico);
         List<Alumno> alumnos = aconsejadosCarrera.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
         Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
@@ -41,6 +44,8 @@ public class AconsejadoServiceImp implements AconsejadoService {
             MatriculaResumen matResumen = mapMatriculaResumen.get(alumnoTutor.getAlumno().getId());
             if (matResumen != null) {
                 alumnoTutor.setEstadoMatriculableEnum(matResumen.getEstadoEnum());
+                alumnoTutor.setCursosMatriculados(matResumen.getCursosMatriculados());
+                alumnoTutor.setCreditosMatriculados(matResumen.getCreditosMatriculados());
             } else {
                 alumnoTutor.setEstadoMatriculableEnum(EstadoMatriculaEnum.INH);
             }
@@ -58,16 +63,10 @@ public class AconsejadoServiceImp implements AconsejadoService {
     }
 
     @Override
-    public AconsejadoEstadoBean allByCarrera(Carrera carrera, CicloAcademico cicloAcademico) {
-        Long countSinConsejero = matriculaResumenDAO.allSinConsejero(carrera, cicloAcademico);
-        Long countActivos = matriculaResumenDAO.allConConsejero(carrera, cicloAcademico);
-        Long countConConsejeroNN = matriculaResumenDAO.allConConsejeroNN(carrera, cicloAcademico);
-
-        AconsejadoEstadoBean aconsejadoEstadoBean = new AconsejadoEstadoBean();
-        aconsejadoEstadoBean.setActivos(countActivos);
-        aconsejadoEstadoBean.setSinConsejero(countConConsejeroNN);
-        aconsejadoEstadoBean.setSinAsignar(countSinConsejero);
-        return aconsejadoEstadoBean;
+    public ConsejeriaResumen getResumenByCarreraCiclo(Carrera carrera, CicloAcademico cicloAcademico) {
+        ConsejeriaResumen resumen = consejeriaResumenDAO.findByCarreraCiclo(carrera, cicloAcademico);
+        resumen = (resumen == null) ? new ConsejeriaResumen() : resumen;
+        return resumen;
     }
 
 }

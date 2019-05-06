@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.general;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
@@ -32,6 +33,6 @@ public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
     Colaborador findByPersonaAndEstado(Persona persona);
 
-    Colaborador findColaboradorByIdPersona(Long idPersona);
+    Colaborador findDocenteActivoByPersonaDptoAcademico(Persona persona, DepartamentoAcademico departamento);
 
 }

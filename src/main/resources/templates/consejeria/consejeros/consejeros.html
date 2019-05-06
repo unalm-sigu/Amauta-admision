@@ -64,8 +64,8 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li><a type="button" v-bind:disabled="btndissabled" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Consejero</a></li>
-                                <li><a type="button" v-bind:disabled="btndissabled" v-on:click.prevent="asignarAlummnos" >Asignar Alumnos aleatoriamente</a></li>
-                                <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Desasignar Alumnos</a></li>
+                                <li><a type="button" v-bind:disabled="btndissabled" v-on:click.prevent="asignarAlummnos" >Asignar tutores aleatoriamente</a></li>
+                                <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Retirar tutores de alumnos</a></li>
                             </ul>
                         </div>
                         <h2>Listado de Tutores <span v-text='ciclo.descripcion'></span></h2>
@@ -73,7 +73,8 @@
                     <section class="wrapper-lg">
                         <section class="panel">
                             <section class="panel-body">
-                                <raptor-table ref="raptorConsejero">      
+
+                                <raptor-table ref="raptorConsejero" v-bind:afterprocess="loadResumenCarrera">
                                     <div slot="header">
                                         <div class="">
                                             <div class="row">
@@ -90,41 +91,41 @@
                                                                  v-on:input="cargaConsejeros">
                                                     </multiselect>
                                                 </div>
-                                                <div class="col-md-ver text-center" v-bind:class="bgColorClass['activos']">
+                                                <div class="col-md-ver text-center" v-bind:class="bgColorClass['Habilitado']">
                                                     <a v-on:click="filtroConsejeros('Habilitado')" class="text-success pointer" >
-                                                        <span class="h2 bold" v-text="cantidadActivo"></span>
+                                                        <span class="h2 bold" v-text="resumenCarrera.consejerosActivos"></span>
                                                         <small class="block m-b-xxs">Tutores</small>
                                                         <small class="block m-b-xs">Activos</small>
                                                     </a>
                                                 </div>
-                                                <div class="col-md-ver text-center" v-bind:class="bgColorClass['inactivos']">
+                                                <div class="col-md-ver text-center" v-bind:class="bgColorClass['Inhabilitado']">
                                                     <a v-on:click="filtroConsejeros('Inhabilitado')" class="text-black pointer" >
-                                                        <span class="h2 bold" v-text="cantidadInactivo"></span>
+                                                        <span class="h2 bold" v-text="resumenCarrera.consejerosInactivos"></span>
                                                         <small class="block m-b-xxs">Tutores</small>
                                                         <small class="block m-b-xs">Inactivos</small>
                                                     </a>
                                                 </div>
-                                                <!--div class="col-md-ver text-center">
+                                                <div class="col-md-ver text-center">
                                                     <div class="text-info" >
-                                                        <span class="h2 bold" v-text="cantidadConConnsejo"></span>
+                                                        <span class="h2 bold" v-text="resumenCarrera.aconsejadosActivos + resumenCarrera.aconsejadosInactivos"></span>
                                                         <small class="block m-b-xxs">Alumnos</small>
                                                         <small class="block m-b-xs">Con tutor</small>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-ver text-center">
                                                     <div  class="text-danger" >
-                                                        <span class="h2 bold" v-text="cantidadSinConsejero"></span>
+                                                        <span class="h2 bold" v-text="resumenCarrera.sinconsejeroActivos + resumenCarrera.sinconsejeroInactivos"></span>
                                                         <small class="block m-b-xxs">Alumnos</small>
                                                         <small class="block m-b-xs">Sin tutor</small>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-ver text-center">
                                                     <div  class="text-default" >
-                                                        <span class="h2 bold" v-text="cantidadConsejeroRetirado"></span>
+                                                        <span class="h2 bold" v-text="resumenCarrera.inhabilitados"></span>
                                                         <small class="block m-b-xxs">Alumnos</small>
-                                                        <small class="block m-b-xs">Sin asignación</small>
+                                                        <small class="block m-b-xs">Inhabilitados</small>
                                                     </div>
-                                                </div-->
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -143,10 +144,14 @@
                                                     <td class="v-middle">
 
                                                         <a class="block text-primary h4 m-t-xxs m-b-xxs">{{item.colaborador.persona.nombreCompleto}}</a> 
-                                                        <small class="block">
+                                                        <!--small class="block">
                                                             <strong>{{item.colaborador.persona.tipoDocumento.simbolo}}:</strong> 
                                                             {{item.colaborador.persona.numeroDocIdentidad}}
-                                                        </small>
+                                                        </small-->
+                                                        <span class="block" v-if="item.colaborador.persona.emailCompania != '' ">
+                                                            <i class="fa fa-envelope text-primary"></i>
+                                                            {{item.colaborador.persona.emailCompania}}
+                                                        </span>
                                                         <small class="block">
                                                             <strong>Codigo: </strong>
                                                             {{item.docente.codigo}}

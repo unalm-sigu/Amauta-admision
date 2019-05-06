@@ -1,5 +1,5 @@
-<modal-vik ref="añadirConsejeroModal"
-           v-bind="añadirConsejeroModal"
+<modal-vik ref="nuevoConsejeroModal"
+           v-bind="configNuevoConsejero"
            v-bind:okaction="saveConsejero">
     <div slot="body">
 
@@ -13,11 +13,14 @@
                 <label>Seleccione un docente</label>
                 <div class="form-group">
                     <multiselect v-model="docenteSelect" 
-                                 v-bind:options='listadoDocentes'
+                                 v-bind:options='docentes'
                                  label='nombres'
-                                 v-bind:custom-label="nombreforShow"
+                                 v-bind:custom-label="nombreDocente"
                                  track-by='id'
                                  placeholder="Ingrese y seleccione el nombre de un docente"
+                                 deselect-label=""
+                                 select-label=""
+                                 v-bind:allow-empty="false"
                                  v-bind:internal-search="false"
                                  v-on:search-change="getDocentes"
                                  v-on:input="cargaDepartamento">
@@ -31,10 +34,11 @@
                     </multiselect>
                 </div>
             </div>
-            <div class="col-md-12 preguntas-col">
-                <label>Departamento del docente seleccionado</label>
+            <div v-if="departamentoDocente.id != undefined "
+                 class="col-md-12 preguntas-col">
                 <div class="form-group">
-                    <input type="text" class="form-control numeric" v-model="departamento" disabled="true" />
+                    <label>Departamento académico del docente</label>
+                    <span class="form-control text-primary" v-text="departamentoDocente.nombre" />
                 </div>
             </div>
         </div>

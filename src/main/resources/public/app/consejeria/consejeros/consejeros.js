@@ -3,31 +3,33 @@ Vue.component("multiselect", window.VueMultiselect.default)
 new Vue({
     el: '#consejeriaVUE',
     data: {
-        bgColorClass: {activos: '', inactivos: ''},
+        bgColorClass: {Habilitado: '', Inhabilitado: ''},
         consjerosURL: APP.url(rutaModulo + '/list'),
-        añadirConsejeroModal: {
-            id: 'añadirConsejeroModal',
+        configNuevoConsejero: {
+            id: 'nuevoConsejeroModal',
             header: 'true',
             title: "Añadir Consejeros",
             okbtn: 'Agregar',
             showaccept: true
         },
-        cantidadActivoAlumno: 0,
-        cantidadInactivoAlumno: 0,
-        cantidadActivo: 0,
-        cantidadInactivo: 0,
-        cantidadConConnsejo: 0,
-        cantidadSinConsejero: 0,
-        cantidadConsejeroRetirado: 0,
-        estadoConsejero: '',
+        resumenCarrera: {
+            consejerosActivos: 0,
+            consejerosInactivos: 0,
+            aconsejadosActivos: 0,
+            aconsejadosInactivos: 0,
+            sinconsejeroInactivos: 0,
+            sinconsejeroActivos: 0,
+            inhabilitados: 0
+        },
+        seleccionado: '',
         ciclo: [],
         carreras: [],
         btndissabled: '',
-        listadoDocentes: [],
+        docentes: [],
         listadoCarreras: [],
-        carreraSelect: '',
-        docenteSelect: '',
-        departamento: '',
+        carreraSelect: {},
+        docenteSelect: {},
+        departamentoDocente: {},
         docenteResquest: {
             id: '',
             estado: '',
@@ -37,12 +39,7 @@ new Vue({
         },
         pagination: {'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true},
         isLoading: false,
-    },
-    computed: {
-        btnAñadir() {
-            let $vue = this;
-            return $vue.btndissabled;
-        }
+        loadResumen: false,
     },
     mounted: function () {
         let $vue = this;
@@ -52,7 +49,7 @@ new Vue({
         let carrera = $vue.$refs.raptorConsejero.getParameterByName('queries[carrera]');
         carrera = (carrera == null) ? '' : carrera;
 
-        if ($vue.carreras.length == 1 && carrera == '') {
+        if ($vue.carreras.length > 0 && carrera == '') {
             $vue.carreraSelect = $vue.carreras[0];
         } else if (carrera != '') {
             for (var i = 0; i < $vue.carreras.length; i++) {
@@ -62,7 +59,7 @@ new Vue({
             }
         }
 
-        if ($vue.carreraSelect != '') {
+        if ($vue.carreraSelect.id != undefined) {
             $vue.cargaConsejeros();
         }
 
@@ -72,34 +69,54 @@ new Vue({
         $vue.btndissabled = true;
     },
     methods: {
-        nombreforShow(item) {
+        nombreDocente(item) {
+            if (item.persona == undefined) {
+                return "";
+            }
             return item.persona.nombreCompleto;
         },
         nuevoConsejero() {
             let $vue = this;
             if ($vue.btndissabled === false) {
-                $vue.$refs.añadirConsejeroModal.open();
+                $vue.docenteSelect = {};
+                $vue.departamentoDocente = {};
+                $vue.docentes = [];
+                $vue.$refs.nuevoConsejeroModal.open();
             } else {
                 notify("Primero debe seleccionar una carrera", 'default');
             }
         },
         filtroConsejeros(estado) {
             let $vue = this;
-            $vue.isLoading = true;
-            $vue.estadoConsejero = estado;
-            $vue.$refs.raptorConsejero.querie.push({name: 'status', value: estado});
-            $vue.actualizar();
-
-            if (estado === 'Habilitado') {
-                $vue.bgColorClass['activos'] = 'bg-light';
-                $vue.bgColorClass['inactivos'] = '';
-            } else {
-                $vue.bgColorClass['activos'] = '';
-                $vue.bgColorClass['inactivos'] = 'bg-light';
+            if ($vue.carreraSelect.id == undefined) {
+                return;
             }
+            if ($vue.carreraSelect.id == '') {
+                return;
+            }
+
+            $vue.$refs.raptorConsejero.querie = [];
+            $vue.$refs.raptorConsejero.querie.push({name: 'carrera', value: $vue.carreraSelect.id});
+
+            if ($vue.seleccionado === '') {
+                $vue.bgColorClass[estado] = 'bg-light';
+                $vue.seleccionado = estado;
+                $vue.$refs.raptorConsejero.querie.push({name: "status", value: estado});
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado !== estado) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.bgColorClass[estado] = 'bg-light';
+                $vue.seleccionado = estado;
+                $vue.$refs.raptorConsejero.querie.push({name: "status", value: estado});
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado === estado) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.seleccionado = '';
+                $vue.$refs.raptorConsejero.changeUrl('queries[status]', null);
+            }
+            $vue.$refs.raptorConsejero.loadRemoteData();
         },
         getDocentes(docente) {
-            /// listado de docente por carrera
             let $vue = this;
             let facultad = $vue.carreraSelect.facultad.id;
             $vue.isLoading = true;
@@ -109,97 +126,78 @@ new Vue({
                 dataType: 'json',
                 type: 'post',
             }).then(response => {
-                $vue.listadoDocentes = response.data;
+                $vue.docentes = response.data;
                 $vue.isLoading = false;
             });
         },
         cargaDepartamento() {
             let $vue = this;
-            if ($vue.docenteSelect === null) {
-                $vue.departamento = "";
-                $vue.docenteResquest = null;
-            } else {
-                $vue.departamento = $vue.docenteSelect.departamentoAcademico.nombre;
-                $vue.docenteResquest.estado = $vue.docenteSelect.estado;
-                $vue.docenteResquest.idDepartamento = $vue.docenteSelect.departamentoAcademico.id;
-                $vue.docenteResquest.idFacultad = $vue.docenteSelect.departamentoAcademico.facultad.id;
-                $vue.docenteResquest.idPersona = $vue.docenteSelect.persona.id;
-            }
+            $vue.departamentoDocente = $vue.docenteSelect.departamentoAcademico;
         },
         cargaConsejeros() {
-            // listado de consejeros en dynatable
             let $vue = this;
             let carrera = $vue.carreraSelect.id;
-            $vue.$refs.raptorConsejero.querie = [];
-            $vue.bgColorClass['inactivos'] = '';
-            $vue.bgColorClass['activos'] = '';
-            $vue.listadoDocentes = '';
-            $vue.docenteSelect = '';
-            $vue.departamento = '';
 
-            if ($vue.carreraSelect === null) {
-                $vue.btndissabled = true;
-            } else {
-                $vue.$refs.raptorConsejero.querie.push({name: 'carrera', value: carrera});
-                $vue.btndissabled = false;
-                $vue.actualizar();
+            if ($vue.seleccionado !== '') {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.seleccionado = '';
             }
-            
-            $vue.getCantidadEstado(carrera);
-            $vue.getAconsejados(carrera);
+
+            $vue.resumenCarrera.consejerosActivos = 0;
+            $vue.resumenCarrera.consejerosInactivos = 0;
+            $vue.resumenCarrera.aconsejadosActivos = 0;
+            $vue.resumenCarrera.aconsejadosInactivos = 0;
+            $vue.resumenCarrera.sinconsejeroActivos = 0;
+            $vue.resumenCarrera.sinconsejeroInactivos = 0;
+
+            $vue.btndissabled = false;
+            $vue.$refs.raptorConsejero.querie = [];
+            $vue.$refs.raptorConsejero.querie.push({name: 'carrera', value: carrera});
+            $vue.$refs.raptorConsejero.url = APP.url(rutaModulo + '/list/' + carrera);
+            $vue.$refs.raptorConsejero.loadRemoteData();
+            $vue.loadResumen = true;
         },
-        getCantidadEstado(carrera) {
+        getResumenCarrera(carrera) {
             let $vue = this;
             $.ajax({
-                url: APP.url(rutaModulo + "/filtroEstado"),
+                url: APP.url(rutaModulo + "/resumenCarrera"),
                 data: {carrera: carrera},
                 dataType: 'json',
                 type: 'post',
             }).then(response => {
-                $vue.cantidadActivo = response.data.activo === "" ? 0 : response.data.activo;
-                $vue.cantidadInactivo = response.data.inactivo === "" ? 0 : response.data.inactivo;
-                this.isLoading = false;
+                $vue.resumenCarrera = response.data;
+                $vue.isLoading = false;
+                $vue.loadResumen = false;
             });
         },
-        getAconsejados(carrera) {
+        loadResumenCarrera() {
             let $vue = this;
-            $.ajax({
-                url: APP.url(rutaModulo + "/cantidadAconsejados"),
-                data: {carrera: carrera},
-                dataType: 'json',
-                type: 'post',
-            }).then(response => {
-                $vue.cantidadConConnsejo = response.data.conConsejados;
-                $vue.cantidadConsejeroRetirado = response.data.consejeroRetirado;
-                $vue.cantidadSinConsejero = response.data.sinConsejeros;
-                this.isLoading = false;
-            });
+            let carrera = $vue.carreraSelect.id;
+            if ($vue.loadResumen) {
+                $vue.getResumenCarrera(carrera);
+            }
         },
         cambiarEstado(item, estado) {
             let $vue = this;
-            let consejero = item;
+            let consejero = {id: item.id, estado: estado};
 
             this.isLoading = true
-//            alert(JSON.stringify(consejero));
-            if (consejero.estado == 'INA') {
+            if (consejero.estado == 'ACT') {
                 $.ajax({
                     method: 'POST',
                     url: APP.url(rutaModulo + "/cambiarEstado"),
-                    data: JSON.stringify({
-                        id: consejero.id,
-                        estado: estado
-                    }),
+                    data: JSON.stringify(consejero),
                     contentType: "application/json",
                 }).then(response => {
-                    this.isLoading = false;
                     notify(response.message, 'info');
-                    $vue.actualizar();
+                    $vue.loadResumen = true;
+                    $vue.$refs.raptorConsejero.loadRemoteData();
                 });
 
             } else {
 
                 bootbox.confirm({
-                    message: '¿Seguro que desea inhabilitar el consejero seleccionado? Si inhabilita al consejero seleccionado, todos los alumnos asociados a este seran transladados al consejero externo.',
+                    message: '¿Seguro que desea inhabilitar al tutor seleccionado? <br/> Al deshabilitar, todos los alumnos asociados a este quedarán sin tutor.',
                     buttons: {
                         confirm: {label: 'Si, inhabilitar', className: "btn-danger"},
                         cancel: {label: 'Cancelar', className: "btn-link"}
@@ -209,23 +207,19 @@ new Vue({
                             $.ajax({
                                 method: 'POST',
                                 url: APP.url(rutaModulo + "/cambiarEstado"),
-                                data: JSON.stringify({
-                                    id: consejero.id,
-                                    estado: estado
-                                }),
+                                data: JSON.stringify(consejero),
                                 contentType: "application/json",
                                 success: function (response) {
                                     if (response.success) {
                                         notify(response.message, 'info');
-                                        $vue.actualizar();
-                                        $vue.docenteSelect = '';
-                                        $vue.departamento = '';
-                                        $vue.$refs.añadirConsejeroModal.close();
+                                        $vue.loadResumen = true;
+                                        $vue.$refs.raptorConsejero.loadRemoteData();
 
                                     } else {
                                         notify(response.message, 'error');
                                     }
-                                }, error: function () {
+                                },
+                                error: function () {
                                     notify(MESSAGES.errorComunicacion, "error");
                                 }
                             });
@@ -243,30 +237,22 @@ new Vue({
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
+
                     if (result) {
+                        let docente = Object.assign({}, $vue.docenteSelect, {});
+                        docente.carrera = $vue.carreraSelect;
+
                         $.ajax({
                             method: 'POST',
                             url: APP.url(rutaModulo + "/saveConsejero"),
-                            data: JSON.stringify({
-                                estado: $vue.docenteResquest.estado,
-                                persona: {id: $vue.docenteResquest.idPersona
-                                },
-                                departamentoAcademico: {
-                                    id: $vue.docenteResquest.idDepartamento,
-                                    facultad: {
-                                        id: $vue.docenteResquest.id_facultad
-                                    }
-                                },
-                                carrera: $vue.carreraSelect
-                            }),
+                            data: JSON.stringify(docente),
                             contentType: "application/json",
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
-                                    $vue.$refs.añadirConsejeroModal.close();
-                                    $vue.docenteSelect = '';
-                                    $vue.departamento = '';
-                                    $vue.actualizar();
+                                    $vue.$refs.nuevoConsejeroModal.close();
+                                    $vue.loadResumen = true;
+                                    $vue.$refs.raptorConsejero.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
                                 }
@@ -282,56 +268,77 @@ new Vue({
             let $vue = this;
             let carrera = $vue.carreraSelect.id;
             $vue.isLoading = true;
-            if (0 || $vue.cantidadActivo) {
-                if ($vue.cantidadSinConsejero > 0 || $vue.cantidadConsejeroRetirado > 0) {
-                    bootbox.confirm({
-                        message: '¿Está seguro que desea asignar aleatoriamente tutores a los alumnos sin consejero?',
-                        buttons: {
-                            confirm: {label: 'Si, Asignar aleatoriamente', className: "btn-success"},
-                            cancel: {label: 'Cancelar', className: "btn-link"}
-                        },
-                        callback: function (result) {
-                            if (result) {
-                                $.ajax({
-                                    method: 'POST',
-                                    url: APP.url(rutaModulo + "/asignarAlumno"),
-                                    data: {carrera: carrera},
-                                    dataType: 'json',
-                                    success: function (response) {
-                                        if (response.success) {
-                                            notify(response.message, 'info');
-                                            $vue.actualizar();
-                                        } else {
-                                            notify(response.message, 'error');
-                                        }
-                                    }, error: function () {
-                                        notify(MESSAGES.errorComunicacion, "error");
-                                    }
-                                });
-                            }
-                        }
-                    });
-                    $vue.isLoading = false;
-                } else {
-                    notify("Actualmente no cuenta con alumnos disponibles", 'default');
-                }
-            } else {
-                notify("Actualmente no cuenta con consejero en estado activo", 'default');
+
+            let sinConsejeros = $vue.resumenCarrera.sinconsejeroInactivos + $vue.resumenCarrera.sinconsejeroActivos;
+            if (sinConsejeros == 0) {
+                notify("No existe alumnos sin consejeros para esta carrera", 'error');
+                return;
             }
+
+            if ($vue.resumenCarrera.consejerosActivos == 0) {
+                notify("No existe tutores activos para esta carrera", 'error');
+                return;
+            }
+
+            let mm = bootbox.confirm({
+                message: '¿Está seguro que desea asignar aleatoriamente tutores a los alumnos sin consejero?',
+                buttons: {
+                    confirm: {label: 'Si, asignar aleatoriamente', className: "btn-success btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                        $(".btn-modal").prop('disabled', true);
+
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url(rutaModulo + "/asignarAlumno"),
+                            data: {carrera: carrera},
+                            dataType: 'json',
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, 'info');
+                                    $vue.loadResumen = true;
+                                    $vue.$refs.raptorConsejero.loadRemoteData();
+                                    mm.modal("hide");
+                                    
+                                } else {
+                                    $(".btn-modal").prop('disabled', false);
+                                    $(".btn-procesar").html('Si, asignar aleatoriamente');
+                                    notify(response.message, 'error');
+                                }
+
+                            }, error: function () {
+                                $(".btn-modal").prop('disabled', false);
+                                $(".btn-procesar").html('Si, asignar aleatoriamente');
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+
+                        return false;
+                    }
+                }
+            });
+
+
         },
         desasignarAlummnos() {
             let $vue = this;
             let carrera = $vue.carreraSelect.id;
             if ($vue.btndissabled === false) {
                 $vue.isLoading = true;
-                bootbox.confirm({
-                    message: '¿Esta seguro que desea desasignar todos los alumnos?',
+                let mm = bootbox.confirm({
+                    message: '¿Esta seguro que desea rertirar los tutores a todos los alumnos?',
                     buttons: {
-                        confirm: {label: 'Si, Desasignar alumnos', className: "btn-danger"},
-                        cancel: {label: 'Cancelar', className: "btn-link"}
+                        confirm: {label: 'Si, retirar tutores', className: "btn-danger btn-modal btn-procesar"},
+                        cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
                     },
                     callback: function (result) {
                         if (result) {
+                            $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                            $(".btn-modal").prop('disabled', true);
+
                             $.ajax({
                                 method: 'POST',
                                 url: APP.url(rutaModulo + "/desasignarAlumno"),
@@ -340,14 +347,23 @@ new Vue({
                                 success: function (response) {
                                     if (response.success) {
                                         notify(response.message, 'info');
-                                        $vue.actualizar();
+                                        $vue.loadResumen = true;
+                                        $vue.$refs.raptorConsejero.loadRemoteData();
+                                        mm.modal("hide");
+
                                     } else {
+                                        $(".btn-modal").prop('disabled', false);
+                                        $(".btn-procesar").html('Si, retirar tutores');
                                         notify(response.message, 'error');
                                     }
                                 }, error: function () {
+                                    $(".btn-modal").prop('disabled', false);
+                                    $(".btn-procesar").html('Si, retirar tutores');
                                     notify(MESSAGES.errorComunicacion, "error");
                                 }
                             });
+
+                            return false;
                         }
                     }
                 });
@@ -359,8 +375,6 @@ new Vue({
         actualizar() {
             let $vue = this;
             let carrera = $vue.carreraSelect.id;
-            $vue.getCantidadEstado(carrera);
-            $vue.getAconsejados(carrera);
             $vue.$refs.raptorConsejero.url = APP.url(rutaModulo + '/list/' + carrera);
             $vue.$refs.raptorConsejero.loadRemoteData();
         }

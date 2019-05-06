@@ -10,17 +10,24 @@ import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.Aconsejado;
 
 public interface AlumnoConsejeroDAO extends EasyDAO<AlumnoConsejero> {
 
-    void insertAlumnoConsejero(Consejero get, CicloAcademico cicloAcademico, Usuario usuario, Carrera carrera, List<Alumno> alumno);
+    void insertAlumnoConsejero(Consejero consejero, CicloAcademico cicloAcademico, Usuario usuario, Carrera carrera, List<Alumno> alumno);
 
-    void desasignarAlumnosConsejero(List<Consejero> consejeros, Usuario usuario);
-
-    List<AlumnoConsejero> allByCarrera(DynatableFilter filter);
+    List<AlumnoConsejero> allByDynatableCarrera(Carrera carrera, DynatableFilter filter, CicloAcademico cicloAcademico);
 
     List<AlumnoConsejero> allByPersona(DynatableFilter filter, CicloAcademico cicloAcademico, Persona persona);
 
-    List<AlumnoConsejero> findAlumnoConsejeroByIdConsejero(Consejero consejero);
+    List<AlumnoConsejero> allByConsejeroCiclo(Consejero consejero, CicloAcademico ciclo);
+
+    List<AlumnoConsejero> allActivosByConsejeroCarreraCiclo(Consejero consejero, Carrera carrera, CicloAcademico ciclo);
+
+    List<AlumnoConsejero> allActivosByCarreraCiclo(Carrera carrera, CicloAcademico ciclo);
+
+    Aconsejado countAconsejadosMatriculables(Carrera carrera, CicloAcademico ciclo);
+
+    Aconsejado countAconsejadosNoMatriculables(Carrera carrera, CicloAcademico ciclo);
 
 }

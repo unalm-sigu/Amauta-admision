@@ -26,7 +26,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("consejeria/aconsejadosdocente")
+@RequestMapping("consejeria/aconsejadostutor")
 public class AconsejadosTutorController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -51,22 +51,35 @@ public class AconsejadosTutorController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            List<AlumnoConsejero> consejeros = service.allByDynatable(filter, ds.getCicloAcademico(), ds.getPersona());
+            List<AlumnoConsejero> alumnosTutor = service.allByDynatable(filter, ds.getCicloAcademico(), ds.getPersona());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (AlumnoConsejero consjros : consejeros) {
-                ObjectNode node = JsonHelper.createJson(consjros, JsonNodeFactory.instance, true,
-                        new String[]{
+            for (AlumnoConsejero alumnoTutor : alumnosTutor) {
+                ObjectNode node = JsonHelper.createJson(alumnoTutor, JsonNodeFactory.instance, true,
+                       new String[]{
                             "*",
-                            "alumno.*",
-                            "alumno.cicloIngreso.*",
-                            "alumno.situacionAcademica.*",
-                            "alumno.persona.*",
-                            "alumno.persona.tipoDocumento.*",
-                            "alumno.persona.tipoDocumento.*",
+                            "alumno.id",
+                            "alumno.codigo",
+                            "alumno.creditosCursados",
+                            "alumno.creditosAprobados",
+                            "alumno.promedioAcumulado",
+                            "alumno.cicloIngreso.descripcion",
+                            "alumno.situacionAcademica.codigo",
+                            "alumno.situacionAcademica.nombre",
+                            "alumno.persona.emailCompania",
+                            "alumno.persona.tipoFoto",
+                            "alumno.persona.rutaFoto",
+                            "alumno.persona.apellidosNombres",
+                            "alumno.persona.numeroDocIdentidad",
+                            "alumno.persona.tipoDocumento.simbolo",
+                            "alumno.carrera.nombre",
+                            "alumno.carrera.facultad.nombre",
                             "consejero.*",
-                            "consejero.colaborador.persona.*",
-                            "consejero.colaborador.persona.tipoDocumento.*",});
+                            "consejero.colaborador.persona.emailCompania",
+                            "consejero.colaborador.persona.numeroDocIdentidad",
+                            "consejero.colaborador.persona.apellidosNombres",
+                            "consejero.colaborador.persona.tipoDocumento.simbolo"
+                        });
 
                 array.add(node);
             }
