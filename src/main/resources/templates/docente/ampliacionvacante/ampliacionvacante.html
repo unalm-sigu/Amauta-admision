@@ -174,8 +174,8 @@
                                                 <td class="">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted"> 
-                                                        <p v-if="seccion.docentePrincipal.codigo != 'N.N.' " >* {{seccion.docentePrincipal.persona.nombreCompleto}}</p>
-                                                        <p v-else="">* Desconocido</p>
+                                                        <p v-if="seccion.docentePrincipal.codigo != 'N.N.' " >{{seccion.docentePrincipal.persona.letraNomPaterno}}</p>
+                                                        <p v-else="">Desconocido</p>
                                                     </small>
 
                                                 </td>
