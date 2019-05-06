@@ -135,7 +135,8 @@
                     <th class="col-md-3"></th>
                     <th class="col-md-4 text-center">Alumno</th>
                     <th class="col-md-4 text-center">Carrera</th>
-                    <th class="col-md-1 text-center"></th>
+                    <th class="col-md-1 text-center">Aceptar</th>
+                    <th class="col-md-1 text-center">Rechazar</th>
                 </tr>
             </thead>
             <tbody>
@@ -159,23 +160,10 @@
                         <p v-else="" class="block">{{matSec.matriculaResumen.alumno.carrera.facultad.nombre}}</p>
                     </td>
                     <td class="text-center">
-                        <div class="dropdown actions">
-                            <a class="dropdown-toggle" data-toggle="dropdown">
-                                <i class="glyphicon glyphicon-cog"></i>
-                            </a> 
-                            <ul class="dropdown-menu pull-right"> 
-                                <li>
-                                    <a class="btn-link pointer"
-                                       v-on:click="aceptarSolicitud(matSec)">
-                                        Aceptar</a>
-                                </li>
-                                <li>
-                                    <a class="btn-link pointer"
-                                       v-on:click="rechazarSolicitud(matSec)">
-                                        Rechazar</a>
-                                </li>
-                            </ul>
-                        </div>
+                        <a class="btn btn-info" type="button"   v-on:click.prevent="aceptarSolicitud(matSec)"   href="#" >Aceptar</a>
+                    </td>
+                    <td class="text-center">
+                        <a class="btn btn-danger" type="button" v-on:click.prevent="rechazarSolicitud(matSec)"   href="#" >Rechazar</a>
                     </td>
                 </tr>
             </tbody>
