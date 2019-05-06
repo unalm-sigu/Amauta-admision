@@ -4,7 +4,7 @@ new Vue({
     el: '#consejeriaVUE',
     data: {
         bgColorClass: {activos: '', inactivos: ''},
-        consjerosURL: APP.url('consejeria/consejeros/list'),
+        consjerosURL: APP.url(rutaModulo + '/list'),
         añadirConsejeroModal: {
             id: 'añadirConsejeroModal',
             header: 'true',
@@ -104,7 +104,7 @@ new Vue({
             let facultad = $vue.carreraSelect.facultad.id;
             $vue.isLoading = true;
             $.ajax({
-                url: APP.url("consejeria/consejeros/listDocente"),
+                url: APP.url(rutaModulo + "/listDocente"),
                 data: {nombre: docente, idFacultad: facultad},
                 dataType: 'json',
                 type: 'post',
@@ -113,7 +113,7 @@ new Vue({
                 $vue.isLoading = false;
             });
         },
-        CargaDepartamento() {
+        cargaDepartamento() {
             let $vue = this;
             if ($vue.docenteSelect === null) {
                 $vue.departamento = "";
@@ -144,13 +144,14 @@ new Vue({
                 $vue.btndissabled = false;
                 $vue.actualizar();
             }
+            
             $vue.getCantidadEstado(carrera);
             $vue.getAconsejados(carrera);
         },
         getCantidadEstado(carrera) {
             let $vue = this;
             $.ajax({
-                url: APP.url("consejeria/consejeros/filtroEstado"),
+                url: APP.url(rutaModulo + "/filtroEstado"),
                 data: {carrera: carrera},
                 dataType: 'json',
                 type: 'post',
@@ -163,17 +164,14 @@ new Vue({
         getAconsejados(carrera) {
             let $vue = this;
             $.ajax({
-                url: APP.url("consejeria/consejeros/cantidadAconsejados"),
+                url: APP.url(rutaModulo + "/cantidadAconsejados"),
                 data: {carrera: carrera},
                 dataType: 'json',
                 type: 'post',
             }).then(response => {
                 $vue.cantidadConConnsejo = response.data.conConsejados;
-                ;
                 $vue.cantidadConsejeroRetirado = response.data.consejeroRetirado;
-                ;
                 $vue.cantidadSinConsejero = response.data.sinConsejeros;
-                ;
                 this.isLoading = false;
             });
         },
@@ -186,7 +184,7 @@ new Vue({
             if (consejero.estado == 'INA') {
                 $.ajax({
                     method: 'POST',
-                    url: APP.url("consejeria/consejeros/cambiarEstado"),
+                    url: APP.url(rutaModulo + "/cambiarEstado"),
                     data: JSON.stringify({
                         id: consejero.id,
                         estado: estado
@@ -210,7 +208,7 @@ new Vue({
                         if (result) {
                             $.ajax({
                                 method: 'POST',
-                                url: APP.url("consejeria/consejeros/cambiarEstado"),
+                                url: APP.url(rutaModulo + "/cambiarEstado"),
                                 data: JSON.stringify({
                                     id: consejero.id,
                                     estado: estado
@@ -248,7 +246,7 @@ new Vue({
                     if (result) {
                         $.ajax({
                             method: 'POST',
-                            url: APP.url("consejeria/consejeros/saveConsejero"),
+                            url: APP.url(rutaModulo + "/saveConsejero"),
                             data: JSON.stringify({
                                 estado: $vue.docenteResquest.estado,
                                 persona: {id: $vue.docenteResquest.idPersona
@@ -296,7 +294,7 @@ new Vue({
                             if (result) {
                                 $.ajax({
                                     method: 'POST',
-                                    url: APP.url("consejeria/consejeros/asignarAlumno"),
+                                    url: APP.url(rutaModulo + "/asignarAlumno"),
                                     data: {carrera: carrera},
                                     dataType: 'json',
                                     success: function (response) {
@@ -336,7 +334,7 @@ new Vue({
                         if (result) {
                             $.ajax({
                                 method: 'POST',
-                                url: APP.url("consejeria/consejeros/desasignarAlumno"),
+                                url: APP.url(rutaModulo + "/desasignarAlumno"),
                                 data: {carrera: carrera},
                                 dataType: 'json',
                                 success: function (response) {
@@ -363,7 +361,7 @@ new Vue({
             let carrera = $vue.carreraSelect.id;
             $vue.getCantidadEstado(carrera);
             $vue.getAconsejados(carrera);
-            $vue.$refs.raptorConsejero.url = APP.url('consejeria/consejeros/list/' + carrera);
+            $vue.$refs.raptorConsejero.url = APP.url(rutaModulo + '/list/' + carrera);
             $vue.$refs.raptorConsejero.loadRemoteData();
         }
     }

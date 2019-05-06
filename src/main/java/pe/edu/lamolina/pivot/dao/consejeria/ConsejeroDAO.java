@@ -8,8 +8,8 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.consejeria.consejeria.AConsejeroEstado;
-import pe.edu.lamolina.pivot.controller.consejeria.consejeria.ConsejeriaEstado;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.AConsejeroEstado;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.ConsejeriaEstado;
 
 public interface ConsejeroDAO extends EasyDAO<Consejero> {
 

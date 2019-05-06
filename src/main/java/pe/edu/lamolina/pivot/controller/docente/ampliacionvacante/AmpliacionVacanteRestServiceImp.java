@@ -61,7 +61,7 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
         if (!response.getSuccess()) {
             throw new PhobosException(response.getMessage());
         }
-        return this.postToBackEnd(url, json);
+        return response;
     }
 
     @Override
@@ -82,7 +82,7 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
         if (!response.getSuccess()) {
             throw new PhobosException(response.getMessage());
         }
-        return this.postToBackEnd(url, json);
+        return response;
     }
 
     @Override
@@ -103,7 +103,7 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
         if (!response.getSuccess()) {
             throw new PhobosException(response.getMessage());
         }
-        return this.postToBackEnd(url, json);
+        return response;
     }
 
     @Override

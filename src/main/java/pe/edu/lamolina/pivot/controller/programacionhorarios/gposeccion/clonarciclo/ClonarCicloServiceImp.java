@@ -236,7 +236,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             }
 
             int horasTeoria = 0;
-            int horasPractica = 0;
+            int horasPractica = 0;  
 
             try {
                 if (curso.getTipoCreditoEnum() == TipoCreditoEnum.FIJO) {

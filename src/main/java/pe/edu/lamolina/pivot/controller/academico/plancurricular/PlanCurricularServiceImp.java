@@ -641,7 +641,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     public PlanCurricular findPlanCurricularById(PlanCurricular planCurricular) {
         PlanCurricular plan = planCurricularDAO.find(planCurricular.getId());
-        List<CursoCurricula> cursosPlan = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
+        List<CursoCurricula> cursosPlan = cursoCurriculaDAO.allByPlanCurricular(plan);
         Map<Long, CursoCurricula> mapCursosPlan = TypesUtil.convertListToMap("id", cursosPlan);
         plan.setCursoCurricula(cursosPlan);
         for (CursoCurricula cursoCurricula : cursosPlan) {

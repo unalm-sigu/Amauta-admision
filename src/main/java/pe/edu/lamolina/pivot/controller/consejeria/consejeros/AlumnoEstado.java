@@ -1,5 +1,5 @@
 
-package pe.edu.lamolina.pivot.controller.consejeria.consejeria;
+package pe.edu.lamolina.pivot.controller.consejeria.consejeros;
 
 public class AlumnoEstado {
     

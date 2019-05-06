@@ -42,59 +42,46 @@
             <div id="consejeriaVUE" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <h2>Listado de Aconsejados <span v-text='ciclo.descripcion'></span></h2>
+                    <h2>Alumno con/sin tutor <span v-text='ciclo.descripcion'></span></h2>
                 </header>
                 
                 <section class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
-                            
-                            <raptor-table v-bind:url="aconsejadosURL" v-bind:preload="false" ref="raptorAconsejados">      
+                            <raptor-table v-bind:url="aconsejadosURL" v-bind:preload="true" ref="load">      
                                 <div slot="header">
                                     <div class="col-md-8 preguntas-col">
-                                        <div class="row">
-                                            <div class="col-md-6" >
-                                                <multiselect v-model="carreraSelect" 
-                                                             v-bind:options='carreras'
-                                                             label='nombre'
-                                                             track-by='id'
-                                                             placeholder="Seleccione una carrera"
-                                                             v-bind:allow-empty="false"                                                                 
-                                                             v-on:select="cargaAconsejados">
-                                                </multiselect>
+                                        <div >
+                                            <div  class="col-md-2 text-center" v-bind:class="bgColorClass['matriculado']">
+                                                <a  v-on:click="findAconsejado('matriculado')" class="text-success pointer" >
+                                                    <span class="h2 bold" v-text="count.matriculados"></span>
+                                                    <small class="block m-b-xs">Matriculados</small>
+                                                </a>
                                             </div>
-                                            <div v-if='carreraSelect.id != null'>
-                                                <div  class="col-md-2 text-center" v-bind:class="bgColorClass['activo']">
-                                                    <a  v-on:click="findAconsejado('activo')" class="text-success pointer" >
-                                                        <span class="h2 bold" v-text="count.activos"></span>
-                                                        <small class="block m-b-xs">Activos</small>
-                                                    </a>
-                                                </div>
-                                                <div  class="col-md-2 text-center" v-bind:class="bgColorClass['sinconsejero']">
-                                                    <a v-on:click="findAconsejado('sinConsejero')" class="text-black pointer" >
-                                                        <span class="h2 bold" v-text="count.sinConsejero"></span>
-                                                        <small class="block m-b-xs">Sin Consejeros</small>
-                                                    </a>
-                                                </div>
-                                                <div  class="col-md-2 text-center" >
-                                                    <a  class="text-primary pointer" >
-                                                        <span class="h2 bold" v-text="count.sinAsignar"></span>
-                                                        <small class="block m-b-xs">SinAsignar</small>
-                                                    </a>
-                                                </div>
-                                            </div> 
-                                        </div>
+                                            <div  class="col-md-2 text-center" v-bind:class="bgColorClass['noMatriculado']">
+                                                <a v-on:click="findAconsejado('noMatriculado')" class="text-black pointer" >
+                                                    <span class="h2 bold" v-text="count.noMatriculados"></span>
+                                                    <small class="block m-b-xs">No Matriculados</small>
+                                                </a>
+                                            </div>
+                                            <div  class="col-md-2 text-center"  v-bind:class="bgColorClass['retirado']" >
+                                                <a  v-on:click="findAconsejado('retirado')" class="text-primary pointer" >
+                                                    <span class="h2 bold" v-text="count.retiroCiclo"></span>
+                                                    <small class="block m-b-xs">Retirado Ciclo</small>
+                                                </a>
+                                            </div>
+                                        </div> 
                                     </div>
                                 </div>
                                 <template scope="props" >
                                     <table id="dynaTable" class="table table-striped">
                                         <thead class="panel panel-heading">
                                             <tr>
-                                                <th class="col-md-6 text-center v-middle"  colspan="2"></th>
-                                                <th class="col-md-3 v-middle"></th>
-                                                <th class="col-md-3 v-middle"><span>Tutor</span></th>
-                                                <th class="v-middle text-center"><span>Estado Matricula</span></th>
-                                                <th ></th>
+                                                <th class="col-md-4 text-center v-middle"  colspan="2"></th>
+                                                <th class="col-md-2 v-middle"></th>
+                                                <th class="col-md-1 v-middle text-center"><span>Autorización Matricula</span></th>
+                                                <th class="col-md-1 v-middle"><span>Estado Matricula</span></th>
+                                                <th class="col-md-1 v-middle"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -120,16 +107,10 @@
                                                         {{item.alumno.persona.apellidosNombres}}
                                                     </a>
                                                     <span class="block">
-                                                        {{item.alumno.codigo}}
+                                                        Matrícula: {{item.alumno.codigo}}
                                                     </span>
                                                     <small v-if="item.alumno.persona.numeroDocIdentidad != '' " class="block bold">
-                                                        {{item.alumno.persona.tipoDocumento.simbolo}}: {{item.alumno.persona.numeroDocIdentidad}}
-                                                    </small>
-                                                    <span class="block">
-                                                        Especialidad: {{item.alumno.carrera.nombre}}
-                                                    </span>
-                                                    <small class="block" v-if="item.alumno.carrera.nombre != item.alumno.carrera.facultad.nombre ">
-                                                        Facultad de {{item.alumno.carrera.facultad.nombre}}
+                                                        {{item.alumno.persona.tipoDocumento.simbolo}} {{item.alumno.persona.numeroDocIdentidad}}
                                                     </small>
 
                                                 </td>
@@ -159,13 +140,10 @@
                                                         {{item.alumno.cicloIngreso.descripcion}}
                                                     </span>
                                                 </td>
-                                                <td class="v-middle">
-                                                    <a class="block text-primary bold ">{{item.consejero.colaborador.persona.apellidosNombres}}</a> 
-                                                    <small class="block bold">DNI: {{item.consejero.colaborador.persona.numeroDocIdentidad}}</small>                                                    
-                                                    <span class=" bold"> Fecha Asignación: </span>
-                                                    <span  v-text="item.fechaAsigna"></span>
-                                                </td>
                                                 <td class="v-middle text-center">
+                                                    <input type="checkbox" id="chkbox" v-model="item.estadoMatriculaAutorizacion" onclick="return false;" v-on:click="matriculatAutoriazacion(item)"/>
+                                                </td>
+                                                <td class="v-middle">
                                                     <span v-if="item.estadoMatriculableEnum.name == 'MAT'" v-text="item.estadoMatriculableEnum.value" class="label label-primary"></span>
                                                     <span v-else="" v-text="item.estadoMatriculableEnum.value" class="label label-danger"></span>
                                                 </td>
@@ -175,7 +153,6 @@
                                                             <i class="glyphicon glyphicon-cog"></i>
                                                         </a>
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li  ><a v-on:click="model(item)">Cambiar Consejero</a></li>
                                                             <li><a v-bind:href="urlAcademico(item.alumno)">Información académica</a></li>
                                                         </ul>
                                                     </div>
@@ -189,7 +166,6 @@
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="consejeria/aconsejado/aconsejadoModal"></div>
             </div>
             
             <div th:substituteby="_modules/vue-modal"/>
@@ -200,12 +176,11 @@
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
-                var carrerasJson = /*[[${carreras}]]*/ 'json';
-                var rutaModulo = 'consejeria/aconsejado';
+                var rutaModulo = 'consejeria/aconsejadostutor';
                 /*]]>*/
             </script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-            <script th:src="@{/app/consejeria/aconsejado/aconsejado.js}" charset="utf-8"></script>
+            <script th:src="@{/app/consejeria/aconsejadostutor/aconsejadosTutor.js}" charset="utf-8"></script>
         </div>
 
     </body>

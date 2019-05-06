@@ -17,6 +17,8 @@ public interface DocenteDAO extends EasyDAO<Docente> {
 
     List<Docente> allByPersona(Persona persona);
 
+    List<Docente> allByPersonas(List<Persona> personas);
+
     List<Docente> allActivos(ModalidadEstudio modalidad);
 
     List<Docente> allByFilter(DynatableFilter filter, List<DepartamentoAcademico> dptos);

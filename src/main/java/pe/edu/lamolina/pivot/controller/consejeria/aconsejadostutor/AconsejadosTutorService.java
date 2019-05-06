@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.consejeria.consejero;
+package pe.edu.lamolina.pivot.controller.consejeria.aconsejadostutor;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -9,7 +9,7 @@ import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-public interface AconsejadosDocentesService {
+public interface AconsejadosTutorService {
 
     public List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona persona);
 

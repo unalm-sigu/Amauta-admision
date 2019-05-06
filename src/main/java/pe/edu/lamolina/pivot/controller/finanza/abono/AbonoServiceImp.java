@@ -388,9 +388,9 @@
 //                && (pagoInscripcion || !debePagarInscripcion)
 //                && (pagoExtemporaneo || !debePagarExtemporaneo)) {
 //            postulante.setEstado(PostulanteEstadoEnum.PAGO);
-//            if (postulante.getFechaEncuesta() != null && !modalidad.esPreLaMolina()) {
+//            if (postulante.getFechaEncuesta() != null && !modalidad.isPreLaMolina()) {
 //                postulante.setEstado(PostulanteEstadoEnum.INS);
-//            } else if (postulante.getFechaEncuesta() != null && modalidad.esPreLaMolina()) {
+//            } else if (postulante.getFechaEncuesta() != null && modalidad.isPreLaMolina()) {
 //                postulante.setEstado(PostulanteEstadoEnum.ING);
 //            }
 //            postulanteDAO.update(postulante);

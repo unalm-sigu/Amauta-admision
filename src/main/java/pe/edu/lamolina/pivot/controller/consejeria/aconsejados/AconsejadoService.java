@@ -6,15 +6,14 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.bean.AconsejadoEstadoBean;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
-import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AconsejadoService {
 
-    public List<AlumnoConsejero> allAconsejadoByDynatableCarrera(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<AlumnoConsejero> allAconsejadoByDynatableCarrera(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    public void updateAlumnoConsejero(AlumnoConsejero alumnoConsejeroForm, DataSessionPivot ds);
+    void updateAlumnoConsejero(AlumnoConsejero alumnoConsejeroForm, DataSessionPivot ds);
 
-    public AconsejadoEstadoBean allByCarrera(Carrera carrera, CicloAcademico cicloAcademico);
+    AconsejadoEstadoBean allByCarrera(Carrera carrera, CicloAcademico cicloAcademico);
 
 }

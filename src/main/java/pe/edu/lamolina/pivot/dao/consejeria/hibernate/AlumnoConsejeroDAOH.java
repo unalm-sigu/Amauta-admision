@@ -98,17 +98,36 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoConsejero.class, "ac")
                 .join("alumno al", "consejero con")
-                .join("al.persona per", "al.carrera car")
+                .join("al.persona per", "al.carrera car", "car.facultad")
                 .join("per.tipoDocumento", "al.situacionAcademica ")
                 .left("al.cicloIngreso", "con.colaborador col", "col.persona perc", "perc.tipoDocumento")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .searchFields("al.codigo")
                 .filter("estado", EstadoEnum.ACT)
+                .filter("car.id", findCarreraFilter(filter))
                 .orderBy("al.id desc");
         sql.beginRelativeFilters();
         setCondicion(filter, sql);
         return all(sql);
+    }
+
+    private Carrera findCarreraFilter(DynatableFilter filter) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return null;
+        }
+        for (String key : queries.keySet()) {
+            if (key.equals("search")) {
+                continue;
+            }
+            String value = (String) queries.get(key);
+            switch (key) {
+                case "carrera":
+                    return new Carrera(value);
+            }
+        }
+        return null;
     }
 
     private void setCondicion(DynatableFilter filter, DynatableSql sql) {
@@ -120,15 +139,11 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
             if (key.equals("search")) {
                 continue;
             }
-            String values = (String) queries.get(key);
             switch (key) {
-                case "carrera":
-                    sql.filter("car.id", values);
-                    break;
                 case "activo":
                     sql.filter("con.id", "<>", ID_CONSEJERO_NN);
                     break;
-                case "sinconsejero":
+                case "sinConsejero":
                     sql.filter("con.id", ID_CONSEJERO_NN);
                     break;
             }
@@ -165,7 +180,7 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
     private void setCondicionEstadoMatricula(DynatableFilter filter, Octavia sql) {
         Map<String, Object> queries = filter.getQueries();
         if (queries == null) {
-            return; 
+            return;
         }
         for (String key : queries.keySet()) {
             if (key.equals("estado")) {

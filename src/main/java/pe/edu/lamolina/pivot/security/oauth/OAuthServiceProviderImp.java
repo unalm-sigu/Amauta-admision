@@ -171,6 +171,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         List<Oficina> oficinasUnalm = allEstructuraOficinas();
         List<Oficina> oficinasMain = allOficinasMain(colaboradores, oficinasUnalm);
         Oficina ofiMain = oficinasMain.isEmpty() ? null : oficinasMain.get(0);
+        
 
         DataSessionPivot ds = new DataSessionPivot();
         ds.setEmail(email);
@@ -278,6 +279,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
             Oficina oficina = mapOficinas.get(colaborador.getOficina().getId());
             colaborador.setOficina(oficina);
             Oficina oficinaMain = findOficinaMain(oficina);
+            logger.debug("oficina-main: {}", oficinaMain.getNombre());
             mapOficinasMain.put(oficinaMain.getId(), oficinaMain);
         }
         return new ArrayList(mapOficinasMain.values());
@@ -299,6 +301,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         ds.setModalidades(new ArrayList());
 
         if (oficinaMain == null) {
+            logger.debug("No tiene oficinaMain.. sale sin asignacion de menu");
             return;
         }
 
