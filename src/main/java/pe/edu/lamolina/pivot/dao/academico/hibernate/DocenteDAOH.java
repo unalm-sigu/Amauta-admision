@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.CargoTrabajadorEnum;
+import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
@@ -208,13 +210,15 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     }
 
     @Override
-    public List<Docente> allByNombreFacultad(String nombre, Facultad facultad) {
+    public List<Docente> allByNombreDepartamentos(String nombre, List<DepartamentoAcademico> departamentos) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia subQuery = new Octavia()
                 .from(Colaborador.class, "col")
                 .join("persona perc", "oficina ofi", "ofi.tipoOficina tip", "cargo carg")
-                .filter("carg.codigo", PerfilColaboradorEnum.DOC) //Docente
-                .filter("tip.codigo", TipoOficinaEnum.DPTO); //departamentoAcdemico
+                .in("estado", Arrays.asList(ColaboradorEstadoEnum.ACT, ColaboradorEstadoEnum.DSC, ColaboradorEstadoEnum.PER, ColaboradorEstadoEnum.VAC))
+                .filter("carg.codigo", PerfilColaboradorEnum.DOC)
+                .filter("tip.codigo", TipoOficinaEnum.DPTO)
+                .in("ofi.instanciaOficina", departamentos);
 
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")
@@ -222,7 +226,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .leftJoin("per.tipoDocumento")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .filter("doc.estado", EstadoEnum.ACT)
-                .filter("fa.id", facultad)
+                .in("da.id", departamentos)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -231,6 +235,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
                 .endBlock()
                 .exists(subQuery)
                 .linkedBy("per.id", "perc.id")
+                .linkedBy("da.id", "ofi.instanciaOficina")
                 .limit(15);
 
         return all(sql);

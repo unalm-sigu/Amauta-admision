@@ -9,6 +9,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DESP;
@@ -189,13 +190,15 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
-    public Colaborador findColaboradorByIdPersona(Long idPersona) {
+    public Colaborador findDocenteActivoByPersonaDptoAcademico(Persona persona, DepartamentoAcademico departamento) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .join("persona per", "oficina ofi", "ofi.tipoOficina tip", "cargo carg")
-                .filter("carg.codigo", PerfilColaboradorEnum.DOC) //Docente
-                .filter("tip.codigo", TipoOficinaEnum.DPTO) //departamentoAcdemico
-                .filter("per.id", idPersona);
+                .in("estado", Arrays.asList(ColaboradorEstadoEnum.ACT, ColaboradorEstadoEnum.DSC, ColaboradorEstadoEnum.PER, ColaboradorEstadoEnum.VAC))
+                .filter("carg.codigo", PerfilColaboradorEnum.DOC)
+                .filter("tip.codigo", TipoOficinaEnum.DPTO)
+                .filter("ofi.instanciaOficina", departamento.getId())
+                .filter("per.id", persona);
 
         return find(sql);
     }

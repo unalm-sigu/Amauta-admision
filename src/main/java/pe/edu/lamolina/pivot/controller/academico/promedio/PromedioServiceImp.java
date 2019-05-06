@@ -152,7 +152,7 @@ public class PromedioServiceImp implements PromedioService {
         for (MatriculaCurso matriculaCurso : matriculasCursoByAlumno) {
             MatriculaSeccion matriculaSeccion = matriculasSeccionByAlumno
                     .stream().filter(x -> x.getSeccion().getGrupoSeccion().getCurso().equals(matriculaCurso.getCurso())).findFirst().orElse(null);
-            if (matriculaSeccion != null && matriculaSeccion.getSeccion().getGrupoSeccion().isEstadoCerrado()) {
+            if (matriculaSeccion != null && matriculaSeccion.getSeccion().getGrupoSeccion().isEstadoGrupoCerrado()) {
                 this.trasladoPromediosSource2(matriculaCurso, matriculasCursoByAlumno, ds);
             }
         }

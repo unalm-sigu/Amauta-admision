@@ -18,6 +18,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -222,10 +223,20 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
                 .from(DepartamentoAcademico.class, "da")
                 .join("da.facultad fa")
                 .filter("da.estado", EstadoEnum.ACT)
-                .searchFields("da.nombre","da.nombreLargo", "da.codigo")
+                .searchFields("da.nombre", "da.nombreLargo", "da.codigo")
                 .orderBy("da.nombre");
         return sql.all(getCurrentSession());
 
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allByFacultad(Facultad facultad) {
+        Octavia sql = Octavia.query()
+                .from(DepartamentoAcademico.class, "da")
+                .join("facultad fa")
+                .filter("fa.id", facultad);
+
+        return all(sql);
     }
 
 }

@@ -1510,9 +1510,6 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             CicloAcademico ciclo = gpoSeccion.getCicloAcademico();
 
             Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
-            /*       if (matSecc.getSeccion().getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
-                continue;
-            }*/
             calculoNotasService.calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds.getUsuario());
         }
     }
@@ -2010,12 +2007,12 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         grupoSeccionDAO.update(grupoSeccion);
 
         List<Alumno> alumnos = new ArrayList();
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(grupoSeccion, grupoSeccion.getCicloAcademico());
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(grupoSeccion);
         List<MatriculaResumen> matriculasResumen = matriculasSeccion.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenCurso(matriculasResumen, grupoSeccion.getCurso());//falta enviar el curso
         for (MatriculaCurso matriculaCurso : matriculasCurso) {
             Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
-            this.trasladarMatriculaCursoForHistorial(alumno, grupoSeccion.getCicloAcademico(), ds);
+            this.trasladarMatriculaCursoForHistorial(alumno, grupoSeccion, ds);
             alumnos.add(alumno);
         }
         promedioService.saveCerrarActaAsync(alumnos, ds);
@@ -2025,8 +2022,8 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     }
 
     @Transactional
-    public void trasladarMatriculaCursoForHistorial(Alumno alumno, CicloAcademico cicloAcademico, DataSessionPivot ds) {
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+    public void trasladarMatriculaCursoForHistorial(Alumno alumno, GrupoSeccion grupoSeccion, DataSessionPivot ds) {
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, grupoSeccion.getCicloAcademico());
         if (matriculaResumen == null) {
             return;
         }
@@ -2037,7 +2034,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allActivesByMatriculaResumen(Arrays.asList(matriculaResumen));
         visorCalculoNotas.iniciar();
         visorCalculoNotas.setCantidadTotal(1);
-        logger.debug("##################Ciclo padre {} ", cicloAcademico.getCodigo());
+        logger.debug("##################Ciclo padre {} ", grupoSeccion.getCicloAcademico());
         promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, false);
     }
 
@@ -2169,7 +2166,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     public List<MatriculaSeccion> allMatriculaSeccionByFilter(EvaluacionExpandida evaluacionExpandida, CicloAcademico ciclo) {
         evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
-        return matriculaSeccionDAO.allMatriculadosByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion(), ciclo);
+        return matriculaSeccionDAO.allMatriculadosByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion());
     }
 
     @Override
