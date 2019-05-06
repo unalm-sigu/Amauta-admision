@@ -50,36 +50,36 @@ import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 @Service
 @Transactional(readOnly = true)
 public class CalculoNotasServiceImp implements CalculoNotasService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
-    
+
     @Autowired
     EvaluacionDAO evaluacionDAO;
-    
+
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
-    
+
     @Autowired
     AlumnoEvaluacionDAO alumnoEvaluacionDAO;
-    
+
     @Autowired
     ResumenAlumnoEvaluacionDAO resumenAlumnoEvaluacionDAO;
-    
+
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
-    
+
     @Autowired
     EvaluacionExpandidaDAO evaluacionExpandidaDAO;
-    
+
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
-    
+
     @Autowired
     NotaLetraDAO notaLetraDAO;
-    
+
     @Override
     @Transactional
     public void calcularNotasLista(List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds) {
@@ -96,32 +96,32 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion, int envio, DataSessionPivot ds) {
-        
+
         visorCalculoNotas.incrementarCantidad();
         Curso curso = grupoSeccion.getCurso();
         calcularNotasAlumno(alumno, grupoSeccion, curso, grupoSeccion.getCicloAcademico(), ds.getUsuario());
-        
+
         visorCalculoNotas.incrementarProcesados();
         visorCalculoNotas.reporte();
-        
+
     }
-    
+
     @Override
     @Transactional
     public void calcularNotasAlumno(Alumno alumno, GrupoSeccion grupoSeccion, Curso curso, CicloAcademico ciclo, Usuario usuario) {
 
         logger.debug("\n\n\n");
         logger.debug("Calcular nota alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), ciclo.getId());
-        
+
         grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
         MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
-        
+
         Map<String, NotaLetra> mapNotaLetra = new HashMap<>();
         List<NotaLetra> notasLetras = notaLetraDAO.all();
         for (NotaLetra notasLetra : notasLetras) {
             mapNotaLetra.put(notasLetra.getLetra(), notasLetra);
         }
-        
+
         int cant = 0;
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
         for (AlumnoEvaluacion nota : evaluacionesAlumno) {
@@ -129,7 +129,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
                 cant++;
             }
         }
-        
+
         if ((curso.isTieneCreditosVariables() || curso.isCreditosZero()) && cant == 1) {
             AlumnoEvaluacion aEvaluacionLetra = evaluacionesAlumno.get(0);
             aEvaluacionLetra = alumnoEvaluacionDAO.findByFilter(aEvaluacionLetra.getId(), null, null);
@@ -145,23 +145,23 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             } else if (curso.isTieneCreditosVariables()) {
                 matriculaCurso.setCreditosAprobados(new BigDecimal(aEvaluacionLetra.getNota()).intValue());
             }
-            
+
             String notaLetra = "";
             if (aEvaluacionLetra.getValorLetra().equals("A")) {
                 notaLetra = "AP";
             } else if (aEvaluacionLetra.getValorLetra().equals("D")) {
                 notaLetra = "DE";
             }
-            
+
             matriculaCurso.setNotaAvance(notaLetra);
             matriculaCurso.setNotaAcumulada(notaLetra);
             matriculaCurso.setPorcentajeAvanceNota(100);
             matriculaCurso.setNotaFinal(notaLetra);
-            
+
             matriculaCurso.setNotaAvanceFull(aEvaluacionLetra.getNota());
             matriculaCurso.setNotaAcumuladaFull(aEvaluacionLetra.getNota());
             matriculaCursoDAO.update(matriculaCurso);
-            
+
             ResumenAlumnoEvaluacion resumenAlumnoEvaluacion
                     = resumenAlumnoEvaluacionDAO.findByAlumnoGrupoTipo(alumno, grupoSeccion, evaluacion.getTipoEvaluacion());
             if (resumenAlumnoEvaluacion != null) {
@@ -180,17 +180,17 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             }
             return;
         }
-        
+
         if (cant == 0) {
             matriculaCurso.setNotaAvance(NumberFormat.notaDecimal4Decimals(BigDecimal.ZERO));
             matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal4Decimals(BigDecimal.ZERO));
             matriculaCurso.setPorcentajeAvanceNota(0);
             matriculaCurso.setNotaFinal("0");
-            
+
             matriculaCurso.setNotaAvanceFull(NumberFormat.notaDecimal10Decimals(BigDecimal.ZERO));
             matriculaCurso.setNotaAcumuladaFull(NumberFormat.notaDecimal10Decimals(BigDecimal.ZERO));
             matriculaCursoDAO.update(matriculaCurso);
-            
+
             for (AlumnoEvaluacion nota : evaluacionesAlumno) {
                 nota.setValorNumerico(Fraxtion.ZERO.getValue(2, RoundingMode.HALF_UP));
                 nota.setNota(NumberFormat.notaDecimal(nota.getValorNumerico()));
@@ -198,40 +198,40 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             }
             return;
         }
-        
+
         List<Evaluacion> evaluaciones = evaluacionDAO.allByGrupoSeccionAlumno(grupoSeccion, alumno);
         joinConfiguracionEvaluaciones(evaluaciones, evaluacionesAlumno);
-        
+
         List<EvaluacionExpandida> configPrimerNivel = allConfigByNivel(evaluaciones, 1);
         Fraxtion pesoTotal = Fraxtion.ZERO;
         for (EvaluacionExpandida cfgEval : configPrimerNivel) {
             pesoTotal = pesoTotal.add(cfgEval.getPeso());
         }
-        
+
         List<Fraxtion> notas = new ArrayList();
         List<Fraxtion> pesos = new ArrayList();
         for (EvaluacionExpandida cfgEval : configPrimerNivel) {
             logger.debug("\tCalculando notas de {}", cfgEval.getId());
             calcularNotaEvaluacion(cfgEval, pesoTotal, pesoTotal, notas, pesos);
         }
-        
+
         Fraxtion dividendo = Fraxtion.ZERO;
         Fraxtion pesoConNota = Fraxtion.ZERO;
         for (int i = 0; i < notas.size(); i++) {
             dividendo = dividendo.add(notas.get(i).multiply(pesos.get(i)));
             pesoConNota = pesoConNota.add(pesos.get(i));
         }
-        
+
         Fraxtion avance = dividendo.divide(pesoConNota);
         Fraxtion prom = dividendo.divide(pesoTotal);
         matriculaCurso.setNotaAvance(NumberFormat.notaDecimal4Decimals(avance.getValue()));
         matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal4Decimals(prom.getValue()));
         matriculaCurso.setPorcentajeAvanceNota(pesoConNota.getValue().intValue());
         matriculaCurso.setNotaFinal("0");
-        
+
         avance = dividendo.divide(pesoConNota);
         prom = dividendo.divide(pesoTotal);
-        
+
         matriculaCurso.setNotaAvanceFull(NumberFormat.notaDecimal10Decimals(avance.getValue(18)));
         matriculaCurso.setNotaAcumuladaFull(NumberFormat.notaDecimal10Decimals(prom.getValue(18)));
         logger.debug("peso con nota {} peso total {}", pesoConNota.getValue(), pesoTotal.getValue());
@@ -240,7 +240,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             matriculaCurso.setNotaFinal(NumberFormat.nota(notaFinal));
         }
         matriculaCursoDAO.update(matriculaCurso);
-        
+
         for (Evaluacion eval : evaluaciones) {
             if (eval.getAlumnoEvaluacion().isEmpty()) {
                 continue;
@@ -253,12 +253,12 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
                 nota.setUsuarioIngresoNota(usuario);
                 nota.setNota(NumberFormat.notaDecimal(nota.getValorNumerico()));
                 alumnoEvaluacionDAO.save(nota);
-                
+
             } else {
                 alumnoEvaluacionDAO.update(nota);
             }
         }
-        
+
         List<ResumenAlumnoEvaluacion> resumenes = resumenAlumnoEvaluacionDAO.allByAlumnoGrupoSeccion(alumno, grupoSeccion);
         Map<Long, ResumenAlumnoEvaluacion> mapResumenes = MapUtil.storeItems("tipoEvaluacion.id", resumenes);
         Map<Long, EvaluacionExpandida> mapConfigPrimerNivel = MapUtil.storeItems("tipoEvaluacion.id", configPrimerNivel);
@@ -268,7 +268,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
                 resumenAlumnoEvaluacionDAO.delete(resumen);
             }
         }
-        
+
         for (EvaluacionExpandida cfgEval : configPrimerNivel) {
             ResumenAlumnoEvaluacion resumen = mapResumenes.get(cfgEval.getTipoEvaluacion().getId());
             if (resumen == null) {
@@ -276,13 +276,13 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
                 if (notax.isEmpty()) {
                     continue;
                 }
-                
+
                 AlumnoEvaluacion nota = notax.get(0);
                 resumen = new ResumenAlumnoEvaluacion();
                 resumen.setAlumno(alumno);
                 resumen.setGrupoSeccion(grupoSeccion);
                 resumen.setTipoEvaluacion(cfgEval.getTipoEvaluacion());
-                
+
                 if (grupoSeccion.getPlanCalificacion().getSistemaNotas().isNumerico()) {
                     resumen.setNota(NumberFormat.notaDecimal(nota.getValorNumerico()));
                 } else if (grupoSeccion.getPlanCalificacion().getSistemaNotas().isLetras()) {
@@ -290,30 +290,30 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
                     resumen.setCreditos(Integer.valueOf(NumberFormat.nota(nota.getValorNumerico())));
                 }
                 resumenAlumnoEvaluacionDAO.save(resumen);
-                
+
             } else {
                 List<AlumnoEvaluacion> notax = cfgEval.getEvaluaciones().get(0).getAlumnoEvaluacion();
                 if (notax.isEmpty()) {
                     resumenAlumnoEvaluacionDAO.delete(resumen);
                     continue;
                 }
-                
+
                 AlumnoEvaluacion nota = notax.get(0);
                 if (grupoSeccion.getPlanCalificacion().getSistemaNotas().isNumerico()) {
                     resumen.setNota(NumberFormat.notaDecimal(nota.getValorNumerico()));
-                    
+
                 } else if (grupoSeccion.getPlanCalificacion().getSistemaNotas().isLetras()) {
                     resumen.setNota(nota.getNotaLetra());
                     resumen.setCreditos(Integer.valueOf(NumberFormat.nota(nota.getValorNumerico())));
                 }
-                
+
                 resumenAlumnoEvaluacionDAO.update(resumen);
             }
         }
-        
+
         logger.debug("Finalizó calculo notas del alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), ciclo.getId());
     }
-    
+
     private void calcularNotaEvaluacion(EvaluacionExpandida configEvaluacion, Fraxtion pesoGrupo, Fraxtion pesoPadre, List<Fraxtion> notas, List<Fraxtion> pesos) {
         List<EvaluacionExpandida> configEvaluacionesHijas = configEvaluacion.getEvaluacionesExpandidas();
         Fraxtion pesoNota = configEvaluacion.getPesoFraxtion().multiply(pesoPadre).divide(pesoGrupo);
@@ -328,36 +328,36 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             if (notax.isEmpty()) {
                 return;
             }
-            
+
             AlumnoEvaluacion nota = notax.get(0);
             notas.add(new Fraxtion(nota.getValorNumerico()));
             pesos.add(pesoNota);
             return;
         }
-        
+
         Fraxtion pesoGrupoHijos = Fraxtion.ZERO;
         for (EvaluacionExpandida cfgEval : configEvaluacionesHijas) {
             pesoGrupoHijos = pesoGrupoHijos.add(cfgEval.getPeso());
         }
-        
+
         if (configEvaluacion.getNotaMinimaAnulable() == 0) {
             for (EvaluacionExpandida cfgEval : configEvaluacionesHijas) {
                 calcularNotaEvaluacion(cfgEval, pesoGrupoHijos, pesoNota, notas, pesos);
             }
             promediarNotaDeHijos(configEvaluacion);
         }
-        
+
         if (configEvaluacion.getNotaMinimaAnulable() > 0) {
             if (todosTienenNota(configEvaluacionesHijas)) {
                 for (EvaluacionExpandida cfgEval : configEvaluacionesHijas) {
                     calcularNotaEvaluacion(cfgEval, pesoGrupoHijos, pesoGrupoHijos, new ArrayList(), new ArrayList());
                 }
-                
+
                 promediarNotaConAnulables(configEvaluacion);
                 AlumnoEvaluacion nota = configEvaluacion.getEvaluaciones().get(0).getAlumnoEvaluacion().get(0);
                 notas.add(new Fraxtion(nota.getValorNumerico()));
                 pesos.add(pesoNota);
-                
+
             } else {
                 for (EvaluacionExpandida cfgEval : configEvaluacionesHijas) {
                     calcularNotaEvaluacion(cfgEval, pesoGrupoHijos, pesoNota, notas, pesos);
@@ -365,18 +365,18 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
                 promediarNotaDeHijos(configEvaluacion);
             }
         }
-        
+
     }
-    
+
     private void promediarNotaConAnulables(EvaluacionExpandida configEvaluacion) {
         List<EvaluacionExpandida> configEvaluacionesHijas = configEvaluacion.getEvaluacionesExpandidas();
         List<AlumnoEvaluacion> notasHijas = allNotasHijos(configEvaluacionesHijas);
-        
+
         List<List<Integer>> permutaciones = crearPermutaciones(notasHijas, configEvaluacion.getNotaMinimaAnulable());
         for (List<Integer> permu : permutaciones) {
             Collections.sort(permu, Collections.reverseOrder());
         }
-        
+
         Map<String, Fraxtion> mapPromedios = new LinkedHashMap();
         Map<String, List<Integer>> mapPermutaciones = new LinkedHashMap();
         for (List<Integer> permu : permutaciones) {
@@ -388,15 +388,15 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             mapPromedios.put(permu.toString(), prom);
             mapPermutaciones.put(permu.toString(), permu);
         }
-        
+
         List<Fraxtion> promedios = new ArrayList();
         for (Map.Entry<String, Fraxtion> entry : mapPromedios.entrySet()) {
             promedios.add(entry.getValue());
         }
-        
+
         Collections.sort(promedios, new Fraxtion.OrdenReverso());
         Fraxtion promFinal = promedios.get(0);
-        
+
         List<Integer> perm = null;
         for (Map.Entry<String, Fraxtion> entry : mapPromedios.entrySet()) {
             String indices = entry.getKey();
@@ -406,7 +406,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
                 break;
             }
         }
-        
+
         for (AlumnoEvaluacion nota : notasHijas) {
             nota.setEstadoEnum(AlumnoEvaluacionEstadoEnum.ACT);
             nota.setMotivoAnulacion("");
@@ -418,25 +418,25 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             nota.setMotivoAnulacion(MotivoAnulacionEnum.NOTA_MIN.name());
             nota.setFechaAnulacion(new Date());
         }
-        
+
         Evaluacion evaluacion = configEvaluacion.getEvaluaciones().get(0);
         List<AlumnoEvaluacion> notas = evaluacion.getAlumnoEvaluacion();
-        
+
         AlumnoEvaluacion nota = notas.isEmpty() ? null : notas.get(0);
         if (nota != null) {
             nota.setValorNumerico(promFinal.getValue(2, RoundingMode.HALF_UP));
             nota.setEstadoEnum(AlumnoEvaluacionEstadoEnum.CALC);
             return;
         }
-        
+
         nota = new AlumnoEvaluacion();
         nota.setValorNumerico(promFinal.getValue(2, RoundingMode.HALF_UP));
         nota.setEvaluacion(evaluacion);
         nota.setEstadoEnum(AlumnoEvaluacionEstadoEnum.CALC);
         notas.add(nota);
-        
+
     }
-    
+
     private List<List<Integer>> crearPermutaciones(List<AlumnoEvaluacion> notas, Integer anulables) {
         List<Integer> items = new ArrayList();
         for (int i = 0; i < notas.size(); i++) {
@@ -448,7 +448,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         permutar(anulables, 1, items, tempo, mapeados, buscados);
         return buscados;
     }
-    
+
     private void permutar(int cant, int nivel, List<Integer> items, List<Integer> tomados, Map<String, List<Integer>> mapeados, List<List<Integer>> buscados) {
         for (Integer item : items) {
             if (tomados.contains(item)) {
@@ -457,7 +457,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             if (esPosible(item, tomados, mapeados)) {
                 continue;
             }
-            
+
             tomados.add(item);
             Collections.sort(tomados);
             mapeados.put(tomados.toString(), tomados);
@@ -465,9 +465,9 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
                 List<Integer> buscado = clonarLista(tomados);
                 buscados.add(buscado);
             }
-            
+
             if (cant == nivel) {
-                
+
             } else {
                 List<Integer> copiaItems = clonarLista(items);
                 List<Integer> copiaTomados = clonarLista(tomados);
@@ -477,7 +477,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             tomados.remove(new Integer(item));
         }
     }
-    
+
     private boolean esPosible(Integer item, List<Integer> tomados, Map<String, List<Integer>> mapeados) {
         List<Integer> copia = clonarLista(tomados);
         copia.add(item);
@@ -485,7 +485,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         List<Integer> existe = mapeados.get(copia.toString());
         return (existe != null);
     }
-    
+
     private List clonarLista(List lista) {
         List clonada = new ArrayList();
         for (Object item : lista) {
@@ -493,32 +493,32 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         }
         return clonada;
     }
-    
+
     private void promediarNotaDeHijos(EvaluacionExpandida configEvaluacion) {
         List<EvaluacionExpandida> configEvaluacionesHijas = configEvaluacion.getEvaluacionesExpandidas();
         List<AlumnoEvaluacion> notasHijas = allNotasHijos(configEvaluacionesHijas);
         Fraxtion prom = calcularPonderado(notasHijas);
-        
+
         Evaluacion evaluacion = configEvaluacion.getEvaluaciones().get(0);
         List<AlumnoEvaluacion> notas = evaluacion.getAlumnoEvaluacion();
         if (notas.isEmpty() && prom == null) {
             return;
         }
-        
+
         AlumnoEvaluacion nota = notas.isEmpty() ? null : notas.get(0);
-        
+
         if (nota != null && prom == null) {
             alumnoEvaluacionDAO.delete(nota);
             evaluacion.getAlumnoEvaluacion().remove(nota);
             return;
         }
-        
+
         if (nota != null && prom != null) {
             nota.setValorNumerico(prom.getValue(2, RoundingMode.HALF_UP));
             nota.setNota(NumberFormat.notaDecimal(prom.getValue(2, RoundingMode.HALF_UP)));
             return;
         }
-        
+
         nota = new AlumnoEvaluacion();
         nota.setValorNumerico(prom.getValue(2, RoundingMode.HALF_UP));
         nota.setNota(NumberFormat.notaDecimal(prom.getValue(2, RoundingMode.HALF_UP)));
@@ -526,7 +526,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         nota.setEvaluacion(evaluacion);
         nota.setEstadoEnum(AlumnoEvaluacionEstadoEnum.CALC);
     }
-    
+
     private Fraxtion calcularPonderado(List<AlumnoEvaluacion> notas) {
         if (notas.isEmpty()) {
             return null;
@@ -541,7 +541,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         if (cantidad == 0) {
             return null;
         }
-        
+
         Fraxtion dividendo = Fraxtion.ZERO;
         Fraxtion divisor = Fraxtion.ZERO;
         for (AlumnoEvaluacion nota : notas) {
@@ -555,7 +555,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         Fraxtion promedio = dividendo.divide(divisor);
         return promedio;
     }
-    
+
     private boolean todosTienenNota(List<EvaluacionExpandida> configEvaluaciones) {
         for (EvaluacionExpandida cfgEval : configEvaluaciones) {
             if (cfgEval.getEstadoEnum() != EstadoEnum.ACT) {
@@ -568,7 +568,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         }
         return true;
     }
-    
+
     private List<AlumnoEvaluacion> allNotasHijos(List<EvaluacionExpandida> configEvaluaciones) {
         List<AlumnoEvaluacion> notas = new ArrayList();
         for (EvaluacionExpandida cfgEval : configEvaluaciones) {
@@ -584,7 +584,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         }
         return notas;
     }
-    
+
     private List<EvaluacionExpandida> allConfigByNivel(List<Evaluacion> evaluaciones, int nivel) {
         Map<Long, EvaluacionExpandida> mapConfiguraciones = MapUtil.storeItems("evaluacionExpandida.id", "evaluacionExpandida", evaluaciones);
         List<EvaluacionExpandida> configuraciones = new ArrayList();
@@ -596,7 +596,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         }
         return configuraciones;
     }
-    
+
     private void joinConfiguracionEvaluaciones(List<Evaluacion> evaluaciones, List<AlumnoEvaluacion> notasAlumno) {
         for (Evaluacion eval : evaluaciones) {
             eval.setAlumnoEvaluacion(new ArrayList());
@@ -605,9 +605,9 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             cfgEval.setEvaluaciones(new ArrayList());
             cfgEval.getEvaluaciones().add(eval);
         }
-        
+
         Map<Long, EvaluacionExpandida> mapConfigEval = MapUtil.storeItems("evaluacionExpandida.id", "evaluacionExpandida", evaluaciones);
-        
+
         for (Evaluacion eval : evaluaciones) {
             EvaluacionExpandida cfgEval = eval.getEvaluacionExpandida();
             if (cfgEval.getEvaluacionSuperior() != null) {
@@ -616,51 +616,51 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
                 superior.getEvaluacionesExpandidas().add(cfgEval);
             }
         }
-        
+
         Map<Long, Evaluacion> mapEvaluaciones = MapUtil.storeItems("id", evaluaciones);
         for (AlumnoEvaluacion evalAlumno : notasAlumno) {
             Evaluacion eval = mapEvaluaciones.get(evalAlumno.getEvaluacion().getId());
-            
+
             eval.getAlumnoEvaluacion().add(evalAlumno);
             evalAlumno.setEvaluacion(eval);
         }
-        
+
         for (Evaluacion eval : evaluaciones) {
             List<AlumnoEvaluacion> notas = eval.getAlumnoEvaluacion();
         }
     }
-    
+
     private BigDecimal calularNota(Fraxtion ponderado, Fraxtion pesoTotal, int redondeo) {
         if (pesoTotal.isZero()) {
             return BigDecimal.ZERO;
         }
-        
+
         Fraxtion nota = ponderado.divide(pesoTotal);
         return nota.getValue(redondeo, RoundingMode.HALF_UP);
     }
-    
+
     @Override
     @Transactional(readOnly = false)
     public void calcularNotas(EvaluacionExpandida evaluacionExpandida, CicloAcademico cicloAcademico, Usuario usuario) {
         evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion(), cicloAcademico);
-        
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion());
+
         for (MatriculaSeccion ms : matriculasSeccion) {
             Seccion seccion = ms.getSeccion();
             GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
             Alumno alumno = ms.getMatriculaResumen().getAlumno();
-            
+
             if (gpoSecc.getPlanCalificacion() == null) {
                 break;
             }
-            
+
             if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
                 continue;
             }
-            
+
             this.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), usuario);
-            
+
         }
     }
-    
+
 }
