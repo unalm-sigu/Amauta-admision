@@ -37,9 +37,11 @@ public class AconsejadosTutorController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        model.addAttribute("ciclo", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{
-            "*"
-        }));
+        model.addAttribute("ciclo", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{"*"}));
+        model.addAttribute("docente", ds.getDocente());
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
+
         return "consejeria/aconsejadostutor/aconsejadosTutor";
     }
 
@@ -56,7 +58,7 @@ public class AconsejadosTutorController {
 
             for (AlumnoConsejero alumnoTutor : alumnosTutor) {
                 ObjectNode node = JsonHelper.createJson(alumnoTutor, JsonNodeFactory.instance, true,
-                       new String[]{
+                        new String[]{
                             "*",
                             "alumno.id",
                             "alumno.codigo",
