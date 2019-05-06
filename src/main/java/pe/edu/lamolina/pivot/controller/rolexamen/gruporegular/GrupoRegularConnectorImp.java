@@ -321,6 +321,9 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
     @Override
     public boolean validarGrupoRegular(GrupoHorasExamen grupoHorasExamen,
             List<Alumno> alumnos, List<Docente> docentes, List<Aula> aulas) {
+        if (grupoHorasExamen == null) {
+            return true;
+        }
         LetraGrupoRegular letraGrupoRegular = letraGrupoRegularDAO.findByGrupoHorasExamen(grupoHorasExamen);
         if (letraGrupoRegular == null) {
             return true;
@@ -381,6 +384,9 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
     @Override
     public boolean validarGrupoEspecial(GrupoHorasExamen grupoHorasExamen, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos) {
+        if (grupoHorasExamen == null) {
+            return true;
+        }
         List<SeccionGrupoEspecial> seccionesGrupoEspecial = seccionGrupoEspecialDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, SeccionRolExamenEstadoEnum.ACT);
         // seccionesGrupoEspecial.removeIf(x -> x.getGrupoHorasExamen() == null || !x.getGrupoHorasExamen().equals(grupoHorasExamen));
         this.fillActiveInfoGrupoEspecial(seccionesGrupoEspecial);
