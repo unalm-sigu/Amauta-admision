@@ -56,7 +56,7 @@ var app = new Vue({
                 success(response) {
                     if (response.success) {
                         $vue.$refs.raptor.repreload();
-                        $vue.$refs.modalAmpliacionVacante.open();
+                        $vue.$refs.modalAmpliacionVacante.close();
                     } else {
                         notify(response.message, "error");
                     }
@@ -121,6 +121,9 @@ var app = new Vue({
             let $vue = this;
             $vue.alumnoeleccionados.splice($vue.alumnoeleccionados.indexOf(alumno), 1);
         },
+        prueba() {
+            this.$refs.refModalAceptarSolicitud.open();
+        },
         showModalSolicitudes(seccion) {
             console.log("la seccion es")
             console.dir(seccion);
@@ -157,7 +160,7 @@ var app = new Vue({
                     if (response.success) {
                         $vue.solicitudesMatriculaSec = response.data;
                         $vue.$refs.raptor.repreload();
-                        // $vue.$refs.refModalAceptarSolicitud.open();
+                        $vue.$refs.refModalAceptarSolicitud.close();
                     } else {
                         notify(response.message, "error");
                     }
@@ -178,7 +181,7 @@ var app = new Vue({
                     if (response.success) {
                         $vue.solicitudesMatriculaSec = response.data;
                         $vue.$refs.raptor.repreload();
-                        // $vue.$refs.refModalAceptarSolicitud.open();
+                        $vue.$refs.refModalAceptarSolicitud.close();
                     } else {
                         notify(response.message, "error");
                     }

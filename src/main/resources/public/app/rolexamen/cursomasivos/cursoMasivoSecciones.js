@@ -35,7 +35,7 @@ new Vue({
                         AXIOS.post(`${vue.URL}/${tipoAccion}/excluir`, item)
                                 .then(response => {
                                     if (response.data.success) {
-                                        vue.findCursoMasivoExamen();
+                                        vue.$refs.tblSeccionesCursosMasivos.loadRemoteData();
                                     }
                                     MODAL.hideWait();
                                 });
@@ -58,7 +58,7 @@ new Vue({
                         AXIOS.post(`${vue.URL}/${tipoAccion}/incluir`, item)
                                 .then(response => {
                                     if (response.data.success) {
-                                        vue.findCursoMasivoExamen();
+                                        vue.$refs.tblSeccionesCursosMasivos.loadRemoteData();
                                     }
                                     MODAL.hideWait();
                                 });

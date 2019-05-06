@@ -144,7 +144,6 @@
                                                     <div style="min-height: 20px;" 
                                                          v-for="seccion in gposeccion.secciones " 
                                                          class="block text-muted">
-
                                                         <template v-if="seccion.solicitudesMatricula">
                                                             <span class="badge pointer" v-if="!gposeccion.curso.tipoCursoTEOPRA || gposeccion.curso.tipoCursoTEOPRA &amp;&amp; !seccion.docentePrincipalLogeado">
                                                                 {{seccion.solicitudesMatricula}}
