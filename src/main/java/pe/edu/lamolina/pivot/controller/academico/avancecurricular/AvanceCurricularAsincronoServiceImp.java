@@ -293,8 +293,14 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 avance.setTipoCursoCurricula(tipo);
                 avance.setAlumno(alumno);
             }
-            avance.setCreditos(creditos.get(tipo.getCodigoEnum()));
-            avance.setCursos(cursos.get(tipo.getCodigoEnum()));
+            Integer creditosDep = 0;
+            Integer cursosDep = 0;
+            if (tipo.getCodigoEnum() == GEN) {
+                creditosDep = creditos.get(DEP);
+                cursosDep = cursos.get(DEP);
+            }
+            avance.setCreditos(creditos.get(tipo.getCodigoEnum()) + creditosDep);
+            avance.setCursos(cursos.get(tipo.getCodigoEnum()) + cursosDep);
             System.out.println("Avance " + avance.getTipoCursoCurricula().getCodigo() + " - " + avance.getCreditos() + " - " + avance.getCursos());
             avanceCurricularDAO.save(avance);
             cred = cred + creditos.get(tipo.getCodigoEnum());
@@ -305,9 +311,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
         }
         alumno.setCursosCarreraAprobados(curCarrera);
-        alumno.setCreditosAprobados(cred);
+//        alumno.setCreditosAprobados(cred);
         alumno.setCreditosCarreraAprobados(credCarrera);
-        alumno.setCursosAprobados(cur);
+//        alumno.setCursosAprobados(cur);
         alumnoDAO.update(alumno);
     }
 
@@ -767,7 +773,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         }
     }
 
-    AlumnoCicloCurso getCursoEquivaleByDptoAcad(
+    private AlumnoCicloCurso getCursoEquivaleByDptoAcad(
             List<String> departamentos,
             Map<String, List<AlumnoCicloCurso>> mapCursosAprobadosByDpto,
             Map<Long, AlumnoCursoCurricula> mapCursosCurriculaAlyByCurso) {
