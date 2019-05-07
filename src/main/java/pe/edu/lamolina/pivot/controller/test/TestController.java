@@ -390,27 +390,9 @@ public class TestController {
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorial/{alumno}")
     public String trasladarMatriculaCursoForPromedios(HttpSession session, @PathVariable("alumno") Long alumnoId) {
-        //201700
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
-
-        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.ACT, CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
-
-        for (CicloAcademico cicloAcademicoEach : ciclos) {
-            MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(new Alumno(alumnoId), cicloAcademicoEach);
-            if (matriculaResumen == null) {
-                continue;
-            }
-            List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenFull(matriculaResumen);
-            if (matriculasCurso == null || matriculasCurso.isEmpty()) {
-                continue;
-            }
-            List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allActivesByMatriculaResumen(Arrays.asList(matriculaResumen));
-            visorCalculoNotas.iniciar();
-            visorCalculoNotas.setCantidadTotal(1);
-            logger.debug("##################Ciclo padre {} {} {}", cicloAcademicoEach.getId(), cicloAcademicoEach.getYear(), cicloAcademicoEach.getNumeroCiclo());
-            promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, false);
-        }
+        service.trasladarMatriculaCursoForPromedios(ds, alumnoId);
         return "yeah";
     }
 

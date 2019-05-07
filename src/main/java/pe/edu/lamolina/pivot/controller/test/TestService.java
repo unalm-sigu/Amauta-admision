@@ -7,4 +7,6 @@ public interface TestService {
 
     void calcularAllResumenEvaluacion(Long seccionId, CicloAcademico ciclo, DataSessionPivot ds);
 
+    void trasladarMatriculaCursoForPromedios(DataSessionPivot ds, Long alumnoId);
+
 }
