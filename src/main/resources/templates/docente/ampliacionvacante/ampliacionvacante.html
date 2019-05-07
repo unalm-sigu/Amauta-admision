@@ -33,7 +33,7 @@
         <div layout:fragment="main">
             <div id="main" v-cloak="">
 
-                <header class="header b-b padder-lg">        
+                <header class="header b-b padder-lg" style="padding-bottom:3rem;">        
                     <h2>Ampliación de Vacante    <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
                     <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>
                     <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
@@ -101,7 +101,7 @@
 
                                                 </td>
 
-                                                <td class="text-center">
+                                                <td class="text-center v-middle">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted">
                                                         {{seccion.codigo2}}
@@ -109,7 +109,7 @@
 
                                                 </td>
 
-                                                <td class="text-center">
+                                                <td class="text-center v-middle">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted">
                                                         {{seccion.grupoHoras.codigo}}
@@ -117,15 +117,15 @@
 
                                                 </td>
 
-                                                <td class="text-center">
+                                                <td class="text-center v-middle">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted"> 
-                                                        {{seccion.aula.codigo}} {{seccion.aula.aforo?'('+seccion.aula.aforo+')':''}}
+                                                        <strong>{{seccion.aula.codigo}} {{seccion.aula.aforo?'('+seccion.aula.aforo+')':''}}</strong>
                                                     </small>
 
                                                 </td>
 
-                                                <td class="text-center">
+                                                <td class="text-center v-middle">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted">
                                                         {{seccion.vacantes}} 
@@ -133,14 +133,14 @@
 
                                                 </td>
 
-                                                <td class="text-center">
+                                                <td class="text-center v-middle">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted"> 
-                                                        {{seccion.matriculados}} 
+                                                        <strong>{{seccion.matriculados}} </strong>
                                                     </small>
 
                                                 </td>
-                                                <td class="text-center">
+                                                <td class="text-center v-middle">
                                                     <div style="min-height: 20px;" 
                                                          v-for="seccion in gposeccion.secciones " 
                                                          class="block text-muted">
@@ -156,7 +156,7 @@
 
                                                     </div>
                                                 </td>                                   
-                                                <td class="text-center">
+                                                <td class="text-center ">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones "  class="block text-muted"> 
                                                         <!-- v-if="docenteSession.id==gposeccion.docenteResponsable.id" -->
@@ -171,7 +171,7 @@
 
                                                 </td>
 
-                                                <td class="">
+                                                <td class=" v-middle">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones " class="block text-muted"> 
                                                         <p v-if="seccion.docentePrincipal.codigo != 'N.N.' " >{{seccion.docentePrincipal.persona.letraNomPaterno}}</p>
