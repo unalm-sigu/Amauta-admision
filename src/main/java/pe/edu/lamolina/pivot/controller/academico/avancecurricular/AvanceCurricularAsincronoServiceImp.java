@@ -473,7 +473,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             if (cursoCurricula != null) {
                 if (cursoCurricula.getCursoCurricula() != null
                         && estadosAprobados.contains(cursoCurricula.getEstadoEnum())
-                        && cursoCurricula.getCursoCurricula().getCreditosRequisito() > alumno.getCursosCarreraAprobados()) {
+                        && cursoCurricula.getCursoCurricula().getCreditosRequisito() >= alumno.getCreditosCarreraAprobados()) {
                     alumnoCursoCurriculaNew.setEstadoEnum(NREQ);
                 }
                 cursoCurricula.setValidado(true);
