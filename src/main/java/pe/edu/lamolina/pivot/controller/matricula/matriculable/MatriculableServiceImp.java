@@ -70,6 +70,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
@@ -470,18 +471,6 @@ public class MatriculableServiceImp implements MatriculableService {
             }
             if (alumnoCiclo != null) {
                 matriculable = matriculableConector.procesarPrioridadAlumno(matriculable, alumnoCiclo);
-                if (retiroCiclo != null) {
-                    alumnoCiclo = mapAlumnoCiclo.get(matriculable.getAlumno().getId());
-                }
-                matriculable.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
-                matriculable.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados());
-                matriculable.setCreditosAprobadosCiclo(alumnoCiclo.getCreditosAprobadosCiclo());
-                matriculable.setCreditosCursadosCiclo(alumnoCiclo.getCreditosCursadosCiclo());
-                matriculable.setPromedioSemestral(alumnoCiclo.getPromedioCiclo());
-                if (matriculable.getCreditosAprobadosAcumulados() >= CAPA_ULTIMO_CICLO) {
-                    matriculable.setEsUltimoCiclo(Boolean.TRUE);
-                }
-                matriculable.setCicloAcademicoInfo(alumnoCiclo.getCicloAcademico());
             }
         }
 
@@ -811,7 +800,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
             matri.setEsCondicional(true);
             matri.setFechaCondicional(new Date());
-            updateCursoApro(alumno, ds);
+            if (retiroCiclo.getEstadoEnum() == TramiteEstadoEnum.APR) {
+                updateCursoApro(alumno, ds);
+            }
         }
 
         if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
