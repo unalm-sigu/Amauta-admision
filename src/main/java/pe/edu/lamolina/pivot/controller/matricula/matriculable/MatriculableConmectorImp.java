@@ -80,7 +80,7 @@ public class MatriculableConmectorImp implements MatriculableConnector {
      
         BigDecimal puntajePrioridad = factor1.divide(factor2, 12, RoundingMode.HALF_UP);
 
-        matriculaResumen.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosCiclo());
+        matriculaResumen.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
         matriculaResumen.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados());
         matriculaResumen.setCreditosAprobadosCiclo(alumnoCiclo.getCreditosAprobadosCiclo());
         matriculaResumen.setCreditosCursadosCiclo(alumnoCiclo.getCreditosCursadosCiclo());
