@@ -88,6 +88,8 @@ public class AmpliacionVacanteController {
                     "curso.tipoCursoTEOPRA",
                     "docenteResponsable.id",
                     "docenteResponsable.persona.nombreCompleto",
+                    "docenteResponsable.persona.letraNomPaterno",
+                    "docenteResponsable.persona.nombrePaterno",
                     "curso.tipoCursoTEO",
                     "curso.tipoCursoPRA",
                     "curso.tipoCursoTEOPRA",
@@ -122,6 +124,8 @@ public class AmpliacionVacanteController {
                     "secciones.seccionSuperior.grupoHoras.codigo",
                     "secciones.docentePrincipal.codigo",
                     "secciones.docentePrincipal.persona.nombreCompleto",
+                    "secciones.docentePrincipal.persona.letraNomPaterno",
+                    "secciones.docentePrincipal.persona.nombrePaterno",
                     "secciones.docentePrincipalLogeado",
                     "secciones.docentePrincipaTcurLogeado"});
 

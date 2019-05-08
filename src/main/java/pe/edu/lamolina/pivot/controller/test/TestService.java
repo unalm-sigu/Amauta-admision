@@ -7,4 +7,18 @@ public interface TestService {
 
     void calcularAllResumenEvaluacion(Long seccionId, CicloAcademico ciclo, DataSessionPivot ds);
 
+    void trasladarMatriculaCursoForPromedios(DataSessionPivot ds, Long alumnoId);
+
+    void trasladarMatriculaCursoForPromedios(DataSessionPivot ds);
+
+    void promediarciclocod(String cicloCod, DataSessionPivot ds);
+
+    void promediarepgfull(DataSessionPivot ds);
+
+    void promediarfull(DataSessionPivot ds);
+
+    void promediarAll(Long cicloId, DataSessionPivot ds);
+
+    void calcularAllPromediosByCiclo(DataSessionPivot ds);
+
 }

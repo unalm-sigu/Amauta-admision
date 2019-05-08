@@ -44,7 +44,7 @@ Vue.component("avance-component", {
 
             for (var i = 0; i < $vue.resumenAlumno.length; i++) {
                 let res = $vue.resumenAlumno[i];
-                if (res.tipoCursoCurricula.codigo == 'EEP') {
+                if (res.tipoCursoCurricula.codigo == 'EEP' || res.tipoCursoCurricula.codigo == 'DEP') {
                     continue;
                 }
                 cred += res.creditos;
@@ -59,7 +59,7 @@ Vue.component("avance-component", {
 
             for (var i = 0; i < $vue.resumenPlan.length; i++) {
                 let res = $vue.resumenPlan[i];
-                if (res.tipoCursoCurricula.codigo == 'EEP') {
+                if (res.tipoCursoCurricula.codigo == 'EEP'|| res.tipoCursoCurricula.codigo == 'DEP') {
                     continue;
                 }
                 cred += res.creditos;

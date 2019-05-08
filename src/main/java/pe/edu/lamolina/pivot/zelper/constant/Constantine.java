@@ -111,4 +111,7 @@ public interface Constantine {
     String COLOR_WARNING = "warning";
     String COLOR_SUCCESS = "success";
     String COLOR_DANGER = "danger";
+    
+    // planes
+    Integer CREDITOS_ADIC_ELC = 4;
 }
