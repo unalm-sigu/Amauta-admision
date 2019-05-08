@@ -1198,7 +1198,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         logger.debug("*********carrera {}", carrera.getId());
         List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
-
+        List<PlanCurricular> planesCurriculars = planCurricularDAO.all();
         CicloAcademico cicloInicia = null;
         cicloInicia = planesCurricular.stream().map(x -> x.getCicloInicioVigencia()).min(Comparator.comparing(CicloAcademico::getCodigo)).get();
         logger.debug("*********Ciclo Inicia {}", cicloInicia.getCodigo());
@@ -1326,6 +1326,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                     avanceCurriculars,
                     equivalenteElectivos,
                     mapCursoOpcionalAll,
+                    planesCurriculars,
                     ds);
         }
 
