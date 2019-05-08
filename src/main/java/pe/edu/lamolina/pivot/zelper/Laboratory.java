@@ -6,7 +6,7 @@ import java.math.RoundingMode;
 
 public class Laboratory {
 
-    public static void main(String[] args) {
+    public static void main666(String[] args) {
         BigDecimal pps = new BigDecimal(6.818182);
         BigDecimal caps = new BigDecimal(0);
         BigDecimal capa = new BigDecimal(44);
