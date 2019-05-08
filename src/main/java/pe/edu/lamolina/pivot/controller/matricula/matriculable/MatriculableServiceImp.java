@@ -241,7 +241,9 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Alumno> alumnos = new ArrayList(mapMatriculable.values());
         List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
         System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos EPG para ser matriculables");
-        matriculaResumenDAO.saveMatriculables(alumnosIds, ciclo);
+        if (!alumnosIds.isEmpty()) {
+            matriculaResumenDAO.saveMatriculables(alumnosIds, ciclo);
+        }
 //        for (Alumno alumno : alumnos) {
 //            MatriculaResumen matriculable = new MatriculaResumen();
 //            matriculable.setAlumno(alumno);
@@ -347,7 +349,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Alumno> alumnos = new ArrayList(mapMatriculable.values());
         List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
         System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos Reg para ser matriculables");
-        if (alumnosIds.size() > 0) {
+        if (!alumnosIds.isEmpty()) {
             matriculaResumenDAO.saveMatriculables(alumnosIds, ciclo);
         }
 

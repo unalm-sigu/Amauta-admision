@@ -482,7 +482,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds);
         generarAvanceCurricular(alumnoCursoElcCarreraNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas, alumnoAvanceCurriculars, alumno);
         validarCursosELC(alumnoCursoElcCarreraNew, alumnoCursoNew, alumno);
-
+//        validarTramiteRetiroCiclo(cursosAprobados, alumno, cicloAcademico);
         alumnoCursoOld = alumnoCursoOld == null ? new ArrayList<>() : alumnoCursoOld;
         for (AlumnoCursoCurricula alumnoCursoCurriculaNew : alumnoCursoNew) {
             AlumnoCursoCurricula cursoCurricula = alumnoCursoOld.stream().filter(x -> Objects.equals(x.getCurso().getId(), alumnoCursoCurriculaNew.getCurso().getId()) && !x.isValidado()).findAny().orElse(null);
