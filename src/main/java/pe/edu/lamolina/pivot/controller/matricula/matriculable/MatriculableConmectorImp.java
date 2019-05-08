@@ -70,15 +70,14 @@ public class MatriculableConmectorImp implements MatriculableConnector {
             matriculaResumen.setPromedioSemestral(BigDecimal.ZERO);
             return matriculaResumen;
         }
-        caps = caps == BigDecimal.ZERO ? new BigDecimal(0.004) : caps;
-        capa = capa == BigDecimal.ZERO ? new BigDecimal(0.004) : capa;
-        pps = pps == BigDecimal.ZERO ? new BigDecimal(0.004) : pps;
+        caps = caps.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : caps;
+        capa = capa.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : capa;
+        pps = pps.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : pps;
 
         BigDecimal factor1 = capa.multiply(caps).multiply(pps);// capa.divide(cca, 12, RoundingMode.HALF_UP);
         BigDecimal factor2 = ccs.multiply(cca);//caps.divide(ccs, 12, RoundingMode.HALF_UP);
-         factor2 = factor2 == BigDecimal.ZERO ? BigDecimal.ONE : factor2;
-        System.out.println("Fac1 :" + factor1);
-        System.out.println("Fac2 :" + factor2);
+        factor2 = factor2.equals(BigDecimal.ZERO) ? BigDecimal.ONE : factor2;
+     
         BigDecimal puntajePrioridad = factor1.divide(factor2, 12, RoundingMode.HALF_UP);
 
         matriculaResumen.setCreditosAprobadosAcumulados(Integer.parseInt(capa.toString()));
