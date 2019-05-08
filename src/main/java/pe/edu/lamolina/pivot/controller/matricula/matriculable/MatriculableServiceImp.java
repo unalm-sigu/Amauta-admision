@@ -470,6 +470,18 @@ public class MatriculableServiceImp implements MatriculableService {
             }
             if (alumnoCiclo != null) {
                 matriculable = matriculableConector.procesarPrioridadAlumno(matriculable, alumnoCiclo);
+                if (retiroCiclo != null) {
+                    alumnoCiclo = mapAlumnoCiclo.get(matriculable.getAlumno().getId());
+                }
+                matriculable.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
+                matriculable.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados());
+                matriculable.setCreditosAprobadosCiclo(alumnoCiclo.getCreditosAprobadosCiclo());
+                matriculable.setCreditosCursadosCiclo(alumnoCiclo.getCreditosCursadosCiclo());
+                matriculable.setPromedioSemestral(alumnoCiclo.getPromedioCiclo());
+                if (matriculable.getCreditosAprobadosAcumulados() >= CAPA_ULTIMO_CICLO) {
+                    matriculable.setEsUltimoCiclo(Boolean.TRUE);
+                }
+                matriculable.setCicloAcademicoInfo(alumnoCiclo.getCicloAcademico());
             }
         }
 
