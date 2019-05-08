@@ -80,10 +80,10 @@ public class MatriculableConmectorImp implements MatriculableConnector {
      
         BigDecimal puntajePrioridad = factor1.divide(factor2, 12, RoundingMode.HALF_UP);
 
-        matriculaResumen.setCreditosAprobadosAcumulados(Integer.parseInt(capa.toString()));
-        matriculaResumen.setCreditosAcumulados(Integer.parseInt(cca.toString()));
-        matriculaResumen.setCreditosAprobadosCiclo(Integer.parseInt(caps.toString()));
-        matriculaResumen.setCreditosCursadosCiclo(Integer.parseInt(ccs.toString()));
+        matriculaResumen.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosCiclo());
+        matriculaResumen.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados());
+        matriculaResumen.setCreditosAprobadosCiclo(alumnoCiclo.getCreditosAprobadosCiclo());
+        matriculaResumen.setCreditosCursadosCiclo(alumnoCiclo.getCreditosCursadosCiclo());
         matriculaResumen.setPromedioSemestral(pps);
         if (matriculaResumen.getCreditosAprobadosAcumulados() >= CAPA_ULTIMO_CICLO) {
             matriculaResumen.setEsUltimoCiclo(Boolean.TRUE);
