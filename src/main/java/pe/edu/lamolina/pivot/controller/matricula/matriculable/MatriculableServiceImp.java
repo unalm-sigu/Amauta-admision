@@ -800,11 +800,10 @@ public class MatriculableServiceImp implements MatriculableService {
 
             matri.setEsCondicional(true);
             matri.setFechaCondicional(new Date());
-            if (retiroCiclo.getEstadoEnum() == TramiteEstadoEnum.APR) {
-                updateCursoApro(alumno, ds);
-            }
+
         } else if (tipoCondicional.equals(TipoCondicionalEnum.REI.name())) {
-            
+            matri.setEsCondicional(true);
+            matri.setFechaCondicional(new Date());
         }
 
         if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {

@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,18 +18,29 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
+import pe.edu.lamolina.model.enums.TipoTramiteEnum;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.general.SerieDocumento;
+import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
+import pe.edu.lamolina.model.tramite.TipoTramite;
+import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
+import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ResolucionDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoResolucionDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TipoTramiteDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -51,9 +63,17 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
 
     @Autowired
     EstadoTramiteDAO estadoTramiteDAO;
+    @Autowired
+    TramiteDAO tramiteDAO;
+    @Autowired
+    TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
+    @Autowired
+    TipoTramiteDAO tipoTramiteDAO;
 
     @Autowired
     MatriculableService matriculableService;
+    @Autowired
+    SerieDocumentoService serieDocumentoService;
 
     @Override
     public List<Alumno> allAlumnoDesertorByNombre(String nombre, Long instanciaOficina) {
@@ -91,10 +111,31 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
         System.out.println("Estado" + estadoTramite.getId());
         for (Reincorporacion reincorporacione : resolucionForm.getReincorporaciones()) {
+
             Alumno alumno = map.get(reincorporacione.getAlumno().getId());
             if (alumno != null) {
                 throw new PhobosException("El alumno" + alumno.getCodigo() + " ya cuenta con una resolución para el ciclo activo");
             }
+            DateTime today = new DateTime();
+            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+            SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
+            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
+            alumno = alumnoDAO.find(reincorporacione.getAlumno());
+            
+            Tramite tramite = new Tramite();
+            tramite.setActivo(true);
+            tramite.setCompania(ds.getCompania());
+            tramite.setAlumno(alumno);
+            tramite.setCicloAcademico(ds.getCicloAcademico());
+            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+            tramite.setFechaRegistro(new Date());
+            tramite.setPersona(alumno.getPersona());
+            tramite.setTipoTramite(tipoTramite);
+            tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
+            tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
+            tramite.setUserRegistro(ds.getUsuario());
+            tramiteDAO.save(tramite);
+
             Facultad facultad = reincorporacione.getAlumno().getCarrera().getFacultad();
             reincorporacione.setAceptado(1);
             reincorporacione.setFechaRegistro(new Date());
@@ -102,6 +143,7 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
             reincorporacione.setEstadoTramite(estadoTramite);
             reincorporacione.setUserRegistro(usuario);
             reincorporacione.setFacultad(facultad);
+            reincorporacione.setTramite(tramite);
             reincorporacionDAO.save(reincorporacione);
             alumnos.add(reincorporacione.getAlumno());
         }
