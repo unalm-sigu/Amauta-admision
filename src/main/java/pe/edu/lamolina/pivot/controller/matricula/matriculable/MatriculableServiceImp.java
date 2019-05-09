@@ -803,6 +803,8 @@ public class MatriculableServiceImp implements MatriculableService {
             if (retiroCiclo.getEstadoEnum() == TramiteEstadoEnum.APR) {
                 updateCursoApro(alumno, ds);
             }
+        } else if (tipoCondicional.equals(TipoCondicionalEnum.REI.name())) {
+            
         }
 
         if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {

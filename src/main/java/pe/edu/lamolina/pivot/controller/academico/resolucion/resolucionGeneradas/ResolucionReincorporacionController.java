@@ -148,9 +148,7 @@ public class ResolucionReincorporacionController {
             List<Alumno> alumnos = service.save(resolucion, ds.getUsuario(), ds);
 
             for (Alumno alumno : alumnos) {
-
-                matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.OTRO.name(), ds);
-
+                matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
             }
             response.setMessage("Se realizó el registro satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
