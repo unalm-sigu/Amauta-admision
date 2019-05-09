@@ -26,19 +26,26 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
+import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
+import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Parametro;
+import pe.edu.lamolina.model.general.SerieDocumento;
+import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.tramite.TipoTramite;
+import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableConnector;
+import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -52,6 +59,9 @@ import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
 import pe.edu.lamolina.pivot.dao.general.ParametroDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TipoTramiteDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CAPA_ULTIMO_CICLO;
@@ -117,6 +127,14 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
     TurnoAtencionDAO turnoAtencionDAO;
 
     @Autowired
+    TipoTramiteDAO tipoTramiteDAO;
+    @Autowired
+    TramiteDAO tramiteDAO;
+
+    @Autowired
+    TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
+
+    @Autowired
     MatriculableConnector matriculableConector;
 
     @Autowired
@@ -124,6 +142,9 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
 
     @Autowired
     AvanceCurricularService avanceCurricularService;
+
+    @Autowired
+    SerieDocumentoService serieDocumentoService;
 
     @Override
     public List<CicloAcademico> allCiclos(CicloAcademico academico) {
@@ -149,6 +170,25 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
 
         RetiroCiclo retiro = retiroCicloDAO.findByAlumnoCicloRetiro(alumno, retiroCiclo.getCicloAcademico());
         Assert.isNull(retiro, "El alumno ya cuenta con un trámite de retiro para el ciclo " + retiroCiclo.getCicloAcademico().getDescripcion());
+
+        DateTime today = new DateTime();
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
+        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
+        Tramite tramite = new Tramite();
+        tramite.setActivo(true);
+        tramite.setCompania(ds.getCompania());
+        tramite.setAlumno(alumno);
+        tramite.setCicloAcademico(ds.getCicloAcademico());
+        tramite.setEstadoEnum(TramiteEstadoEnum.PEND);
+        tramite.setFechaRegistro(new Date());
+        tramite.setPersona(alumno.getPersona());
+        tramite.setTipoTramite(tipoTramite);
+        tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
+        tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
+        tramite.setUserRegistro(ds.getUsuario());
+        tramiteDAO.save(tramite);
+
         retiro = new RetiroCiclo();
         retiro.setEstado(TramiteEstadoEnum.PEND);
         if (isCondicional) {
@@ -161,6 +201,7 @@ public class TramiteRetiroCicloServiceImp implements TramiteRetiroCicloService {
         retiro.setCicloRegistro(ds.getCicloAcademico());
         retiro.setUsuario(ds.getUsuario());
         retiro.setMotivo(retiroCiclo.getMotivo());
+        retiro.setTramite(tramite);
         retiroCicloDAO.save(retiro);
 
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ds.getCicloAcademico(), alumno, EstadoMatriculaEnum.NMAT);

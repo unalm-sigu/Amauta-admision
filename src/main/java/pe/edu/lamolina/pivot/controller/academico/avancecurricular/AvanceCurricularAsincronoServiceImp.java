@@ -317,9 +317,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
         }
         alumno.setCursosCarreraAprobados(curCarrera);
-//        alumno.setCreditosAprobados(cred);
         alumno.setCreditosCarreraAprobados(credCarrera);
-//        alumno.setCursosAprobados(cur);
         alumnoDAO.update(alumno);
     }
 
@@ -412,7 +410,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         List<AlumnoCursoCurricula> alumnoCursoNew = new ArrayList<>();
         List<AlumnoCursoCurricula> alumnoCursoElcCarreraNew = new ArrayList<>();
         List<AlumnoCursoCurricula> alumnoCursoComodinDepNew = new ArrayList<>();
-
+        
+        validarTramiteRetiroCiclo(cursosAprobados, alumno, ds.getCicloAcademico());
+        
         for (CursoCurricula cursocurricula : mapCursosCurricula.values()) {
 
             AlumnoCursoCurricula cursosOpcionalesNew = new AlumnoCursoCurricula();
@@ -444,10 +444,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
         }
 
-        List<TipoCursoCurriculaEnum> tipoCursoGENEnum = Arrays.asList(GEN, OBL);
         cursoOpcionalCurriculas = cursoOpcionalCurriculas == null ? new ArrayList<>() : cursoOpcionalCurriculas;
         Map<Long, CursoOpcionalCurricula> mapCursoOpcional = TypesUtil.convertListToMap("curso.id", cursoOpcionalCurriculas);
-        Set<String> codsCursosComodines = new HashSet(Arrays.asList("EG1006"));
         List<String> departamentos = Arrays.asList("ME", "OE", "FS");
         for (AlumnoCicloCurso cursosAprobado : cursosAprobados) {
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoNew.stream().filter(x -> x.getCurso().getId() == cursosAprobado.getCurso().getId()).findAny().orElse(null);
@@ -482,7 +480,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds);
         generarAvanceCurricular(alumnoCursoElcCarreraNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas, alumnoAvanceCurriculars, alumno);
         validarCursosELC(alumnoCursoElcCarreraNew, alumnoCursoNew, alumno);
-//        validarTramiteRetiroCiclo(cursosAprobados, alumno, cicloAcademico);
+
         alumnoCursoOld = alumnoCursoOld == null ? new ArrayList<>() : alumnoCursoOld;
         for (AlumnoCursoCurricula alumnoCursoCurriculaNew : alumnoCursoNew) {
             AlumnoCursoCurricula cursoCurricula = alumnoCursoOld.stream().filter(x -> Objects.equals(x.getCurso().getId(), alumnoCursoCurriculaNew.getCurso().getId()) && !x.isValidado()).findAny().orElse(null);
@@ -851,7 +849,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 //        if (requisitosNoSimultaneos.isEmpty()) {
 //            return true;
 //        }
-
         boolean requisitosCumplidos = false;
 
         for (RequisitoCursoCurricula requisito : requisitos) {

@@ -70,6 +70,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
@@ -799,7 +800,10 @@ public class MatriculableServiceImp implements MatriculableService {
 
             matri.setEsCondicional(true);
             matri.setFechaCondicional(new Date());
-            updateCursoApro(alumno, ds);
+
+        } else if (tipoCondicional.equals(TipoCondicionalEnum.REI.name())) {
+            matri.setEsCondicional(true);
+            matri.setFechaCondicional(new Date());
         }
 
         if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {

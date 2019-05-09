@@ -118,7 +118,7 @@ public class ReunionConsejoController {
             ReunionConsejo reunionConsejo = reunionConsejoService.findReunionConsejoByFechaAndOficina(fechaReunion, oficinaAux);
             if (reunionConsejo == null) {
                 reunionConsejo = new ReunionConsejo();
-                reunionConsejo.setEsOrdinario(BigDecimal.ONE.intValue());
+                reunionConsejo.setEsOrdinario(true);
             }
 
             node.set("reunionConsejo", JsonHelper.createJson(reunionConsejo, jsonFactory, true, new String[]{
@@ -149,7 +149,7 @@ public class ReunionConsejoController {
             List<Oficina> oficinas = new ArrayList();
 
             if (reunionConsejo.getId() == null) {
-                reunionConsejoService.saveReunionConsejo(reunionConsejo, oficinaAux, ds);
+                reunionConsejoService.saveReunionConsejo(reunionConsejo, reunionConsejo.getOficina(), ds);
             } else {
 //                reunionConsejo.setOficina(oficinaAux);
                 reunionConsejoService.updateReunionConsejo(reunionConsejo, ds);
