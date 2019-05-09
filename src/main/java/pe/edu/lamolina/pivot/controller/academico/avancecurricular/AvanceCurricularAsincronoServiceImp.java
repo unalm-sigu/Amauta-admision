@@ -209,7 +209,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             List<ResumenPlanCurricular> resumenPlanCurriculars,
             List<TipoCursoCurricula> tipoCursoCurriculas,
             List<AlumnoAvanceCurricular> alumnoAvanceCurriculars,
-            Alumno alumno) {
+            Alumno alumno,
+            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado) {
 //       
 
         Map<TipoCursoCurriculaEnum, TipoCursoCurricula> tipos = tipoCursoCurriculas
@@ -237,6 +238,12 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Integer sum = 0;
         Integer credAdic = CREDITOS_ADIC_ELC;
         for (AlumnoCursoCurricula curso : alumnoCursoNew) {
+            if (curso.getVecesCursado() == 0) {
+                AlumnoCicloCurso cat = mapCursosVecesLlevado.get(curso.getAlumno().getId() + "-" + curso.getCurso().getId());
+                if (cat != null) {
+                    curso.setVecesCursado(cat.getVecesCursado());
+                }
+            }
             if (curso.getEstadoEnum() == APR || curso.getEstadoEnum() == EQUIV) {
                 TipoCursoCurriculaEnum tipo = null;
 
@@ -410,9 +417,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         List<AlumnoCursoCurricula> alumnoCursoNew = new ArrayList<>();
         List<AlumnoCursoCurricula> alumnoCursoElcCarreraNew = new ArrayList<>();
         List<AlumnoCursoCurricula> alumnoCursoComodinDepNew = new ArrayList<>();
-        
+
         validarTramiteRetiroCiclo(cursosAprobados, alumno, ds.getCicloAcademico());
-        
+
         for (CursoCurricula cursocurricula : mapCursosCurricula.values()) {
 
             AlumnoCursoCurricula cursosOpcionalesNew = new AlumnoCursoCurricula();
@@ -478,7 +485,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarCursosSimultaneo(mapAlumCursoCurrByCursoCurri, cursosSimultaneosAlu, mapRequisitosCurricula, ds);
         validarEquivalencias(mapAlumCursoCurrByCursoCurri, mapEquivalentesCurricula, cursosAprobados);
         validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds);
-        generarAvanceCurricular(alumnoCursoElcCarreraNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas, alumnoAvanceCurriculars, alumno);
+        generarAvanceCurricular(alumnoCursoElcCarreraNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas, alumnoAvanceCurriculars, alumno, mapCursosVecesLlevado);
         validarCursosELC(alumnoCursoElcCarreraNew, alumnoCursoNew, alumno);
 
         alumnoCursoOld = alumnoCursoOld == null ? new ArrayList<>() : alumnoCursoOld;
