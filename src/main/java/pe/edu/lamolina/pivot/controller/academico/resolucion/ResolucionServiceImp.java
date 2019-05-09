@@ -290,6 +290,8 @@ public class ResolucionServiceImp implements ResolucionService {
         TipoTramite tipoTramite = null;
         if (tipoResolucion.getEsTipoResolucionRei()) {
             tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
+        }else if (tipoResolucion.getEsTipoResolucionRci()) {
+            tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
         }
         return alumnoReunionConsejoDAO.allByReunionConsejoAndTipoTramite(reunionConsejo, tipoTramite);
     }

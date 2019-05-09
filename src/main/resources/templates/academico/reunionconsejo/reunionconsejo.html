@@ -82,7 +82,8 @@
                                             <format-date v-bind:datetext="item.fecha"></format-date>
                                             </td>
                                             <td>
-                                                {{item.esOrdinario}}
+                                                <span v-if="item.esOrdinario">1</span>
+                                                <span v-else="">0</span>
                                             </td> 
                                             <td>
                                                 <span v-if="item.oficina" 

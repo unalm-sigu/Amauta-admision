@@ -11,6 +11,7 @@ var app = new Vue({
             header: true,
             title: 'Reunion Consejo',
             okbtn: 'Aceptar',
+            showaccept: true,
             modalsize: 'modal-lg'
         },
         oficinas: JSON.parse(oficinasJson),

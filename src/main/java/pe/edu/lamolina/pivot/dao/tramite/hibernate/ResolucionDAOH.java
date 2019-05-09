@@ -31,7 +31,7 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
     public List<Resolucion> allByDyna(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Resolucion.class, "t")
-                .join("oficina", "userRegistro ur")
+                .join("tipoResolucion", "oficina", "userRegistro ur")
                 .join("ur.persona per")
                 .left("reincorporaciones reis");
         return this.all(sql);
