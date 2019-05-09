@@ -115,8 +115,4 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
         return reincorporacionDAO.allByResolucion(new Resolucion(resolucion));
     }
 
-    private Exception PhobosException(String string) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
 }
