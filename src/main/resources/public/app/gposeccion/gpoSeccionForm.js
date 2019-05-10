@@ -1006,7 +1006,8 @@ var app = new Vue({
         },
         showModalTipoRepitencia(seccion) {
             let $vue = this;
-            $global.$emit('loadRepitenciaComponent', seccion.id);
+            // $global.$emit('loadRepitenciaComponent', seccion.id);
+            this.$refs.repitenciaComp.loadComponent(seccion.id);
             if (seccion.matriculados > 0) {
                 $vue.tipoRepitenciaModal.showaccept = false;
             } else {
