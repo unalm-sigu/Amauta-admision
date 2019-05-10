@@ -120,14 +120,16 @@ new Vue({
             id: 'modalAddCursoCarrera',
             header: true,
             title: 'Agregar Curso',
-            okbtn: 'Agregar Curso'
+            okbtn: 'Agregar Curso',
+            showaccept: true,
         },
         addSeleccionarClaveModal: {
             id: 'modalAddSeleccionarClave',
             header: true,
             title: 'Seleccionar Claves',
             okbtn: 'Guardar',
-            modalsize: 'modal-lg'
+            modalsize: 'modal-lg',
+            showaccept: true,
         }
     },
     created() {
