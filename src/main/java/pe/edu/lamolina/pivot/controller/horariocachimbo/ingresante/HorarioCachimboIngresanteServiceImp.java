@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.horariocachimbo.ingresante;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -380,6 +381,16 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Override
     @Transactional
     public void matricular(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        List<ConfigRecorridoIngresante> configRecorridoIngresantes = configRecorridoIngresanteDAO.allByCicloAcademico(cicloAcademico);
+        Map<Long, ConfigRecorridoIngresante> mapConfigRecorrido = TypesUtil.convertListToMap("tipoActividadIngresante.id", configRecorridoIngresantes);
+
+        List<ActividadIngresante> actividadIngresantes = actividadIngresanteDAO.allByCicloAcademico(cicloAcademico);
+        TipoActividadIngresante tipoActividadIngresante = tipoActividadIngresanteDAO.findCodigo(TipoActividadIngresanteEnum.MATRI);
+        Map<Long, List<ActividadIngresante>> mapActividadesIngresantes = TypesUtil.convertListToMapList("recorridoIngresante.alumno.id", actividadIngresantes);
+        System.out.println("Total actividades-alumnos :::: " + actividadIngresantes.size());
+
+        int actividadesPreMatricula = cantidadActividadesPreMatricula(configRecorridoIngresantes);
+
         List<HorarioCachimbos> horarios = horarioCachimbosDAO.allByCiclo(cicloAcademico);
         for (HorarioCachimbos horario : horarios) {
             if (horario.getMatriculados().intValue() >= horario.getSuscritos()) {
@@ -394,10 +405,6 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
             List<AlumnoHorario> alumnosHorario = alumnoHorarioDAO.allByHorario(horario);
 
-            List<ConfigRecorridoIngresante> configRecorridoIngresantes = configRecorridoIngresanteDAO.allByCicloAcademico(cicloAcademico);
-            List<ActividadIngresante> actividadIngresantes = actividadIngresanteDAO.allByCicloAcademico(cicloAcademico);
-            TipoActividadIngresante tipoActividadIngresante = tipoActividadIngresanteDAO.findCodigo(TipoActividadIngresanteEnum.MATRI);
-            Map<Long, List<ActividadIngresante>> mapsActividades = TypesUtil.convertListToMapList("recorridoIngresante.alumno.id", actividadIngresantes);
             for (AlumnoHorario aluHorario : alumnosHorario) {
                 if (aluHorario.getEstadoEnum() == EstadoAlumnoHorarioEnum.MATR) {
                     continue;
@@ -405,12 +412,20 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
                 // estados de recorrido tienen que estar activo. menos el de matricula. RecorridoAlumno - ActividadIngresante
                 Alumno alumno = aluHorario.getAlumno();
-                List<ActividadIngresante> actividadAlumno = mapsActividades.get(alumno.getId());
-                if (actividadAlumno.size() == (configRecorridoIngresantes.size() - 1)) {
+
+                List<ActividadIngresante> actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
+
+                int cantActividadAlumnoPreMatri = cantidadActividadesPreMatriculaAlumno(actividadesAlumno, mapConfigRecorrido);
+
+                if (cantActividadAlumnoPreMatri < actividadesPreMatricula) {
+                    //System.out.println("\tNo tiene la cantidad adecuada de actividades");
                     continue;
                 }
 
                 System.out.println("Alumno :::: " + alumno.getCodigo());
+                System.out.println("\tingresante con " + actividadesAlumno.size() + " actividades");
+                System.out.println("\tingresante con " + cantActividadAlumnoPreMatri + " actividades pre-matricula");
+
                 MatriculaResumen matResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
                 List<MatriculaCurso> matCursos = matriculaCursoDAO.allByMatriculaResumen(matResumen);
                 List<MatriculaSeccion> matSecciones = matriculaSeccionDAO.allByMatriculaResumen(matResumen);
@@ -486,7 +501,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 ActividadIngresante actividadIngresante = new ActividadIngresante();
                 actividadIngresante.setEstadoEnum(RecorridoIngresanteEstadoEnum.ACT);
                 actividadIngresante.setFechaRegistro(new Date());
-                actividadIngresante.setRecorridoIngresante(actividadAlumno.get(0).getRecorridoIngresante());
+                actividadIngresante.setRecorridoIngresante(actividadesAlumno.get(0).getRecorridoIngresante());
                 actividadIngresante.setTipoActividadIngresante(tipoActividadIngresante);
                 actividadIngresante.setUserEjecucion(ds.getUsuario());
                 actividadIngresanteDAO.save(actividadIngresante);
@@ -494,6 +509,45 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             }
             horarioCachimbosDAO.update(horario);
         }
+    }
+
+    private int cantidadActividadesPreMatriculaAlumno(
+            List<ActividadIngresante> actividadesAlumno,
+            Map<Long, ConfigRecorridoIngresante> mapConfigRecorrido) {
+
+        for (ActividadIngresante actIng : actividadesAlumno) {
+            TipoActividadIngresante tipo = actIng.getTipoActividadIngresante();
+            ConfigRecorridoIngresante cfg = mapConfigRecorrido.get(tipo.getId());
+            actIng.setOrden(cfg.getOrdenActividad());
+        }
+
+        Collections.sort(actividadesAlumno, new ActividadIngresante.CompareOrden());
+
+        int loop = 0;
+        for (ActividadIngresante actIng : actividadesAlumno) {
+            if (actIng.getEstadoEnum() != RecorridoIngresanteEstadoEnum.ACT) {
+                continue;
+            }
+
+            TipoActividadIngresante tipo = actIng.getTipoActividadIngresante();
+            if (tipo.getCodigoEnum() == TipoActividadIngresanteEnum.MATRI) {
+                break;
+            }
+            loop++;
+        }
+        return loop;
+
+    }
+
+    private int cantidadActividadesPreMatricula(List<ConfigRecorridoIngresante> configRecorridoIngresantes) {
+        int loop = 0;
+        for (ConfigRecorridoIngresante cfg : configRecorridoIngresantes) {
+            if (cfg.getTipoActividadIngresante().getCodigoEnum() == TipoActividadIngresanteEnum.MATRI) {
+                break;
+            }
+            loop++;
+        }
+        return loop;
     }
 
 }

@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
@@ -202,5 +203,7 @@ public interface GpoSeccionService {
     void recrearVacanteAlumno(CicloAcademico ciclo, DataSessionPivot ds);
 
     EventoCicloAcademico findEventoAcademico(CicloAcademico cicloAcademico, Curso curso);
+
+    List<RestriccionRepitencia> allRestriccionRepitenciaActivasBySeccion(Seccion seccion);
 
 }

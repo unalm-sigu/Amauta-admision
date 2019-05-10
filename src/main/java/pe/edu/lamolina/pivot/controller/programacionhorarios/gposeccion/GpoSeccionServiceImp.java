@@ -2797,4 +2797,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
     }
 
+    @Override
+    public List<RestriccionRepitencia> allRestriccionRepitenciaActivasBySeccion(Seccion seccion) {
+        List<RestriccionRepitencia> restricciones = restriccionRepitenciaDAO.allActivasBySeccion(seccion);
+        return restricciones;
+    }
+
 }

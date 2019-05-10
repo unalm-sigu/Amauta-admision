@@ -10,6 +10,6 @@ public interface ActividadIngresanteDAO extends EasyDAO<ActividadIngresante> {
 
     List<ActividadIngresante> allByRecorridoIngresantes(List<RecorridoIngresante> recorridoIngresantes);
 
-    public List<ActividadIngresante> allByCicloAcademico(CicloAcademico cicloAcademico);
+    List<ActividadIngresante> allByCicloAcademico(CicloAcademico cicloAcademico);
 
 }

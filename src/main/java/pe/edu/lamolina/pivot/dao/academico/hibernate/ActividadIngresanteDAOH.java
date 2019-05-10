@@ -7,7 +7,6 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.ActividadIngresante;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
-import pe.edu.lamolina.model.enums.ActividadIngresanteEnum;
 import pe.edu.lamolina.pivot.dao.academico.ActividadIngresanteDAO;
 
 @Repository
@@ -28,9 +27,9 @@ public class ActividadIngresanteDAOH extends AbstractEasyDAO<ActividadIngresante
 
     @Override
     public List<ActividadIngresante> allByCicloAcademico(CicloAcademico cicloAcademico) {
-       Octavia sql = Octavia.query(ActividadIngresante.class, "ai")
-                .join("recorridoIngresante ri", "tipoActividadIngresante tai" , "ri.cicloAcademico ca")
-                .filter("estado", ActividadIngresanteEnum.COMP)
+        Octavia sql = Octavia.query(ActividadIngresante.class, "ai")
+                .join("recorridoIngresante ri", "tipoActividadIngresante tai", "ri.cicloAcademico ca", "ri.alumno alu")
+                //.filter("estado", ActividadIngresanteEnum.COMP)
                 .filter("ca.id", cicloAcademico);
         return all(sql);
     }

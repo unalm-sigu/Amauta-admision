@@ -805,7 +805,8 @@ var app = new Vue({
             this.$refs.modalGrupo.open();
         },
         saveGrupo() {
-            $global.$emit('saveGrupoHorario');
+            // $global.$emit('saveGrupoHorario');
+            this.$refs.grupoHorarioComponentRef.saveGrupoHorario();
         },
         afterSaveGrupo(response, $vue) {
             $vue.$refs.modalGrupo.close();
@@ -1006,7 +1007,8 @@ var app = new Vue({
         },
         showModalTipoRepitencia(seccion) {
             let $vue = this;
-            $global.$emit('loadRepitenciaComponent', seccion.id);
+            // $global.$emit('loadRepitenciaComponent', seccion.id);
+            this.$refs.repitenciaComp.loadComponent(seccion.id);
             if (seccion.matriculados > 0) {
                 $vue.tipoRepitenciaModal.showaccept = false;
             } else {
