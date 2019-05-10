@@ -147,9 +147,6 @@ public class ResolucionReincorporacionController {
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
             List<Alumno> alumnos = service.save(resolucion, ds.getUsuario(), ds);
 
-            for (Alumno alumno : alumnos) {
-                matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
-            }
             response.setMessage("Se realizó el registro satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
             response.setData(data);
