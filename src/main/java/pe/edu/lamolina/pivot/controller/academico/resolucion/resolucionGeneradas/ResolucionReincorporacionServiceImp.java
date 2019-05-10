@@ -18,6 +18,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
@@ -121,7 +122,7 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
             SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
             TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
             alumno = alumnoDAO.find(reincorporacione.getAlumno());
-            
+
             Tramite tramite = new Tramite();
             tramite.setActivo(true);
             tramite.setCompania(ds.getCompania());
@@ -147,7 +148,9 @@ public class ResolucionReincorporacionServiceImp implements ResolucionReincorpor
             reincorporacionDAO.save(reincorporacione);
             alumnos.add(reincorporacione.getAlumno());
         }
-
+        for (Alumno alumno : alumnos) {
+            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
+        }
         return alumnos;
     }
 
