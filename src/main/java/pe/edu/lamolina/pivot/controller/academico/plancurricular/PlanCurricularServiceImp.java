@@ -48,6 +48,7 @@ import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.EEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELE;
@@ -88,6 +89,7 @@ import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CODIGO_CURSO_DEP;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -314,6 +316,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (RequisitoCursoCurricula requisito : requisitos) {
             requisitoCursoCurriculaDAO.save(requisito);
         }
+        if (cursoCurricula.getCurso().getCodigo().equals(CODIGO_CURSO_DEP)) {
+            TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
+            cursoCurricula.setTipoCursoCurricula(tipoCursoCurricula);
+        }
 
         ResumenPlanCurricular resumen = resumenPlanCurricularDAO.findByTipoCursoCurrPlan(
                 cursoCurricula.getTipoCursoCurricula(),
@@ -375,6 +381,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         }
 
         if (diff != 0) {
+            if (cursoCurricula.getCurso().getCodigo().equals(CODIGO_CURSO_DEP)) {
+                TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
+                cursoCurricula.setTipoCursoCurricula(tipoCursoCurricula);
+            }
             ResumenPlanCurricular resumen = resumenPlanCurricularDAO.findByTipoCursoCurrPlan(
                     cursoCurricula.getTipoCursoCurricula(),
                     cursoCurricula.getPlanCurricular());
@@ -388,7 +398,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional
     public void deleteCursoCurricula(CursoCurricula cursoCurricula, DataSessionPivot ds) {
         CursoCurricula cursoCurriculaBD = cursoCurriculaDAO.find(cursoCurricula.getId());
-
+        if (cursoCurriculaBD.getCurso().getCodigo().equals(CODIGO_CURSO_DEP)) {
+            TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
+            cursoCurriculaBD.setTipoCursoCurricula(tipoCursoCurricula);
+        }
         ResumenPlanCurricular resumen = resumenPlanCurricularDAO.findByTipoCursoCurrPlan(
                 cursoCurriculaBD.getTipoCursoCurricula(),
                 cursoCurriculaBD.getPlanCurricular());
@@ -460,7 +473,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             newRequisito.setUserRegistro(ds.getUsuario());
             newRequisitos.add(newRequisito);
         }
-
+        if (cursoCurriculaBD.getCurso().getCodigo().equals(CODIGO_CURSO_DEP)) {
+            TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
+            cursoCurriculaBD.setTipoCursoCurricula(tipoCursoCurricula);
+        }
         ResumenPlanCurricular resumenA = resumenPlanCurricularDAO.findByTipoCursoCurrPlan(
                 cursoCurriculaBD.getTipoCursoCurricula(),
                 cursoCurriculaBD.getPlanCurricular());
@@ -536,7 +552,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (RequisitoCursoCurricula requisito : newRequisitos) {
             requisitoCursoCurriculaDAO.save(requisito);
         }
-
+        if (cursoCurricula.getCurso().getCodigo().equals(CODIGO_CURSO_DEP)) {
+            TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
+            cursoCurricula.setTipoCursoCurricula(tipoCursoCurricula);
+        }
         ResumenPlanCurricular resumen = resumenPlanCurricularDAO.findByTipoCursoCurrPlan(
                 cursoCurricula.getTipoCursoCurricula(),
                 cursoCurricula.getPlanCurricular());
@@ -1443,6 +1462,35 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             planCurricular.setMinimoCreditos(total);
             planCurricular.setCreditos(total);
             resumenPlanCurricularDAO.update(planCurricular);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void allUpdateResumen() {
+        List<PlanCurricular> planCurriculars = planCurricularDAO.allActivo();
+        List<ResumenPlanCurricular> resumenPlanCurriculars = resumenPlanCurricularDAO.allByPlanes(planCurriculars);
+        for (PlanCurricular planCurricular : planCurriculars) {
+            ResumenPlanCurricular rpcs = resumenPlanCurriculars.stream()
+                    .filter(x -> x.getPlanCurricular().getId() == planCurricular.getId() && x.getTipoCursoCurricula().getCodigoEnum() == DEP).findAny().orElse(null);
+            List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
+            cursoCurriculas = cursoCurriculas.stream().filter(x -> x.getCurso().getCodigo().equals(CODIGO_CURSO_DEP)).collect(Collectors.toList());
+            int count = cursoCurriculas.stream().mapToInt(x -> x.getCreditos()).sum();
+            if (!cursoCurriculas.isEmpty() && rpcs == null) {
+                TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
+                rpcs = new ResumenPlanCurricular();
+                rpcs.setCreditos(count);
+                rpcs.setCursos(cursoCurriculas.size());
+                rpcs.setMinimoCreditos(0);
+                rpcs.setPlanCurricular(planCurricular);
+                rpcs.setTipoCursoCurricula(tipoCursoCurricula);
+                resumenPlanCurricularDAO.save(rpcs);
+            }
+            if (!cursoCurriculas.isEmpty() && rpcs != null) {
+                rpcs.setCreditos(count);
+                rpcs.setCursos(cursoCurriculas.size());
+                resumenPlanCurricularDAO.update(rpcs);
+            }
         }
     }
 
