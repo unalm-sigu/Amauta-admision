@@ -111,7 +111,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     public Aula find(Long id) {
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")
-                .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
+                .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os","tipoCarpeta tcar")
                 .filter("au.id", id);
 
         return find(sql);

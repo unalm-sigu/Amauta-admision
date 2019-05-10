@@ -82,6 +82,7 @@ import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.finanzas.PagoHoraDocente;
 import pe.edu.lamolina.model.general.Aula;
@@ -397,6 +398,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             Seccion seccion) {
         long t1 = System.currentTimeMillis();
         List<GrupoHoras> gruposHorasFilter = this.allGrupoHorasBySeccionAndTipoGrupoHoras(seccion, tipoGrupoHoras, cicloAcademico);
+        logger.debug("gruposHorasFilter {}", gruposHorasFilter.stream().map(x -> x.getCodigo()).collect(Collectors.joining(",")));
         long t2 = System.currentTimeMillis();
         System.out.println("allGposByTipo gruposHorasFilter en " + (t2 - t1) + " mseg");
         List<GrupoHoras> grupos = grupoHorasDAO.allByTipoGpoDynatable(filter, tipoGrupoHoras, cicloAcademico, gruposHorasFilter);
@@ -1584,6 +1586,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         int loop = 0;
         long t1 = System.currentTimeMillis();
         for (GrupoHoras grupo : grupoHoras) {
+            if (Arrays.asList("O3*", "P4*").contains(grupo.getCodigo())) {
+                logger.debug("");
+            }
             if (grupo.getDiaHoraGrupo().isEmpty()) {
                 continue;
             }
@@ -1913,6 +1918,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             horarioAula.setHora(horarioSeccionEach.getHora());
             horarioAula.setSeccion(seccion);
             horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+            horarioAula.setTipoEnum(TipoHorarioAulaEnum.DICT);
 
             if (eventoAcademico != null) {
                 horarioAula.setFechaInicio(eventoAcademico.getFechaInicio());
