@@ -34,7 +34,7 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
                 .leftJoin("alumno alu")
                 .in("se.id", secciones)
                 .filter("activo", 1)
-                .orderBy("seccion.id", "va.numero");
+                .orderBy("se.id", "va.numero");
         return sql.all(getCurrentSession());
     }
 
