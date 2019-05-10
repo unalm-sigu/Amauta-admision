@@ -19,4 +19,6 @@ public interface PlanCurricularDAO extends EasyDAO<PlanCurricular> {
 
     List<PlanCurricular> allActivosByCarrera(Carrera carrera);
 
+    public List<PlanCurricular> allActivo();
+
 }

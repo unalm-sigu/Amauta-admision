@@ -322,8 +322,8 @@ public class PlanCurricularController {
                 node.put("cursos", resumen.getCursos());
 
                 array.add(node);
-                if (Arrays.asList(GEN,OBL,ELC).contains(resumen.getTipoCursoCurricula().getCodigoEnum())) {
-                    
+                if (Arrays.asList(GEN, OBL, ELC).contains(resumen.getTipoCursoCurricula().getCodigoEnum())) {
+
                     totalCreditos += resumen.getCreditos();
                     totalCursos += resumen.getCursos();
                     totalMinimo += resumen.getMinimoCreditos();
@@ -1671,4 +1671,24 @@ public class PlanCurricularController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("allUpdateResumen")
+    public JsonResponse allUpdateResumen(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.allUpdateResumen();
+            response.setSuccess(true);
+            response.setMessage("Se modifico el resumen exitosamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 }
