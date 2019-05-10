@@ -131,4 +131,6 @@ public interface PlanCurricularService {
 
     public void updateResumen(Integer minCreditos, Integer totalCreditos, ResumenPlanCurricular resumenPlanCurricular);
 
+    public void allUpdateResumen();
+
 }
