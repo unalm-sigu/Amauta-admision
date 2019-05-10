@@ -805,7 +805,8 @@ var app = new Vue({
             this.$refs.modalGrupo.open();
         },
         saveGrupo() {
-            $global.$emit('saveGrupoHorario');
+            // $global.$emit('saveGrupoHorario');
+            this.$refs.grupoHorarioComponentRef.saveGrupoHorario();
         },
         afterSaveGrupo(response, $vue) {
             $vue.$refs.modalGrupo.close();

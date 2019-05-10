@@ -30,9 +30,9 @@ Vue.component("grupohorario-component", {
          $vue.loadGruposHorario($vue, seccion);
          });
          */
-        $global.$on("saveGrupoHorario", function () {
-            $vue.saveGrupoHorario($vue);
-        });
+//        $global.$on("saveGrupoHorario", function () {
+//            $vue.saveGrupoHorario($vue);
+//        });
     },
     methods: {
         loadGruposHorario(seccion) {
@@ -244,7 +244,7 @@ Vue.component("grupohorario-component", {
         selectDiaHoraGrupo(diaHoraGrupo) {
             var seleccionado = !diaHoraGrupo.seleccionado;
             this.errorsMessage = null;
-            console.log(seleccionado)
+            //console.log(seleccionado)
             if (seleccionado) {
                 let tabGrupo = this.tabGrupos.grupoHorarioSel["tabGrupo"];
                 this.tabGrupos.grupoHorarioSel = Object.assign({}, diaHoraGrupo.grupoHorario);
@@ -454,8 +454,8 @@ Vue.component("grupohorario-component", {
             }
             return true;
         },
-        saveGrupoHorario($vue) {
-
+        saveGrupoHorario() {
+            let $vue=this;
             if ($vue.tabGrupos.grupoHorarioSel == null) {
                 notify("Seleccione un grupo horario.", "error");
                 return;
