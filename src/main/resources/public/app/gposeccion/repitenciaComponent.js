@@ -14,7 +14,7 @@ Vue.component("repitencia-component", {
 
         let $vue = this;
         $global.$on("loadRepitenciaComponent", function (seccion) {
-            $vue.loadComponent($vue, seccion);
+            //  $vue.loadComponent($vue, seccion);
         });
 
         $global.$on("saveTipoRepRestriccion", function () {
@@ -22,8 +22,8 @@ Vue.component("repitencia-component", {
         });
     },
     methods: {
-        loadComponent($vue, seccion) {
-
+        loadComponent(seccion) {
+            let $vue = this;
             $vue.seccionModal = null;
             $vue.tiposRestriccionOptions = [];
             $vue.tiposRepitenciaArr = [];
