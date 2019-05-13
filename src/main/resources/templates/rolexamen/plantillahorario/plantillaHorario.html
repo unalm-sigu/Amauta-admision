@@ -82,19 +82,16 @@
                         <section class="panel-body">
                             <div class="row">
 
-                                <a class="btn btn-warning pull-left m-l-sm"
-                                   v-on:click.prevent="calcularPlantillaHorario"
-                                   th:if="${false}">
-                                    <i class="fa fa-arrow-left"></i>
-                                    Configurar Rol Examenes
-                                </a>
+
 
                                 <a class="btn btn-success pull-right m-r-sm"
-                                   v-on:click.prevent="calcularPlantillaHorario"
-                                   th:if="${false}">
-                                    Configurar Cursos Masivos
+                                   v-on:click.prevent="openModalAgregarLetra">
+                                    Agregar Letra
                                     <i class="fa fa-arrow-right"></i>
                                 </a>
+
+
+
                             </div>
                             <div class="row">
                                 <raptor-table v-bind:url="`${URL}/listarGruposExamenByRolExamen`" 
@@ -215,7 +212,7 @@
                         </section>
                     </section>
                 </section>
-
+                <div th:substituteby="rolexamen/plantillahorario/plantillaHorarioModal"/>
             </div>
 
         </section>

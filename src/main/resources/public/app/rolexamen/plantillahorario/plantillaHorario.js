@@ -308,6 +308,8 @@ new Vue({
                     }
                 }
             });
+        }, openModalAgregarLetra() {
+            this.$refs.modalAgregarLetra.open();
         }
     }
 });
