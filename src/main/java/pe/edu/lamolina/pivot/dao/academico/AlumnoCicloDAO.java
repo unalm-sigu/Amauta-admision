@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 
 public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
@@ -101,4 +102,6 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
     AlumnoCiclo findActivosRegularesByCiclo(CicloAcademico ciclo, Alumno alumno);
 
     public List<AlumnoCiclo> allByAlumnoDescRegular(Alumno alumno);
+
+    AlumnoCiclo findLastNotInSituacion(Alumno alumno, SituacionAcademicaEnum... situacionAcademicaEnums);
 }

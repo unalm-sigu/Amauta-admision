@@ -279,10 +279,8 @@ public class PromedioServiceImp implements PromedioService {
             CicloAcademico cicloAcademicoRei = reincorporacionesByAlumno.get(0).getCicloReincorporacion();
 
             if (cicloActivo.equals(cicloAcademicoRei)) {
-                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
-
-                Alumno alumnoUpd = new Alumno(alumno.getId());
-                if (alumnoCiclo.getSituacionFinal().isCodigoD()) {
+                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastNotInSituacion(alumno, SituacionAcademicaEnum.S_D);
+                if (alumnoCiclo.getSituacionFinal().isCodigoD()) { //to delete
                     alumno.setSituacionAcademica(alumnoCiclo.getSituacionInicio());
                 } else {
                     alumno.setSituacionAcademica(alumnoCiclo.getSituacionFinal());

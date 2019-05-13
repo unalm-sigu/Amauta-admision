@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -26,6 +27,7 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 
@@ -138,6 +140,22 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("ca.tipo", TipoCicloEnum.REG.name())
                 .filter("alu.id", alumno)
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .orderBy("ca.codigo desc")
+                .limit(BigDecimal.ONE.intValue());
+        return find(sql);
+    }
+
+    @Override
+    public AlumnoCiclo findLastNotInSituacion(Alumno alumno, SituacionAcademicaEnum... situacionAcademicaEnums) {
+        List<SituacionAcademicaEnum> situaciones = Arrays.asList(situacionAcademicaEnums);
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca", "carrera car")
+                .left("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
+                .filter("ca.tipo", TipoCicloEnum.REG.name())
+                .filter("alu.id", alumno)
+                //      .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .notIn("sf.codigo", situaciones.stream().map(x -> x.getValue()).collect(Collectors.toList()))
                 .orderBy("ca.codigo desc")
                 .limit(BigDecimal.ONE.intValue());
         return find(sql);
