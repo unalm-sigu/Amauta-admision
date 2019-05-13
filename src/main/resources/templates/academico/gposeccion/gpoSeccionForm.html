@@ -485,6 +485,19 @@
                                                         </li>
 
                                                     </ul>
+
+                                                    <a class="dropdown-toggle" href="#" data-toggle="dropdown"
+                                                       v-if="seccion.isTipoSeccionTCUR"><i class="glyphicon glyphicon-option-vertical"></i></a>
+                                                    <ul class="dropdown-menu pull-right" 
+                                                        v-if="seccion.isTipoSeccionTCUR">
+                                                        <li role="presentation">
+                                                            <a href="#"
+                                                               v-on:click="asignarHorasAdicionales(seccion)">
+                                                                Asignar Horas Adicionales
+                                                            </a>
+                                                        </li>
+
+                                                    </ul>
                                                 </div>
 
                                             </td>

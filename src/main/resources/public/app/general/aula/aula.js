@@ -153,7 +153,12 @@ $(function () {
             MODAL.body(component.$el);
             MODAL.show();
 
-        },
+        }, editarAula: function (e, $this) {
+            e.preventDefault();
+            var rec = APP.recDynatable(dynatable, e);
+            var idAula = rec.id;
+            location.href = APP.url('general/aula/editar/' + idAula);
+        }
     };
 
     Aula.init();
@@ -180,6 +185,9 @@ $(function () {
 
     $("body").delegate(".ver-contenido-aula", "click", function (e) {
         Aula.verAulasInventario(e, $(this));
+    });
+    $("body").delegate(".editarAula", "click", function (e) {
+        Aula.editarAula(e, $(this));
     });
 
 });
