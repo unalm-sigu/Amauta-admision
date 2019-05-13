@@ -287,7 +287,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional
     public void saveCursoCurricula(CursoCurricula cursoCurricula, DataSessionPivot ds) {
         verificarExistenciaCurso(cursoCurricula.getCurso(), cursoCurricula.getPlanCurricular());
-
+        
         Integer nroCurso = 1;
         Integer nroCiclo = cursoCurricula.getNumeroCiclo();
         PlanCurricular plan = cursoCurricula.getPlanCurricular();
@@ -316,7 +316,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (RequisitoCursoCurricula requisito : requisitos) {
             requisitoCursoCurriculaDAO.save(requisito);
         }
-        if (cursoCurricula.getCurso().getCodigo().equals(CODIGO_CURSO_DEP)) {
+        Curso curso = cursoDAO.find(cursoCurricula.getCurso().getId());
+        if (curso.getCodigo().equals(CODIGO_CURSO_DEP)) {
             TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
             cursoCurricula.setTipoCursoCurricula(tipoCursoCurricula);
         }
@@ -381,7 +382,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         }
 
         if (diff != 0) {
-            if (cursoCurricula.getCurso().getCodigo().equals(CODIGO_CURSO_DEP)) {
+            Curso curso = cursoDAO.find(cursoCurricula.getCurso().getId());
+            if (curso.getCodigo().equals(CODIGO_CURSO_DEP)) {
                 TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
                 cursoCurricula.setTipoCursoCurricula(tipoCursoCurricula);
             }
