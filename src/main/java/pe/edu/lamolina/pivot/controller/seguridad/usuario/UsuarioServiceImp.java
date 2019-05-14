@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,10 @@ import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.RolSistema;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
+import pe.edu.lamolina.pivot.dao.seguridad.RolSistemaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -48,6 +51,8 @@ public class UsuarioServiceImp implements UsuarioService {
     DocenteDAO docenteDAO;
     @Autowired
     RolDAO rolDAO;
+    @Autowired
+    RolSistemaDAO rolSistemaDAO;
 
     @Autowired
     PersonaService personaService;
@@ -113,6 +118,13 @@ public class UsuarioServiceImp implements UsuarioService {
     @Override
     public List<UsuarioRol> allRolesByUser(Usuario user) {
         List<UsuarioRol> rolesUser = usuarioRolDAO.allByUser(user);
+        List<Rol> roles = rolesUser.stream().map(x -> x.getRol()).collect(Collectors.toList());
+        List<RolSistema> rolSistemas = rolSistemaDAO.allByRoles(roles);
+        Map<Long, List<RolSistema>> mapRolSistema = TypesUtil.convertListToMapList("rol.id", rolSistemas);
+        for (UsuarioRol userRol : rolesUser) {
+            Rol rol = userRol.getRol();
+            rol.setRolSistema(TypesUtil.getListNotNull(mapRolSistema.get(rol.getId())));
+        }
         return rolesUser;
     }
 
