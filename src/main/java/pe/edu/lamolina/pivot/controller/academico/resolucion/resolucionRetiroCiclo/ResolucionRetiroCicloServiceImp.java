@@ -13,6 +13,7 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
@@ -38,6 +39,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
@@ -50,21 +52,21 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class ResolucionRetiroCicloServiceImp implements ResolucionRetiroCicloService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     AlumnoDAO alumnoDAO;
-
+    
     @Autowired
     TipoResolucionDAO tipoResolucionDAO;
-
+    
     @Autowired
     ResolucionDAO resolucionDAO;
-
+    
     @Autowired
     RetiroCicloDAO retiroCicloDAO;
-
+    
     @Autowired
     EstadoTramiteDAO estadoTramiteDAO;
     @Autowired
@@ -73,12 +75,12 @@ public class ResolucionRetiroCicloServiceImp implements ResolucionRetiroCicloSer
     TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
     @Autowired
     TipoTramiteDAO tipoTramiteDAO;
-
+    
     @Autowired
     MatriculableService matriculableService;
     @Autowired
     SerieDocumentoService serieDocumentoService;
-
+    
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
     
@@ -87,19 +89,22 @@ public class ResolucionRetiroCicloServiceImp implements ResolucionRetiroCicloSer
     
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-
+    
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+    
     @Override
     public List<Alumno> allAlumnoDesertorByNombre(String nombre, Long instanciaOficina) {
         return alumnoDAO.allDesertorByName(nombre, instanciaOficina);
     }
-
+    
     @Override
     @Transactional
-    public List<Alumno> save(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+    public Alumno save(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
         // Aceptado en su totalidad
         List<Alumno> alumnos = new ArrayList<>();
-
-        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.REIC);
+        
+        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.RCI);
         Resolucion resolucion = new Resolucion();
         resolucion.setOficina(resolucionForm.getOficina());
         resolucion.setFecha(resolucionForm.getFecha());
@@ -111,22 +116,22 @@ public class ResolucionRetiroCicloServiceImp implements ResolucionRetiroCicloSer
         resolucion.setUserRegistro(usuario);
         resolucion.setAplicacionDirecta(1l);
         resolucionDAO.save(resolucion);
-
+        
         Assert.isFalse(resolucionForm.getRetiroCiclo() == null, "Debe Agregar alumnos.");
-
+        
         RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(resolucionForm.getRetiroCiclo().getAlumno(), resolucionForm.getRetiroCiclo().getCicloAcademico());
-
+        
         Assert.isNull(retiroCiclo, "El alumno cuenta con un trámite retiro ciclo.");
-
+        
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
         System.out.println("Estado" + estadoTramite.getId());
-
+        
         DateTime today = new DateTime();
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
-        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
+        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
         Alumno alumno = alumnoDAO.find(resolucionForm.getRetiroCiclo().getAlumno());
-
+        
         Tramite tramite = new Tramite();
         tramite.setActivo(true);
         tramite.setCompania(ds.getCompania());
@@ -151,8 +156,7 @@ public class ResolucionRetiroCicloServiceImp implements ResolucionRetiroCicloSer
         retiroCiclo.setMotivo(retiroCiclo.getMotivo());
         retiroCiclo.setTramite(tramite);
         retiroCicloDAO.save(retiroCiclo);
-        alumnos.add(alumno);
-
+        
         List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno, retiroCiclo.getCicloAcademico());
         for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
             alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.NREQ);
@@ -161,17 +165,25 @@ public class ResolucionRetiroCicloServiceImp implements ResolucionRetiroCicloSer
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, retiroCiclo.getCicloAcademico());
             List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCiclo);
             for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
+                alumnoCicloCurso.setVecesCursado(alumnoCicloCurso.getVecesCursado() - 1);
                 alumnoCicloCurso.setEstado(EstadoMatriculaEnum.RCI);
                 alumnoCicloCursoDAO.update(alumnoCicloCurso);
             }
         }
-        return alumnos;
+        
+        return alumno;
     }
-
+    
     @Override
     public List<Alumno> allAlumno(String nombre, Long instanciaOficina) {
-       
+        
         return alumnoDAO.allAlumnoByOficina(nombre, instanciaOficina);
     }
-
+    
+    @Override
+    public List<CicloAcademico> ciclosAnteriores(int i) {
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivoPregrado();
+        return cicloAcademicoDAO.allAnteriores(i, cicloAcademico);
+    }
+    
 }

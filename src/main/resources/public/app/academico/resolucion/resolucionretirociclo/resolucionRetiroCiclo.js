@@ -65,7 +65,7 @@ var app = new Vue({
                 return;
             }
             $.ajax({
-                url: APP.url('academico/resolucion/retiroCiclo'),
+                url: APP.url('academico/resolucion/saveRetiroCiclo'),
                 dataType: "json",
                 contentType: "application/json",
                 type: 'POST',

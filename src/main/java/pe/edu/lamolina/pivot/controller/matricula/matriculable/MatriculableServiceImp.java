@@ -751,7 +751,6 @@ public class MatriculableServiceImp implements MatriculableService {
 
         MatriculaResumen matri = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
         matri = matri == null ? new MatriculaResumen() : matri;
-        Boolean isCondicional = Arrays.asList(S_6, S_4).contains(alumno.getSituacionAcademica().getCodigoEnum());
 
 //        AlumnoCiclo alumnoCicloSituacion = alumnoCicloDAO.findByAlumnoCiclo(alumno, ciclo);
         /*  SituacionAcademica situacionAcademica = null;
@@ -793,20 +792,6 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
         matri.setEsCondicional(false);
 
-        if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {
-            Assert.isTrue(isCondicional, "El alumno no cumple requisito para matricula condicional.");
-
-            RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(alumno, ciclo);
-            Assert.isNotNull(retiroCiclo, "Debe generar un retiro ciclo para el alumno.");
-
-            matri.setEsCondicional(true);
-            matri.setFechaCondicional(new Date());
-
-        } else if (tipoCondicional.equals(TipoCondicionalEnum.REI.name())) {
-            matri.setEsCondicional(true);
-            matri.setFechaCondicional(new Date());
-        }
-
         if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
             AlumnoCiclo alumnoCiclo = null;
             if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {
@@ -818,6 +803,7 @@ public class MatriculableServiceImp implements MatriculableService {
             } else {
                 alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumnoForm);
             }
+
             matri = matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
 
             MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);

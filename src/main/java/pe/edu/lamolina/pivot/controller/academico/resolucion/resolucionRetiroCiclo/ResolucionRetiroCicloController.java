@@ -30,8 +30,10 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.Resolucion;
+import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -52,6 +54,8 @@ public class ResolucionRetiroCicloController {
     @Autowired
     MatriculableService matriculableService;
 
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
     private MultipartFile resolucionFile;
 
     @InitBinder
@@ -85,7 +89,7 @@ public class ResolucionRetiroCicloController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode ciclosJson = new ArrayNode(JsonNodeFactory.instance);
-        List<CicloAcademico> cicloAcademicos = resolucionService.allCiclosToReincorporacion();
+        List<CicloAcademico> cicloAcademicos = service.ciclosAnteriores(5);
         List<Oficina> oficinas = resolucionService.allOFicinasByUser(ds);
         for (Oficina oficina : oficinas) {
             ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"});
@@ -110,8 +114,9 @@ public class ResolucionRetiroCicloController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
-            List<Alumno> alumnos = service.save(resolucion, ds.getUsuario(), ds);
-
+            Alumno alumno = service.save(resolucion, ds.getUsuario(), ds);
+            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
+            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
             response.setMessage("Se realizó el registro satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
             response.setData(data);
