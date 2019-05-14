@@ -1,11 +1,8 @@
 package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionRetiroCiclo;
 
-import pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionReincorporacion.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,13 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
-import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
@@ -27,9 +24,9 @@ import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
@@ -37,9 +34,11 @@ import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteDAO;
-import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
@@ -80,6 +79,15 @@ public class ResolucionRetiroCicloServiceImp implements ResolucionRetiroCicloSer
     @Autowired
     SerieDocumentoService serieDocumentoService;
 
+    @Autowired
+    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+    
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
+    
+    @Autowired
+    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+
     @Override
     public List<Alumno> allAlumnoDesertorByNombre(String nombre, Long instanciaOficina) {
         return alumnoDAO.allDesertorByName(nombre, instanciaOficina);
@@ -88,7 +96,7 @@ public class ResolucionRetiroCicloServiceImp implements ResolucionRetiroCicloSer
     @Override
     @Transactional
     public List<Alumno> save(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
-
+        // Aceptado en su totalidad
         List<Alumno> alumnos = new ArrayList<>();
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.REIC);
@@ -132,9 +140,9 @@ public class ResolucionRetiroCicloServiceImp implements ResolucionRetiroCicloSer
         tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
         tramite.setUserRegistro(ds.getUsuario());
         tramiteDAO.save(tramite);
-
+        
         retiroCiclo = resolucionForm.getRetiroCiclo();
-        retiroCiclo.setEstado(TramiteEstadoEnum.PEND);
+        retiroCiclo.setEstado(TramiteEstadoEnum.ACEP);
         retiroCiclo.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
         retiroCiclo.setAlumno(retiroCiclo.getAlumno());
         retiroCiclo.setCicloAcademico(retiroCiclo.getCicloAcademico());
@@ -143,7 +151,27 @@ public class ResolucionRetiroCicloServiceImp implements ResolucionRetiroCicloSer
         retiroCiclo.setMotivo(retiroCiclo.getMotivo());
         retiroCiclo.setTramite(tramite);
         retiroCicloDAO.save(retiroCiclo);
+        alumnos.add(alumno);
+
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno, retiroCiclo.getCicloAcademico());
+        for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
+            alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.NREQ);
+            alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
+            
+            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, retiroCiclo.getCicloAcademico());
+            List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCiclo);
+            for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
+                alumnoCicloCurso.setEstado(EstadoMatriculaEnum.RCI);
+                alumnoCicloCursoDAO.update(alumnoCicloCurso);
+            }
+        }
         return alumnos;
+    }
+
+    @Override
+    public List<Alumno> allAlumno(String nombre, Long instanciaOficina) {
+       
+        return alumnoDAO.allAlumnoByOficina(nombre, instanciaOficina);
     }
 
 }

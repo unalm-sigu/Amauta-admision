@@ -423,8 +423,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         List<AlumnoCursoCurricula> alumnoCursoNew = new ArrayList<>();
         List<AlumnoCursoCurricula> alumnoCursoElcCarreraNew = new ArrayList<>();
         List<AlumnoCursoCurricula> alumnoCursoComodinDepNew = new ArrayList<>();
-
-        validarTramiteRetiroCiclo(cursosAprobados, alumno, ds.getCicloAcademico());
+        cursosAprobados = cursosAprobados.stream().filter(x -> x.getEstadoEnum() != EstadoMatriculaEnum.RCI).collect(Collectors.toList());
+//        validarTramiteRetiroCiclo(cursosAprobados, alumno, ds.getCicloAcademico());
 
         for (CursoCurricula cursocurricula : mapCursosCurricula.values()) {
 
@@ -1035,21 +1035,21 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         return lista;
     }
 
-    private void validarTramiteRetiroCiclo(List<AlumnoCicloCurso> cursosAprobados, Alumno alumno, CicloAcademico cicloAcademico) {
-        RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(alumno, cicloAcademico);
-        if (retiroCiclo != null) {
-
-            List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno, retiroCiclo.getCicloAcademico());
-
-            for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
-                alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
-                alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
-
-                AlumnoCicloCurso alumnoCicloCurso = cursosAprobados.stream().filter(x -> x.getCurso() == alumnoCursoCurricula.getCurso()).findAny().orElse(null);
-                cursosAprobados.remove(alumnoCicloCurso);
-
-            }
-        }
-    }
-
+//    private void validarTramiteRetiroCiclo(List<AlumnoCicloCurso> cursosAprobados, Alumno alumno, CicloAcademico cicloAcademico) {
+//        List<RetiroCiclo> retiroCiclo = retiroCicloDAO.allByRetiroCiclo(alumno);
+//        if (!retiroCiclo.isEmpty()) {
+//            for (RetiroCiclo retiroCiclo1 : retiroCiclo) {
+//
+//                List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno, retiroCiclo1.getCicloAcademico());
+//
+//                for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
+//                    alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
+//                    alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
+//
+//                    AlumnoCicloCurso alumnoCicloCurso = cursosAprobados.stream().filter(x -> x.getCurso() == alumnoCursoCurricula.getCurso()).findAny().orElse(null);
+//                    cursosAprobados.remove(alumnoCicloCurso);
+//                }
+//            }
+//        }
+//    }
 }

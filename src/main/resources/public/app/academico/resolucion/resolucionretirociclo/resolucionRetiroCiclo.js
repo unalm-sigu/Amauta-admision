@@ -5,7 +5,7 @@ Vue.component('file-upload', VueUploadComponent);
 var app = new Vue({
     el: '#resolucionReinForm',
     data: {
-        resolucion: {},
+        resolucion: {retiroCiclo: {}},
         oficinas: JSON.parse(oficinasJson),
         ciclos: JSON.parse(ciclosJson),
         configDate: {
@@ -13,7 +13,6 @@ var app = new Vue({
             useCurrent: false
         },
         alumnos: [],
-        retiroCiclo: {}
     }, created: function () {
 
     }, mounted: function () {
@@ -36,7 +35,7 @@ var app = new Vue({
             if (nombre != '' || nombre != null || nombre != undefined) {
 
                 $.ajax({
-                    url: APP.url("academico/resolucion/findAlumno"),
+                    url: APP.url("academico/resolucion/allAlumno"),
                     dataType: 'json',
                     type: 'post',
                     data: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.instanciaOficina}
@@ -74,7 +73,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, 'info');
-                        $vue.resolucion = {};
+                        $vue.resolucion = {retiroCiclo: {}};
                         $vue.alumnos = [];
                     } else {
                         notify(response.message, 'error');

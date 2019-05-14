@@ -93,7 +93,7 @@
                                     <div class="col-lg-6">
                                         <label>Alumno</label>
                                         <div class="form-group">
-                                            <multiselect v-model="retiroCiclo.alumno" 
+                                            <multiselect v-model="resolucion.retiroCiclo.alumno" 
                                                          v-bind:options='alumnos'
                                                          v-on:search-change="loadAlumno"
                                                          v-bind:custom-label='customLabel'
@@ -110,10 +110,27 @@
                                                     </div>
                                                 </template>
                                             </multiselect>
-                                            <input v-model="retiroCiclo.alumno" required="true" type="text" class="hide"/>
+                                            <input v-model="resolucion.retiroCiclo.alumno" required="true" type="text" class="hide"/>
                                         </div>
                                     </div>
+                                    <div class="col-lg-6">
+                                        <label>Ciclo </label>
+                                        <div class="form-group">
+                                            <multiselect 
+                                                v-model="resolucion.retiroCiclo.cicloAcademico" 
+                                                v-bind:options="ciclos"
+                                                placeholder="Seleccione un ciclo"
+                                                label="descripcion"
+                                                v-bind:allow-empty="false"
+                                                deselect-label="No se puede eliminar este valor"
+                                                track-by="id" 
+                                                required="true"
+                                                >
+                                            </multiselect>
+                                            <input v-model="resolucion.retiroCiclo.cicloAcademico" required="true" type="text" class="hide"/>
+                                        </div>
 
+                                    </div>
                                 </div>
                             </section>
                         </section>

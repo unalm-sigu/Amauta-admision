@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -124,4 +125,36 @@ public class ResolucionRetiroCicloController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("allAlumno")
+    public JsonResponse findAlumno(
+            @RequestParam("nombre") String nombre,
+            @RequestParam("instanciaOficina") Long instanciaOficina,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
+            List<Alumno> alumnos = service.allAlumno(nombre, instanciaOficina);
+            for (Alumno alumno : alumnos) {
+                data.add(JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{
+                    "id",
+                    "codigo",
+                    "persona.nombreCompleto",
+                    "persona.numeroDocIdentidad",
+                    "persona.tipoDocumento.*",
+                    "carrera.facultad.*",}));
+            }
+            response.setSuccess(Boolean.TRUE);
+            response.setData(data);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 }

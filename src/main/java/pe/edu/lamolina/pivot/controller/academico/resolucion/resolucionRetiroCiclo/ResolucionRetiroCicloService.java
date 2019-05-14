@@ -12,4 +12,6 @@ public interface ResolucionRetiroCicloService {
 
     public List<Alumno> save(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
+    public List<Alumno> allAlumno(String nombre, Long instanciaOficina);
+
 }
