@@ -746,10 +746,11 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     @Transactional
     public void saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
-        MatriculaResumen matri = new MatriculaResumen();
         CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         Alumno alumno = alumnoDAO.find(alumnoForm);
 
+        MatriculaResumen matri = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
+        matri = matri == null ? new MatriculaResumen() : matri;
         Boolean isCondicional = Arrays.asList(S_6, S_4).contains(alumno.getSituacionAcademica().getCodigoEnum());
 
 //        AlumnoCiclo alumnoCicloSituacion = alumnoCicloDAO.findByAlumnoCiclo(alumno, ciclo);
@@ -840,7 +841,12 @@ public class MatriculableServiceImp implements MatriculableService {
                 }
             }
         }
-        matriculaResumenDAO.save(matri);
+        if (matri.getId() != null) {
+            matriculaResumenDAO.update(matri);
+        } else {
+
+            matriculaResumenDAO.save(matri);
+        }
 
         aporteAlumnoService.generarAportes(alumno, ds.getCicloAcademico(), ds);
         revisarSituacionAcademica(alumno, ds);

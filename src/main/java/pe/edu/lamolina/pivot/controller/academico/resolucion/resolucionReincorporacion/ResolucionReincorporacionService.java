@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionGeneradas;
+package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionReincorporacion;
 
 import java.util.List;
 import pe.edu.lamolina.model.academico.Alumno;

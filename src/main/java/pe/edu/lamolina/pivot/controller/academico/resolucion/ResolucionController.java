@@ -123,10 +123,14 @@ public class ResolucionController {
             response.setSuccess(Boolean.TRUE);
 
             JsonNodeFactory jc = JsonNodeFactory.instance;
-            Resolucion resolucion = service.findResolucion(resolucionId);
+
+            Resolucion resolucion = new Resolucion();
+            if (resolucionId != null) {
+                resolucion = service.findResolucion(resolucionId);
+            }
             List<CicloAcademico> ciclos = service.allCiclosToReincorporacion();
 
-            ObjectNode resolucionJson = JsonHelper.createJson(resolucion, jc, true,
+            ObjectNode resolucionJson = JsonHelper.createJson(resolucion, jc, 
                     new String[]{"*",
                         "oficina.id",
                         "cicloReincorporacion.*",

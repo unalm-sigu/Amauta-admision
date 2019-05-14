@@ -1,5 +1,6 @@
-package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionGeneradas;
+package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionRetiroCiclo;
 
+import pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionReincorporacion.*;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -17,11 +18,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -30,9 +29,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
@@ -41,12 +38,12 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/resolucion")
-public class ResolucionReincorporacionController {
+public class ResolucionRetiroCicloController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ResolucionReincorporacionService service;
+    ResolucionRetiroCicloService service;
 
     @Autowired
     ResolucionService resolucionService;
@@ -82,7 +79,7 @@ public class ResolucionReincorporacionController {
         });
     }
 
-    @RequestMapping(value = "reincorporacion", method = RequestMethod.GET)
+    @RequestMapping(value = "retiroCiclo", method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
@@ -100,44 +97,11 @@ public class ResolucionReincorporacionController {
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("ciclos", ciclosJson);
-        return "academico/resolucion/resolucionreincorporacion/resolucionReincorporacion";
+        return "academico/resolucion/resolucionretirociclo/resolucionRetiroCiclo";
     }
 
     @ResponseBody
-    @RequestMapping("findAlumno")
-    public JsonResponse findAlumno(
-            @RequestParam("nombre") String nombre,
-            @RequestParam("instanciaOficina") Long instanciaOficina,
-            HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-            ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
-            List<Alumno> alumnos = service.allAlumnoDesertorByNombre(nombre, instanciaOficina);
-            for (Alumno alumno : alumnos) {
-                data.add(JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{
-                    "id",
-                    "codigo",
-                    "persona.nombreCompleto",
-                    "persona.numeroDocIdentidad",
-                    "persona.tipoDocumento.*",
-                    "carrera.facultad.*",}));
-            }
-            response.setSuccess(Boolean.TRUE);
-            response.setData(data);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("save")
+    @RequestMapping("saveRetiroCiclo")
     public JsonResponse save(@RequestBody Resolucion resolucion,
             HttpSession session) {
         JsonResponse response = new JsonResponse();
@@ -150,40 +114,6 @@ public class ResolucionReincorporacionController {
             response.setMessage("Se realizó el registro satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
             response.setData(data);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("alumnos/{idResolucion}")
-    public JsonResponse alumnos(@PathVariable(value = "idResolucion") Long resolucion,
-            HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<Reincorporacion> reincorporaciones = service.findByResolucion(resolucion, ds);
-
-            for (Reincorporacion reicorporacion : reincorporaciones) {
-                array.add(JsonHelper.createJson(reicorporacion, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "facultad.*",
-                    "alumno.*",
-                    "alumno.id",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "cicloReincorporacion.*"
-                }));
-            }
-            response.setSuccess(Boolean.TRUE);
-            response.setData(array);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
