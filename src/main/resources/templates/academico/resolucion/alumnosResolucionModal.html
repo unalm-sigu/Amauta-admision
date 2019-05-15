@@ -10,7 +10,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in alumnosReincorporacion"
+                    <tr v-for="item in alumnosReincorporacion" v-if="isReincorporacion"
                         >
                         <td>
                             <a class="block" v-text="item.alumno.persona.nombreCompleto"></a>
@@ -19,6 +19,18 @@
                         </td>
                         <td>
                             <span v-text="item.cicloReincorporacion.descripcion"></span>
+                        </td>
+
+                    </tr>
+                    <tr v-for="item in alumnosRetiroCiclo" v-if="!isReincorporacion"
+                        >
+                        <td>
+                            <a class="block" v-text="item.alumno.persona.nombreCompleto"></a>
+                            <span class="block" v-text="item.alumno.codigo"></span>
+                            <span > {{item.alumno.persona.tipoDocumento.simbolo}} - {{item.alumno.persona.numeroDocIdentidad}}</span>
+                        </td>
+                        <td>
+                            <span v-text="item.cicloAcademico.descripcion"></span>
                         </td>
 
                     </tr>

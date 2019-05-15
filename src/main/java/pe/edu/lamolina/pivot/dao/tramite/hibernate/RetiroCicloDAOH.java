@@ -9,8 +9,8 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import static pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum.ACEP;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 
 @Repository
@@ -88,5 +88,18 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .filter("al.id", alumno);
 
         return all(sql);
+    }
+
+    @Override
+    public List<RetiroCiclo> allByResolucion(Resolucion resolucion) {
+        Octavia sql = new Octavia()
+                .from(RetiroCiclo.class, "rc")
+                .join("resolucion re", "alumno al", "cicloAcademico ca", "cicloRegistro cr")
+                .join("al.situacionAcademica", "al.persona per")
+                .left("per.tipoDocumento")
+                .filter("re.id", resolucion);
+
+        return all(sql);
+
     }
 }
