@@ -92,7 +92,7 @@ public class ResolucionExistentesController {
         });
     }
 
-    @RequestMapping(value = "reincorporacion", method = RequestMethod.GET)
+    @RequestMapping(value = "resolucionExistentes", method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
