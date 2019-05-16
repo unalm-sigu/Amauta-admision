@@ -170,7 +170,7 @@ public class ResolucionExistentesController {
                 List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
-                    matriculableService.revisarSituacionAcademica(alumno, ds);
+            
                 }
             } else {
                 List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);

@@ -171,6 +171,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             reincorporacionDAO.save(reincorporacione);
             alumnos.add(reincorporacione.getAlumno());
         }
+        for (Alumno alumno : alumnos) {
+            matriculableService.revisarSituacionAcademica(alumno, ds);
+        }
         return alumnos;
     }
 
