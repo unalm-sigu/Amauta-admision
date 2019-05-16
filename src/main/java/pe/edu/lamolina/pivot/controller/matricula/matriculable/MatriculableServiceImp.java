@@ -717,7 +717,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public void finalizarPrioridad(CicloAcademico cicloAcademico) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         cicloBD.setFechaCierrePrioridades(new Date());
-        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
+        cicloAcademicoDAO.update(cicloBD);
 
     }
 
@@ -726,7 +726,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public void finalizarMatriculable(CicloAcademico cicloAcademico) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         cicloBD.setFechaCierreMatriculable(new Date());
-        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
+        cicloAcademicoDAO.update(cicloBD);
     }
 
     @Override
@@ -734,7 +734,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public void limpiarMatriculable(CicloAcademico cicloAcademico) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         cicloBD.setFechaMatriculables(null);
-        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
+        cicloAcademicoDAO.updateFechaMatriculables(cicloBD);
         matriculaResumenDAO.deleteMatriculable(cicloAcademico);
     }
 
@@ -746,29 +746,12 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     @Transactional
     public void saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
-        MatriculaResumen matri = new MatriculaResumen();
         CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         Alumno alumno = alumnoDAO.find(alumnoForm);
 
-        Boolean isCondicional = Arrays.asList(S_6, S_4).contains(alumno.getSituacionAcademica().getCodigoEnum());
+        MatriculaResumen matri = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
+        matri = matri == null ? new MatriculaResumen() : matri;
 
-//        AlumnoCiclo alumnoCicloSituacion = alumnoCicloDAO.findByAlumnoCiclo(alumno, ciclo);
-        /*  SituacionAcademica situacionAcademica = null;
-        if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_3) {
-            situacionAcademica = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_3U.name());
-
-        } else if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_6) {
-            situacionAcademica = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_6U.name());
-        }
-        if (situacionAcademica != null) {
-            alumno.setSituacionAcademica(situacionAcademica);
-            alumnoDAO.update(alumno);
-            if (alumnoCicloSituacion != null) {
-
-                alumnoCicloSituacion.setSituacionFinal(situacionAcademica);
-                alumnoCicloDAO.update(alumnoCicloSituacion);
-            }
-        }*/
         SituacionAcademica sit = alumno.getSituacionAcademica();
         ModalidadEstudio modalidad = alumno.getModalidadEstudio();
         List<SituacionAcademicaEnum> sitEnum = Arrays.asList(S_8, S_9);
@@ -792,20 +775,6 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
         matri.setEsCondicional(false);
 
-        if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {
-            Assert.isTrue(isCondicional, "El alumno no cumple requisito para matricula condicional.");
-
-            RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(alumno, ciclo);
-            Assert.isNotNull(retiroCiclo, "Debe generar un retiro ciclo para el alumno.");
-
-            matri.setEsCondicional(true);
-            matri.setFechaCondicional(new Date());
-
-        } else if (tipoCondicional.equals(TipoCondicionalEnum.REI.name())) {
-            matri.setEsCondicional(true);
-            matri.setFechaCondicional(new Date());
-        }
-
         if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
             AlumnoCiclo alumnoCiclo = null;
             if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {
@@ -817,6 +786,7 @@ public class MatriculableServiceImp implements MatriculableService {
             } else {
                 alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumnoForm);
             }
+
             matri = matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
 
             MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
@@ -840,10 +810,14 @@ public class MatriculableServiceImp implements MatriculableService {
                 }
             }
         }
-        matriculaResumenDAO.save(matri);
+        if (matri.getId() != null) {
+            matriculaResumenDAO.update(matri);
+        } else {
+
+            matriculaResumenDAO.save(matri);
+        }
 
         aporteAlumnoService.generarAportes(alumno, ds.getCicloAcademico(), ds);
-        revisarSituacionAcademica(alumno, ds);
 
     }
 

@@ -15,7 +15,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> implements ResponseRestService {
 
     @Autowired
-    TramiteRetiroCicloService retiroCicloService;
+    TramiteCondicionalService retiroCicloService;
 
     @Override
     @Transactional

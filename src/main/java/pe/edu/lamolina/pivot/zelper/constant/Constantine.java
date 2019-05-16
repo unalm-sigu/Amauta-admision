@@ -1,5 +1,7 @@
 package pe.edu.lamolina.pivot.zelper.constant;
 
+import java.util.Arrays;
+import java.util.List;
 import pe.albatross.zelpers.miscelanea.OSValidator;
 
 public interface Constantine {
@@ -115,4 +117,6 @@ public interface Constantine {
     // planes
     Integer CREDITOS_ADIC_ELC = 4;
     String CODIGO_CURSO_DEP = "EG1006";
+
+    List<Long> GRUPOS_HORAS_UNUSED = Arrays.asList(23L, 24L);
 }

@@ -84,6 +84,7 @@ public class RolExamenesLogger {
         this.message = "Calculo de " + this.getTipoEnum().getValue();
         this.running = true;
         this.logDetails = new ArrayList<>();
+        this.aulasOera = new ArrayList<>();
     }
 
     public RolExamenesLogger() {

@@ -159,7 +159,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             CicloAcademico ciclo, DataSessionPivot ds) {
 
         if (visor.isStop()) {
-            throw new PhobosException("Carga detenida intespestivamente");
+            throw new PhobosException("Carga detenida intempestivamente");
         }
 
         for (;;) {

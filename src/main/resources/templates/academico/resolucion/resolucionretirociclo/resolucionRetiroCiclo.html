@@ -1,0 +1,160 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Resolución Retiro Ciclo</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <style type="text/css">
+        .buscarDocClass {
+            min-width: 300px;
+        }
+        /* Enter and leave animations can use different */
+        /* durations and timing functions.              */
+        .slide-fade-enter-active {
+            transition: all 1s ease;
+        }
+        .slide-fade-leave-active {
+            transition: all 1.5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        }
+        .slide-fade-enter, .slide-fade-leave-to
+        /* .slide-fade-leave-active below version 2.1.8 */ {
+            transform: translateX(10px);
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <section  layout:fragment="main">
+        <header class="header b-b padder-lg">
+
+            <h2 > Resolución Retiro Ciclo <span th:text="${ciclo.descripcion}"></span></h2>
+            <div class="pull-right m-t-md">
+                <a class="btn btn-default"   th:href="@{/academico/resolucion}"  >Regresar</a>
+            </div>
+        </header>
+        <div id="resolucionReinForm">
+            <div >
+
+                <section class="wrapper-lg">
+                    <form id="form" data-parsley-validate="true" >
+                        <section class="panel m-b-xs">
+                            <section class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label>Oficina</label>
+                                        <div class="form-group">
+                                            <multiselect 
+                                                v-model="resolucion.oficina" 
+                                                v-bind:options="oficinas"
+                                                placeholder="Seleccione una oficina"
+                                                label="nombre"
+                                                v-bind:allow-empty="false"
+                                                deselect-label="No se puede eliminar este valor"
+                                                track-by="id" 
+                                                required="true"
+                                                v-on:select="oficinaSelect"
+                                                >
+                                            </multiselect>
+                                            <input v-model="resolucion.oficina" required="true" type="text" class="hide"/>
+                                        </div>
+                                    </div> 
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Fecha Resolución</label>
+                                            <div class="input-group date">
+                                                <date-picker v-model="resolucion.fecha" required="true" v-bind:config="configDate" data-parsley-id="2" v-bind:wrap="true" ></date-picker>  
+                                                <div class="input-group-addon">
+                                                    <span class="fa fa-calendar"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label>Serie</label>
+                                        <div class="form-group">
+                                            <input type="text"
+                                                   v-model="resolucion.serie"
+                                                   class="form-control" 
+                                                   required="true"></input>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Número</label>
+                                        <div class="form-group">
+                                            <input type="text"
+                                                   v-model="resolucion.numero"
+                                                   class="form-control" 
+                                                   required="true"> </input>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label>Alumno</label>
+                                        <div class="form-group">
+                                            <multiselect v-model="resolucion.retiroCiclo.alumno" 
+                                                         v-bind:options='alumnos'
+                                                         v-on:search-change="loadAlumno"
+                                                         v-bind:custom-label='customLabel'
+                                                         track-by='id'
+                                                         v-bind:show-labels="false"
+                                                         v-bind:allow-empty="false"
+                                                         deselect-label="No se puede eliminar este valor"
+                                                         v-bind:internal-search='false'
+                                                         placeholder="Ingresa un caracter como mínimo" >
+                                                <template slot="option" slot-scope="props">
+                                                    <div class="option__desc">
+                                                        <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                                                        <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                                                    </div>
+                                                </template>
+                                            </multiselect>
+                                            <input v-model="resolucion.retiroCiclo.alumno" required="true" type="text" class="hide"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Ciclo </label>
+                                        <div class="form-group">
+                                            <multiselect 
+                                                v-model="resolucion.retiroCiclo.cicloAcademico" 
+                                                v-bind:options="ciclos"
+                                                placeholder="Seleccione un ciclo"
+                                                label="descripcion"
+                                                v-bind:allow-empty="false"
+                                                deselect-label="No se puede eliminar este valor"
+                                                track-by="id" 
+                                                required="true"
+                                                >
+                                            </multiselect>
+                                            <input v-model="resolucion.retiroCiclo.cicloAcademico" required="true" type="text" class="hide"/>
+                                        </div>
+
+                                    </div>
+                                    <button type="button" v-on:click="save" class="btn btn-primary pull-left m-t-md">Guardar</button>
+                                </div>
+                            </section>
+                        </section>
+
+                    </form>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <div layout:fragment="js">
+        <script th:inline="javascript">
+            var oficinasJson = /*[[${oficinas.toString()}]]*/ 'json';
+            var ciclosJson = /*[[${ciclos.toString()}]]*/ 'json';
+        </script>
+        <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+
+        <div th:substituteby="_modules/vue-raptor-table"/>
+
+        <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
+        <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
+        <script th:src="@{/app/academico/resolucion/resolucionretirociclo/resolucionRetiroCiclo.js}" charset="utf-8"></script> 
+    </div>
+</body>
+</html>

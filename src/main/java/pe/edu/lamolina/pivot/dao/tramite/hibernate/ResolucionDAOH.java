@@ -77,4 +77,14 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
         this.update(octavia);
     }
 
+    @Override
+    public Resolucion findById(Long resolucion) {
+        Octavia sql = new Octavia()
+                .from(Resolucion.class)
+                .join("oficina ofi", "tipoResolucion tr", "userRegistro ur")
+                .left("reunionConsejo re")
+                .filter("id", resolucion);
+        return this.find(sql);
+    }
+
 }

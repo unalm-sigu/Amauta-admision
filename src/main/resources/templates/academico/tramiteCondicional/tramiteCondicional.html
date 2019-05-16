@@ -1,19 +1,19 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Tramite Retiro Ciclo</title>
+        <title>Tramite Condicional</title>
     </head>
 
     <body>
         <div layout:fragment="main">
-            <div id="tramiteRetiroCiclo">
+            <div id="condicional">
                 <header class="header b-b padder-lg">
-                    <h2 th:text="|Tramite Retiro Ciclo ${ciclo.descripcion}|"></h2>
+                    <h2 th:text="| Tramite Condicional ${ciclo.descripcion}|"></h2>
                     <div class="btn-group pull-right">
                         <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                            <i class="fa fa-file-text-o" /> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li ><a  v-on:click="modal" >Tramite Retiro Ciclo</a></li>
+                            <li ><a  v-on:click="modal" >Tramite Condicional</a></li>
                         </ul>
                     </div>
                 </header>
@@ -28,7 +28,8 @@
                                         <thead>
                                             <tr>
                                                 <th class="col-md-9" colspan="2"></th>
-                                                <th class="col-md-2">Ciclo Retiro</th>
+                                                <th class="col-md-2">Tipo Tramite </th>
+                                                <th class="col-md-2">Ciclo </th>
                                                 <th class="col-md-1">Estado</th>
                                                 <th></th>
                                             </tr>
@@ -71,7 +72,10 @@
                                                     </div>
                                                 </td>
                                                 <td  class="v-middle">
-                                                    {{item.cicloAcademico.descripcion}}
+                                                    {{item.tipoTramite.nombre}}
+                                                </td> 
+                                                <td  class="v-middle">
+                                                    {{item.cicloAcademicoResolucion.descripcion}}
                                                 </td> 
                                                 <td  class="v-middle">
                                                     <span v-if="item.estado == 'PEND'" class="label label-warning">{{item.estadoEnum.value}}</span>
@@ -83,8 +87,8 @@
                                                     <div class="actions">
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li v-if="item.estado == 'PEND'" ><a class=" pointer" v-on:click="update(item,1)" >Aceptar</a></li><!--rel="{{:id}}"-->
-                                                            <li v-if="item.estado == 'PEND'" ><a class=" pointer" v-on:click="update(item,0)" >Rechazar</a></li><!--rel="{{:id}}"-->
+                                                            <li v-if="item.estado == 'PEND'" ><a class=" pointer" v-on:click="openTramiteResol(item,1)" >Aceptar</a></li><!--rel="{{:id}}"-->
+                                                            <li v-if="item.estado == 'PEND'" ><a class=" pointer" v-on:click="openTramiteResol(item,0)" >Rechazar</a></li><!--rel="{{:id}}"-->
 
                                                         </ul>
                                                     </div>
@@ -98,22 +102,26 @@
                         </section>
                     </section>
                 </section>
-                <div th:substituteby="academico/tramiteRetiroCiclo/tramiteRetiroCicloModal">
-                </div>
+                <div th:substituteby="academico/tramiteCondicional/tramiteCondicionalModal"/>
+                <div th:substituteby="academico/tramiteCondicional/tramiteResolucionModal"/>
+
             </div>
             <div th:substituteby="_modules/vue-modal"/>
-
         </div>
 
         <div layout:fragment="js">
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var ciclosJson = /*[[${ciclos.toString()}]]*/ 'json';
+                var tipoTramiteJson = /*[[${tipoTramite.toString()}]]*/ 'json';
+                var oficinasJson = /*[[${oficinas.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-raptor-table"/>
-            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
-            <script th:src="@{/app/academico/tramiteRetiroCiclo/tramiteRetiroCiclo.js}" charset="utf-8"></script>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
+            <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
+            <script th:src="@{/app/academico/tramiteCondicional/tramiteCondicional.js}" charset="utf-8"></script>
         </div>
 
     </body>

@@ -18,4 +18,6 @@ public interface ResolucionDAO extends EasyDAO<Resolucion> {
     void updateEstado(Resolucion resolucion);
 
     void updateEstadoCicloRei(Resolucion resolucion);
+
+    public Resolucion findById(Long resolucion);
 }

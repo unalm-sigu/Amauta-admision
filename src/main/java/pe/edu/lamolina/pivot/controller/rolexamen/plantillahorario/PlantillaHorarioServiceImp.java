@@ -214,10 +214,15 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
 
     public void agregarGrupoHorasFaltantes(RolExamenes rolExamenes) {
         Set<GrupoHoras> gruposGenerados = grupoHorasExamenDAO.allByRolExamenes(rolExamenes).stream().map(GrupoHorasExamen::getGrupoHoras).collect(Collectors.toSet());
+
         List<GrupoHoras> gruposFaltantes = grupoHorasDAO.allByTipoCiclo("REGULAR")
                 .stream()
                 .filter(grupo -> !gruposGenerados.contains(grupo))
                 .collect(Collectors.toList());
+        GrupoHoras grupoHorasM = grupoHorasDAO.findByCode("M");
+        if (!gruposGenerados.contains(grupoHorasM)) {
+            gruposFaltantes.add(grupoHorasM);
+        }
 
         for (GrupoHoras grupoFaltante : gruposFaltantes) {
             logger.debug("Generando grupo faltante {}", grupoFaltante.getCodigo());
@@ -429,6 +434,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                 rolExamenes.getHorasExamen());
         List<Long> gruposIdsFiltered = groupsAndDays.entrySet().stream()
                 .map(x -> x.getKey()).collect(Collectors.toList());
+        logger.debug(gruposIdsFiltered.toString());
 
         List<GrupoHoras> gruposHoras = grupoHorasDAO.allGrupoHoras(gruposIdsFiltered);
         final int HORA_INICIO = semanaExamen.getHoraInicio().getNumero();

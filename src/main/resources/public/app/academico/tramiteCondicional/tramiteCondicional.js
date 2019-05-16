@@ -1,24 +1,42 @@
 Vue.component("multiselect", window.VueMultiselect.default);
+Vue.component('date-picker', VueBootstrapDatetimePicker.default);
+
 var app = new Vue({
-    el: '#tramiteRetiroCiclo',
+    el: '#condicional',
     data: {
-        URL_RETIROS: APP.url("academico/tramiteretirociclo/list"),
+        URL_RETIROS: APP.url("academico/tramitecondicional/list"),
         ciclos: JSON.parse(ciclosJson),
+        tiposTramite: JSON.parse(tipoTramiteJson),
+        oficinas: JSON.parse(oficinasJson),
+        configDate: {
+            format: 'DD/MM/YYYY',
+            useCurrent: false
+        },
         matriculaResumen: {},
-        tramiteRetiroCiclo: {},
-        modalRetiroCiclo: {
-            id: 'modalRetiroCiclo',
+        tramite: {},
+        modalTramiteCondicional: {
+            id: 'modalTramiteCondicional',
             header: true,
-            title: 'Agregar Tramite Retiro Ciclo ',
+            title: 'Agregar Tramite Condicional ',
             okbtn: "Guardar",
             showaccept: true
         },
-        alumnos: []
-    }, methods: {
+        modalTramiteResolucion: {
+            id: 'modalTramiteResolucion',
+            header: true,
+            title: 'Agregar Resolucion ',
+            okbtn: "Guardar",
+            showaccept: true
+        },
+        alumnos: [],
+        resolucion: {},
+        dataTemp: {}
+    },
+    methods: {
         modal() {
             let $vue = this;
-            $vue.tramiteRetiroCiclo = {};
-            $vue.$refs.modalRetiroCiclo.open();
+            $vue.tramite = {};
+            $vue.$refs.modalTramiteCondicional.open();
         },
         loadAlumno(nombre) {
             let $vue = this;
@@ -27,7 +45,7 @@ var app = new Vue({
             if (nombre != '' || nombre != null || nombre != undefined) {
 
                 $.ajax({
-                    url: APP.url("academico/tramiteretirociclo/allAlumnoByNombre"),
+                    url: APP.url("academico/tramitecondicional/allAlumnoByNombre"),
                     dataType: 'json',
                     type: 'post',
                     data: {nombre: nombre}
@@ -47,15 +65,15 @@ var app = new Vue({
             }
             return "";
         },
-        saveTramiteRetiroCiclo() {
+        saveTramiteCondicional() {
             let $vue = this;
             if (!$("#form").parsley().validate()) {
                 return;
             }
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/tramiteretirociclo/save'),
-                data: JSON.stringify($vue.tramiteRetiroCiclo),
+                url: APP.url('academico/tramitecondicional/save'),
+                data: JSON.stringify($vue.tramite),
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
@@ -64,7 +82,7 @@ var app = new Vue({
                     } else {
                         notify(response.message, "error");
                     }
-                    $vue.$refs.modalRetiroCiclo.close();
+                    $vue.$refs.modalTramiteCondicional.close();
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -72,19 +90,37 @@ var app = new Vue({
                 }
             });
         },
-        update(item, val) {
+        openTramiteResol(item, val) {
             let $vue = this;
-            var data = Object.assign({}, item);
-            data.estado = val == 0 ? 'RCHZ' : 'ACEP'
+            $vue.dataTemp = {};
+            $vue.dataTemp = Object.assign({}, item);
+            $vue.dataTemp.estado = val == 0 ? 'RCHZ' : 'ACEP'
+            if (val == 1) {
+                $vue.$refs.modalTramiteResolucion.open();
+            } else {
+                $vue.update();
+            }
+        },
+        aceptar() {
+            let $vue = this;
+            if (!$("#formRes").parsley().validate()) {
+                return;
+            }
+            $vue.dataTemp.resolucion = $vue.resolucion;
+            $vue.update();
+        },
+        update() {
+            let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/tramiteretirociclo/update'),
-                data: JSON.stringify(data),
+                url: APP.url('academico/tramitecondicional/update'),
+                data: JSON.stringify($vue.dataTemp),
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
-                        item.estado = data.estado;
                         $vue.$refs.load.loadRemoteData();
+                        $vue.dataTemp = {};
+                        $vue.$refs.modalTramiteResolucion.close();
                         notify(response.message, "success");
                     }
                 },
@@ -93,6 +129,6 @@ var app = new Vue({
                     MODAL.hideWait();
                 }
             });
-        },
+        }
     }
 })

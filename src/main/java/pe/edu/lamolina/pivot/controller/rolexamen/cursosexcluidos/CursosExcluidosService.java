@@ -16,4 +16,6 @@ public interface CursosExcluidosService {
 
     void anularExclusion(CursoExcluido cursoExcluido, DataSessionPivot ds);
 
+    RolExamenes findRolExamenes(long rolExamenId);
+
 }
