@@ -4,8 +4,8 @@ new Vue({
     el: '#main',
     data: {
         URL: APP.url('rolexamen/cursosexcluidos'),
-        rolExamenes: null,
-        rolesExamenes: JSON.parse(jRolexamenes),
+        rolExamenes: JSON.parse(jRolexamen),
+        rolesExamenes: JSON.parse(jRolesxamenes),
         curso: null,
         cursos: [],
         cursosExcluidos: []

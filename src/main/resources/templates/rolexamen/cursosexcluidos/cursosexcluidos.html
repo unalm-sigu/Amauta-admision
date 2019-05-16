@@ -139,9 +139,10 @@
             <div th:substituteby="_modules/vue-modal"/>
         </section>
         <div layout:fragment="js">
-            <script  th:inline="javascript" >
+            <script  th:inline="javascript" >jRolesxamenes
                 /*<![CDATA[*/
-                var jRolexamenes = /*[[${jRolexamenes}]]*/ '';
+                var jRolesxamenes = /*[[${jRolesxamenes}]]*/ '';
+                var jRolexamen = /*[[${jRolexamen}]]*/ '';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>

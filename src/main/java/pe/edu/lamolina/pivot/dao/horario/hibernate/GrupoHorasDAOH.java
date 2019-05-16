@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
 public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements GrupoHorasDAO {
@@ -158,6 +160,7 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .from(GrupoHoras.class, "gh")
                 .join("tipoGrupoHoras")
                 .in("gh.id", gruposHoras)
+                .notIn("gh.id", Constantine.GRUPOS_HORAS_UNUSED)
                 .orderBy("gh.codigo");
         return all(sql);
     }
@@ -249,6 +252,7 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
         Octavia sql = Octavia.query()
                 .from(GrupoHoras.class, "gh")
                 .filter("gh.tipoCiclo", tipoCiclo)
+                .notIn("gh.id", Constantine.GRUPOS_HORAS_UNUSED)
                 .orderBy("gh.codigo");
 
         return all(sql);
