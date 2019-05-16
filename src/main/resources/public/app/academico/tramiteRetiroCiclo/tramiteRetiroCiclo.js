@@ -4,8 +4,9 @@ var app = new Vue({
     data: {
         URL_RETIROS: APP.url("academico/tramiteretirociclo/list"),
         ciclos: JSON.parse(ciclosJson),
+        tiposTramite: JSON.parse(tipoTramiteJson),
         matriculaResumen: {},
-        tramiteRetiroCiclo: {},
+        tramite: {},
         modalRetiroCiclo: {
             id: 'modalRetiroCiclo',
             header: true,

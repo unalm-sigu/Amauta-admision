@@ -752,23 +752,6 @@ public class MatriculableServiceImp implements MatriculableService {
         MatriculaResumen matri = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
         matri = matri == null ? new MatriculaResumen() : matri;
 
-//        AlumnoCiclo alumnoCicloSituacion = alumnoCicloDAO.findByAlumnoCiclo(alumno, ciclo);
-        /*  SituacionAcademica situacionAcademica = null;
-        if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_3) {
-            situacionAcademica = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_3U.name());
-
-        } else if (alumno.getSituacionAcademica().getCodigoEnum() == SituacionAcademicaEnum.S_6) {
-            situacionAcademica = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_6U.name());
-        }
-        if (situacionAcademica != null) {
-            alumno.setSituacionAcademica(situacionAcademica);
-            alumnoDAO.update(alumno);
-            if (alumnoCicloSituacion != null) {
-
-                alumnoCicloSituacion.setSituacionFinal(situacionAcademica);
-                alumnoCicloDAO.update(alumnoCicloSituacion);
-            }
-        }*/
         SituacionAcademica sit = alumno.getSituacionAcademica();
         ModalidadEstudio modalidad = alumno.getModalidadEstudio();
         List<SituacionAcademicaEnum> sitEnum = Arrays.asList(S_8, S_9);

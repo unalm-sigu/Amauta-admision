@@ -6,6 +6,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -30,20 +31,35 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
-import pe.edu.lamolina.model.general.Parametro;
+import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import static pe.edu.lamolina.model.enums.TipoTramiteEnum.RCI;
+import static pe.edu.lamolina.model.enums.TipoTramiteEnum.REI;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.tramite.TipoTramite;
+import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionExistentes.ResolucionExistenteService;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/tramiteretirociclo")
-public class TramiteRetiroCicloController {
+public class TramiteCondicionalController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    TramiteRetiroCicloService service;
+    TramiteCondicionalService service;
+
+    @Autowired
+    ResolucionExistenteService existenteService;
+
+    @Autowired
+    MatriculableService matriculableService;
+
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -77,10 +93,19 @@ public class TramiteRetiroCicloController {
         List<CicloAcademico> cicloAcademicos = service.allCiclos(ds.getCicloAcademico());
 
         ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode tipoTramiteJson = new ArrayNode(JsonNodeFactory.instance);
+
+        List<TipoTramite> tipoTramite = service.allTipoTramite();
+        for (TipoTramite tipo : tipoTramite) {
+            if (Arrays.asList(RCI.name(), REI.name()).contains(tipo.getCodigo())) {
+                tipoTramiteJson.add(JsonHelper.createJson(tipo, JsonNodeFactory.instance, new String[]{"*"}));
+            }
+        }
         for (CicloAcademico cicloAcademico : cicloAcademicos) {
             arrayNode.add(JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{
                 "*"}));
         }
+        model.addAttribute("tipoTramite", tipoTramiteJson);
         model.addAttribute("ciclos", arrayNode);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/tramiteRetiroCiclo/tramiteRetiroCiclo";
@@ -118,7 +143,7 @@ public class TramiteRetiroCicloController {
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(
-            @RequestBody RetiroCiclo retiroCiclo,
+            @RequestBody Tramite tramite,
             Model model,
             HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
@@ -128,7 +153,11 @@ public class TramiteRetiroCicloController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
-            service.save(retiroCiclo, ds);
+            if (tramite.getTipoTramite().getCodigo().equals(RCI.name())) {
+                service.saveRetiroCiclo(tramite, ds);
+            } else {
+                service.saveReincorporacion(tramite, ds);
+            }
 
             response.setMessage("Se guardó satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);

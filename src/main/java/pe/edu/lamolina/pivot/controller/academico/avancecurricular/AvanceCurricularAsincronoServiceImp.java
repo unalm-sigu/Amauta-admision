@@ -825,9 +825,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursoCurriculaAlu.entrySet()) {
             AlumnoCursoCurricula evaluado = entry.getValue();
-            if (evaluado.getCurso().getId() == 783l) {
-                System.out.println("hola");
-            }
+     
             if (evaluado.isValidado() || estadosAprobados.contains(evaluado.getEstadoEnum())) {
                 continue;
             }
@@ -885,9 +883,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursosCurriculaAlu.entrySet()) {
 
             AlumnoCursoCurricula evaluado = entry.getValue();
-            if (evaluado.getCurso().getId() == 783l) {
-                System.out.println("Hola");
-            }
+            
             if (Arrays.asList(HAB, MAT).contains(evaluado.getEstadoEnum())) {
                 continue;
             }
