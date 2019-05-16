@@ -212,6 +212,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
         Alumno alumno = tremite.getAlumno();
         alumno = alumnoDAO.find(alumno);
+        alumno.setEsMatriculaCondicional(Boolean.TRUE);
 
         Boolean isCondicional = Arrays.asList(S_6, S_4).contains(alumno.getSituacionAcademica().getCodigoEnum());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(tremite.getAlumno());
@@ -261,7 +262,6 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
                 matriculaResumen.setMotivoMatriculable(tremite.getMotivoResolucion());
                 matriculaResumen.setEsCondicional(true);
                 matriculaResumen.setFechaCondicional(new Date());
-                updateCursoApro(alumno, ds);
 
                 AlumnoCiclo alumnoCicloPenultimo = alumnoCiclos.get(1);
                 alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumno);
@@ -291,6 +291,9 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
                 }
             }
 
+        } else {
+
+            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
         }
 
     }
@@ -376,6 +379,9 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             }
 
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, retiroCiclobd.getCicloAcademico());
+            alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.RCI);
+            alumnoCicloDAO.update(alumnoCiclo);
+
             List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCiclo);
             for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
                 alumnoCicloCurso.setVecesCursado(alumnoCicloCurso.getVecesCursado() - 1);
@@ -432,6 +438,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         if (alumno != null) {
             throw new PhobosException("El alumno" + alumno.getCodigo() + " ya cuenta con una resolución para el ciclo activo");
         }
+        alumno.setEsMatriculaCondicional(Boolean.TRUE);
         DateTime today = new DateTime();
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
@@ -466,6 +473,45 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         reincorporacione.setTramite(tramite);
         reincorporacionDAO.save(reincorporacione);
 
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ds.getCicloAcademico(), alumno, EstadoMatriculaEnum.NMAT);
+        if (matriculaResumen != null) {
+            CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
+            if (ciclo.getFechaPrioridades() != null) {
+                matriculaResumen.setMotivoMatriculable(tramite.getMotivoResolucion());
+                matriculaResumen.setEsCondicional(true);
+                matriculaResumen.setFechaCondicional(new Date());
+
+                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumno);
+                matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
+
+                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+                MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+                if (matriculaAnt != null && matriculaDes != null) {
+
+                    BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
+                    matriculaResumen.setPrioridad(prioridad);
+                    if (ciclo.getFechaTurnosAsignados() != null) {
+                        TurnoAtencion turnoAlumno = turnoAtencionDAO.findById(matriculaResumen.getTurnoAtencion().getId());
+                        TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
+                        if (turnoAlumno.getId() != turnosAtencion.getId()) {
+                            BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
+                            Integer cantAlum = turnosAtencion.getAlumnos() + 1;
+                            turnosAtencion.setAlumnos(cantAlum);
+                            turnosAtencion.setPrioridadFin(numPrioridad);
+                            turnoAtencionDAO.update(turnosAtencion);
+                        }
+
+                        matriculaResumen.setTurnoAtencion(turnosAtencion);
+
+                    }
+                    matriculaResumenDAO.update(matriculaResumen);
+                }
+            }
+
+        } else {
+            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
+
+        }
     }
 
     @Override
