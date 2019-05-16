@@ -717,7 +717,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public void finalizarPrioridad(CicloAcademico cicloAcademico) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         cicloBD.setFechaCierrePrioridades(new Date());
-        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
+        cicloAcademicoDAO.update(cicloBD);
 
     }
 
@@ -726,7 +726,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public void finalizarMatriculable(CicloAcademico cicloAcademico) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         cicloBD.setFechaCierreMatriculable(new Date());
-        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
+        cicloAcademicoDAO.update(cicloBD);
     }
 
     @Override
@@ -734,7 +734,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public void limpiarMatriculable(CicloAcademico cicloAcademico) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         cicloBD.setFechaMatriculables(null);
-        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
+        cicloAcademicoDAO.updateFechaMatriculables(cicloBD);
         matriculaResumenDAO.deleteMatriculable(cicloAcademico);
     }
 
