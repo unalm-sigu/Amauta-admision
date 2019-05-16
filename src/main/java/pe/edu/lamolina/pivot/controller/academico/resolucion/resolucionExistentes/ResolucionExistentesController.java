@@ -170,13 +170,14 @@ public class ResolucionExistentesController {
                 List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
-            
+
                 }
             } else {
                 List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
-                    matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
+                    matriculableService.revisarSituacionAcademica(alumno, ds);
                     avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+                    matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
                 }
 
             }

@@ -259,14 +259,12 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, retiroCiclo.getCicloAcademico());
             alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.RCI);
             alumnoCicloDAO.update(alumnoCiclo);
-            
+
             List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCiclo);
             for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
                 Integer count = alumnoCicloCurso.getVecesCursado() - 1;
                 alumnoCicloCurso.setVecesCursado(count);
-                if (alumnoCicloCurso.isAprobado()) {
-                    alumnoCicloCurso.setEstado(EstadoMatriculaEnum.RCI);
-                }
+                alumnoCicloCurso.setEstado(EstadoMatriculaEnum.RCI);
                 alumnoCicloCursoDAO.update(alumnoCicloCurso);
             }
             alumnos.add(alumnoDB);
