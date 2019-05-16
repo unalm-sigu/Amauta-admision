@@ -63,6 +63,7 @@
                                         <tbody>
                                             <tr v-for="sec in props.data">
                                                 <td>
+                                                    <input type="hidden" v-bind:value="sec.seccion.id"/>
                                                     <span class="bold text-info text-md" v-text="sec.seccion.codigo2"></span>
                                                     <span class="block text-muted">{{ sec.seccion.grupoSeccion.curso.nombre }}</span>
                                                     <span class="block text-muted"><b>{{ sec.seccion.grupoSeccion.curso.codigo  }}</b> &nbsp; <i class="fa fa-bookmark-o"></i> {{ sec.seccion.grupoSeccion.curso.tpc }}</span>

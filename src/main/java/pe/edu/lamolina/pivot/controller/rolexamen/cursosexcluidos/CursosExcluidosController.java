@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,7 +40,7 @@ public class CursosExcluidosController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         List<RolExamenes> rolexamenes = cursosExcluidosService.allRolExamenesByCicloActivo(ds.getCicloAcademico());
-        ArrayNode jRolexamenes = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode jRolesxamenes = new ArrayNode(JsonNodeFactory.instance);
         for (RolExamenes rolexamen : rolexamenes) {
             ObjectNode rolExam = JsonHelper.createJson(rolexamen, JsonNodeFactory.instance, true,
                     new String[]{
@@ -49,12 +50,32 @@ public class CursosExcluidosController {
                         "nombre", "estado", "fechaPublicacion"
                     });
 
-            jRolexamenes.add(rolExam);
+            jRolesxamenes.add(rolExam);
         }
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        model.addAttribute("jRolexamenes", jRolexamenes.toString());
+        model.addAttribute("jRolesxamenes", jRolesxamenes.toString());
         return "rolexamen/cursosexcluidos/cursosexcluidos";
+    }
+
+    @RequestMapping("{rolExamen}")
+    public String indexWithRolExamen(
+            @PathVariable("rolExamen") Long rolExamenId,
+            Model model,
+            HttpSession session) {
+
+        RolExamenes rolExamenes = cursosExcluidosService.findRolExamenes(rolExamenId);
+        ObjectNode jRolExamenes = JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, false,
+                new String[]{
+                    "*",
+                    "eventoCicloAcademico.eventoAcademico.*",
+                    "semanasExamen.rolExamenes.*",
+                    "semanasExamen.*",
+                    "semanasExamen.horaFin",
+                    "semanasExamen.horaInicio"
+                });
+        model.addAttribute("jRolexamen", jRolExamenes.toString());
+        return this.index(model, session);
     }
 
     @ResponseBody

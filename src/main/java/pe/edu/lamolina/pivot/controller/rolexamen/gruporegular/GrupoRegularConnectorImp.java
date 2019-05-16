@@ -7,8 +7,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -296,9 +294,10 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
         List<MatriculaSeccion> matriculadosPorSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
 
-        logger.debug("Letra {}, seccion {}, cant. alumnos {}, numero {}",
+        logger.debug("Letra {}, seccion {}, grupo horas {}, cant. alumnos {}, numero {}",
                 letraGrupoRegular.getLetra(),
                 seccion.getId(),
+                seccion.getGrupoHoras().getCodigo(),
                 matriculadosPorSeccion.size(),
                 letraGrupoRegular.getContadorSecciones() + " de " + seccionesByLetraOnlyInformative.size());
 
@@ -306,10 +305,10 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         List<Aula> aulas = Arrays.asList(seccion.getAula());
         List<Docente> docentes = Arrays.asList(seccion.getDocenteSeccion().get(0).getDocente());
 
-        boolean validacionCursosMasivos = this.validarCursosMasivos(cursosMasivosExamen, docentes, aulas, alumnos);
-        boolean validacionGrupoRegular = this.validarGrupoRegular(letraGrupoRegular, alumnos, docentes, aulas);
-        boolean validacionGrupoEspecial = this.validarGrupoEspecial(seccionesGrupoEspecial, alumnos, docentes, aulas);
-        if (!validacionGrupoRegular || !validacionCursosMasivos || !validacionGrupoEspecial) {
+        boolean validacionCursosMasivosCorrecta = this.validarCursosMasivos(cursosMasivosExamen, docentes, aulas, alumnos);
+        boolean validacionGrupoRegularCorrecta = this.validarGrupoRegular(letraGrupoRegular, alumnos, docentes, aulas);
+        boolean validacionGrupoEspecialCorrecta = this.validarGrupoEspecial(seccionesGrupoEspecial, alumnos, docentes, aulas);
+        if (!validacionGrupoRegularCorrecta || !validacionCursosMasivosCorrecta || !validacionGrupoEspecialCorrecta) {
             return false;
         }
 
@@ -367,13 +366,27 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         //valida conflicto aula
         boolean aulaConConflicto = false;
         for (Aula aula : aulas) {
+            Aula aulaCompare = this.rolExamenesLogger.getAulasOera().stream().filter(x -> x.equals(aula)).findFirst().orElse(null);
+            for (FechaHoraGrupoExamen fechaHorGru : letraGrupoRegular.getGrupoHorasExamen().getFechasHorasGruposExamen()) {
+                HorarioAula horarioAula = aulaCompare.getHorariosAula()
+                        .stream()
+                        .filter(x -> x.getDia().getId().compareTo(fechaHorGru.getDia().getId()) == 0)
+                        .filter(x -> x.getHora().getId().compareTo(fechaHorGru.getHora().getId()) == 0)
+                        .findFirst().orElse(null);
+                if (horarioAula != null) {
+                    aulaConConflicto = true;
+                    rolExamenesLogger.cruceAula(aula, letraGrupoRegular, horarioAula.getSeccion());
+                }
+            }
+
+            /*
             SeccionGrupoRegular seccionGrupoRegularWithAula = seccionesGruposRegularesByLetra.stream()
                     .filter(x -> x.getAula().equals(aula)).findFirst().orElse(null);
             if (seccionGrupoRegularWithAula != null) {
                 aulaConConflicto = true;
                 rolExamenesLogger.cruceAula(aula, letraGrupoRegular, seccionGrupoRegularWithAula.getSeccion());
                 //  break;
-            }
+            }*/
         }
 
         if (alumnoConflicto || docenteConflicto || aulaConConflicto) {

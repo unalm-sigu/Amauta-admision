@@ -523,7 +523,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .join("mr.cicloAcademico ca", "sec.grupoSeccion gs")
                 .join("gs.curso cur", "cur.modalidadEstudio mest")
                 .join("sec.aula au", "sec.grupoHoras gh", "gh.tipoGrupoHoras tgh")
-                .left("au.oficinaSupervisora oSup")
+                .left("au.oficinaSupervisora oSup", "sec.seccionSuperior sSup")
                 .filter("ca.id", ciclo)
                 .filter("mest.codigo", ModalidadEstudioEnum.PRE)
                 .filter("tgh.tipo", tipoGrupoHorasEnum)

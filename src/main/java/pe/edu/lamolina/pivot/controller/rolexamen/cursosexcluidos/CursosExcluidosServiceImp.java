@@ -9,8 +9,11 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.rolexamen.CursoExcluido;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoExcluidoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoMasivoExamenDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.RolExamenesDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.SemanaExamenDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -22,6 +25,12 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
 
     @Autowired
     CursoExcluidoDAO cursoExcluidoDAO;
+
+    @Autowired
+    RolExamenesDAO rolExamenesDAO;
+
+    @Autowired
+    SemanaExamenDAO semanaExamenDAO;
 
     @Override
     public List<CursoExcluido> allCursosExcluidosByRolExamenes(RolExamenes rolExamenes) {
@@ -53,6 +62,14 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
         CursoExcluido cursoExcluidoUpd = new CursoExcluido(cursoExcluido.getId());
         cursoExcluidoUpd.setEstadoEnum(EstadoEnum.ANU);
         cursoExcluidoDAO.updateAnulacion(cursoExcluidoUpd);
+    }
+
+    @Override
+    public RolExamenes findRolExamenes(long rolExamenId) {
+        RolExamenes rolExamenes = rolExamenesDAO.find(rolExamenId);
+        List<SemanaExamen> semanaExamens = semanaExamenDAO.allByRolExamenes(rolExamenes);
+        rolExamenes.setSemanasExamen(semanaExamens);
+        return rolExamenes;
     }
 
 }
