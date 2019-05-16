@@ -382,7 +382,8 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
                 alumnoCicloCurso.setEstado(EstadoMatriculaEnum.RCI);
                 alumnoCicloCursoDAO.update(alumnoCicloCurso);
             }
-
+            matriculableService.revisarSituacionAcademica(alumno, ds);
+            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
         }
     }
 

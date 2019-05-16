@@ -175,7 +175,7 @@ public class ResolucionExistentesController {
             } else {
                 List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
-                    matriculableService.revisarSituacionAcademica(alumno, ds);
+
                     avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
                 }
