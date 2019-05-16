@@ -116,4 +116,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allMatriculablesByDetalleGpoAlu(DetalleGrupoAlumno dga, CicloAcademico ciclo);
 
+    public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina);
+
 }

@@ -14,6 +14,13 @@ var app = new Vue({
             okbtn: 'Aceptar',
             modalsize: 'modal-lg'
         },
+        modalResolucionRetiroCiclo: {
+            id: 'modalResolucionRetiroCiclo',
+            header: true,
+            title: 'Resolucion Retiro Ciclo',
+            okbtn: 'Aceptar',
+            modalsize: 'modal-lg'
+        },
         confirmarModal: {
             id: 'modalConfirmar',
             header: true,
@@ -32,7 +39,9 @@ var app = new Vue({
         tiposResoluciones: null,
         files: [],
         ciclosToReincorporacion: null,
-        alumnosReincorporacion: []
+        alumnosReincorporacion: [],
+        alumnosRetiroCiclo: [],
+        isReincorporacion: true
     }, created: function () {
 
     }, mounted: function () {
@@ -275,7 +284,12 @@ var app = new Vue({
                 type: 'POST',
                 success: function (response) {
                     if (response.success) {
-                        $vue.alumnosReincorporacion = response.data;
+                        $vue.isReincorporacion = response.data[0].isReincorporacion;
+                        if ($vue.isReincorporacion) {
+                            $vue.alumnosReincorporacion = response.data;
+                        } else {
+                            $vue.alumnosRetiroCiclo = response.data;
+                        }
                         $vue.$refs.modalAlumnos.open();
                     } else {
                         notify(response.message, "error");

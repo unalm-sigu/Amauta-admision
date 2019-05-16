@@ -5,20 +5,30 @@ Vue.component('file-upload', VueUploadComponent);
 var app = new Vue({
     el: '#resolucionReinForm',
     data: {
-        resolucion: {reincorporaciones: []},
+        resolucion: {reincorporaciones: [], retiroCiclo: []},
         oficinas: JSON.parse(oficinasJson),
         ciclos: JSON.parse(ciclosJson),
+        tiposResolucion: JSON.parse(tiposResolucionJson),
         configDate: {
             format: 'DD/MM/YYYY',
             useCurrent: false
         },
-        alumnos: []
+        alumnos: [],
+        isReincorporacion: true
     }, created: function () {
 
     }, mounted: function () {
         let $vue = this;
 
     }, methods: {
+        tipoResolucionSelect(item) {
+            let $vue = this;
+            if (item.codigo == "RCI") {
+                $vue.isReincorporacion = false;
+            } else {
+                $vue.isReincorporacion = true;
+            }
+        },
         customLabel( {persona, codigo}){
             if (persona != null) {
                 return  codigo + " - " + persona.nombreCompleto;
@@ -51,12 +61,21 @@ var app = new Vue({
         },
         addResolucion() {
             let $vue = this;
-            var reincorporacion = {};
-            $vue.resolucion.reincorporaciones.push(reincorporacion);
+            if ($vue.isReincorporacion) {
+                var reincorporacion = {};
+                $vue.resolucion.reincorporaciones.push(reincorporacion);
+            } else {
+                var retiroCiclo = {};
+                $vue.resolucion.retiroCiclo.push(retiroCiclo);
+            }
         },
         deleteItem(index) {
             let $vue = this;
-            $vue.resolucion.reincorporaciones.splice(index, 1);
+            if ($vue.isReincorporacion) {
+                $vue.resolucion.reincorporaciones.splice(index, 1);
+            } else {
+                $vue.resolucion.retiroCiclo.splice(index, 1);
+            }
         },
         oficinaSelect(ofi) {
             let $vue = this;
@@ -83,7 +102,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, 'info');
-                        $vue.resolucion = {reincorporaciones: []};
+                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: []};
                         $vue.alumnos = [];
                     } else {
                         notify(response.message, 'error');

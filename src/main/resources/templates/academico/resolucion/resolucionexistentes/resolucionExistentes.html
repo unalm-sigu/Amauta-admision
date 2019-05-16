@@ -26,7 +26,7 @@
     <section  layout:fragment="main">
         <header class="header b-b padder-lg">
 
-            <h2 > Resolución Reincorporacion <span th:text="${ciclo.descripcion}"></span></h2>
+            <h2 > Resolución Existente <span th:text="${ciclo.descripcion}"></span></h2>
             <div class="pull-right m-t-md">
                 <a class="btn btn-default"   th:href="@{/academico/resolucion}"  >Regresar</a>
             </div>
@@ -89,6 +89,26 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label>Tipo Resolución</label>
+                                        <div class="form-group">
+                                            <multiselect 
+                                                v-model="resolucion.tipoResolucion" 
+                                                v-bind:options="tiposResolucion"
+                                                placeholder="Seleccione un tipo de resolucion"
+                                                label="nombre"
+                                                v-bind:allow-empty="false"
+                                                deselect-label="No se puede eliminar este valor"
+                                                track-by="id" 
+                                                required="true"
+                                                v-on:select="tipoResolucionSelect"
+                                                >
+                                            </multiselect>
+                                            <input v-model="resolucion.tipoResolucion" required="true" type="text" class="hide"/>
+                                        </div>
+                                    </div> 
+                                </div>
                             </section>
                         </section>
 
@@ -105,7 +125,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(reincorporacion , index) in resolucion.reincorporaciones"> 
+                                        <tr v-for="(reincorporacion , index) in resolucion.reincorporaciones" v-if="isReincorporacion"> 
                                             <td class="v-middle text-center">
                                                 <div class="form-group">
                                                     <div class="col-md-12">
@@ -130,9 +150,8 @@
                                                     </div>
                                                 </div>
                                             </td>
-
                                             <td class="v-middle text-left">
-                                                <span class="block text-muted">Tramite:  Reincorporación</span>
+                                                <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
                                             </td>
                                             <td class="v-middle text-left">
                                                 <input class="form-control" v-model="reincorporacion.motivoDesercion" required="true" type="text"/>
@@ -155,6 +174,59 @@
                                             </td>
                                             <td>
                                                 <a v-on:click="deleteItem(index)" class="btn btn-danger">
+                                                    <i class="fa fa-trash-o " aria-hidden="true"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                         <tr v-for="(retiroCiclo , index) in resolucion.retiroCiclo" v-if="!isReincorporacion"> 
+                                            <td class="v-middle text-center">
+                                                <div class="form-group">
+                                                    <div class="col-md-12">
+                                                        <multiselect v-model="retiroCiclo.alumno" 
+                                                                     v-bind:options='alumnos'
+                                                                     v-on:search-change="loadAlumno"
+                                                                     v-bind:custom-label='customLabel'
+                                                                     track-by='id'
+                                                                     v-bind:show-labels="false"
+                                                                     v-bind:allow-empty="false"
+                                                                     deselect-label="No se puede eliminar este valor"
+                                                                     v-bind:internal-search='false'
+                                                                     placeholder="Ingresa un caracter como mínimo" >
+                                                            <template slot="option" slot-scope="props">
+                                                                <div class="option__desc">
+                                                                    <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                                                                    <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                                                                </div>
+                                                            </template>
+                                                        </multiselect>
+                                                        <input v-model="retiroCiclo.alumno" required="true" type="text" class="hide"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="v-middle text-left">
+                                                <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
+                                            </td>
+                                            <td class="v-middle text-left">
+                                                <input class="form-control" v-model="retiroCiclo.motivo" required="true" type="text"/>
+                                            </td>
+                                            <td class="v-middle text-left">
+                                                <div class="form-group">
+                                                    <multiselect 
+                                                        v-model="retiroCiclo.cicloAcademico" 
+                                                        v-bind:options="ciclos"
+                                                        placeholder="Seleccione un ciclo"
+                                                        label="descripcion"
+                                                        track-by="id" 
+                                                        required="true"
+                                                        v-bind:allow-empty="true"
+                                                        deselect-label="No se puede eliminar este valor" 
+                                                        >
+                                                    </multiselect>
+                                                    <input v-model="retiroCiclo.cicloAcademico" required="true" type="text" class="hide"/>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <a v-on:click="deleteItemRetiro(index)" class="btn btn-danger">
                                                     <i class="fa fa-trash-o " aria-hidden="true"></i>
                                                 </a>
                                             </td>
@@ -183,6 +255,7 @@
         <script th:inline="javascript">
             var oficinasJson = /*[[${oficinas.toString()}]]*/ 'json';
             var ciclosJson = /*[[${ciclos.toString()}]]*/ 'json';
+            var tiposResolucionJson = /*[[${tiposResolucion.toString()}]]*/ 'json';
         </script>
         <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
@@ -191,7 +264,7 @@
 
         <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
         <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
-        <script th:src="@{/app/academico/resolucion/resolucionreincorporacion/resolucionreincorporacion.js}" charset="utf-8"></script> 
+        <script th:src="@{/app/academico/resolucion/resolucionexistente/resolucionexistente.js}" charset="utf-8"></script> 
     </div>
 </body>
 </html>

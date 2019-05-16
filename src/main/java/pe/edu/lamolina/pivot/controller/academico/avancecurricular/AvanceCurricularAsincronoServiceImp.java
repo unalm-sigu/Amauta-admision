@@ -423,8 +423,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         List<AlumnoCursoCurricula> alumnoCursoNew = new ArrayList<>();
         List<AlumnoCursoCurricula> alumnoCursoElcCarreraNew = new ArrayList<>();
         List<AlumnoCursoCurricula> alumnoCursoComodinDepNew = new ArrayList<>();
-
-        validarTramiteRetiroCiclo(cursosAprobados, alumno, ds.getCicloAcademico());
+        cursosAprobados = cursosAprobados.stream().filter(x -> x.getEstadoEnum() != EstadoMatriculaEnum.RCI).collect(Collectors.toList());
+//        validarTramiteRetiroCiclo(cursosAprobados, alumno, ds.getCicloAcademico());
 
         for (CursoCurricula cursocurricula : mapCursosCurricula.values()) {
 
@@ -825,9 +825,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursoCurriculaAlu.entrySet()) {
             AlumnoCursoCurricula evaluado = entry.getValue();
-            if (evaluado.getCurso().getId() == 783l) {
-                System.out.println("hola");
-            }
+     
             if (evaluado.isValidado() || estadosAprobados.contains(evaluado.getEstadoEnum())) {
                 continue;
             }
@@ -885,9 +883,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursosCurriculaAlu.entrySet()) {
 
             AlumnoCursoCurricula evaluado = entry.getValue();
-            if (evaluado.getCurso().getId() == 783l) {
-                System.out.println("Hola");
-            }
+            
             if (Arrays.asList(HAB, MAT).contains(evaluado.getEstadoEnum())) {
                 continue;
             }
@@ -1035,21 +1031,21 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         return lista;
     }
 
-    private void validarTramiteRetiroCiclo(List<AlumnoCicloCurso> cursosAprobados, Alumno alumno, CicloAcademico cicloAcademico) {
-        RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(alumno, cicloAcademico);
-        if (retiroCiclo != null) {
-
-            List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno);
-
-            for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
-                alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
-                alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
-
-                AlumnoCicloCurso alumnoCicloCurso = cursosAprobados.stream().filter(x -> x.getCurso() == alumnoCursoCurricula.getCurso()).findAny().orElse(null);
-                cursosAprobados.remove(alumnoCicloCurso);
-
-            }
-        }
-    }
-
+//    private void validarTramiteRetiroCiclo(List<AlumnoCicloCurso> cursosAprobados, Alumno alumno, CicloAcademico cicloAcademico) {
+//        List<RetiroCiclo> retiroCiclo = retiroCicloDAO.allByRetiroCiclo(alumno);
+//        if (!retiroCiclo.isEmpty()) {
+//            for (RetiroCiclo retiroCiclo1 : retiroCiclo) {
+//
+//                List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumno, retiroCiclo1.getCicloAcademico());
+//
+//                for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
+//                    alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.LIMB);
+//                    alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
+//
+//                    AlumnoCicloCurso alumnoCicloCurso = cursosAprobados.stream().filter(x -> x.getCurso() == alumnoCursoCurricula.getCurso()).findAny().orElse(null);
+//                    cursosAprobados.remove(alumnoCicloCurso);
+//                }
+//            }
+//        }
+//    }
 }

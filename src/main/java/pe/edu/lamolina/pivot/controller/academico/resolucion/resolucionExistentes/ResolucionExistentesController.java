@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionGeneradas;
+package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionExistentes;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -7,6 +7,8 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -31,9 +33,14 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.tramite.TipoResolucion;
+import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -41,18 +48,21 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/resolucion")
-public class ResolucionReincorporacionController {
+public class ResolucionExistentesController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ResolucionReincorporacionService service;
+    ResolucionExistenteService service;
 
     @Autowired
     ResolucionService resolucionService;
 
     @Autowired
     MatriculableService matriculableService;
+
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
 
     private MultipartFile resolucionFile;
 
@@ -82,12 +92,21 @@ public class ResolucionReincorporacionController {
         });
     }
 
-    @RequestMapping(value = "reincorporacion", method = RequestMethod.GET)
+    @RequestMapping(value = "resolucionExistentes", method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode ciclosJson = new ArrayNode(JsonNodeFactory.instance);
-        List<CicloAcademico> cicloAcademicos = resolucionService.allCiclosToReincorporacion();
+        ArrayNode tipoResolucionJson = new ArrayNode(JsonNodeFactory.instance);
+
+        List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
+        for (TipoResolucion tipoResolucion : tipoResolucions) {
+            if (Arrays.asList(RCI.name(), REIC.name()).contains(tipoResolucion.getCodigo())) {
+                tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
+            }
+        }
+
+        List<CicloAcademico> cicloAcademicos = service.ciclosAnteriores(5);
         List<Oficina> oficinas = resolucionService.allOFicinasByUser(ds);
         for (Oficina oficina : oficinas) {
             ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"});
@@ -99,8 +118,9 @@ public class ResolucionReincorporacionController {
         }
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("oficinas", oficinasJson);
+        model.addAttribute("tiposResolucion", tipoResolucionJson);
         model.addAttribute("ciclos", ciclosJson);
-        return "academico/resolucion/resolucionreincorporacion/resolucionReincorporacion";
+        return "academico/resolucion/resolucionexistentes/resolucionExistentes";
     }
 
     @ResponseBody
@@ -114,7 +134,7 @@ public class ResolucionReincorporacionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
-            List<Alumno> alumnos = service.allAlumnoDesertorByNombre(nombre, instanciaOficina);
+            List<Alumno> alumnos = service.allAlumnoByOficina(nombre, instanciaOficina);
             for (Alumno alumno : alumnos) {
                 data.add(JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{
                     "id",
@@ -145,7 +165,17 @@ public class ResolucionReincorporacionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
-            List<Alumno> alumnos = service.save(resolucion, ds.getUsuario(), ds);
+            if (resolucion.getTipoResolucion().getCodigo().equals(REIC.name())) {
+
+                service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
+            } else {
+                List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
+                for (Alumno alumno : alumnos) {
+                    matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
+                    avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+                }
+
+            }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
@@ -169,18 +199,37 @@ public class ResolucionReincorporacionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<Reincorporacion> reincorporaciones = service.findByResolucion(resolucion, ds);
-
-            for (Reincorporacion reicorporacion : reincorporaciones) {
-                array.add(JsonHelper.createJson(reicorporacion, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "facultad.*",
-                    "alumno.*",
-                    "alumno.id",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "cicloReincorporacion.*"
-                }));
+            Resolucion resolucionDB = service.findByResolucion(resolucion, ds);
+            List<Reincorporacion> reincorporacions = new ArrayList<>();
+            List<RetiroCiclo> retiroCiclos = new ArrayList<>();
+            ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
+            if (resolucionDB.getTipoResolucion().getCodigo().equals(REIC.name())) {
+                reincorporacions = service.allReincorporacionByResolucion(resolucionDB);
+                for (Reincorporacion reicorporacion : reincorporacions) {
+                    objectNode = JsonHelper.createJson(reicorporacion, JsonNodeFactory.instance, new String[]{
+                        "*",
+                        "facultad.*",
+                        "alumno.*",
+                        "alumno.persona.*",
+                        "alumno.persona.tipoDocumento.*",
+                        "cicloReincorporacion.*"
+                    });
+                    objectNode.put("isReincorporacion", true);
+                    array.add(objectNode);
+                }
+            } else {
+                retiroCiclos = service.allRetiroCicloByResolucion(resolucionDB);
+                for (RetiroCiclo retiroCiclo : retiroCiclos) {
+                    objectNode = JsonHelper.createJson(retiroCiclo, JsonNodeFactory.instance, new String[]{
+                        "*",
+                        "alumno.*",
+                        "alumno.persona.*",
+                        "alumno.persona.tipoDocumento.*",
+                        "cicloAcademico.*"
+                    });
+                    objectNode.put("isReincorporacion", false);
+                    array.add(objectNode);
+                }
             }
             response.setSuccess(Boolean.TRUE);
             response.setData(array);
