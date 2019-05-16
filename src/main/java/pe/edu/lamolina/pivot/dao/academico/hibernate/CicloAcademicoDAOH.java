@@ -500,7 +500,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .join("ca.modalidadEstudio me")
-                .filter("ca.codigo", "<", cicloAcademico.getCodigo())
+                .filter("ca.codigo", "<=", cicloAcademico.getCodigo())
                 .filter("me.id", cicloAcademico.getModalidadEstudio())
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(ciclos);
