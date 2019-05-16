@@ -16,6 +16,8 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.tramite.AutorizacionRegistro;
@@ -102,6 +104,8 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
                 .left("cu.departamentoAcademico")
                 .filter("ca.tipo", "REG")
+                .filter("acc.estado", "!=", RCI)
+                .filter("acc.estado", "!=", RCU)
                 .in("al.id", alumnos)
                 .filter("registroActivo", 1)
                 .groupBy("al.id", "cu.id");
