@@ -118,7 +118,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .filter("ac.id", alumnoCiclo)
                 .filter("registroActivo", 1);
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override

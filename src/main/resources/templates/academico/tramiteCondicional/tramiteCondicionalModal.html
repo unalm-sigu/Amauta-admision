@@ -1,27 +1,27 @@
-<modal-vik ref="modalRetiroCiclo"
-           v-bind="modalRetiroCiclo"
-           v-bind:okaction="saveTramiteRetiroCiclo">
+<modal-vik ref="modalTramiteCondicional"
+           v-bind="modalTramiteCondicional"
+           v-bind:okaction="saveTramiteCondicional">
     <div slot="body">
         <div class="modal-body">
             <form id="form" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
                 <div class="row m-b-md">
                     <div class="form-group row">
-                        <div class="form-group row">
-                            <div class="col-md-12">
-                                <label>Tipo Tramite</label>
-                                <multiselect v-model="tramite.tipoTramite" 
-                                             v-bind:options='tiposTramite'
-                                             label="nombre"
-                                             track-by='id'
-                                             v-bind:show-labels="false"
-                                             v-bind:allow-empty="false"
-                                             v-bind:internal-search='false'
-                                             placeholder="Seleccione un tipo tramite"
-                                             required="true" >
-                                </multiselect>
-                                <input v-model="tramite.tipoTramite" required="true" type="text" class="hide"/>
-                            </div>
+                        <div class="col-md-12">
+                            <label>Tipo Tramite</label>
+                            <multiselect v-model="tramite.tipoTramite" 
+                                         v-bind:options='tiposTramite'
+                                         label="nombre"
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Seleccione un tipo tramite"
+                                         required="true" >
+                            </multiselect>
+                            <input v-model="tramite.tipoTramite" required="true" type="text" class="hide"/>
                         </div>
+                    </div>
+                    <div class="form-group row">
                         <div class="col-md-12">
                             <label>Alumno</label>
                             <multiselect v-model="tramite.alumno" 
@@ -63,10 +63,9 @@
                     <div class="form-group row">
                         <div class="col-md-12">
                             <label>Motivo</label>
-                            <textarea class="form-control textarea" v-model="tramite.motivo" minlength="15" required=""></textarea>
+                            <textarea class="form-control textarea" v-model="tramite.motivoResolucion" minlength="15" required=""></textarea>
                         </div>
                     </div>
-                    <hr/>
                 </div>
             </form>
         </div>

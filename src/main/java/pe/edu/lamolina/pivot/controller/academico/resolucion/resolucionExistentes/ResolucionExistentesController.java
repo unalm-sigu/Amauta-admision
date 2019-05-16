@@ -167,7 +167,11 @@ public class ResolucionExistentesController {
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
             if (resolucion.getTipoResolucion().getCodigo().equals(REIC.name())) {
 
-                service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
+                List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
+                for (Alumno alumno : alumnos) {
+                    matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
+                    matriculableService.revisarSituacionAcademica(alumno, ds);
+                }
             } else {
                 List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {

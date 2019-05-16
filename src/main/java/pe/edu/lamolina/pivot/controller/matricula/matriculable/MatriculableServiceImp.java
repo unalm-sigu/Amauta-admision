@@ -818,7 +818,6 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         aporteAlumnoService.generarAportes(alumno, ds.getCicloAcademico(), ds);
-        revisarSituacionAcademica(alumno, ds);
 
     }
 

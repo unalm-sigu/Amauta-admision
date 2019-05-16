@@ -1,0 +1,66 @@
+<modal-vik ref="modalTramiteResolucion"
+           v-bind="modalTramiteResolucion"
+           v-bind:okaction="aceptar">
+    <div slot="body">
+        <div class="modal-body">
+            <form id="formRes" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
+                <div class="row m-b-md">
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Oficina</label>
+                            <div class="form-group">
+                                <multiselect 
+                                    v-model="resolucion.oficina" 
+                                    v-bind:options="oficinas"
+                                    placeholder="Seleccione una oficina"
+                                    label="nombre"
+                                    v-bind:allow-empty="false"
+                                    deselect-label="No se puede eliminar este valor"
+                                    track-by="id" 
+                                    required="true"
+                                    >
+                                </multiselect>
+                                <input v-model="resolucion.oficina" required="true" type="text" class="hide"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Fecha Resolución</label>
+                                <div class="input-group date">
+                                    <date-picker v-model="resolucion.fecha" required="true" v-bind:config="configDate" data-parsley-id="2" v-bind:wrap="true" ></date-picker>  
+                                    <div class="input-group-addon">
+                                        <span class="fa fa-calendar"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Serie</label>
+                            <div class="form-group">
+                                <input type="text"
+                                       v-model="resolucion.serie"
+                                       class="form-control" 
+                                       required="true"></input>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Número</label>
+                            <div class="form-group">
+                                <input type="text"
+                                       v-model="resolucion.numero"
+                                       class="form-control" 
+                                       required="true"> </input>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</modal-vik>

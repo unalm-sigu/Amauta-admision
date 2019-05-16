@@ -15,20 +15,22 @@ public interface TramiteCondicionalService {
 
     public List<CicloAcademico> allCiclos(CicloAcademico academico);
 
-    public List<RetiroCiclo> allByCiclo(CicloAcademico cicloAcademico, DynatableFilter filter);
+    public List<Tramite> allByCiclo(CicloAcademico cicloAcademico, DynatableFilter filter);
 
     public void saveRetiroCiclo(Tramite tramite, DataSessionPivot ds);
 
-    public MatriculaResumen update(RetiroCiclo retiroCiclo, DataSessionPivot ds);
+    public void updateRetiroCiclo(Tramite tramite, DataSessionPivot ds);
 
     public Parametro findParametro();
 
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
-    public void createToken(RetiroCiclo retiroCiclo, DataSessionPivot ds);
+    public void createToken(DataSessionPivot ds);
 
     public List<TipoTramite> allTipoTramite();
 
     public void saveReincorporacion(Tramite tramite, DataSessionPivot ds);
+
+    public void updateReincorporacion(Tramite tramite, DataSessionPivot ds);
 
 }
