@@ -148,6 +148,7 @@ public class TramiteCondicionalController {
             json.setData(arrayNode);
             json.setFiltered(filter.getFiltered());
             json.setTotal(filter.getTotal());
+            json.setHeader(filter);
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);

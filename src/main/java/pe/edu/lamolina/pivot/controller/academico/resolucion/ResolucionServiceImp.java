@@ -355,7 +355,7 @@ public class ResolucionServiceImp implements ResolucionService {
                     alumnoDAO.update(alumno);
 
                     matriculableService.revisarSituacionAcademica(tramite.getAlumno(), ds);
-                    matriculableService.saveMatriculable(tramite.getAlumno(), TipoCondicionalEnum.OTRO.name(), ds);
+                    matriculableService.saveMatriculable(tramite.getAlumno(), TipoCondicionalEnum.REI.name(), ds);
                 } else {
                     tramiteUpd.setEstadoEnum(TramiteEstadoEnum.RCHR);
                 }
