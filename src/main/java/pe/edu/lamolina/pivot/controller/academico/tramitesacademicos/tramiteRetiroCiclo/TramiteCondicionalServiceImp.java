@@ -438,12 +438,12 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         if (alumno != null) {
             throw new PhobosException("El alumno" + alumno.getCodigo() + " ya cuenta con una resolución para el ciclo activo");
         }
-        alumno.setEsMatriculaCondicional(Boolean.TRUE);
         DateTime today = new DateTime();
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
         alumno = alumnoDAO.find(tramite.getAlumno());
+        alumno.setEsMatriculaCondicional(Boolean.TRUE);
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_REI);
 
