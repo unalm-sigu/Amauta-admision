@@ -35,6 +35,7 @@ import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.academico.CursoEquivalenteElectivo;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
@@ -45,10 +46,13 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.CRE;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ECC;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ECP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.EEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELE;
@@ -254,6 +258,16 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional
     public PlanCurricular savePlanCurricular(PlanCurricular planForm) {
         ObjectUtil.eliminarAttrSinId(planForm);
+
+        Carrera carreraForm = planForm.getCarrera();
+        Carrera carreraBD = carreraDAO.find(carreraForm.getId());
+        CicloAcademico cicloInicioForm = planForm.getCicloInicioVigencia();
+        CicloAcademico cicloInicioBD = cicloAcademicoDAO.find(cicloInicioForm.getId());
+        ModalidadEstudio modalidadCarrera = carreraBD.getModalidadEstudio();
+        ModalidadEstudio modalidadCiclo = cicloInicioBD.getModalidadEstudio();
+
+        Assert.isTrue(modalidadCarrera.getId() == modalidadCiclo.getId().longValue(), "La modalidad de estudio de la especialidad debe ser la misma del ciclo de inicio de vigencia");
+
         planForm.setEstadoEnum(EstadoEnum.CRE);
         planCurricularDAO.save(planForm);
         List<String> list = Arrays.asList(ELE.name(), EEP.name());
@@ -287,7 +301,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional
     public void saveCursoCurricula(CursoCurricula cursoCurricula, DataSessionPivot ds) {
         verificarExistenciaCurso(cursoCurricula.getCurso(), cursoCurricula.getPlanCurricular());
-        
+
         Integer nroCurso = 1;
         Integer nroCiclo = cursoCurricula.getNumeroCiclo();
         PlanCurricular plan = cursoCurricula.getPlanCurricular();
@@ -780,11 +794,16 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     public List<TipoCursoCurricula> allTiposCursoCurriculaByPlan(PlanCurricular plan) {
         Carrera carrera = plan.getCarrera();
+        ModalidadEstudio modalidad = carrera.getModalidadEstudio();
         List<TipoCursoCurricula> tipos = tipoCursoCurriculaDAO.all();
         List<TipoCursoCurricula> tiposEnvio = new ArrayList();
 
         for (TipoCursoCurricula tipo : tipos) {
-            if (tipo.getCodigoEnum() == CULT) {
+            if (modalidad.getCodigoEnum() == ModalidadEstudioEnum.EPG) {
+                if (Arrays.asList(OBL, ECP, ECC).contains(tipo.getCodigoEnum())) {
+                    tiposEnvio.add(tipo);
+                }
+            } else if (tipo.getCodigoEnum() == CULT) {
                 if (carrera.getCodigo().equals("010")) { // Solo agronomia
                     tiposEnvio.add(tipo);
                 }
@@ -796,7 +815,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 if (carrera.getCodigo().equals("060")) { // Solo zootecnia
                     tiposEnvio.add(tipo);
                 }
-            } else if (!Arrays.asList(EEP, ELE).contains(tipo.getCodigoEnum())) {
+            } else if (!Arrays.asList(EEP, ELE, ECP, ECC).contains(tipo.getCodigoEnum())) {
                 tiposEnvio.add(tipo);
             }
         }
@@ -806,14 +825,18 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     public List<TipoCursoCurricula> allTiposCursoCurriculasElectivosByPlan(PlanCurricular plan) {
         Carrera carrera = plan.getCarrera();
+        ModalidadEstudio modalidad = carrera.getModalidadEstudio();
         List<TipoCursoCurricula> tiposEnvio = new ArrayList();
         List<TipoCursoCurricula> tiposTodos = tipoCursoCurriculaDAO.all();
 
         for (TipoCursoCurricula tipo : tiposTodos) {
-            if (Arrays.asList(ELC).contains(tipo.getCodigoEnum())) {
+            if (modalidad.getCodigoEnum() == ModalidadEstudioEnum.EPG) {
+                if (Arrays.asList(ECP, ECC).contains(tipo.getCodigoEnum())) {
+                    tiposEnvio.add(tipo);
+                }
+            } else if (tipo.getCodigoEnum() == ELC) {
                 tiposEnvio.add(tipo);
-            }
-            if (tipo.getCodigoEnum() == CULT) {
+            } else if (tipo.getCodigoEnum() == CULT) {
                 if (carrera.getCodigo().equals("010")) { // Solo agronomia
                     tiposEnvio.add(tipo);
                 }

@@ -121,7 +121,6 @@ $(function () {
         record: null,
         flag: "",
         init: function () {
-//            $('.date').datepicker();
             if (NuevaCurricula.idPlan != null) {
                 $(NuevaCurricula.numeroCicloElegido).attr("rel", "1")
                 NuevaCurricula.numeroCicloElegido = $("li.ver-tab-ciclo-cur-obl").first();
@@ -148,6 +147,9 @@ $(function () {
                     allowClear: true,
                     placeholder: "Seleccione una orientación"
                 });
+
+                $("#pregrado").addClass("hide");
+                $("#posgrado").addClass("hide");
             }
 
             if (NuevaCurricula.idPlan == "") {
@@ -935,6 +937,7 @@ $(function () {
                 async: false,
                 success: function (response) {
                     NuevaCurricula.tipoCursoCurricula = response.data;
+                    console.log(NuevaCurricula.tipoCursoCurricula)
 
                     //$("#txtCreditoReq").removeAttr("required");
                     $("#txtCreditos").attr("required", true);
@@ -975,6 +978,10 @@ $(function () {
                     if (response.data.tieneCreditoManual) {
                         $('#txtCreditos').prop("readonly", false);
                         $("#txtCreditos").val("");
+                    } else {
+                        if (response.data.cursoDefault != undefined) {
+                            $("#txtCreditos").val(response.data.cursoDefault.creditos);
+                        }
                     }
                     if (response.data.cursoDefault != null && response.data.cursoDefault != undefined) {
                         $("#cboCurso").select2("data", response.data.cursoDefault);
@@ -1657,8 +1664,12 @@ $(function () {
             var wwLine = 2;
             var wwBoldLine = 6;
 
-            var colorBG = {GEN: "#F39C12", OBL: "#1E8449", ELC: "#AAB7B8", ELF: "#AAB7B8", ELE: "#AAB7B8", PROD: "#C70039", CULT: "#267DD4", TECIND: "#FF5733"};
-            var colorLetra = {GEN: "#fff", OBL: "#fff", ELC: "#fff", ELF: "#fff", ELE: "#fff", PROD: "#fff", CULT: "#fff", TECIND: "#fff"};
+            var colorBG = {
+                GEN: "#F39C12", OBL: "#1E8449", EEP: "#7A3CE7", ECP: "#1EB4F1", ECC: "#289C0E",
+                ELC: "#AAB7B8", ELF: "#AAB7B8", ELE: "#AAB7B8", PROD: "#C70039", CULT: "#267DD4", TECIND: "#FF5733"};
+            var colorLetra = {
+                GEN: "#fff", OBL: "#fff", EEP: "#fff", ECP: "#fff", ECC: "#fff",
+                ELC: "#fff", ELF: "#fff", ELE: "#fff", PROD: "#fff", CULT: "#fff", TECIND: "#fff"};
             var colorLine = "#E74C3C";
             var colorDot = "#34495E";
             var colorArrow = "#D7DBDD";
@@ -2169,6 +2180,7 @@ $(function () {
     $("body").delegate(".ver-equivalentes", "click", function (e) {
         NuevaCurricula.verEquivalentes($(this), e, "obli");
     });
+
     $("body").delegate(".ver-equivalentes-elec", "click", function (e) {
         NuevaCurricula.verEquivalentesElec($(this), e, "obli");
     });
@@ -2208,6 +2220,7 @@ $(function () {
     $("body").delegate(".btn-delete-grupo-equivalente", "click", function (e) {
         NuevaCurricula.deleteGrupoEquivalente($(this), e);
     });
+
     $("body").delegate(".btn-delete-grupo-equivalente-electivo", "click", function (e) {
         NuevaCurricula.deleteGrupoEquivalenteElectivo($(this), e);
     });
@@ -2235,9 +2248,11 @@ $(function () {
     $("body").delegate(".table-data td.ELC", "click", function (e) {
         NuevaCurricula.editCreditos($(this), e, 'ELC');
     });
+
     $("body").delegate(".table-data td.EEP", "click", function (e) {
         NuevaCurricula.editCreditos($(this), e), 'EEP';
     });
+
     $("body").delegate(".tabledata tr").on('keyup', 'input.editfield', function (e) {
         if (e.which == 13) {
             NuevaCurricula.save($(this), e);

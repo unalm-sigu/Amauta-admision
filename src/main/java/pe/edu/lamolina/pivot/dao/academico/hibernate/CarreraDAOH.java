@@ -37,6 +37,16 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
+    public Carrera find(long id) {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .filter("ca.id", id);
+
+        return find(sql);
+    }
+
+    @Override
     public Carrera findByCodigo(String codigo) {
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
@@ -91,16 +101,6 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .filter("co.id", compania);
 
         return all(sql);
-    }
-
-    @Override
-    public Carrera find(Long id) {
-        Octavia sql = Octavia.query()
-                .from(Carrera.class, "ca")
-                .join("modalidadEstudio me", "facultad fa")
-                .filter("ca.id", id);
-
-        return find(sql);
     }
 
     @Override
@@ -340,6 +340,17 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
 
         return all(sql);
 
+    }
+
+    @Override
+    public List<Carrera> allPrePosGrado() {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "car")
+                .join("modalidadEstudio me", "facultad fa")
+                .in("me.codigo", Arrays.asList(ModalidadEstudioEnum.PRE, ModalidadEstudioEnum.EPG))
+                .orderBy("carr.nombre");
+
+        return all(sql);
     }
 
 }

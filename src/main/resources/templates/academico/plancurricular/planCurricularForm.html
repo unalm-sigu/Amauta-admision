@@ -34,14 +34,17 @@
                 <a  href="#" class="btn btn-default btn-sm cancelar">Regresar</a>
             </div>
 
-            <h2 th:if="${planCurricular.id}" th:inline="text" class="m-b-n">
-                Plan de Estudios de [[${planCurricular.carrera.nombre}]]
-            </h2>
+            <div th:if="${planCurricular.id}" >
+                <h2 th:inline="text" class="m-b-n"
+                    th:if="${planCurricular.carrera.modalidadEstudio.codigo=='PRE'}">
+                    Plan de Estudios: [[${planCurricular.carrera.nombre}]]
+                </h2>
+                <h2 th:inline="text" class="m-b-n"
+                    th:if="${planCurricular.carrera.modalidadEstudio.codigo=='EPG'}">
+                    Plan de Estudios: [[${planCurricular.carrera.tipoEnum.value}]] en [[${planCurricular.carrera.nombre}]]
+                </h2>
+            </div>
             <div th:if="${planCurricular.id}">
-                <span class="block" 
-                      th:if="${planCurricular.carrera.modalidadEstudio.codigo=='EPG'}" th:inline="text">
-                    [[${planCurricular.carrera.tipo}]]
-                </span>
                 <span class="block" 
                       th:if="${planCurricular.carrera.modalidadEstudio.codigo=='PRE'}" th:inline="text">
                     Facultad [[${planCurricular.carrera.facultad.nombre}]] - [[${planCurricular.carrera.modalidadEstudio.nombre}]]
@@ -102,7 +105,7 @@
                     </div>
 
                 </section>
-                
+
                 <section class="panel-footer text-center"
                          th:unless="${planCurricular.id}">
                     <a  href="#" id="cmbSavePlanCurricular" class="btn btn-primary btn-sm">Crear Plan de Estudios</a>
@@ -110,8 +113,8 @@
 
 
             </section>
-            
-            
+
+
         </div>
 
         <div th:substituteby="templates/modal"/>
