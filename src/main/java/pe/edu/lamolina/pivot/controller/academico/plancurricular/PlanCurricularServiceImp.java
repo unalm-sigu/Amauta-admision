@@ -48,7 +48,9 @@ import static pe.edu.lamolina.model.enums.EstadoEnum.CRE;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ADIC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ECC;
@@ -300,7 +302,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional
     public void saveCursoCurricula(CursoCurricula cursoCurricula, DataSessionPivot ds) {
-        verificarExistenciaCurso(cursoCurricula.getCurso(), cursoCurricula.getPlanCurricular());
+        Curso curso = cursoDAO.find(cursoCurricula.getCurso().getId());
+        TipoCursoCurricula tipoCurricula = tipoCursoCurriculaDAO.find(cursoCurricula.getTipoCursoCurricula().getId());
+        verificarExistenciaCurso(curso, cursoCurricula.getPlanCurricular(), tipoCurricula, cursoCurricula.getCreditos());
 
         Integer nroCurso = 1;
         Integer nroCiclo = cursoCurricula.getNumeroCiclo();
@@ -330,7 +334,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (RequisitoCursoCurricula requisito : requisitos) {
             requisitoCursoCurriculaDAO.save(requisito);
         }
-        Curso curso = cursoDAO.find(cursoCurricula.getCurso().getId());
+        //Curso curso = cursoDAO.find(cursoCurricula.getCurso().getId());
         if (curso.getCodigo().equals(CODIGO_CURSO_DEP)) {
             TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
             cursoCurricula.setTipoCursoCurricula(tipoCursoCurricula);
@@ -596,7 +600,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional
     public void saveCursoAdicional(CursoAdicionalCurricula cursoAdicional, DataSessionPivot ds) {
-        verificarExistenciaCurso(cursoAdicional.getCurso(), cursoAdicional.getPlanCurricular());
+        Curso curso = cursoDAO.find(cursoAdicional.getCurso().getId());
+        TipoCursoCurricula tipoCurricula = new TipoCursoCurricula();
+        tipoCurricula.setCodigo(ADIC);
+        verificarExistenciaCurso(curso, cursoAdicional.getPlanCurricular(), tipoCurricula, 0);
 
         cursoAdicional.setUserRegistro(ds.getUsuario());
         cursoAdicional.setFechaRegistro(new Date());
@@ -606,7 +613,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional
     public void saveCursoOpcional(CursoOpcionalCurricula cursoOpcional, DataSessionPivot ds) {
-        verificarExistenciaCurso(cursoOpcional.getCurso(), cursoOpcional.getPlanCurricular());
+        Curso curso = cursoDAO.find(cursoOpcional.getCurso().getId());
+        TipoCursoCurricula tipoCurricula = tipoCursoCurriculaDAO.find(cursoOpcional.getTipoCursoCurricula().getId());
+        verificarExistenciaCurso(curso, cursoOpcional.getPlanCurricular(), tipoCurricula, cursoOpcional.getCreditos());
 
         List<RequisitoCursoOpcional> requisitos = cursoOpcional.getCursosOpcionales();
         requisitos = (requisitos == null) ? new ArrayList() : requisitos;
@@ -962,20 +971,39 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         return mapCursosOpcionales.get(curso.getId());
     }
 
-    private void verificarExistenciaCurso(Curso curso, PlanCurricular planCurricular) {
-        CursoCurricula cursoCurricula = findCursoCurriculaByCursoPlan(curso, planCurricular);
-        if (cursoCurricula != null && Arrays.asList(ELE, ELC, PROD, TECIND).contains(cursoCurricula.getTipoCursoCurricula().getCodigoEnum())) {
+    private void verificarExistenciaCurso(Curso curso, PlanCurricular planCurricular, TipoCursoCurricula tipoCurricula, int creditosNuevos) {
+        Assert.isNotNull(curso.getTipoCredito(), "Este curso no tiene definido el tipo de crédito");
+
+        if (Arrays.asList(OBL, GEN).contains(tipoCurricula.getCodigoEnum())) {
+            List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByCursoPlan(curso, planCurricular);
+            if (!cursosCurricula.isEmpty()) {
+                Assert.isTrue(curso.getTipoCreditoEnum() == TipoCreditoEnum.VAR, "Solo cursos con créditos variable pueden ser ingresados en diferentes ciclos");
+                for (CursoCurricula cursoCurr : cursosCurricula) {
+                    boolean esMismoTipoCurricula = tipoCurricula.getId() == cursoCurr.getTipoCursoCurricula().getId().longValue();
+                    Assert.isTrue(esMismoTipoCurricula, "Este curso ya existe como " + cursoCurr.getTipoCursoCurricula().getNombre());
+                }
+            }
+
+            if (curso.getTipoCreditoEnum() == TipoCreditoEnum.VAR) {
+                int creditosPrevios = 0;
+                for (CursoCurricula cursoCurricula : cursosCurricula) {
+                    creditosPrevios += cursoCurricula.getCreditos();
+                }
+                boolean dentroRangoCreditos = creditosPrevios + creditosNuevos <= curso.getCreditosVariables();
+                Assert.isTrue(dentroRangoCreditos, "No puede exceder un total de " + curso.getCreditosVariables() + " créditos");
+            }
+
+        } else if (Arrays.asList(ELC, PROD, TECIND, ECC, ECP).contains(tipoCurricula.getCodigoEnum())) {
+            CursoOpcionalCurricula cursoOpcional = findCursoOpcionalByCursoPlan(curso, planCurricular);
+            Assert.isNull(cursoOpcional, "Este curso ya existe en el grupo de electivos");
+
         } else {
-            Assert.isNull(cursoCurricula, "Este curso ya existe en el grupo de obligatorios o generales");
+
+            List<CursoAdicionalCurricula> cursosAdicionales = cursoAdicionalCurriculaDAO.allByPlanCurricular(planCurricular);
+            Map<Long, CursoAdicionalCurricula> mapCursosAdicionales = TypesUtil.convertListToMap("curso.id", cursosAdicionales);
+            CursoAdicionalCurricula cursoAdicional = mapCursosAdicionales.get(curso.getId());
+            Assert.isNull(cursoAdicional, "Este curso ya existe en el grupo de adicionales");
         }
-
-        CursoOpcionalCurricula cursoOpcional = findCursoOpcionalByCursoPlan(curso, planCurricular);
-        Assert.isNull(cursoOpcional, "Este curso ya existe en el grupo de electivos");
-
-        List<CursoAdicionalCurricula> cursosAdicionales = cursoAdicionalCurriculaDAO.allByPlanCurricular(planCurricular);
-        Map<Long, CursoAdicionalCurricula> mapCursosAdicionales = TypesUtil.convertListToMap("curso.id", cursosAdicionales);
-        CursoAdicionalCurricula cursoAdicional = mapCursosAdicionales.get(curso.getId());
-        Assert.isNull(cursoAdicional, "Este curso ya existe en el grupo de adicionales");
 
     }
 
