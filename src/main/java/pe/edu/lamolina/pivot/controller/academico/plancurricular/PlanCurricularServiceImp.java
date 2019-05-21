@@ -50,9 +50,9 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
-import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ADIC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.EAD;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ECC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ECP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.EEP;
@@ -176,6 +176,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Autowired
     VisorAsignaCurricula visorAsignaCurricula;
 
+    private enum NivelEnum {
+        OBLIGATORIO, OPCIONAL, ADICIONAL
+    };
+
     @Override
     public List<Carrera> allCarreras(List<Carrera> carreras) {
         return carreraDAO.allRegularesByCarreras(carreras);
@@ -268,21 +272,25 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         ModalidadEstudio modalidadCarrera = carreraBD.getModalidadEstudio();
         ModalidadEstudio modalidadCiclo = cicloInicioBD.getModalidadEstudio();
 
-        Assert.isTrue(modalidadCarrera.getId() == modalidadCiclo.getId().longValue(), "La modalidad de estudio de la especialidad debe ser la misma del ciclo de inicio de vigencia");
+        boolean esMismaModalidad = modalidadCarrera.getId() == modalidadCiclo.getId().longValue();
+        Assert.isTrue(esMismaModalidad, "La modalidad de estudio de la especialidad debe ser la misma del ciclo de inicio de vigencia");
 
         planForm.setEstadoEnum(EstadoEnum.CRE);
         planCurricularDAO.save(planForm);
-        List<String> list = Arrays.asList(ELE.name(), EEP.name());
-        List<TipoCursoCurricula> tipoCursoCurriculas = tipoCursoCurriculaDAO.allByCodigos(list);
 
-        for (TipoCursoCurricula tipoCursoCurricula : tipoCursoCurriculas) {
-            ResumenPlanCurricular resumenPlanCurricular = new ResumenPlanCurricular();
-            resumenPlanCurricular.setCreditos(0);
-            resumenPlanCurricular.setCursos(0);
-            resumenPlanCurricular.setPlanCurricular(planForm);
-            resumenPlanCurricular.setTipoCursoCurricula(tipoCursoCurricula);
-            resumenPlanCurricular.setMinimoCreditos(0);
-            resumenPlanCurricularDAO.save(resumenPlanCurricular);
+        if (modalidadCarrera.getCodigoEnum() == ModalidadEstudioEnum.PRE) {
+            List<String> codigosTipoCurr = Arrays.asList(ELE.name(), EEP.name());
+            List<TipoCursoCurricula> tipoCursoCurriculas = tipoCursoCurriculaDAO.allByCodigos(codigosTipoCurr);
+
+            for (TipoCursoCurricula tipoCursoCurricula : tipoCursoCurriculas) {
+                ResumenPlanCurricular resumenPlan = new ResumenPlanCurricular();
+                resumenPlan.setCreditos(0);
+                resumenPlan.setCursos(0);
+                resumenPlan.setPlanCurricular(planForm);
+                resumenPlan.setTipoCursoCurricula(tipoCursoCurricula);
+                resumenPlan.setMinimoCreditos(0);
+                resumenPlanCurricularDAO.save(resumenPlan);
+            }
         }
 
         return planForm;
@@ -302,12 +310,12 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional
     public void saveCursoCurricula(CursoCurricula cursoCurricula, DataSessionPivot ds) {
+        Integer nroCiclo = cursoCurricula.getNumeroCiclo();
         Curso curso = cursoDAO.find(cursoCurricula.getCurso().getId());
         TipoCursoCurricula tipoCurricula = tipoCursoCurriculaDAO.find(cursoCurricula.getTipoCursoCurricula().getId());
-        verificarExistenciaCurso(curso, cursoCurricula.getPlanCurricular(), tipoCurricula, cursoCurricula.getCreditos());
+        verificarExistenciaCurso(curso, cursoCurricula.getPlanCurricular(), tipoCurricula, cursoCurricula.getCreditos(), NivelEnum.OBLIGATORIO, nroCiclo);
 
         Integer nroCurso = 1;
-        Integer nroCiclo = cursoCurricula.getNumeroCiclo();
         PlanCurricular plan = cursoCurricula.getPlanCurricular();
         List<CursoCurricula> cursosCurr = cursoCurriculaDAO.allByPlanCurricularNroCiclo(plan, nroCiclo);
         for (CursoCurricula cursoCurr : cursosCurr) {
@@ -601,9 +609,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional
     public void saveCursoAdicional(CursoAdicionalCurricula cursoAdicional, DataSessionPivot ds) {
         Curso curso = cursoDAO.find(cursoAdicional.getCurso().getId());
-        TipoCursoCurricula tipoCurricula = new TipoCursoCurricula();
-        tipoCurricula.setCodigo(ADIC);
-        verificarExistenciaCurso(curso, cursoAdicional.getPlanCurricular(), tipoCurricula, 0);
+        verificarExistenciaCurso(curso, cursoAdicional.getPlanCurricular(), null, 0, NivelEnum.ADICIONAL, 0);
 
         cursoAdicional.setUserRegistro(ds.getUsuario());
         cursoAdicional.setFechaRegistro(new Date());
@@ -615,7 +621,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     public void saveCursoOpcional(CursoOpcionalCurricula cursoOpcional, DataSessionPivot ds) {
         Curso curso = cursoDAO.find(cursoOpcional.getCurso().getId());
         TipoCursoCurricula tipoCurricula = tipoCursoCurriculaDAO.find(cursoOpcional.getTipoCursoCurricula().getId());
-        verificarExistenciaCurso(curso, cursoOpcional.getPlanCurricular(), tipoCurricula, cursoOpcional.getCreditos());
+        verificarExistenciaCurso(curso, cursoOpcional.getPlanCurricular(), tipoCurricula, cursoOpcional.getCreditos(), NivelEnum.OPCIONAL, 0);
 
         List<RequisitoCursoOpcional> requisitos = cursoOpcional.getCursosOpcionales();
         requisitos = (requisitos == null) ? new ArrayList() : requisitos;
@@ -809,7 +815,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         for (TipoCursoCurricula tipo : tipos) {
             if (modalidad.getCodigoEnum() == ModalidadEstudioEnum.EPG) {
-                if (Arrays.asList(OBL, ECP, ECC).contains(tipo.getCodigoEnum())) {
+                if (Arrays.asList(OBL, ECP, ECC, EAD).contains(tipo.getCodigoEnum())) {
                     tiposEnvio.add(tipo);
                 }
             } else if (tipo.getCodigoEnum() == CULT) {
@@ -824,7 +830,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 if (carrera.getCodigo().equals("060")) { // Solo zootecnia
                     tiposEnvio.add(tipo);
                 }
-            } else if (!Arrays.asList(EEP, ELE, ECP, ECC).contains(tipo.getCodigoEnum())) {
+            } else if (!Arrays.asList(EEP, ELE, ECP, ECC, EAD).contains(tipo.getCodigoEnum())) {
                 tiposEnvio.add(tipo);
             }
         }
@@ -840,7 +846,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         for (TipoCursoCurricula tipo : tiposTodos) {
             if (modalidad.getCodigoEnum() == ModalidadEstudioEnum.EPG) {
-                if (Arrays.asList(ECP, ECC).contains(tipo.getCodigoEnum())) {
+                if (Arrays.asList(ECP, ECC, EAD).contains(tipo.getCodigoEnum())) {
                     tiposEnvio.add(tipo);
                 }
             } else if (tipo.getCodigoEnum() == ELC) {
@@ -971,38 +977,56 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         return mapCursosOpcionales.get(curso.getId());
     }
 
-    private void verificarExistenciaCurso(Curso curso, PlanCurricular planCurricular, TipoCursoCurricula tipoCurricula, int creditosNuevos) {
-        Assert.isNotNull(curso.getTipoCredito(), "Este curso no tiene definido el tipo de crédito");
+    private void verificarExistenciaCurso(
+            Curso curso,
+            PlanCurricular planCurricular,
+            TipoCursoCurricula tipoCurricula,
+            int creditosNuevos,
+            NivelEnum nivel,
+            int nroCiclo) {
 
-        if (Arrays.asList(OBL, GEN).contains(tipoCurricula.getCodigoEnum())) {
-            List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByCursoPlan(curso, planCurricular);
-            if (!cursosCurricula.isEmpty()) {
-                Assert.isTrue(curso.getTipoCreditoEnum() == TipoCreditoEnum.VAR, "Solo cursos con créditos variable pueden ser ingresados en diferentes ciclos");
-                for (CursoCurricula cursoCurr : cursosCurricula) {
-                    boolean esMismoTipoCurricula = tipoCurricula.getId() == cursoCurr.getTipoCursoCurricula().getId().longValue();
-                    Assert.isTrue(esMismoTipoCurricula, "Este curso ya existe como " + cursoCurr.getTipoCursoCurricula().getNombre());
-                }
-            }
-
-            if (curso.getTipoCreditoEnum() == TipoCreditoEnum.VAR) {
-                int creditosPrevios = 0;
-                for (CursoCurricula cursoCurricula : cursosCurricula) {
-                    creditosPrevios += cursoCurricula.getCreditos();
-                }
-                boolean dentroRangoCreditos = creditosPrevios + creditosNuevos <= curso.getCreditosVariables();
-                Assert.isTrue(dentroRangoCreditos, "No puede exceder un total de " + curso.getCreditosVariables() + " créditos");
-            }
-
-        } else if (Arrays.asList(ELC, PROD, TECIND, ECC, ECP).contains(tipoCurricula.getCodigoEnum())) {
-            CursoOpcionalCurricula cursoOpcional = findCursoOpcionalByCursoPlan(curso, planCurricular);
-            Assert.isNull(cursoOpcional, "Este curso ya existe en el grupo de electivos");
-
-        } else {
-
+        if (nivel == NivelEnum.ADICIONAL) {
             List<CursoAdicionalCurricula> cursosAdicionales = cursoAdicionalCurriculaDAO.allByPlanCurricular(planCurricular);
             Map<Long, CursoAdicionalCurricula> mapCursosAdicionales = TypesUtil.convertListToMap("curso.id", cursosAdicionales);
             CursoAdicionalCurricula cursoAdicional = mapCursosAdicionales.get(curso.getId());
             Assert.isNull(cursoAdicional, "Este curso ya existe en el grupo de adicionales");
+            return;
+        }
+
+        if (nivel == NivelEnum.OBLIGATORIO) {
+            if (TipoCurriculaEnum.COMD != curso.getTipoCurriculaEnum()) {
+                Assert.isNotNull(curso.getTipoCredito(), "Este curso no tiene definido el tipo de crédito");
+            }
+
+            List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByCursoPlan(curso, planCurricular);
+            if (Arrays.asList(OBL, GEN).contains(tipoCurricula.getCodigoEnum())) {
+                if (!cursosCurricula.isEmpty()) {
+                    Assert.isTrue(curso.getTipoCreditoEnum() == TipoCreditoEnum.VAR, "Solo cursos con créditos variable pueden ser ingresados en diferentes ciclos");
+                    for (CursoCurricula cursoCurr : cursosCurricula) {
+                        boolean esMismoTipoCurricula = tipoCurricula.getId() == cursoCurr.getTipoCursoCurricula().getId().longValue();
+                        Assert.isTrue(esMismoTipoCurricula, "Este curso ya existe como " + cursoCurr.getTipoCursoCurricula().getNombre());
+                    }
+                }
+
+                if (curso.getTipoCreditoEnum() == TipoCreditoEnum.VAR) {
+                    int creditosPrevios = 0;
+                    for (CursoCurricula cursoCurricula : cursosCurricula) {
+                        creditosPrevios += cursoCurricula.getCreditos();
+                    }
+                    boolean dentroRangoCreditos = creditosPrevios + creditosNuevos <= curso.getCreditosVariables();
+                    Assert.isTrue(dentroRangoCreditos, "No puede exceder un total de " + curso.getCreditosVariables() + " créditos");
+                }
+
+            }
+            for (CursoCurricula cursoCurr : cursosCurricula) {
+                Assert.isFalse(cursoCurr.getNumeroCiclo() == nroCiclo, "No se puede agregar el mismo curso en mismo ciclo");
+            }
+            return;
+        }
+
+        if (nivel == NivelEnum.OPCIONAL) {
+            CursoOpcionalCurricula cursoOpcional = findCursoOpcionalByCursoPlan(curso, planCurricular);
+            Assert.isNull(cursoOpcional, "Este curso ya existe en el grupo de electivos");
         }
 
     }

@@ -1,6 +1,6 @@
-
 $(function () {
     $(".date").datepickerBoot();
+
     var dynatableCursosObl = $('#dynaTableCurObl').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/planCurricular/cursosObligatorios'),
@@ -114,6 +114,7 @@ $(function () {
     }
 
     NuevaCurricula = {
+        codeModalidad: '',
         idPlan: $("#txtPlanCurricular").val(),
         numeroCicloElegido: null,
         pestanaCicloCurElecElegida: null,
@@ -175,22 +176,22 @@ $(function () {
                     formatSelection: function (carrera) {
                         var option = carrera.element;
                         var facultad = $(option).data('facultad');
-                        var modalidad = $(option).data('modalidad');
-                        var codeModalidad = $(option).data('code-modalidad');
                         var tipo = $(option).data('tipo');
+                        var modalidad = $(option).data('modalidad');
+                        NuevaCurricula.codeModalidad = $(option).data('code-modalidad');
 
                         $("#pregrado").addClass("hide");
                         $("#posgrado").addClass("hide");
 
-                        if (codeModalidad == 'PRE') {
+                        if (NuevaCurricula.codeModalidad == 'PRE') {
                             $("#pregrado").removeClass("hide");
                             $("#facultad").html(facultad);
-                            $("#modalidad").html(modalidad);
+                            $("#modalidad-pre").html(modalidad);
                         }
-                        if (codeModalidad == 'EPG') {
+                        if (NuevaCurricula.codeModalidad == 'EPG') {
                             $("#posgrado").removeClass("hide");
                             $("#tipo").html(tipo);
-                            $("#modalidad2").html(modalidad);
+                            $("#modalidad-epg").html(modalidad);
                         }
 
                         return carrera.text;
@@ -895,24 +896,44 @@ $(function () {
         },
         cambiarComboCarrera($this, e) {
             var carr = $("#cboCarrera").val();
-            $("#cboOrientacion").select2("destroy");
-            $("#cboOrientacion").removeAttr("required");
-            $("#cboOrientacion").html("");
-            $("#divOrientacion").hide();
+            $("#cbo-orientacion-pre").select2("destroy");
+            $("#cbo-orientacion-pre").removeAttr("name");
+            $("#cbo-orientacion-pre").removeAttr("required");
+            $("#cbo-orientacion-pre").html("");
+            $("#div-orientacion-pre").hide();
+
+            $("#cbo-orientacion-pre").select2("destroy");
+            $("#cbo-orientacion-pre").removeAttr("name");
+            $("#cbo-orientacion-pre").removeAttr("required");
+            $("#cbo-orientacion-pre").html("");
+            $("#div-orientacion-epg").hide();
 
             if (!isNaN(carr)) {
                 if (carr > 0) {
+
                     $.ajax({
                         url: APP.url('academico/planCurricular/' + carr + '/orientacionCarrera'),
                         type: 'POST',
                         async: false,
                         success: function (response) {
-
+                            console.log(response)
                             if (response != "") {
-                                $("#divOrientacion").show();
-                                $("#cboOrientacion").html(response);
-                                $("#cboOrientacion").attr("required", "yes");
-                                $("#cboOrientacion").select2();
+
+                                if (NuevaCurricula.codeModalidad == 'EPG') {
+                                    $("#div-orientacion-epg").show();
+                                    $("#cbo-orientacion-epg").html(response);
+                                    $("#cbo-orientacion-epg").attr("required", "yes");
+                                    $("#cbo-orientacion-epg").attr("name", "orientacionCarrera.id");
+                                    $("#cbo-orientacion-epg").select2();
+                                }
+                                if (NuevaCurricula.codeModalidad == 'PRE') {
+                                    $("#div-orientacion-pre").show();
+                                    $("#cbo-orientacion-pre").html(response);
+                                    $("#cbo-orientacion-pre").attr("required", "yes");
+                                    $("#cbo-orientacion-pre").attr("name", "orientacionCarrera.id");
+                                    $("#cbo-orientacion-pre").select2();
+                                }
+
                             }
                         },
                         error: function () {
