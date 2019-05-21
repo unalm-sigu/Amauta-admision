@@ -74,7 +74,7 @@ public class VerificadorServiceImp implements VerificadorService {
                 if (tipoOficinaSolicitud == DPTO) {
                     lista.addAll(departamentoAcademicoDAO.all());
                 } else if (tipoOficinaSolicitud == ESP) {
-                    lista.addAll(carreraDAO.all());
+                    lista.addAll(carreraDAO.allPrePosGrado());
                 } else if (tipoOficinaSolicitud == FAC) {
                     lista.addAll(facultadDAO.all());
                 }

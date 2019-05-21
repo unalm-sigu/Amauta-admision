@@ -517,6 +517,7 @@ public class PlanCurricularController {
         cursoCurricula.setPlanCurricular(planCurricular);
         cursoCurricula.setCreditosRequisito(0);
 
+        model.addAttribute("modalidad", planCurricular.getCarrera().getModalidadEstudio());
         model.addAttribute("cursoCurricula", cursoCurricula);
         model.addAttribute("tiposCursoCurriculas", tiposCursoCurriculas);
         model.addAttribute("format", new NumberFormat());
@@ -669,6 +670,7 @@ public class PlanCurricularController {
                 nodeCurso.put("id", cursos.get(0).getId());
                 nodeCurso.put("codigo", cursos.get(0).getCodigo());
                 nodeCurso.put("curso", cursos.get(0).getNombre());
+                nodeCurso.put("creditos", cursos.get(0).getCreditos());
                 node.putPOJO("cursoDefault", nodeCurso);
             }
             response.setData(node);

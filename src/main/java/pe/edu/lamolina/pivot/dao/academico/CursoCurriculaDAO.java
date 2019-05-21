@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
@@ -26,5 +27,7 @@ public interface CursoCurriculaDAO extends EasyDAO<CursoCurricula> {
     List<CursoCurricula> allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum tipoCursoCurriculaEnum);
 
     List<CursoCurricula> allByPlanes(List<PlanCurricular> planes);
+
+    List<CursoCurricula> allByCursoPlan(Curso curso, PlanCurricular planCurricular);
 
 }

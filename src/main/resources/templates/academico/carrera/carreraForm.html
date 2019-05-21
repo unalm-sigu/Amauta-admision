@@ -21,7 +21,7 @@
                         <li class="nav-item active ">
                             <a class="nav-link active bold" data-toggle="tab" href="#carrera" role="tab">Carrera</a>
                         </li>
-                        <li class="nav-item"  th:if="${carrera.id != NULL AND carrera.modalidadEstudio.codigo == 'PRE'}">
+                        <li class="nav-item"  th:if="${carrera.id != NULL}">
                             <a class="nav-link bold" data-toggle="tab" href="#orientacion" role="tab">Orientaciones</a>
                         </li>
                     </ul>
