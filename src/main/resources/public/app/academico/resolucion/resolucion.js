@@ -41,7 +41,8 @@ var app = new Vue({
         ciclosToReincorporacion: null,
         alumnosReincorporacion: [],
         alumnosRetiroCiclo: [],
-        isReincorporacion: true
+        alumnosCambioNota: [],
+        tipo: ""
     }, created: function () {
 
     }, mounted: function () {
@@ -284,11 +285,13 @@ var app = new Vue({
                 type: 'POST',
                 success: function (response) {
                     if (response.success) {
-                        $vue.isReincorporacion = response.data[0].isReincorporacion;
-                        if ($vue.isReincorporacion) {
+                        $vue.tipo = response.data[0].tipo;
+                        if ($vue.tipo == "REIC") {
                             $vue.alumnosReincorporacion = response.data;
-                        } else {
+                        } else if ($vue.tipo == "RCI") {
                             $vue.alumnosRetiroCiclo = response.data;
+                        } else {
+                            $vue.alumnosCambioNota = response.data;
                         }
                         $vue.$refs.modalAlumnos.open();
                     } else {

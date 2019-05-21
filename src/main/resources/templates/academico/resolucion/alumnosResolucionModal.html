@@ -7,10 +7,12 @@
                     <tr>
                         <th>Alumno</th>
                         <th>Ciclo</th>
+                        <th v-if="tipo=='CAM_NOTA'">Curso</th>
+                        <th v-if="tipo=='CAM_NOTA'">Nota</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in alumnosReincorporacion" v-if="isReincorporacion"
+                    <tr v-for="item in alumnosReincorporacion" v-if="tipo == 'REIC'"
                         >
                         <td>
                             <a class="block" v-text="item.alumno.persona.nombreCompleto"></a>
@@ -22,7 +24,7 @@
                         </td>
 
                     </tr>
-                    <tr v-for="item in alumnosRetiroCiclo" v-if="!isReincorporacion"
+                    <tr v-for="item in alumnosRetiroCiclo" v-if="tipo == 'RCI'"
                         >
                         <td>
                             <a class="block" v-text="item.alumno.persona.nombreCompleto"></a>
@@ -31,6 +33,24 @@
                         </td>
                         <td>
                             <span v-text="item.cicloAcademico.descripcion"></span>
+                        </td>
+
+                    </tr>
+                    <tr v-for="item in alumnosCambioNota" v-if="tipo == 'CAM_NOTA'"
+                        >
+                        <td>
+                            <a class="block" v-text="item.alumno.persona.nombreCompleto"></a>
+                            <span class="block" v-text="item.alumno.codigo"></span>
+                            <span > {{item.alumno.persona.tipoDocumento.simbolo}} - {{item.alumno.persona.numeroDocIdentidad}}</span>
+                        </td>
+                        <td>
+                            <span v-text="item.cicloAcademico.descripcion"></span>
+                        </td>
+                        <td>
+                            <span v-text="item.curso.nombre"></span>
+                        </td>
+                        <td>
+                            <span v-text="item.nota"></span>
                         </td>
 
                     </tr>

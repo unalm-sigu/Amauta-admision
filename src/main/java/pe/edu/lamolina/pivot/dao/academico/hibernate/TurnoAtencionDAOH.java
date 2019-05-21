@@ -8,6 +8,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REG;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
 
 @Repository
@@ -60,7 +61,9 @@ public class TurnoAtencionDAOH extends AbstractEasyDAO<TurnoAtencion> implements
                 .from(TurnoAtencion.class, "ta")
                 .join("configuracionTurnosAtencion cta")
                 .join("cta.eventoCicloAcademico eca", "eca.cicloAcademico ca")
+                .join("eca.eventoAcademico eva")                
                 .filter("ca.id", ciclo)
+                .filter("eva.codigo", MAT_REG)
                 .filter("ta.prioridadInicio", "<=", prioridad)
                 .filter("ta.prioridadFin", ">=", prioridad);
         return find(sql);

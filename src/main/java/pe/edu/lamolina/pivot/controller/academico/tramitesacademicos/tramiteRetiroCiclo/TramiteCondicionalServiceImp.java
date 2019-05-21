@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
@@ -47,6 +49,7 @@ import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
+import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
@@ -75,6 +78,7 @@ import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
 import pe.edu.lamolina.pivot.dao.general.ParametroDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
+import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ResolucionDAO;
@@ -179,6 +183,8 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
     @Autowired
     EstadoTramiteDAO estadoTramiteDAO;
+    @Autowired
+    CambioNotaDAO cambioNotaDAO;
 
     @Autowired
     MatriculableService matriculableService;
@@ -193,6 +199,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         List<Tramite> tramites = tramiteDAO.allReiAndRetByCiclo(cicloAcademico, filter);
         List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByTramites(tramites);
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByTramites(tramites);
+        List<CambioNota> cambioNotas = cambioNotaDAO.allByTramites(tramites);
 
         for (Tramite tram : tramites) {
             CicloAcademico academico = null;
@@ -200,10 +207,17 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
                 academico = retiroCiclos.stream().filter(x -> x.getTramite().equals(tram)).map(x -> x.getCicloAcademico()).findAny().orElse(null);
             } else if (tram.getTipoTramite().getCodigo().equals(TipoTramiteEnum.REI.name())) {
                 academico = reincorporacions.stream().filter(x -> x.getTramite().equals(tram)).map(x -> x.getCicloReincorporacion()).findAny().orElse(null);
+            } else if (tram.getTipoTramite().getCodigo().equals(TipoTramiteEnum.CAM_NOTA.name())) {
+                CambioNota cambioNota = cambioNotas.stream().filter(x -> x.getTramite().equals(tram)).findAny().orElse(null);
+                academico = cambioNota.getCicloAcademico();
+                Curso curso = cambioNota.getCurso();
+                tram.setCursoResolucion(curso);
+                tram.setNotaResolucion(cambioNota.getNota());
             }
+
             tram.setCicloAcademicoResolucion(academico);
         }
-        return tramites;
+        return tramites.stream().filter(x -> x.getCicloAcademicoResolucion() != null).collect(Collectors.toList());
     }
 
     @Override
@@ -214,7 +228,6 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         alumno = alumnoDAO.find(alumno);
         alumno.setEsMatriculaCondicional(Boolean.TRUE);
 
-        Boolean isCondicional = Arrays.asList(S_6, S_4).contains(alumno.getSituacionAcademica().getCodigoEnum());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(tremite.getAlumno());
         AlumnoCiclo alumnoCiclo = alumnoCiclos.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), tremite.getCicloAcademicoResolucion().getId())).findAny().orElse(null);
         Assert.isNotNull(alumnoCiclo, "El alumno no tiene actividad en el ciclo " + tremite.getCicloAcademicoResolucion().getDescripcion());
@@ -242,17 +255,13 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
         retiro = new RetiroCiclo();
         retiro.setEstado(TramiteEstadoEnum.PEND);
-        if (isCondicional) {
-            retiro.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
-        } else {
-            retiro.setTipoEnum(TipoRetiroCicloEnum.REG);
-        }
         retiro.setAlumno(tremite.getAlumno());
         retiro.setCicloAcademico(tremite.getCicloAcademicoResolucion());
         retiro.setCicloRegistro(ds.getCicloAcademico());
         retiro.setUsuario(ds.getUsuario());
         retiro.setMotivo(tremite.getMotivoResolucion());
         retiro.setTramite(tramite);
+        retiro.setEsCondicional(Boolean.TRUE);
         retiroCicloDAO.save(retiro);
 
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ds.getCicloAcademico(), alumno, EstadoMatriculaEnum.NMAT);
@@ -326,47 +335,6 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
             matriculaResumenDAO.delete(matriculaResumen);
 
-//            alumno = alumnoDAO.find(alumno.getId());
-//            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
-            /*List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByMatriculaResumen(matriculaResumen);
-            List<Curso> cursos = matriculaCursos.stream().map(x -> x.getCurso()).collect(Collectors.toList());
-            for (MatriculaCurso matriculaCurso : matriculaCursos) {
-                matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RET);
-                matriculaCursoDAO.update(matriculaCurso);
-            }
-
-            List<MatriculaSimultaneo> matriculaSimultaneos = matriculaSimultaneoDAO.allByMatriculaCurso(matriculaCursos);
-            for (MatriculaSimultaneo matriculaSimultaneo : matriculaSimultaneos) {
-                matriculaSimultaneoDAO.delete(matriculaSimultaneo);
-            }
-
-            List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allByMatriculaResumen(matriculaResumen);
-            for (MatriculaSeccion matriculaSeccion : matriculaSeccions) {
-                matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.RET);
-                matriculaSeccionDAO.update(matriculaSeccion);
-
-                Seccion seccion = matriculaSeccion.getSeccion();
-                if (cicloAcademico.getTipoEnum() == TipoCicloEnum.REG) {
-                    seccion.setPrematriculados(seccion.getPrematriculados() - 1);
-                }
-                seccion.setMatriculados(seccion.getMatriculados() - 1);
-                seccionDAO.update(seccion);
-
-                VacanteAlumno vacanteAlumno = vacanteAlumnoDAO.allByAlumnoAndSeccion(alumno, seccion);
-                vacanteAlumno.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
-                vacanteAlumno.setUserModificacion(null);
-                vacanteAlumno.setFechaModificacion(null);
-                vacanteAlumno.setAlumno(null);
-                vacanteAlumnoDAO.update(vacanteAlumno);
-
-            }
-            for (Curso curso : cursos) {
-
-                AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findByAlumnoCurso(alumno, curso);
-                alumnoCursoCurricula.setEstadoMatriculaEnum(EstadoMatriculaEnum.RET);
-                alumnoCursoCurriculaDAO.delete(alumnoCursoCurricula);
-            }*/
-            // Consultar si existe algun pago al matricularse.
         } else {
             Resolucion resolucion = createResolucion(tramiteForm.getResolucion(), TipoResolucionEnum.RCI, ds);
             retiroCiclobd.setResolucion(resolucion);
@@ -471,6 +439,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         reincorporacione.setMotivoDesercion(tramite.getMotivoResolucion());
         reincorporacione.setFacultad(facultad);
         reincorporacione.setTramite(tramite);
+        reincorporacione.setEsCondicional(Boolean.TRUE);
         reincorporacionDAO.save(reincorporacione);
 
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ds.getCicloAcademico(), alumno, EstadoMatriculaEnum.NMAT);
@@ -566,5 +535,88 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         resolucionDAO.save(resolucion);
 
         return resolucion;
+    }
+
+    @Override
+    @Transactional
+    public void saveCambioNota(Tramite tramite, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
+        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CAM_NOTA.name());
+        Alumno alumno = alumnoDAO.find(tramite.getAlumno());
+        alumno.setEsMatriculaCondicional(Boolean.TRUE);
+
+        tramite.setActivo(true);
+        tramite.setCompania(ds.getCompania());
+        tramite.setAlumno(alumno);
+        tramite.setCicloAcademico(ds.getCicloAcademico());
+        tramite.setEstadoEnum(TramiteEstadoEnum.PEND);
+        tramite.setFechaRegistro(new Date());
+        tramite.setPersona(alumno.getPersona());
+        tramite.setTipoTramite(tipoTramite);
+        tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
+        tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
+        tramite.setUserRegistro(ds.getUsuario());
+        tramiteDAO.save(tramite);
+
+        CambioNota cambioNota = new CambioNota();
+        cambioNota.setAlumno(alumno);
+        cambioNota.setCicloRegistro(ds.getCicloAcademico());
+        cambioNota.setEsCondicional(Boolean.TRUE);
+        cambioNota.setEstado(TramiteEstadoEnum.PEND);
+        cambioNota.setMotivo(tramite.getMotivoResolucion());
+        cambioNota.setTramite(tramite);
+        cambioNota.setUsuario(ds.getUsuario());
+        cambioNota.setCurso(tramite.getCursoResolucion());
+        cambioNota.setNota(tramite.getNotaResolucion());
+        cambioNota.setCicloAcademico(tramite.getCicloAcademicoResolucion());
+        cambioNota.setFechaRegistro(new Date());
+        cambioNotaDAO.save(cambioNota);
+    }
+
+    @Override
+    @Transactional
+    public void updateCambioNota(Tramite tramiteForm, DataSessionPivot ds) {
+        CambioNota cambioNota = cambioNotaDAO.findByTramite(tramiteForm);
+        cambioNota.setEstado(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
+
+        Tramite tramite = tramiteDAO.findById(tramiteForm);
+        tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
+        tramiteDAO.update(tramite);
+        Alumno alumno = cambioNota.getAlumno();
+        MatriculaResumen matriculaResumen = new MatriculaResumen();
+        if (tramiteForm.getEstadoEnum() != TramiteEstadoEnum.ACEP) {
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+            matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+
+            JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
+
+            Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
+
+            matriculaResumenDAO.delete(matriculaResumen);
+
+        } else {
+
+            Resolucion resolucion = createResolucion(tramiteForm.getResolucion(), TipoResolucionEnum.CAM_NOTA, ds);
+            cambioNota.setResolucion(resolucion);
+            cambioNotaDAO.update(cambioNota);
+
+            AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cambioNota.getCicloAcademico(), cambioNota.getCurso());
+            alumnoCicloCurso.setNota(cambioNota.getNota().toString());
+            alumnoCicloCurso.setFechaModificacion(new Date());
+            alumnoCicloCurso.setUserModificacion(ds.getUsuario());
+            alumnoCicloCursoDAO.update(alumnoCicloCurso);
+            matriculableService.revisarSituacionAcademica(alumno, ds);
+            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+        }
+
+    }
+
+    @Override
+    public List<Curso> allCursosByName(String nombre, Alumno alumno, CicloAcademico academico, DataSessionPivot ds) {
+        List<AlumnoCicloCurso> alumnoCicloCurso = alumnoCicloCursoDAO.allByNombre(alumno, academico, nombre);
+        return alumnoCicloCurso.stream().map(x -> x.getCurso()).collect(Collectors.toList());
     }
 }

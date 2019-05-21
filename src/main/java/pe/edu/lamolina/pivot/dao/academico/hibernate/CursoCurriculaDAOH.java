@@ -129,7 +129,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
     public List<CursoCurricula> allByPlanes(List<PlanCurricular> planes) {
         Octavia sql = Octavia.query()
                 .from(CursoCurricula.class, "cc")
-                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
+                .left("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
                 .left("cu.departamentoAcademico")
                 .in("pc.id", planes)
                 .orderBy("cc.numeroCiclo", "cc.numeroCurso");

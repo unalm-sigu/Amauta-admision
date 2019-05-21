@@ -31,13 +31,13 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
+import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.REI;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
@@ -105,7 +105,7 @@ public class TramiteCondicionalController {
 
         List<TipoTramite> tipoTramite = service.allTipoTramite();
         for (TipoTramite tipo : tipoTramite) {
-            if (Arrays.asList(RCI.name(), REI.name()).contains(tipo.getCodigo())) {
+            if (Arrays.asList(RCI.name(), REI.name(), CAM_NOTA.name()).contains(tipo.getCodigo())) {
                 tipoTramiteJson.add(JsonHelper.createJson(tipo, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
@@ -139,6 +139,7 @@ public class TramiteCondicionalController {
                     "*",
                     "tipoTramite.*",
                     "cicloAcademicoResolucion.*",
+                    "cursoResolucion.*",
                     "alumno.*",
                     "alumno.persona.*",
                     "alumno.persona.tipoDocumento.*",
@@ -171,8 +172,10 @@ public class TramiteCondicionalController {
 
             if (tramite.getTipoTramite().getCodigo().equals(RCI.name())) {
                 service.saveRetiroCiclo(tramite, ds);
-            } else {
+            } else if (tramite.getTipoTramite().getCodigo().equals(REI.name())) {
                 service.saveReincorporacion(tramite, ds);
+            } else if (tramite.getTipoTramite().getCodigo().equals(CAM_NOTA.name())) {
+                service.saveCambioNota(tramite, ds);
             }
 
             response.setMessage("Se guardó satisfactoriamente.");
@@ -206,6 +209,8 @@ public class TramiteCondicionalController {
                 service.updateRetiroCiclo(tramite, ds);
             } else if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.REI.name())) {
                 service.updateReincorporacion(tramite, ds);
+            } else if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.CAM_NOTA.name())) {
+                service.updateCambioNota(tramite, ds);
             }
 
             response.setData(JsonHelper.createJson(matriculaResumen, jsonFactory, new String[]{"id"}));
@@ -248,6 +253,38 @@ public class TramiteCondicionalController {
                             "persona.nombreCompleto",
                             "persona.rutaFoto",
                             "persona.tipoDocumento.*"}));
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCursosAlumnoByName")
+    public JsonResponse allCursosAlumnoByName(
+            @RequestParam(value = "nombre", required = true) String nombre,
+            @RequestParam(value = "idAlumno", required = true) Long idAlumno,
+            @RequestParam(value = "idCiclo", required = true) Long idCiclo,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            List<Curso> lista = service.allCursosByName(nombre, new Alumno(idAlumno), new CicloAcademico(idCiclo), ds);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Curso alum : lista) {
+                jsonList.add(JsonHelper.createJson(alum, jsonFactory, true,
+                        new String[]{
+                            "*"}));
             }
 
             response.setData(jsonList);

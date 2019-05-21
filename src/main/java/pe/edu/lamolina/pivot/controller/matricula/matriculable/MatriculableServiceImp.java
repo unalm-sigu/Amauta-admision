@@ -752,6 +752,9 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional
     public void saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
         CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
+        if (ciclo.getFechaMatriculables() == null) {
+            return;
+        }
         Alumno alumno = alumnoDAO.find(alumnoForm);
 
         MatriculaResumen matri = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);

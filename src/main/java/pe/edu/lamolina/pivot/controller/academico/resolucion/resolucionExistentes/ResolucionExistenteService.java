@@ -4,6 +4,7 @@ import java.util.List;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
@@ -27,5 +28,9 @@ public interface ResolucionExistenteService {
     public List<Reincorporacion> allReincorporacionByResolucion(Resolucion resolucionDB);
 
     public List<RetiroCiclo> allRetiroCicloByResolucion(Resolucion resolucionDB);
+
+    public List<Alumno> saveCambioNota(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+
+    public List<CambioNota> allCambioNota(Resolucion resolucionDB);
 
 }

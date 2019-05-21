@@ -27,8 +27,8 @@
                                     <table class="table table-striped " >
                                         <thead>
                                             <tr>
-                                                <th class="col-md-9" colspan="2"></th>
-                                                <th class="col-md-2">Tipo Tramite </th>
+                                                <th class="col-md-6" colspan="2"></th>
+                                                <th class="col-md-3">Tipo Tramite </th>
                                                 <th class="col-md-2">Ciclo </th>
                                                 <th class="col-md-1">Estado</th>
                                                 <th></th>
@@ -72,7 +72,11 @@
                                                     </div>
                                                 </td>
                                                 <td  class="v-middle">
-                                                    {{item.tipoTramite.nombre}}
+                                                    <span class="block" >
+                                                        {{item.tipoTramite.nombre}}
+                                                    </span>
+                                                    <span class="bold block" v-if ="item.cursoResolucion.id!=null" v-text="'Curso: ' + item.cursoResolucion.nombre"></span>
+                                                    <span class="bold" v-if ="item.notaResolucion!=null" v-text="'Nota: ' + item.notaResolucion"></span>
                                                 </td> 
                                                 <td  class="v-middle">
                                                     {{item.cicloAcademicoResolucion.descripcion}}
