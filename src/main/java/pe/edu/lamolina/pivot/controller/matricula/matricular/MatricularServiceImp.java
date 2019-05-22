@@ -315,6 +315,7 @@ public class MatricularServiceImp implements MatricularService {
             List<MatriculaResumen> listMatriculados,
             DataSessionPivot ds
     ) {
+        Long idMatCurso = -1l;
         for (MatriculaCurso matriculaCurso : matriculaCursosTemp) {
             grupoSeccionDAO.findLock(matriculaCurso.getGrupoSeccion().getId());
             Curso curso = matriculaCurso.getCurso();
@@ -347,7 +348,14 @@ public class MatricularServiceImp implements MatricularService {
                         vacantesAlumnoTemp,
                         listMatriculados,
                         ds);
-
+                if (cumple && !Objects.equals(idMatCurso, matriculaCurso.getId())) {
+                    logger.debug("Entre.....");
+                    mr.setCursosMatriculados(mr.getCursosMatriculados() + 1);
+                    mr.setEstadoEnum(MAT);
+                    mr.setCreditosMatriculados(curso.getCreditos() + mr.getCreditosMatriculados());
+                    listMatriculados.add(mr);
+                    idMatCurso = matriculaCurso.getId();
+                }
             }
         }
 
@@ -405,7 +413,8 @@ public class MatricularServiceImp implements MatricularService {
                         vacantesAlumnoTemp,
                         listMatriculados,
                         ds);
-                if (cumple && idMatCurso != matriculaCurso.getId()) {
+                if (cumple && !Objects.equals(idMatCurso, matriculaCurso.getId())) {
+                    logger.debug("Entre.....");
                     mr.setCursosMatriculados(mr.getCursosMatriculados() + 1);
                     mr.setEstadoEnum(MAT);
                     mr.setCreditosMatriculados(curso.getCreditos() + mr.getCreditosMatriculados());
