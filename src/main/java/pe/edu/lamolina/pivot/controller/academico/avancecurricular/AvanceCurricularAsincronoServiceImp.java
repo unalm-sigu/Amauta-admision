@@ -518,9 +518,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     && alumnoCursoCurriculaNew.getCursoCurricula().getCreditosRequisito() > alumno.getCreditosCarreraAprobados()) {
                 alumnoCursoCurriculaNew.setEstadoEnum(NREQ);
             }
-            alumnoCursoCurriculaNew.setValidado(true);
             AlumnoCursoCurricula cursoCurricula = alumnoCursoOld.stream().filter(x -> Objects.equals(x.getCurso().getId(), alumnoCursoCurriculaNew.getCurso().getId()) && !x.isValidado()).findAny().orElse(null);
             if (cursoCurricula != null) {
+                cursoCurricula.setValidado(true);
                 alumnoCursoCurriculaNew.setId(cursoCurricula.getId());
                 alumnoCursoCurriculaDAO.update(alumnoCursoCurriculaNew);
             } else {
