@@ -438,12 +438,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 //        cursosAprobados = listTemp;
 
 //        validarTramiteRetiroCiclo(cursosAprobados, alumno, ds.getCicloAcademico());
-        System.out.println("Cantidad cursos Curricula: " + mapCursosCurricula.size());
         for (CursoCurricula cursocurricula : mapCursosCurricula.values()) {
 
-            System.out.println("Plan Curricula 1 " + cursocurricula.getPlanCurricular().getId());
-            System.out.println("Curso codigo 1 " + cursocurricula.getCurso().getCodigo());
-            System.out.println("Curso Tipo 1 " + cursocurricula.getTipoCursoCurricula().getCodigo());
             AlumnoCursoCurricula cursosOpcionalesNew = new AlumnoCursoCurricula();
             cursosOpcionalesNew.setAlumno(alumno);
             cursosOpcionalesNew.setCreditos(0);
@@ -465,7 +461,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             cursosOpcionalesNew.setCreditos(cursocurricula.getCreditos());
             alumnoCursoNew.add(cursosOpcionalesNew);
         }
-        System.out.println("Cantidad cursos Curricula 2 : " + alumnoCursoNew.size());
         for (AlumnoCursoCurricula cursoCurriObligatorio : alumnoCursoNew) {
             if (cursoCurriObligatorio.getCursoOpcional() == null) {
                 cursoCurriObligatorio.setValidado(false);
@@ -479,11 +474,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         for (AlumnoCicloCurso cursosAprobado : cursosAprobados) {
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoNew.stream().filter(x -> Objects.equals(x.getCurso().getId(), cursosAprobado.getCurso().getId())).findAny().orElse(null);
-            System.out.println("Alumno Id " + cursosAprobado.getAlumnoCiclo().getAlumno().getId());
-            System.out.println("Curso codigo " + cursosAprobado.getCurso().getCodigo());
-            if (cursosAprobado.getCurso().getCodigo().equals("CC1024") && cursosAprobado.getAlumnoCiclo().getAlumno().getId() == 35925l) {
-                System.out.println("Alumno Curso Curricula: " + alumnoCursoCurricula.getId() + "-" + alumnoCursoCurricula.getTipoCursoCurricula().getCodigo());
-            }
+
             if (alumnoCursoCurricula != null) {
                 cursosAprobado.setTipoCursoCurricula(alumnoCursoCurricula.getTipoCursoCurricula());
 
@@ -522,7 +513,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         alumnoCursoOld = alumnoCursoOld == null ? new ArrayList<>() : alumnoCursoOld;
         for (AlumnoCursoCurricula alumnoCursoCurriculaNew : alumnoCursoNew) {
-            System.out.println("Entre estado: AAA" + alumnoCursoCurriculaNew.getCurso().getCodigo() + " - " + alumnoCursoCurriculaNew.getEstado());
             AlumnoCursoCurricula cursoCurricula = alumnoCursoOld.stream().filter(x -> Objects.equals(x.getCurso().getId(), alumnoCursoCurriculaNew.getCurso().getId()) && !x.isValidado()).findAny().orElse(null);
             if (cursoCurricula != null) {
                 if (cursoCurricula.getCursoCurricula() != null
@@ -874,13 +864,15 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursoCurriculaAlu.entrySet()) {
             AlumnoCursoCurricula evaluado = entry.getValue();
-
+            if (evaluado.getCurso().getCodigo().equals("EG1006")) {
+                System.out.println("Es dep");
+            }
             if (evaluado.isValidado() || estadosAprobados.contains(evaluado.getEstadoEnum())) {
                 continue;
             }
 
             List<RequisitoCursoCurricula> requisitos = mapRequisitos.get(evaluado.getCursoCurricula().getId());
-            if (requisitos == null || cumpleRequisitos(requisitos, mapCursoCurriculaAlu, evaluado)) {
+            if (requisitos == null || requisitos.size() == 0 || cumpleRequisitos(requisitos, mapCursoCurriculaAlu, evaluado)) {
 
                 if (!tipoCursoELCEnums.contains(evaluado.getCurso().getCodigo())) {
                     evaluado.setEstadoEnum(HAB);
