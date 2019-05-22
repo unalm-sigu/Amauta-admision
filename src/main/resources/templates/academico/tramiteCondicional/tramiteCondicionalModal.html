@@ -32,7 +32,7 @@
                                          v-bind:show-labels="false"
                                          v-bind:allow-empty="false"
                                          v-bind:internal-search='false'
-                                         placeholder="Ingresa un caracter como mínimo"
+                                         placeholder="Ingresa un caracter como mínimo"                                         
                                          required="true" >
                                 <template slot="option" slot-scope="props">
                                     <div class="option__desc">
@@ -44,7 +44,7 @@
                             <input v-model="tramite.alumno" required="true" type="text" class="hide"/>
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="form-group row" >
                         <div class="col-md-12">
                             <label>Ciclos</label>
                             <multiselect v-model="tramite.cicloAcademicoResolucion" 
@@ -58,6 +58,29 @@
                                          required="true" >
                             </multiselect>
                             <input v-model="tramite.cicloAcademicoResolucion" required="true" type="text" class="hide"/>
+                        </div>
+                    </div>
+                    <div class="form-group row" v-if="tramite.tipoTramite &amp;&amp; tramite.tipoTramite.codigo == 'CAM_NOTA'">
+                        <div class="col-md-12">
+                            <label>Curso</label>
+                            <multiselect v-model="tramite.cursoResolucion" 
+                                         v-bind:options='cursos'
+                                         v-on:search-change="loadCursos"
+                                         label='nombre'
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Ingresa un caracter como mínimo"                                         
+                                         required="true"  >
+                            </multiselect>
+                            <input v-model="tramite.cursoResolucion" required="true" type="text" class="hide"/>
+                        </div>
+                    </div>
+                    <div class="form-group row" v-if="tramite.tipoTramite &amp;&amp; tramite.tipoTramite.codigo == 'CAM_NOTA'">
+                        <div class="col-md-12">
+                            <label>Nota</label>
+                            <input class="form-control numeric" v-model="tramite.notaResolucion" required=""></input>
                         </div>
                     </div>
                     <div class="form-group row">

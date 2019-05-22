@@ -63,7 +63,7 @@ Vue.component("mover-seccion-examen", {
                 }
             });
         }, loadComponent(rolExamenes) {
-            if(!rolExamenes){
+            if (!rolExamenes) {
                 console.error('INTENTADO CARGAR COMPONENTE SIN PASARLE ROL DE EXAMENES');
             }
             this.tipoDestinoGrupoExamenes = null;

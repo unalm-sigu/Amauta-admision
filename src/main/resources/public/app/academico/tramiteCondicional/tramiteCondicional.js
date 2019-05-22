@@ -29,13 +29,18 @@ var app = new Vue({
             showaccept: true
         },
         alumnos: [],
+        cursos: [],
         resolucion: {},
         dataTemp: {}
+    },
+    mounted: function () {
+        $(".numeric").numeric({negative: false});
     },
     methods: {
         modal() {
             let $vue = this;
             $vue.tramite = {};
+            $vue.cursos = [];
             $vue.$refs.modalTramiteCondicional.open();
         },
         loadAlumno(nombre) {
@@ -52,6 +57,29 @@ var app = new Vue({
                 }).then(response => {
                     if (response.success) {
                         $vue.alumnos = response.data;
+                    }
+
+                    this.isLoading = false;
+                })
+
+            }
+        },
+        loadCursos(nombre) {
+            let $vue = this;
+            this.isLoading = true
+            if ($vue.tramite.alumno == null || $vue.tramite.cicloAcademicoResolucion == null) {
+                return;
+            }
+            if (nombre != '' || nombre != null || nombre != undefined) {
+
+                $.ajax({
+                    url: APP.url("academico/tramitecondicional/allCursosAlumnoByName"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: {nombre: nombre, idAlumno: $vue.tramite.alumno.id, idCiclo: $vue.tramite.cicloAcademicoResolucion.id}
+                }).then(response => {
+                    if (response.success) {
+                        $vue.cursos = response.data;
                     }
 
                     this.isLoading = false;
@@ -111,6 +139,7 @@ var app = new Vue({
         },
         update() {
             let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/tramitecondicional/update'),
@@ -129,6 +158,7 @@ var app = new Vue({
                     MODAL.hideWait();
                 }
             });
+            MODAL.hideWait();
         }
     }
 })

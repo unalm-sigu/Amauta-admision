@@ -156,6 +156,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         letraGrupoRegular.setContadorSecciones(BigDecimal.ZERO.intValue());
 
         for (Seccion seccion : seccionesByLetra) {
+            this.rolExamenesLogger.addMessageLevel3("Evaluando la sección %s", seccion.getCodigo2());
             Seccion seccionClone = seccion.clone();
             List<DocenteSeccion> docenteSecciones = docentesPrincipales.stream().filter(x -> x.getSeccion().equals(seccionClone)).collect(Collectors.toList());
             Assert.isFalse(docenteSecciones.isEmpty(), String.format("La sección (%s) de código %s, no tiene docente principal", seccionClone.getId(), seccionClone.getCodigo2()));
@@ -163,14 +164,18 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             seccionClone.setDocenteSeccion(docenteSecciones);
 
             boolean result = false;
-            if (seccionClone.getAula().getOficinaSupervisora().isOficinaOera()) {
-                //  logger.info("Aula OERA {} {}", seccionClone.getAula().getId(), seccionClone.getAula().getCodigo());
-                result = this.procesarSeccionesByLetra(letraGrupoRegular, cursosMasivosExamen, seccionesGrupoEspecial, seccionClone, seccionesByLetra, ds);
+            // if (seccionClone.getAula().getOficinaSupervisora().isOficinaOera()) {
+            //  logger.info("Aula OERA {} {}", seccionClone.getAula().getId(), seccionClone.getAula().getCodigo());
+            result = this.procesarSeccionesByLetra(letraGrupoRegular, cursosMasivosExamen, seccionesGrupoEspecial, seccionClone, seccionesByLetra, ds);
+            if (result) {
+                this.rolExamenesLogger.addMessageLevel3("La sección %s fue asignada correctamente.", seccion.getCodigo2());
+            }
+            /*
             } else {
                 Aula aulaSeccionOriginal = seccionClone.getAula();
-                logger.info("seccion {}, aula {}, no es aula oera", seccion.getId(), aulaSeccionOriginal.getId());
-                logger.info("aula superior {}", ObjectUtil.getParentTree(aulaSeccionOriginal, "aulaSuperior.id"));
-
+//                 logger.info("seccion {}, aula {}, no es aula oera", seccion.getId(), aulaSeccionOriginal.getId());
+//                logger.info("aula superior {}", ObjectUtil.getParentTree(aulaSeccionOriginal, "aulaSuperior.id"));
+//                
                 Map<Long, List<Aula>> mapAulasAgrupadasPorModulo = this.aulasAgrupadasPorModulo(aulaSeccionOriginal);
 
                 Aula aulaResult = null;
@@ -187,14 +192,16 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                             ds);
                     if (!aulaResult.equals(seccion.getAula())) {
                         result = true;
-                        logger.info("Encontro el aula {}, {}, oficina {}", aulaResult.getId(), aulaResult.getCodigo(), aulaResult.getOficinaSupervisora().getCodigo());
+                        // logger.info("Encontro el aula {}, {}, oficina {}", aulaResult.getId(), aulaResult.getCodigo(), aulaResult.getOficinaSupervisora().getCodigo());
+                        this.rolExamenesLogger.addMessageLevel2("La sección %s encontro el aula %s", seccionClone.getCodigo2(), aulaResult.getCodigo());
                         break;
                     }
                 }
                 if (aulaResult.equals(seccion.getAula())) {
-                    logger.info("no encontro aula oera para el aula {}, {}", aulaResult.getId(), aulaResult.getCodigo());
+                    this.rolExamenesLogger.addMessageLevel2("La sección %s no encontro aula", seccionClone.getCodigo2());
+                  //  logger.info("no encontro aula oera para el aula {}, {}", aulaResult.getId(), aulaResult.getCodigo());
                 }
-            }
+            }*/
             if (!result) {
                 seccionesEspeciales.add(seccionClone);
             }
@@ -241,7 +248,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             Integer inicio,
             Integer fin,
             DataSessionPivot ds) {
-        logger.info("Entro a buscar aula");
+        //logger.info("Entro a buscar aula");
         Seccion seccionClone = seccion.clone();
         Aula aulaSeccionOriginal = seccion.getAula();
         GrupoHorasExamen grupoHorasExamen = letraGrupoRegular.getGrupoHorasExamen();
@@ -259,6 +266,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                     }
                 }
                 seccionClone.setAula(aula);
+                this.rolExamenesLogger.addMessageLevel3("Buscará disponibilidad en el aula %s", aula.getCodigo());
                 boolean result = this.procesarSeccionesByLetra(letraGrupoRegular, cursosMasivosExamen, seccionesGrupoEspecial, seccionClone, seccionesByLetra, ds);
                 if (result) {
                     return aula;
@@ -270,7 +278,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
     @Override
     public boolean checkDisponibilidadAula(Aula aula, GrupoHorasExamen grupoHorasExamen) {
-        List<Aula> aulasWithHorarios = this.rolExamenesLogger.getAulasOera();
+        List<Aula> aulasWithHorarios = this.rolExamenesLogger.getAulas();
         Aula aulaCompare = aulasWithHorarios.stream().filter(x -> x.equals(aula))
                 .findFirst().orElse(null);
 
@@ -293,13 +301,13 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             DataSessionPivot ds) {
 
         List<MatriculaSeccion> matriculadosPorSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
-
-        logger.debug("Letra {}, seccion {}, grupo horas {}, cant. alumnos {}, numero {}",
+        /*
+        logger.debug("Letra {}, seccion ({}), grupo horas {}, cant. alumnos {}, numero {}",
                 letraGrupoRegular.getLetra(),
-                seccion.getId(),
+                (seccion.getId() + " - codigo : " + seccion.getCodigo2()),
                 seccion.getGrupoHoras().getCodigo(),
                 matriculadosPorSeccion.size(),
-                letraGrupoRegular.getContadorSecciones() + " de " + seccionesByLetraOnlyInformative.size());
+                letraGrupoRegular.getContadorSecciones() + " de " + seccionesByLetraOnlyInformative.size());*/
 
         List<Alumno> alumnos = matriculadosPorSeccion.stream().map(x -> x.getMatriculaResumen().getAlumno()).collect(Collectors.toList());
         List<Aula> aulas = Arrays.asList(seccion.getAula());
@@ -341,12 +349,14 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         //  MATRICULAS_BY_SEC:
         for (Alumno alumno : alumnos) {
             for (SeccionGrupoRegular seccionGrupoRegular : seccionesGruposRegularesByLetra) {
-                AlumnoGrupoRegular alumnoSeccionRegularFound = seccionGrupoRegular.getAlumnosGruposRegulares()
-                        .stream().filter(x -> x.getAlumno().equals(alumno)).findFirst().orElse(null);
-                if (alumnoSeccionRegularFound != null) {
-                    alumnoConflicto = true;
-                    rolExamenesLogger.cruceAlumno(alumno, letraGrupoRegular, seccionGrupoRegular.getSeccion());
-                    // break MATRICULAS_BY_SEC;
+                if (seccionGrupoRegular.getAlumnosGruposRegulares() != null) {
+                    AlumnoGrupoRegular alumnoSeccionRegularFound = seccionGrupoRegular.getAlumnosGruposRegulares()
+                            .stream().filter(x -> x.getAlumno().equals(alumno)).findFirst().orElse(null);
+                    if (alumnoSeccionRegularFound != null) {
+                        alumnoConflicto = true;
+                        rolExamenesLogger.cruceAlumno(alumno, letraGrupoRegular, seccionGrupoRegular.getSeccion());
+                        // break MATRICULAS_BY_SEC;
+                    }
                 }
             }
         }
@@ -366,7 +376,11 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         //valida conflicto aula
         boolean aulaConConflicto = false;
         for (Aula aula : aulas) {
-            Aula aulaCompare = this.rolExamenesLogger.getAulasOera().stream().filter(x -> x.equals(aula)).findFirst().orElse(null);
+            if (aula.getId().compareTo(1211L) == 0) {
+                logger.debug("");
+            }
+            Aula aulaCompare = this.rolExamenesLogger.getAulas().stream().filter(x -> x.equals(aula)).findFirst().orElse(null);
+            logger.debug("aula {}", aula.getId());
             for (FechaHoraGrupoExamen fechaHorGru : letraGrupoRegular.getGrupoHorasExamen().getFechasHorasGruposExamen()) {
                 HorarioAula horarioAula = aulaCompare.getHorariosAula()
                         .stream()
@@ -579,7 +593,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             List<MatriculaSeccion> matriculadosPorSeccion,
             DataSessionPivot ds) {
         SeccionGrupoRegular seccionGrupoRegular = this.crearObjectSeccionGrupoRegular(seccion, letraGrupoRegular, ds);
-        Aula aulaSeccionLogger = this.rolExamenesLogger.getAulasOera()
+        Aula aulaSeccionLogger = this.rolExamenesLogger.getAulas()
                 .stream().filter(x -> x.equals(seccion.getAula())).findFirst().orElse(null);
 
         for (FechaHoraGrupoExamen fechaHoraGrupoExamen : letraGrupoRegular.getGrupoHorasExamen().getFechasHorasGruposExamen()) {
@@ -723,7 +737,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
     }
 
     @Override
-    public List<Aula> allAulasOeraWithHorarioByRolExamenes(RolExamenes rolExamenes) {
+    public List<Aula> allAulasOeraWithHorarioByRolExamenes(RolExamenes rolExamenes, OficinaEnum oficinaEnum) {
         CicloAcademico cicloAcademicoRol = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
         List<SemanaExamen> semanasExamen = semanaExamenDAO.allByRolExamenes(rolExamenes);
         List<HorarioAula> horariosAulasFull = new ArrayList<>();
@@ -732,12 +746,16 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             horariosAulasFull.addAll(horariosAulasBySemana);
         }
 
-        List<Aula> aulasOera = aulaDAO.allByOficinaSupervisora(OficinaEnum.OERA, EstadoEnum.ACT);
-        aulasOera = aulasOera.stream().filter(x -> x.getAforo() != null).collect(Collectors.toList());
+        List<Aula> aulas = null;
+        if (oficinaEnum != null) {
+            aulas = aulaDAO.allByOficinaSupervisora(oficinaEnum, EstadoEnum.ACT);
+        } else {
+            aulas = aulaDAO.allByEstado(EstadoEnum.ACT);
+        }
 
         //      List<HorarioAula> horariosAula = horarioAulaDAO.allByCicloOrderByDiaHora(rolExamenes.getEventoCicloAcademico().getCicloAcademico()); //o, EstadoHorarioAulaEnum.ACT
         Map<Long, List<HorarioAula>> mapHorariosAulasByAula = TypesUtil.convertListToMapList("aula.id", horariosAulasFull);
-        for (Aula aula : aulasOera) {
+        for (Aula aula : aulas) {
             List<HorarioAula> horariosAulaByAula = mapHorariosAulasByAula.get(aula.getId());
             if (horariosAulaByAula != null) {
                 aula.setHorariosAula(horariosAulaByAula);
@@ -745,8 +763,14 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 aula.setHorariosAula(new ArrayList<>());
             }
         }
-        Collections.sort(aulasOera, (p1, p2) -> p1.getAforo().compareTo(p2.getAforo()));
-        return aulasOera;
+
+        List<Aula> aulasConAforo = aulas.stream().filter(x -> x.getAforo() != null).collect(Collectors.toList());
+        List<Aula> aulasSinAforo = aulas.stream().filter(x -> x.getAforo() == null).collect(Collectors.toList());
+        Collections.sort(aulasConAforo, (p1, p2) -> p1.getAforo().compareTo(p2.getAforo()));
+        aulasConAforo.addAll(aulasSinAforo);
+//        List<String> aulasIds = aulasConAforo.stream().map(x -> x.getId().toString()).collect(Collectors.toList());
+//        logger.debug(String.join(",", aulasIds));
+        return aulasConAforo;
     }
 
     public void restoreHorariosAulas(RolExamenes rolExamenes,

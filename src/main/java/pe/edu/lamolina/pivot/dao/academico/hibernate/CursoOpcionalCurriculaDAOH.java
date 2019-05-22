@@ -102,7 +102,7 @@ public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCur
     public List<CursoOpcionalCurricula> allByPlanCurricular(List<PlanCurricular> planCurricular) {
         Octavia sql = Octavia.query()
                 .from(CursoOpcionalCurricula.class, "cc")
-                .join("curso cur", "planCurricular pc", "tipoCursoCurricula tcc")
+                .left("curso cur", "planCurricular pc", "tipoCursoCurricula tcc")
                 .in("pc.id", planCurricular);
 
         return all(sql);

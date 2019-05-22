@@ -148,6 +148,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                     -> x.getFechaFinDateTime().toLocalDate().isBefore(firstRolExamen.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
                     || x.getFechaFinDateTime().toLocalDate().isEqual(firstRolExamen.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
         }
+        List<Long> horariosAulasProcesados = new ArrayList<>();
         for (SemanaExamen semanaExamen : semanaExamenes) {
             List<HorarioAula> horariosAulasFull = horarioAulaDAO.allByCicloAndSemanaExamenLimitByHours(rolExamenes.getEventoCicloAcademico(), semanaExamen);
             if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
@@ -159,6 +160,9 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
             for (Map.Entry<Long, List<HorarioAula>> entry : mapHorariosBySeccion.entrySet()) {
                 Seccion seccion = new Seccion(entry.getKey());
                 List<HorarioAula> horariosAulasBySeccion = entry.getValue();
+                if (seccion.getId().compareTo(257400L) == 0) {
+                    logger.debug("");
+                }
 
                 Map<Long, List<HorarioAula>> mapHorariosBySeccionAndDia = TypesUtil.convertListToMapList("dia.id", horariosAulasBySeccion);
                 for (Map.Entry<Long, List<HorarioAula>> entry1 : mapHorariosBySeccionAndDia.entrySet()) {
@@ -170,15 +174,20 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                             .collect(Collectors.toList());
 
                     for (HorarioAula horarioAula : horariosAulasBySeccionAndDia) {
-
+                        if (horariosAulasProcesados.contains(horarioAula.getId())) {
+                            continue;
+                        }
                         logger.debug("Original - Dia {}, Hora {}, Fecha Inicio {}, Fecha Fin {} ",
                                 horarioAula.getDia().getNumeroDia(),
                                 horarioAula.getHora().getNumero(),
                                 horarioAula.getFechaInicio(),
                                 horarioAula.getFechaFin());
-                        Date endDateOrigin = horarioAula.getFechaFin();
+                        Date endDateOrigin = (Date) horarioAula.getFechaFin().clone();
 
                         DateTime fechaFin = new DateTime(semanaExamen.getFechaInicio()).plusDays(-1);
+                        /*   if (horarioAula.getFechaFin().equals(fechaFin.toDate())) {
+                            continue;
+                        }*/
                         horarioAula.setFechaFin(fechaFin.toDate());
                         horarioAulaDAO.update(horarioAula);
                         logger.debug("Actualizado - Dia {}, Hora {}, Fecha Inicio {}, Fecha Fin {} ",
@@ -192,6 +201,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                         DateTime fechaInicio = new DateTime(semanaExamen.getFechaFin()).plusDays(1);
                         horarioAulaNew.setFechaInicio(fechaInicio.toDate());
                         horarioAulaNew.setFechaFin(endDateOrigin);
+                        horarioAulaNew.setSeccion(null);
                         //   horarioAulaNew.setRolExamenes(rolExamenes);
                         horarioAulaDAO.save(horarioAulaNew);
 
@@ -200,8 +210,8 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                                 horarioAulaNew.getHora().getNumero(),
                                 TypesUtil.getStringDate(horarioAulaNew.getFechaInicio(), "yyyy-MM-dd"),
                                 TypesUtil.getStringDate(horarioAulaNew.getFechaFin(), "yyyy-MM-dd"));
+                        horariosAulasProcesados.add(horarioAula.getId());
                     }
-
                 }
             }
         }

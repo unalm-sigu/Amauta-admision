@@ -5,6 +5,7 @@ import java.util.Map;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
@@ -73,7 +74,7 @@ public interface GrupoRegularConnector {
 
     RolExamenesLogger validacionActivarAlumno(GrupoHorasExamen grupoHorasExamen, Alumno alumno);
 
-    List<Aula> allAulasOeraWithHorarioByRolExamenes(RolExamenes rolExamenes);
+    List<Aula> allAulasOeraWithHorarioByRolExamenes(RolExamenes rolExamenes, OficinaEnum oficinaEnum);
 
     boolean checkDisponibilidadAula(Aula aula, GrupoHorasExamen grupoHorasExamen);
 

@@ -76,8 +76,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .left("cu.departamentoAcademico")
                 .filter("al.id", alumno)
                 .filter("estaAprobado", 1)
-                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
-                .orderBy("acc.fechaRegistro");
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
 
         return all(sql);
     }
@@ -534,4 +533,47 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
         this.update(octavia);
     }
 
+    @Override
+    public List<AlumnoCicloCurso> allDesaproActivoByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso cu")
+                .left("cu.departamentoAcademico")
+                .filter("al.id", alumno)
+                .filter("estaAprobado", 0)
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allDesaproActivoByAlumnos(List<Alumno> alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso cu")
+                .left("cu.departamentoAcademico")
+                .in("al.id", alumno)
+                .filter("estaAprobado", 0)
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allByNombre(Alumno alumno, CicloAcademico academico, String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico aca", "acc.curso cu")
+                .left("cu.departamentoAcademico")
+                .filter("al.id", alumno)
+                .filter("aca.id", academico)
+                .beginBlock()
+                .__().filter("cu.nombre", "like", nombre)
+                .__().filter("cu.codigo", "like", nombre)
+                .endBlock()
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+
+        return all(sql);
+    }
 }

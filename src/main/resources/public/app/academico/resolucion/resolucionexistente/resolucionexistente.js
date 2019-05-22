@@ -5,7 +5,7 @@ Vue.component('file-upload', VueUploadComponent);
 var app = new Vue({
     el: '#resolucionReinForm',
     data: {
-        resolucion: {reincorporaciones: [], retiroCiclo: []},
+        resolucion: {reincorporaciones: [], retiroCiclo: [], cambioNota: []},
         oficinas: JSON.parse(oficinasJson),
         ciclos: JSON.parse(ciclosJson),
         tiposResolucion: JSON.parse(tiposResolucionJson),
@@ -14,19 +14,27 @@ var app = new Vue({
             useCurrent: false
         },
         alumnos: [],
-        isReincorporacion: true
+        cursos: [],
+        isReincorporacion: false,
+        isRetiroCiclo: false,
+        isCambioNota: false
     }, created: function () {
 
     }, mounted: function () {
         let $vue = this;
-
+        $(".numerico").numeric({negative: false});
     }, methods: {
         tipoResolucionSelect(item) {
             let $vue = this;
+            $vue.isRetiroCiclo = false;
+            $vue.isReincorporacion = false;
+            $vue.isCambioNota = false;
             if (item.codigo == "RCI") {
-                $vue.isReincorporacion = false;
-            } else {
+                $vue.isRetiroCiclo = true;
+            } else if (item.codigo == "REIC") {
                 $vue.isReincorporacion = true;
+            } else {
+                $vue.isCambioNota = true;
             }
         },
         customLabel( {persona, codigo}){
@@ -59,22 +67,51 @@ var app = new Vue({
 
             }
         },
+        loadCursos(nombre, item) {
+            let $vue = this;
+            this.isLoading = true
+            if (item.alumno == null || item.cicloAcademico == null) {
+                return;
+            }
+            if (nombre != '' || nombre != null || nombre != undefined) {
+
+                $.ajax({
+                    url: APP.url("academico/tramitecondicional/allCursosAlumnoByName"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: {nombre: nombre, idAlumno: item.alumno.id, idCiclo: item.cicloAcademico.id}
+                }).then(response => {
+                    if (response.success) {
+                        $vue.cursos = response.data;
+                    }
+
+                    this.isLoading = false;
+                })
+
+            }
+        },
         addResolucion() {
             let $vue = this;
             if ($vue.isReincorporacion) {
                 var reincorporacion = {};
                 $vue.resolucion.reincorporaciones.push(reincorporacion);
-            } else {
+            } else if ($vue.isRetiroCiclo) {
                 var retiroCiclo = {};
                 $vue.resolucion.retiroCiclo.push(retiroCiclo);
+            } else if ($vue.isCambioNota) {
+                var cambioNota = {};
+                $vue.resolucion.cambioNota.push(cambioNota);
             }
         },
         deleteItem(index) {
             let $vue = this;
             if ($vue.isReincorporacion) {
                 $vue.resolucion.reincorporaciones.splice(index, 1);
-            } else {
+            } else if ($vue.isRetiroCiclo) {
                 $vue.resolucion.retiroCiclo.splice(index, 1);
+            } else if ($vue.isCambioNota) {
+                $vue.resolucion.cambioNota.splice(index, 1);
+
             }
         },
         oficinaSelect(ofi) {
@@ -93,6 +130,7 @@ var app = new Vue({
             if (!valid) {
                 return;
             }
+            MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 url: APP.url('academico/resolucion/save'),
                 dataType: "json",
@@ -102,7 +140,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, 'info');
-                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: []};
+                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: []};
                         $vue.alumnos = [];
                     } else {
                         notify(response.message, 'error');
@@ -112,6 +150,7 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+            MODAL.hideWait();
         }
     }
 })

@@ -1,0 +1,78 @@
+<modal-vik ref="seccionesExcluidasModal"
+           id="modalSeccionesExcluidas"
+           modalsize="modal-md"
+           title="Exclusión de Secciones"
+           header="true"
+           >   
+    <div slot="body">
+        <template v-if="cursoExcluido">
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2">Curso </label>
+
+                    <div class="col-md-4"
+                         v-if="cursoExcluido.curso">
+                        <span class=" text-primary bold h5 m-b-xs m-t-xs"
+                              v-text="cursoExcluido.curso.nombre"
+                              v-if="cursoExcluido"></span>
+                        <span class="">
+                            {{cursoExcluido.curso.codigo}}&nbsp;
+                            <i class="fa fa-bookmark text-primary"></i>
+                            {{cursoExcluido.curso.tpc}}
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        Rol Examenes
+                    </div>
+                    <span class="col-md-4" 
+                          v-text="cursoExcluido.rolExamenes.nombre"
+                          v-if="cursoExcluido.rolExamenes">
+                    </span>    
+                </div>
+
+            </div>
+
+
+            <table class="table table-striped" v-if="seccionesExcluidas">
+                <thead>
+                    <tr>
+                        <th class="col-md-3 text-center">Seccion</th>
+                        <th class="col-md-3 text-center">Horario Sección</th>
+                        <th class="col-md-3 text-center">Aula Sección</th>
+                        <th class="col-md-2 text-center">Estado Exclusión</th>
+                        <th class="col-md-1 text-center"></th>
+                    </tr>
+                </thead>
+                <tbody style="height:200px;overflow-y:auto;">
+                    <tr v-for="item in seccionesExcluidas">
+                        <td class="text-center">
+                            <span v-text="item.seccion.codigo2"></span>
+                        </td>
+                        <td class="text-center">
+                            <span v-text="item.seccion.grupoHoras.codigo"></span>
+                        </td>
+                        <td class="text-center">
+                            <span v-text="item.seccion.aula.codigo"></span>
+                        </td>
+                        <td class="text-center">
+                <v-estado v-bind:codigo="item.estado" v-bind:valor="item.estadoEnum.value"/> 
+                </td>
+                <td>
+                    <div class="dropdown actions pointer">
+                        <a class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="glyphicon glyphicon-option-vertical"></i>
+                        </a> 
+                        <ul class="dropdown-menu pull-right">
+                            <li><a class=" pointer bold" v-on:click.prevent="activarExclusion(item)">Activar</a></li>
+                            <li><a class=" pointer bold" v-on:click.prevent="anularExclusion(item)">Anular</a></li>
+                        </ul>
+                    </div>
+                </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </template>  
+    </div>
+</modal-vik>
+

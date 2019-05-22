@@ -17,4 +17,6 @@ public interface CursoExcluidoDAO extends EasyDAO<CursoExcluido> {
 
     List<CursoExcluido> allByRolExamenes(RolExamenes rolExamenes, EstadoEnum estadoEnum);
 
+    void updateColumns(CursoExcluido sursoExcluido, String... columns);
+
 }

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.avancecurricular;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.academico.CursoEquivalenteElectivo;
@@ -112,18 +114,19 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula = new HashMap<>();
         Map<Long, List<CursoEquivalente>> mapCursosEquivalentes = new HashMap<>();
         Map<Long, AlumnoCursoCurricula> mapAlumnoCurso = new HashMap<>();
-        obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, mapCursoCurriculaByCurso);
+
+        List<PlanCurricular> planCurriculars = planCurricularDAO.all();
+        List<CursoCurricula> cursoCurriculasAll = cursoCurriculaDAO.allByPlanes(planCurriculars);
+        Map<Long, List<CursoCurricula>> mapCursoCurriculaAll = TypesUtil.convertListToMapList("planCurricular.id", cursoCurriculasAll);
+        obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, mapCursoCurriculaByCurso, mapCursoCurriculaAll);
 
         logger.debug("Cantidad de alumnos: {}", alumnos.size());
         logger.debug("Cantidad de Cursos: {}", mapCursoCurricula.size());
 
-        List<CursoOpcionalCurricula> cursoOpcionalAllPlanes = cursoOpcionalCurriculaDAO.allNotPlanCurricularAndCurso(Arrays.asList(planCurricular));
-        Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll = TypesUtil.convertListToMapList("planCurricular.id", cursoOpcionalAllPlanes);
-
         List<CursoEquivalenteElectivo> cursoEquivalenteElectivos = cursoEquivalenteElectivoDAO.allCursoPlanCurricula(Arrays.asList(planCurricular));
 
         List<CursoOpcionalCurricula> cursoOpcionalCurriculas = cursoOpcionalCurriculaDAO.all();
-        Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcional = TypesUtil.convertListToMapList("planCurricular.id", cursoOpcionalCurriculas);
+        Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll = TypesUtil.convertListToMapList("planCurricular.id", cursoOpcionalCurriculas);
 
         List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivoByAlumnosCicloActivo(alumnos);
         Map<Long, List<MatriculaCurso>> mapCursosMatriculados = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculados);
@@ -131,9 +134,10 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnosApr(alumnos);
 
         List<AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumnos(alumnos);
+        Map<String, AlumnoCicloCurso> mapCursosAprobados = TypesUtil.convertListToMapList("alumnoCursoKey", cursosAprobados);
 
         List<AlumnoCicloCurso> cursosVecesLlevado = alumnoCicloCursoDAO.allVecesLlevadoByAlumnos(alumnos);
-        Map<String, AlumnoCicloCurso> mapCursosVecesLlevado = TypesUtil.convertListToMapList("alumnoCursoKey", cursosVecesLlevado);
+        Map<String, AlumnoCicloCurso> mapCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", cursosVecesLlevado);
 
         List<TipoCursoCurricula> tipoCursoCurriculas = tipoCursoCurriculaDAO.all();
 
@@ -146,12 +150,20 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
             cursoAprobado.setVecesCursadoTransient(cursoVeces.getVecesCursado());
         }
 
+        List<AlumnoCicloCurso> cursosDesapr = alumnoCicloCursoDAO.allDesaproActivoByAlumnos(alumnos);
+        for (AlumnoCicloCurso alumnoCicloCurso : cursosDesapr) {
+            if (mapCursosAprobados.get(alumnoCicloCurso.getAlumnoCursoKey()) == null) {
+                cursosAprobados.add(alumnoCicloCurso);
+            }
+        }
+
+        Map<Long, List<AlumnoCicloCurso>> mapCursosAlumnos = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosAprobados);
         for (Alumno alumno : alumnos) {
             avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
         }
         List<AlumnoAvanceCurricular> alumnosAvanceCurriculars = alumnoAvanceCurricularDAO.allByAlumnos(alumnos);
         List<ResumenPlanCurricular> alumnosResumenPlanCurriculars = resumenPlanCurricularDAO.all();
-        List<PlanCurricular> planCurriculars = planCurricularDAO.all();
+
         for (Alumno alumno : alumnos) {
             List<AlumnoAvanceCurricular> avanceCurriculars = alumnosAvanceCurriculars.stream().filter(x -> Objects.equals(x.getAlumno().getId(), alumno.getId())).collect(Collectors.toList());
 
@@ -159,15 +171,18 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
             List<MatriculaCurso> cursosMatriculadosAlumno = mapCursosMatriculados.get(alumno.getId());
 
-            List<CursoOpcionalCurricula> cursoOpcional = mapCursoOpcional.get(alumno.getPlanCurricular().getId());
+            List<CursoOpcionalCurricula> cursoOpcional = mapCursoOpcionalAll.get(alumno.getPlanCurricular().getId());
 
-            avanceCurricularAsincronoService.procesarAlumno(alumno,
+            List<AlumnoCicloCurso> cursosAlumno = mapCursosAlumnos.get(alumno.getId());
+
+            avanceCurricularAsincronoService.procesarAlumno(
+                    alumno,
                     mapCursoCurricula,
                     mapRequisitoCursoCurricula,
                     mapCursosEquivalentes,
                     mapCursosVecesLlevado,
                     cursosMatriculadosAlumno,
-                    cursosAprobados,
+                    cursosAlumno,
                     alumnoCursoCurriculas,
                     cursoOpcional,
                     mapCursoCurriculaByCurso,
@@ -177,6 +192,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                     cursoEquivalenteElectivos,
                     mapCursoOpcionalAll,
                     planCurriculars,
+                    mapCursoCurriculaAll,
                     ds);
         }
     }
@@ -186,10 +202,11 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
             Map<Long, CursoCurricula> mapCursoCurricula,
             Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula,
             Map<Long, List<CursoEquivalente>> mapCursosEquivalentes,
-            Map<Long, CursoCurricula> mapCursoCurriculaByCurso
+            Map<Long, CursoCurricula> mapCursoCurriculaByCurso,
+            Map<Long, List<CursoCurricula>> mapCursoCurriculaAll
     ) {
 
-        List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
+        List<CursoCurricula> cursosCurricula = mapCursoCurriculaAll.get(planCurricular.getId());
         for (CursoCurricula cursoCurricula : cursosCurricula) {
 
             mapCursoCurricula.put(cursoCurricula.getId(), cursoCurricula);
@@ -230,13 +247,24 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         Map<Long, AlumnoCursoCurricula> mapAlumnoCurso = new HashMap<>();
         Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula = new HashMap<>();
         Map<Long, List<CursoEquivalente>> mapCursosEquivalentes = new HashMap<>();
-        obtenerData(alumnoBD.getPlanCurricular(), mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, mapCursoCurriculaByCurso);
+
         List<PlanCurricular> planCurriculars = planCurricularDAO.all();
-        List<CursoOpcionalCurricula> cursoOpcionalAllPlanes = cursoOpcionalCurriculaDAO.allNotPlanCurricularAndCurso(Arrays.asList(alumnoBD.getPlanCurricular()));
+        List<CursoCurricula> cursoCurriculasAll = cursoCurriculaDAO.allByPlanes(planCurriculars);
+
+        Map<Long, List<CursoCurricula>> mapCursoCurriculaAll = TypesUtil.convertListToMapList("planCurricular.id", cursoCurriculasAll);
+        obtenerData(alumnoBD.getPlanCurricular(), mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, mapCursoCurriculaByCurso, mapCursoCurriculaAll);
+
+        List<CursoOpcionalCurricula> cursoOpcionalAllPlanes = cursoOpcionalCurriculaDAO.allByPlanCurricular(planCurriculars);
         Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll = TypesUtil.convertListToMapList("planCurricular.id", cursoOpcionalAllPlanes);
 
         List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivoByAlumnoCicloActivo(alumno);
         List<AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumno);
+        List<AlumnoCicloCurso> cursosDesapr = alumnoCicloCursoDAO.allDesaproActivoByAlumno(alumno);
+        for (AlumnoCicloCurso alumnoCicloCurso : cursosDesapr) {
+            if (cursosAprobados.stream().filter(x -> Objects.equals(x.getCurso().getId(), alumnoCicloCurso.getCurso().getId())).findAny().orElse(null) == null) {
+                cursosAprobados.add(alumnoCicloCurso);
+            }
+        }
         List<CursoEquivalenteElectivo> cursoEquivalenteElectivos = cursoEquivalenteElectivoDAO.allCursoPlanCurricula(Arrays.asList(alumnoBD.getPlanCurricular()));
         List<ResumenPlanCurricular> resumenPlanCurriculars = resumenPlanCurricularDAO.allByPlan(alumnoBD.getPlanCurricular());
         List<TipoCursoCurricula> tipoCursoCurriculas = tipoCursoCurriculaDAO.all();
@@ -245,10 +273,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         List<Alumno> alumnos = new ArrayList();
         alumnos.add(alumno);
         List<AlumnoCicloCurso> cursosVecesLlevado = alumnoCicloCursoDAO.allVecesLlevadoByAlumnos(alumnos);
-        System.out.println("VECES cursados son " + cursosVecesLlevado.size() + " registros");
-        for (AlumnoCicloCurso acc : cursosVecesLlevado) {
-            System.out.println(acc.getAlumnoCursoKey() + " :::: " + acc.getVecesCursado());
-        }
+
         Map<String, AlumnoCicloCurso> mapCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", cursosVecesLlevado);
 
         for (AlumnoCicloCurso cursoAprobado : cursosAprobados) {
@@ -262,8 +287,10 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
         alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoBD);
         List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoApro(alumnoBD);
-        List<CursoOpcionalCurricula> cursoOpcionalCurriculas = cursoOpcionalCurriculaDAO.allByPlanCurricular(alumnoBD.getPlanCurricular());
-        avanceCurricularAsincronoService.procesarAlumnoSincrono(alumnoBD,
+        List<CursoOpcionalCurricula> cursoOpcionalCurriculas = mapCursoOpcionalAll.get(alumnoBD.getPlanCurricular().getId());
+
+        avanceCurricularAsincronoService.procesarAlumnoSincrono(
+                alumnoBD,
                 mapCursoCurricula,
                 mapRequisitoCursoCurricula,
                 mapCursosEquivalentes,
@@ -279,6 +306,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                 cursoEquivalenteElectivos,
                 mapCursoOpcionalAll,
                 planCurriculars,
+                mapCursoCurriculaAll,
                 ds);
     }
 

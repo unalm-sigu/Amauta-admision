@@ -33,9 +33,11 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
@@ -101,7 +103,7 @@ public class ResolucionExistentesController {
 
         List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
         for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (Arrays.asList(RCI.name(), REIC.name()).contains(tipoResolucion.getCodigo())) {
+            if (Arrays.asList(RCI.name(), REIC.name(), CAM_NOTA.name()).contains(tipoResolucion.getCodigo())) {
                 tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
@@ -171,13 +173,18 @@ public class ResolucionExistentesController {
                 for (Alumno alumno : alumnos) {
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
                 }
-            } else {
+            } else if (resolucion.getTipoResolucion().getCodigo().equals(RCI.name())) {
                 List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
                 }
-
+            } else {
+                List<Alumno> alumnos = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
+                for (Alumno alumno : alumnos) {
+                    avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+                    matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
+                }
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
@@ -205,6 +212,7 @@ public class ResolucionExistentesController {
             Resolucion resolucionDB = service.findByResolucion(resolucion, ds);
             List<Reincorporacion> reincorporacions = new ArrayList<>();
             List<RetiroCiclo> retiroCiclos = new ArrayList<>();
+            List<CambioNota> cambioNotas = new ArrayList<>();
             ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
             if (resolucionDB.getTipoResolucion().getCodigo().equals(REIC.name())) {
                 reincorporacions = service.allReincorporacionByResolucion(resolucionDB);
@@ -217,10 +225,10 @@ public class ResolucionExistentesController {
                         "alumno.persona.tipoDocumento.*",
                         "cicloReincorporacion.*"
                     });
-                    objectNode.put("isReincorporacion", true);
+                    objectNode.put("tipo", REIC.name());
                     array.add(objectNode);
                 }
-            } else {
+            } else if (resolucionDB.getTipoResolucion().getCodigo().equals(RCI.name())) {
                 retiroCiclos = service.allRetiroCicloByResolucion(resolucionDB);
                 for (RetiroCiclo retiroCiclo : retiroCiclos) {
                     objectNode = JsonHelper.createJson(retiroCiclo, JsonNodeFactory.instance, new String[]{
@@ -230,7 +238,21 @@ public class ResolucionExistentesController {
                         "alumno.persona.tipoDocumento.*",
                         "cicloAcademico.*"
                     });
-                    objectNode.put("isReincorporacion", false);
+                    objectNode.put("tipo", RCI.name());
+                    array.add(objectNode);
+                }
+            } else {
+                cambioNotas = service.allCambioNota(resolucionDB);
+                for (CambioNota cambioNota : cambioNotas) {
+                    objectNode = JsonHelper.createJson(cambioNota, JsonNodeFactory.instance, new String[]{
+                        "*",
+                        "curso.*",
+                        "alumno.*",
+                        "alumno.persona.*",
+                        "alumno.persona.tipoDocumento.*",
+                        "cicloAcademico.*"
+                    });
+                    objectNode.put("tipo", CAM_NOTA.name());
                     array.add(objectNode);
                 }
             }
