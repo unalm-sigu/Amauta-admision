@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -76,4 +77,13 @@ public class CursoExcluidoDAOH extends AbstractEasyDAO<CursoExcluido> implements
         this.update(octavia);
     }
 
+    @Override
+    public void deleteByRolExamenes(RolExamenes rolExamenes) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  CursoExcluido ce where ce.rolExamenes.id=:ROL_EXAMENES ");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("ROL_EXAMENES", rolExamenes.getId());
+        query.executeUpdate();
+    }
 }
