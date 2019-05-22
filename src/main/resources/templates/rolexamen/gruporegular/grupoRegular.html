@@ -79,9 +79,9 @@
                                 <thead>
                                     <tr>
                                         <th class="col-md-3 text-center">Grupo</th>
+                                        <th class="col-md-3 text-center">Fecha</th>
                                         <th class="col-md-3 text-center">Secciones</th>
                                         <th class="col-md-3 text-center">Alumnos</th>
-                                        <th class="col-md-3 text-center">Fecha</th>
                                         <th class="text-center"></th>
                                     </tr>
                                 </thead>
@@ -91,19 +91,6 @@
                                             <a v-on:click="loadModalGrupos(item)"
                                                class="pointer text-md"
                                                >{{ item.letra }} ({{item.gruposRegularesActivosCount}})</a>
-                                        </td>
-                                        <td class="text-center v-middle">  
-                                            <!--   <span class="badge pointer"
-                                                     v-on:click.prevent="loadModalSecciones(item)"
-                                                     v-text="item.seccionesRegularesActivosCount"></span>--> 
-                                            <span class="badge pointer"
-                                                  v-on:click.prevent="letraRegularSecciones(item)"
-                                                  v-text="item.seccionesRegularesActivosCount"></span>
-                                        </td>
-                                        <td class="text-center v-middle">
-                                            <span class="badge pointer"
-                                                  v-on:click.prevent="loadModalAlumnos(item)"
-                                                  v-text="item.alumnosRegularesActivosCount"></span>
                                         </td>
                                         <td class="v-middle text-center v-middle">
                                             <div v-if="item.grupoHorasExamen.fecha">
@@ -117,6 +104,19 @@
                                                     Sin Asignar Horario
                                                 </label>
                                             </div>
+                                        </td>
+                                        <td class="text-center v-middle">  
+                                            <!--   <span class="badge pointer"
+                                                     v-on:click.prevent="loadModalSecciones(item)"
+                                                     v-text="item.seccionesRegularesActivosCount"></span>--> 
+                                            <span class="badge pointer"
+                                                  v-on:click.prevent="letraRegularSecciones(item)"
+                                                  v-text="item.seccionesRegularesActivosCount"></span>
+                                        </td>
+                                        <td class="text-center v-middle">
+                                            <span class="badge pointer"
+                                                  v-on:click.prevent="loadModalAlumnos(item)"
+                                                  v-text="item.alumnosRegularesActivosCount"></span>
                                         </td>
                                         <td class="v-middle">
                                             <div class="dropdown actions" th:if="false">

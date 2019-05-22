@@ -49,6 +49,8 @@ public interface AulaDAO extends EasyDAO<Aula> {
 
     List<Aula> allByOficinaSupervisora(Oficina oficinaEstudios);
 
+    List<Aula> allByEstado(EstadoEnum... estadoEnum);
+
     List<Aula> allByTipoAula(TipoAulaEnum tipoAulaEnum);
 
     List<Aula> allByOficinaSupervisora(OficinaEnum oficinaEnum);

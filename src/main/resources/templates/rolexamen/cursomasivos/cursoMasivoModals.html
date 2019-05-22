@@ -9,8 +9,20 @@
                         <div class="row">
                             <div class="form-group">
                                 <div class="col-md-6 bold">
-                                    <label class="bold">Total Aulas : </label>
+                                    <label class="bold">Total Secciones : </label>
+                                    {{cursoMasivoExamen.seccionesCount}}
+                                </div>
+                                <div class="col-md-6 bold">
+                                    <label class="bold">Aulas Asignadas : </label>
                                     {{cursoMasivoExamen.aulas}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-md-6 bold">
+                                    <label class="bold">Alumnos :  </label>
+                                    {{cursoMasivoExamen.alumnos}}
                                 </div>
 
                                 <div class="col-md-6 bold">
@@ -21,13 +33,8 @@
                         </div>
 
                         <div class="row">
-                            <div class="form-group">
-                                <div class="col-md-6 bold">
-                                    <label class="bold">Alumnos :  </label>
-                                    {{cursoMasivoExamen.alumnos}}
-                                </div>
-
-                                <div class="col-md-6 bold">
+                            <div class="form-group ">
+                                <div class="col-md-6 bold pull-right">
                                     <label class="bold">Faltantes : </label>
                                     <span v-if="(cursoMasivoExamen.alumnos - cursoMasivoExamen.capacidadAulas)>0">
                                         {{cursoMasivoExamen.alumnos - cursoMasivoExamen.capacidadAulas}}

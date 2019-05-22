@@ -24,24 +24,24 @@ import pe.edu.lamolina.model.general.TipoAula;
 
 @Repository
 public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     public AulaDAOH() {
         super();
         setClazz(Aula.class);
     }
-
+    
     @Override
     public Aula findByCode(String codigo) {
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")
                 .leftJoin("aulaSuperior", "sede se", "tipoAula ta", "oficinaSupervisora os")
                 .filter("au.codigo", codigo);
-
+        
         return find(sql);
     }
-
+    
     @Override
     public Aula findActiveByCode(String code) {
         Octavia sql = Octavia.query();
@@ -51,7 +51,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
         sql.filter("au.estado", EstadoEnum.ACT.name());
         return find(sql);
     }
-
+    
     @Override
     public List<Aula> allByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
@@ -59,10 +59,10 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
                 .searchFields("au.nombre", "aus.nombre", "ta.nombre", "au.codigo", "os.nombre")
                 .orderBy("au.id desc");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public Integer findAforoByEdificio(Aula aula) {
         Octavia sql = Octavia.query()
@@ -70,10 +70,10 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .from(Aula.class, "au")
                 .join("aulaSuperior aus")
                 .filter("aus.id", aula);
-
+        
         return (Integer) sql.find(getCurrentSession());
     }
-
+    
     @Override
     public List<Aula> allAulasSuperioresByName(String nombre) {
         Octavia sql = Octavia.query()
@@ -81,10 +81,10 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .filter("au.tipoAmbiente", "EDI")
                 .filter("au.nombre", "like", nombre)
                 .orderBy("au.nombre", "au.codigo");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<Aula> allByAulaSuperior(Aula aula) {
         Octavia sql = Octavia.query()
@@ -92,10 +92,10 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .join("aulaSuperior aus")
                 .filter("aus.id", aula)
                 .orderBy("au.nombre", "au.codigo");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<Aula> allByAulasSuperiores(List<Aula> aulas) {
         Octavia sql = Octavia.query()
@@ -103,20 +103,20 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .join("aulaSuperior aus")
                 .in("aus.id", aulas)
                 .orderBy("au.nombre", "au.codigo");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public Aula find(Long id) {
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")
-                .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os","tipoCarpeta tcar")
+                .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os", "tipoCarpeta tcar")
                 .filter("au.id", id);
-
+        
         return find(sql);
     }
-
+    
     @Override
     public List<Aula> allPabellonesByOficina(Oficina oficina) {
         Octavia sql = Octavia.query()
@@ -126,7 +126,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .filter("ofi.id", oficina);
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<Aula> allPabellonesByOficina(OficinaEnum oficinaEnum) {
         Octavia sql = Octavia.query()
@@ -136,7 +136,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .filter("ofi.codigo", oficinaEnum);
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<Aula> allByOficinaModulo(Oficina oficina, Aula modulo) {
         Octavia sql = Octavia.query()
@@ -145,10 +145,10 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .filter("aus.id", modulo)
                 .filter("ofi.id", oficina)
                 .orderBy("au.nombre", "au.codigo");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<Aula> allAulasSuperiorByTipoOficina(TipoOficinaEnum tipoOficinaEnum) {
         Octavia sql = Octavia.query()
@@ -158,7 +158,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .filter("ofi.tipoOficina", tipoOficinaEnum.name());
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<Aula> allByPabellon(Aula pabellon) {
         Octavia sql = Octavia.query()
@@ -167,7 +167,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .filter("aus.id", pabellon);
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<Aula> allPabellonesByOficinasNoOera(List<Oficina> oficinas) {
         Octavia sql = Octavia.query()
@@ -179,7 +179,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .notIn("ofi.id", Arrays.asList(Constantine.ID_OFICINA_OERA));
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<Aula> searchByNombreFilter(String nombre, Integer limit) {
         Octavia sql = Octavia.query()
@@ -192,10 +192,10 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .endBlock()
                 .orderBy("au.codigo", "au.nombre")
                 .limit(limit);
-
+        
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<Aula> allByDynatableFilterTramite(DynatableFilter filter, List<Aula> aulasNoIncluidas, Oficina oficina) {
         DynatableSql sql = new DynatableSql(filter)
@@ -208,25 +208,25 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .isNotNull("aus.id")
                 .filter("os.id", oficina)
                 .orderBy("au.id desc");
-
+        
         if (aulasNoIncluidas != null && !aulasNoIncluidas.isEmpty()) {
             sql.notIn("au.id", aulasNoIncluidas);
         }
-
+        
         sql.beginRelativeFilters();
         this.setCondicionAulaSeleccionada(filter, sql);
-
+        
         return all(sql);
     }
-
+    
     private void setCondicionAulaSeleccionada(DynatableFilter filter, DynatableSql sql) {
-
+        
         Map<String, Object> queries = filter.getQueries();
-
+        
         if (queries == null) {
             return;
         }
-
+        
         for (String key : queries.keySet()) {
             if (key.equals("aulas")) {
                 String value = (String) queries.get(key);
@@ -246,25 +246,25 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 }
             }
             if (key.equals("capacidadmaximaambiente")) {
-
+                
                 String capacidadmaximaambiente = (String) queries.get(key);
                 if (!Strings.isNullOrEmpty(capacidadmaximaambiente)) {
                     sql.filter("au.capacidadAula", "<=", Integer.parseInt(capacidadmaximaambiente));
                 }
             }
-
+            
             if (key.equals("capacidadminimaambiente")) {
-
+                
                 String capacidadminimaambiente = (String) queries.get(key);
                 if (!Strings.isNullOrEmpty(capacidadminimaambiente)) {
                     sql.filter("au.capacidadAula", ">=", Integer.parseInt(capacidadminimaambiente));
                 }
             }
-
+            
         }
-
+        
     }
-
+    
     @Override
     public List<Aula> allAulaModuloByName(String nombre, Integer limit, Oficina oficina) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
@@ -284,17 +284,17 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .limit(limit);
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<Aula> allByOficinaSupervisora(Oficina oficinaEstudios) {
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")
                 .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
                 .filter("ofi.id", oficinaEstudios);
-
+        
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<Aula> allByOficinaSupervisora(OficinaEnum oficinaEnum, EstadoEnum estadoEnum) {
         Octavia sql = Octavia.query()
@@ -302,10 +302,21 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
                 .filter("ofi.codigo", oficinaEnum)
                 .filter("au.estado", estadoEnum.name());
-
+        
         return sql.all(getCurrentSession());
     }
-
+    
+    @Override
+    public List<Aula> allByEstado(EstadoEnum... estadoEnum) {
+        Octavia sql = Octavia.query()
+                .from(Aula.class, "au")
+                .join("au.oficinaSupervisora ofi")
+                .left("au.aulaSuperior aus")
+                .in("au.estado", estadoEnum);
+        
+        return sql.all(getCurrentSession());
+    }
+    
     @Override
     public Aula findAulaMaxAforo(OficinaEnum oficinaEnum, EstadoEnum estadoEnum) {
         Octavia sql = Octavia.query()
@@ -318,17 +329,17 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .limit(1);
         return this.find(sql);
     }
-
+    
     @Override
     public List<Aula> allByOficinaSupervisora(OficinaEnum oficinaEnum) {
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")
                 .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
                 .filter("ofi.codigo", oficinaEnum);
-
+        
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<Aula> allByTipoAula(TipoAulaEnum tipoAulaEnum) {
         Octavia sql = Octavia.query()
@@ -338,5 +349,5 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .orderBy("au.nombre");
         return sql.all(getCurrentSession());
     }
-
+    
 }

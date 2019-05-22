@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.CursoExcluido;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
@@ -41,7 +42,7 @@ public interface CursoMasivosService {
 
     void excluirCursoMasivo(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds);
 
-    void excluirSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivo, DataSessionPivot ds);
+    void excluirSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivo, CursoExcluido cursoExcluido, DataSessionPivot ds);
 
     CursoMasivoExamen findCursoMasivo(Long idCursoMasivo);
 

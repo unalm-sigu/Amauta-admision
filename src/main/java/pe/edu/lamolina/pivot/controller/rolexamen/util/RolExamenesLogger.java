@@ -1,7 +1,10 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.util;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -16,12 +19,20 @@ import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 @Component
 public class RolExamenesLogger {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static Boolean SHOW_LOG = Boolean.TRUE;
+
+    private Long rolExamenes;
+    private String letra;
     private String tipo;
+    private Integer levelMessage;
     private String message;
     private boolean running;
     private boolean cruce;
     private Integer maximoAforoAula;
 
+    private List<Aula> aulas;
     private List<Aula> aulasOera;
 
     private List<RolExamenesLogger> logDetails;
@@ -90,6 +101,35 @@ public class RolExamenesLogger {
     public RolExamenesLogger() {
     }
 
+    public void addMessageLevel1(String message) {
+        RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
+        rolExamenesLogger.setLevelMessage(BigInteger.ONE.intValue());
+        rolExamenesLogger.setMessage(message);
+        this.addLogDetails(rolExamenesLogger);
+    }
+
+    public void addMessageLevel2(String message, String... params) {
+        RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
+        rolExamenesLogger.setLevelMessage(Integer.valueOf(2));
+        if (params == null) {
+            rolExamenesLogger.setMessage(message);
+        } else {
+            rolExamenesLogger.setMessage(String.format(message, params));
+        }
+        this.addLogDetails(rolExamenesLogger);
+    }
+
+    public void addMessageLevel3(String message, String... params) {
+        RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
+        rolExamenesLogger.setLevelMessage(Integer.valueOf(3));
+        if (params == null) {
+            rolExamenesLogger.setMessage(message);
+        } else {
+            rolExamenesLogger.setMessage(String.format(message, params));
+        }
+        this.addLogDetails(rolExamenesLogger);
+    }
+
     public void cruceDocente(Docente docente, Curso curso) {
         this.cruce = true;
         RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
@@ -98,7 +138,7 @@ public class RolExamenesLogger {
         String msg = "Conflicto del docente %s - %s, con el curso masivo %s - %s";
         String complexMsg = String.format(msg, docente.getCodigo(), docente.getPersona().getApellidosNombres(), curso.getCodigo(), curso.getNombre());
         rolExamenesLogger.setMessage(complexMsg);
-        this.logDetails.add(rolExamenesLogger);
+        this.addLogDetails(rolExamenesLogger);
     }
 
     public void cruceDocente(Docente docente, SeccionGrupoEspecial seccionGrupoEspecial) {
@@ -111,7 +151,7 @@ public class RolExamenesLogger {
         String msg = "Conflicto del docente %s - %s, con la seccion especial %s";
         String complexMsg = String.format(msg, docente.getCodigo(), docente.getPersona().getApellidosNombres(), seccion.getCodigo2());
         rolExamenesLogger.setMessage(complexMsg);
-        this.logDetails.add(rolExamenesLogger);
+        this.addLogDetails(rolExamenesLogger);
     }
 
     public void cruceAlumno(Alumno alumno, Curso curso) {
@@ -122,7 +162,7 @@ public class RolExamenesLogger {
         String msg = "Conflicto del Alumno %s - %s, con el curso masivo %s - %s";
         String complexMsg = String.format(msg, alumno.getCodigo(), alumno.getPersona().getApellidosNombres(), curso.getCodigo(), curso.getNombre());
         rolExamenesLogger.setMessage(complexMsg);
-        this.logDetails.add(rolExamenesLogger);
+        this.addLogDetails(rolExamenesLogger);
     }
 
     public void cruceAlumno(Alumno alumno, SeccionGrupoEspecial seccionGrupoEspecial) {
@@ -135,7 +175,7 @@ public class RolExamenesLogger {
         String msg = "Conflicto del Alumno %s - %s, con la seccion especial %s";
         String complexMsg = String.format(msg, alumno.getCodigo(), alumno.getPersona().getApellidosNombres(), seccion.getCodigo2());
         rolExamenesLogger.setMessage(complexMsg);
-        this.logDetails.add(rolExamenesLogger);
+        this.addLogDetails(rolExamenesLogger);
     }
 
     public void cruceAlumno(Alumno alumno, LetraGrupoRegular letraGrupoRegular, Seccion seccion) {
@@ -150,7 +190,7 @@ public class RolExamenesLogger {
                 seccion.getCodigo2()
         );
         rolExamenesLogger.setMessage(complexMsg);
-        this.logDetails.add(rolExamenesLogger);
+        this.addLogDetails(rolExamenesLogger);
     }
 
     public void cruceDocente(Docente docente, LetraGrupoRegular letraGrupoRegular, Seccion seccion) {
@@ -167,7 +207,7 @@ public class RolExamenesLogger {
                 seccion.getCodigo2()
         );
         rolExamenesLogger.setMessage(complexMsg);
-        this.logDetails.add(rolExamenesLogger);
+        this.addLogDetails(rolExamenesLogger);
     }
 
     public void cruceAula(Aula aula, Curso curso) {
@@ -178,7 +218,7 @@ public class RolExamenesLogger {
         String msg = "Conflicto del Aula %s, con el curso masivo %s - %s";
         String complexMsg = String.format(msg, aula.getCodigo(), curso.getCodigo(), curso.getNombre());
         rolExamenesLogger.setMessage(complexMsg);
-        this.logDetails.add(rolExamenesLogger);
+        this.addLogDetails(rolExamenesLogger);
     }
 
     public void aulaOcupada(Aula aula, GrupoHorasExamen grupoHorasExamen) {
@@ -189,7 +229,7 @@ public class RolExamenesLogger {
         String msg = "El Aula %s, se encuentra ocupada para los horarios del grupo %s";
         String complexMsg = String.format(msg, aula.getCodigo(), grupoHorasExamen.getGrupoHoras().getCodigo());
         rolExamenesLogger.setMessage(complexMsg);
-        this.logDetails.add(rolExamenesLogger);
+        this.addLogDetails(rolExamenesLogger);
     }
 
     public void cruceAula(Aula aula, LetraGrupoRegular letraGrupoRegular, Seccion seccion) {
@@ -203,8 +243,9 @@ public class RolExamenesLogger {
                 letraGrupoRegular.getLetra(),
                 seccion.getCodigo2()
         );
+
         rolExamenesLogger.setMessage(complexMsg);
-        this.logDetails.add(rolExamenesLogger);
+        this.addLogDetails(rolExamenesLogger);
     }
 
     public void cruceAula(Aula aula, SeccionGrupoEspecial seccionGrupoEspecial) {
@@ -220,6 +261,13 @@ public class RolExamenesLogger {
                 seccion.getCodigo2()
         );
         rolExamenesLogger.setMessage(complexMsg);
+        this.addLogDetails(rolExamenesLogger);
+    }
+
+    void addLogDetails(RolExamenesLogger rolExamenesLogger) {
+        if (SHOW_LOG) {
+            logger.debug(rolExamenesLogger.getMessage());
+        }
         this.logDetails.add(rolExamenesLogger);
     }
 
@@ -298,6 +346,46 @@ public class RolExamenesLogger {
 
     public void setMaximoAforoAula(Integer maximoAforoAula) {
         this.maximoAforoAula = maximoAforoAula;
+    }
+
+    public String getLetra() {
+        return letra;
+    }
+
+    public void setLetra(String letra) {
+        this.letra = letra;
+    }
+
+    public Long getRolExamenes() {
+        return rolExamenes;
+    }
+
+    public void setRolExamenes(Long rolExamenes) {
+        this.rolExamenes = rolExamenes;
+    }
+
+    public Integer getLevelMessage() {
+        return levelMessage;
+    }
+
+    public void setLevelMessage(Integer levelMessage) {
+        this.levelMessage = levelMessage;
+    }
+
+    public static Boolean getSHOW_LOG() {
+        return SHOW_LOG;
+    }
+
+    public static void setSHOW_LOG(Boolean SHOW_LOG) {
+        RolExamenesLogger.SHOW_LOG = SHOW_LOG;
+    }
+
+    public List<Aula> getAulas() {
+        return aulas;
+    }
+
+    public void setAulas(List<Aula> aulas) {
+        this.aulas = aulas;
     }
 
 }

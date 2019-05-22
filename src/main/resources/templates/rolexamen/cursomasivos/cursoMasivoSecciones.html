@@ -99,16 +99,24 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th class="col-md-4 text-center">Sección</th>
-                                                <th class="col-md-4 text-center">Alumnos</th>
-                                                <th class="col-md-4 text-center">Estado</th>
+                                                <th class="col-md-3 text-center">Sección</th>
+                                                <th class="col-md-2 text-center">Horario Sección</th>
+                                                <th class="col-md-2 text-center">Aula Sección</th>
+                                                <th class="col-md-3 text-center">Alumnos</th>
+                                                <th class="col-md-2 text-center">Estado</th>
                                                 <th v-if="accionesDisponibles" class="text-center"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="sec in props.data">
                                                 <td class="text-center">
-                                                    <span class="text-md bold text-primary">  {{sec.seccion.codigo2}} ({{sec.seccion.grupoHoras.codigo}}) </span>
+                                                    <span class="text-md bold text-primary">  {{sec.seccion.codigo2}}  </span>
+                                                </td>
+                                                <td>
+                                                    <span v-text="sec.seccion.grupoHoras.codigo"></span>
+                                                </td>
+                                                <td>
+                                                    <span v-text="sec.seccion.aula.codigo"></span>
                                                 </td>
                                                 <td class="text-center">
                                                     <span class="badge pointer">{{ sec.alumnosCount }}</span>
@@ -125,7 +133,8 @@
                                                     <li><a v-if="sec.isEstadoActivo"  v-on:click.prevent="excluir(sec,'SECCION')">Excluir</a></li>
                                                     <li><a v-if="sec.isEstadoExcluido"  v-on:click.prevent="incluir(sec,'SECCION')">Incluir</a></li>
                                                     <li class="divider"></li> 
-                                                    <li><a v-if="sec.isEstadoActivo"  v-on:click.prevent="trasladar(sec)">Mover</a></li>
+                                                    <li><a v-if="sec.isEstadoActivo"  
+                                                           v-on:click.prevent="trasladar(sec)">Mover</a></li>
                                                 </ul>
                                             </div>
                                         </td>
