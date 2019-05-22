@@ -407,6 +407,9 @@ public class MatricularServiceImp implements MatricularService {
                         ds);
                 if (cumple && idMatCurso != matriculaCurso.getId()) {
                     mr.setCursosMatriculados(mr.getCursosMatriculados() + 1);
+                    mr.setEstadoEnum(MAT);
+                    mr.setCreditosMatriculados(curso.getCreditos() + mr.getCreditosMatriculados());
+                    listMatriculados.add(mr);
                     idMatCurso = matriculaCurso.getId();
                 }
             }
@@ -450,13 +453,6 @@ public class MatricularServiceImp implements MatricularService {
                 matriculaCursoMatriculados.add(matriculaCurso);
 
             }
-
-//                    Integer creditosMatriculados = mapCreditosMatriculado.get(mr.getId());
-//                    creditosMatriculados += 1;
-//                    mapCreditosMatriculado.replace(mr.getId(), creditosMatriculados);
-            mr.setEstadoEnum(MAT);
-            mr.setCreditosMatriculados(curso.getCreditos() + mr.getCreditosMatriculados());
-            listMatriculados.add(mr);
 
             Integer matriculadosSeccion = mapMatriculadosSeccion.get(seccion.getId());
             matriculadosSeccion += 1;
