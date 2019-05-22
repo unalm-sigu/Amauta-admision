@@ -35,7 +35,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .join("alumno alu", "curso cur")
                 .left("cursoCurricula ccur", "cursoOpcional", "tipoCursoCurricula tcc")
                 .filter("alumno", alumno)
-                .filter("tcc.codigo", "<>", EEP.name())
+                .filter("tcc.codigo", "!=", EEP.name())
                 .orderBy("acc.numeroCiclo");
 
         return all(sql);
