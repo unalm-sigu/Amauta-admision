@@ -1354,6 +1354,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (AlumnoCicloCurso alumnoCicloCurso : cursosDesapr) {
             if (mapCursosAprobadosKey.get(alumnoCicloCurso.getAlumnoCursoKey()) == null) {
                 cursosAprobados.add(alumnoCicloCurso);
+                mapCursosAprobadosKey.put(alumnoCicloCurso.getAlumnoCursoKey(), alumnoCicloCurso);
             }
         }
         Map<Long, List<AlumnoCicloCurso>> mapCursosAprobados = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosAprobados);
