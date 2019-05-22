@@ -30,4 +30,6 @@ public interface ReincorporacionDAO extends EasyDAO<Reincorporacion> {
     Reincorporacion findByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 
     public List<Reincorporacion> allByCicloReincorporacion(CicloAcademico cicloAcademico);
+
+    public List<Reincorporacion> allByTramites(List<Tramite> tramites);
 }

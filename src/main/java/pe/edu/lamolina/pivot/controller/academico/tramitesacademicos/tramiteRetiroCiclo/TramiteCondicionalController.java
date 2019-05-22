@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRet
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -30,21 +31,24 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import pe.edu.lamolina.model.enums.TipoTramiteEnum;
+import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.REI;
-import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionExistentes.ResolucionExistenteService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("academico/tramiteretirociclo")
+@RequestMapping("academico/tramitecondicional")
 public class TramiteCondicionalController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -60,6 +64,9 @@ public class TramiteCondicionalController {
 
     @Autowired
     AvanceCurricularService avanceCurricularService;
+
+    @Autowired
+    ResolucionService resolucionService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -94,10 +101,11 @@ public class TramiteCondicionalController {
 
         ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode tipoTramiteJson = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
 
         List<TipoTramite> tipoTramite = service.allTipoTramite();
         for (TipoTramite tipo : tipoTramite) {
-            if (Arrays.asList(RCI.name(), REI.name()).contains(tipo.getCodigo())) {
+            if (Arrays.asList(RCI.name(), REI.name(), CAM_NOTA.name()).contains(tipo.getCodigo())) {
                 tipoTramiteJson.add(JsonHelper.createJson(tipo, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
@@ -105,10 +113,16 @@ public class TramiteCondicionalController {
             arrayNode.add(JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{
                 "*"}));
         }
+        List<Oficina> oficinas = resolucionService.allOFicinasByUser(ds);
+        for (Oficina oficina : oficinas) {
+            ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"});
+            oficinasJson.add(oficinaJson);
+        }
+        model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("tipoTramite", tipoTramiteJson);
         model.addAttribute("ciclos", arrayNode);
         model.addAttribute("ciclo", ds.getCicloAcademico());
-        return "academico/tramiteRetiroCiclo/tramiteRetiroCiclo";
+        return "academico/tramiteCondicional/tramiteCondicional";
     }
 
     @ResponseBody
@@ -118,12 +132,14 @@ public class TramiteCondicionalController {
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            List<RetiroCiclo> retiroCiclos = service.allByCiclo(ds.getCicloAcademico(), filter);
+            List<Tramite> tramites = service.allByCiclo(ds.getCicloAcademico(), filter);
             ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
-            for (RetiroCiclo cicloAcademico : retiroCiclos) {
-                arrayNode.add(JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{
+            for (Tramite tramite : tramites) {
+                arrayNode.add(JsonHelper.createJson(tramite, JsonNodeFactory.instance, new String[]{
                     "*",
-                    "cicloAcademico.*",
+                    "tipoTramite.*",
+                    "cicloAcademicoResolucion.*",
+                    "cursoResolucion.*",
                     "alumno.*",
                     "alumno.persona.*",
                     "alumno.persona.tipoDocumento.*",
@@ -133,6 +149,7 @@ public class TramiteCondicionalController {
             json.setData(arrayNode);
             json.setFiltered(filter.getFiltered());
             json.setTotal(filter.getTotal());
+            json.setHeader(filter);
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
@@ -155,8 +172,10 @@ public class TramiteCondicionalController {
 
             if (tramite.getTipoTramite().getCodigo().equals(RCI.name())) {
                 service.saveRetiroCiclo(tramite, ds);
-            } else {
+            } else if (tramite.getTipoTramite().getCodigo().equals(REI.name())) {
                 service.saveReincorporacion(tramite, ds);
+            } else if (tramite.getTipoTramite().getCodigo().equals(CAM_NOTA.name())) {
+                service.saveCambioNota(tramite, ds);
             }
 
             response.setMessage("Se guardó satisfactoriamente.");
@@ -174,7 +193,7 @@ public class TramiteCondicionalController {
     @ResponseBody
     @RequestMapping("update")
     public JsonResponse update(
-            @RequestBody RetiroCiclo retiroCiclo,
+            @RequestBody Tramite tramite,
             Model model,
             HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
@@ -183,8 +202,16 @@ public class TramiteCondicionalController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            service.createToken(retiroCiclo, ds);
-            MatriculaResumen matriculaResumen = service.update(retiroCiclo, ds);
+            service.createToken(ds);
+            MatriculaResumen matriculaResumen = new MatriculaResumen();
+            if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.RCI.name())) {
+
+                service.updateRetiroCiclo(tramite, ds);
+            } else if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.REI.name())) {
+                service.updateReincorporacion(tramite, ds);
+            } else if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.CAM_NOTA.name())) {
+                service.updateCambioNota(tramite, ds);
+            }
 
             response.setData(JsonHelper.createJson(matriculaResumen, jsonFactory, new String[]{"id"}));
             response.setMessage("Se actualizó satisfactoriamente.");
@@ -226,6 +253,38 @@ public class TramiteCondicionalController {
                             "persona.nombreCompleto",
                             "persona.rutaFoto",
                             "persona.tipoDocumento.*"}));
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCursosAlumnoByName")
+    public JsonResponse allCursosAlumnoByName(
+            @RequestParam(value = "nombre", required = true) String nombre,
+            @RequestParam(value = "idAlumno", required = true) Long idAlumno,
+            @RequestParam(value = "idCiclo", required = true) Long idCiclo,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            List<Curso> lista = service.allCursosByName(nombre, new Alumno(idAlumno), new CicloAcademico(idCiclo), ds);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Curso alum : lista) {
+                jsonList.add(JsonHelper.createJson(alum, jsonFactory, true,
+                        new String[]{
+                            "*"}));
             }
 
             response.setData(jsonList);

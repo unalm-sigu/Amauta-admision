@@ -11,6 +11,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
@@ -129,10 +130,21 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
     public List<CursoCurricula> allByPlanes(List<PlanCurricular> planes) {
         Octavia sql = Octavia.query()
                 .from(CursoCurricula.class, "cc")
-                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
+                .left("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
                 .left("cu.departamentoAcademico")
                 .in("pc.id", planes)
                 .orderBy("cc.numeroCiclo", "cc.numeroCurso");
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoCurricula> allByCursoPlan(Curso curso, PlanCurricular plan) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
+                .left("cu.departamentoAcademico")
+                .filter("pc.id", plan)
+                .filter("cu.id", curso);
         return all(sql);
     }
 

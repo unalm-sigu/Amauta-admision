@@ -72,6 +72,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
@@ -90,6 +91,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
+import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CAPA_ULTIMO_CICLO;
@@ -147,6 +149,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Autowired
     AvanceCurricularService avanceCurricularService;
+
+    @Autowired
+    ReincorporacionDAO reincorporacionDAO;
 
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
@@ -717,7 +722,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public void finalizarPrioridad(CicloAcademico cicloAcademico) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         cicloBD.setFechaCierrePrioridades(new Date());
-        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
+        cicloAcademicoDAO.update(cicloBD);
 
     }
 
@@ -726,7 +731,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public void finalizarMatriculable(CicloAcademico cicloAcademico) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         cicloBD.setFechaCierreMatriculable(new Date());
-        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
+        cicloAcademicoDAO.update(cicloBD);
     }
 
     @Override
@@ -734,7 +739,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public void limpiarMatriculable(CicloAcademico cicloAcademico) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         cicloBD.setFechaMatriculables(null);
-        cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
+        cicloAcademicoDAO.updateFechaMatriculables(cicloBD);
         matriculaResumenDAO.deleteMatriculable(cicloAcademico);
     }
 
@@ -747,6 +752,9 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional
     public void saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
         CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
+        if (ciclo.getFechaMatriculables() == null) {
+            return;
+        }
         Alumno alumno = alumnoDAO.find(alumnoForm);
 
         MatriculaResumen matri = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
@@ -773,17 +781,16 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setNotaFinal("0");
         matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
         matri.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
-        matri.setEsCondicional(false);
+        matri.setEsCondicional(alumno.getEsMatriculaCondicional());
 
         if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
             AlumnoCiclo alumnoCiclo = null;
             if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {
-
                 List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumno);
                 AlumnoCiclo alumnoCicloPenultimo = alumnoCiclos.get(1);
                 alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumno);
 
-            } else {
+            } else if (tipoCondicional.equals(TipoCondicionalEnum.REI.name())) {
                 alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumnoForm);
             }
 
@@ -818,7 +825,6 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         aporteAlumnoService.generarAportes(alumno, ds.getCicloAcademico(), ds);
-        revisarSituacionAcademica(alumno, ds);
 
     }
 

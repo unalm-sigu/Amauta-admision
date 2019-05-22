@@ -16,6 +16,8 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.tramite.AutorizacionRegistro;
@@ -74,8 +76,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .left("cu.departamentoAcademico")
                 .filter("al.id", alumno)
                 .filter("estaAprobado", 1)
-                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
-                .orderBy("acc.fechaRegistro");
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
 
         return all(sql);
     }
@@ -102,6 +103,8 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
                 .left("cu.departamentoAcademico")
                 .filter("ca.tipo", "REG")
+                .filter("acc.estado", "!=", RCI)
+                .filter("acc.estado", "!=", RCU)
                 .in("al.id", alumnos)
                 .filter("registroActivo", 1)
                 .groupBy("al.id", "cu.id");
@@ -118,7 +121,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .filter("ac.id", alumnoCiclo)
                 .filter("registroActivo", 1);
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -530,4 +533,47 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
         this.update(octavia);
     }
 
+    @Override
+    public List<AlumnoCicloCurso> allDesaproActivoByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso cu")
+                .left("cu.departamentoAcademico")
+                .filter("al.id", alumno)
+                .filter("estaAprobado", 0)
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allDesaproActivoByAlumnos(List<Alumno> alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso cu")
+                .left("cu.departamentoAcademico")
+                .in("al.id", alumno)
+                .filter("estaAprobado", 0)
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allByNombre(Alumno alumno, CicloAcademico academico, String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico aca", "acc.curso cu")
+                .left("cu.departamentoAcademico")
+                .filter("al.id", alumno)
+                .filter("aca.id", academico)
+                .beginBlock()
+                .__().filter("cu.nombre", "like", nombre)
+                .__().filter("cu.codigo", "like", nombre)
+                .endBlock()
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+
+        return all(sql);
+    }
 }

@@ -90,4 +90,10 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     List<AlumnoCicloCurso> allByAlumnoCicloNoFilters(AlumnoCiclo alumnoCiclo);
 
+    public List<AlumnoCicloCurso> allDesaproActivoByAlumno(Alumno alumno);
+
+    public List<AlumnoCicloCurso> allDesaproActivoByAlumnos(List<Alumno> alumnos);
+
+    public List<AlumnoCicloCurso> allByNombre(Alumno alumno, CicloAcademico academico, String nombre);
+
 }

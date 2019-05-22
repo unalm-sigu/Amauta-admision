@@ -28,37 +28,37 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = false)
 public class CursosExcluidosServiceImp implements CursosExcluidosService {
-
+    
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     CursoMasivoExamenDAO cursoMasivoExamenDAO;
-
+    
     @Autowired
     CursoExcluidoDAO cursoExcluidoDAO;
-
+    
     @Autowired
     RolExamenesDAO rolExamenesDAO;
-
+    
     @Autowired
     SemanaExamenDAO semanaExamenDAO;
-
+    
     @Autowired
     SeccionDAO seccionDAO;
-
+    
     @Autowired
     SeccionExcluidoDAO seccionExcluidoDAO;
-
+    
     @Override
     public List<CursoExcluido> allCursosExcluidosByRolExamenes(RolExamenes rolExamenes) {
         return cursoExcluidoDAO.allByRolExamenes(rolExamenes);
     }
-
+    
     @Override
     public List<RolExamenes> allRolExamenesByCicloActivo(CicloAcademico cicloAcademico) {
         return cursoMasivoExamenDAO.allRolExamenesByCicloActivo(cicloAcademico);
     }
-
+    
     @Override
     @Transactional
     public void excluirCurso(CursoExcluido cursoExcluido, DataSessionPivot ds) {
@@ -66,7 +66,7 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
         if (cursoExcluidoFound != null) {
             throw new PhobosException("El curso ya estaba excluido, verifique.");
         }
-
+        
         cursoExcluido.setFechaRegistro(ds.getFechaAccionAudit());
         cursoExcluido.setUserRegistro(ds.getUsuario());
         cursoExcluido.setEstadoEnum(EstadoEnum.ACT);
@@ -74,21 +74,21 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
         cursoExcluido.setSeccionesTotales(BigDecimal.ZERO.intValue());
         cursoExcluido.setSeccionesExcluidas(BigDecimal.ZERO.intValue());
         cursoExcluidoDAO.save(cursoExcluido);
-
+        
         this.excluirSeccionesCurso(cursoExcluido, ds);
         this.comprobarCursoExcluido(cursoExcluido, ds);
     }
-
+    
     @Override
     @Transactional
     public void excluirSeccion(SeccionExcluido seccionExcluido, DataSessionPivot ds) {
         Seccion seccion = seccionDAO.find(seccionExcluido.getSeccion());
         CursoExcluido cursoExcluido = cursoExcluidoDAO.
                 findActiveByCursoAndRolExamenes(seccion.getGrupoSeccion().getCurso(), seccionExcluido.getRolExamenes());
-
+        
         SeccionExcluido seccionExcluidoFound = seccionExcluidoDAO.findByRolExamenesAndSeccion(seccionExcluido.getRolExamenes(), seccion, EstadoEnum.ACT);
         Assert.isNull(seccionExcluidoFound, "La sección ya se encuentre excluida, verifique.");
-
+        
         if (cursoExcluido == null) {
             cursoExcluido = new CursoExcluido();
             cursoExcluido.setCurso(seccion.getGrupoSeccion().getCurso());
@@ -96,6 +96,9 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
             cursoExcluido.setFechaRegistro(ds.getFechaAccionAudit());
             cursoExcluido.setRolExamenes(seccionExcluido.getRolExamenes());
             cursoExcluido.setUserRegistro(ds.getUsuario());
+            cursoExcluido.setEsExclusionCompleta(Boolean.FALSE);
+            cursoExcluido.setSeccionesExcluidas(BigDecimal.ZERO.intValue());
+            cursoExcluido.setSeccionesTotales(BigDecimal.ZERO.intValue());
             cursoExcluidoDAO.save(cursoExcluido);
         }
         seccionExcluido.setEstadoEnum(EstadoEnum.ACT);
@@ -105,7 +108,7 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
         seccionExcluidoDAO.save(seccionExcluido);
         this.comprobarCursoExcluido(cursoExcluido, ds);
     }
-
+    
     public void comprobarCursoExcluido(CursoExcluido cursoExcluido, DataSessionPivot ds) {
         List<SeccionExcluido> seccionesExcluidas = seccionExcluidoDAO.allByCursoExcluido(cursoExcluido, EstadoEnum.ACT);
         List<Seccion> secciones = seccionDAO.allByCicloAndCurso(ds.getCicloAcademico(), cursoExcluido.getCurso());
@@ -115,7 +118,7 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
         cursoExcluidoUpd.setEsExclusionCompleta(seccionesExcluidas.size() == secciones.size() ? Boolean.TRUE : Boolean.FALSE);
         cursoExcluidoDAO.updateColumns(cursoExcluidoUpd, "seccionesExcluidas", "seccionesTotales", "esExclusionCompleta");
     }
-
+    
     public void excluirSeccionesCurso(CursoExcluido cursoExcluido, DataSessionPivot ds) {
         List<Seccion> secciones = seccionDAO.allByCicloAndCurso(ds.getCicloAcademico(), cursoExcluido.getCurso());
         for (Seccion seccion : secciones) {
@@ -129,14 +132,14 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
             seccionExcluidoDAO.save(seccionExcluido);
         }
     }
-
+    
     @Override
     @Transactional
     public void anularExclusion(CursoExcluido cursoExcluido, DataSessionPivot ds) {
         CursoExcluido cursoExcluidoUpd = new CursoExcluido(cursoExcluido.getId());
         cursoExcluidoUpd.setEstadoEnum(EstadoEnum.ANU);
         cursoExcluidoDAO.updateAnulacion(cursoExcluidoUpd);
-
+        
         List<SeccionExcluido> seccionExcluidos = seccionExcluidoDAO.allByCursoExcluido(cursoExcluido, EstadoEnum.ACT);
         for (SeccionExcluido seccionExcluido : seccionExcluidos) {
             SeccionExcluido seccionExcluidoUpd = new SeccionExcluido(seccionExcluido.getId());
@@ -145,7 +148,7 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
         }
         this.comprobarCursoExcluido(cursoExcluido, ds);
     }
-
+    
     @Override
     public RolExamenes findRolExamenes(long rolExamenId) {
         RolExamenes rolExamenes = rolExamenesDAO.find(rolExamenId);
@@ -153,30 +156,30 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
         rolExamenes.setSemanasExamen(semanaExamens);
         return rolExamenes;
     }
-
+    
     @Override
     public List<Seccion> allSeccionesByCicloAndNombreLimit(CicloAcademico ciclo, RolExamenes rolExamenes, String nombre) {
         return seccionDAO.allByCicloAndNombreLimit(ciclo, rolExamenes, nombre);
     }
-
+    
     @Override
     public List<SeccionExcluido> allSeccionesExcluidas(CursoExcluido cursoExcluido) {
         List<SeccionExcluido> seccionesExcluidas = seccionExcluidoDAO.allByCursoExcluido(cursoExcluido);
         return seccionesExcluidas;
     }
-
+    
     @Override
     @Transactional
     public SeccionExcluido updateSeccionExcluidoEstado(SeccionExcluido seccionExcluidoForm, DataSessionPivot ds) {
         SeccionExcluido seccionExcluidoUpd = new SeccionExcluido(seccionExcluidoForm.getId());
         seccionExcluidoUpd.setEstado(seccionExcluidoForm.getEstado());
         seccionExcluidoDAO.updateColumns(seccionExcluidoUpd, "estado");
-
+        
         SeccionExcluido seccionExcluidoDB = seccionExcluidoDAO.find(seccionExcluidoForm.getId());
         CursoExcluido cursoExcluido = seccionExcluidoDB.getCursoExcluido();
         this.comprobarCursoExcluido(cursoExcluido, ds);
         seccionExcluidoDB = seccionExcluidoDAO.find(seccionExcluidoForm.getId());
         return seccionExcluidoDB;
     }
-
+    
 }

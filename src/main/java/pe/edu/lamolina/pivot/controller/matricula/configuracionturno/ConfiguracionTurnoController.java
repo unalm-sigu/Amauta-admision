@@ -33,9 +33,9 @@ import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REG;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REI;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_VER;
 import pe.edu.lamolina.model.enums.TipoMatriculaEnum;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.REI;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -118,7 +118,7 @@ public class ConfiguracionTurnoController {
         ArrayNode eventosJson = new ArrayNode(JsonNodeFactory.instance);
 
         for (EventoCicloAcademico evento : eventosCiclo) {
-            if (Arrays.asList(MAT_REG.name(), REI.name(), MAT_VER.name()).contains(evento.getEventoAcademico().getCodigo())) {
+            if (Arrays.asList(MAT_REG.name(), MAT_REI.name(), MAT_VER.name()).contains(evento.getEventoAcademico().getCodigo())) {
                 ObjectNode node = JsonHelper.createJson(evento, factory, true, new String[]{
                     "*",
                     "cicloAcademico.id", "cicloAcademico.descripcion",

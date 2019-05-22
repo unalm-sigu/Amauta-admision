@@ -98,7 +98,7 @@ public class CursoEquivalenteElectivoDAOH extends AbstractEasyDAO<CursoEquivalen
 
         Octavia sql = Octavia.query()
                 .from(CursoEquivalenteElectivo.class, "ce")
-                .join("cursoOpcionalCurricula cc", "cursoEquivalente cee", "cc.curso", "cc.planCurricular pc")
+                .left("cursoOpcionalCurricula cc", "cursoEquivalente cee", "cc.curso", "cc.planCurricular pc")
                 .in("pc.id", planCurricular)
                 .filter("estado", EstadoEnum.ACT.name());
 

@@ -11,11 +11,17 @@
             <option  th:each="item : ${carreras}" 
                      th:value="${item.id}"
                      th:attr="data-facultad=${item.facultad.nombre},data-modalidad=${item.modalidadEstudio.nombre},data-code-modalidad=${item.modalidadEstudio.codigo},data-tipo=${item.tipoEnum.value}"
-                     th:inline="text">[[${item.nombre}]] - ([[${item.codigo}]])</option>
+                     th:inline="text">
+                [[${item.modalidadEstudio.codigo=='EPG'? item.tipoEnum.value:''}]] 
+                [[${item.modalidadEstudio.codigo=='EPG'? 'en':''}]] 
+                [[${item.nombre}]]  - ([[${item.codigo}]])</option>
         </select>
         <span class="form-control" 
-              th:if="${planCurricular.id}"
+              th:if="${planCurricular.id != null &amp;&amp; planCurricular.carrera.modalidadEstudio.codigo == 'PRE'}"
               th:inline="text">[[${planCurricular.carrera.nombre}]] ([[${planCurricular.carrera.codigo}]])</span>
+        <span class="form-control" 
+              th:if="${planCurricular.id != null &amp;&amp; planCurricular.carrera.modalidadEstudio.codigo == 'EPG'}"
+              th:inline="text">[[${planCurricular.carrera.tipoEnum.value}]] en [[${planCurricular.carrera.nombre}]] ([[${planCurricular.carrera.codigo}]])</span>
         <input name="carrera.id" type="hidden" th:value="${planCurricular.carrera.id}"/>
     </div>
 
@@ -49,9 +55,9 @@
 
         <div class="hide" id="pregrado">
             <div class="row">
-                <div class="form-group col-md-12" id="divOrientacion">
+                <div class="form-group col-md-12" id="div-orientacion-pre">
                     <label >Orientación</label>
-                    <select class="form-control" id="cboOrientacion" name="orientacionCarrera.id"></select>
+                    <select class="form-control" id="cbo-orientacion-pre" name="orientacionCarrera.id"></select>
                 </div>
                 <div class="form-group col-md-6">
                     <label>Facultad</label>
@@ -59,19 +65,23 @@
                 </div>
                 <div class="form-group col-md-6">
                     <label>Modalidad Estudio</label>
-                    <span class="form-control" id="modalidad"></span>
+                    <span class="form-control" id="modalidad-pre"></span>
                 </div>
             </div>
         </div>
         <div class="hide" id="posgrado">
             <div class="row">
+                <div class="form-group col-md-12" id="div-orientacion-epg">
+                    <label >Orientación</label>
+                    <select class="form-control" id="cbo-orientacion-epg" name="orientacionCarrera.id"></select>
+                </div>
                 <div class="form-group col-md-3">
                     <label>Tipo</label>
                     <span class="form-control" id="tipo"></span>
                 </div>
                 <div class="form-group col-md-9">
                     <label>Modalidad Estudio</label>
-                    <span class="form-control" id="modalidad2"></span>
+                    <span class="form-control" id="modalidad-epg"></span>
                 </div>
             </div>
         </div>
@@ -107,7 +117,7 @@
                     <option></option>
                     <option  th:each="item : ${ciclos}" 
                              th:value="${item.id}"
-                             th:text="${item.descripcion} "></option>
+                             th:text="|${item.descripcion} - ${item.modalidadEstudio.nombre}|"></option>
                 </select>
 
                 <span th:if="${planCurricular.id}">
@@ -118,13 +128,13 @@
                         <option></option>
                         <option  th:each="item : ${ciclos}" 
                                  th:value="${item.id}"
-                                 th:text="${item.descripcion}"
+                                 th:text="|${item.descripcion} - ${item.modalidadEstudio.nombre}|"
                                  th:selected="${item.id==planCurricular.cicloInicioVigencia.id}"></option>
                     </select>
 
                     <span class="form-control" 
                           th:if="${planCurricular.estado != 'CRE'}"
-                          th:text="${planCurricular.cicloInicioVigencia.descripcion}"></span>
+                          th:text="|${planCurricular.cicloInicioVigencia.descripcion} - ${planCurricular.cicloInicioVigencia.modalidadEstudio.nombre}|"></span>
                     <input th:if="${planCurricular.estado != 'CRE'}"
                            name="cicloInicioVigencia.id" type="hidden" th:value="${planCurricular.cicloInicioVigencia.id}"/>
                 </span>

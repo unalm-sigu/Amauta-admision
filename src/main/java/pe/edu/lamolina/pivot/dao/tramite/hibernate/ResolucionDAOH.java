@@ -33,7 +33,9 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
                 .from(Resolucion.class, "t")
                 .join("tipoResolucion", "oficina", "userRegistro ur")
                 .join("ur.persona per")
-                .left("reincorporaciones reis");
+                .left("reincorporaciones reis")
+                .orderBy("t.fechaRegistro desc")
+                .limit(25);
         return this.all(sql);
     }
 

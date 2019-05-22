@@ -1,0 +1,96 @@
+<modal-vik ref="modalTramiteCondicional"
+           v-bind="modalTramiteCondicional"
+           v-bind:okaction="saveTramiteCondicional">
+    <div slot="body">
+        <div class="modal-body">
+            <form id="form" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
+                <div class="row m-b-md">
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Tipo Tramite</label>
+                            <multiselect v-model="tramite.tipoTramite" 
+                                         v-bind:options='tiposTramite'
+                                         label="nombre"
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Seleccione un tipo tramite"
+                                         required="true" >
+                            </multiselect>
+                            <input v-model="tramite.tipoTramite" required="true" type="text" class="hide"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Alumno</label>
+                            <multiselect v-model="tramite.alumno" 
+                                         v-bind:options='alumnos'
+                                         v-on:search-change="loadAlumno"
+                                         v-bind:custom-label='customLabel'
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Ingresa un caracter como mínimo"                                         
+                                         required="true" >
+                                <template slot="option" slot-scope="props">
+                                    <div class="option__desc">
+                                        <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                                        <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                                    </div>
+                                </template>
+                            </multiselect>
+                            <input v-model="tramite.alumno" required="true" type="text" class="hide"/>
+                        </div>
+                    </div>
+                    <div class="form-group row" >
+                        <div class="col-md-12">
+                            <label>Ciclos</label>
+                            <multiselect v-model="tramite.cicloAcademicoResolucion" 
+                                         v-bind:options='ciclos'
+                                         label="descripcion"
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Seleccione un ciclo"
+                                         required="true" >
+                            </multiselect>
+                            <input v-model="tramite.cicloAcademicoResolucion" required="true" type="text" class="hide"/>
+                        </div>
+                    </div>
+                    <div class="form-group row" v-if="tramite.tipoTramite &amp;&amp; tramite.tipoTramite.codigo == 'CAM_NOTA'">
+                        <div class="col-md-12">
+                            <label>Curso</label>
+                            <multiselect v-model="tramite.cursoResolucion" 
+                                         v-bind:options='cursos'
+                                         v-on:search-change="loadCursos"
+                                         label='nombre'
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Ingresa un caracter como mínimo"                                         
+                                         required="true"  >
+                            </multiselect>
+                            <input v-model="tramite.cursoResolucion" required="true" type="text" class="hide"/>
+                        </div>
+                    </div>
+                    <div class="form-group row" v-if="tramite.tipoTramite &amp;&amp; tramite.tipoTramite.codigo == 'CAM_NOTA'">
+                        <div class="col-md-12">
+                            <label>Nota</label>
+                            <input class="form-control numeric" v-model="tramite.notaResolucion" required=""></input>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Motivo</label>
+                            <textarea class="form-control textarea" v-model="tramite.motivoResolucion" minlength="15" required=""></textarea>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</modal-vik>
