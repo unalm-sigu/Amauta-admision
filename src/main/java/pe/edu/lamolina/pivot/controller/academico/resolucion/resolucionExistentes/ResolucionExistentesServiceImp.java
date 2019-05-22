@@ -23,6 +23,7 @@ import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
@@ -40,6 +41,7 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
@@ -100,6 +102,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     SerieDocumentoService serieDocumentoService;
     @Autowired
     CambioNotaDAO cambioNotaDAO;
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
@@ -175,6 +179,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         }
         for (Alumno alumno : alumnos) {
             matriculableService.revisarSituacionAcademica(alumno, ds);
+            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
         }
         return alumnos;
     }
@@ -273,6 +278,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         }
         for (Alumno alumno : alumnos) {
             matriculableService.revisarSituacionAcademica(alumno, ds);
+            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
         }
         return alumnos;
     }
@@ -356,7 +363,10 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
             alumnos.add(alumno);
         }
-
+        for (Alumno alumno : alumnos) {
+            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
+        }
         return alumnos;
     }
 
