@@ -370,6 +370,7 @@ public class MatricularServiceImp implements MatricularService {
             DataSessionPivot ds
     ) {
         Map<Long, MatriculaCurso> map = TypesUtil.convertListToMap("matriculaCurso.id", "matriculaCursoSimultaneo", matriculaCursosSim);
+        Long idMatCurso = -1l;
         for (MatriculaCurso matriculaCurso : matriculaCursoTemp) {
             grupoSeccionDAO.findLock(matriculaCurso.getGrupoSeccion().getId());
             Curso curso = matriculaCurso.getCurso();
@@ -379,7 +380,6 @@ public class MatricularServiceImp implements MatricularService {
             Boolean cumple = matriculaCursoMatriculados.stream().anyMatch(x
                     -> x.getCurso().getId() == requisitoSim.getCurso().getId()
                     && x.getMatriculaResumen().getId() == matriculaCurso.getMatriculaResumen().getId());
-
             for (MatriculaSeccion matriculaSeccion : matriculaCurso.getMatriculaSeccion()) {
                 Seccion seccion = matriculaSeccion.getSeccion();
                 Integer vac = mapVacantesDisponibles.get(seccion.getId());
@@ -405,10 +405,12 @@ public class MatricularServiceImp implements MatricularService {
                         vacantesAlumnoTemp,
                         listMatriculados,
                         ds);
+                if (cumple && idMatCurso != matriculaCurso.getId()) {
+                    mr.setCursosMatriculados(mr.getCursosMatriculados() + 1);
+                    idMatCurso = matriculaCurso.getId();
+                }
             }
-            if (cumple) {
-                mr.setCursosMatriculados(mr.getCursosMatriculados() + 1);
-            }
+
         }
 
     }
