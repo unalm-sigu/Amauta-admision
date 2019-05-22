@@ -318,10 +318,18 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
         RetiroCiclo retiroCiclobd = retiroCicloDAO.findByTramite(tramiteForm);
         retiroCiclobd.setEstado(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
-
+        
+        EstadoTramite estadoTramite = null;
+        if (tramiteForm.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
+            estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+        } else {
+            estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RHZ_SOL);
+        }
         Tramite tramite = tramiteDAO.findById(tramiteForm);
+        tramite.setEstadoTramite(estadoTramite);
         tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
         tramiteDAO.update(tramite);
+        
         Alumno alumno = retiroCiclobd.getAlumno();
         MatriculaResumen matriculaResumen = new MatriculaResumen();
         if (retiroCiclobd.getEstadoEnum() == TramiteEstadoEnum.RCHZ) {
@@ -399,6 +407,10 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
     @Override
     @Transactional
     public void saveReincorporacion(Tramite tramite, DataSessionPivot ds) {
+        if (tramite.getCicloAcademicoResolucion().getId() != ds.getCicloAcademico().getId()) {
+            throw new PhobosException("El alumno debe reincorporarce en el ciclo actual.");
+        }
+
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByCicloReincorporacion(ds.getCicloAcademico());
         Map<Long, Alumno> map = TypesUtil.convertListToMap("alumno", reincorporacions);
 
@@ -493,6 +505,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RHZ_SOL);
         }
         Tramite tramite = tramiteDAO.findById(tramiteForm);
+        tramite.setEstadoTramite(estadoTramite);
         tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
         tramiteDAO.update(tramite);
 
@@ -569,7 +582,6 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         cambioNota.setTramite(tramite);
         cambioNota.setUsuario(ds.getUsuario());
         cambioNota.setCurso(tramite.getCursoResolucion());
-        cambioNota.setNota(tramite.getNotaResolucion());
         cambioNota.setCicloAcademico(tramite.getCicloAcademicoResolucion());
         cambioNota.setFechaRegistro(new Date());
         cambioNotaDAO.save(cambioNota);
@@ -582,11 +594,15 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         cambioNota.setEstado(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
 
         Tramite tramite = tramiteDAO.findById(tramiteForm);
-        tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
-        tramiteDAO.update(tramite);
+
         Alumno alumno = cambioNota.getAlumno();
         MatriculaResumen matriculaResumen = new MatriculaResumen();
         if (tramiteForm.getEstadoEnum() != TramiteEstadoEnum.ACEP) {
+            EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RHZ_SOL);
+            tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
+            tramite.setEstadoTramite(estadoTramite);
+            tramiteDAO.update(tramite);
+
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
@@ -598,8 +614,14 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             matriculaResumenDAO.delete(matriculaResumen);
 
         } else {
+            EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+
+            tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
+            tramite.setEstadoTramite(estadoTramite);
+            tramiteDAO.update(tramite);
 
             Resolucion resolucion = createResolucion(tramiteForm.getResolucion(), TipoResolucionEnum.CAM_NOTA, ds);
+            cambioNota.setNota(tramite.getNotaResolucion());
             cambioNota.setResolucion(resolucion);
             cambioNotaDAO.update(cambioNota);
 
