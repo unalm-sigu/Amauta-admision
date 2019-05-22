@@ -452,7 +452,7 @@ public class MatricularServiceImp implements MatricularService {
 //                    mapCreditosMatriculado.replace(mr.getId(), creditosMatriculados);
             mr.setEstadoEnum(MAT);
             mr.setCreditosMatriculados(curso.getCreditos() + mr.getCreditosMatriculados());
-            mr.setCursosMatriculados(mr.getCreditosMatriculados() + 1);
+            mr.setCursosMatriculados(mr.getCursosMatriculados() + 1);
             listMatriculados.add(mr);
             
             Integer matriculadosSeccion = mapMatriculadosSeccion.get(seccion.getId());
