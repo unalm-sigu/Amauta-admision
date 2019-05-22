@@ -513,17 +513,18 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         alumnoCursoOld = alumnoCursoOld == null ? new ArrayList<>() : alumnoCursoOld;
         for (AlumnoCursoCurricula alumnoCursoCurriculaNew : alumnoCursoNew) {
+            if (alumnoCursoCurriculaNew.getCursoCurricula() != null
+                    && !estadosAprobados.contains(alumnoCursoCurriculaNew.getEstadoEnum())
+                    && alumnoCursoCurriculaNew.getCursoCurricula().getCreditosRequisito() > alumno.getCreditosCarreraAprobados()) {
+                alumnoCursoCurriculaNew.setEstadoEnum(NREQ);
+            }
+            alumnoCursoCurriculaNew.setValidado(true);
             AlumnoCursoCurricula cursoCurricula = alumnoCursoOld.stream().filter(x -> Objects.equals(x.getCurso().getId(), alumnoCursoCurriculaNew.getCurso().getId()) && !x.isValidado()).findAny().orElse(null);
             if (cursoCurricula != null) {
-                if (cursoCurricula.getCursoCurricula() != null
-                        && !estadosAprobados.contains(cursoCurricula.getEstadoEnum())
-                        && cursoCurricula.getCursoCurricula().getCreditosRequisito() > alumno.getCreditosCarreraAprobados()) {
-                    alumnoCursoCurriculaNew.setEstadoEnum(NREQ);
-                }
-                cursoCurricula.setValidado(true);
                 alumnoCursoCurriculaNew.setId(cursoCurricula.getId());
                 alumnoCursoCurriculaDAO.update(alumnoCursoCurriculaNew);
             } else {
+
                 alumnoCursoCurriculaDAO.save(alumnoCursoCurriculaNew);
             }
         }
@@ -871,17 +872,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
 
             List<RequisitoCursoCurricula> requisitos = mapRequisitos.get(evaluado.getCursoCurricula().getId());
-            if (evaluado.getCurso().getCodigo().equals("EG1006")) {
-                System.out.println("Es dep");
-                if (requisitos == null) {
-                    System.out.println("Es dep ---> " + requisitos);
-                } else {
-
-                    System.out.println("Es dep ----> " + requisitos.size());
-                }
-            }
-            if (requisitos == null || requisitos.size() == 0 || cumpleRequisitos(requisitos, mapCursoCurriculaAlu, evaluado)) {
-
+            if (requisitos == null || requisitos.isEmpty() || cumpleRequisitos(requisitos, mapCursoCurriculaAlu, evaluado)) {
                 if (!tipoCursoELCEnums.contains(evaluado.getCurso().getCodigo())) {
                     evaluado.setEstadoEnum(HAB);
                 }
