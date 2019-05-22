@@ -621,12 +621,12 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             tramiteDAO.update(tramite);
 
             Resolucion resolucion = createResolucion(tramiteForm.getResolucion(), TipoResolucionEnum.CAM_NOTA, ds);
-            cambioNota.setNota(tramite.getNotaResolucion());
+            cambioNota.setNota(tramiteForm.getNotaResolucion());
             cambioNota.setResolucion(resolucion);
             cambioNotaDAO.update(cambioNota);
 
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cambioNota.getCicloAcademico(), cambioNota.getCurso());
-            alumnoCicloCurso.setNota(cambioNota.getNota().toString());
+            alumnoCicloCurso.setNota(tramiteForm.getNotaResolucion().toString());
             alumnoCicloCurso.setFechaModificacion(new Date());
             alumnoCicloCurso.setUserModificacion(ds.getUsuario());
             alumnoCicloCursoDAO.update(alumnoCicloCurso);

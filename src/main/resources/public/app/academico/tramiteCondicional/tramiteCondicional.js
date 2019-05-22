@@ -98,6 +98,7 @@ var app = new Vue({
             if (!$("#form").parsley().validate()) {
                 return;
             }
+            MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/tramitecondicional/save'),
@@ -113,6 +114,7 @@ var app = new Vue({
                     $vue.$refs.modalTramiteCondicional.close();
                 },
                 error: function () {
+                    $vue.$refs.modalTramiteCondicional.close();
                     notify(MESSAGES.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
@@ -154,6 +156,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
+                    $vue.$refs.modalTramiteResolucion.close();
                     notify(MESSAGES.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
