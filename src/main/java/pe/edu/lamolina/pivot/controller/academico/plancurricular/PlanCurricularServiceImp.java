@@ -1295,10 +1295,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         logger.debug("*********carrera {}", carrera.getId());
         List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
         List<PlanCurricular> planesCurriculars = planCurricularDAO.all();
-        
-         List<CursoCurricula> cursoCurriculasAll = cursoCurriculaDAO.allByPlanes(planesCurriculars);
+
+        List<CursoCurricula> cursoCurriculasAll = cursoCurriculaDAO.allByPlanes(planesCurriculars);
         Map<Long, List<CursoCurricula>> mapCursoCurriculaAllPlanes = TypesUtil.convertListToMapList("planCurricular.id", cursoCurriculasAll);
-        
+
         CicloAcademico cicloInicia = null;
         cicloInicia = planesCurricular.stream().map(x -> x.getCicloInicioVigencia()).min(Comparator.comparing(CicloAcademico::getCodigo)).get();
         logger.debug("*********Ciclo Inicia {}", cicloInicia.getCodigo());
@@ -1414,15 +1414,11 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             List<MatriculaCurso> cursosMatriculadosAlumno = fillList(mapCursosMatriculados.get(alumno.getId()));
             List<AlumnoCicloCurso> cursosAprobadosAlumno = fillList(mapCursosAprobados.get(alumno.getId()));
             List<CursoCurricula> cursosCurriculaPLan = fillList(mapCursoCurriculaAll.get(planBD.getId()));
-            for (CursoCurricula cursoCurricula : cursosCurriculaPLan) {
-                System.out.println("Plan a " + cursoCurricula.getPlanCurricular().getId());
-                System.out.println("Codigo curso a " + cursoCurricula.getCurso().getCodigo());
-                System.out.println("Tipo curso a " + cursoCurricula.getTipoCursoCurricula().getCodigo());
-            }
             Map<Long, CursoCurricula> mapCursoCurriculaPlan = TypesUtil.convertListToMap("id", cursosCurriculaPLan);
             List<AlumnoCursoCurricula> alumnoCursoCurricula = mapAlumnoCursoCurricula.get(alumno.getId());
             List<CursoOpcionalCurricula> opcionalCurriculas = mapCursoOpcional.get(planBD.getId());
             List<CursoEquivalenteElectivo> equivalenteElectivos = mapEquivalenteElectivo.get(planBD.getId());
+
             avanceCurricularAsincronoService.crearAvanceCurricular(alumno,
                     planBD,
                     mapCursoCurriculaPlan,
