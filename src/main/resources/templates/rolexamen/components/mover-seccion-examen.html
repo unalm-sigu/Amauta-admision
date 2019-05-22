@@ -1,5 +1,5 @@
 <div>
-    <template id="mainCambioAulaExamen">
+    <template id="mainMoverSeccion">
         <!-- override row class for this form in override.css -->
 
         <form id="frmMoverSeccion" v-if="seccionRolExamenes">
@@ -28,7 +28,7 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row" v-if="seccionRolExamenes.grupoHorasExamen">
                 <div class="form-group">
                     <label class="col-md-4 bold">Horario Examen</label>
 

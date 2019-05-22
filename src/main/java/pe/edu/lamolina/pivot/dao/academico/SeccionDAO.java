@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 
 public interface SeccionDAO extends EasyDAO<Seccion> {
 
@@ -107,5 +108,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
     public void updateMatriculados(Seccion seccion);
 
     void updateColumns(Seccion seccion, String... columns);
+
+    List<Seccion> allByCicloAndNombreLimit(CicloAcademico ciclo, RolExamenes rolExamenes, String nombre);
 
 }

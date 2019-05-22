@@ -373,6 +373,16 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
+    public void deleteBySeccionGrupoRegular(SeccionGrupoRegular seccionGrupoRegular) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  HorarioAula ha where ha.seccionGrupoRegular.id=:SGR");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("SGR", seccionGrupoRegular.getId());
+        query.executeUpdate();
+    }
+
+    @Override
     public List<HorarioAula> allBySeccionGrupoEspecial(SeccionGrupoEspecial seccionGrupoEspecial) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
@@ -463,7 +473,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .filter("ha.fechaFin", "<=", semanaExamen.getFechaFin())
                 .filter("h.id", ">=", semanaExamen.getHoraInicio())
                 .filter("h.id", "<=", semanaExamen.getHoraFin())
-                .filter("ofi.codigo", OficinaEnum.OERA)
+                //    .filter("ofi.codigo", OficinaEnum.OERA)
                 .filter("mEst.codigo", ModalidadEstudioEnum.PRE)
                 .filter("ha.tipo", TipoHorarioAulaEnum.EXAM)
                 .orderBy("d.numeroDia", "h.numero");

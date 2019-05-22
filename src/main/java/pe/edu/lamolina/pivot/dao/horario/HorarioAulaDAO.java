@@ -91,4 +91,6 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     void deleteByCursoMasivo(CursoMasivoExamen cursoMasivoExamen);
 
+    void deleteBySeccionGrupoRegular(SeccionGrupoRegular seccionGrupoRegular);
+
 }

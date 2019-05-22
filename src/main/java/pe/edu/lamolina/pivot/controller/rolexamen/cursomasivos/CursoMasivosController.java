@@ -70,6 +70,7 @@ public class CursoMasivosController {
             ObjectNode rolExam = JsonHelper.createJson(rolexamen, JsonNodeFactory.instance, true,
                     new String[]{
                         "*",
+                        "situacionConfigurarCursoMasivo",
                         "eventoCicloAcademico.cicloAcademico.descripcion",
                         "eventoCicloAcademico.fechaInicio", "eventoCicloAcademico.fechaFin",
                         "nombre", "estado", "fechaPublicacion"
@@ -93,6 +94,7 @@ public class CursoMasivosController {
         ObjectNode jRolExamenes = JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, false,
                 new String[]{
                     "*",
+                    "situacionConfigurarCursoMasivo",
                     "eventoCicloAcademico.eventoAcademico.*",
                     "semanasExamen.rolExamenes.*",
                     "semanasExamen.*",
@@ -378,7 +380,7 @@ public class CursoMasivosController {
                 service.excluirCursoMasivo(cursoMasivoExamen, ds);
             } else if (CursoMasivosController.TipoAccion.SECCION.name().equals(tipoAccion)) {
                 SeccionCursoMasivo seccionCursoMasivo = (SeccionCursoMasivo) mapper.readValue(objeto.toString(), SeccionCursoMasivo.class);
-                service.excluirSeccionCursoMasivo(seccionCursoMasivo, ds);
+                service.excluirSeccionCursoMasivo(seccionCursoMasivo, null, ds);
             } else if (CursoMasivosController.TipoAccion.DOCENTE.name().equals(tipoAccion)) {
                 DocenteCursoMasivo docenteCursoMasivo = (DocenteCursoMasivo) mapper.readValue(objeto.toString(), DocenteCursoMasivo.class);
                 service.excluirDocenteCursoMasivo(docenteCursoMasivo, ds);
@@ -585,7 +587,8 @@ public class CursoMasivosController {
                 "seccion.id",
                 "seccion.codigo2",
                 "seccion.grupoHoras.id",
-                "seccion.grupoHoras.codigo"
+                "seccion.grupoHoras.codigo",
+                "seccion.aula.codigo"
             }));
         }
 

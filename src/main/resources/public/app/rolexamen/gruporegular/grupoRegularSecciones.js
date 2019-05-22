@@ -58,7 +58,11 @@ new Vue({
                                                 vue.$refs.alumnosModal.close();
                                                 break;
                                         }
-                                        vue.listGruposRegulares(vue.rolExamen);
+                                        //  vue.listGruposRegulares(vue.rolExamen);
+//                                        vue.$refs.tblSeccionesGrupoRegular.ajaxdata = {letraGrupoRegular: vue.letraGrupoRegular.id};
+//                                        vue.$refs.tblSeccionesGrupoRegular.loadRemoteData();
+                                    } else {
+                                        notify(response.data.message, "error");
                                     }
                                     MODAL.hideWait();
                                 });
@@ -91,10 +95,17 @@ new Vue({
                                                 vue.$refs.alumnosModal.close();
                                                 break;
                                         }
-                                        vue.listGruposRegulares(vue.rolExamen);
+//                                        vue.$refs.tblSeccionesGrupoRegular.loadRemoteData();
+                                    } else {
+                                        notify(response.data.message, "error");
                                     }
                                     MODAL.hideWait();
+                                })
+                                .catch(function (error) {
+                                    console.dir(error);
+                                    notify(error, "error");
                                 });
+                        ;
                     }
                 }
             });
@@ -107,7 +118,8 @@ new Vue({
         }, cambiarAula(item) {
             console.log("entro");
             console.dir(item);
-            const rolExamenes = item.letraGrupoRegular.rolExamenes;
+            const rolExamenes = this.letraGrupoRegular.rolExamenes;
+            this.$refs.cambiarAulaExamenComp.seccion = item.seccion;
             this.$refs.cambiarAulaExamenComp.seccion = item.seccion;
             this.$refs.cambiarAulaExamenComp.tipoorigen = "GRU_REG";
             this.$refs.cambiarAulaExamenComp.loadComponent(rolExamenes);
