@@ -29,7 +29,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .join("compania", "persona", "alumno", "tipoTramite tt")
                 .left("tt.oficina ofi")
                 .left("userRegistro ur", "ur.persona urp")
-                .left("reincorporaciones")
+//                .left("reincorporaciones")
                 .filter("ofi.id", OficinaEnum.OERA.getId());
         return this.all(sql);
     }

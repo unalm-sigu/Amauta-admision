@@ -115,10 +115,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Transactional
     public List<Alumno> saveReincorporacion(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
 
-        if (resolucionForm.getCicloReincorporacion().getId() != ds.getCicloAcademico().getId()) {
-            throw new PhobosException("El alumno debe reincorporarce en el ciclo actual.");
-        }
-
         List<Alumno> alumnos = new ArrayList<>();
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.REIC);
@@ -150,6 +146,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             Alumno alumno = map.get(reincorporacione.getAlumno().getId());
             if (alumno != null) {
                 throw new PhobosException("El alumno" + alumno.getCodigo() + " ya cuenta con una resolución para el ciclo activo");
+            }
+            if (reincorporacione.getCicloReincorporacion().getId() != ds.getCicloAcademico().getId()) {
+                throw new PhobosException("El alumno debe reincorporarce en el ciclo actual.");
             }
             DateTime today = new DateTime();
             TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
