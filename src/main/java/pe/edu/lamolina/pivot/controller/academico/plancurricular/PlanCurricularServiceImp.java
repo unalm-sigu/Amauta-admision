@@ -931,6 +931,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     public CursoCurricula findCursoCurricula(Long cursoCurriculaId) {
         CursoCurricula cursoCurricula = cursoCurriculaDAO.find(cursoCurriculaId);
         List<RequisitoCursoCurricula> requisitos = requisitoCursoCurriculaDAO.allByCursoCurricula(cursoCurricula);
+        List<CursoEquivalente> cursoEquivalentes = cursoEquivalenteDAO.allActivoByCursoCurricula(cursoCurricula);
+        cursoCurricula.setCursosEquivalentes(cursoEquivalentes);
         cursoCurricula.setCursosCurricula(requisitos);
         return cursoCurricula;
     }
