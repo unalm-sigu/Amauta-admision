@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
@@ -40,6 +42,7 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
@@ -100,6 +103,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     SerieDocumentoService serieDocumentoService;
     @Autowired
     CambioNotaDAO cambioNotaDAO;
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
@@ -109,6 +114,10 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Override
     @Transactional
     public List<Alumno> saveReincorporacion(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+
+        if (resolucionForm.getCicloReincorporacion().getId() != ds.getCicloAcademico().getId()) {
+            throw new PhobosException("El alumno debe reincorporarce en el ciclo actual.");
+        }
 
         List<Alumno> alumnos = new ArrayList<>();
 
@@ -156,6 +165,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
             tramite.setFechaRegistro(new Date());
             tramite.setPersona(alumno.getPersona());
+            tramite.setEstadoTramite(estadoTramite);
             tramite.setTipoTramite(tipoTramite);
             tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
             tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
@@ -175,6 +185,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         }
         for (Alumno alumno : alumnos) {
             matriculableService.revisarSituacionAcademica(alumno, ds);
+            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
         }
         return alumnos;
     }
@@ -211,21 +222,30 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucionDAO.save(resolucion);
 
         Assert.isFalse(resolucionForm.getRetiroCiclo().isEmpty(), "Debe Agregar alumnos.");
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
 
         for (RetiroCiclo retiroCicloForm : resolucionForm.getRetiroCiclo()) {
             Alumno alumno = retiroCicloForm.getAlumno();
+            Alumno alumnoDB = alumnoDAO.find(alumno);
+
             RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(alumno, retiroCicloForm.getCicloAcademico());
+            Assert.isNull(retiroCiclo, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " cuenta con un trámite retiro ciclo.");
 
-            Assert.isNull(retiroCiclo, "El alumno cuenta con un trámite retiro ciclo.");
-
-            EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
-            System.out.println("Estado" + estadoTramite.getId());
+            List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumno);
+            List<CicloAcademico> ciclo = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
+            Boolean exist = false;
+            for (CicloAcademico cicloAcademico : ciclo) {
+                if (Objects.equals(cicloAcademico.getId(), retiroCiclo.getCicloAcademico().getId())) {
+                    exist = true;
+                    break;
+                }
+            }
+            Assert.isTrue(exist, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + retiroCiclo.getCicloAcademico().getDescripcion());
 
             DateTime today = new DateTime();
             TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
             SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
             TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
-            Alumno alumnoDB = alumnoDAO.find(alumno);
 
             Tramite tramite = new Tramite();
             tramite.setActivo(true);
@@ -233,6 +253,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramite.setAlumno(alumnoDB);
             tramite.setCicloAcademico(ds.getCicloAcademico());
             tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+            tramite.setEstadoTramite(estadoTramite);
             tramite.setFechaRegistro(new Date());
             tramite.setPersona(alumnoDB.getPersona());
             tramite.setTipoTramite(tipoTramite);
@@ -273,6 +294,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         }
         for (Alumno alumno : alumnos) {
             matriculableService.revisarSituacionAcademica(alumno, ds);
+            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
         }
         return alumnos;
     }
@@ -312,6 +335,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucionDAO.save(resolucion);
 
         Assert.isFalse(resolucionForm.getCambioNota().isEmpty(), "Debe Agregar alumnos.");
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
         for (CambioNota cambioNota : resolucionForm.getCambioNota()) {
 
             Tramite tramite = new Tramite();
@@ -326,6 +350,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramite.setAlumno(alumno);
             tramite.setCicloAcademico(ds.getCicloAcademico());
             tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+            tramite.setEstadoTramite(estadoTramite);
             tramite.setFechaRegistro(new Date());
             tramite.setPersona(alumno.getPersona());
             tramite.setTipoTramite(tipoTramite);
@@ -356,7 +381,10 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
             alumnos.add(alumno);
         }
-
+        for (Alumno alumno : alumnos) {
+            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
+        }
         return alumnos;
     }
 

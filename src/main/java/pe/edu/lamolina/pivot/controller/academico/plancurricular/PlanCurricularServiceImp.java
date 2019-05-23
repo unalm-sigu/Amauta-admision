@@ -931,6 +931,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     public CursoCurricula findCursoCurricula(Long cursoCurriculaId) {
         CursoCurricula cursoCurricula = cursoCurriculaDAO.find(cursoCurriculaId);
         List<RequisitoCursoCurricula> requisitos = requisitoCursoCurriculaDAO.allByCursoCurricula(cursoCurricula);
+        List<CursoEquivalente> cursoEquivalentes = cursoEquivalenteDAO.allActivoByCursoCurricula(cursoCurricula);
+        cursoCurricula.setCursosEquivalentes(cursoEquivalentes);
         cursoCurricula.setCursosCurricula(requisitos);
         return cursoCurricula;
     }
@@ -1348,16 +1350,17 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Map<Long, List<MatriculaCurso>> mapCursosMatriculados = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculados);
 
         List<AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumnos(alumnos);
-        Map<Long, List<AlumnoCicloCurso>> mapCursosAprobados = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosAprobados);
         Map<String, AlumnoCicloCurso> mapCursosAprobadosKey = TypesUtil.convertListToMap("alumnoCursoKey", cursosAprobados);
 
         List<AlumnoCicloCurso> cursosDesapr = alumnoCicloCursoDAO.allDesaproActivoByAlumnos(alumnos);
         for (AlumnoCicloCurso alumnoCicloCurso : cursosDesapr) {
             if (mapCursosAprobadosKey.get(alumnoCicloCurso.getAlumnoCursoKey()) == null) {
                 cursosAprobados.add(alumnoCicloCurso);
+                mapCursosAprobadosKey.put(alumnoCicloCurso.getAlumnoCursoKey(), alumnoCicloCurso);
             }
         }
-
+        Map<Long, List<AlumnoCicloCurso>> mapCursosAprobados = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosAprobados);
+        
         List<AlumnoCicloCurso> cursosVecesLlevado = alumnoCicloCursoDAO.allVecesLlevadoByAlumnos(alumnos);
         Map<String, AlumnoCicloCurso> mapTodosCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", cursosVecesLlevado);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCursosVecesLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosVecesLlevado);

@@ -201,7 +201,11 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         for (GrupoSeccion grupoSeccion : gruposSeccion) {
             grupoSeccion.setSecciones(new ArrayList());
             DocenteSeccion responsable = mapResponsables.get(grupoSeccion.getId());
-            grupoSeccion.setDocenteResponsable(responsable.getDocente());
+            if (responsable != null) {
+                grupoSeccion.setDocenteResponsable(responsable.getDocente());
+            } else {
+                grupoSeccion.setDocenteResponsable(new Docente());
+            }
         }
 
         Map<Long, GrupoSeccion> mapGposSeccion = MapUtil.storeItems("id", gruposSeccion);

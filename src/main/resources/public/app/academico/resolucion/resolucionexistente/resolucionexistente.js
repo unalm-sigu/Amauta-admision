@@ -145,12 +145,12 @@ var app = new Vue({
                     } else {
                         notify(response.message, 'error');
                     }
+                    MODAL.hideWait();
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-            MODAL.hideWait();
         }
     }
 })
