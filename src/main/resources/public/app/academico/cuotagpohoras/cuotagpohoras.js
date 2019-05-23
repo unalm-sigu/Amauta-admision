@@ -11,19 +11,28 @@ new Vue({
             cancelbtn: 'Cancelar',
             okbtn: 'Guardar',
             modalsize: 'modal-md'
-        },        
+        },
         anexoTempo: {},
+        anexoGrid: {},
         anexos: [],
         grupos: [],
         cuotas: [],
         cuotasBD: [],
+        departamentoAcademico: null
     },
     mounted() {
         let $vue = this;
         $(".numerico").numeric({negative: false});
         $vue.loadGrupos();
+        //  $vue.loadDepartamentos();
+        $vue.loadAnexos();
     },
     methods: {
+        changeAnexoMain() {
+            this.$refs.raptorCuotaGpoHoras.querie = [];
+            this.$refs.raptorCuotaGpoHoras.ajaxdata = {anexo: this.anexoGrid.id};
+            this.$refs.raptorCuotaGpoHoras.loadRemoteData();
+        },
         verCuotasByAnexo(item) {
             console.log(item.Id);
 
@@ -112,6 +121,10 @@ new Vue({
             $vue.cuotas = [];
             $vue.confirmarModal.title = "Configurar Cuotas por Anexo";
             $vue.anexoTempo = {id: '', departamentoAcademico: {}, anexoSuperior: {}};
+            $vue.loadAnexos();
+            $vue.$refs.modalConfirmar.open();
+        }, loadAnexos() {
+            let $vue = this;
             $.ajax({
                 method: "POST",
                 contentType: "application/json",
@@ -119,7 +132,6 @@ new Vue({
             }).then(response => {
                 if (response.success) {
                     $vue.anexos = response.data;
-                    $vue.$refs.modalConfirmar.open();
                 } else {
                     notify(response.message, 'error');
                 }
@@ -143,7 +155,25 @@ new Vue({
             }, error => {
                 notify(MESSAGES.errorComunicacion, 'error');
             });
-        }
+        },
+        loadDepartamentos() {
+            let $vue = this;
+            $vue.departamentoTempo = {id: '', facultad: {}};
+            $.ajax({
+                method: "POST",
+                contentType: "application/json",
+                url: APP.url("general/lejaniadepartamento/allDepartamentos")
+            }).then(response => {
+                if (response.success) {
+                    $vue.departamentos = response.data;
+                    $vue.$refs.modalConfirmar.open();
+                } else {
+                    notify(response.message, 'error');
+                }
+            }, error => {
+                notify(MESSAGES.errorComunicacion, 'error');
+            });
+        },
     }
 
 });

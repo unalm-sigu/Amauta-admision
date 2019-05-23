@@ -20,8 +20,25 @@
                     <section class="panel">
                         <section class="panel-body">
 
+                            <div slot="header">
 
-                            <raptor-table v-bind:url="cuotagpohorasURL" ref="raptorCuotaGpoHoras">
+                                <div class="col-md-6">
+                                    <multiselect v-model='anexoGrid'                                             
+                                                 label="nombre"
+                                                 placeholder="Seleccione un Anexo"
+                                                 track-by="id"
+                                                 v-bind:allow-empty="false"
+                                                 v-bind:options="anexos"
+                                                 deselect-label=""
+                                                 select-label="Seleccione este anexo"
+                                                 v-on:input="changeAnexoMain">
+                                    </multiselect>
+                                </div>
+
+                            </div>
+
+
+                            <raptor-table v-bind:url="cuotagpohorasURL" v-bind:preload="false" ref="raptorCuotaGpoHoras" >
 
                                 <template  scope="props" >
                                     <table class="table table-striped">
@@ -32,7 +49,7 @@
                                                 <th class="col-md-2">Cuota</th>
                                                 <th class="col-md-1">Asignación Automática</th>
                                                 <th class="col-md-1">Total</th>
-                                                
+
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -52,7 +69,7 @@
                                                 <td class="v-middle"> 
                                                     {{item.totalUtilizadas}}
                                                 </td>   
-                                                
+
                                             </tr>
                                         </tbody>
                                     </table>
@@ -64,7 +81,8 @@
                 </section>
                 <modal-vik ref="modalConfirmar"
                            v-bind="confirmarModal"
-                           v-bind:okaction="verGuardar">
+                           v-bind:okaction="verGuardar"
+                           showaccept="true">
                     <div slot="body">                                                
                         <div class="form-group">
                             <label>Anexos</label>                            
@@ -80,7 +98,7 @@
                             </multiselect>
                         </div>
 
-                        
+
                         <form method="post" id="formGruposCuotas"   data-parsley-validate="true">
                             <h5>Grupos y Cuotas</h5>
                             <table class="table table-striped">
@@ -88,7 +106,7 @@
                                     <tr> 
                                         <th class="col-md-6 v-middle">Grupo</th>                                                                                                
                                         <th class="col-md-6 v-middle">Cuota</th>
-                                        
+
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -99,7 +117,7 @@
                                         <td class="v-middle">
                                             <input required="" class="form-control" v-model="cuo.cuotas"/>
                                         </td>
-                                                                                
+
                                     </tr>
                                 </tbody>
                             </table>

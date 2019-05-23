@@ -282,7 +282,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
-                .leftJoin("doc.persona per", "per.tipoDocumento")
+                .leftJoin("doc.persona per", "per.tipoDocumento", "doc.departamentoAcademico dpa")
                 .filter("ca.id", ciclo);
 
         return all(sql);
