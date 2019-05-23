@@ -140,14 +140,13 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         Map<Long, Alumno> map = TypesUtil.convertListToMap("alumno", reincorporacions);
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
-        System.out.println("Estado" + estadoTramite.getId());
         for (Reincorporacion reincorporacione : resolucionForm.getReincorporaciones()) {
 
             Alumno alumno = map.get(reincorporacione.getAlumno().getId());
             if (alumno != null) {
                 throw new PhobosException("El alumno" + alumno.getCodigo() + " ya cuenta con una resolución para el ciclo activo");
             }
-            if (reincorporacione.getCicloReincorporacion().getId() != ds.getCicloAcademico().getId()) {
+            if (!Objects.equals(reincorporacione.getCicloReincorporacion().getId(), ds.getCicloAcademico().getId())) {
                 throw new PhobosException("El alumno debe reincorporarce en el ciclo actual.");
             }
             DateTime today = new DateTime();
