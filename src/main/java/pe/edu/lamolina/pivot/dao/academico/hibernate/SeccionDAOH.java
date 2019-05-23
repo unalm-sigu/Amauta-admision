@@ -576,7 +576,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .__().like("aul.codigo", nombre)
                 .endBlock()
                 .limit(15)
-                .orderBy("gh.codigo")
+                .orderBy("sec.codigo2")
                 .notExists(sqlNotIn)
                 .linkedBy("sec.id", "s0.id");
         return all(sql);

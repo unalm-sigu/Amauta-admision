@@ -19,4 +19,5 @@ public interface CursoExcluidoDAO extends EasyDAO<CursoExcluido> {
 
     void updateColumns(CursoExcluido sursoExcluido, String... columns);
 
+    void deleteByRolExamenes(RolExamenes rolExamenes);
 }

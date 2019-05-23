@@ -9,7 +9,7 @@ import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
 
 public interface CuotaGpoHorasDAO extends EasyDAO<CuotasGrupoHoras> {
 
-    List<CuotasGrupoHoras> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<CuotasGrupoHoras> allByDynatable(DynatableFilter filter, AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
 
     List<CuotasGrupoHoras> allCuotasByAnexo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
 }
