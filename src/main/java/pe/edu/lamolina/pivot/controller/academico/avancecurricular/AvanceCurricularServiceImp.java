@@ -123,7 +123,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         logger.debug("Cantidad de alumnos: {}", alumnos.size());
         logger.debug("Cantidad de Cursos: {}", mapCursoCurricula.size());
 
-        List<CursoEquivalenteElectivo> cursoEquivalenteElectivos = cursoEquivalenteElectivoDAO.allCursoPlanCurricula(Arrays.asList(planCurricular));
+        List<CursoEquivalenteElectivo> cursoEquivalenteElectivos = cursoEquivalenteElectivoDAO.allActivoByPlanCurricular(planCurricular);
 
         List<CursoOpcionalCurricula> cursoOpcionalCurriculas = cursoOpcionalCurriculaDAO.all();
         Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll = TypesUtil.convertListToMapList("planCurricular.id", cursoOpcionalCurriculas);
