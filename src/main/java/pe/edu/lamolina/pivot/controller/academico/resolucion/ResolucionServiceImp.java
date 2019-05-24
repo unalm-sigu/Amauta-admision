@@ -298,7 +298,7 @@ public class ResolucionServiceImp implements ResolucionService {
 
     @Override
     public Resolucion findResolucion(Long resolucionId) {
-        return resolucionDAO.find(resolucionId);
+        return resolucionDAO.findById(resolucionId);
     }
 
     @Override
@@ -311,13 +311,14 @@ public class ResolucionServiceImp implements ResolucionService {
 
     @Override
     @Transactional(readOnly = false)
-    public void saveConfirmarSubirDocumento(Resolucion resolucion, DataSessionPivot ds) {
+    public void saveConfirmarSubirDocumento(Resolucion resolucionForm, DataSessionPivot ds) {
         DateTime today = new DateTime();
-
-        CicloAcademico cicloReincorporacion = resolucion.getCicloReincorporacion();
+        Resolucion resolucion = resolucionDAO.findById(resolucionForm.getId());
+        
+        CicloAcademico cicloReincorporacion = resolucionForm.getCicloReincorporacion();
 
         Resolucion resolucionUpd = new Resolucion();
-        resolucionUpd.setId(resolucion.getId());
+        resolucionUpd.setId(resolucionForm.getId());
         resolucionUpd.setUserActualizacion(ds.getUsuario());
         resolucionUpd.setFechaActualizacion(today.toDate());
         resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.DOC_CONF);
@@ -325,7 +326,7 @@ public class ResolucionServiceImp implements ResolucionService {
         resolucionDAO.updateEstado(resolucionUpd);
 
         if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
-            List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucion);
+            List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucionForm);
             for (Reincorporacion reincorporacion : reincorporaciones) {
                 Tramite tramite = tramiteDAO.find(reincorporacion.getTramite().getId());
                 Tramite tramiteUpd = new Tramite(tramite.getId());

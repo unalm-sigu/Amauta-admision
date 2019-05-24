@@ -26,10 +26,11 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
     public List<Tramite> allByFilter(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Tramite.class, "t")
-                .join("compania", "persona", "alumno", "tipoTramite tt")
+                .join("compania", "persona", "alumno al", "tipoTramite tt")
+                .left("al.carrera car", "car.facultad ")
                 .left("tt.oficina ofi")
                 .left("userRegistro ur", "ur.persona urp")
-                .left("reincorporaciones")
+//                .left("reincorporaciones")
                 .filter("ofi.id", OficinaEnum.OERA.getId());
         return this.all(sql);
     }

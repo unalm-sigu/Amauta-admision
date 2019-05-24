@@ -2,7 +2,7 @@ new Vue({
     el: '#main',
     mixins: [VueLoader],
     data: {
-        urlpavellon: APP.url('academico/distanciapabellon/list'),
+        urlpabellon: APP.url('academico/distanciapabellon/list'),
         modalNuevaDistanciaPabellon: {
             id: 'idModalNuevaDistanciaPabellon',
             header: true,
@@ -54,6 +54,7 @@ new Vue({
                     if (response.success) {
                         $vue.distancias = response.data;
                         $vue.$refs.modalNuevaDistanciaPabellon.close();
+                        notify(response.message, 'success');
                     } else {
                         notify(response.message, 'error');
                     }

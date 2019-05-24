@@ -790,7 +790,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 AlumnoCiclo alumnoCicloPenultimo = alumnoCiclos.get(1);
                 alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumno);
 
-            } else if (tipoCondicional.equals(TipoCondicionalEnum.REI.name())) {
+            } else {
                 alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumnoForm);
             }
 

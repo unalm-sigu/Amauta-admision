@@ -25,4 +25,5 @@ public interface SeccionExcluidoDAO extends EasyDAO<SeccionExcluido> {
     Integer countByCursoExcluido(CursoExcluido cursoExcluido, EstadoEnum... estados);
 
     void deleteByCursoExcluido(CursoExcluido cursoExcluido);
+
 }

@@ -1,0 +1,32 @@
+package pe.edu.lamolina.pivot.controller.programacionhorarios.boletinacademico;
+
+import javax.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+
+@Controller
+@RequestMapping("boletin/reporte")
+public class BoletinAcademicoController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    BoletinAcademicoService service;
+
+    @RequestMapping(method = RequestMethod.GET)
+    @ResponseBody
+    public String index(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        service.reporteAnexoBoletin(ds);
+        return "funko";
+    }
+
+}

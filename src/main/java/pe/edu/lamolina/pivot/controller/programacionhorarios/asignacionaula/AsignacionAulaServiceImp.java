@@ -115,8 +115,9 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
 
         for (Seccion seccion : seccionesByCiclo) {
             DocenteSeccion docenteSeccionPrincipal = mapDocentesSeccionPrincipalesBySeccion.get(seccion.getId());
+
             DepartamentoAcademico departamentoAcademicoDocente = docenteSeccionPrincipal.getDocente().getDepartamentoAcademico();
-            if (departamentoAcademicoDocente == null || !departamentoAcademicoDocente.getId().equals(16L)) {
+            if (departamentoAcademicoDocente == null) {
                 continue;
             }
             Boolean esDocenteConDiscapacidad = docenteSeccionPrincipal.getDocente().getPersona().getConDiscapacidad() == 1;
@@ -124,6 +125,9 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
             seccion.settDocenteSeccion(docenteSeccionPrincipal);
 
             List<DistanciaPabellon> distanciaPabellonByDepartamento = mapDistanciaPabellones.get(departamentoAcademicoDocente.getId());
+            if (distanciaPabellonByDepartamento == null) {
+                continue;
+            }
             FOR_DIST_PAB:
             for (DistanciaPabellon distanciaPabellon : distanciaPabellonByDepartamento) {
                 List<Aula> aulasByPabellon = aulas.stream()

@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -160,7 +161,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Autowired
     PromedioService promedioService;
-   
+
     @Autowired
     MatriculableService matriculableService;
 
@@ -171,8 +172,11 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         List<Tramite> tramites = tramiteDAO.allByFilter(filter);
         List<AccionTramiteAcademico> accionesTramitesAcademicos = accionTramiteAcademicoDAO.all();
         List<FormularioEstadoTramite> formulariosEstadoTramite = formularioEstadoTramiteDAO.all();
-
+        List<Reincorporacion> reincorporacions = reincorporacionDAO.allByTramite(tramites);
         for (Tramite tramite : tramites) {
+            List<Reincorporacion> reincorporacionesTramite = reincorporacions.stream().filter(x -> Objects.equals(x.getTramite().getId(), tramite.getId())).collect(Collectors.toList());
+            tramite.setReincorporaciones(reincorporacionesTramite);
+
             TramiteReunionConsejo tramiteReunionConsejo = tramiteReunionConsejoDAO.findByTramite(tramite);
 
             if (tramiteReunionConsejo != null) {
@@ -206,9 +210,6 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
             tramite.setFormularioEstadoTramite(formularioEstadoTramite);
 
-            for (Tramite tramite1 : tramites) {
-                logger.debug("Tiene {} tramites", tramite.getAccionesTramitesAcademico().size());
-            }
         }
         return tramites;
     }
@@ -330,7 +331,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
 
         this.saveFlujoTramite(tramite, accionTramiteAcademico, ds.getUsuario(), today);
-     
+
     }
 
     private void crearAutorizacionRegistro(Alumno alumno, Tramite tramite, DataSessionPivot ds) {

@@ -133,6 +133,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .left("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
                 .left("cu.departamentoAcademico")
                 .in("pc.id", planes)
+                .filter("cc.numeroCiclo", ">", 0)
                 .orderBy("cc.numeroCiclo", "cc.numeroCurso");
         return all(sql);
     }

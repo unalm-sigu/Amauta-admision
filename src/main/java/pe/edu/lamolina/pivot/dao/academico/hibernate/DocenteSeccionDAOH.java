@@ -17,6 +17,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
@@ -282,7 +283,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
-                .leftJoin("doc.persona per", "per.tipoDocumento")
+                .leftJoin("doc.persona per", "per.tipoDocumento", "doc.departamentoAcademico dpa")
                 .filter("ca.id", ciclo);
 
         return all(sql);
@@ -545,4 +546,18 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
         return all(sql);
     }
 
+    @Override
+    public List<DocenteSeccion> allByCiclo(CicloAcademico ciclo, List<EstadoEnum> docSecEstado, List<SeccionEstadoEnum> secEstado) {
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
+                .join("gs.anexoBoletin ab", "ab.anexoSuperior abs", "cur.departamentoAcademico da")
+                .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "sec.seccionSuperior", "da.facultad")
+                .in("ds.estado", docSecEstado)
+                .in("sec.estado", secEstado)
+                .filter("ca.id", ciclo)
+                .orderBy("sec.codigo2");
+
+        return all(sql);
+    }
 }

@@ -98,6 +98,7 @@ var app = new Vue({
             if (!$("#form").parsley().validate()) {
                 return;
             }
+            MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/tramitecondicional/save'),
@@ -111,12 +112,14 @@ var app = new Vue({
                         notify(response.message, "error");
                     }
                     $vue.$refs.modalTramiteCondicional.close();
+                    MODAL.hideWait();
                 },
                 error: function () {
+                    $vue.$refs.modalTramiteCondicional.close();
                     notify(MESSAGES.errorComunicacion, "error");
-                    MODAL.hideWait();
                 }
             });
+
         },
         openTramiteResol(item, val) {
             let $vue = this;
@@ -149,16 +152,17 @@ var app = new Vue({
                     if (response.success) {
                         $vue.$refs.load.loadRemoteData();
                         $vue.dataTemp = {};
-                        $vue.$refs.modalTramiteResolucion.close();
                         notify(response.message, "success");
                     }
+                    $vue.$refs.modalTramiteResolucion.close();
+                    MODAL.hideWait();
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
-            MODAL.hideWait();
+
         }
     }
 })

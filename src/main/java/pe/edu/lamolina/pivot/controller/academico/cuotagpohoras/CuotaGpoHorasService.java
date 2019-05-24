@@ -10,7 +10,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CuotaGpoHorasService {
 
-    List<CuotasGrupoHoras> allCuotasGpoHoras(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<CuotasGrupoHoras> allCuotasGpoHoras(DynatableFilter filter, AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
 
     List<AnexoBoletin> allAnexos();
 

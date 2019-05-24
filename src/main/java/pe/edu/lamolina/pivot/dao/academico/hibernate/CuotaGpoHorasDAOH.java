@@ -20,12 +20,13 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
     }
 
     @Override
-    public List<CuotasGrupoHoras> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
+    public List<CuotasGrupoHoras> allByDynatable(DynatableFilter filter, AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(CuotasGrupoHoras.class, "cgpo")
                 .join("anexoBoletin ab", "grupoHoras gh", "cicloAcademico ca")
                 .filter("ca.id", cicloAcademico)
                 .searchFields("ab.nombre", "gh.codigo", "ca.descripcion")
+                .filter("ab.id", anexoBoletin)
                 .orderBy("cgpo.id desc");
         return all(sql);
     }
