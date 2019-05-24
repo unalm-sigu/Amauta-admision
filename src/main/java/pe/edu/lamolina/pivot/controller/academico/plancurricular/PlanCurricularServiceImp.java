@@ -1360,7 +1360,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             }
         }
         Map<Long, List<AlumnoCicloCurso>> mapCursosAprobados = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosAprobados);
-        
+
         List<AlumnoCicloCurso> cursosVecesLlevado = alumnoCicloCursoDAO.allVecesLlevadoByAlumnos(alumnos);
         Map<String, AlumnoCicloCurso> mapTodosCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", cursosVecesLlevado);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCursosVecesLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosVecesLlevado);
@@ -1566,22 +1566,27 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<PlanCurricular> planCurriculars = planCurricularDAO.allActivo();
         List<ResumenPlanCurricular> resumenPlanCurriculars = resumenPlanCurricularDAO.allByPlanes(planCurriculars);
         for (PlanCurricular planCurricular : planCurriculars) {
+            logger.debug("Plan {}", planCurricular.getId() + " - " + planCurricular.getCarrera().getNombre());
             ResumenPlanCurricular rpcs = resumenPlanCurriculars.stream()
-                    .filter(x -> x.getPlanCurricular().getId() == planCurricular.getId() && x.getTipoCursoCurricula().getCodigoEnum() == DEP).findAny().orElse(null);
+                    .filter(x -> Objects.equals(x.getPlanCurricular().getId(), planCurricular.getId()) && x.getTipoCursoCurricula().getCodigoEnum() == DEP).findAny().orElse(null);
+            logger.debug("Resumen Plan Curricular {}", rpcs);
             List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
             cursoCurriculas = cursoCurriculas.stream().filter(x -> x.getCurso().getCodigo().equals(CODIGO_CURSO_DEP)).collect(Collectors.toList());
+            logger.debug("Curso Curriculas DEP {}", cursoCurriculas.size());
             int count = cursoCurriculas.stream().mapToInt(x -> x.getCreditos()).sum();
             if (!cursoCurriculas.isEmpty() && rpcs == null) {
+                logger.debug("Cree");
                 TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
                 rpcs = new ResumenPlanCurricular();
                 rpcs.setCreditos(count);
                 rpcs.setCursos(cursoCurriculas.size());
-                rpcs.setMinimoCreditos(0);
+                rpcs.setMinimoCreditos(1);
                 rpcs.setPlanCurricular(planCurricular);
                 rpcs.setTipoCursoCurricula(tipoCursoCurricula);
                 resumenPlanCurricularDAO.save(rpcs);
             }
             if (!cursoCurriculas.isEmpty() && rpcs != null) {
+                logger.debug("Actuali");
                 rpcs.setCreditos(count);
                 rpcs.setCursos(cursoCurriculas.size());
                 resumenPlanCurricularDAO.update(rpcs);

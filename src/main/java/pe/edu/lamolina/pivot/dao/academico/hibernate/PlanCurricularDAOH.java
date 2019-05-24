@@ -108,9 +108,7 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
         Octavia sql = Octavia.query()
                 .from(PlanCurricular.class, "pc")
                 .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
-                .left("orientacionCarrera ocar", "cicloInicioVigencia cic")
-//                                .filter("estado", EstadoEnum.ACT)
-                .isNull("ocar.id");
+                .left("orientacionCarrera ocar", "cicloInicioVigencia cic");
 
         return all(sql);
     }
