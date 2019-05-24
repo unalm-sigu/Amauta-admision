@@ -105,15 +105,11 @@ public class CarreraServiceImp implements CarreraService {
 
         } else {
             Carrera carreraBD = carreraDAO.find(carrera.getId());
-            if (carreraBD.getEstadoEnum() != EnteAcademicoEstadoEnum.INA) {
-                carreraBD.setNombre(carrera.getNombre());
-            }
-            if (carreraBD.getEstadoEnum() == EnteAcademicoEstadoEnum.CRE) {
-                carreraBD.setFacultad(carrera.getFacultad());
-                carreraBD.setModalidadEstudio(carrera.getModalidadEstudio());
-                carreraBD.setTipoEnum(carrera.getTipoEnum());
-                carreraBD.setAreaPosgrado(carrera.getAreaPosgrado());
-            }
+            carreraBD.setNombre(carrera.getNombre());
+            carreraBD.setFacultad(carrera.getFacultad());
+            carreraBD.setModalidadEstudio(carrera.getModalidadEstudio());
+            carreraBD.setTipo(carrera.getTipo());
+            carreraBD.setAreaPosgrado(carrera.getAreaPosgrado());
             carreraDAO.update(carreraBD);
             if (carrera.getOrientacionCarrera() == null) {
                 return;

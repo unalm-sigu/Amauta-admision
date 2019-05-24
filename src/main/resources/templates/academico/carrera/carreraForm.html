@@ -35,10 +35,9 @@
 
                                     <div class="form-group">
                                         <label>Nombre</label>
-                                        <input name="nombre" class="form-control" required="true" th:value="${carrera} != null ? ${carrera.nombre} : ''" 
-                                               th:if="${carrera.id == null or carrera.estado == 'CRE'}"/>
-                                        <input name="nombre" class="form-control" required="true" th:value="${carrera} != null ? ${carrera.nombre} : ''" disabled='disabled'
-                                               th:if="${carrera.id != null and carrera.estado != 'CRE'}"/>
+                                        
+                                        <input name="nombre" class="form-control" required="true" th:value="${carrera} != null ? ${carrera.nombre} : ''"  />
+                                        
                                     </div>
                                     <div class="form-group">
                                         <label>Código</label>
@@ -47,8 +46,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Facultad</label>
-                                        <select class="form-control" name="facultad.id" placeholder="Seleccione la facultad"  
-                                                th:if="${carrera.id == null or carrera.estado == 'CRE'}">
+                                        <select class="form-control" name="facultad.id" placeholder="Seleccione la facultad" >
                                             <option></option>
                                             <option th:each="item : ${facultades}"
                                                     th:value="${item.id}"
@@ -56,13 +54,10 @@
                                                     th:selected="${carrera.facultad} ? ${item.id == carrera.facultad.id}">
                                             </option>
                                         </select>
-                                        <input  class="form-control" th:value="${carrera.facultad != null ? carrera.facultad.nombre : ''}" disabled='disabled'
-                                                th:if="${carrera.id != null and carrera.estado != 'CRE'}"/>
                                     </div>
                                     <div class="form-group">
                                         <label>Modalidad</label>
-                                        <select class="form-control modalidadEstudio" name="modalidadEstudio.id" placeholder="Seleccione la modalidad" 
-                                                >
+                                        <select class="form-control modalidadEstudio" name="modalidadEstudio.id" placeholder="Seleccione la modalidad"  >
                                             <option></option>
                                             <option th:each="item : ${modalidades}"
                                                     th:value="${item.id}"
