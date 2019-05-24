@@ -83,7 +83,7 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
     public Resolucion findById(Long resolucion) {
         Octavia sql = new Octavia()
                 .from(Resolucion.class)
-                .join("oficina ofi", "tipoResolucion tr", "userRegistro ur")
+                .join("oficina ofi", "tipoResolucion tr", "userRegistro ur", "ur.persona")
                 .left("reunionConsejo re")
                 .filter("id", resolucion);
         return this.find(sql);

@@ -298,7 +298,7 @@ public class ResolucionServiceImp implements ResolucionService {
 
     @Override
     public Resolucion findResolucion(Long resolucionId) {
-        return resolucionDAO.find(resolucionId);
+        return resolucionDAO.findById(resolucionId);
     }
 
     @Override
@@ -325,7 +325,7 @@ public class ResolucionServiceImp implements ResolucionService {
         //   resolucionUpd.setCicloReincorporacion(resolucion.getCicloReincorporacion());
         resolucionDAO.updateEstado(resolucionUpd);
 
-        if (resolucionForm.getTipoResolucion().getEsTipoResolucionRei()) {
+        if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucionForm);
             for (Reincorporacion reincorporacion : reincorporaciones) {
                 Tramite tramite = tramiteDAO.find(reincorporacion.getTramite().getId());

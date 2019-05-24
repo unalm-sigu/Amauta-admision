@@ -262,10 +262,10 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        $vue.$refs.modalResolucion.close();
+                        $vue.$refs.modalConfirmar.close();
                     } else {
                         notify(response.message, "error");
-                        $vue.$refs.modalResolucion.close();
+                        $vue.$refs.modalConfirmar.close();
                     }
                 },
                 error: function () {
