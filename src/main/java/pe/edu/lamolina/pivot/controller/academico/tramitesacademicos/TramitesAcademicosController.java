@@ -176,6 +176,7 @@ public class TramitesAcademicosController {
                 "tipoTramite.nombre",
                 "tipoTramite.esTipoTramiteRei",
                 "tipoTramite.esTipoTramiteCurDir",
+                "tipoTramite.oficina.*",
                 "userRegistro.*",
                 "userRegistro.persona.*",
                 "userRespuesta.*",

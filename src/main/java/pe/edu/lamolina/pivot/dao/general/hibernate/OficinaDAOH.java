@@ -183,7 +183,8 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .from(Oficina.class, "o")
                 .join("tipoOficina to")
                 .filter("to.codigo", tipoOficinaEnum)
-                .filter("o.instanciaOficina", facultad);
+                .filter("o.instanciaOficina", facultad)
+                .filter("codigo","like", "F%");
 
         return (Oficina) sql.find(getCurrentSession());
     }

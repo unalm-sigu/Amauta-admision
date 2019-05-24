@@ -26,7 +26,8 @@ var app = new Vue({
             header: true,
             title: 'Confirmar Tramite',
             okbtn: 'Aceptar',
-            modalsize: 'modal-md'
+            modalsize: 'modal-md',
+            showaccept: true
         },
         modalAlumnos: {
             id: 'modalAlumnos',
