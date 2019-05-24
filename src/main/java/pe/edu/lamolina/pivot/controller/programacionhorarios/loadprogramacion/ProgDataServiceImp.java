@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -64,6 +66,7 @@ import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_EPG;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
@@ -1567,6 +1570,17 @@ public class ProgDataServiceImp implements ProgDataService {
         List<DocenteSeccion> docentesSeccionesBD = docenteSeccionDAO.allByCiclo(ciclo);
         Map<String, DocenteSeccion> mapDocenteSeccionBD = TypesUtil.convertListToMap("key", docentesSeccionesBD);
 
+        Map<Long, EventoCicloAcademico> mapEvento = new HashMap();
+        List<ModalidadEstudio> modalidadesEtudio = modalidadEstudioDAO.allByCodigos(Arrays.asList(ModalidadEstudioEnum.PRE.name(), ModalidadEstudioEnum.EPG.name()));
+        for (ModalidadEstudio modalidad : modalidadesEtudio) {
+            EventoCicloAcademico eventoDictadoClases = this.getEventoClases(ciclo, modalidad);
+            if (eventoDictadoClases == null) {
+                visor.agregarLog("horSecc", "saveHorSecc", "No está configurado el Dictado de Clases para la modalidad " + modalidad.getNombre(), false, "error");
+                throw new PhobosException("No está configurado el Dictado de Clases para la modalidad " + modalidad.getNombre());
+            }
+            mapEvento.put(modalidad.getId(), eventoDictadoClases);
+        }
+
         int loop = 0;
         Map<String, DocenteSeccion> mapDocenteSecciones = new LinkedHashMap();
         for (DocenteSeccion profeSecc : docentesSecciones) {
@@ -1576,6 +1590,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
             Seccion seccion = mapSecciones.get(profeSecc.getCodigoSeccion());
             Docente profe = mapDocentes.get(profeSecc.getCodigoDocente());
+
             if (seccion == null) {
                 String msg = String.format("La seccion %s no existe para se incluida en docente-seccion",
                         profeSecc.getCodigoSeccion());
@@ -1587,6 +1602,10 @@ public class ProgDataServiceImp implements ProgDataService {
                 throw new PhobosException(msg);
             }
 
+            GrupoSeccion gpoSeccion = seccion.getGrupoSeccion();
+            ModalidadEstudio modalidadCurso = gpoSeccion.getCurso().getModalidadEstudio();
+            EventoCicloAcademico eventoClases = mapEvento.get(modalidadCurso.getId());
+
             DocenteSeccion profeSeccBD = mapDocenteSeccionBD.get(profeSecc.getCodigoDocente() + "-" + profeSecc.getCodigoSeccion());
 
             if (profeSeccBD == null) {
@@ -1596,6 +1615,15 @@ public class ProgDataServiceImp implements ProgDataService {
                 profeSeccBD.setPrincipal(profeSecc.getPrincipal() == null ? 0 : profeSecc.getPrincipal());
                 profeSeccBD.setEstado(EstadoEnum.ACT.name());
                 profeSeccBD.setPorcentajeCarga(profeSecc.getPorcentajeCarga());
+
+                if (gpoSeccion.getFechaInicioModular() != null) {
+                    profeSeccBD.setFechaInicio(gpoSeccion.getFechaInicioModular());
+                    profeSeccBD.setFechaFin(gpoSeccion.getFechaFinModular());
+                } else {
+                    profeSeccBD.setFechaInicio(eventoClases.getFechaInicio());
+                    profeSeccBD.setFechaFin(eventoClases.getFechaFin());
+                }
+
                 docenteSeccionDAO.save(profeSeccBD);
                 visor.agregarLog("docSecc", "saveDocSecc", "Docente-Seccion " + profe.getCodigo() + "-" + seccion.getCodigo() + " nuevo", true, "info");
 
@@ -1605,6 +1633,17 @@ public class ProgDataServiceImp implements ProgDataService {
                 profeSeccBD.setUserAnulacion(null);
                 profeSeccBD.setFechaAnulacion(null);
                 profeSeccBD.setPorcentajeCarga(profeSecc.getPorcentajeCarga());
+
+                if (profeSeccBD.getFechaInicio() == null) {
+                    if (gpoSeccion.getFechaInicioModular() != null) {
+                        profeSeccBD.setFechaInicio(gpoSeccion.getFechaInicioModular());
+                        profeSeccBD.setFechaFin(gpoSeccion.getFechaFinModular());
+                    } else {
+                        profeSeccBD.setFechaInicio(eventoClases.getFechaInicio());
+                        profeSeccBD.setFechaFin(eventoClases.getFechaFin());
+                    }
+                }
+
                 docenteSeccionDAO.update(profeSeccBD);
                 visor.agregarLog("docSecc", "saveDocSecc", "Docente-Seccion " + profe.getCodigo() + "-" + seccion.getCodigo() + " ya existe y se actualiza", true, "info");
             }
@@ -2083,6 +2122,17 @@ public class ProgDataServiceImp implements ProgDataService {
             Map<Long, List<HorarioSeccion>> mapHorariosSecciones = TypesUtil.convertListToMapList("seccion.id", horarioSeccCicloBD);
             Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("seccion.id", horarioAulaCicloBD);
 
+            Map<Long, EventoCicloAcademico> mapEvento = new HashMap();
+            List<ModalidadEstudio> modalidadesEtudio = modalidadEstudioDAO.allByCodigos(Arrays.asList(ModalidadEstudioEnum.PRE.name(), ModalidadEstudioEnum.EPG.name()));
+            for (ModalidadEstudio modalidad : modalidadesEtudio) {
+                EventoCicloAcademico eventoDictadoClases = this.getEventoClases(cicloAcademico, modalidad);
+                if (eventoDictadoClases == null) {
+                    visor.agregarLog("horSecc", "saveHorSecc", "No está configurado el Dictado de Clases para la modalidad " + modalidad.getNombre(), false, "error");
+                    throw new PhobosException("No está configurado el Dictado de Clases para la modalidad " + modalidad.getNombre());
+                }
+                mapEvento.put(modalidad.getId(), eventoDictadoClases);
+            }
+
             for (Map.Entry<String, List<HorarioSeccion>> entry : mapSeccHorarios.entrySet()) {
                 String clave = entry.getKey();
                 logger.debug("clave {} de horarioSeccion", clave);
@@ -2093,11 +2143,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 }
 
                 ModalidadEstudio modalidadCurso = seccion.getGrupoSeccion().getCurso().getModalidadEstudio();
-                EventoCicloAcademico eventoDictadoClases = this.getEventoClases(cicloAcademico, modalidadCurso);
-                if (eventoDictadoClases == null) {
-                    visor.agregarLog("horSecc", "saveHorSecc", "No está configurado el Dictado de Clases para la modalidad " + modalidadCurso.getNombre(), false, "error");
-                    throw new PhobosException("No está configurado el Dictado de Clases para la modalidad " + modalidadCurso.getNombre());
-                }
+                EventoCicloAcademico eventoDictadoClases = mapEvento.get(modalidadCurso.getId());
 
                 List<HorarioSeccion> horarioSecc = entry.getValue();
                 List<HorarioSeccion> horarioSeccBD = mapHorariosSecciones.get(seccion.getId());
