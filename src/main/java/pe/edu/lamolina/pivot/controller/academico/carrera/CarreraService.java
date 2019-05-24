@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.carrera;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.AreaPosgrado;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -34,11 +35,11 @@ public interface CarreraService {
     OrientacionCarrera editarOrientacion(Long id);
 
     CarreraResumen resumen();
-    
+
     List<Carrera> all();
 
-    public void cambiarEstadoAdmision(Carrera carrera);
+    void cambiarEstadoAdmision(Carrera carrera);
 
-
+    List<AreaPosgrado> allAreaPosgrado();
 
 }

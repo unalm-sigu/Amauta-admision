@@ -253,9 +253,14 @@ $(function () {
                         return m;
                     }
                 });
+
+                $("#divAreaPosgrado").html($.templates("#areaPosgradoTemplate").render({}));
+                $(".areaPosgrado").select2();
+                
             } else if (codigo == 'PRE') {
                 $(".divTipoCarrera").addClass("hide");
                 $('[name="tipo"]').attr("value", "SEM");
+                $("#divAreaPosgrado").html("");
             }
         }
     };

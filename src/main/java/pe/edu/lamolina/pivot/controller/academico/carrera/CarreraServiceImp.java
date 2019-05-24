@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.AreaPosgrado;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -20,6 +21,7 @@ import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.dao.academico.AreaPosgradoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
@@ -39,6 +41,9 @@ public class CarreraServiceImp implements CarreraService {
 
     @Autowired
     FacultadDAO facultadDAO;
+
+    @Autowired
+    AreaPosgradoDAO areaPosgradoDAO;
 
     @Autowired
     OrientacionCarreraDAO orientacionCarreraDAO;
@@ -93,6 +98,7 @@ public class CarreraServiceImp implements CarreraService {
     public void save(Carrera carrera, Usuario usuario) {
         if (carrera.getId() == null) {
             carrera.setEstadoEnum(EnteAcademicoEstadoEnum.CRE);
+            carrera.setEstadoAdmisionEnum(EnteAcademicoEstadoEnum.CRE);
             carrera.setUserRegistro(usuario);
             carrera.setFechaRegistro(new Date());
             carreraDAO.save(carrera);
@@ -106,6 +112,7 @@ public class CarreraServiceImp implements CarreraService {
                 carreraBD.setFacultad(carrera.getFacultad());
                 carreraBD.setModalidadEstudio(carrera.getModalidadEstudio());
                 carreraBD.setTipoEnum(carrera.getTipoEnum());
+                carreraBD.setAreaPosgrado(carrera.getAreaPosgrado());
             }
             carreraDAO.update(carreraBD);
             if (carrera.getOrientacionCarrera() == null) {
@@ -222,6 +229,11 @@ public class CarreraServiceImp implements CarreraService {
     @Override
     public List<Carrera> all() {
         return carreraDAO.all();
+    }
+
+    @Override
+    public List<AreaPosgrado> allAreaPosgrado() {
+        return areaPosgradoDAO.all();
     }
 
 }
