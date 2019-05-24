@@ -198,7 +198,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
     public List<Tramite> allByCiclo(CicloAcademico cicloAcademico, DynatableFilter filter) {
         List<Tramite> tramites = tramiteDAO.allReiAndRetByCiclo(cicloAcademico, filter);
         List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByTramites(tramites);
-        List<Reincorporacion> reincorporacions = reincorporacionDAO.allByTramites(tramites);
+        List<Reincorporacion> reincorporacions = reincorporacionDAO.allByTramitesCondicional(tramites);
         List<CambioNota> cambioNotas = cambioNotaDAO.allByTramites(tramites);
 
         for (Tramite tram : tramites) {

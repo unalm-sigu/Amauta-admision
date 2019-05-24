@@ -34,6 +34,16 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
     }
 
     @Override
+    public List<Reincorporacion> allByTramite(List<Tramite> tramite) {
+        Octavia sql = Octavia.query()
+                .from(Reincorporacion.class, "rei")
+                .join("tramite tra", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
+                .in("tra.id", tramite);
+
+        return all(sql);
+    }
+
+    @Override
     public List<Reincorporacion> allByDyna(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Reincorporacion.class, "rei")
@@ -111,7 +121,7 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
     }
 
     @Override
-    public List<Reincorporacion> allByTramites(List<Tramite> tramites) {
+    public List<Reincorporacion> allByTramitesCondicional(List<Tramite> tramites) {
         Octavia sql = Octavia.query()
                 .from(Reincorporacion.class, "rei")
                 .join("tramite tra", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
