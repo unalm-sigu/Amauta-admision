@@ -14,8 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.boletinacademico.BoletinAcademicoExcelView;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -26,6 +29,9 @@ public class ReporteController {
 
     @Autowired
     PdfService pdfService;
+
+    @Autowired
+    BoletinAcademicoExcelView boletinAcademicoExcelView;
 
     @RequestMapping("programacionHorarios")
     public void programacionHorarios(HttpServletResponse response,
@@ -67,6 +73,14 @@ public class ReporteController {
 
             }
         }
-    }    
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/reporteboletinexcel")
+    public ModelAndView reporteboletin(Model model, HttpSession session) {
+//        RolExamenes rol = service.find(id);
+//        service.infoReporteAulas(model, rol);
+
+        return new ModelAndView(boletinAcademicoExcelView);
+    }
 
 }
