@@ -1580,7 +1580,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 rpcs = new ResumenPlanCurricular();
                 rpcs.setCreditos(count);
                 rpcs.setCursos(cursoCurriculas.size());
-                rpcs.setMinimoCreditos(1);
+                rpcs.setMinimoCreditos(cursoCurriculas.size());
                 rpcs.setPlanCurricular(planCurricular);
                 rpcs.setTipoCursoCurricula(tipoCursoCurricula);
                 resumenPlanCurricularDAO.save(rpcs);
@@ -1588,6 +1588,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             if (!cursoCurriculas.isEmpty() && rpcs != null) {
                 logger.debug("Actuali");
                 rpcs.setCreditos(count);
+                rpcs.setMinimoCreditos(cursoCurriculas.size());
                 rpcs.setCursos(cursoCurriculas.size());
                 resumenPlanCurricularDAO.update(rpcs);
             }
