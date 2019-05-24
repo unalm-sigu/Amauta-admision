@@ -13,8 +13,8 @@
             <span th:if="${carrera.id}" th:inline="text" class="block m-b-lg">[[${carrera.modalidadEstudio.nombre}]]</span>
         </header>
 
-        <div class="col-lg-12">
-            <section class="panel">
+        <section class="wrapper-lg">
+            <section class="panel m-b-md">
                 <section class="panel-body">
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs" role="tablist">
@@ -35,9 +35,9 @@
 
                                     <div class="form-group">
                                         <label>Nombre</label>
-                                        
+
                                         <input name="nombre" class="form-control" required="true" th:value="${carrera} != null ? ${carrera.nombre} : ''"  />
-                                        
+
                                     </div>
                                     <div class="form-group">
                                         <label>Código</label>
@@ -57,7 +57,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Modalidad</label>
-                                        <select class="form-control modalidadEstudio" name="modalidadEstudio.id" placeholder="Seleccione la modalidad"  >
+                                        <select th:if="${carrera.id == null}" class="form-control modalidadEstudio" name="modalidadEstudio.id" placeholder="Seleccione la modalidad"  >
                                             <option></option>
                                             <option th:each="item : ${modalidades}"
                                                     th:value="${item.id}"
@@ -66,13 +66,22 @@
                                                     th:selected="${carrera.modalidadEstudio} ? ${item.id == carrera.modalidadEstudio.id}">
                                             </option>
                                         </select>
+                                        <input  class="form-control" th:value="${carrera.modalidadEstudio != null ? carrera.modalidadEstudio.nombre : ''}" disabled='disabled'
+                                                th:if="${carrera.id != null}"/>
                                     </div>
                                     <div class="form-group divTipoCarrera" th:classappend="${carrera.tipo==null?'hide':''}">
                                         <label>Tipo</label>
-                                        <input type='text' name="tipo" class='form-control tipo' 
+
+                                        <input type='text' name="tipo" class='form-control tipo' th:if="${carrera.id == null}"
                                                th:value="${carrera.tipo != null ? T(pe.edu.lamolina.model.enums.TipoCarreraEnum).valueOf(carrera.tipo).name():''}"
-                                               th:rel=" ${carrera.tipo != null ? T(pe.edu.lamolina.model.enums.TipoCarreraEnum).valueOf(carrera.tipo).value:''}"  required="true" 
-                                               data-trigger="change"/>
+                                               th:rel=" ${carrera.tipo != null ? T(pe.edu.lamolina.model.enums.TipoCarreraEnum).valueOf(carrera.tipo).value:''}" 
+                                               required="true"  data-trigger="change"/>
+
+                                        <input type='text' 
+                                               class='form-control tipo' th:if="${carrera.id != null}" readonly="true"
+                                               th:value="${carrera.tipo != null ? T(pe.edu.lamolina.model.enums.TipoCarreraEnum).valueOf(carrera.tipo).value:''}"
+                                               required="true"  data-trigger="change"/>
+
                                     </div>
 
                                     <div id="divAreaPosgrado">
@@ -133,7 +142,7 @@
                 <hr/>
 
             </section>
-        </div>
+        </section>
         <div th:substituteby="templates/modal"/>
         <div th:substituteby="academico/carrera/modalCarrera"/>
         <div th:if="${carrera.id}">

@@ -21,13 +21,26 @@
                                     <div class="col-sm-2">
                                         <div class="form-group">
                                             <label>Código</label>
-                                            <input type="text" class="form-control" required="true" maxlength="20" 
+                                            <input v-if="!oficina.id" type="text" class="form-control" required="true" maxlength="20" 
                                                    v-on:blur="revisar('CODIGO',oficina,'codigo')"
                                                    v-model="oficina.codigo"/>
+                                            <span v-else="" class="form-control text-primary" v-text="oficina.codigo"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label>Símbolo Oficina</label>
+                                            <input type="text" class="form-control" required="true" maxlength="20" 
+                                                   v-on:blur="revisar('CODIGO',oficina,'codigoDocumento')"
+                                                   v-model="oficina.codigoDocumento"/>
                                         </div>
                                     </div>
 
-                                    <div class="col-sm-10">
+                                </div>
+
+                                <div class="row">
+      
+                                    <div class="col-sm-12">
                                         <div class="form-group">
                                             <label>Nombre</label>
                                             <input type="text" class="form-control" required="true" maxlength="200"
@@ -160,13 +173,13 @@
                                     </div>
                                     
                                     
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-12">
                                         <div class="form-group">
                                             <label class="control-label">Sitio Web</label>
                                             <div class="input-group">
                                                 <span class="input-group-addon"><i class="fa fa-globe fa-lg"></i></span>
                                                 <input  type="text" class="form-control" maxlength="300"
-                                                        placeholder="www.ejemplo.com o ejemplo.net "
+                                                        placeholder="http://ejemplo.com o https://www.ejemplo.com o https://www.ejemplo.com  "
                                                         data-parsley-type="url"
                                                         v-model="oficina.webSite"/>
                                             </div>
