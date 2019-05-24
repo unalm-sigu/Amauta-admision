@@ -20,7 +20,7 @@ public interface AnexoBoletinDAO extends EasyDAO<AnexoBoletin> {
     List<AnexoBoletin> allAnexosSuperioresOrderedbyOrden();
 
     List<AnexoBoletin> allAnexosHijos();
-    
+
     List<AnexoBoletin> allActivosHijos();
 
     List<AnexoBoletin> all();
@@ -32,5 +32,7 @@ public interface AnexoBoletinDAO extends EasyDAO<AnexoBoletin> {
     List<AnexoBoletin> allBySuperior(AnexoBoletin anexoSuperior);
 
     List<AnexoBoletin> countGpoSeccByCiclo(CicloAcademico ciclo);
+
+    List<AnexoBoletin> allHijosWithCursos(CicloAcademico ciclo);
 
 }
