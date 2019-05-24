@@ -1566,16 +1566,12 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<PlanCurricular> planCurriculars = planCurricularDAO.allActivo();
         List<ResumenPlanCurricular> resumenPlanCurriculars = resumenPlanCurricularDAO.allByPlanes(planCurriculars);
         for (PlanCurricular planCurricular : planCurriculars) {
-            logger.debug("Plan {}", planCurricular.getId() + " - " + planCurricular.getCarrera().getNombre());
             ResumenPlanCurricular rpcs = resumenPlanCurriculars.stream()
                     .filter(x -> Objects.equals(x.getPlanCurricular().getId(), planCurricular.getId()) && x.getTipoCursoCurricula().getCodigoEnum() == DEP).findAny().orElse(null);
-            logger.debug("Resumen Plan Curricular {}", rpcs);
             List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
             cursoCurriculas = cursoCurriculas.stream().filter(x -> x.getCurso().getCodigo().equals(CODIGO_CURSO_DEP)).collect(Collectors.toList());
-            logger.debug("Curso Curriculas DEP {}", cursoCurriculas.size());
             int count = cursoCurriculas.stream().mapToInt(x -> x.getCreditos()).sum();
             if (!cursoCurriculas.isEmpty() && rpcs == null) {
-                logger.debug("Cree");
                 TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
                 rpcs = new ResumenPlanCurricular();
                 rpcs.setCreditos(count);
@@ -1586,7 +1582,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 resumenPlanCurricularDAO.save(rpcs);
             }
             if (!cursoCurriculas.isEmpty() && rpcs != null) {
-                logger.debug("Actuali");
                 rpcs.setCreditos(count);
                 rpcs.setMinimoCreditos(cursoCurriculas.size());
                 rpcs.setCursos(cursoCurriculas.size());

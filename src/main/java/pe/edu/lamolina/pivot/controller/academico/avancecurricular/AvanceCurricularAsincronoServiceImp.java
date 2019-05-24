@@ -534,8 +534,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, AlumnoCursoCurricula> mapCursoCurriculaAlu,
             Map<Long, List<CursoEquivalente>> mapEquivalentes,
             List<AlumnoCicloCurso> cursosAprobados) {
-
-        Map<Long, AlumnoCicloCurso> mapCursosAprobados = TypesUtil.convertListToMap("curso.id", cursosAprobados);
+        List<AlumnoCicloCurso> cursosApr = cursosAprobados.stream().filter(x -> x.isAprobado()).collect(Collectors.toList());
+        Map<Long, AlumnoCicloCurso> mapCursosAprobados = TypesUtil.convertListToMap("curso.id", cursosApr);
 
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursoCurriculaAlu.entrySet()) {
             AlumnoCursoCurricula cursoCurriAlu = entry.getValue();
@@ -549,11 +549,15 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Integer, List<CursoEquivalente>> mapGruposEquiv = TypesUtil.convertListToMapList("grupo", cursosEquivalentes);
 
             for (Map.Entry<Integer, List<CursoEquivalente>> entryGrupos : mapGruposEquiv.entrySet()) {
+                logger.debug(" ----------------------------- ");
+                logger.debug("Curso  equivalente {} ", cursoEvaluado.getCurso().getNombre());
                 boolean equivalenciaEncontrada = true;
                 List<CursoEquivalente> cursosEquivGrupo = entryGrupos.getValue();
 
                 for (CursoEquivalente cursoEq : cursosEquivGrupo) {
+                    logger.debug("Curso  equivalente {} ", cursoEq.getCursoEquivalente().getNombre() + " - " + mapCursosAprobados.containsKey(cursoEq.getCursoEquivalente().getId()));
                     if (!mapCursosAprobados.containsKey(cursoEq.getCursoEquivalente().getId())) {
+
                         equivalenciaEncontrada = false;
                         break;
                     }

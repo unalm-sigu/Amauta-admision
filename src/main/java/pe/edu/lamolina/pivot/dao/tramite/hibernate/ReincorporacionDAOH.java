@@ -9,6 +9,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import static pe.edu.lamolina.model.enums.EstadoTramiteEnum.SOL_ACEP;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
@@ -48,7 +49,8 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
         DynatableSql sql = new DynatableSql(filter)
                 .from(Reincorporacion.class, "rei")
                 .join("tramite tra", "resolucion res", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
-                .join("tra.persona traPer", "tra.tipoTramite");
+                .join("tra.persona traPer", "tra.tipoTramite")
+                .filter("et.codigo", "!=", SOL_ACEP);
         return this.all(sql);
     }
 

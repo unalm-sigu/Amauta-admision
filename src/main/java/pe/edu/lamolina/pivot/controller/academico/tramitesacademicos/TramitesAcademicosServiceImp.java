@@ -210,9 +210,6 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
             tramite.setFormularioEstadoTramite(formularioEstadoTramite);
 
-            for (Tramite tramite1 : tramites) {
-                logger.debug("Tiene {} tramites", tramite.getAccionesTramitesAcademico().size());
-            }
         }
         return tramites;
     }
