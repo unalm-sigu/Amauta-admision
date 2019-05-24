@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -74,7 +75,9 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.boletinacademico.BoletinAcademicoExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
@@ -94,6 +97,9 @@ public class GpoSeccionController {
 
     @Autowired
     SpringTemplateEngine springHtml;
+
+    @Autowired
+    BoletinAcademicoExcelView boletinAcademicoExcelView;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -2712,6 +2718,14 @@ public class GpoSeccionController {
         } finally {
             return response;
         }
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/reporteboletin")
+    public ModelAndView reporteboletin(Model model, HttpSession session) {
+//        RolExamenes rol = service.find(id);
+//        service.infoReporteAulas(model, rol);
+
+        return new ModelAndView(boletinAcademicoExcelView);
     }
 
 }

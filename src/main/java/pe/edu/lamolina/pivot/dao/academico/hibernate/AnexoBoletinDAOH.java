@@ -9,6 +9,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
@@ -16,6 +17,7 @@ import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.ACTIVIDADES;
 import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.INGRESANTE;
 import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.POSTGRADO;
 import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.DPTO;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.pivot.controller.academico.anexoboletin.AnexoResumen;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 
@@ -200,6 +202,21 @@ public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements A
                 .filter("ca.id", ciclo)
                 .groupBy("ab.id");
 
+        return all(sql);
+    }
+
+    @Override
+    public List<AnexoBoletin> allHijosWithCursos(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("ab")
+                .from(DocenteSeccion.class, "dsec")
+                .join("dsec.seccion sec", "sec.grupoSeccion gs", "gs.cicloAcademico ci")
+                .join("gs.anexoBoletin ab")
+                .leftJoin("ab.departamentoAcademico da", "ab.carrera ca", "ab.anexoSuperior abs")
+                .filter("ci.id", ciclo)
+                .filter("sec.estado", SeccionEstadoEnum.ACT.name())
+                .filter("dsec.estado", EstadoEnum.ACT.name())
+                .isNotNull("abs.id");
         return all(sql);
     }
 
