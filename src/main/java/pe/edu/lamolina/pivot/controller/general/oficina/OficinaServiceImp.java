@@ -204,6 +204,7 @@ public class OficinaServiceImp implements OficinaService {
         oficinaBD.setInstanciaOficina(oficina.getInstanciaOficina());
         oficinaBD.setCargoJefe(oficina.getCargoJefe());
         oficinaBD.setTipoOficina(oficina.getTipoOficina());
+        oficinaBD.setWebSite(oficina.getWebSite());
         oficinaDAO.update(oficinaBD);
     }
 

@@ -758,6 +758,10 @@ new Vue({
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
         },
+        getwebsite(office) {
+            var win = window.open("https://"+office.webSite, '_blank');
+            win.focus();
+        }
     }
 });
     
