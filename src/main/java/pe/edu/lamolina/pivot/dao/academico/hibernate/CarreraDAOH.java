@@ -41,6 +41,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .filter("ca.id", id);
 
         return find(sql);
@@ -60,6 +61,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         DynatableSql sql = new DynatableSql(filter)
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .searchFields("ca.nombre", "ca.codigo")
                 .orderBy("ca.id desc");
         sql.beginRelativeFilters();
@@ -98,6 +100,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio mo", "mo.compania co")
+                .leftJoin("areaPosgrado ap")
                 .filter("co.id", compania);
 
         return all(sql);
@@ -108,6 +111,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .filter("ca.nombre", "like", nombre);
 
         return all(sql);
@@ -118,6 +122,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .filter("me.codigo", codigoEstudio)
                 .filter("ca.nombre", "like", nombre);
 
@@ -154,6 +159,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .in("me.codigo", Arrays.asList(PRE, EPG))
                 .in("ca.id", carreras)
                 .orderBy("ca.nombre");
@@ -166,6 +172,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .orderBy("ca.codigo desc");
 
         return all(sql);
@@ -177,6 +184,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "car")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .filter("car.estado", EnteAcademicoEstadoEnum.ACT)
                 .filter("car.nombre", "like", nombre)
                 .filter("me.id", modalidadEstudio)
@@ -190,6 +198,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 //.filter("ca.estado", EstadoCarreraEnum.ACT)
                 .filter("me.id", modalidadEstudio)
                 .orderBy("ca.codigo");
@@ -202,6 +211,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .filter("ca.estado", EnteAcademicoEstadoEnum.ACT)
                 .filter("me.id", modalidadEstudio)
                 .orderBy("ca.codigo desc");
@@ -215,6 +225,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "car")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .filter("car.estado", EnteAcademicoEstadoEnum.ACT)
                 .filter("car.nombre", "like", nombre)
                 .in("me.id", modalidadEstudio)
@@ -229,6 +240,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "car")
                 .join("modalidadEstudio me", "facultad fa", "me.compania co")
+                .leftJoin("areaPosgrado ap")
                 .filter("car.estado", EnteAcademicoEstadoEnum.ACT)
                 .filter("car.nombre", "like", nombre)
                 .filter("co.id", cia)
@@ -241,6 +253,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .filter("ca.estado", EnteAcademicoEstadoEnum.ACT);
         return all(sql);
     }
@@ -250,6 +263,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .filter("ca.estado", EnteAcademicoEstadoEnum.ACT)
                 .in("me.codigo", modalidadesCodes);
 
@@ -271,6 +285,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .filter("ca.estado", EnteAcademicoEstadoEnum.ACT)
                 .filter("me.codigo", modalidad);
         return all(sql);
@@ -291,6 +306,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .selectDistinct("carr")
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno al", "cicloAcademico ci")
+                .leftJoin("areaPosgrado ap")
                 .join("al.modalidadEstudio me", "al.carrera carr", "carr.facultad")
                 .filter("ci.id", ciclo)
                 .filter("me.codigo", ModalidadEstudioEnum.PRE)
@@ -306,6 +322,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .selectDistinct("carr")
                 .from(MatriculaResumen.class, "mr")
                 .join("mr.alumno al", "al.modalidadEstudio me", "al.carrera carr", "mr.cicloAcademico ci", "carr.facultad fac")
+                .leftJoin("areaPosgrado ap")
                 .filter("ci.id", ciclo)
                 .in("fac.id", facultades)
                 .filter("me.codigo", ModalidadEstudioEnum.PRE)
@@ -333,6 +350,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .selectDistinct("carr")
                 .from(MatriculaResumen.class, "mr")
                 .join("mr.alumno al", "al.modalidadEstudio me", "al.carrera carr", "mr.cicloAcademico ci")
+                .leftJoin("areaPosgrado ap")
                 .filter("ci.id", ciclo)
                 .in("carr.id", carreras)
                 .filter("me.codigo", ModalidadEstudioEnum.PRE)
@@ -347,6 +365,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "car")
                 .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
                 .in("me.codigo", Arrays.asList(ModalidadEstudioEnum.PRE, ModalidadEstudioEnum.EPG))
                 .orderBy("car.nombre");
 

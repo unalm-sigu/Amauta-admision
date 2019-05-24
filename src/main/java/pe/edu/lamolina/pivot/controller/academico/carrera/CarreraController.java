@@ -189,7 +189,8 @@ public class CarreraController {
         model.addAttribute("carrera", carrera);
         model.addAttribute("modalidades", service.allPrePostgrado(cia));
         model.addAttribute("facultades", service.allFacultades());
-
+        model.addAttribute("areasPosgrado", service.allAreaPosgrado());
+        
         return "academico/carrera/carreraForm";
     }
 
@@ -258,6 +259,7 @@ public class CarreraController {
         model.addAttribute("modalidades", service.allPrePostgrado(cia));
         model.addAttribute("facultades", service.allFacultades());
         model.addAttribute("tipos", TipoCarreraEnum.values());
+        model.addAttribute("areasPosgrado", service.allAreaPosgrado());
 
         model.addAttribute("carrera", carrera);
         return "academico/carrera/carreraForm";
