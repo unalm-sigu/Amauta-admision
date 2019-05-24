@@ -77,93 +77,93 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class InfoAcademicoServiceImpl implements InfoAcademicoService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-    
+
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
-    
+
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
-    
+
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
-    
+
     @Autowired
     AlumnoDAO alumnoDAO;
-    
+
     @Autowired
     HoraDAO horaDAO;
-    
+
     @Autowired
     AvanceCurricularService avanceCurricularService;
-    
+
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-    
+
     @Autowired
     PlanCurricularDAO planCurricularDAO;
-    
+
     @Autowired
     CursoCurriculaDAO cursoCurriculaDAO;
-    
+
     @Autowired
     PromedioService promedioService;
-    
+
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
-    
+
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-    
+
     @Autowired
     AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
-    
+
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
-    
+
     @Autowired
     OrientacionCarreraDAO orientacionCarreraDAO;
-    
+
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
-    
+
     @Autowired
     DiaDAO diaDAO;
-    
+
     @Autowired
     AlumnoCursoSimultaneoDAO alumnoCursoSimultaneoDAO;
-    
+
     @Autowired
     AlumnoAvanceCurricularDAO alumnoAvanceCurricularDAO;
-    
+
     @Autowired
     ResumenPlanCurricularDAO resumenPlanCurricularDAO;
-    
+
     @Override
     public Alumno findAlumno(Long idAlumno) {
         return alumnoDAO.find(new Alumno(idAlumno));
     }
-    
+
     @Override
     public ObjectNode allAvanceCurricular(Alumno alumno) {
         ArrayNode ciclosJson = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode cursosJson = new ArrayNode(JsonNodeFactory.instance);
         ObjectNode avanceCurrJson = new ObjectNode(JsonNodeFactory.instance);
         alumno = alumnoDAO.findAllInfo(alumno.getId());
-        
+
         if (alumno.getPlanCurricular() == null) {
             avanceCurrJson.set("cursos", cursosJson);
             return avanceCurrJson;
         }
-        
+
         List<AlumnoCursoCurricula> ciclosAlumno = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno);
         Map<Integer, Long> counters = ciclosAlumno.stream()
                 .collect(Collectors.groupingBy(c -> c.getNumeroCiclo(),
                         Collectors.counting()));
-        
+
         for (Map.Entry<Integer, Long> entry : counters.entrySet()) {
             ObjectNode objCiclo = new ObjectNode(JsonNodeFactory.instance);
             objCiclo.put("numeroRoman", NumberFormat.roman(entry.getKey()));
@@ -172,7 +172,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             ciclosJson.add(objCiclo);
         }
         avanceCurrJson.set("ciclos", ciclosJson);
-        
+
         List<CursoCurricula> cursosCicloPlan = cursoCurriculaDAO.allByPlanCurricular(alumno.getPlanCurricular());
         List<AlumnoCursoCurricula> cursosPlanAlumno = alumnoCursoCurriculaDAO.allByAlumnoCursosCurricula(alumno, cursosCicloPlan);
         List<AlumnoCursoCurricula> cursosPlanAlumnoOpcional = alumnoCursoCurriculaDAO.allByAlumnoCursosOpcional(alumno);
@@ -187,6 +187,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "curso.tpc",
                 "cursoCurricula.tipoCursoCurricula.nombre",
                 "tipoCursoCurricula.nombre",
+                "tipoCursoCurricula.codigo",
                 "cicloAprobado.descripcion"
             });
             cursosJson.add(objNode);
@@ -201,6 +202,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "curso.tpc",
                 "cursoCurricula.tipoCursoCurricula.nombre",
                 "tipoCursoCurricula.nombre",
+                "tipoCursoCurricula.codigo",
                 "cicloAprobado.descripcion"
             });
             cursosJson.add(objNode);
@@ -215,12 +217,13 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "curso.tpc",
                 "cursoCurricula.tipoCursoCurricula.nombre",
                 "tipoCursoCurricula.nombre",
+                "tipoCursoCurricula.codigo",
                 "cicloAprobado.descripcion"
             });
             cursosJson.add(objNode);
         }
         avanceCurrJson.set("cursos", cursosJson);
-        
+
         ArrayNode resumenAlumnoJson = new ArrayNode(JsonNodeFactory.instance);
         List<AlumnoAvanceCurricular> resumenAlumno = alumnoAvanceCurricularDAO.allByAlumno(alumno);
         for (AlumnoAvanceCurricular resumen : resumenAlumno) {
@@ -232,7 +235,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             resumenAlumnoJson.add(resumenJson);
         }
         avanceCurrJson.set("resumenAlumno", resumenAlumnoJson);
-        
+
         ArrayNode resumenPlanJson = new ArrayNode(JsonNodeFactory.instance);
         List<ResumenPlanCurricular> resumenPlan = resumenPlanCurricularDAO.allByPlan(alumno.getPlanCurricular());
         for (ResumenPlanCurricular resumen : resumenPlan) {
@@ -244,15 +247,15 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             resumenPlanJson.add(resumenJson);
         }
         avanceCurrJson.set("resumenPlan", resumenPlanJson);
-        
+
         return avanceCurrJson;
     }
-    
+
     @Override
     public List<Hora> allHoras() {
         return horaDAO.all();
     }
-    
+
     @Override
     public Alumno findWithallInfo(Alumno alumno) {
         Alumno alu = alumnoDAO.findAllInfo(alumno.getId());
@@ -261,14 +264,14 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         carrera.setOrientacionCarrera(orientaciones);
         return alu;
     }
-    
+
     @Override
     public List<MatriculaCurso> allCursosMatriculadosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
-        
+
         List<Seccion> secciones = new ArrayList();
         Map<Long, Seccion> mapSecciones = new LinkedHashMap();
         Map<Long, List<MatriculaSeccion>> mapMatriculaSecciones = new LinkedHashMap();
-        
+
         List<String> estadosMat = Arrays.asList(MAT.name(), PMAT.name(), RET.name(), RCU.name(), RCI.name());
         List<MatriculaSeccion> matriculaSecciones = depurarMatriculaSecciones(matriculaSeccionDAO.allByAlumnoCicloEstados(alumno, ciclo, estadosMat));
         for (MatriculaSeccion ms : matriculaSecciones) {
@@ -276,7 +279,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             seccion.setDocenteSeccion(new ArrayList());
             secciones.add(seccion);
             mapSecciones.put(seccion.getId(), seccion);
-            
+
             Curso curso = ms.getSeccion().getGrupoSeccion().getCurso();
             List<MatriculaSeccion> matriculaSeccionesCurso = mapMatriculaSecciones.get(curso.getId());
             if (matriculaSeccionesCurso == null) {
@@ -285,7 +288,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             }
             matriculaSeccionesCurso.add(ms);
         }
-        
+
         List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allActivosBySecciones(secciones);
         for (DocenteSeccion profeSeccion : docentesSecciones) {
             if (!profeSeccion.esDocentePrincipal()) {
@@ -296,20 +299,20 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             profeSeccion.setSeccion(seccion);
             seccion.getDocenteSeccion().add(profeSeccion);
         }
-        
+
         List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCiclo(alumno, ciclo);
         for (MatriculaCurso mc : matriculaCursos) {
             Curso curso = mc.getCurso();
             mc.setMatriculaSeccion(mapMatriculaSecciones.get(curso.getId()));
         }
-        
+
         return matriculaCursos;
-        
+
     }
-    
+
     private List<MatriculaSeccion> depurarMatriculaSecciones(List<MatriculaSeccion> matriSecciones) {
         List<MatriculaSeccion> depurados = new ArrayList();
-        
+
         Map<Long, List<MatriculaSeccion>> mapMatriSecc = TypesUtil.convertListToMapList("seccion.grupoSeccion.curso.id", matriSecciones);
         for (Map.Entry<Long, List<MatriculaSeccion>> entry : mapMatriSecc.entrySet()) {
             List<MatriculaSeccion> depuradosCurso = new ArrayList();
@@ -350,7 +353,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 depurados.addAll(depuradosCurso);
                 continue;
             }
-            
+
             Collections.sort(matriSeccCurso, new MatriculaSeccion.CompareReverseId());
             GrupoSeccion gpoSecc = null;
             for (MatriculaSeccion matSecc : matriSeccCurso) {
@@ -369,10 +372,10 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 }
             }
         }
-        
+
         return depurados;
     }
-    
+
     @Override
     public List<PlanCurricular> allPlanCurricularByAlumno(Alumno alumno) {
         Carrera carrera = alumno.getCarrera();
@@ -383,45 +386,45 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             return planCurricularDAO.allActivoByOrientacion(carrera, orientacion);
         }
     }
-    
+
     @Override
     @Transactional
     public void cambiarPlan(Alumno alumno, PlanCurricular planCurricular, DataSessionPivot ds) {
         Alumno alumnoBD = alumnoDAO.find(alumno);
         PlanCurricular planCurricularBD = planCurricularDAO.find(planCurricular.getId());
         Assert.isTrue(planCurricularBD != null, "No existe el plan curricular indicado");
-        
+
         Carrera carreraAlu = alumnoBD.getCarrera();
         Carrera carreraPlan = planCurricularBD.getCarrera();
         Assert.isTrue(carreraAlu.getId().longValue() == carreraPlan.getId(), "El cambio de plan no corresponde a la misma especialidad del alumno");
-        
+
         alumnoBD.setPlanCurricular(planCurricularBD);
         alumnoDAO.update(alumnoBD);
-        
+
         avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
     }
-    
+
     @Override
     public void generarAvance(Alumno alumno, DataSessionPivot ds) {
         avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
     }
-    
+
     @Override
     public List<AlumnoCicloCurso> allHistorialAlumno(Alumno alumno) {
         return alumnoCicloCursoDAO.allByAlumno(alumno);
     }
-    
+
     @Override
     public ArrayNode allPromediosJson(List<AlumnoCicloCurso> cursosCiclos) {
         Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumnoCiclo.id", "alumnoCiclo", cursosCiclos);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.id", cursosCiclos);
-        
+
         List<AlumnoCiclo> promedios = new ArrayList(mapAlumnoCiclo.values());
         for (AlumnoCiclo promedio : promedios) {
             List<AlumnoCicloCurso> cursos = mapAlumnoCicloCurso.get(promedio.getId());
             promedio.setAlumnoCicloCurso(cursos);
         }
-        
+
         Collections.sort(promedios, new AlumnoCiclo.CompareReverseCiclo());
         ArrayNode promediosCicloJson = new ArrayNode(JsonNodeFactory.instance);
         for (AlumnoCiclo promedio : promedios) {
@@ -506,13 +509,13 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         }
         return promediosCicloJson;
     }
-    
+
     @Override
     public ArrayNode allCursosJson(List<AlumnoCicloCurso> cursosCiclosOrigen) {
         List<AlumnoCicloCurso> cursosCiclos = new ArrayList();
         cursosCiclos.addAll(cursosCiclosOrigen);
         Collections.sort(cursosCiclos, new AlumnoCicloCurso.CompareCursoCiclo());
-        
+
         ArrayNode cursosHistoJson = new ArrayNode(JsonNodeFactory.instance);
         for (AlumnoCicloCurso cursoCiclo : cursosCiclos) {
             ObjectNode cursoJson = JsonHelper.createJson(cursoCiclo, JsonNodeFactory.instance, true, new String[]{
@@ -529,7 +532,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         }
         return cursosHistoJson;
     }
-    
+
     @Override
     @Transactional
     public void calcularPromedio(Alumno alumnoForm, DataSessionPivot ds) {
@@ -537,50 +540,50 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         visorCalculoNotas.setActivo(false);
         promedioService.calulcarSituacionAcademica(alumno, ds);
     }
-    
+
     @Override
     public List<BoletaIngresante> allAportesAlumno(Alumno alumno, CicloAcademico ciclo) {
         Alumno alumnoBD = alumnoDAO.find(alumno);
         CicloAcademico cicloModalidad = findCicloByModalidad(alumnoBD.getModalidadEstudio(), ciclo);
-        
+
         List<BoletaIngresante> boletas = new ArrayList();
         List<AporteAlumnoCiclo> aportesAlumno = aporteAlumnoCicloDAO.allByAlumnoCiclo(alumnoBD, cicloModalidad);
-        
+
         Map<Long, List<AporteAlumnoCiclo>> mapCtaAportes = TypesUtil.convertListToMapList("aporteCiclo.cuentaBancaria.id", aportesAlumno);
         Map<Long, CuentaBancaria> mapCtaBanco = TypesUtil.convertListToMap("aporteCiclo.cuentaBancaria.id", "aporteCiclo.cuentaBancaria", aportesAlumno);
         List<CuentaBancaria> ctas = new ArrayList(mapCtaBanco.values());
-        
+
         for (CuentaBancaria cta : ctas) {
             BigDecimal montoTotal = BigDecimal.ZERO;
-            
+
             List<AporteAlumnoCiclo> aportes = mapCtaAportes.get(cta.getId());
-            
+
             for (AporteAlumnoCiclo aporte : aportes) {
                 montoTotal = montoTotal.add(aporte.getMonto());
             }
-            
+
             BoletaIngresante boleta = new BoletaIngresante(cta.getId(), null, cta.getNombre(), cta.getNumero(), cta.getCuentaDescripcion(), montoTotal);
             boleta.setAportesAlumno(aportes);
-            
+
             boletas.add(boleta);
         }
-        
+
         return boletas;
     }
-    
+
     private CicloAcademico findCicloByModalidad(ModalidadEstudio modalidad, CicloAcademico ciclo) {
         ModalidadEstudio modalidadCiclo = ciclo.getModalidadEstudio();
         if (modalidadCiclo.getId() == modalidad.getId().longValue()) {
             return ciclo;
         }
-        
+
         String codigoCiclo = ciclo.getCodigo();
         CicloAcademico cicloModalidad = cicloAcademicoDAO.findByCodigoModalidadEstudio(codigoCiclo, modalidad);
-        
+
         return cicloModalidad;
-        
+
     }
-    
+
     @Override
     public MatriculaResumen findResumenMatricula(Alumno alumno, CicloAcademico ciclo) {
         MatriculaResumen matResum = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
@@ -591,29 +594,29 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         }
         return matResum;
     }
-    
+
     @Override
     public List<HorarioSeccion> allSeccionHorarioAlumnoByAlumnoCicloACademico(Alumno alumno, CicloAcademico academico) {
         List<MatriculaSeccion> matriculaSecciones = matriculaSeccionDAO.allByAlumnoCicloEstados(alumno, academico, Arrays.asList("MAT"));
         if (matriculaSecciones.isEmpty()) {
             return new ArrayList();
         }
-        
+
         List<Seccion> secciones = new ArrayList();
         for (MatriculaSeccion matriculaSeccion : matriculaSecciones) {
             secciones.add(matriculaSeccion.getSeccion());
-            
+
         }
         return horarioSeccionDAO.allBySecciones(secciones);
     }
-    
+
     @Override
     public ObjectNode findHorarioBySeccionesHorarios(List<HorarioSeccion> seccionesHorarios) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        
+
         Map<Long, List<HorarioSeccion>> mapHorarioSeccByIdHora = TypesUtil.convertListToMapList("hora.id", seccionesHorarios);
         Map<Long, Hora> mapHoras = TypesUtil.convertListToMap("hora.id", "hora", seccionesHorarios);
-        
+
         List<Seccion> secciones = new ArrayList();
         Map<String, List<HorarioSeccion>> mapSeccionDia = new LinkedHashMap();
         for (HorarioSeccion seccionesHorario : seccionesHorarios) {
@@ -628,7 +631,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             }
             horariosSecc.add(seccionesHorario);
         }
-        
+
         Map<String, Integer> mapSeccionHora = new LinkedHashMap();
         for (Map.Entry<String, List<HorarioSeccion>> entry : mapSeccionDia.entrySet()) {
             Integer nroHora = 1000;
@@ -639,10 +642,10 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             }
             mapSeccionHora.put(entry.getKey(), nroHora);
         }
-        
+
         List<DocenteSeccion> profesSecciones = docenteSeccionDAO.allPrincipalesBySeccion(secciones);
         Map<Long, DocenteSeccion> mapProfeSecc = TypesUtil.convertListToMap("seccion.id", profesSecciones);
-        
+
         List<Dia> dias = diaDAO.allDia();
         List<Hora> horas = new ArrayList();
         List<Hora> horasDB = horaDAO.all();
@@ -660,17 +663,17 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         }
         horas = horas.isEmpty() ? horaDAO.all() : horas;
         Collections.sort(horas, new Hora.CompareCodigo());
-        
+
         ObjectNode horarioJson = new ObjectNode(jsonFactory);
         ArrayNode horaArrayJson = new ArrayNode(jsonFactory);
-        
+
         for (Hora hora : horas) {
             ObjectNode horaJson = new ObjectNode(jsonFactory);
             horaJson.put("hora", hora.getDescripcion());
             horaJson.put("numeroHora", hora.getNumero());
             List<HorarioSeccion> horariosSeccionesHora = mapHorarioSeccByIdHora.get(hora.getId());
             horariosSeccionesHora = (horariosSeccionesHora == null) ? new ArrayList() : horariosSeccionesHora;
-            
+
             Map<Long, List<HorarioSeccion>> mapHorarioSeccionDia = TypesUtil.convertListToMapList("dia.id", horariosSeccionesHora);
             ArrayNode diaArrayJson = new ArrayNode(jsonFactory);
             for (Dia dia : dias) {
@@ -679,11 +682,11 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 diaJson.put("dia", dia.getNombre());
                 List<HorarioSeccion> horariosSeccionesDia = mapHorarioSeccionDia.get(dia.getId());
                 horariosSeccionesDia = (horariosSeccionesDia == null) ? new ArrayList() : horariosSeccionesDia;
-                
+
                 ArrayNode seccionArrayJson = new ArrayNode(jsonFactory);
                 for (HorarioSeccion horarioSeccion : horariosSeccionesDia) {
                     Seccion seccion = horarioSeccion.getSeccion();
-                    
+
                     ObjectNode seccionJson = JsonHelper.createJson(seccion, jsonFactory, true, new String[]{
                         "codigo2", "tipoSeccion",
                         "grupoSeccion.curso.codigo",
@@ -692,21 +695,21 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                         "aula.codigo",
                         "grupoHoras.codigo"
                     });
-                    
+
                     String key = seccion.getId() + "-" + dia.getId();
                     List<HorarioSeccion> horariosSecc = mapSeccionDia.get(key);
                     Integer nroHora = mapSeccionHora.get(key);
                     seccionJson.put("horasContinuas", horariosSecc.size());
                     seccionJson.put("horaInicial", nroHora == hora.getNumero());
-                    
+
                     logger.debug("idHorario:{}, idSeccion:{}", horarioSeccion.getId(), horarioSeccion.getSeccion().getId());
-                    
+
                     DocenteSeccion profeSecc = mapProfeSecc.get(horarioSeccion.getSeccion().getId());
                     seccionJson.put("docente", (String) ObjectUtil.getParentTree(profeSecc, "docente.persona.letraNomPaterno"));
-                    
+
                     seccionArrayJson.add(seccionJson);
                 }
-                
+
                 diaJson.set("secciones", seccionArrayJson);
                 diaArrayJson.add(diaJson);
             }
@@ -719,19 +722,19 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             diaObjectNode.put("dia", dia.getNombre());
             diasArray.add(diaObjectNode);
         }
-        
+
         horarioJson.set("horarios", horaArrayJson);
         horarioJson.set("dias", diasArray);
         horarioJson.put("horasTotal", horaArrayJson.size());
-        
+
         return horarioJson;
     }
-    
+
     @Override
     public Hora getHoraByNroHora(Integer numero) {
         return horaDAO.findByNumeroHora(numero);
     }
-    
+
     @Override
     @Transactional
     public void cambiarOrientacion(Alumno alumno, OrientacionCarrera orientacion, DataSessionPivot ds) {
@@ -739,28 +742,28 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         OrientacionCarrera orientacionBD = orientacionCarreraDAO.find(orientacion.getId());
         Assert.isTrue(alumnoBD != null, "El alumno no existe en la base de datos");
         Assert.isTrue(orientacionBD != null, "La orientación no existe en la base de datos");
-        
+
         Carrera carrAlu = alumnoBD.getCarrera();
         Carrera carrOri = orientacionBD.getCarrera();
         Assert.isTrue(carrAlu.getId() == carrOri.getId().longValue(), "La orientación no corresponde a la especialidad del alumno");
-        
+
         alumnoBD.setOrientacionCarrera(orientacionBD);
         alumnoDAO.update(alumnoBD);
-        
+
         List<PlanCurricular> planes = planCurricularDAO.allActivoByOrientacion(carrOri, orientacionBD);
         if (planes.isEmpty() || planes.size() > 1) {
             alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoBD);
             alumnoCursoCurriculaDAO.deleteAllByAlumno(alumnoBD);
             alumnoAvanceCurricularDAO.deleteAllByAlumno(alumnoBD);
-            
+
             alumnoBD.setPlanCurricular(null);
             alumnoDAO.update(alumnoBD);
             return;
         }
-        
+
         alumnoBD.setPlanCurricular(planes.get(0));
         alumnoDAO.update(alumnoBD);
         avanceCurricularService.generarAvanceCurricularByAlumno(alumnoBD, ds);
     }
-    
+
 }

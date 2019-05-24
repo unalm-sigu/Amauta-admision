@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.zelper;
 
-import com.sun.org.apache.bcel.internal.generic.AALOAD;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -15,7 +14,7 @@ public class Laboratory {
 
         caps = caps.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : caps;
         capa = capa.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : capa;
-        pps = pps.equals(BigDecimal.ZERO)? new BigDecimal(0.004) : pps;
+        pps = pps.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : pps;
 
         System.out.println("caps :" + caps);
         System.out.println("capa :" + capa);

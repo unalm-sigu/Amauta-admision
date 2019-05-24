@@ -8,6 +8,9 @@
     <td class="v-middle text-center">
         <span class="block bold">{{:modalidad}}</span>
         <span class="block">{{:tipoEnum}}</span>
+        {{if areaPosgrado}}
+        <span class="text-sm block"> <b>Área: </b> {{:areaPosgrado}}</span>
+        {{/if}}
     </td>
     <td class=" text-left">
         {{for oriCarreras}}

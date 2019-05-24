@@ -16,6 +16,7 @@
                                          v-bind:allow-empty="false"
                                          v-bind:internal-search='false'
                                          placeholder="Seleccione un tipo tramite"
+                                         v-bind:class="{valid:tramite.tipoTramite!=null}"
                                          required="true" >
                             </multiselect>
                             <input v-model="tramite.tipoTramite" required="true" type="text" class="hide"/>

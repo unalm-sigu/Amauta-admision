@@ -29,7 +29,9 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -118,6 +120,7 @@ public class CarreraController {
                 node.put("motivo", carrera.getMotivoAnulacion());
                 node.put("estadoAdmision", carrera.getEstadoAdmision());
                 node.put("estadoAdmisionEnum", carrera.getEstadoAdmisionEnum().getValue());
+                node.put("areaPosgrado", (String) ObjectUtil.getParentTree(carrera, "areaPosgrado.nombre"));
 
                 array.add(node);
             }
@@ -161,7 +164,7 @@ public class CarreraController {
 
     @ResponseBody
     @RequestMapping("cambiarEstadoAdmision")
-    public JsonResponse cambiarEstadoAdmision(@RequestParam("carreraId") Long carreraId ) {
+    public JsonResponse cambiarEstadoAdmision(@RequestParam("carreraId") Long carreraId) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
@@ -189,6 +192,7 @@ public class CarreraController {
         model.addAttribute("carrera", carrera);
         model.addAttribute("modalidades", service.allPrePostgrado(cia));
         model.addAttribute("facultades", service.allFacultades());
+        model.addAttribute("areasPosgrado", service.allAreaPosgrado());
 
         return "academico/carrera/carreraForm";
     }
@@ -258,6 +262,7 @@ public class CarreraController {
         model.addAttribute("modalidades", service.allPrePostgrado(cia));
         model.addAttribute("facultades", service.allFacultades());
         model.addAttribute("tipos", TipoCarreraEnum.values());
+        model.addAttribute("areasPosgrado", service.allAreaPosgrado());
 
         model.addAttribute("carrera", carrera);
         return "academico/carrera/carreraForm";

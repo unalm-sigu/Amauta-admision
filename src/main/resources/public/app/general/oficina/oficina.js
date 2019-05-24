@@ -757,7 +757,7 @@ new Vue({
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
-        },
+        }
     }
 });
     

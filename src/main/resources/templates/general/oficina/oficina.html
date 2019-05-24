@@ -64,6 +64,9 @@
                                                     <span v-if="item.referenciaUbicacion != '' " class="block">
                                                         <i class="fa fa-map-marker text-dark fa-lg"></i> {{item.referenciaUbicacion}}
                                                     </span>
+                                                    <span v-if="item.webSite != '' " class="block">
+                                                        <i class="fa fa-globe text-dark fa-lg"></i> <a v-bind:href="item.webSite" target="_blank">{{item.webSite}}</a> 
+                                                    </span>
                                                 </td>
 
                                                 <td class="v-middle text-center">
