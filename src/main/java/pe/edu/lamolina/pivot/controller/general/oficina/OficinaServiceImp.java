@@ -197,6 +197,7 @@ public class OficinaServiceImp implements OficinaService {
         oficinaBD.setOficinaSuperior(oficina.getOficinaSuperior());
         oficinaBD.setNombre(oficina.getNombre());
         oficinaBD.setCodigo(oficina.getCodigo());
+        oficinaBD.setCodigoDocumento(oficina.getCodigoDocumento());
         oficinaBD.setEmail(oficina.getEmail());
         oficinaBD.setTelefonos(oficina.getTelefonos());
         oficinaBD.setAnexos(oficina.getAnexos());
@@ -204,6 +205,7 @@ public class OficinaServiceImp implements OficinaService {
         oficinaBD.setInstanciaOficina(oficina.getInstanciaOficina());
         oficinaBD.setCargoJefe(oficina.getCargoJefe());
         oficinaBD.setTipoOficina(oficina.getTipoOficina());
+        oficinaBD.setWebSite(oficina.getWebSite());
         oficinaDAO.update(oficinaBD);
     }
 

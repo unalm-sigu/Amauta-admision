@@ -95,17 +95,6 @@ public class BoletinAcademicoServiceImp implements BoletinAcademicoService {
                     }
                 }
             }
-//            if (anexoBoletin.getCursos() == null) {
-//                continue;
-//            }
-//            for (Curso curso : anexoBoletin.getCursos()) {
-//                logger.debug("------ {}", curso.getNombre());
-//                for (GrupoSeccion grupoSeccion : curso.getGrupoSeccion()) {
-//                    for (Seccion seccion : grupoSeccion.getSecciones()) {
-//                        logger.debug("Codigo {}, Tipo Seccion {}", seccion.getCodigo2(), seccion.getTipoSeccion());
-//                    }
-//                }
-//            }
         }
     }
 

@@ -96,36 +96,35 @@ public class CarreraServiceImp implements CarreraService {
     @Override
     @Transactional
     public void save(Carrera carrera, Usuario usuario) {
+        
         if (carrera.getId() == null) {
+            
             carrera.setEstadoEnum(EnteAcademicoEstadoEnum.CRE);
             carrera.setEstadoAdmisionEnum(EnteAcademicoEstadoEnum.CRE);
             carrera.setUserRegistro(usuario);
             carrera.setFechaRegistro(new Date());
             carreraDAO.save(carrera);
 
-        } else {
-            Carrera carreraBD = carreraDAO.find(carrera.getId());
-            if (carreraBD.getEstadoEnum() != EnteAcademicoEstadoEnum.INA) {
-                carreraBD.setNombre(carrera.getNombre());
-            }
-            if (carreraBD.getEstadoEnum() == EnteAcademicoEstadoEnum.CRE) {
-                carreraBD.setFacultad(carrera.getFacultad());
-                carreraBD.setModalidadEstudio(carrera.getModalidadEstudio());
-                carreraBD.setTipoEnum(carrera.getTipoEnum());
-                carreraBD.setAreaPosgrado(carrera.getAreaPosgrado());
-            }
-            carreraDAO.update(carreraBD);
-            if (carrera.getOrientacionCarrera() == null) {
-                return;
-            }
-
-            for (OrientacionCarrera orientacion : carrera.getOrientacionCarrera()) {
-                OrientacionCarrera orientacionBD = orientacionCarreraDAO.find(orientacion.getId());
-                orientacionBD.setNombre(orientacion.getNombre());
-                orientacionCarreraDAO.update(orientacionBD);
-            }
+            return;
 
         }
+        
+        Carrera carreraBD = carreraDAO.find(carrera.getId());
+        carreraBD.setNombre(carrera.getNombre());
+        carreraBD.setFacultad(carrera.getFacultad());
+        carreraBD.setAreaPosgrado(carrera.getAreaPosgrado());
+        carreraDAO.update(carreraBD);
+        
+        if (carrera.getOrientacionCarrera() == null) {
+            return;
+        }
+
+        for (OrientacionCarrera orientacion : carrera.getOrientacionCarrera()) {
+            OrientacionCarrera orientacionBD = orientacionCarreraDAO.find(orientacion.getId());
+            orientacionBD.setNombre(orientacion.getNombre());
+            orientacionCarreraDAO.update(orientacionBD);
+        }
+
     }
 
     private String findLastCodigo(Carrera carrera) {
@@ -149,7 +148,7 @@ public class CarreraServiceImp implements CarreraService {
 
     @Override
     public List<Facultad> allFacultades() {
-        return facultadDAO.allActivos();
+        return facultadDAO.allNormal();
     }
 
     @Override

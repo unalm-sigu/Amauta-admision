@@ -590,7 +590,7 @@ public class OficinaController {
     private ObjectNode createOficinaJson(Oficina oficina) {
         ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
             "id", "nombre", "codigo", "estadoEnum", "estado", "motivoAusenciaJefe", "referenciaUbicacion",
-            "fechaInicioJefatura", "fechaEncargatura", "telefonos", "anexos", "email",
+            "fechaInicioJefatura", "fechaEncargatura", "telefonos", "anexos", "email","webSite","codigoDocumento",
             "instanciaOficina",
             "instanciaOficinaCodigo",
             "instanciaOficinaNombre",

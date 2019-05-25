@@ -31,7 +31,8 @@
                             <li><a v-if="condicion3" type="button" v-on:click.prevent="finalizarClonacion" >Finalizar Clonación</a></li>
                             <li><a v-if="condicion4" type="button" v-on:click.prevent="ordenarCiclo" >Ordenar Código</a></li>
                             <li><a v-if="condicion4" type="button" v-on:click.prevent="cerrarOrden" >Cerrar Orden</a></li>
-                            <li><a type="button" th:href="@{'/reporte/programacionHorarios'}">Reporte</a></li>
+                            <li><a type="button" th:href="@{'/reporte/programacionHorarios'}">Reporte Pdf</a></li>
+                            <li><a type="button" th:href="@{'/reporte/reporteboletinexcel'}">Reporte Excel</a></li>
                         </ul>
                     </div>
 
@@ -437,7 +438,7 @@
                                     </multiselect>
                                     <input type="text" class="hide" required="" v-model="newGrupoSeccion.curso.id"/>
                                 </div>
-                                
+
                                 <div v-if="newGrupoSeccion.curso.id" class="form-group">
                                     <label class="bold">TCP</label>
                                     <p class="form-control-static">
