@@ -358,9 +358,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Collections.sort(cursosComodinELC, new AlumnoCursoCurricula.CompareCreditos());
         Collections.sort(cursosELC, new AlumnoCursoCurricula.CompareCreditos());
 
-        Integer creditosAdic = 0;
         for (AlumnoCursoCurricula cursoComodinELC : cursosComodinELC) {
-
+            Integer creditosAdic = 0;
             if (cursoComodinELC.getId() == cursosComodinELC.get(cursosComodinELC.size() - 1).getId()) {
                 creditosAdic = CREDITOS_ADIC_ELC;
             }

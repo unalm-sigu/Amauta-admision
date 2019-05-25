@@ -12,7 +12,8 @@ var app = new Vue({
             header: true,
             title: 'Resoluciones',
             okbtn: 'Aceptar',
-            modalsize: 'modal-lg'
+            modalsize: 'modal-lg',
+            showaccept: true
         },
         modalResolucionRetiroCiclo: {
             id: 'modalResolucionRetiroCiclo',
