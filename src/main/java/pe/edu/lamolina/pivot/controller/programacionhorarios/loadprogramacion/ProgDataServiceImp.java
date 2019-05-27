@@ -2076,6 +2076,10 @@ public class ProgDataServiceImp implements ProgDataService {
                     break;
                 }
 
+                if (StringUtils.isEmpty(diaNum)) {
+                    continue;
+                }
+
                 if (visor.isStop()) {
                     throw new PhobosException("Carga detenida intespestivamente");
                 }

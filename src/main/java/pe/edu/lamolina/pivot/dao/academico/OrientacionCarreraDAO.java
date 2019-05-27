@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
@@ -13,10 +12,11 @@ public interface OrientacionCarreraDAO extends EasyDAO<OrientacionCarrera> {
 
     OrientacionCarrera findLastByCarrera(Carrera carrera);
 
-    List<OrientacionCarrera> allByIdCarreraDynatable(DynatableFilter filter, Long idCarrera);
+    OrientacionCarrera findForPlanCurriculares(OrientacionCarrera orientacion);
 
-    OrientacionCarrera find(Long id);
+    OrientacionCarrera findForAlumnos(OrientacionCarrera orientacion);
 
+//    List<OrientacionCarrera> allByIdCarreraDynatable(DynatableFilter filter, Long idCarrera);
     List<OrientacionCarrera> allByCarreraEstado(Carrera carrera, EstadoEnum estadoEnum);
 
     List<OrientacionCarrera> allByCarreras(List<Carrera> carreras);

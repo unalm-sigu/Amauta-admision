@@ -1,0 +1,15 @@
+<modal-vik ref="modalAnulaOrientacion"
+           v-bind="configAnulaOrientacion"
+           v-bind:okaction="removerOrientacion">
+    <div slot="body">
+        <form v-bind:id="configAnulaOrientacion.form">
+            <div class="form-group">
+                <label>Indique el motivo por el cual está eliminando la orientación 
+                    <strong>{{orientacioDelete.nombre}}</strong>
+                </label>
+                <textarea v-model="orientacioDelete.motivoAnulacion" 
+                          maxlength="400" rows="3" minlength="20" required="" class="form-control"></textarea>
+            </div>
+        </form>
+    </div>
+</modal-vik>

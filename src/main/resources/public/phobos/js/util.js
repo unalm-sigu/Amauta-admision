@@ -24,21 +24,77 @@ $(function () {
 
 });
 
-Messenger.options = {
-    extraClasses: 'messenger-fixed messenger-on-bottom messenger-on-right',
-    theme: 'flat'
+function notifyTop(message, type, position, title, icon) {
+    this.notify(message, type, "topRight", title, icon);
 }
 
-function notify(message, type) {
-    var t = (type == null) ? 'success' : type;
+iziToast.settings({
+    timeout: 8000,
+    resetOnHover: false,
+    transitionIn: 'flipInX',
+    transitionOut: 'flipOutX',
+    displayMode: 2
+});
+// transitionIn: 'flipInX', 'fadeInUp','bounceInLeft', 'fadeIn', 'fadeInDown', 'fadeInLeft'
+
+// bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter, center
+function notify(message, type, position, title, icon) {
+    type = type == null ? 'default' : type;
+    title = title == null ? '' : title;
+    var mType = this.MESSAGETYPE[type];
+    icon = icon == null ? mType.icon : icon;
+    message = message == null ? 'null' : message;
+    position = (position == null || position == '') ? 'bottomRight' : position;
     setTimeout(function () {
-        Messenger().post({
+        iziToast.show({
+            title: title,
             message: message,
-            type: t,
-            hideAfter: 12,
-            showCloseButton: true
+            icon: icon,
+            color: mType.color,
+            position: position
         });
-    }, 900);
+    }, 500);
+}
+
+MESSAGETYPE = {
+    success: {color: 'green', icon: 'fa fa-check'},
+    info: {color: 'blue', icon: 'fa fa-info'},
+    warning: {color: 'yellow', icon: 'fa fa-exclamation-triangle'},
+    error: {color: 'red', icon: 'fa fa-ban'},
+    default: {color: '', icon: 'fa fa-comment-alt'}
+}
+
+function notifyBootbox(message, type) {
+    var t = (type == null) ? 'info' : type;
+    var icons = '<i class="fa fa-info-circle fa-4x text-primary"></i>';
+    var clazz = "btn-primary";
+    switch (t) {
+        case "error":
+            clazz = "btn-danger";
+            icons = '<i class="fa fa-exclamation-circle fa-4x text-danger"></i>';
+            break;
+        case "success":
+            clazz = "btn-success";
+            icons = '<i class="fa fa-check-circle fa-4x text-success"></i>';
+            break;
+        case "warning":
+            clazz = "btn-warning";
+            icons = '<i class="fa fa-exclamation-circle fa-4x text-warning"></i>';
+            break;
+    }
+
+    var msg = '<table width="100%"><tr><td class="v-middle">';
+    msg += icons;
+    msg += '</td><td class="h4 v-middle"><div class="m-l">';
+    msg += message;
+    msg += '</div></td></tr></table>';
+
+    setTimeout(function () {
+        bootbox.alert({
+            message: msg,
+            buttons: {ok: {label: "Aceptar", className: clazz}}
+        });
+    }, 100);
 }
 
 function exitSession() {
@@ -512,10 +568,16 @@ APP = {
 
 VUE = {
     revisarEmail(string) {
+        if (string == undefined) {
+            return "";
+        }
         var conte = string.toLowerCase().replace(/[\n\f\b\r\t\s|,'"!$%&/]/g, '').trim();
         return APP.stripAccents(conte).toLowerCase();
     },
     revisarApellido(string) {
+        if (string == undefined) {
+            return "";
+        }
         var nom = string.toLowerCase().replace(/[^a-zçñáéíóúü\s'\-]/g, '');
         nom = nom.replace(/[\n\f\b\r|,\t]/g, ' ').replace(/\s\s+/g, ' ').trim();
         nom = APP.capitalize(nom, " ");
@@ -525,14 +587,24 @@ VUE = {
         return nom;
     },
     revisarNombreObjeto(string) {
+        if (string == undefined) {
+            return "";
+        }
         var nom = string.replace(/[^A-Za-zÇÑÁÉÍÓÚÜçñáéíóúü,\s'\-]/g, '');
-        return nom.replace(/[\n\f\b\r|\t]/g, ' ').replace(/\s\s+/g, ' ').trim();
+        nom = nom.replace(/[\n\f\b\r|\t]/g, ' ').replace(/\s\s+/g, ' ').trim();
+        return nom.charAt(0).toUpperCase() + nom.substr(1);
     },
     revisarCodigo(string) {
+        if (string == undefined) {
+            return "";
+        }
         var str = string.replace(/[\s\n\f\b\r\t]/g, '');
         return str.toUpperCase();
     },
     revisarAnexos(string) {
+        if (string == undefined) {
+            return "";
+        }
         var str = string.replace(/[\-\/\,]/g, ' ');
         str = str.replace(/[^0-9\s]/g, '');
         str = str.replace(/ +(?= )/g, '').trim();
@@ -541,6 +613,9 @@ VUE = {
         return str;
     },
     revisarTelefonos(string) {
+        if (string == undefined) {
+            return "";
+        }
         var str = string.replace(/[\/\,]/g, ' ');
         str = str.replace(/[^0-9\s\-]/g, '');
         str = str.replace(/ +(?= )/g, '').trim();
@@ -549,6 +624,100 @@ VUE = {
         str = arr.join(" / ");
         return str;
     },
+}
+
+VUE_MODAL = {
+    dataFormAjax: {
+        btnclose: false,
+        showaccept: true,
+        dataBackdrop: "static",
+        dataKeyboard: "false"
+    },
+    dataProgress: {
+        btnclose: false,
+        showaccept: true,
+        dataBackdrop: "static",
+        dataKeyboard: "false",
+        bodyBlocker: false
+    },
+    dataFormSimple: {
+        showaccept: true,
+        bodyBlocker: false
+    },
+    dataAlert: {
+        showaccept: true,
+        bodyBlocker: false,
+        cancelbtn: "Aceptar",
+        cancelclass: "btn-primary"
+    },
+    dataConfirm: {
+        id: "idConfirmAction",
+        btnclose: false,
+        showaccept: true,
+        confirm: true,
+        bodyBlocker: false,
+        okbtn: "Si, proceder",
+        okclass: "btn-success",
+        dataBackdrop: "static",
+        dataKeyboard: "false",
+        message: "¿Está seguro que desea ejecutar esta operación?",
+        okaction: function () {}
+    },
+    dataError: {
+        showaccept: true,
+        bodyBlocker: false,
+        cancelbtn: "Aceptar",
+        cancelclass: "btn-warning"
+    },
+    dataInfo: {
+        footer: false
+    },
+    structByType(type, params) {
+        var data = {};
+        if (type == "FORM-AJAX") {
+            data = Object.assign({}, VUE_MODAL.dataFormAjax);
+        } else if (type == "PROGRESS") {
+            data = Object.assign({}, VUE_MODAL.dataProgress);
+        } else if (type == "FORM-SIMPLE") {
+            data = Object.assign({}, VUE_MODAL.dataFormSimple);
+        } else if (type == "ALERT") {
+            data = Object.assign({}, VUE_MODAL.dataAlert);
+        } else if (type == "CONFIRM") {
+            data = Object.assign({}, VUE_MODAL.dataConfirm);
+        } else if (type == "ERROR") {
+            data = Object.assign({}, VUE_MODAL.dataError);
+        } else if (type == "INFO") {
+            data = Object.assign({}, VUE_MODAL.dataInfo);
+        }
+        var keys = Object.keys(params);
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            data[key] = params[key];
+        }
+        return data;
+    },
+    structFormAjax(params) {
+        return VUE_MODAL.structByType("FORM-AJAX", params);
+    },
+    structProgress(params) {
+        return VUE_MODAL.structByType("PROGRESS", params);
+    },
+    structFormSimple(params) {
+        return VUE_MODAL.structByType("FORM-SIMPLE", params);
+    },
+    structAlert(params) {
+        return VUE_MODAL.structByType("ALERT", params);
+    },
+    structConfirm(params) {
+        return VUE_MODAL.structByType("CONFIRM", params);
+    },
+    structError(params) {
+        return VUE_MODAL.structByType("ERROR", params);
+    },
+    structInfo(params) {
+        return VUE_MODAL.structByType("INFO", params);
+    },
+
 }
 
 MESSAGES = {
