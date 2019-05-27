@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
-import javax.websocket.server.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,25 +19,29 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.albatross.zelpers.notify.Notificaciones;
+import pe.edu.lamolina.model.academico.AreaPosgrado;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCarreraEnum;
+import static pe.edu.lamolina.model.enums.TipoCarreraEnum.DOC;
+import static pe.edu.lamolina.model.enums.TipoCarreraEnum.MAE;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -189,96 +192,93 @@ public class CarreraController {
 
         Carrera carrera = new Carrera();
         carrera.setOrientacionCarrera(new ArrayList());
-        model.addAttribute("carrera", carrera);
-        model.addAttribute("modalidades", service.allPrePostgrado(cia));
-        model.addAttribute("facultades", service.allFacultades());
-        model.addAttribute("areasPosgrado", service.allAreaPosgrado());
+
+        model.addAttribute("tipos", JsonHelper.enumToJson(new Enum[]{MAE, DOC}));
+        model.addAttribute("carrera", createCarreraJson(carrera));
+        model.addAttribute("facultades", createAllFacultadesJson(service.allFacultades()));
+        model.addAttribute("modalidades", createAllModalidadesJson(service.allPrePostgrado(cia)));
+        model.addAttribute("areasPosgrado", createAllAreaPosgradoJson(service.allAreaPosgrado()));
+        model.addAttribute("orientaciones", createAllOrientacionesJson(new ArrayList()));
 
         return "academico/carrera/carreraForm";
     }
 
-    @RequestMapping("save")
-    public String save(Carrera carrera, RedirectAttributes redirectAttr, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        try {
-            String mensaje = carrera.getId() != null ? "Carrera Actualizado" : "Carrera Agregado";
-            service.save(carrera, ds.getUsuario());
-            Notificaciones.crearMsg(mensaje, redirectAttr);
-
-        } catch (PhobosException ex) {
-            ExceptionHandler.handleException(ex, redirectAttr);
-
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, redirectAttr);
-
-        }
-        return "redirect:/academico/carrera/editar/" + carrera.getId();
-    }
-
     @ResponseBody
-    @RequestMapping("listOrientacion/{idCarrera}")
-    public DynatableResponse allByIdCarreraDynatable(DynatableFilter filter, @PathVariable("idCarrera") Long idCarrera, HttpSession session) {
-        DynatableResponse json = new DynatableResponse();
+    @RequestMapping("saveCarrera")
+    public JsonResponse saveCarrera(@RequestBody Carrera carrera, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
         try {
+            TypesUtil.delay(3000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            boolean isSave = carrera.getId() != null;
+            Carrera carreraBD = service.save(carrera, ds);
 
-            List<OrientacionCarrera> orientaciones = service.allByIdCarreraDynatable(filter, idCarrera);
+            response.setMessage("Especialidad " + (isSave ? "actualizada" : "creada") + " satisfactoriamente");
+            response.setData(createCarreraJson(carreraBD));
+            response.setSuccess(true);
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            if (!orientaciones.isEmpty()) {
-
-                for (OrientacionCarrera orientacion : orientaciones) {
-                    ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-                    node.put("id", orientacion.getId());
-                    node.put("idCarrera", orientacion.getCarrera().getId());
-                    node.put("codigo", orientacion.getCodigo());
-                    node.put("nombre", orientacion.getNombre());
-                    node.put("carrera", orientacion.getCarrera().getNombre());
-                    node.put("estado", orientacion.getEstado());
-                    node.put("estadoName", EstadoEnum.valueOf(orientacion.getEstado()).getValue());
-                    node.put("motivo", orientacion.getMotivoAnulacion());
-
-                    array.add(node);
-                }
-            }
-            json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
-
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
+            ExceptionHandler.handleException(e, response);
         }
-        return json;
+        return response;
     }
 
-    @RequestMapping("editar/{id}")
-    public String editarCarrera(@PathVariable("id") Long id, Model model, HttpSession session) {
+    @RequestMapping("{id}/editar")
+    public String editarCarrera(@PathVariable("id") Long idCarrera, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Compania cia = ds.getCompania();
 
-        Carrera carrera = service.find(id);
-        model.addAttribute("modalidades", service.allPrePostgrado(cia));
-        model.addAttribute("facultades", service.allFacultades());
-        model.addAttribute("tipos", TipoCarreraEnum.values());
-        model.addAttribute("areasPosgrado", service.allAreaPosgrado());
+        Carrera carrera = service.find(idCarrera);
 
-        model.addAttribute("carrera", carrera);
+        model.addAttribute("tipos", JsonHelper.enumToJson(new Enum[]{MAE, DOC}));
+        model.addAttribute("carrera", createCarreraJson(carrera));
+        model.addAttribute("facultades", createAllFacultadesJson(service.allFacultades()));
+        model.addAttribute("modalidades", createAllModalidadesJson(service.allPrePostgrado(cia)));
+        model.addAttribute("areasPosgrado", createAllAreaPosgradoJson(service.allAreaPosgrado()));
+        model.addAttribute("orientaciones", createAllOrientacionesJson(carrera.getOrientacionCarrera()));
         return "academico/carrera/carreraForm";
     }
 
     @ResponseBody
     @RequestMapping("deleteOrientacion")
-    public JsonResponse deleteOrientacion(@RequestParam("idOrientacion") Long idOrientacion,
-            @RequestParam("idCarrera") Long idCarrera, RedirectAttributes redirectAttr) {
+    public JsonResponse deleteOrientacion(@RequestBody OrientacionCarrera orientacion, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
         try {
-            service.deleteOrientacion(idOrientacion);
-            response.setMessage("Registro eliminado.");
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            OrientacionCarrera eliminada = service.deleteOrientacion(orientacion, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Orientación " + (eliminada == null ? "eliminada" : "inhabilitada") + " satisfactoriamente");
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.put("eliminados", (eliminada == null) ? 1 : 0);
+            node.set("orientacion", createOrientacionJson((eliminada == null) ? new OrientacionCarrera() : eliminada));
+            response.setData(node);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveOrientaciones")
+    public JsonResponse saveOrientaciones(@RequestBody Carrera carrera, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<OrientacionCarrera> orientaciones = service.saveOrientaciones(carrera, ds);
+
+            response.setData(createAllOrientacionesJson(orientaciones));
+            response.setMessage("Orientaciones registradas satisfactoriamente.");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -291,66 +291,36 @@ public class CarreraController {
 
     @ResponseBody
     @RequestMapping("saveOrientacion")
-    public JsonResponse saveOrientacion(@RequestParam("nombreOrientacion") String nombreOrientacion,
-            @RequestParam("idCarrera") Long idCarrera,
-            @RequestParam(required = false, value = "idOrientacion") Long idOrientacion,
-            Model model, HttpSession session) {
+    public JsonResponse saveOrientacion(@RequestBody OrientacionCarrera orientacionForm, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            OrientacionCarrera orientacionBD = service.editarOrientacion(orientacionForm, ds);
+
+            response.setData(createOrientacionJson(orientacionBD));
+            response.setMessage("Orientación modificada satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("activarOrientacion")
+    public JsonResponse activarOrientacion(@RequestBody OrientacionCarrera orientacion, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        response.setSuccess(false);
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.saveOrientacion(idCarrera, idOrientacion, nombreOrientacion, ds.getUsuario());
-            if (idOrientacion == null) {
-                response.setMessage("Orientacion ingresado satisfactoriamente.");
-            } else {
-                response.setMessage("Orientacion actualizada satisfactoriamente.");
-            }
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("editarOrientacion")
-    public JsonResponse editarOrientacion(@RequestParam("id") Long id) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-        response.setSuccess(false);
-
-        try {
-            OrientacionCarrera orientacion = service.editarOrientacion(id);
-
-            ObjectNode json = new ObjectNode(jsonFactory);
-
-            json.put("id", orientacion.getId());
-            json.put("nombreOrientacion", orientacion.getNombre());
-
-            response.setData(json);
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("cambioEstadoOrientacion")
-    public JsonResponse cambioEstadoOrientacionCarrera(OrientacionCarrera orientacion) {
-        JsonResponse response = new JsonResponse();
-        response.setSuccess(false);
-
-        try {
-            service.cambioEstado(orientacion);
-
-            response.setMessage("Se cambio de estado satisfactoriamente.");
+            OrientacionCarrera orientacionBD = service.activarOrientacion(orientacion, ds);
+            response.setMessage("Se activó la Orientación satisfactoriamente.");
+            response.setData(createOrientacionJson(orientacionBD));
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -394,6 +364,72 @@ public class CarreraController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    private ObjectNode createCarreraJson(Carrera carrera) {
+        ObjectNode node = JsonHelper.createJson(carrera, JsonNodeFactory.instance, true, new String[]{
+            "id", "nombre", "codigo", "estadoEnum", "estado", "tipo", "tipoEnum",
+            "modalidadEstudio.id",
+            "modalidadEstudio.nombre",
+            "modalidadEstudio.codigo",
+            "facultad.id",
+            "facultad.nombre",
+            "facultad.codigo",
+            "areaPosgrado.id",
+            "areaPosgrado.nombre",
+            "areaPosgrado.codigo"
+        });
+        return node;
+    }
+
+    private ObjectNode createOrientacionJson(OrientacionCarrera orientacion) {
+        ObjectNode node = JsonHelper.createJson(orientacion, JsonNodeFactory.instance, true, new String[]{
+            "id", "estado", "estadoEnum", "codigo", "nombre", "motivoAnulacion", "carrera.id"
+        });
+        node.put("nombre2", orientacion.getNombre());
+        return node;
+    }
+
+    private ArrayNode createAllFacultadesJson(List<Facultad> facultades) {
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (Facultad fac : facultades) {
+            ObjectNode node = JsonHelper.createJson(fac, JsonNodeFactory.instance, true, new String[]{
+                "id", "codigo", "nombre"
+            });
+            arrayNode.add(node);
+        }
+        return arrayNode;
+    }
+
+    private ArrayNode createAllModalidadesJson(List<ModalidadEstudio> modalidades) {
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (ModalidadEstudio modalidad : modalidades) {
+            ObjectNode node = JsonHelper.createJson(modalidad, JsonNodeFactory.instance, true, new String[]{
+                "id", "codigo", "nombre"
+            });
+            arrayNode.add(node);
+        }
+        return arrayNode;
+    }
+
+    private ArrayNode createAllAreaPosgradoJson(List<AreaPosgrado> areasPosgrado) {
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (AreaPosgrado area : areasPosgrado) {
+            ObjectNode node = JsonHelper.createJson(area, JsonNodeFactory.instance, true, new String[]{
+                "id", "codigo", "nombre"
+            });
+            arrayNode.add(node);
+        }
+        return arrayNode;
+    }
+
+    private ArrayNode createAllOrientacionesJson(List<OrientacionCarrera> orientaciones) {
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (OrientacionCarrera orientacion : orientaciones) {
+            ObjectNode node = createOrientacionJson(orientacion);
+            arrayNode.add(node);
+        }
+        return arrayNode;
     }
 
 }

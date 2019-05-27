@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.general.Compania;
-import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CarreraService {
 
@@ -18,21 +18,25 @@ public interface CarreraService {
 
     List<ModalidadEstudio> allPrePostgrado(Compania cia);
 
-    void save(Carrera carrera, Usuario usuario);
+    Carrera save(Carrera carrera, DataSessionPivot ds);
 
     List<Facultad> allFacultades();
 
     Carrera find(Long id);
 
-    void saveOrientacion(Long idCarrera, Long idOrientacion, String nombreOrientacion, Usuario usuario);
+    //void saveOrientacion(Long idCarrera, Long idOrientacion, String nombreOrientacion, Usuario usuario);
 
-    void deleteOrientacion(Long idOrientacion);
+    List<OrientacionCarrera> saveOrientaciones(Carrera carrera, DataSessionPivot ds);
 
-    void cambioEstado(OrientacionCarrera orientacion);
+//    void deleteOrientacion(Long idOrientacion);
 
-    List<OrientacionCarrera> allByIdCarreraDynatable(DynatableFilter filter, Long idCarrera);
+    OrientacionCarrera deleteOrientacion(OrientacionCarrera orientacion, DataSessionPivot ds);
 
-    OrientacionCarrera editarOrientacion(Long id);
+    OrientacionCarrera activarOrientacion(OrientacionCarrera orientacion, DataSessionPivot ds);
+
+//    List<OrientacionCarrera> allByIdCarreraDynatable(DynatableFilter filter, Long idCarrera);
+
+    OrientacionCarrera editarOrientacion(OrientacionCarrera orientacion, DataSessionPivot ds);
 
     CarreraResumen resumen();
 

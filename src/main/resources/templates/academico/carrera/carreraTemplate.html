@@ -41,7 +41,7 @@
             </a> 
 
             <ul class="dropdown-menu pull-right">
-                <li><a class="btn-link pointer" th:href="@{'/academico/carrera/editar/{{:id}}'}">Editar</a></li>
+                <li><a class="btn-link pointer" th:href="@{'/academico/carrera/{{:id}}/editar'}">Editar</a></li>
                 {{if esCreado}}
                 <li><a class="btn-link pointer change-estado" rel="{{:id}}" rev="{{:estado}}">Resolución Activación</a></li>
                 {{/if}}
