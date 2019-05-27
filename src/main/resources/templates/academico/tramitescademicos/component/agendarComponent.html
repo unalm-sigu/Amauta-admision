@@ -1,6 +1,7 @@
 <template id="agendarComponent">
     <raptor-table ref="tblReunionesConsejo"
                   v-bind:url="URL_REUNIONES" 
+
                   rowsperpage="5"
                   v-bind:searcher="false">
 
@@ -50,17 +51,18 @@
     Vue.component('agendar-component', {
         template: '#agendarComponent',
         props: {
-            tramite: null
+            tramite: null,
+            oficina: {type: String, default: 0}
         }, data: function () {
             return {
                 alumno: {},
-                URL_REUNIONES: APP.url('academico/tramiteacademico/listReunionesConsejo/0'),
+                URL_REUNIONES: APP.url('academico/tramiteacademico/listReunionesConsejo/' + this.oficina),
                 reunionConsejoSel: null
             }
         },
         mounted() {
-            console.log("1111");
             let $vue = this;
+            console.log($vue)
             if ($vue.tramite != null) {
                 if ($vue.tramite.id != null) {
                     this.reunionConsejoSel = $vue.tramite.tramiteReunionConsejo.reunionConsejo;

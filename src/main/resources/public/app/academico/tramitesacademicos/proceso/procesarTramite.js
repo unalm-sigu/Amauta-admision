@@ -7,7 +7,8 @@ new Vue({
         componentForm: null,
         compomentProps: null,
         accionSeleccionada: null,
-        processingAjaxData: null
+        processingAjaxData: null,
+        oficina: JSON.parse(oficinasJson)
     }, created: function () {
         console.log("created");
         this.tramite = JSON.parse(tramiteJson);
@@ -35,7 +36,8 @@ new Vue({
                     }
                 }
             });
-        }, procesarTramite(accion) {
+        }
+        , procesarTramite(accion) {
             let $vue = this;
             $vue.accionSeleccionada = accion;
 
