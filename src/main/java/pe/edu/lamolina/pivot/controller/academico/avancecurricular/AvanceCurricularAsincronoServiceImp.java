@@ -360,7 +360,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         for (AlumnoCursoCurricula cursoComodinELC : cursosComodinELC) {
             Integer creditosAdic = 0;
-            if (cursoComodinELC.getId() == cursosComodinELC.get(cursosComodinELC.size() - 1).getId()) {
+            if (Objects.equals(cursoComodinELC.getId(), cursosComodinELC.get(cursosComodinELC.size() - 1).getId())) {
                 creditosAdic = CREDITOS_ADIC_ELC;
             }
             for (AlumnoCursoCurricula alumnoCurso : cursosELC) {
