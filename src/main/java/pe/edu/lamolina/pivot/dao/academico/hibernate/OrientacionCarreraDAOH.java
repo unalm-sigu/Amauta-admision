@@ -4,8 +4,6 @@ import java.util.List;
 import pe.edu.lamolina.pivot.dao.academico.OrientacionCarreraDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;

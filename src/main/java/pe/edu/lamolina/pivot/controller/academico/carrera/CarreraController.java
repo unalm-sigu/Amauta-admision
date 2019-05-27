@@ -31,7 +31,6 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.AreaPosgrado;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -209,7 +208,7 @@ public class CarreraController {
 
         JsonResponse response = new JsonResponse();
         try {
-            TypesUtil.delay(3000);
+            //TypesUtil.delay(3000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             boolean isSave = carrera.getId() != null;
             Carrera carreraBD = service.save(carrera, ds);

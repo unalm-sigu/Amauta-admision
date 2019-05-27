@@ -49,24 +49,29 @@ new Vue({
         },
         saveCarrera() {
             let $vue = this;
+            let isSave = $vue.carrera.id == '';
             let url = window.location.href;
-            
+
             axios.post(APP.url(rutaModulo + '/saveCarrera'), $vue.carrera)
                     .then(response => {
                         $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
                         if (response.data.success) {
+                            console.log("response.data.success")
                             $vue.carrera = response.data.data;
                             notifyBootbox(response.data.message, "success");
                             if (isSave) {
+                                console.log("isSave")
                                 let newUrl = url.replace("/nuevo", "/" + $vue.carrera.id + "/editar")
                                 history.pushState(null, null, newUrl);
                             }
                         } else {
+                            console.log("response.data.no-success")
                             notifyBootbox(response.data.message, "error");
                         }
                     })
                     .catch(function (error) {
-                        console.log(error);
+                        console.log("catch(function (error)")
+                        console.log(error)
                         $vue.$refs.modalConfirmAction.confirmReaction(false);
                         notifyBootbox(MESSAGES.errorComunicacion, "error");
                     });
@@ -125,6 +130,9 @@ new Vue({
         },
         remover(ori, index) {
             let $vue = this;
+            $vue.orientacioDelete = Object.assign({}, ori);
+            $vue.indexOrientaDelete = index;
+
             if (ori.id == undefined) {
                 if (ori.nombre == undefined || ori.nombre == "") {
                     $vue.orientaciones.splice(index, 1);
@@ -148,87 +156,102 @@ new Vue({
                 return;
             }
 
-            bootbox.confirm({
-                message: "¿Está seguro que eliminar esta Orientación?",
-                buttons: {
-                    confirm: {label: "Si, eliminar", className: "btn-danger"},
-                    cancel: {label: "Cerrar", labelName: "btn-link"}
-                },
-                callback(result) {
-                    if (result) {
-                        axios.post(APP.url(rutaModulo + '/deleteOrientacion'), ori)
-                                .then(response => {
-                                    if (response.data.success) {
-                                        $vue.orientaciones.splice(index, 1);
-                                        if (response.data.data.eliminados == 0) {
-                                            $vue.orientaciones.splice(index, 0, response.data.data.orientacion);
-                                        }
-                                        notify(response.data.message, "info");
-                                    } else {
-                                        notify(response.data.message, "error");
-                                    }
-                                })
-                                .catch(function (error) {
-                                    console.log(error);
-                                    notify(MESSAGES.errorComunicacion, "error");
-                                });
-                    }
-                }
-            });
+            $vue.configConfirmAction.message = "¿Está seguro que eliminar esta Orientación?";
+            $vue.configConfirmAction.okbtn = "Si, eliminar";
+            $vue.configConfirmAction.okaction = $vue.removerAjax;
+            $vue.$refs.modalConfirmAction.open();
+
+        },
+        removerAjax() {
+            let $vue = this;
+            let ori = $vue.orientacioDelete;
+            let index = $vue.indexOrientaDelete;
+
+            axios.post(APP.url(rutaModulo + '/deleteOrientacion'), ori)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.orientaciones.splice(index, 1);
+                            if (response.data.data.eliminados == 0) {
+                                $vue.orientaciones.splice(index, 0, response.data.data.orientacion);
+                            }
+                            notify(response.data.message, "info");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
         },
         incluir(ori, index) {
             let $vue = this;
+            $vue.orientacioDelete = Object.assign({}, ori);
+            $vue.indexOrientaDelete = index;
+
             $vue.configConfirmAction.message = "¿Está seguro que desea activar esta Orientación?";
             $vue.configConfirmAction.okbtn = "Si, activar";
-            $vue.configConfirmAction.okaction = function () {
-                axios.post(APP.url(rutaModulo + '/activarOrientacion'), ori)
-                        .then(response => {
-                            $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
-                            if (response.data.success) {
-                                $vue.orientaciones.splice(index, 1);
-                                $vue.orientaciones.splice(index, 0, response.data.data);
-                                notifyBootbox(response.data.message, "success");
-                            } else {
-                                notifyBootbox(response.data.message, "error");
-                            }
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                            $vue.$refs.modalConfirmAction.confirmReaction(false);
-                            notifyBootbox(MESSAGES.errorComunicacion, "error");
-                        });
-            }
+            $vue.configConfirmAction.okaction = $vue.activarOrientacionAjax;
             $vue.$refs.modalConfirmAction.open();
+        },
+        activarOrientacionAjax() {
+            let $vue = this;
+            let ori = $vue.orientacioDelete;
+            let index = $vue.indexOrientaDelete;
+
+            axios.post(APP.url(rutaModulo + '/activarOrientacion'), ori)
+                    .then(response => {
+                        $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.orientaciones.splice(index, 1);
+                            $vue.orientaciones.splice(index, 0, response.data.data);
+                            notifyBootbox(response.data.message, "success");
+                        } else {
+                            notifyBootbox(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        $vue.$refs.modalConfirmAction.confirmReaction(false);
+                        notifyBootbox(MESSAGES.errorComunicacion, "error");
+                    });
         },
         updateOrientacion(ori, index) {
             let $vue = this;
-            bootbox.confirm({
-                message: "¿Está seguro que desea modificar esta Orientación?",
-                buttons: {
-                    confirm: {label: "Si, modificar", className: "btn-warning"},
-                    cancel: {label: "Cerrar", labelName: "btn-link"}
-                },
-                callback(result) {
-                    if (result) {
-                        let orientacion = Object.assign({}, ori);
-                        orientacion.nombre = ori.nombre2;
-                        axios.post(APP.url(rutaModulo + '/saveOrientacion'), orientacion)
-                                .then(response => {
-                                    if (response.data.success) {
-                                        $vue.orientaciones.splice(index, 1);
-                                        $vue.orientaciones.splice(index, 0, response.data.data);
-                                        notify(response.data.message, "info");
-                                    } else {
-                                        notify(response.data.message, "error");
-                                    }
-                                })
-                                .catch(function (error) {
-                                    console.log(error);
-                                    notify(MESSAGES.errorComunicacion, "error");
-                                });
-                    }
-                }
-            });
+            $vue.orientacioDelete = Object.assign({}, ori);
+            $vue.indexOrientaDelete = index;
+
+            $vue.configConfirmAction.message = "¿Está seguro que desea modificar esta Orientación?";
+            $vue.configConfirmAction.okbtn = "Si, modificar";
+            $vue.configConfirmAction.okaction = $vue.updateOrientacionAjax;
+            $vue.$refs.modalConfirmAction.open();
+        },
+        updateOrientacionAjax() {
+            let $vue = this;
+            let ori = $vue.orientacioDelete;
+            let index = $vue.indexOrientaDelete;
+
+            let orientacion = Object.assign({}, ori);
+            orientacion.nombre = ori.nombre2;
+
+            axios.post(APP.url(rutaModulo + '/saveOrientacion'), orientacion)
+                    .then(response => {
+                        $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.orientaciones.splice(index, 1);
+                            $vue.orientaciones.splice(index, 0, response.data.data);
+
+                            notifyBootbox(response.data.message, "info");
+                        } else {
+                            notifyBootbox(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        $vue.$refs.modalConfirmAction.confirmReaction(false);
+                        console.log(error);
+                        notifyBootbox(MESSAGES.errorComunicacion, "error");
+                    });
+
         },
         prepararCambio() {
             let $vue = this;
@@ -252,35 +275,33 @@ new Vue({
                 return;
             }
 
-            bootbox.confirm({
-                message: "¿Está seguro que desea guardar esta(s) Orientación(es) nueva(s)?",
-                buttons: {
-                    confirm: {label: "Si, guardar", className: "btn-success"},
-                    cancel: {label: "Cerrar", labelName: "btn-link"}
-                },
-                callback(result) {
-                    if (result) {
-                        let carr = {
-                            id: $vue.carrera.id,
-                            orientacionCarrera: $vue.orientaciones
-                        };
-                        axios.post(APP.url(rutaModulo + '/saveOrientaciones'), carr)
-                                .then(response => {
-                                    if (response.data.success) {
-                                        $vue.orientaciones = response.data.data;
-                                        $vue.nuevasOris = 0;
-                                        notify(response.data.message, "info");
-                                    } else {
-                                        notify(response.data.message, "error");
-                                    }
-                                })
-                                .catch(function (error) {
-                                    console.log(error);
-                                    notify(MESSAGES.errorComunicacion, "error");
-                                });
-                    }
-                }
-            });
+            $vue.configConfirmAction.message = "¿Está seguro que desea guardar esta(s) Orientación(es) nueva(s)?";
+            $vue.configConfirmAction.okbtn = "Si, guardar";
+            $vue.configConfirmAction.okaction = $vue.saveOrientacionesAjax;
+            $vue.$refs.modalConfirmAction.open();
+        },
+        saveOrientacionesAjax() {
+            let $vue = this;
+            let carr = {
+                id: $vue.carrera.id,
+                orientacionCarrera: $vue.orientaciones
+            };
+            axios.post(APP.url(rutaModulo + '/saveOrientaciones'), carr)
+                    .then(response => {
+                        $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.orientaciones = response.data.data;
+                            $vue.nuevasOris = 0;
+                            notifyBootbox(response.data.message, "info");
+                        } else {
+                            notifyBootbox(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        $vue.$refs.modalConfirmAction.confirmReaction(false);
+                        console.log(error);
+                        notifyBootbox(MESSAGES.errorComunicacion, "error");
+                    });
         },
         revisar(tipo, ofi, campo) {
             let $vue = this;
