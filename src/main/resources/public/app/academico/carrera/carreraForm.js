@@ -1,295 +1,323 @@
-$(function () {
-
-    var dynatable = $('#dynaTable').dynatable({
-        dataset: {
-            ajaxUrl: APP.url('academico/carrera/listOrientacion/' + $('[name="id"]').val()),
-            perPageDefault: 100
-        },
-        writers: {
-            _rowWriter: ulWriter
-        },
-        table: {
-            bodyRowSelector: 'tbody tr'
-        }, features: {
-            paginate: false,
-            recordCount: false,
-            sorting: false,
-            search: false
-        }
-    }).bind('dynatable:afterUpdate', function (e, dynatable) {
-        $('[data-toggle="tooltip"]').tooltip();
-    }).data('dynatable');
-    function ulWriter(rowIndex, record, columns, cellWriter) {
-        var labelColor = {CRE: 'default', ACT: 'success', INA: 'danger'};
-        record.index = rowIndex;
-        record.esActivo = record.estado == 'ACT';
-        record.esInactivo = record.estado == 'INA';
-        record.colorEstado = labelColor[record.estado];
-        var html = $.templates("#orientacionTemplate").render(record);
-        return html;
-    }
-
-
-    var CarreraForm = {
-        modalidadEstudio: $('.modalidadEstudio'),
-        formCarrera: $("#formularioCarrera"),
-        modalOrientacion: $("#modalOrientacion"),
-        formModalOrientacion: null,
-        formCambioEstado: null,
-        init: function () {
-            $('[name="facultad.id"]').select2();
-            CarreraForm.modalidadEstudio.select2();
-
-            if (CarreraForm.modalidadEstudio.val() != '') {
-                CarreraForm.loadTipoCarrera(CarreraForm.modalidadEstudio);
-            }
-        },
-        viewModalAddOrientacion: function (e) {
-            e.preventDefault();
-            CarreraForm.formCarrera.parsley().destroy();
-
-            var record = {
-                form: "formOrientacion",
-                idCarrera: $('.idCarrera').val()
-            };
-
-            MODAL.init("md");
-            MODAL.title("Nueva Orientación");
-            MODAL.body($.templates("#divFormOrientacion").render(record));
-            MODAL.buttons('<a class="btn btn-primary guardar-orientacion">Guardar</a>')
-            MODAL.show();
-
-            CarreraForm.formModalOrientacion = $("#" + record.form);
-            $('[name="idOrientacion"]').val("");
-            $('[name="nombreOrientacion"]').val("");
-
-        },
-        saveUpdateCarrera: function (e) {
-            e.preventDefault();
-            var form = CarreraForm.formCarrera;
+Vue.component("multiselect", window.VueMultiselect.default);
+new Vue({
+    el: '#carreraFormVUE',
+    data: {
+        carrera: JSON.parse(carreraJson),
+        modalidades: JSON.parse(modalidadesJson),
+        facultades: JSON.parse(facultadesJson),
+        tipos: JSON.parse(tiposJson),
+        areasPosgrado: JSON.parse(areasPosgradoJson),
+        orientaciones: JSON.parse(orientacionesJson),
+        editarOrientaciones: false,
+        orientacioDelete: {},
+        indexOrientaDelete: -1,
+        nuevasOris: 0,
+        configAnulaOrientacion: VUE_MODAL.structFormAjax({
+            id: "idAnulaOrientacion",
+            header: true,
+            title: 'Eliminar Orientación',
+            okbtn: 'Eliminar Orientación',
+            okclass: "btn-danger",
+            form: "formAnulaOrientacion"
+        }),
+        configConfirmAction: VUE_MODAL.structConfirm({}),
+    },
+    mounted() {
+        let $vue = this;
+        console.log($vue.carrera)
+    },
+    methods: {
+        verSaveCarrera() {
+            let $vue = this;
+            let isSave = $vue.carrera.id == '';
+            let form = $("#formCarrera");
             if (!form.parsley().validate()) {
+                bootbox.alert({
+                    message: "Debe completar todos los campos",
+                    buttons: {ok: {label: "Aceptar"}}
+                });
                 return;
             }
 
-            form.submit();
+            let msg = "¿Está seguro que desea " + (isSave ? "crear una nueva " : "actualizar los datos de esta ") + "especialidad?";
+            let btn = "Si, " + (isSave ? "crear" : "actualizar");
+
+            $vue.configConfirmAction.message = msg;
+            $vue.configConfirmAction.okbtn = btn;
+            $vue.configConfirmAction.okaction = $vue.saveCarrera;
+            $vue.$refs.modalConfirmAction.open();
         },
-        deleteOrientacion: function ($this) {
-            bootbox.confirm({
-                message: MESSAGES.confirmDelete,
-                title: "Eliminar Orientación",
-                buttons: {
-                    confirm: {label: 'Eliminar'},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
-                },
-                callback: function (result) {
-                    if (result) {
-                        $.ajax({
-                            url: APP.url('academico/carrera/deleteOrientacion'),
-                            type: 'POST',
-                            async: true,
-                            data: {idOrientacion: $this.attr("rel"), idCarrera: $this.attr("rev")},
-                            success: function (response) {
-                                if (response.success) {
-                                    notify(response.message, "info");
-                                    dynatable.process();
-                                } else {
-                                    notify(response.message, "error");
-                                }
-                            },
-                            error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+        saveCarrera() {
+            let $vue = this;
+            let isSave = $vue.carrera.id == '';
+            let url = window.location.href;
+
+            axios.post(APP.url(rutaModulo + '/saveCarrera'), $vue.carrera)
+                    .then(response => {
+                        $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            console.log("response.data.success")
+                            $vue.carrera = response.data.data;
+                            notifyBootbox(response.data.message, "success");
+                            if (isSave) {
+                                console.log("isSave")
+                                let newUrl = url.replace("/nuevo", "/" + $vue.carrera.id + "/editar")
+                                history.pushState(null, null, newUrl);
                             }
-                        });
-                    }
-                }
-            });
-        },
-        guardarOrientacion: function (e) {
-            e.preventDefault();
-            var form = CarreraForm.formModalOrientacion;
-            if (!form.parsley().validate()) {
-                return;
-            }
-
-            var nombreOrientacion = form.find('[name="nombreOrientacion"]').val();
-            var idCarrera = form.find('[name="idCarrera"]').val();
-            var idOrientacion = form.find('[name="idOrientacion"]').val();
-
-            $.ajax({
-                url: APP.url('academico/carrera/saveOrientacion'),
-                type: 'POST',
-                async: true,
-                data: {
-                    nombreOrientacion: nombreOrientacion,
-                    idCarrera: idCarrera,
-                    idOrientacion: idOrientacion},
-                success: function (response) {
-                    if (response.success) {
-                        MODAL.hide();
-                        notify(response.message, "info");
-                        dynatable.process();
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
-        viewEstadoOrientacion: function (e, $this) {
-            e.preventDefault();
-
-            var estado = $this.attr("rev");
-            var record = {
-                form: "formEstadoOrientacion",
-                activo: estado == 'ACT',
-                id: $this.attr("rel")
-            };
-            MODAL.init('md');
-            MODAL.title('');
-            MODAL.body($.templates("#divEstadoOrientacion").render(record));
-            MODAL.buttons('<button type="button" class="btn btn-primary cambio-estado-orientacion">Aceptar</button>');
-            MODAL.show();
-            CarreraForm.formCambioEstado = $("#" + record.form);
-        },
-        viewEditarOrientacion: function (e, $this) {
-            e.preventDefault();
-            CarreraForm.formCarrera.parsley().destroy();
-
-            $.ajax({
-                url: APP.url('academico/carrera/editarOrientacion'),
-                type: 'POST',
-                async: true,
-                data: {id: $this.attr("rel")},
-                success: function (response) {
-                    if (response.success) {
-                        var data = response.data;
-                        var record = {
-                            form: "formOrientacion",
-                            idOrientacion: data.id,
-                            nombreOrientacion: data.nombreOrientacion
-                        };
-
-                        MODAL.init("md");
-                        MODAL.title("Editar Orientación");
-                        MODAL.body($.templates("#divFormOrientacion").render(record));
-                        MODAL.buttons('<a class="btn btn-primary guardar-orientacion">Guardar</a>')
-                        MODAL.show();
-
-                        CarreraForm.formModalOrientacion = $("#" + record.form);
-
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
-        cambioEstadoOrientacion: function (e) {
-            e.preventDefault();
-            var form = CarreraForm.formCambioEstado;
-            if (!form.parsley().validate()) {
-                return;
-            }
-
-            $.ajax({
-                url: APP.url('academico/carrera/cambioEstadoOrientacion'),
-                type: 'POST',
-                async: true,
-                data: form.serialize(),
-                success: function (response) {
-                    if (response.success) {
-                        MODAL.hide();
-                        notify(response.message, "info");
-                        dynatable.process();
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
-        loadTipoCarrera: function ($this) {
-            var codigo = $this.find("option:selected").attr("rel");
-            console.log("::: " + $this)
-            if (codigo == 'EPG') {
-                $(".divTipoCarrera").removeClass("hide");
-
-                $('.tipo').select2({
-                    placeholder: "Seleccione un tipo de carrera",
-                    minimumInputLength: -1,
-                    ajax: {
-                        url: APP.url("academico/carrera/allTiposCarrera"),
-                        dataType: 'json',
-                        type: 'post',
-                        data: function (term, page) {
-                            return {nombre: term, page: page};
-                        },
-                        results: function (response, page) {
-                            return {results: response.data};
+                        } else {
+                            console.log("response.data.no-success")
+                            notifyBootbox(response.data.message, "error");
                         }
-                    },
-                    initSelection: function (element, callback) {
-                        if (element.val() != "") {
-                            var datos = {
-                                id: element.val(),
-                                nombre: element.attr("rel")
-                            };
-                            callback(datos);
-                        }
-                    },
-                    formatResult: function (info) {
-                        return info.nombre;
-                    },
-                    formatSelection: function (info) {
-                        return info.nombre;
-                    },
-                    escapeMarkup: function (m) {
-                        return m;
+                    })
+                    .catch(function (error) {
+                        console.log("catch(function (error)")
+                        console.log(error)
+                        $vue.$refs.modalConfirmAction.confirmReaction(false);
+                        notifyBootbox(MESSAGES.errorComunicacion, "error");
+                    });
+
+        },
+        addOrientacion() {
+            let $vue = this;
+            let ori = {codigo: $vue.carrera.codigo + "XX", estado: "PEND", motivoAnulacion: "", estadoEnum: {value: "Sin guardar"}};
+            $vue.orientaciones.push(ori);
+            $vue.nuevasOris++;
+        },
+        verEliminar(ori, index) {
+            let $vue = this;
+            $vue.orientacioDelete = Object.assign({}, ori);
+            $vue.indexOrientaDelete = index;
+            $vue.$refs.modalAnulaOrientacion.open();
+        },
+        removerOrientacion() {
+            let $vue = this;
+            let form = $("#" + $vue.configAnulaOrientacion.form);
+            if (!form.parsley().validate()) {
+                $vue.$refs.modalAnulaOrientacion.opaque();
+                bootbox.alert({
+                    message: "Debe completar todos los campos correctamente",
+                    buttons: {ok: {label: "Aceptar"}},
+                    callback() {
+                        $vue.$refs.modalAnulaOrientacion.removeOpaque();
                     }
                 });
+                return;
+            }
 
-                $("#divAreaPosgrado").html($.templates("#areaPosgradoTemplate").render({}));
-                $(".areaPosgrado").select2();
-                
-            } else if (codigo == 'PRE') {
-                $(".divTipoCarrera").addClass("hide");
-                $('[name="tipo"]').attr("value", "SEM");
-                $("#divAreaPosgrado").html("");
+            let ori = $vue.orientacioDelete;
+            let index = $vue.indexOrientaDelete;
+            $vue.$refs.modalAnulaOrientacion.beginProcessing();
+
+            axios.post(APP.url(rutaModulo + '/deleteOrientacion'), ori)
+                    .then(response => {
+                        $vue.$refs.modalAnulaOrientacion.stopProcessing();
+                        if (response.data.success) {
+                            $vue.orientaciones.splice(index, 1);
+                            if (response.data.data.eliminados == 0) {
+                                $vue.orientaciones.splice(index, 0, response.data.data.orientacion);
+                            }
+                            notifyBootbox(response.data.message, "info");
+                            $vue.$refs.modalAnulaOrientacion.close();
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        $vue.$refs.modalAnulaOrientacion.stopProcessing();
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+        },
+        remover(ori, index) {
+            let $vue = this;
+            $vue.orientacioDelete = Object.assign({}, ori);
+            $vue.indexOrientaDelete = index;
+
+            if (ori.id == undefined) {
+                if (ori.nombre == undefined || ori.nombre == "") {
+                    $vue.orientaciones.splice(index, 1);
+                    $vue.nuevasOris--;
+                    return;
+                }
+
+                bootbox.confirm({
+                    message: "¿Está seguro que ya no desea considerar esta Orientación?",
+                    buttons: {
+                        confirm: {label: "Si, no considerar", className: "btn-warning"},
+                        cancel: {label: "Cerrar", labelName: "btn-link"}
+                    },
+                    callback(result) {
+                        if (result) {
+                            $vue.orientaciones.splice(index, 1);
+                            $vue.nuevasOris--;
+                        }
+                    }
+                });
+                return;
+            }
+
+            $vue.configConfirmAction.message = "¿Está seguro que eliminar esta Orientación?";
+            $vue.configConfirmAction.okbtn = "Si, eliminar";
+            $vue.configConfirmAction.okaction = $vue.removerAjax;
+            $vue.$refs.modalConfirmAction.open();
+
+        },
+        removerAjax() {
+            let $vue = this;
+            let ori = $vue.orientacioDelete;
+            let index = $vue.indexOrientaDelete;
+
+            axios.post(APP.url(rutaModulo + '/deleteOrientacion'), ori)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.orientaciones.splice(index, 1);
+                            if (response.data.data.eliminados == 0) {
+                                $vue.orientaciones.splice(index, 0, response.data.data.orientacion);
+                            }
+                            notify(response.data.message, "info");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+        },
+        incluir(ori, index) {
+            let $vue = this;
+            $vue.orientacioDelete = Object.assign({}, ori);
+            $vue.indexOrientaDelete = index;
+
+            $vue.configConfirmAction.message = "¿Está seguro que desea activar esta Orientación?";
+            $vue.configConfirmAction.okbtn = "Si, activar";
+            $vue.configConfirmAction.okaction = $vue.activarOrientacionAjax;
+            $vue.$refs.modalConfirmAction.open();
+        },
+        activarOrientacionAjax() {
+            let $vue = this;
+            let ori = $vue.orientacioDelete;
+            let index = $vue.indexOrientaDelete;
+
+            axios.post(APP.url(rutaModulo + '/activarOrientacion'), ori)
+                    .then(response => {
+                        $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.orientaciones.splice(index, 1);
+                            $vue.orientaciones.splice(index, 0, response.data.data);
+                            notifyBootbox(response.data.message, "success");
+                        } else {
+                            notifyBootbox(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        $vue.$refs.modalConfirmAction.confirmReaction(false);
+                        notifyBootbox(MESSAGES.errorComunicacion, "error");
+                    });
+        },
+        updateOrientacion(ori, index) {
+            let $vue = this;
+            $vue.orientacioDelete = Object.assign({}, ori);
+            $vue.indexOrientaDelete = index;
+
+            $vue.configConfirmAction.message = "¿Está seguro que desea modificar esta Orientación?";
+            $vue.configConfirmAction.okbtn = "Si, modificar";
+            $vue.configConfirmAction.okaction = $vue.updateOrientacionAjax;
+            $vue.$refs.modalConfirmAction.open();
+        },
+        updateOrientacionAjax() {
+            let $vue = this;
+            let ori = $vue.orientacioDelete;
+            let index = $vue.indexOrientaDelete;
+
+            let orientacion = Object.assign({}, ori);
+            orientacion.nombre = ori.nombre2;
+
+            axios.post(APP.url(rutaModulo + '/saveOrientacion'), orientacion)
+                    .then(response => {
+                        $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.orientaciones.splice(index, 1);
+                            $vue.orientaciones.splice(index, 0, response.data.data);
+
+                            notifyBootbox(response.data.message, "info");
+                        } else {
+                            notifyBootbox(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        $vue.$refs.modalConfirmAction.confirmReaction(false);
+                        console.log(error);
+                        notifyBootbox(MESSAGES.errorComunicacion, "error");
+                    });
+
+        },
+        prepararCambio() {
+            let $vue = this;
+            for (var i = 0; i < $vue.orientaciones.length; i++) {
+                $vue.orientaciones[i].nombre2 = $vue.orientaciones[i].nombre;
+            }
+        },
+        verificarCambio(ori) {
+            console.log(ori.nombre)
+            console.log(ori.nombre2)
+            return ori.nombre != ori.nombre2;
+        },
+        saveOrientaciones() {
+            let $vue = this;
+            var form = $("#formOrientacion");
+            if (!form.parsley().validate()) {
+                bootbox.alert({
+                    message: "Debe completar todos los campos",
+                    buttons: {ok: {label: "Aceptar"}}
+                });
+                return;
+            }
+
+            $vue.configConfirmAction.message = "¿Está seguro que desea guardar esta(s) Orientación(es) nueva(s)?";
+            $vue.configConfirmAction.okbtn = "Si, guardar";
+            $vue.configConfirmAction.okaction = $vue.saveOrientacionesAjax;
+            $vue.$refs.modalConfirmAction.open();
+        },
+        saveOrientacionesAjax() {
+            let $vue = this;
+            let carr = {
+                id: $vue.carrera.id,
+                orientacionCarrera: $vue.orientaciones
+            };
+            axios.post(APP.url(rutaModulo + '/saveOrientaciones'), carr)
+                    .then(response => {
+                        $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.orientaciones = response.data.data;
+                            $vue.nuevasOris = 0;
+                            notifyBootbox(response.data.message, "info");
+                        } else {
+                            notifyBootbox(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        $vue.$refs.modalConfirmAction.confirmReaction(false);
+                        console.log(error);
+                        notifyBootbox(MESSAGES.errorComunicacion, "error");
+                    });
+        },
+        revisar(tipo, ofi, campo) {
+            let $vue = this;
+            if (tipo == 'CODIGO') {
+                ofi[campo] = VUE.revisarCodigo(ofi[campo]);
+            } else if (tipo == 'EMAIL') {
+                ofi[campo] = VUE.revisarEmail(ofi[campo]);
+            } else if (tipo == 'NOMBRE') {
+                ofi[campo] = VUE.revisarNombreObjeto(ofi[campo]);
+            } else if (tipo == 'ANEXOS') {
+                ofi[campo] = VUE.revisarAnexos(ofi[campo]);
+            } else if (tipo == 'TELEFONOS') {
+                ofi[campo] = VUE.revisarTelefonos(ofi[campo]);
             }
         }
-    };
-    CarreraForm.init();
 
-    $("body").delegate(".add-orientacion", "click", function (e) {
-        CarreraForm.viewModalAddOrientacion(e);
-    });
-    $(".save-update-carrera").click(function (e) {
-        CarreraForm.saveUpdateCarrera(e);
-    });
-    $("body").delegate(".guardar-orientacion", "click", function (e) {
-        CarreraForm.guardarOrientacion(e);
-    });
-    $("body").delegate(".delete-orientacion", "click", function () {
-        CarreraForm.deleteOrientacion($(this));
-    });
-    $("body").delegate(".view-estado-orientacion", "click", function (e) {
-        CarreraForm.viewEstadoOrientacion(e, $(this));
-    });
-    $("body").delegate(".editar-orientacion", "click", function (e) {
-        CarreraForm.viewEditarOrientacion(e, $(this));
-    });
-    $("body").delegate(".cambio-estado-orientacion", "click", function (e) {
-        CarreraForm.cambioEstadoOrientacion(e);
-    });
-    $("body").delegate(".modalidadEstudio", "change", function (e) {
-        console.log("change!!!")
-        CarreraForm.loadTipoCarrera($(this));
-    });
-
+    }
 });
+

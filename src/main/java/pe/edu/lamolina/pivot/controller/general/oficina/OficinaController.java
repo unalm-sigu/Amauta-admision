@@ -35,7 +35,6 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.AusenciaJefe;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
@@ -264,7 +263,15 @@ public class OficinaController {
             Compania compania = ds.getCompania();
             ArrayNode array = new ArrayNode(jsonFactory);
             TipoOficina tipoOficina = service.findTipoById(tipo);
-            if (TipoOficinaEnum.DPTO == tipoOficina.getCodigoEnum()) {
+
+            if (tipoOficina.getCodigoEnum().getClazz() == null) {
+                response.setData(array);
+                response.setTotal(array.size());
+                response.setSuccess(true);
+                return response;
+            }
+
+            if (tipoOficina.getCodigoEnum().getClazz() == DepartamentoAcademico.class) {
                 List<DepartamentoAcademico> departamentos = service.allDepartamento(compania);
                 for (DepartamentoAcademico departamento : departamentos) {
                     ObjectNode a = JsonHelper.createJson(departamento, jsonFactory, columnas.split(","));
@@ -273,7 +280,8 @@ public class OficinaController {
                     array.add(a);
                 }
             }
-            if (TipoOficinaEnum.ESP == tipoOficina.getCodigoEnum()) {
+
+            if (tipoOficina.getCodigoEnum().getClazz() == Carrera.class) {
                 List<Carrera> carreras = service.allCarrera(compania);
                 for (Carrera carrera : carreras) {
 
@@ -291,7 +299,7 @@ public class OficinaController {
                     array.add(a);
                 }
             }
-            if (TipoOficinaEnum.FAC == tipoOficina.getCodigoEnum()) {
+            if (tipoOficina.getCodigoEnum().getClazz() == Facultad.class) {
                 List<Facultad> facultades = service.allFacultad(compania);
                 for (Facultad facultad : facultades) {
                     ObjectNode a = JsonHelper.createJson(facultad, jsonFactory, columnas.split(","));
@@ -590,7 +598,7 @@ public class OficinaController {
     private ObjectNode createOficinaJson(Oficina oficina) {
         ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
             "id", "nombre", "codigo", "estadoEnum", "estado", "motivoAusenciaJefe", "referenciaUbicacion",
-            "fechaInicioJefatura", "fechaEncargatura", "telefonos", "anexos", "email","webSite","codigoDocumento",
+            "fechaInicioJefatura", "fechaEncargatura", "telefonos", "anexos", "email", "webSite", "codigoDocumento",
             "instanciaOficina",
             "instanciaOficinaCodigo",
             "instanciaOficinaNombre",

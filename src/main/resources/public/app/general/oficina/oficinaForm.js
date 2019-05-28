@@ -13,7 +13,6 @@ new Vue({
     },
     mounted() {
         let $vue = this;
-//        $vue.oficina.instanciaReferencia = null;
         if ($vue.oficina.tipoOficina.id != undefined) {
             $vue.loadReferencias($vue.oficina.tipoOficina);
         }
@@ -23,8 +22,6 @@ new Vue({
         $vue.oficina.telefonos = VUE.revisarTelefonos($vue.oficina.telefonos);
         $vue.oficina.email = VUE.revisarEmail($vue.oficina.email);
 
-    },
-    watch: {
     },
     methods: {
 

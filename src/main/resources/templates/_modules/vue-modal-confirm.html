@@ -1,0 +1,13 @@
+<modal-vik ref="modalConfirmAction"
+           v-bind="configConfirmAction">
+    <div slot="body">
+        <table width="100%">
+            <tr>
+                <td class="v-middle"><i class="fa fa-question-circle fa-4x text-primary"></i></td>
+                <td class="v-middle h4">
+                    <div class="m-l" v-text="configConfirmAction.message"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</modal-vik>
