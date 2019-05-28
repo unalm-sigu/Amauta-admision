@@ -19,21 +19,27 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.DistanciaPabellon;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCarpetaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.pivot.dao.academico.AsignacionAulaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DistanciaPabellonDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -69,6 +75,12 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
     @Autowired
     DistanciaPabellonDAO distanciaPabellonDAO;
 
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
         return cicloAcademicoDAO.find(cicloAcademico);
@@ -82,6 +94,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
     @Override
     @Transient
     public AsignacionAula procesarAsignacionAulas(AsignacionAula asignacionAula, DataSessionPivot ds) {
+
         List<Seccion> seccionesByCiclo = seccionDAO.allForAsignacionAulaByCiclo(ds.getCicloAcademico(), SeccionEstadoEnum.ACT);
         int seccionesProgramadas = seccionesByCiclo.size();
 
@@ -90,12 +103,14 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 .filter(x -> x.getAula() == null)
                 .collect(Collectors.toList());
 
-        Oficina oficinaEstudios = oficinaDAO.findByCode(OficinaEnum.OERA.name());
-        List<Aula> aulas = aulaDAO.allByOficinaSupervisora(oficinaEstudios);
+        //Ordernar por horas semanalaes de mayor a menor
+        Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
+
+        List<Aula> aulas = this.allAulasOeraWithHorario(ds.getCicloAcademico());
         aulas = aulas.stream().filter(x -> x.getTipoCarpeta() != null).collect(Collectors.toList());
 
         List<DocenteSeccion> docentesSeccionPrincipalesByCiclo
-                = docenteSeccionDAO.allByCiclo(ds.getCicloAcademico());
+                = docenteSeccionDAO.allByCiclo(ds.getCicloAcademico(), EstadoEnum.ACT);
         docentesSeccionPrincipalesByCiclo = docentesSeccionPrincipalesByCiclo.stream()
                 .filter(x -> x.getSeccion().getAula() == null)
                 .filter(x -> x.isEstadoActivado())
@@ -135,6 +150,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                         .filter(x -> x.getTipoCarpeta().equals(seccion.getTipoCarpeta()))
                         .filter(x -> x.getAforo() >= seccion.getMatriculados())
                         .collect(Collectors.toList());
+                //Ordenamos las aulas por aforo de menor a mayor
                 Collections.sort(aulasByPabellon, (p1, p2) -> p1.getAforo().compareTo(p2.getAforo()));
                 /*       logger.debug("Departamento {}, Pabellon {}, Distancia {}, Aulas {}", distanciaPabellon.getDepartamentoAcademico().getId(),
                         distanciaPabellon.getPabellon().getId(),
@@ -192,6 +208,19 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
             asignacionAulaDAO.update(asignacionAula);
         }
         return asignacionAula;
+    }
+
+    public List<Aula> allAulasOeraWithHorario(CicloAcademico cicloAcademico) {
+        EventoCicloAcademico eventoCicloDictado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
+
+        List<HorarioAula> horarioAulas = horarioAulaDAO.allByRango(eventoCicloDictado.getFechaInicio(), eventoCicloDictado.getFechaFin());
+        Map<Long, List<HorarioAula>> mapsHorarioAulaByAula = TypesUtil.convertListToMapList("aula.id", horarioAulas);
+        List<Aula> aulas = aulaDAO.allByOficinaSupervisora(OficinaEnum.OERA, EstadoEnum.ACT);
+        for (Aula aula : aulas) {
+            List<HorarioAula> horariosAulas = mapsHorarioAulaByAula.get(aula.getId());
+            aula.setHorariosAula(horariosAulas);
+        }
+        return aulas;
     }
 
 }

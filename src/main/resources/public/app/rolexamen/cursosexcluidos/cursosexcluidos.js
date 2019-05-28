@@ -52,9 +52,9 @@ new Vue({
                     $vue.loadCursosExcluidosByRoleExamen();
                     $vue.curso = null;
                     notify(response.message, "info")
-                } /*else {
-                 notify(response.message, 'error');
-                 }*/
+                } else {
+                    notify(response.message, 'error');
+                }
                 MODAL.hideWait();
             });
         }, excluirSeccion() {

@@ -284,6 +284,29 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
+    public List<HorarioAula> allByRango(Date fechainicio, Date fechafin) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au")
+                .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
+                // .filter("tip.codigo", TipoAulaEnum.MOD)
+                .filter("ha.estado", EstadoHorarioAulaEnum.ACT)
+                .beginBlock()
+                .__().between("ha.fechaInicio", fechainicio, fechafin)
+                .__().between("ha.fechaFin", fechainicio, fechafin)
+                .beginBlock()
+                .__().filter("ha.fechaInicio", "<=", fechainicio)
+                .__().filter("ha.fechaFin", ">=", fechafin)
+                .endBlock()
+                .beginBlock()
+                .__().filter("ha.fechaInicio", ">=", fechainicio)
+                .__().filter("ha.fechaFin", "<=", fechafin)
+                .endBlock()
+                .endBlock();
+        return all(sql);
+    }
+
+    @Override
     public void deleteAllByReservaAula(ReservaAula reservaAula) {
         String strQuery = "delete from HorarioAula ha where ha.reservaAula.id=:IDRESERVAAULA";
         Query query = getCurrentSession().createQuery(strQuery);

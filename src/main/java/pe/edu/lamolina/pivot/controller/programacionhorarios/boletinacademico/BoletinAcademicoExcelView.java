@@ -68,6 +68,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
 
         CicloAcademico ciclo = service.findCicloAcademicoActivo();
 
+        int totalColumns = 11;
         int rowIndice = 0;
 
 //        logger.debug("Anexo Boletin Padre {} id {}", anexoBoletin.getNombre(), anexoBoletin.getId());
@@ -78,7 +79,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
             logger.debug("          Anexo Boletin Hijo {} id {}", anexosBoletinHijo.getNombre(), anexosBoletinHijo.getId());
             Row row = sheet.createRow(rowIndice++);
             this.createHeader1(workBook, sheet, row, 0, "Anexo " + anexosBoletinHijo.getNombre());
-            sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, 10));
+            sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, totalColumns));
             //
             row = sheet.createRow(rowIndice++);
             int col = 0;
@@ -91,14 +92,15 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
             this.createHeader(workBook, sheet, row, col++, "AULA");
             this.createHeader(workBook, sheet, row, col++, "PROFESOR");
             this.createHeader(workBook, sheet, row, col++, "%");
-            this.createHeader(workBook, sheet, row, col++, "DIA/HORA");
+            this.createHeader(workBook, sheet, row, col++, "HORARIO");
+            this.createHeader(workBook, sheet, row, col++, "PERIODO");
             this.createHeader(workBook, sheet, row, col, "VAC");
             for (Curso curso : anexosBoletinHijo.getCursos()) {
                 logger.debug("                     Curso {}", curso.getNombre());
                 rowIndice++;
                 row = sheet.createRow(rowIndice++);
                 this.createHeader3(workBook, sheet, row, 0, curso.getCodigo() + " " + curso.getNombre());
-                sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, 10));
+                sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, totalColumns));
                 for (GrupoSeccion grupoSeccion : curso.getGrupoSeccion()) {
                     int indiceSeccion = 0;
                     for (Seccion seccion : grupoSeccion.getSecciones()) {
@@ -127,7 +129,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                         for (DocenteSeccion doc : seccion.getDocenteSeccion()) {
                             docentesSeccion += ObjectUtil.getParentTree(doc, "docente.codigo") + "  " + ObjectUtil.getParentTree(doc, "docente.persona.nomPaternoMat") + "\n";
                             porcentaje += ObjectUtil.getParentTree(doc, "porcentajeCarga") + "\n";
-                            SimpleDateFormat sdf = new SimpleDateFormat("dd/MMMMM/yyyy", new Locale("es", "ES"));
+                            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", new Locale("es", "ES"));
 
                             String fechaIni = "";
                             String fechaFin = "";
@@ -155,10 +157,12 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                         procentajeCell.setCellValue(richStringPorcentajes);
                         procentajeCell.setCellStyle(cs);
 
+                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, seccion.getHorarioTexto());
+
                         XSSFRichTextString richStringFechas = new XSSFRichTextString(fechas);
                         Cell fechasCell = ExcelHelper.findCell(sheet, row.getRowNum(), col++);
-                        procentajeCell.setCellValue(richStringFechas);
-                        procentajeCell.setCellStyle(cs);
+                        fechasCell.setCellValue(richStringFechas);
+                        fechasCell.setCellStyle(cs);
 
                         //    ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, seccion.getHorarioTexto());
                         ExcelHelper.replaceVal(sheet, row.getRowNum(), col, seccion.getVacantes());
@@ -180,6 +184,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                     }
                 }
             }
+            break;
         }
 
         for (int i = 0; i <= 10; i++) {
