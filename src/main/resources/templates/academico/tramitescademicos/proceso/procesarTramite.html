@@ -33,7 +33,6 @@
                                 </section>
                             </section>
                         </section>
-
                         <section class="panel m-b-xs">
                             <section class="panel m-b-xs">
                                 <section class="panel-body">
@@ -41,9 +40,7 @@
                                     <component ref="procesarComponent" 
                                                v-bind:is="componentForm" 
                                                v-bind="compomentProps" 
-                                               v-bind:oficina="oficina.id"
                                                v-if="compomentProps"></component> 
-
                                 </section>
                             </section>
                         </section>
@@ -86,8 +83,6 @@
             }
             ]];
             var horasJson = [[${horasBD}
-            ]];
-            var oficinasJson = [[${oficinas.toString()}
             ]];
         </script>
         <div th:substituteby="_layout/includes :: svgjs"/>

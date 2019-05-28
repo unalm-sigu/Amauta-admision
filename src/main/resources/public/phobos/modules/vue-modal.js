@@ -78,12 +78,12 @@ Vue.component('modal-vik', {
             $vue.processing = false;
             this.cancelaction();
         },
-        execute() {
+        execute(event) {
             let $vue = this;
             if ($vue.confirm) {
                 $vue.beginProcessing();
             }
-            $vue.okaction();
+            $vue.okaction(event);
         },
         confirmReaction(result) {
             let $vue = this;

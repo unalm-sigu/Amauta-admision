@@ -384,6 +384,7 @@ public class TramitesAcademicosController {
             @PathVariable("tramite") Long tramiteId,
             HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        
         ObjectNode tramiteJson = JsonHelper.createJson(new Tramite(tramiteId), JsonNodeFactory.instance);
 
         model.addAttribute("tramiteJson", tramiteJson.toString());
