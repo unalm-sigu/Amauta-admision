@@ -45,59 +45,59 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = false)
 public class AsignacionAulaServiceImp implements AsignacionAulaService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     AulaDAO aulaDAO;
-
+    
     @Autowired
     SeccionDAO seccionDAO;
-
+    
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-
+    
     @Autowired
     AsignacionAulaDAO asignacionAulaDAO;
-
+    
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
-
+    
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
-
+    
     @Autowired
     OficinaDAO oficinaDAO;
-
+    
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
-
+    
     @Autowired
     DistanciaPabellonDAO distanciaPabellonDAO;
-
+    
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
+    
     @Autowired
     HorarioAulaDAO horarioAulaDAO;
-
+    
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
         return cicloAcademicoDAO.find(cicloAcademico);
     }
-
+    
     @Override
     public AsignacionAula findAsignacionAulaByCiclo(CicloAcademico cicloAcademico) {
         return asignacionAulaDAO.findByCiclo(cicloAcademico);
     }
-
+    
     @Override
     @Transient
     public AsignacionAula procesarAsignacionAulas(AsignacionAula asignacionAula, DataSessionPivot ds) {
-
+        
         List<Seccion> seccionesByCiclo = seccionDAO.allForAsignacionAulaByCiclo(ds.getCicloAcademico(), SeccionEstadoEnum.ACT);
         int seccionesProgramadas = seccionesByCiclo.size();
-
+        
         seccionesByCiclo = seccionesByCiclo.stream()
                 .filter(x -> x.getTipoCarpeta() != null)
                 .filter(x -> x.getAula() == null)
@@ -105,10 +105,10 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
 
         //Ordernar por horas semanalaes de mayor a menor
         Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
-
+        
         List<Aula> aulas = this.allAulasOeraWithHorario(ds.getCicloAcademico());
         aulas = aulas.stream().filter(x -> x.getTipoCarpeta() != null).collect(Collectors.toList());
-
+        
         List<DocenteSeccion> docentesSeccionPrincipalesByCiclo
                 = docenteSeccionDAO.allByCiclo(ds.getCicloAcademico(), EstadoEnum.ACT);
         docentesSeccionPrincipalesByCiclo = docentesSeccionPrincipalesByCiclo.stream()
@@ -116,21 +116,27 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 .filter(x -> x.isEstadoActivado())
                 .filter(x -> x.getPrincipal() == BigDecimal.ONE.intValue())
                 .collect(Collectors.toList());
-
+        
         List<DistanciaPabellon> distanciaPabellonesAll = distanciaPabellonDAO.allByActAndDistanciaOrder("dp.distancia asc");
         Map<Long, List<DistanciaPabellon>> mapDistanciaPabellones = TypesUtil.convertListToMapList("departamentoAcademico.id", distanciaPabellonesAll);
-
+        
         Map<Long, DocenteSeccion> mapDocentesSeccionPrincipalesBySeccion = TypesUtil.convertListToMap("seccion.id", docentesSeccionPrincipalesByCiclo);
-
+        
         List<Aula> aulasAsignadas = new ArrayList<>();
-
+        
         int seccionesTipoLab = 0;
         int seccionesTipoAul = 0;
         int seccionesAsignadas = 0;
-
+        
         for (Seccion seccion : seccionesByCiclo) {
+            Aula aulaWithHorario = aulas.stream().filter(x -> x.equals(seccion.getAula())).findFirst().orElse(null);
+            if (seccion.getGrupoSeccion().getFechaInicioModular() != null && seccion.getGrupoSeccion().getFechaFinModular() != null) {
+                List<HorarioAula> horariosAulas = horarioAulaDAO.allByRango(seccion.getGrupoSeccion().getFechaInicioModular(), seccion.getGrupoSeccion().getFechaFinModular(), aulaWithHorario);
+                aulaWithHorario = aulaWithHorario.clone();
+                aulaWithHorario.setHorariosAula(horariosAulas);
+            }
             DocenteSeccion docenteSeccionPrincipal = mapDocentesSeccionPrincipalesBySeccion.get(seccion.getId());
-
+            
             DepartamentoAcademico departamentoAcademicoDocente = docenteSeccionPrincipal.getDocente().getDepartamentoAcademico();
             if (departamentoAcademicoDocente == null) {
                 continue;
@@ -138,7 +144,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
             Boolean esDocenteConDiscapacidad = docenteSeccionPrincipal.getDocente().getPersona().getConDiscapacidad() == 1;
             //    logger.debug("Seccion {}", seccion.getCodigo());
             seccion.settDocenteSeccion(docenteSeccionPrincipal);
-
+            
             List<DistanciaPabellon> distanciaPabellonByDepartamento = mapDistanciaPabellones.get(departamentoAcademicoDocente.getId());
             if (distanciaPabellonByDepartamento == null) {
                 continue;
@@ -156,19 +162,19 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                         distanciaPabellon.getPabellon().getId(),
                         distanciaPabellon.getDistancia(),
                         aulasByPabellon.size());*/
-
+                
                 for (Aula aula : aulasByPabellon) {
                     if (aulasAsignadas.contains(aula)) {
                         continue;
                     }
                     Integer piso = aula.getPiso() == null ? BigDecimal.ONE.intValue() : aula.getPiso();
-
+                    
                     if (esDocenteConDiscapacidad) {
                         if (piso != BigDecimal.ONE.intValue()) {
                             continue;
                         }
                     }
-
+                    
                     aulasAsignadas.add(aula);
                     seccionDAO.updateAsignacionAula(seccion);
                     logger.debug("Seccion {}, Con Aula {} Asignada",
@@ -181,11 +187,11 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                     }
                     seccionesAsignadas = aulasAsignadas.size();
                     break FOR_DIST_PAB;
-
+                    
                 }
             }
         }
-
+        
         asignacionAula.setCicloAcademico(ds.getCicloAcademico());
         asignacionAula.setSeccionesModificadas(BigDecimal.ZERO.intValue());
         asignacionAula.setSeccionesProgramadas(seccionesProgramadas);
@@ -209,10 +215,10 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
         }
         return asignacionAula;
     }
-
+    
     public List<Aula> allAulasOeraWithHorario(CicloAcademico cicloAcademico) {
         EventoCicloAcademico eventoCicloDictado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
-
+        
         List<HorarioAula> horarioAulas = horarioAulaDAO.allByRango(eventoCicloDictado.getFechaInicio(), eventoCicloDictado.getFechaFin());
         Map<Long, List<HorarioAula>> mapsHorarioAulaByAula = TypesUtil.convertListToMapList("aula.id", horarioAulas);
         List<Aula> aulas = aulaDAO.allByOficinaSupervisora(OficinaEnum.OERA, EstadoEnum.ACT);
@@ -222,5 +228,5 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
         }
         return aulas;
     }
-
+    
 }

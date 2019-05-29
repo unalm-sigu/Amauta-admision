@@ -95,4 +95,6 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByRango(Date fechainicio, Date fechafin);
 
+    List<HorarioAula> allByRango(Date fechainicio, Date fechafin, Aula... aula);
+
 }
