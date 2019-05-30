@@ -40,8 +40,8 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
     public List<HorarioSeccion> allBySeccionesSortByDiaHora(List<Seccion> secciones) {
         Octavia sql = Octavia.query()
                 .from(HorarioSeccion.class, "hs")
-                .join("dia di", "hora ho", "seccion sec", "sec.grupoSeccion gs", "gs.curso")
-                .leftJoin("sec.aula", "sec.grupoHoras")
+                .join("dia di", "hora ho")
+                .leftJoin("seccion sec", "sec.aula", "sec.grupoHoras", "sec.grupoSeccion gs", "gs.curso")
                 .orderBy("di.numeroDia", "ho.numero")
                 .in("sec.id", secciones);
         return all(sql);
