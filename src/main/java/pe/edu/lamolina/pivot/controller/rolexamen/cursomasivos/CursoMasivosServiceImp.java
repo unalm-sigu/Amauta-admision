@@ -577,12 +577,12 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Transactional(readOnly = false)
     public void excluirSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivo, CursoExcluido cursoExcluido, DataSessionPivot ds) {
         seccionCursoMasivo = seccionCursoMasivoDAO.find(seccionCursoMasivo.getId());
-        if (cursoExcluido == null) {
+        /*if (cursoExcluido == null) {
             cursoExcluido = cursoExcluidoDAO.findActiveByCursoAndRolExamenes(
                     seccionCursoMasivo.getCursoMasivoExamen().getCurso(),
                     seccionCursoMasivo.getCursoMasivoExamen().getRolExamenes()
             );
-        }
+        }*/
         RolExamenes rolExamenes = seccionCursoMasivo.getCursoMasivoExamen().getRolExamenes();
         grupoRegularConnector.validarSituacionBeforeOr("excluir", "los grupos regulares", rolExamenes.isSituacionConfigurarRol(), rolExamenes.isSituacionConfigurarCursoMasivo());
         Assert.isTrue(seccionCursoMasivo.isEstadoActivo(), "Solo se puede excluir las secciones masivas activas");
@@ -601,7 +601,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         seccionExcluido.setUserRegistro(ds.getUsuario());
         seccionExcluido.setCursoExcluido(cursoExcluido);
         seccionExcluidoDAO.save(seccionExcluido);
-
+        /*
         Integer countSeccionExcluidasAnu = seccionExcluidoDAO.countByCursoExcluido(cursoExcluido, EstadoEnum.ANU);
         if (countSeccionExcluidasAnu > 0) {
             CursoExcluido cursoExcluidoUpd = new CursoExcluido(cursoExcluido.getId());
@@ -614,7 +614,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             cursoExcluidoUpd.setEsExclusionCompleta(Boolean.TRUE);
             cursoExcluidoDAO.updateColumns(cursoExcluidoUpd, "esExclusionCompleta");
         }
-
+         */
         List<AlumnoCursoMasivo> alumnosCursoMasivoBySeccion = alumnoCursoMasivoDAO.allBySeccionCursosMasivos(seccionCursoMasivo, AlumnoRolExamenEstadoEnum.ACT);
         for (AlumnoCursoMasivo alumnoCursoMasivo : alumnosCursoMasivoBySeccion) {
             this.excluirAlumnoCursoMasivo(alumnoCursoMasivo, ds);
@@ -698,9 +698,11 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     @Override
     public RolExamenesLogger activarAlumnoCursoMasivo(AlumnoCursoMasivo alumnoCursoMasivo, DataSessionPivot ds) {
         GrupoHorasExamen grupoHorasExamen = alumnoCursoMasivo.getCursoMasivoExamen().getGrupoHorasExamen();
-        RolExamenesLogger rolExamenesLoggerResult = grupoRegularConnector.validacionActivarAlumno(grupoHorasExamen, alumnoCursoMasivo.getAlumno());
-        Assert.isFalse(rolExamenesLoggerResult.isCruce(), "Tiene cruce de horario.");
-
+        RolExamenesLogger rolExamenesLoggerResult = new RolExamenesLogger();
+        if (grupoHorasExamen != null) {
+            rolExamenesLoggerResult = grupoRegularConnector.validacionActivarAlumno(grupoHorasExamen, alumnoCursoMasivo.getAlumno());
+            Assert.isFalse(rolExamenesLoggerResult.isCruce(), "Tiene cruce de horario.");
+        }
         AlumnoCursoMasivo alumnoCursoMasivoUpd = new AlumnoCursoMasivo(alumnoCursoMasivo.getId());
         alumnoCursoMasivoUpd.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
         alumnoCursoMasivoDAO.updateEstado(alumnoCursoMasivoUpd);

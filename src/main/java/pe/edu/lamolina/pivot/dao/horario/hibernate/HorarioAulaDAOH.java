@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.hibernate.Query;
@@ -268,6 +269,54 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .filter("tip.codigo", TipoAulaEnum.MOD)
                 .filter("au.estado", EstadoEnum.ACT)
                 .complexFilter("concat(d.id,'-',h.id)", "in", diashoras)
+                .beginBlock()
+                .__().between("ha.fechaInicio", fechainicio, fechafin)
+                .__().between("ha.fechaFin", fechainicio, fechafin)
+                .beginBlock()
+                .__().filter("ha.fechaInicio", "<=", fechainicio)
+                .__().filter("ha.fechaFin", ">=", fechafin)
+                .endBlock()
+                .beginBlock()
+                .__().filter("ha.fechaInicio", ">=", fechainicio)
+                .__().filter("ha.fechaFin", "<=", fechafin)
+                .endBlock()
+                .endBlock();
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByRango(Date fechainicio, Date fechafin) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au")
+                .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
+                // .filter("tip.codigo", TipoAulaEnum.MOD)
+                .filter("ha.estado", EstadoHorarioAulaEnum.ACT)
+                .beginBlock()
+                .__().between("ha.fechaInicio", fechainicio, fechafin)
+                .__().between("ha.fechaFin", fechainicio, fechafin)
+                .beginBlock()
+                .__().filter("ha.fechaInicio", "<=", fechainicio)
+                .__().filter("ha.fechaFin", ">=", fechafin)
+                .endBlock()
+                .beginBlock()
+                .__().filter("ha.fechaInicio", ">=", fechainicio)
+                .__().filter("ha.fechaFin", "<=", fechafin)
+                .endBlock()
+                .endBlock();
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByRango(Date fechainicio, Date fechafin, Aula... aula) {
+        List<Aula> aulas = Arrays.asList(aula);
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au")
+                .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
+                // .filter("tip.codigo", TipoAulaEnum.MOD)
+                .filter("ha.estado", EstadoHorarioAulaEnum.ACT)
+                .in("au.id", aulas)
                 .beginBlock()
                 .__().between("ha.fechaInicio", fechainicio, fechafin)
                 .__().between("ha.fechaFin", fechainicio, fechafin)

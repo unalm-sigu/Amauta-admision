@@ -423,7 +423,7 @@ public class CursoMasivosController {
             } else if (CursoMasivosController.TipoAccion.ALUMNO.name().equals(tipoAccion)) {
                 AlumnoCursoMasivo alumnoCursoMasivo = (AlumnoCursoMasivo) mapper.readValue(objeto.toString(), AlumnoCursoMasivo.class);
                 service.activarAlumnoCursoMasivo(alumnoCursoMasivo, ds);
-            }
+            } 
             response.setMessage("Incluido corretamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {

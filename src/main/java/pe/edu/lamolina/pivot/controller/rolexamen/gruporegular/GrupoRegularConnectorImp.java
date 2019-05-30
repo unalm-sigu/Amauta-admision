@@ -672,10 +672,14 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         RolExamenesLogger rolExamenesLogger = new RolExamenesLogger();
         rolExamenesLogger.iniciarGeneric();
 
-        List<DocenteCursoMasivo> docentesCursosMasivos = docenteCursoMasivoDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, DocenteRolExamenEstadoEnum.ACT);
-        List<SeccionGrupoRegular> seccionGrupoRegulares = seccionGrupoRegularDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, SeccionRolExamenEstadoEnum.ACT);
-        List<SeccionGrupoEspecial> seccionGrupoEspeciales = seccionGrupoEspecialDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, SeccionRolExamenEstadoEnum.ACT);
-
+        List<DocenteCursoMasivo> docentesCursosMasivos = new ArrayList<>();
+        List<SeccionGrupoRegular> seccionGrupoRegulares = new ArrayList<>();
+        List<SeccionGrupoEspecial> seccionGrupoEspeciales = new ArrayList<>();
+        if (grupoHorasExamen != null) {
+            docentesCursosMasivos = docenteCursoMasivoDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, DocenteRolExamenEstadoEnum.ACT);
+            seccionGrupoRegulares = seccionGrupoRegularDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, SeccionRolExamenEstadoEnum.ACT);
+            seccionGrupoEspeciales = seccionGrupoEspecialDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, SeccionRolExamenEstadoEnum.ACT);
+        }
         List<DocenteCursoMasivo> docentesCursosMasivosFound = docentesCursosMasivos.stream()
                 .filter(x -> x.getDocente().equals(docente))
                 .collect(Collectors.toList());

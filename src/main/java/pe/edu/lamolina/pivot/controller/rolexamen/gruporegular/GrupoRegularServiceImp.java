@@ -394,6 +394,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<Seccion> seccionesZetas = seccionDAO.allForRolExamenAndTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.ZETA);
         seccionesZetas.removeIf(x -> !x.getGrupoHoras().getConHorario().equals("FLXHOR"));
         secciones.addAll(seccionesZetas);
+        //Ordernar por horas semanalaes de mayor a menor
         Collections.sort(secciones, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
 
         /*  for (Seccion seccion : secciones) {
@@ -513,10 +514,10 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
                             .collect(Collectors.toList());
 
                     boolean result = false;
-                    if (seccion.getAula().getOficinaSupervisora().isOficinaOera()) {
-                        result = grupoRegularConnector.procesarSeccionesByLetra(letraGrupoRegular,
-                                cursosMasivosByRolExamenesAndGrupoHoras, seccionesGrupoEspecialByRolExamenAndGrupoHorasExamen, seccion, seccionesByLetra, ds);
-                    } else {
+                    //    if (seccion.getAula().getOficinaSupervisora().isOficinaOera()) {
+                    result = grupoRegularConnector.procesarSeccionesByLetra(letraGrupoRegular,
+                            cursosMasivosByRolExamenesAndGrupoHoras, seccionesGrupoEspecialByRolExamenAndGrupoHorasExamen, seccion, seccionesByLetra, ds);
+                    /*   } else {
                         GrupoHorasExamen grupoHorasExamen = letraGrupoRegular.getGrupoHorasExamen();
                         Aula seccionAulaOriginal = seccion.getAula();
                         AULA_EACH:
@@ -534,8 +535,8 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
                             }
                             seccion.setAula(seccionAulaOriginal);
                         }
-                    }
-                    /*
+                    }*/
+ /*
                     boolean result = grupoRegularConnector.procesarSeccionesByLetra(
                             letraGrupoRegular,
                             cursosMasivosByRolExamenesAndGrupoHoras,
