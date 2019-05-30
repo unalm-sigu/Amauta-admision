@@ -125,7 +125,7 @@ public class TestServiceImp implements TestService {
     @Override
     @Transactional
     public void trasladarMatriculaCursoForPromedios(DataSessionPivot ds) {
-        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.ACT, CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2019, "ca.codigo asc", CicloAcademicoEstadoEnum.PEND);
         //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
         for (CicloAcademico cicloAcademico : ciclos) {
             List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCiclo(cicloAcademico);
