@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 
+
 @Component
 public class RolExamenesLogger {
 
