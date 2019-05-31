@@ -300,6 +300,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")
                 .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
+                .left("au.tipoCarpeta tc")
                 .filter("ofi.codigo", oficinaEnum)
                 .filter("au.estado", estadoEnum.name());
         

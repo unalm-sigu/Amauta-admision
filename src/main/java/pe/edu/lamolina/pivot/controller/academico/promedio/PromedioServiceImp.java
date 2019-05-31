@@ -600,6 +600,7 @@ public class PromedioServiceImp implements PromedioService {
         }
     }
 
+    @Transactional(propagation = Propagation.MANDATORY)
     public void generarHistorialNotas2(Alumno alumno,
             Curso curso,
             MatriculaCurso matriculaCurso,
@@ -607,6 +608,9 @@ public class PromedioServiceImp implements PromedioService {
             List<MatriculaCurso> matriculasCursosByAlumno,
             DataSessionPivot ds) {
         try {
+            if (cicloAcademico.getCodigo().equals("201900")) {
+                logger.debug("");
+            }
             //  logger.debug("generar historial notas, alumno {} ciclo {}", alumno.getId(), cicloAcademico.getId());
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cicloAcademico, curso);
@@ -621,7 +625,7 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCiclo.setEstaAprobado(BigDecimal.ZERO.intValue());
                 alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                 alumnoCicloDAO.save(alumnoCiclo);
-                alumno.getId();
+                alumnoCiclo.getId();
             }
 
             if (alumnoCicloCurso == null) {

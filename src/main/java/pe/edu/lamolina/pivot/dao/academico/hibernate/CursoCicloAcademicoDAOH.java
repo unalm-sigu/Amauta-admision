@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
@@ -12,6 +13,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 
 @Repository
@@ -28,6 +30,16 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
                 .join("curso c", "cicloAcademico ca")
                 .filter("ca.id", cicloDestino);
 
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoCicloAcademico> allByCiclo(CicloAcademico cicloDestino, CicloAcademicoEstadoEnum... estadoEnum) {
+        List<CicloAcademicoEstadoEnum> estadosEnum = Arrays.asList(estadoEnum);
+        Octavia sql = Octavia.query(CursoCicloAcademico.class, "cca")
+                .join("curso c", "cicloAcademico ca")
+                .filter("ca.id", cicloDestino)
+                .in("cca.estado", estadosEnum);
         return all(sql);
     }
 
