@@ -35,8 +35,9 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
 
     @Override
     public List<CuotasGrupoHoras> allCuotasGpoHoras(DynatableFilter filter, AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico) {
-
-        return cuotaGpoHorasDAO.allByDynatable(filter, anexoBoletin, cicloAcademico);
+        List<CuotasGrupoHoras> cuotas = cuotaGpoHorasDAO.allByDynatable(filter, anexoBoletin, cicloAcademico);
+        /* sihf iasd fasofd */
+        return cuotas;
     }
 
     @Override

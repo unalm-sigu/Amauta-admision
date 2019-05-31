@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.horario.GrupoHoras;
 
 @Component
 public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
@@ -104,7 +105,8 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                 for (GrupoSeccion grupoSeccion : curso.getGrupoSeccion()) {
                     int indiceSeccion = 0;
                     for (Seccion seccion : grupoSeccion.getSecciones()) {
-                        String horario = seccion.getGrupoHoras().getCodigo();
+                        Optional<GrupoHoras> oGrupoHoras = Optional.ofNullable(seccion.getGrupoHoras());
+                        String horario = oGrupoHoras.isPresent() ? oGrupoHoras.get().getCodigo() : "";
                         Optional<Aula> aulaOpt = Optional.ofNullable(seccion.getAula());
                         String aula = aulaOpt.isPresent() ? aulaOpt.get().getCodigo() : "";
                         row = sheet.createRow(rowIndice++);

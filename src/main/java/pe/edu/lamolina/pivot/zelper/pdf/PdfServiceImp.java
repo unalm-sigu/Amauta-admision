@@ -50,61 +50,61 @@ import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 @Service
 @Transactional(readOnly = true)
 public class PdfServiceImp implements PdfService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     PdfGenerator pdfGenerator;
-    
+
     @Autowired
     NotaAcademicaService notaAcademicaService;
-    
+
     @Autowired
     CursoDAO cursoDAO;
-    
+
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
-    
+
     @Autowired
     PlanCalificacionDAO planCalificacionDAO;
-    
+
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
-    
+
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
-    
+
     @Autowired
     FacultadDAO facultadDAO;
-    
+
     @Autowired
     DocenteDAO docenteDAO;
-    
+
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
     @Autowired
     ResumenAlumnoEvaluacionDAO resumenAlumnoEvaluacionDAO;
-    
+
     @Autowired
     AnexoBoletinDAO anexoBoletinDAO;
-    
+
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
-    
+
     @Autowired
     SeccionDAO seccionDAO;
-    
+
     @Autowired
     EvaluacionPlanDAO evaluacionPlanDAO;
-    
+
     @Override
     public List<String> reporteDeActaDeNotas(Long idGrupoSeccion, DataSessionPivot ds) {
         //47
 
         List<String> pdfs = new ArrayList<>();
-        
+
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        
+
         GrupoSeccion grupoSeccion = grupoSeccionDAO.find(idGrupoSeccion);
         Curso curso = grupoSeccion.getCurso();
         PlanCalificacion planCalificacion = grupoSeccion.getPlanCalificacion();
@@ -115,9 +115,9 @@ public class PdfServiceImp implements PdfService {
         }
         DepartamentoAcademico departamentoAcademico = curso.getDepartamentoAcademico();
         Facultad facultad = departamentoAcademico.getFacultad();
-        
+
         Collections.sort(evaluaciones, (p1, p2) -> p1.getTipoEvaluacion().getOrden().compareTo(p2.getTipoEvaluacion().getOrden()));
-        
+
         Seccion seccion = null;
         Docente docentePrincipal = null;
         //  ds.getDocente()
@@ -137,22 +137,22 @@ public class PdfServiceImp implements PdfService {
                 break;
             }
         }
-        
+
         List<MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
         List<ResumenAlumnoEvaluacion> resumenesAlumnos = resumenAlumnoEvaluacionDAO.allByGrupoSeccion(grupoSeccion);
         Map<String, ResumenAlumnoEvaluacion> mapNotas = mapearNotas(resumenesAlumnos);
-        
+
         int cantReg = 38;
         int ind = 0;
         List<MatriculaSeccion> lstMatriculaSeccion = new ArrayList<>();
-        
+
         Map matriculaCursoMap = notaAcademicaService.getMapMatriculasCursoByCicloCurso(cicloAcademico, curso);
-        
+
         for (MatriculaSeccion matriculaSeccion : matriculasSeccionByFilter) {
             ind++;
             lstMatriculaSeccion.add(matriculaSeccion);
             if ((ind % cantReg == 0) || ind == matriculasSeccionByFilter.size()) {
-                
+
                 Context ctx = new Context();
                 ctx.setVariable("planCalificacion", planCalificacion);
                 ctx.setVariable("lstMatriculasSeccion", lstMatriculaSeccion);
@@ -163,54 +163,54 @@ public class PdfServiceImp implements PdfService {
                 ctx.setVariable("departamentoAcademico", departamentoAcademico);
                 ctx.setVariable("facultad", facultad);
                 ctx.setVariable("docente", docentePrincipal);
-                
+
                 DateTime today = new DateTime();
                 ctx.setVariable("fecha", today.toString("dd/MM/yyyy"));
                 ctx.setVariable("hora", today.toString("HH:mm:ss "));
                 ctx.setVariable("pagina", pdfs.size() + 1);
-                
+
                 ctx.setVariable("matriculaCurso", matriculaCursoMap);
-                
+
                 if (matriculasSeccionByFilter.size() <= cantReg
                         || matriculasSeccionByFilter.size() == ind) {
                     ctx.setVariable("ultimaPagina", true);
-                    
+
                     SimpleDateFormat sdf = new SimpleDateFormat("'Lima, ' dd 'de' MMMMM 'del' yyyy", new Locale("es", "ES"));
                     String fecha = sdf.format(today.toDate());
                     ctx.setVariable("fechaCompleta", fecha);
-                    
+
                 }
-                
+
                 PdfContent pdfContent = new PdfContent();
                 pdfContent.setTipoPdfEnum(TipoPdfEnum.ACTA_NOTAS);
                 pdfContent.setContext(ctx);
-                
+
                 String subFolder = "acta_notas";
                 String filePdf = pdfGenerator.generateDocument(pdfContent, subFolder);
                 pdfs.add(filePdf);
                 lstMatriculaSeccion = new ArrayList<>();
             }
         }
-        
+
         return pdfs;
     }
-    
+
     @Override
     public String concatPDFs(List<String> pdfFilesStr, String outputStreamStr, boolean paginate) {
         return pdfGenerator.concatPDFs(pdfFilesStr, outputStreamStr, paginate);
     }
-    
+
     private Map<String, ResumenAlumnoEvaluacion> mapearNotas(List<ResumenAlumnoEvaluacion> resumenesAlumnos) {
         Map<String, ResumenAlumnoEvaluacion> mapNotas = new LinkedHashMap();
         for (ResumenAlumnoEvaluacion rae : resumenesAlumnos) {
             Alumno alumno = rae.getAlumno();
             TipoEvaluacion tipo = rae.getTipoEvaluacion();
             mapNotas.put(alumno.getId() + "-" + tipo.getId(), rae);
-            
+
         }
         return mapNotas;
     }
-    
+
     @Override
     public List<String> reporteProgramacion(CicloAcademico ciclo) {
         List<String> pdfs = new ArrayList<>();
@@ -224,7 +224,7 @@ public class PdfServiceImp implements PdfService {
             List<AnexoBoletin> subListaAB = anexoBoletinDAO.allBySuperior(ab);
             for (AnexoBoletin subAB : subListaAB) {
                 List<GrupoSeccion> grupoSeccList = grupoSeccionDAO.allOrdenadoByCicloAndAnexoBoletin(ciclo, subAB);
-                
+
                 for (GrupoSeccion gs : grupoSeccList) {
                     List<Seccion> seccionList = seccionDAO.allByGposSeccionOrderedByCodigo2(gs);
                     gs.setSecciones(seccionList);
@@ -236,12 +236,12 @@ public class PdfServiceImp implements PdfService {
         }
         String pdf = createPdfReporteProgramacion(listaAB);
         pdfs.add(pdf);
-        
+
         return pdfs;
     }
-    
+
     public String createPdfReporteProgramacion(List<AnexoBoletin> listAB) {
-        
+
         Context ctx = new Context();
         ctx.setVariable("listAB", listAB);
 
