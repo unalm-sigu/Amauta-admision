@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -284,6 +285,19 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .from(DocenteSeccion.class, "ds")
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
                 .leftJoin("doc.persona per", "per.tipoDocumento", "doc.departamentoAcademico dpa")
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<DocenteSeccion> allByCiclo(CicloAcademico ciclo, EstadoEnum... estadoEnum) {
+        List<EstadoEnum> estados = Arrays.asList(estadoEnum);
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
+                .leftJoin("doc.persona per", "per.tipoDocumento", "doc.departamentoAcademico dpa")
+                .in("ds.estado", estados)
                 .filter("ca.id", ciclo);
 
         return all(sql);

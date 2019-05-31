@@ -384,6 +384,7 @@ public class TramitesAcademicosController {
             @PathVariable("tramite") Long tramiteId,
             HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        
         ObjectNode tramiteJson = JsonHelper.createJson(new Tramite(tramiteId), JsonNodeFactory.instance);
 
         model.addAttribute("tramiteJson", tramiteJson.toString());
@@ -393,7 +394,12 @@ public class TramitesAcademicosController {
         for (Hora hora : horas) {
             horasJson.add(JsonHelper.createJson(hora, JsonNodeFactory.instance, true, new String[]{"*"}));
         }
-
+        List<Oficina> oficinas = new ArrayList();
+        oficinas = findOficina(oficinas, ds);
+        if (oficinas.isEmpty()) {
+            return "/";
+        }
+        model.addAttribute("oficinas", jsonArrayNode(oficinas));
         model.addAttribute("horasBD", horasJson.toString());
 
         return "academico/tramitescademicos/proceso/procesarTramite";
@@ -416,6 +422,8 @@ public class TramitesAcademicosController {
                 "*",
                 "persona.*",
                 "alumno.*",
+                "alumno.carrera.*",
+                "alumno.carrera.facultad.*",
                 "alumno.planCurricular.id",
                 "alumno.modalidadEstudio.id",
                 "alumno.modalidadEstudio.nombre",

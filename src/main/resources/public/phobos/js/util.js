@@ -24,21 +24,44 @@ $(function () {
 
 });
 
-Messenger.options = {
-    extraClasses: 'messenger-fixed messenger-on-bottom messenger-on-right',
-    theme: 'flat'
+function notifyTop(message, type, position, title, icon) {
+    this.notify(message, type, "topRight", title, icon);
 }
 
-function notify(message, type) {
-    var t = (type == null) ? 'success' : type;
+iziToast.settings({
+    timeout: 8000,
+    resetOnHover: false,
+    transitionIn: 'flipInX',
+    transitionOut: 'flipOutX',
+    displayMode: 2
+});
+// transitionIn: 'flipInX', 'fadeInUp','bounceInLeft', 'fadeIn', 'fadeInDown', 'fadeInLeft'
+
+// bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter, center
+function notify(message, type, position, title, icon) {
+    type = type == null ? 'default' : type;
+    title = title == null ? '' : title;
+    var mType = this.MESSAGETYPE[type];
+    icon = icon == null ? mType.icon : icon;
+    message = message == null ? 'null' : message;
+    position = (position == null || position == '') ? 'bottomRight' : position;
     setTimeout(function () {
-        Messenger().post({
+        iziToast.show({
+            title: title,
             message: message,
-            type: t,
-            hideAfter: 12,
-            showCloseButton: true
+            icon: icon,
+            color: mType.color,
+            position: position
         });
-    }, 700);
+    }, 500);
+}
+
+MESSAGETYPE = {
+    success: {color: 'green', icon: 'fa fa-check'},
+    info: {color: 'blue', icon: 'fa fa-info'},
+    warning: {color: 'yellow', icon: 'fa fa-exclamation-triangle'},
+    error: {color: 'red', icon: 'fa fa-ban'},
+    default: {color: '', icon: 'fa fa-comment-alt'}
 }
 
 function notifyBootbox(message, type) {

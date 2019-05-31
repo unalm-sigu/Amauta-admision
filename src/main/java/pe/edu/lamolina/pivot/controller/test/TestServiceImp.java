@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
@@ -104,7 +105,9 @@ public class TestServiceImp implements TestService {
     @Override
     @Transactional
     public void trasladarMatriculaCursoForPromedios(DataSessionPivot ds, Long alumnoId) {
+        Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.ACT, CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
+        ciclos.removeIf(x -> x.getModalidadEstudio().equals(alumno.getModalidadEstudio()));
         for (CicloAcademico cicloAcademicoEach : ciclos) {
             MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(new Alumno(alumnoId), cicloAcademicoEach);
             if (matriculaResumen == null) {
@@ -114,6 +117,7 @@ public class TestServiceImp implements TestService {
             if (matriculasCurso == null || matriculasCurso.isEmpty()) {
                 continue;
             }
+
             List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allActivesByMatriculaResumen(Arrays.asList(matriculaResumen));
             visorCalculoNotas.iniciar();
             visorCalculoNotas.setCantidadTotal(1);
@@ -125,7 +129,7 @@ public class TestServiceImp implements TestService {
     @Override
     @Transactional
     public void trasladarMatriculaCursoForPromedios(DataSessionPivot ds) {
-        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.ACT, CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2019, "ca.codigo asc", CicloAcademicoEstadoEnum.PEND);
         //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
         for (CicloAcademico cicloAcademico : ciclos) {
             List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCiclo(cicloAcademico);

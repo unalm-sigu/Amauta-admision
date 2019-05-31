@@ -64,7 +64,7 @@ public class CursosExcluidosServiceImp implements CursosExcluidosService {
     public void excluirCurso(CursoExcluido cursoExcluido, DataSessionPivot ds) {
         CursoExcluido cursoExcluidoFound = cursoExcluidoDAO.findActiveByCursoAndRolExamenes(cursoExcluido.getCurso(), cursoExcluido.getRolExamenes());
         if (cursoExcluidoFound != null) {
-            throw new PhobosException("El curso ya estaba excluido, verifique.");
+            throw new PhobosException("El curso ya esta excluido, verifique.");
         }
         
         cursoExcluido.setFechaRegistro(ds.getFechaAccionAudit());
