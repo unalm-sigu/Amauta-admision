@@ -24,7 +24,6 @@ new Vue({
     },
     mounted() {
         let $vue = this;
-        console.log($vue.carrera)
     },
     methods: {
         verSaveCarrera() {

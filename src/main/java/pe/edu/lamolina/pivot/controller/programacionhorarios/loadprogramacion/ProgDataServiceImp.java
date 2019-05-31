@@ -1601,6 +1601,7 @@ public class ProgDataServiceImp implements ProgDataService {
                         profeSecc.getCodigoDocente());
                 throw new PhobosException(msg);
             }
+            System.out.println(seccion.getId() + ":::" + seccion.getCodigo() + ":::" + seccion.getCodigo2());
 
             GrupoSeccion gpoSeccion = seccion.getGrupoSeccion();
             ModalidadEstudio modalidadCurso = gpoSeccion.getCurso().getModalidadEstudio();

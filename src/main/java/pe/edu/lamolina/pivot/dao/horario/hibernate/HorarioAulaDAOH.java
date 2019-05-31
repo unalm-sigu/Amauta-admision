@@ -271,14 +271,14 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .beginBlock()
                 .__().between("ha.fechaInicio", fechainicio, fechafin)
                 .__().between("ha.fechaFin", fechainicio, fechafin)
-                .beginBlock()
-                .__().filter("ha.fechaInicio", "<=", fechainicio)
-                .__().filter("ha.fechaFin", ">=", fechafin)
-                .endBlock()
-                .beginBlock()
-                .__().filter("ha.fechaInicio", ">=", fechainicio)
-                .__().filter("ha.fechaFin", "<=", fechafin)
-                .endBlock()
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", "<=", fechainicio)
+                .__().__().filter("ha.fechaFin", ">=", fechafin)
+                .__().endBlock()
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", ">=", fechainicio)
+                .__().__().filter("ha.fechaFin", "<=", fechafin)
+                .__().endBlock()
                 .endBlock();
         return all(sql);
     }
