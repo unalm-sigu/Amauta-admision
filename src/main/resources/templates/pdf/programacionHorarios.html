@@ -92,6 +92,7 @@
         <div th:each="anexoBoletin : ${listAB}">
             <div class="subtitle1" ><span th:text="${anexoBoletin.nombre}"></span></div>
             <div th:each="subAnexoBoletin : ${anexoBoletin.anexosBoletinHijos}">
+                <!-- todo -->
                 <div class="subtitle2" th:if="${subAnexoBoletin.gruposSecciones.size() > 0}" ><span th:text="${subAnexoBoletin.nombre}"></span></div>
                 <div th:each="grupoSeccion : ${subAnexoBoletin.gruposSecciones}">
                     <div th:if="${grupoSeccion.secciones.size() > 0}">
@@ -145,10 +146,10 @@
                                         <tr th:each="secc : ${grupoSeccion.secciones}" >
 
                                             <td class="centrado">
-                                                <span th:if="${secc.isTipoSeccionEvaluacionTeoria and secc.grupoHoras.codigo != ''}" th:text="${secc.grupoHoras.codigo}"></span>                  
+                                                <span th:if="${(secc.grupoHoras!=null and secc.grupoHoras.codigo != '') and secc.isTipoSeccionEvaluacionTeoria}" th:text="${secc.grupoHoras.codigo}"></span>                  
                                             </td>
                                             <td class="centrado">
-                                                <span th:if="${secc.aula.codigo != '' and secc.isTipoSeccionEvaluacionTeoria}" th:text="${secc.aula.codigo}"></span>
+                                                <span th:if="${(secc.aula!=null and secc.aula.codigo != '') and secc.isTipoSeccionEvaluacionTeoria}" th:text="${secc.aula.codigo}"></span>
                                             </td>
 
                                             <td class="centrado">
@@ -161,7 +162,7 @@
                                             </td>
 
                                             <td class="centrado">
-                                                <span th:if="${secc.aula.codigo != '' and secc.isTipoSeccionEvaluacionPractica}" th:text="${secc.aula.codigo}"></span>
+                                                <span th:if="${(secc.aula!=null and secc.aula.codigo != '') and secc.isTipoSeccionEvaluacionPractica}" th:text="${secc.aula.codigo}"></span>
                                             </td>
 
                                             <td class="centrado">
