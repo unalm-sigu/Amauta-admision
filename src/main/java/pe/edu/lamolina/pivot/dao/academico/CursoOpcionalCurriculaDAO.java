@@ -24,4 +24,6 @@ public interface CursoOpcionalCurriculaDAO extends EasyDAO<CursoOpcionalCurricul
     List<CursoOpcionalCurricula> allByPlanCurricular(List<PlanCurricular> planCurricular);
 
     public List<CursoOpcionalCurricula> allNotPlanCurricularAndCurso(List<PlanCurricular> planesCurricular);
+
+    public CursoOpcionalCurricula findById(Long cursoOpcionalCurriculaId);
 }

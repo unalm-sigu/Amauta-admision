@@ -110,12 +110,22 @@ public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCur
 
     @Override
     public List<CursoOpcionalCurricula> allNotPlanCurricularAndCurso(List<PlanCurricular> planesCurricular) {
-         Octavia sql = Octavia.query()
+        Octavia sql = Octavia.query()
                 .from(CursoOpcionalCurricula.class, "cc")
                 .join("curso cur", "planCurricular pc", "tipoCursoCurricula tcc")
                 .notIn("pc.id", planesCurricular);
 
         return all(sql);
+    }
+
+    @Override
+    public CursoOpcionalCurricula findById(Long cursoOpcionalCurriculaId) {
+        Octavia sql = Octavia.query()
+                .from(CursoOpcionalCurricula.class, "cc")
+                .join("curso cur", "planCurricular pc", "tipoCursoCurricula tcc")
+                .filter("cc.id", cursoOpcionalCurriculaId);
+
+        return find(sql);
     }
 
 }

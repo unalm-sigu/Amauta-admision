@@ -219,7 +219,11 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     public CursoOpcionalCurricula findCursoOpcionalCurricula(Long cursoOpcionalCurriculaId) {
-        return cursoOpcionalCurriculaDAO.find(cursoOpcionalCurriculaId);
+        CursoOpcionalCurricula cursoOpcionalCurricula = cursoOpcionalCurriculaDAO.findById(cursoOpcionalCurriculaId);
+
+        List<CursoEquivalenteElectivo> equivalenteElectivos = cursoEquivalenteElectivoDAO.allActivoByCursoOpcional(cursoOpcionalCurricula);
+        cursoOpcionalCurricula.setCursoEquivalenteElectivo(equivalenteElectivos);
+        return cursoOpcionalCurricula;
     }
 
     @Override
