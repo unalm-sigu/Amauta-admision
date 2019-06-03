@@ -154,8 +154,6 @@
 
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
-
         </div>
 
         <div layout:fragment="js">
@@ -165,8 +163,8 @@
                 var tipoCarpetasJson = /*[[${tipoCarpetas}]]*/ 'json';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_layout/includes :: sweetalert"/>
-            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/preciocursociclo/precioCursoCiclo.js}" charset="utf-8"></script>
         </div>
 

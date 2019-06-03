@@ -100,8 +100,6 @@
             </modal-vik>
         </div>
 
-        <div th:substituteby="_modules/vue-modal"/>
-
         <script id="templatePlanCurricular" type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/planCurricularTemplate"/></script>
 
     </div>
@@ -110,9 +108,9 @@
         <script th:inline="javascript">
             var carrerasJson = /*[[${carrerasJson}]]*/ '';
         </script>
+        <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_layout/includes :: sweetalert"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script th:src="@{/app/academico/plancurricular/planCurricular.js}" charset="utf-8"></script>
         <script th:src="@{/app/academico/plancurricular/planCurricularVue.js}" charset="utf-8"></script>
     </div>

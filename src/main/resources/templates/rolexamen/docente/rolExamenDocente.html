@@ -68,7 +68,6 @@
                 <div th:substituteby="rolexamen/docente/horarioCursoMasivoModals"/>
 
             </div>
-            <div th:substituteby="_modules/vue-modal"/>
         </section>
         <div layout:fragment="js">
             <script  th:inline="javascript" >
@@ -76,8 +75,8 @@
                 var docenteJson = /*[[${docente.toString()}]]*/ '';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"/>
             <script th:src="@{/phobos/modules/vue-generalComponents.js}" charset="utf-8"></script>
-            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
             <script th:src="@{/app/rolexamen/docente/rolExamenDocente.js}" charset="utf-8"></script>
         </div>
 

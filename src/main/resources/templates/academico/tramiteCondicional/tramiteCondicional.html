@@ -115,7 +115,6 @@
                 <div th:substituteby="academico/tramiteCondicional/tramiteResolucionModal"/>
 
             </div>
-            <div th:substituteby="_modules/vue-modal"/>
         </div>
 
         <div layout:fragment="js">
@@ -126,8 +125,8 @@
                 var oficinasJson = /*[[${oficinas.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"/>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
             <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <script th:src="@{/app/academico/tramiteCondicional/tramiteCondicional.js}" charset="utf-8"></script>

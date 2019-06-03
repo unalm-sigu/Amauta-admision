@@ -182,7 +182,6 @@
                 </section>
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
         </section>
 
         <div layout:fragment="js" th:remove="tag">
@@ -193,7 +192,7 @@
                 var rutaModulo = 'consejeria/aconsejadostutor';
                 /*]]>*/
             </script>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <div th:substituteby="_modules/vue-modal"/>
             <script th:src="@{/app/consejeria/aconsejadostutor/aconsejadosTutor.js}" charset="utf-8"></script>
         </div>
 

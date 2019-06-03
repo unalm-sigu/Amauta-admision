@@ -191,7 +191,6 @@
                 <!--<div th:substituteby="ingresante/resultadoslab/modal/observacionModal"></div>-->
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
         </div>
 
 
@@ -200,9 +199,8 @@
                 var cicloJson = /*[[${cicloJson}]]*/ {};
                 var turnosJson = /*[[${turnosJson}]]*/ {};
             </script>
-
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <div th:substituteby="_layout/includes :: vuemodal"/>
             <script th:src="@{/app/ingresante/resultadoslab/resultadoslab.js}" charset="utf-8"></script>
         </div>
 

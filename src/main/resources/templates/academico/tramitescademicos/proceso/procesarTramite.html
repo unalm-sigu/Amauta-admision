@@ -36,7 +36,7 @@
                         <section class="panel m-b-xs">
                             <section class="panel m-b-xs">
                                 <section class="panel-body">
-                                       <!--<keep-alive> -->
+                                    <!--<keep-alive> -->
                                     <component ref="procesarComponent" 
                                                v-bind:is="componentForm" 
                                                v-bind="compomentProps" 
@@ -72,8 +72,6 @@
         <div th:substituteby="academico/alumno/includes/malla"/>
         <div th:substituteby="academico/alumno/includes/historial"/>
 
-        <div th:substituteby="_modules/vue-modal"/>
-
     </div>
 
     <div layout:fragment="js">
@@ -85,6 +83,7 @@
             var horasJson = [[${horasBD}
             ]];
         </script>
+        <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_layout/includes :: svgjs"/>
         <div th:substituteby="_modules/vue-raptor-table"/>
         <div th:substituteby="academico/tramitescademicos/component/tramiteDetalleComponent"/>
@@ -93,7 +92,6 @@
         <div th:substituteby="academico/tramitescademicos/component/agendarComponent"/>
         <div th:substituteby="academico/tramitescademicos/component/cursoDirigidoComponent"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-generalComponents.js}"></script>
         <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/academico/alumno/avanceComponent.js}" charset="utf-8"></script>

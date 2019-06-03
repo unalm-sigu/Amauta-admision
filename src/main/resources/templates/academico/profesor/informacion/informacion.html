@@ -103,11 +103,11 @@
                                 </div>
 
                             </form>
-                                <div v-show="stepactivo==3"  >
+                            <div v-show="stepactivo==3"  >
 
-                                    <th:block th:replace="academico/profesor/informacion/informacionlaboral"/>
+                                <th:block th:replace="academico/profesor/informacion/informacionlaboral"/>
 
-                                </div>
+                            </div>
 
                             <div v-show="stepactivo==4"  >
 
@@ -126,8 +126,6 @@
 
             <th:block th:replace="academico/profesor/informacion/informacionacademicatemp"/>
 
-            <div th:substituteby="_modules/vue-modal"/>
-
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var iddocente = /*[[${docente.id}]]*/'';
@@ -142,8 +140,8 @@
                 var datepicker = $.fn.datepicker.noConflict();
                 $.fn.datepickerBoot = datepicker;
             </script>
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_layout/includes :: javascript-upload"> </div>
-            <div th:substituteby="_layout/includes :: vuemodal"/>
             <div th:substituteby="_modules/vue-raptor-table"/>
             <script th:src="@{/app/academico/profesor/informacion/informacionacademicapais.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/profesor/informacion/informacionacademicaubicacion.js}" charset="utf-8"></script>

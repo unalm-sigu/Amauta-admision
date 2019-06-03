@@ -141,7 +141,7 @@
                                                         Facultad de {{item.alumno.carrera.facultad.nombre}}
                                                     </small>
                                                 </td>
-                                                
+
                                                 <td class="v-middle">
                                                     <span class="block" v-if="item.alumno.cicloIngreso != null">                                                            
                                                         <span class=" bold"> Ciclo Ingreso: </span>
@@ -164,7 +164,7 @@
                                                         {{item.alumno.promedioAcumulado}}
                                                     </span>
                                                 </td>
-                                                
+
                                                 <td class="v-middle">
                                                     <span v-if="item.consejero.id != 1 ">
                                                         <span class="block text-primary bold ">{{item.consejero.colaborador.persona.apellidosNombres}}</span> 
@@ -179,7 +179,7 @@
                                                         No tiene
                                                     </span>
                                                 </td>
-                                                
+
                                                 <td class="v-middle text-center">
                                                     <span v-if="item.estadoMatriculableEnum.name == 'MAT'">
                                                         <small class="block">Créditos: {{item.creditosMatriculados}}</small>
@@ -188,7 +188,7 @@
                                                     </span>
                                                     <span v-else="" v-text="item.estadoMatriculableEnum.value" class="label label-danger"></span>
                                                 </td>
-                                                
+
                                                 <td class="v-middle">
                                                     <div class="dropdown actions">
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
@@ -212,7 +212,6 @@
                 <div th:substituteby="consejeria/aconsejadoscarrera/aconsejadoModal"></div>
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
         </section>
 
         <div layout:fragment="js" th:remove="tag">
@@ -224,7 +223,7 @@
                 var rutaModulo = 'consejeria/aconsejadoscarrera';
                 /*]]>*/
             </script>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <div th:substituteby="_modules/vue-modal"/>
             <script th:src="@{/app/consejeria/aconsejadoscarrera/aconsejadosCarrera.js}" charset="utf-8"></script>
         </div>
 
