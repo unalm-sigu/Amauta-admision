@@ -1,0 +1,84 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Cuotas por Departamento Académico</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="cuotadptoVUE">
+                <header class="header b-b padder-lg">
+                    <h2 th:text="|Cuotas por Departamento Académico ${ciclo.descripcion}|">Cuotas por Departamento Académico</h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <div slot="header">
+
+                                <div class="col-md-6">
+                                    <multiselect v-model='grupoHoras'                                             
+                                                 label="letra"
+                                                 placeholder="Seleccione un grupo"
+                                                 track-by="id"
+                                                 v-bind:allow-empty="false"
+                                                 v-bind:options="grupos"
+                                                 deselect-label=""
+                                                 select-label="Seleccione un grupo"
+                                                 v-on:input="changeAnexoMain">
+                                    </multiselect>
+                                </div>
+                            </div>
+
+
+                            <raptor-table v-bind:url="cuotadptoURL" v-bind:pagination="pagination" v-bind:searcher="false" v-bind:paginate="false"  v-bind:preload="false" ref="raptorCuotaGpoHoras" >
+
+                                <template  scope="props" >
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr> 
+                                                <th class="col-md-4">Departamento</th>
+                                                <th class="col-md-2 text-center">Cuotas</th>
+                                                <th class="col-md-2 text-center">Utilizados</th>
+                                                <th class="col-md-4">Cantidad Grupos</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle">
+                                                    {{item.anexoBoletin.nombre}}
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    {{item.cuotas}}
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    {{item.horasUtilizadas}}
+                                                </td>
+                                                <td class="v-middle"> 
+                                                    {{item.detalleGrupos}}
+                                                </td>   
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+
+            </div>
+
+        </div>
+
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var rutaModulo = 'academico/cuotadpto';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/academico/cuotadpto/cuotaDepartamento.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>
