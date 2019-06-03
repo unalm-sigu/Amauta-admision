@@ -549,7 +549,7 @@ var app = new Vue({
                     url: APP.url('academico/gposeccion/cambiarPorcentajeAvance'),
                     data: {
                         docSeccion: docSeccion.id,
-                        porcentajeAvance: parseFloat(docSeccion.porcentajeCarga)
+                        porcentajeAvanceFraccion: docSeccion.porcentajeCargaFraccion
                     },
                     success: function (response) {
                         //$vue.loadGpoSeccionEfecto($vue.grupoSeccion.id, "");
