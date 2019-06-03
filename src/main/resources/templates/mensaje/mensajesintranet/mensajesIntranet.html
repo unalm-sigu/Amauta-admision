@@ -74,7 +74,6 @@
 
                 <div th:substituteby="mensaje/mensajesintranet/modalMensajeria"></div>
             </div>
-            <div th:substituteby="_modules/vue-modal"></div>
         </div>
 
         <div layout:fragment="js">
@@ -86,6 +85,7 @@
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"></div>
             <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
             <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
             <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>

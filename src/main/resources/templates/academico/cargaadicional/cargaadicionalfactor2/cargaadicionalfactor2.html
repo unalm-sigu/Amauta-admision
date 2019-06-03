@@ -58,7 +58,6 @@
                 </section>
 
             </div>
-            <div th:substituteby="_modules/vue-modal"></div>
         </div>
 
         <div layout:fragment="js">
@@ -67,8 +66,8 @@
 
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"></div>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/academico/cargaadicional/cargaadicionalfactor2/cargaadicionalfactor2.js}" charset="utf-8"></script>
         </div>
 

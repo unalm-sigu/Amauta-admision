@@ -39,16 +39,15 @@
 
         </div>
 
-        <div th:substituteby="_modules/vue-modal"/>
 
         <th:block th:replace="academico/horariocachimbo/generar/horarioCachimboGenerarDynatable"/>
 
     </div>
 
     <div layout:fragment="js">
+        <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
-        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script th:src="@{/app/academico/horariocachimbo/generar/horarioCachimboGenerar.js}" charset="utf-8"></script>
     </div>
 

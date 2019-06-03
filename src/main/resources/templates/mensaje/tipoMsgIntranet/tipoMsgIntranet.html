@@ -67,7 +67,6 @@
 
                 <div th:substituteby="mensaje/tipoMsgIntranet/modalTipoMsgIntranet"></div>
             </div>
-            <div th:substituteby="_modules/vue-modal"></div>
         </div>
 
         <div layout:fragment="js">
@@ -78,6 +77,7 @@
                 var tipoMsjIntraEnums = /*[[${TipoMensajeIntranetEnums.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"></div>
             <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/mensaje/tipoMsgIntranet/tipoMsgIntranet.js}" charset="utf-8"></script>

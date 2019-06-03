@@ -89,8 +89,8 @@
                         </section>
                     </section>
                 </section>
-                
-                
+
+
 
                 <modal-vik ref="modalEstado"
                            v-bind="configEstado"
@@ -104,17 +104,13 @@
                     </div>
                 </modal-vik>
 
-                <!--<div th:substituteby="academico/curso/modalCambioEstado"/>-->
             </div>
-            <div th:substituteby="_modules/vue-modal"/>
-            <!--<script id="cursoTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/curso/cursoTemplate"/></script>-->
 
         </div>
 
         <div layout:fragment="js">
-            <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/academico/curso/curso.js}" charset="utf-8"></script>
         </div>
 

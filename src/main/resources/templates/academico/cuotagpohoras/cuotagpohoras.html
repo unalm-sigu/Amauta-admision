@@ -38,18 +38,18 @@
                             </div>
 
 
-                            <raptor-table v-bind:url="cuotagpohorasURL" v-bind:preload="false" ref="raptorCuotaGpoHoras" >
+                            <raptor-table v-bind:url="cuotagpohorasURL" v-bind:pagination="pagination" v-bind:searcher="false" v-bind:paginate="false"  v-bind:preload="false" ref="raptorCuotaGpoHoras" >
 
                                 <template  scope="props" >
                                     <table class="table table-striped">
                                         <thead> 
                                             <tr> 
-                                                <th class="col-md-6">Anexo</th>
-                                                <th class="col-md-2">Grupo</th>
-                                                <th class="col-md-2">Cuota</th>
-                                                <th class="col-md-1">Asignación Automática</th>
-                                                <th class="col-md-1">Total</th>
-
+                                                <th class="col-md-4">Anexo</th>
+                                                <th class="col-md-1 text-center">Letra</th>
+                                                <th class="col-md-1 text-center">Cuota</th>
+                                                <th class="col-md-1 text-center">Utilizados</th>
+                                                <th class="col-md-1 text-center">Horas Utilizados</th>
+                                                <th class="col-md-4">Cantidad Grupos</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -57,19 +57,21 @@
                                                 <td class="v-middle">
                                                     {{item.anexoBoletin.nombre}}
                                                 </td>
-                                                <td class="v-middle"> 
+                                                <td class="v-middle text-center"> 
                                                     {{item.grupoHoras.codigo}}
                                                 </td>
-                                                <td class="v-middle"> 
+                                                <td class="v-middle text-center"> 
                                                     {{item.cuotas}}
                                                 </td>
-                                                <td class="v-middle"> 
-                                                    {{item.asignadasSistema}}
+                                                <td class="v-middle text-center"> 
+                                                    {{item.horasUtilizadas}}
                                                 </td>
-                                                <td class="v-middle"> 
-                                                    {{item.totalUtilizadas}}
+                                                <td class="v-middle text-center"> 
+                                                    {{item.gruposUtilizados}}
                                                 </td>   
-
+                                                <td class="v-middle"> 
+                                                    {{item.detalleGrupos}}
+                                                </td>   
                                             </tr>
                                         </tbody>
                                     </table>
@@ -128,12 +130,11 @@
 
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
         </div>
 
         <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/cuotagpohoras/cuotagpohoras.js}" charset="utf-8"></script>
         </div>
 
