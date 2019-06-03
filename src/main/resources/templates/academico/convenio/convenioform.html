@@ -190,17 +190,16 @@
 
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
             <th:block th:replace="academico/convenio/_convenio"/>
 
         </div>
 
         <div layout:fragment="js">
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script charset="utf-8">
                 var datepicker = $.fn.datepicker.noConflict();
                 $.fn.bootstrapDP = datepicker;
             </script>
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_layout/includes :: javascript-upload"></div>
             <script th:src="@{/app/academico/convenio/convenioform.js}" charset="utf-8"></script>
         </div>

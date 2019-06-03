@@ -151,7 +151,6 @@
                 </modal-vik>
 
             </div>
-            <div th:substituteby="_modules/vue-modal"/>
 
         </div>
 
@@ -162,9 +161,8 @@
                 var tiposCicloJson = /*[[${tiposCicloJson}]]*/  '';
                 /*]]>*/
             </script>
-            <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/academico/horario/tipogrupo/tipogrupo.js}" charset="utf-8"></script>
         </div>
 

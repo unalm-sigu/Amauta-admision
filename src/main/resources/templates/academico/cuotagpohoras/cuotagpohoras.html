@@ -128,12 +128,11 @@
 
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
         </div>
 
         <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/cuotagpohoras/cuotagpohoras.js}" charset="utf-8"></script>
         </div>
 

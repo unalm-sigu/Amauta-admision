@@ -44,7 +44,7 @@
                                         <tbody>
                                             <tr v-for="item in props.data">
                                                 <td class="v-middle">
-                                                     <span class="block text-primary h4 bold m-t-xs m-b-xs">
+                                                    <span class="block text-primary h4 bold m-t-xs m-b-xs">
                                                         {{item.docente.persona.apellidosNombres}}
 
                                                         <span class="text-muted" style="font-size: 6px;">{{item.id}}</span>
@@ -91,7 +91,6 @@
                 </section>
 
             </div>
-            <div th:substituteby="_modules/vue-modal"></div>
         </div>
 
         <!--var situacionesJson = /*[[${situaciones.toString()}]]*/ 'json';-->
@@ -100,8 +99,8 @@
                 /*<![CDATA[*/
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"></div>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/academico/cargaadicional/cargaadicionaldocente/cargaadicionaldocente.js}" charset="utf-8"></script>
         </div>
 

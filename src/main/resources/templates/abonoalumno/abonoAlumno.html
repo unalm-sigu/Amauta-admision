@@ -74,9 +74,9 @@
                                             <div class="actions">
                                                 <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                                 <ul class="dropdown-menu pull-right">
-<!--                                                    <li v-if="item.extornado == 0 &amp;&amp; item.postulante.codigo == '00000000'">
-                                                        <a class="pointer" v-on:click="asignarPostulante(item)">Asignar postulante</a>
-                                                    </li>-->
+                                                    <!--                                                    <li v-if="item.extornado == 0 &amp;&amp; item.postulante.codigo == '00000000'">
+                                                                                                            <a class="pointer" v-on:click="asignarPostulante(item)">Asignar postulante</a>
+                                                                                                        </li>-->
                                                     <li v-if="item.descripcion == 'EXTORNO'">
                                                         <a class="pointer" v-on:click="verReasignarExtorno(item)">Reasignar Extorno</a>
                                                     </li>
@@ -91,14 +91,13 @@
                 </section>
                 <div th:substituteby="abonoalumno/abonoModals"></div>
             </section>
-            <div th:substituteby="_modules/vue-modal"></div>
             <!--<div th:substituteby="templates/modal"/>-->
             <!--<div th:substituteby="facturacion/abono/modalsAbono"/>-->
         </div>
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <div th:substituteby="_modules/vue-modal"></div>
             <script th:src="@{/app/abonoalumno/abonoAlumno.js}" charset="utf-8"></script>
         </div>
 
