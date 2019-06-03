@@ -241,35 +241,7 @@
                     <div th:substituteby="_modules/vue-modal-confirm"></div>
 
                 </section>
-
-
-
-                <!--
-                <div th:substituteby="templates/modal"/>
-                <div th:substituteby="academico/carrera/modalCarrera"/>
-                
-                <div th:if="${carrera.id}">
-                    <script id="orientacionTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/carrera/orientacionTemplate"/></script>
-                </div>
-
-                <div id="areaPosgradoTemplate" type="text/x-jsrender" class="hide">
-                    <div class="form-group">
-                        <label>Área Posgrado</label>
-                        <select class="form-control areaPosgrado" required="true" name="areaPosgrado.id" placeholder="Seleccione Área Posgrado"  >
-                            <option></option>
-                            <option th:each="item : ${areasPosgrado}"
-                                    th:value="${item.id}"
-                                    th:rel="${item.codigo}"
-                                    th:text="${item.nombre}"
-                                    th:selected="${carrera.areaPosgrado} ? ${item.id == carrera.areaPosgrado.id}">
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                -->
             </div>
-            <div th:substituteby="_modules/vue-modal"></div>
-
         </div>
 
         <div layout:fragment="js">
@@ -284,8 +256,7 @@
                 var rutaModulo = 'academico/carrera';
                 /*]]>*/
             </script>
-            <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
-            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
+            <div th:substituteby="_modules/vue-modal"></div>
             <script th:src="@{/app/academico/carrera/carreraForm.js}" charset="utf-8"></script>
         </div>
 

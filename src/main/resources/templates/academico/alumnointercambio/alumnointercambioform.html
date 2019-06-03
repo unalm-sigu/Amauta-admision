@@ -314,7 +314,6 @@
                 </div>
             </template>
 
-            <div th:substituteby="_modules/vue-modal"/>
 
         </div>
 
@@ -325,6 +324,7 @@
                 var institucionesJson = /*[[${instituciones.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_layout/includes :: vue-loader"/>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/phobos/modules/vuelect2.js}" charset="utf-8"></script>

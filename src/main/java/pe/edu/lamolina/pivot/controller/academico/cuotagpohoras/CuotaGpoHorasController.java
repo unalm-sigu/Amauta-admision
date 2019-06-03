@@ -32,19 +32,19 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("academico/cuotagpohoras")
 public class CuotaGpoHorasController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     CuotaGpoHorasService service;
-    
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/cuotagpohoras/cuotagpohoras";
     }
-    
+
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse list(
@@ -52,55 +52,58 @@ public class CuotaGpoHorasController {
             @RequestParam(name = "anexo", required = false) Long idAnexo,
             HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            
+
             List<CuotasGrupoHoras> cuotagpohoras = service.allCuotasGpoHoras(filter, new AnexoBoletin(idAnexo), ds.getCicloAcademico());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            
+
             for (CuotasGrupoHoras cuota : cuotagpohoras) {
                 ObjectNode node = JsonHelper.createJson(cuota, JsonNodeFactory.instance, true,
                         new String[]{
                             "anexoBoletin.id", "anexoBoletin.nombre", "anexoBoletin.codigo", "anexoBoletin.estado",
                             "grupoHoras.codigo", "grupoHoras.letra", "grupoHoras.tipoCiclo",
                             "cicloAcademico.descripcion2",
-                            "cuotas", "asignadasSistema", "totalUtilizadas"
+                            "cuotas", "asignadasSistema", "totalUtilizadas",
+                            "gruposUtilizados",
+                            "horasUtilizadas",
+                            "detalleGrupos"
                         });
-                
+
                 array.add(node);
             }
-            
+
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("allAnexos")
     public JsonResponse allAnexos(HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             List<AnexoBoletin> anexosBoletin = service.allAnexos();
-            
+
             ArrayNode arrayAnexos = new ArrayNode(jsonFactory);
             for (AnexoBoletin anexo : anexosBoletin) {
                 ObjectNode json = createAnexoJson(anexo);
                 arrayAnexos.add(json);
             }
-            
+
             response.setData(arrayAnexos);
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -108,33 +111,33 @@ public class CuotaGpoHorasController {
         }
         return response;
     }
-    
+
     private ObjectNode createAnexoJson(AnexoBoletin anexo) {
         ObjectNode json = JsonHelper.createJson(anexo, JsonNodeFactory.instance, true, new String[]{
             "id", "nombre", "codigo"
         });
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("allGrupos")
     public JsonResponse allGrupos(HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             List<GrupoHoras> gruposHoras = service.allGrupos();
-            
+
             ArrayNode arrayGrupos = new ArrayNode(jsonFactory);
             for (GrupoHoras grupo : gruposHoras) {
                 ObjectNode json = createGrupoJson(grupo);
                 arrayGrupos.add(json);
             }
-            
+
             response.setData(arrayGrupos);
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -142,28 +145,28 @@ public class CuotaGpoHorasController {
         }
         return response;
     }
-    
+
     private ObjectNode createGrupoJson(GrupoHoras grupo) {
         ObjectNode json = JsonHelper.createJson(grupo, JsonNodeFactory.instance, true, new String[]{
             "id", "codigo"
         });
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody List<CuotasGrupoHoras> cuotas, HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.save(cuotas, ds.getCicloAcademico(), ds);
-            
+
             response.setSuccess(true);
             response.setMessage("Guardado satisfactoriamnente");
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -171,27 +174,27 @@ public class CuotaGpoHorasController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("{idAnexo}/allCuotasByAnexo")
     public JsonResponse allCuotasByAnexo(@PathVariable("idAnexo") Long idAnexo, HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<CuotasGrupoHoras> cuotasGrupoHoras = service.allCuotasByAnexo(new AnexoBoletin(idAnexo), ds.getCicloAcademico());
-            
+
             ArrayNode arrayCuotasByAnexo = new ArrayNode(jsonFactory);
             for (CuotasGrupoHoras cuotasGrupoHora : cuotasGrupoHoras) {
                 ObjectNode json = createCuotasByAnexoJson(cuotasGrupoHora);
                 arrayCuotasByAnexo.add(json);
             }
-            
+
             response.setData(arrayCuotasByAnexo);
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -199,7 +202,7 @@ public class CuotaGpoHorasController {
         }
         return response;
     }
-    
+
     private ObjectNode createCuotasByAnexoJson(CuotasGrupoHoras cuotasGrupoHora) {
         ObjectNode json = JsonHelper.createJson(cuotasGrupoHora, JsonNodeFactory.instance, true, new String[]{
             "anexoBoletin.id", "anexoBoletin.nombre", "anexoBoletin.codigo",
@@ -208,5 +211,5 @@ public class CuotaGpoHorasController {
         });
         return json;
     }
-    
+
 }

@@ -73,7 +73,6 @@
             <div th:substituteby="academico/alumno/includes/horario"/>
             <div th:substituteby="academico/alumno/includes/matricula"/>
             <div th:substituteby="academico/alumno/includes/malla"/>
-            <div th:substituteby="_modules/vue-modal"/>
 
 
         </section>
@@ -87,7 +86,7 @@
                 /*]]>*/
             </script>
             <div th:substituteby="_layout/includes :: svgjs"/>
-            <div th:substituteby="_layout/includes :: vuemodal"/>
+            <div th:substituteby="_modules/vue-modal"/>
             <script th:src="@{/app/academico/alumno/headerInfoComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/inicioComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>

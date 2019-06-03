@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion;
 
 import com.google.common.base.Strings;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +40,7 @@ import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.Commutator;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.albatross.zelpers.miscelanea.math.Fraxtion;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
@@ -667,10 +669,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allActivosBySeccion(seccion);
         BigDecimal porcentaj = BigDecimal.ZERO;
         
+        Fraxtion fraxtion100 = new Fraxtion(100);
+        // List<Fraxtion> fracciones = new ArrayList<>();
+        Fraxtion fraxtionSum = new Fraxtion(0);
         for (DocenteSeccion profeSecc : docenteSeccions) {
             porcentaj = porcentaj.add(profeSecc.getPorcentajeCarga());
+            //  fracciones.add(fraxtion100)
+            fraxtionSum = fraxtionSum.add(new Fraxtion(profeSecc.getPorcentajeCargaFraccion()));
         }
         BigDecimal rest = BigDecimal.valueOf(100).subtract(porcentaj);
+        Fraxtion restFraccion = fraxtion100.substract(fraxtionSum);
         
         DocenteSeccion docenteSeccion = new DocenteSeccion();
         docenteSeccion.setDocente(docenteDefault);
@@ -685,7 +693,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         docenteSeccion.setPrincipal(BigDecimal.ZERO.intValue());
         docenteSeccion.setSeccion(seccion);
-        docenteSeccion.setPorcentajeCarga(rest);
+        docenteSeccion.setPorcentajeCarga(restFraccion.getValue(2));
+        docenteSeccion.setPorcentajeCargaFraccion(restFraccion.getDividendo() + "/" + restFraccion.getDivisor());
         docenteSeccionDAO.save(docenteSeccion);
         
         docenteSeccions.add(docenteSeccion);
@@ -1391,32 +1400,53 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         
     }
     
+    private boolean isInteger(String obj) {
+        try {
+            Integer.parseInt(obj);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+    
+    public void validateFraccion(String fraccion) {
+        String noFraccion = String.format("%s no es una fraccón, verifique.", fraccion);
+        Assert.isNotBlank(fraccion, "La fracción es requerida, verifique.");
+        Assert.isTrue(fraccion.contains("/"), noFraccion);
+        String[] argFraccion = fraccion.split("/");
+        Assert.isTrue(argFraccion.length == 2, noFraccion);
+        Assert.isTrue(this.isInteger(argFraccion[0]) && this.isInteger(argFraccion[1]), noFraccion);
+    }
+    
     @Override
     @Transactional
     public void updatePorcentajeAvance(DocenteSeccion profeSeccForm, CicloAcademico cicloAcademico) {
+        this.validateFraccion(profeSeccForm.getPorcentajeCargaFraccion());
         DocenteSeccion profeSeccBDMain = docenteSeccionDAO.find(profeSeccForm.getId());
         List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccBDMain.getSeccion());
         
         BigDecimal total = BigDecimal.ZERO;
-        for (DocenteSeccion profeSeccBD : profesSecc) {
-            if (profeSeccBD.getId().longValue() == profeSeccForm.getId()) {
-                continue;
-            }
-            if (profeSeccBD.getPorcentajeCarga() == null) {
-                continue;
-            }
-            if (profeSeccBD.getEstadoEnum() != EstadoEnum.ACT) {
-                continue;
-            }
-            total = total.add(profeSeccBD.getPorcentajeCarga());
+        if (!profesSecc.isEmpty()) {
+            double dTotal = profesSecc.stream()
+                    .filter(x -> x.getId().longValue() != profeSeccForm.getId().longValue())
+                    .filter(x -> x.getPorcentajeCarga() != null)
+                    .filter(x -> x.getEstadoEnum() == EstadoEnum.ACT)
+                    .mapToDouble(x -> x.getPorcentajeCarga().doubleValue())
+                    .sum();
+            total = new BigDecimal(dTotal);
         }
-        
+        //  String[] operandosFraccion = profeSeccForm.getPorcentajeCargaFraccion().split("/");
+//        BigDecimal dividendo = new BigDecimal(operandosFraccion[0]);
+//        BigDecimal divisor = new BigDecimal(operandosFraccion[1]);
+        Fraxtion fraxtion = new Fraxtion(profeSeccForm.getPorcentajeCargaFraccion());
+        profeSeccForm.setPorcentajeCarga(fraxtion.getValue(2));
         total = total.add(profeSeccForm.getPorcentajeCarga());
         BigDecimal cien = new BigDecimal(100L);
+        
         if (total.compareTo(cien) > 0) {
             throw new PhobosException("El porcentaje de carga no puede exceder el 100%");
         }
-        
+        profeSeccBDMain.setPorcentajeCargaFraccion(profeSeccForm.getPorcentajeCargaFraccion());
         profeSeccBDMain.setPorcentajeCarga(profeSeccForm.getPorcentajeCarga());
         docenteSeccionDAO.update(profeSeccBDMain);
         

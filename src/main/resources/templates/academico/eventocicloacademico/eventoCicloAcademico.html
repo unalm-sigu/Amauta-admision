@@ -74,7 +74,6 @@
 
         </div>
 
-        <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_modules/vue-fullcalendar"/>
 
         <th:block th:replace="academico/eventocicloacademico/eventoCicloAcademicoDynatable"/>
@@ -82,9 +81,9 @@
     </div>
 
     <div layout:fragment="js">
+        <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
-        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-fullcalendar.js}"></script>
         <script th:src="@{/app/academico/eventocicloacademico/eventoCicloAcademicoDynatable.js}" charset="utf-8"></script>
         <script th:src="@{/app/academico/eventocicloacademico/eventoCicloAcademico.js}" charset="utf-8"></script>

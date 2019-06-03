@@ -1074,20 +1074,22 @@ public class GpoSeccionController {
     @RequestMapping("cambiarPorcentajeAvance")
     public JsonResponse cambiarPorcentajeAvance(
             @RequestParam("docSeccion") Long docSeccion,
-            @RequestParam("porcentajeAvance") BigDecimal porcentajeAvance,
+            @RequestParam("porcentajeAvanceFraccion") String porcentajeFraccion,
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             DocenteSeccion docenteSeccion = new DocenteSeccion(docSeccion);
-            docenteSeccion.setPorcentajeCarga(porcentajeAvance);
+            docenteSeccion.setPorcentajeCargaFraccion(porcentajeFraccion);
             service.updatePorcentajeAvance(docenteSeccion, ds.getCicloAcademico());
 
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Porcentaje de avance actualizado");
         } catch (PhobosException e) {
+            e.printStackTrace();
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);

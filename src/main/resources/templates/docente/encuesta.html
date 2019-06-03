@@ -166,8 +166,6 @@
 
             </div>
 
-            <div th:substituteby="_modules/vue-modal"></div>
-
         </div>
 
         <div layout:fragment="js">
@@ -176,6 +174,7 @@
                 var encuestaJson = /*[[${encuesta.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"></div>
             <div th:substituteby="_layout/includes :: javascript-highcharts"></div>
             <!--<div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>-->
             <div th:substituteby="_modules/vue-raptor-table"></div>

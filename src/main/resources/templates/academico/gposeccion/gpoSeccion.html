@@ -498,7 +498,6 @@
                 </modal-vik>
 
             </div>
-            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="academico/gposeccion/components/seccionDetalleComponent"/>
         </div>
 
@@ -510,11 +509,11 @@
                 var resumenJson = /*[[${resumenJson}]]*/ '';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_layout/includes :: sweetalert"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vue-loader"/>
             <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/gposeccion/gpoSeccion.js}" charset="utf-8"></script>
         </div>
 

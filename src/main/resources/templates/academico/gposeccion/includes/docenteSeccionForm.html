@@ -15,9 +15,9 @@
 <table class="table">
     <thead> 
         <tr > 
-            <th class="col-md-3">Docente</th>
+            <th class="col-md-2">Docente</th>
             <th class="col-md-1 text-center">Principal</th>
-            <th class="col-md-1 text-center">%Carga</th>
+            <th class="col-md-2 text-center">%Carga</th>
             <th class="col-md-4 text-center">Periodo clases</th>
             <th class="col-md-2 text-center">Situación Laboral</th>
             <th class="col-md-1 text-center">Estado</th>
@@ -68,6 +68,7 @@
                    v-if="docSeccion.estado != 'ACT'"></i>
             </td>
             <td>
+                <!-- 
                 <input v-model="docSeccion.porcentajeCarga"
                        name="porcentajeCarga"
                        v-on:blur ="cambiarPorcentajeCarga(docSeccion,$event)"
@@ -79,6 +80,19 @@
                        data-parsley-group="porcentaje-car"
                        data-parsley-type="number"
                        />
+                -->
+                <div class="input-group">
+                    <input type="text" 
+                           v-model="docSeccion.porcentajeCargaFraccion"
+                           v-on:blur ="cambiarPorcentajeCarga(docSeccion,$event)"
+                           v-on:keyup.enter="cambiarPorcentajeCarga(docSeccion,$event)"
+                           class="form-control" 
+                           required="true"
+                           v-bind:readonly="docSeccion.estado != 'ACT'"
+                           data-parsley-group="porcentaje-car"/>
+                    <span class="input-group-addon" 
+                          v-text="docSeccion.porcentajeCarga+' %'"></span>
+                </div>
             </td>
             <td class="text-center">
 
