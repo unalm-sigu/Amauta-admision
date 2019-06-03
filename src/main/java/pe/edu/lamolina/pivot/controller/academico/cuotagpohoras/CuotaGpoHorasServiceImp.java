@@ -38,13 +38,11 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
     @Override
     public List<CuotasGrupoHoras> allCuotasGpoHoras(DynatableFilter filter, AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico) {
 
-        List<String> letras = new ArrayList<>();
-
         List<CuotasGrupoHoras> cuotas = cuotaGpoHorasDAO.allByDynatable(filter, anexoBoletin, cicloAcademico);
 
-        List<LetraCuotaUtilizadaBean> letrasUtilizados = cuotaGpoHorasDAO.allInAnexoBoletines(anexoBoletin, cicloAcademico);
-        List<LetraCuotaUtilizadaBean> letrasHorasUtilizadas = cuotaGpoHorasDAO.allInAnexoBoletinesHoras(anexoBoletin, cicloAcademico);
-        List<LetraCuotaUtilizadaBean> cantidadGrupos = cuotaGpoHorasDAO.allInAnexoBoletinesGrupos(anexoBoletin, cicloAcademico);
+        List<LetraCuotaUtilizadaBean> letrasUtilizados = cuotaGpoHorasDAO.allByAnexoBoletinAcademico(anexoBoletin, cicloAcademico);
+        List<LetraCuotaUtilizadaBean> letrasHorasUtilizadas = cuotaGpoHorasDAO.allByAnexoBoletinHoras(anexoBoletin, cicloAcademico);
+        List<LetraCuotaUtilizadaBean> cantidadGrupos = cuotaGpoHorasDAO.allByAnexoBoletinGrupo(anexoBoletin, cicloAcademico);
 
         Map<String, LetraCuotaUtilizadaBean> mapLetraUtilizados = TypesUtil.convertListToMap("letra", letrasUtilizados);
         Map<String, LetraCuotaUtilizadaBean> mapLetraHorasUtilizadas = TypesUtil.convertListToMap("letra", letrasHorasUtilizadas);
