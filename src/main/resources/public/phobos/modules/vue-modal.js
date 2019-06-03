@@ -25,6 +25,7 @@ Vue.component('modal-vik', {
         dataBackdrop: {type: String, default: null},
         dataKeyboard: {type: String, default: null},
         processing: {type: Boolean, default: false},
+        disabledok: {type: Boolean, default: false},
         bodyBlocker: {type: Boolean, default: true},
         showBody: {type: Boolean, default: true},
     },
