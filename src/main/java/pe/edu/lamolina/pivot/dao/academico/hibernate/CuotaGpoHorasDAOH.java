@@ -9,6 +9,9 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
+import pe.edu.lamolina.pivot.controller.academico.cuotagpohoras.LetraCuotaUtilizadaBean;
 import pe.edu.lamolina.pivot.dao.academico.CuotaGpoHorasDAO;
 
 @Repository
@@ -27,7 +30,7 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .filter("ca.id", cicloAcademico)
                 .searchFields("ab.nombre", "gh.codigo", "ca.descripcion")
                 .filter("ab.id", anexoBoletin)
-                .orderBy("cgpo.id desc");
+                .orderBy("gh.letra");
         return all(sql);
     }
 
@@ -41,7 +44,48 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .orderBy("cgh.id desc");
 
         return all(sql);
+    }
 
+    @Override
+    public List<LetraCuotaUtilizadaBean> allInAnexoBoletines(AnexoBoletin anexoBoletine, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .select(" grho.letra", " count(*) ")
+                .into(LetraCuotaUtilizadaBean.class)
+                .from(Seccion.class, "secc")
+                .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .filter("anbo.id", anexoBoletine)
+                .groupBy("grho.letra");
+
+        return (List<LetraCuotaUtilizadaBean>) sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<LetraCuotaUtilizadaBean> allInAnexoBoletinesHoras(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .select(" grho.letra", " count(*) ")
+                .into(LetraCuotaUtilizadaBean.class)
+                .from(HorarioSeccion.class, "hsecc")
+                .join("seccion secc", "secc.grupoHoras grho", "secc.grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .filter("anbo.id", anexoBoletin)
+                .groupBy("grho.letra");
+
+        return (List<LetraCuotaUtilizadaBean>) sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<LetraCuotaUtilizadaBean> allInAnexoBoletinesGrupos(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .select("grho.letra", "grho.codigo", " count(*) ")
+                .into(LetraCuotaUtilizadaBean.class)
+                .from(Seccion.class, "secc")
+                .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .filter("anbo.id", anexoBoletin)
+                .groupBy("grho.letra", "grho.codigo");
+
+        return (List<LetraCuotaUtilizadaBean>) sql.all(getCurrentSession());
     }
 
 }

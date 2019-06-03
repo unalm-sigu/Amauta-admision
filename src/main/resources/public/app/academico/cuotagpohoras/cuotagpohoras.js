@@ -4,14 +4,14 @@ new Vue({
     el: '#cuotagpohorasVUE',
     data: {
         cuotagpohorasURL: APP.url('academico/cuotagpohoras/list'),
-        confirmarModal: {
+        pagination: {'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true},
+        confirmarModal: VUE_MODAL.structFormAjax({
             id: 'modalConfirmar',
             header: true,
             title: 'Configurar Cuotas de Anexo',
             cancelbtn: 'Cancelar',
-            okbtn: 'Guardar',
-            modalsize: 'modal-md'
-        },
+            okbtn: 'Guardar'
+        }),
         anexoTempo: {},
         anexoGrid: {},
         anexos: [],
@@ -94,7 +94,6 @@ new Vue({
         },
         guardar() {
             let $vue = this;
-
             $.ajax({
                 method: "POST",
                 contentType: "application/json",
@@ -111,9 +110,6 @@ new Vue({
             }, error => {
                 notify(MESSAGES.errorComunicacion, 'error');
             });
-
-
-
         },
         verNuevoAnexo() {
             let $vue = this;
@@ -123,7 +119,8 @@ new Vue({
             $vue.anexoTempo = {id: '', departamentoAcademico: {}, anexoSuperior: {}};
             $vue.loadAnexos();
             $vue.$refs.modalConfirmar.open();
-        }, loadAnexos() {
+        },
+        loadAnexos() {
             let $vue = this;
             $.ajax({
                 method: "POST",
