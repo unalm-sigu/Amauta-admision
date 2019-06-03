@@ -119,7 +119,6 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
         int seccionesProgramadas = seccionesByCiclo.size();
 
         seccionesByCiclo = seccionesByCiclo.stream()
-                // .filter(x -> x.getTipoCarpeta() != null)
                 .filter(x -> x.getAula() == null)
                 .collect(Collectors.toList());
 
@@ -127,12 +126,15 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
         Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
 
         EventoCicloAcademico eventoCicloDictado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ds.getCicloAcademico(), EventoAcademicoEnum.CLASES_PRE);
-        List<Aula> aulas = this.allAulasOeraWithHorario(eventoCicloDictado);
+        List<Aula> aulas = aulaDAO.allByOficinaSupervisora(OficinaEnum.OERA, EstadoEnum.ACT);
         aulas = aulas.stream().filter(x -> x.getTipoCarpeta() != null).collect(Collectors.toList());
-        Map<Long, List<Map>> mapAulasByModulo = TypesUtil.convertListToMapList("aulaSuperior.id", aulas);
-        List<Long> modulos = new ArrayList<>(mapAulasByModulo.keySet());
-        logger.debug("Aulas encontradas {}", aulas.stream().map(x -> x.getId()).collect(Collectors.toList()));
-        logger.debug("Modulos Encontrados Por Aula {}", modulos);
+
+        Map<Long, List<Aula>> mapAulasByModulo = TypesUtil.convertListToMapList("aulaSuperior.id", aulas);
+        logger.debug("Aulas encontradas (id´'s) {}", aulas.stream().map(x -> x.getId()).collect(Collectors.toList()));
+        logger.debug("Modulos Encontrados Por Aula (id´'s) {}", new ArrayList(mapAulasByModulo.keySet()));
+
+        List<HorarioAula> horarioAulasDictado = horarioAulaDAO.allByRango(eventoCicloDictado.getFechaInicio(), eventoCicloDictado.getFechaFin());
+        Map<Long, List<HorarioAula>> mapsHorarioAulaByAulaForDictado = TypesUtil.convertListToMapList("aula.id", horarioAulasDictado);
 
         List<DocenteSeccion> docentesSeccionPrincipalesByCiclo
                 = docenteSeccionDAO.allByCiclo(ds.getCicloAcademico(), EstadoEnum.ACT);
@@ -155,26 +157,17 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
 
         for (Seccion seccion : seccionesByCiclo) {
             TipoCarpeta tipoCarpeta = this.getTipoCarpeta(seccion, cursosCiclosAcademicos);
-            List<Aula> aulasModularForGpoModular = null;
             List<HorarioSeccion> horariosSecciones = mapHorariosBySeccion.get(seccion.getId());
             seccion.setHorarioSeccion(horariosSecciones);
             if (seccion.getHorarioSeccion() == null) {
                 continue;
             }
+            Map<Long, List<HorarioAula>> mapsHorarioAulaByAulaForFechasModular = null;
             if (seccion.getGrupoSeccion().getFechaInicioModular() != null && seccion.getGrupoSeccion().getFechaFinModular() != null) {
-                aulasModularForGpoModular = aulaDAO.allByOficinaSupervisora(OficinaEnum.OERA, EstadoEnum.ACT);
                 List<HorarioAula> horariosAulas = horarioAulaDAO.allByRango(seccion.getGrupoSeccion().getFechaInicioModular(), seccion.getGrupoSeccion().getFechaFinModular());
-                Map<Long, List<HorarioAula>> mapsHorarioAulaByAula = TypesUtil.convertListToMapList("aula.id", horariosAulas);
-                for (Aula aula : aulasModularForGpoModular) {
-                    aula.setHorariosAula(mapsHorarioAulaByAula.get(aula.getId()));
-                    if (aula.getHorariosAula() == null) {
-                        aula.setHorariosAula(new ArrayList<>());
-                    }
-                }
+                mapsHorarioAulaByAulaForFechasModular = TypesUtil.convertListToMapList("aula.id", horariosAulas);
             }
-
             DocenteSeccion docenteSeccionPrincipal = mapDocentesSeccionPrincipalesBySeccion.get(seccion.getId());
-
             DepartamentoAcademico departamentoAcademicoDocente = docenteSeccionPrincipal.getDocente().getDepartamentoAcademico();
             if (departamentoAcademicoDocente == null) {
                 continue;
@@ -188,33 +181,27 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
             }
             FOR_DIST_PAB:
             for (DistanciaPabellon distanciaPabellon : distanciaPabellonByDepartamento) {
-                List<Aula> aulasByPabellon = aulas.stream()
-                        .filter(x -> x.getAulaSuperior().equals(distanciaPabellon.getPabellon()))
+                List<Aula> aulasByPabellon = mapAulasByModulo.get(distanciaPabellon.getPabellon().getId());
+                aulasByPabellon = aulas.stream()
                         .filter(x -> x.getAforo() >= seccion.getMatriculados())
                         .filter(x -> tipoCarpeta.getId().compareTo(x.getTipoCarpeta().getId()) == 0)
                         .collect(Collectors.toList());
-
                 //Ordenamos las aulas por aforo de menor a mayor
                 Collections.sort(aulasByPabellon, (p1, p2) -> p1.getAforo().compareTo(p2.getAforo()));
-                /*       logger.debug("Departamento {}, Pabellon {}, Distancia {}, Aulas {}", distanciaPabellon.getDepartamentoAcademico().getId(),
-                        distanciaPabellon.getPabellon().getId(),
-                        distanciaPabellon.getDistancia(),
-                        aulasByPabellon.size());*/
                 FOR_AULA:
                 for (Aula aula : aulasByPabellon) {
-                    Aula aulaWithHorario = null;
-                    if (aulasModularForGpoModular != null) {
-                        aulaWithHorario = aulasModularForGpoModular.stream().filter(x -> x.equals(aula)).findFirst().orElse(null);
-                    } else {
-                        aulaWithHorario = aulas.stream().filter(x -> x.equals(aula)).findFirst().orElse(null);
+                    List<HorarioAula> horariosAula = mapsHorarioAulaByAulaForDictado.get(aula.getId());
+                    if (mapsHorarioAulaByAulaForFechasModular != null) {
+                        horariosAula = mapsHorarioAulaByAulaForFechasModular.get(aula.getId());
                     }
-                    Integer piso = aulaWithHorario.getPiso() == null ? BigDecimal.ONE.intValue() : aulaWithHorario.getPiso();
+                    aula.setHorariosAula(horariosAula);
+                    Integer piso = aula.getPiso() == null ? BigDecimal.ONE.intValue() : aula.getPiso();
                     if (esDocenteConDiscapacidad && piso != BigDecimal.ONE.intValue()) {
                         continue;
                     }
 
                     for (HorarioSeccion horarioSeccion : seccion.getHorarioSeccion()) {
-                        HorarioAula horarioAula = aulaWithHorario.getHorariosAula()
+                        HorarioAula horarioAula = aula.getHorariosAula()
                                 .stream()
                                 .filter(x -> x.getHoraDia().equals(horarioSeccion.getHoraDia()))
                                 .filter(x -> x.getDia().equals(horarioSeccion.getDia()))
@@ -223,30 +210,30 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                         if (horarioAula != null) {
                             continue FOR_AULA;
                         }
-                        HorarioAula horarioAulaSave = new HorarioAula(seccion, horarioSeccion.getDia(), horarioSeccion.getHora(), aulaWithHorario);
+                        HorarioAula horarioAulaSave = new HorarioAula(seccion, horarioSeccion.getDia(), horarioSeccion.getHora(), aula);
                         horarioAulaSave.setTipoEnum(TipoHorarioAulaEnum.DICT);
                         horarioAulaSave.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-                        if (aulasModularForGpoModular != null) {
+                        if (mapsHorarioAulaByAulaForFechasModular != null) {
                             horarioAulaSave.setFechaInicio(seccion.getGrupoSeccion().getFechaInicioModular());
                             horarioAulaSave.setFechaFin(seccion.getGrupoSeccion().getFechaFinModular());
                             horarioAulaDAO.save(horarioAulaSave);
                         } else {
                             horarioAulaSave.setFechaInicio(eventoCicloDictado.getFechaInicio());
                             horarioAulaSave.setFechaFin(eventoCicloDictado.getFechaFin());
-                            if (aulaWithHorario.getHorariosAula() == null) {
-                                aulaWithHorario.setHorarioReservaAula(new ArrayList<>());
+                            if (aula.getHorariosAula() == null) {
+                                aula.setHorarioReservaAula(new ArrayList<>());
                             }
-                            aulaWithHorario.getHorariosAula().add(horarioAulaSave.clone());
+                            aula.getHorariosAula().add(horarioAulaSave.clone());
                             horarioAulaDAO.save(horarioAulaSave);
                         }
                     }
-                    if (aulasAsignadas.contains(aulaWithHorario)) {
+                    if (aulasAsignadas.contains(aula)) {
                         continue;
                     }
-                    aulasAsignadas.add(aulaWithHorario);
+                    aulasAsignadas.add(aula);
 
                     logger.debug("Seccion {}, Con Aula {} Asignada",
-                            seccion.getCodigo(), aulaWithHorario.getCodigo());
+                            seccion.getCodigo(), aula.getCodigo());
                     if (tipoCarpeta.getCodigo().equals(TipoCarpetaEnum.AUL.name())) {
                         seccionesTipoAul++;
                     }

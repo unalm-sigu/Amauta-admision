@@ -518,8 +518,6 @@
 
             </div>
 
-            <div th:substituteby="_modules/vue-modal"></div>
-
             <div th:substituteby="programacion/tramiteaula/tramiteaulahorario"></div>
 
             <template  type="text/x-template" id="divBuscarAlumno">
@@ -550,6 +548,7 @@
                 var tiposSolicitanteJson = /*[[${tiposSolicitante}]]*/ '';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"></div>
             <div th:substituteby="_layout/includes :: sweetalert"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vue-loader"/>
