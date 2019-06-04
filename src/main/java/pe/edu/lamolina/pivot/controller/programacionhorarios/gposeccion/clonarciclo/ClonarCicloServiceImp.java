@@ -149,7 +149,10 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
     @Override
     @Transactional
-    public void clonarCiclo(CicloAcademico cicloOrigenForm, CicloAcademico cicloDestinoForm, DataSessionPivot ds) {
+    public void clonarCiclo(CicloClonacionBean cicloClonacionBean, DataSessionPivot ds) {
+        CicloAcademico cicloOrigenForm = cicloClonacionBean.getCicloOrigen();
+        CicloAcademico cicloDestinoForm = cicloClonacionBean.getCicloDestino();
+
         List<Dia> dias = diaDAO.all();
         CicloAcademico cicloOrigen = cicloAcademicoDAO.find(cicloOrigenForm.getId());
         CicloAcademico cicloDestino = cicloAcademicoDAO.find(cicloDestinoForm.getId());
