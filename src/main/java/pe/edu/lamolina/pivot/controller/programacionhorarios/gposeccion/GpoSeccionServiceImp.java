@@ -47,6 +47,7 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CambioAulaGrupo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -123,6 +124,7 @@ import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.AmpliacionVacantesDAO;
 import pe.edu.lamolina.pivot.dao.academico.CambioAulaGrupoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CuotaGpoHorasDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
 import pe.edu.lamolina.pivot.dao.finanza.PagoHoraDocenteDAO;
@@ -234,6 +236,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Autowired
     PagoHoraDocenteDAO pagoHoraDocenteDAO;
 
+    @Autowired
+    CuotaGpoHorasDAO cuotaGpoHorasDAO;
+
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
         return cicloAcademicoDAO.find(cicloAcademico);
@@ -253,6 +258,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public GrupoSeccion findGpoSeccion(Long id) {
         GrupoSeccion gpoSecc = grupoSeccionDAO.find(id);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSecc);
+        List<CuotasGrupoHoras> allCountCuotasGrupoHorases = cuotaGpoHorasDAO.allCuotasByAnexo(gpoSecc.getAnexoBoletin(), gpoSecc.getCicloAcademico());
+
+        secciones.forEach(x -> {
+            CuotasGrupoHoras cuotasGrupoHoras = allCountCuotasGrupoHorases.stream()
+                    .filter(y -> y.getGrupoHoras() != null)
+                    .filter(y -> y.getGrupoHoras().getCodigo().equals(x.getGrupoHoras().getLetra()))
+                    .findFirst().orElse(null);
+            if (cuotasGrupoHoras != null) {
+                x.getGrupoHoras().setCuotasGrupoHoras(cuotasGrupoHoras);
+            }
+        });
         gpoSecc.setSecciones(secciones);
 
         CicloAcademico ciclo = gpoSecc.getCicloAcademico();
@@ -1850,10 +1866,23 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         seccionDAO.updateSeccionGrupoHora(seccion);
         this.actualizarBoletin();
+        this.actualizarCuotaAnexo(seccion, cicloAcademico);
     }
 
-    public void actualizarCuotaAnexo(GrupoHoras grupoHoras) {
+    public void actualizarCuotaAnexo(Seccion seccion, CicloAcademico cicloAcademico) {
+        GrupoHoras gpoHorasSeccion = seccion.getGrupoHoras();
+        //   GrupoHoras gpoHoraLetra = grupoHorasDAO.findByCode(gpoHorasSeccion.getCodigo());
+        GrupoSeccion gpoSeccion = seccion.getGrupoSeccion();
+        AnexoBoletin anexoBoletin = gpoSeccion.getAnexoBoletin();
 
+        CuotasGrupoHoras cuotasGrupoHoras = cuotaGpoHorasDAO.findByAnexoAndCicloAndGpoHoras(anexoBoletin, cicloAcademico, gpoHorasSeccion.getLetra());
+        if (cuotasGrupoHoras != null) {
+            Integer countForCuotasGrupoHoras = cuotaGpoHorasDAO.countByAnexoAndCicloAndLetraHoras(anexoBoletin, cicloAcademico, gpoHorasSeccion.getLetra());
+            CuotasGrupoHoras cuotasGrupoHorasUpd = new CuotasGrupoHoras();
+            cuotasGrupoHorasUpd.setId(cuotasGrupoHoras.getId());
+            cuotasGrupoHorasUpd.setAsignadasSistema(countForCuotasGrupoHoras);
+            cuotaGpoHorasDAO.updateColumns(cuotasGrupoHorasUpd, "asignadasSistema");
+        }
     }
 
     @Override

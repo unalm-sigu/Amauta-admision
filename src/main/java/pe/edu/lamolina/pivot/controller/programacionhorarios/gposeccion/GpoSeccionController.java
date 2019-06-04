@@ -2464,6 +2464,8 @@ public class GpoSeccionController {
                 "*",
                 "grupoHoras.id",
                 "grupoHoras.codigo",
+                "grupoHoras.cuotasGrupoHoras.cuotas",
+                "grupoHoras.cuotasGrupoHoras.totalUtilizadas",
                 "aula.id",
                 "aula.codigo",
                 "aula.capacidadAula",

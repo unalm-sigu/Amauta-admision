@@ -2050,6 +2050,17 @@ var app = new Vue({
                 }
             });
 
+        }, getStyleDivGpoHoras(sec) {
+            console.dir(sec);
+            if (this.mostrarCuotasExedidas(sec)) {
+                return 'border:1px solid; border-color: red;padding: 3px;border-radius: 5px;';
+            }
+            return "";
+        }, mostrarCuotasExedidas(sec) {
+            if ((sec.grupoHoras.cuotasGrupoHoras.totalUtilizadas != null && sec.grupoHoras.cuotasGrupoHoras.totalUtilizadas != '') && sec.grupoHoras.cuotasGrupoHoras.totalUtilizadas > sec.grupoHoras.cuotasGrupoHoras.cuotas) {
+                return true;
+            }
+            return false;
         }
     }
 });
