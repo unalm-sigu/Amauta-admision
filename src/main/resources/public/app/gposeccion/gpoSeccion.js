@@ -53,9 +53,11 @@ new Vue({
         isLoadingCursos: false,
         anexosPadres: [],
         anexosHijos: [],
+        listCicloAcademico: [],
         anexoPadreCurso: {},
         newGrupoSeccion: {curso: {}, anexoBoletin: {}},
         configConfirmAction: VUE_MODAL.structConfirm({}),
+        cicloClonacionBean: {copiarAulasOera: false, copiarAulasDptos: false, copiarAulasPosgrado: false}
     },
     computed: {
         condicion1() {
@@ -458,7 +460,7 @@ new Vue({
         },
         saveCloneCiclo() {
             let $vue = this;
-            if ($vue.cicloClonacion.id == null) {
+            if ($vue.cicloClonacionBean.cicloOrigen.id == null) {
                 return;
             }
 
@@ -467,7 +469,8 @@ new Vue({
                 method: 'POST',
                 url: APP.url(rutaModulo + '/clonarciclo'),
 //                async: false,
-                data: {id: $vue.cicloClonacion.id},
+                data: JSON.stringify($vue.cicloClonacionBean),
+                contentType: "application/json",
                 success: function (response) {
                     $vue.$refs.modalCloneCiclo.confirmReaction(response.success);
                     if (response.success) {
@@ -755,6 +758,24 @@ new Vue({
 //                }
 //            });
 
+        },
+        searchCicloAcademico(param) {
+            let $vue = this;
+            if (param == '')
+                return;
+            $vue.listCicloAcademico = [];
+            const params = new URLSearchParams();
+            params.append('nombre', param);
+            axios.post("/comun/buscar/allCicloDescendent", params)
+                    .then(function (response) {
+                        if (response.data.success) {
+                            $vue.listCicloAcademico = response.data.data;
+                        }
+                    })
+                    .catch(function (error) {
+                        notify(error.errorComunicacion, "error");
+
+                    });
         }
     }
 });

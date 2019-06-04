@@ -25,6 +25,7 @@ import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
@@ -40,13 +41,17 @@ import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_EPG;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
@@ -149,7 +154,10 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
     @Override
     @Transactional
-    public void clonarCiclo(CicloAcademico cicloOrigenForm, CicloAcademico cicloDestinoForm, DataSessionPivot ds) {
+    public void clonarCiclo(CicloClonacionBean cicloClonacionBean, DataSessionPivot ds) {
+        CicloAcademico cicloOrigenForm = cicloClonacionBean.getCicloOrigen();
+        CicloAcademico cicloDestinoForm = cicloClonacionBean.getCicloDestino();
+
         List<Dia> dias = diaDAO.all();
         CicloAcademico cicloOrigen = cicloAcademicoDAO.find(cicloOrigenForm.getId());
         CicloAcademico cicloDestino = cicloAcademicoDAO.find(cicloDestinoForm.getId());
@@ -242,6 +250,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
         for (GrupoSeccion gpoSeccOrigen : gsOrigenes) {
             Curso curso = gpoSeccOrigen.getCurso();
+            ModalidadEstudio modalidad = curso.getModalidadEstudio();
             eventoDictadoClases = eventoDictadoVeranoPregrado;
             if (cicloDestino.getTipoEnum() == TipoCicloEnum.REG && curso.getModalidadEstudio().isPostgrado()) {
                 eventoDictadoClases = eventoDictadoPosgrado;
@@ -332,16 +341,19 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 seccNew.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
                 seccNew.setHorasSemanales(seccOrigen.getHorasSemanales());
                 seccNew.setVacantes(seccOrigen.getVacantes());
-                seccNew.setMatriculados(0);
-                seccNew.setReservados(0);
-                seccNew.setPrematriculados(0);
-                seccNew.setRetirados(0);
-                seccNew.setAmpliacionVacante(0);
                 seccNew.setGrupoHoras(seccOrigen.getGrupoHoras());
                 seccNew.setRestriccionCapa(seccOrigen.getRestriccionCapa());
                 seccNew.setFechaRegistro(today);
                 seccNew.setUserRegistro(ds.getUsuario());
                 seccNew.setSeccionSuperior(seccionSup);
+
+                Aula aula = seccOrigen.getAula();
+                if (aula != null) {
+                    Oficina oficina = aula.getOficinaSupervisora();
+                    if (oficina.getCodigoEnum() == OficinaEnum.OERA && modalidad.getCodigoEnum() == ModalidadEstudioEnum.PRE) {
+                        seccNew.setAula(seccOrigen.getAula());
+                    }
+                }
 
                 if (seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.TEO || seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
                     seccNew.setCodigo(codigo + "0");
