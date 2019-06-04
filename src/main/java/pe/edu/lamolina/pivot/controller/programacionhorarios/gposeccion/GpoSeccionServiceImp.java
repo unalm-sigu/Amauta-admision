@@ -1673,7 +1673,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional
     public void saveSeccionGrupoHorario(Seccion seccion, GrupoHoras grupoHorario, CicloAcademico cicloAcademico) {
-
+        Seccion seccionDB = seccionDAO.find(seccion);
+        seccionDB = seccionDB.clone();
         if (grupoHorario != null && !grupoHorario.isPermiteCeroHoras()) {
             if (grupoHorario.getDiaHoraGrupo().isEmpty()) {
                 throw new PhobosException("Debe seleccionar las horas");
@@ -1807,22 +1808,33 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         seccionDAO.updateSeccionGrupoHora(seccion);
         this.actualizarBoletin();
-        this.actualizarCuotaAnexo(seccion, cicloAcademico);
+        //actualizar grupo horas anterior
+        this.actualizarCuotaAnexo(seccionDB, seccionDB.getGrupoSeccion().getCicloAcademico());
+        //actualizar grupo horas actual
+        this.actualizarCuotaAnexo(seccion, seccionDB.getGrupoSeccion().getCicloAcademico());
     }
 
-    public void actualizarCuotaAnexo(Seccion seccion, CicloAcademico cicloAcademico) {
+    private void actualizarCuotaAnexo(Seccion seccion, CicloAcademico cicloAcademico) {
         GrupoHoras gpoHorasSeccion = seccion.getGrupoHoras();
-        //   GrupoHoras gpoHoraLetra = grupoHorasDAO.findByCode(gpoHorasSeccion.getCodigo());
-        GrupoSeccion gpoSeccion = seccion.getGrupoSeccion();
-        AnexoBoletin anexoBoletin = gpoSeccion.getAnexoBoletin();
+        GrupoSeccion grupoSeccionBD = grupoSeccionDAO.find(seccion.getGrupoSeccion().getId());
 
-        CuotasGrupoHoras cuotasGrupoHoras = cuotaGpoHorasDAO.findByAnexoAndCicloAndGpoHoras(anexoBoletin, cicloAcademico, gpoHorasSeccion.getLetra());
-        if (cuotasGrupoHoras != null) {
-            Integer countForCuotasGrupoHoras = cuotaGpoHorasDAO.countByAnexoAndCicloAndLetraHoras(anexoBoletin, cicloAcademico, gpoHorasSeccion.getLetra());
-            CuotasGrupoHoras cuotasGrupoHorasUpd = new CuotasGrupoHoras();
-            cuotasGrupoHorasUpd.setId(cuotasGrupoHoras.getId());
-            cuotasGrupoHorasUpd.setAsignadasSistema(countForCuotasGrupoHoras);
-            cuotaGpoHorasDAO.updateColumns(cuotasGrupoHorasUpd, "asignadasSistema");
+        logger.debug("grupo horas, codigo {}, letra {}", gpoHorasSeccion.getCodigo(), gpoHorasSeccion.getLetra());
+        if (gpoHorasSeccion != null) {
+            if (StringUtils.isEmpty(gpoHorasSeccion.getLetra())) {
+                gpoHorasSeccion = grupoHorasDAO.find(gpoHorasSeccion);
+            }
+
+            AnexoBoletin anexoBoletin = grupoSeccionBD.getAnexoBoletin();
+
+            CuotasGrupoHoras cuotasGrupoHoras = cuotaGpoHorasDAO.findByAnexoAndCicloAndGpoHoras(anexoBoletin, cicloAcademico, gpoHorasSeccion.getLetra());
+            if (cuotasGrupoHoras != null) {
+                Integer countForCuotasGrupoHoras = cuotaGpoHorasDAO.countByAnexoAndCicloAndLetraHoras(anexoBoletin, cicloAcademico, gpoHorasSeccion.getLetra());
+                CuotasGrupoHoras cuotasGrupoHorasUpd = new CuotasGrupoHoras();
+                cuotasGrupoHorasUpd.setId(cuotasGrupoHoras.getId());
+                cuotasGrupoHorasUpd.setAsignadasSistema(countForCuotasGrupoHoras);
+                cuotaGpoHorasDAO.updateColumns(cuotasGrupoHorasUpd, "asignadasSistema");
+//                cuotaGpoHorasDAO.update(cuotasGrupoHoras);
+            }
         }
     }
 

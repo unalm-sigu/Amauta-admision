@@ -170,9 +170,16 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
             // FALTA VACANTE-ALUMNO COMO NUEVO REGISTRO
         }
 
+        if (origen.getMatriculados() - alumnos.size() == 0) {
+            origen.setEstadoEnum(SeccionEstadoEnum.FUS);
+        }
         seccionDAO.updateMatriculados(destino, destino.getMatriculados() + alumnos.size());
         seccionDAO.updateMatriculados(origen, origen.getMatriculados() - alumnos.size());
+
         if (esTeoPrac && !mismoGpoSecc) {
+            if (origenSup.getMatriculados() - alumnos.size() == 0) {
+                origenSup.setEstadoEnum(SeccionEstadoEnum.FUS);
+            }
             seccionDAO.updateMatriculados(destinoSup, destinoSup.getMatriculados() + alumnos.size());
             seccionDAO.updateMatriculados(origenSup, origenSup.getMatriculados() - alumnos.size());
         }
