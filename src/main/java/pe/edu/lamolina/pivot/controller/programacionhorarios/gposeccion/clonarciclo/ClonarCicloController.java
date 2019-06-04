@@ -29,16 +29,16 @@ public class ClonarCicloController {
 
     @ResponseBody
     @RequestMapping("clonarciclo")
-    public JsonResponse clonarCiclo(CicloAcademico ciclo, HttpSession session) {
+    public JsonResponse clonarCiclo(CicloAcademico cicloOrigenForm, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            CicloAcademico cicloActivo = ds.getCicloAcademico();
+            CicloAcademico cicloDestino = ds.getCicloAcademico();
 
-            service.clonarCiclo(ciclo, cicloActivo, ds);
+            service.clonarCiclo(cicloOrigenForm, cicloDestino, ds);
 
             response.setMessage("Se clonó satisfactoriamente la programación de horarios a este ciclo");
             response.setSuccess(true);
@@ -76,7 +76,7 @@ public class ClonarCicloController {
         return response;
 
     }
-    
+
     @ResponseBody
     @RequestMapping("verBoletin")
     public JsonResponse verBoletin(HttpSession session) {

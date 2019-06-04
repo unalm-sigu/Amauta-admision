@@ -94,7 +94,7 @@
                                         </div>
 
                                         <div class="row m-b-xs">
-                                            <div class="col-md-1 text-curso">Curso 
+                                            <div class="col-md-1 bold text-primary">Curso 
                                                 <input type="hidden" v-bind:value="grupoSeccion.curso.tipoCursoEnum.name"/></div>
                                             <div class="col-md-11">
                                                 <span class="block text-curso" v-text="grupoSeccion.curso.codigo + ' - ' + grupoSeccion.curso.nombre"></span>
@@ -107,12 +107,6 @@
                                                 </span>
                                             </div>
                                         </div>
-                                        <!--div class="row">
-                                            <div class="col-md-2 bold text-primary">Periodo</div>
-                                            <div class="col-md-10">
-                                                
-                                            </div>
-                                        </div-->
                                     </div>
 
                                     <div class="col-md-1">
@@ -472,8 +466,13 @@
                                                             </a>
                                                             <a href="#"
                                                                v-if="seccion.isEstadoActivo || seccion.isEstadoCreado "
-                                                               v-on:click="anularSeccion(seccion)">
+                                                               v-on:click="verAnularSeccion(seccion)">
                                                                 Anular
+                                                            </a>
+                                                            <a href="#"
+                                                               v-if="seccion.isEstadoActivo &amp;&amp; seccion.matriculados > 0 "
+                                                               v-on:click="cancelarSeccion(seccion)">
+                                                                Cancelar
                                                             </a>
                                                             <a href="#"
                                                                v-if="seccion.isEstadoActivo "
@@ -588,6 +587,7 @@
             </div>
 
             <div th:substituteby="academico/gposeccion/gpoSeccionFormModal"/>
+            <div th:substituteby="_modules/vue-modal-confirm"></div>
 
         </div>
 
@@ -612,6 +612,7 @@
             var navigationJson = /*[[${navigationJson}]]*/ {};
             var cicloJson = /*[[${cicloJson}]]*/ {};
             var oficinasJson = /*[[${oficinasJson}]]*/ {};
+            var rutaModulo = 'academico/gposeccion';
         </script>
         <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_layout/includes :: sweetalert"/>
