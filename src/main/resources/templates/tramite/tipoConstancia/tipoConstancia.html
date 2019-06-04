@@ -29,8 +29,6 @@
 
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
-
             <th:block th:replace="tramite/tipoConstancia/tipoConstanciaDynatable"/>
 
         </div>
@@ -41,8 +39,8 @@
                 var tiposJson = /*[[${tipos.toString()}]]*/ '';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-            <div th:substituteby="_layout/includes :: vuemodal"/>
             <div th:substituteby="_layout/includes :: lodash"/>
             <script th:src="@{/app/tramite/tipoConstancia/tipoConstanciaDynatable.js}" charset="utf-8"></script>
             <script th:src="@{/app/tramite/tipoConstancia/tipoConstancia.js}" charset="utf-8"></script>

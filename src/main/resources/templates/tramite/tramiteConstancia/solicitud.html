@@ -189,8 +189,6 @@
                 <th:block th:replace="tramite/tramiteConstancia/ciclosModal"/>
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
-
         </div>
 
         <div layout:fragment="js">
@@ -200,9 +198,9 @@
                 var solicitudJson = /*[[${solicitud.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_layout/includes :: vuejs"/>
             <!--<div th:substituteby="_layout/includes :: javascript-upload"/>-->
-            <div th:substituteby="_layout/includes :: vuemodal"/>
             <script th:src="@{/app/tramite/tramiteConstancia/solicitud.js}" charset="utf-8"></script>
         </div>
     </body>

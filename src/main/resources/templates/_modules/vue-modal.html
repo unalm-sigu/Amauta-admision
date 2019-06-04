@@ -26,7 +26,7 @@
                         <div v-if="footer"  class="modal-footer">
                             <slot name="footer">
                                 <button v-on:click="close" type="button" class="btn" v-bind:class="cancelclass" data-dismiss="modal" v-bind:disabled="processing">{{cancelbtn}}</button>
-                                <button v-if="showaccept &amp;&amp; !processing" v-on:click="execute" type="button" class="btn" v-bind:class="okclass" v-html="okbtn">Ok</button>
+                                <button v-if="showaccept &amp;&amp; !processing" v-on:click="execute" type="button" class="btn" v-bind:class="okclass" v-bind:disabled="disabledok" v-html="okbtn">Ok</button>
                                 <button v-if="showaccept &amp;&amp; processing" type="button" class="btn" v-bind:class="okclass" disabled="" v-html="okbtnprocessing">Ok</button>
                             </slot>
                         </div>

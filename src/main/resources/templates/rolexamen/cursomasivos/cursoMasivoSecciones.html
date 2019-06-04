@@ -167,7 +167,6 @@
                 </modal-vik>
 
             </div>
-            <div th:substituteby="_modules/vue-modal"/>
         </section>
 
         <div layout:fragment="js">
@@ -176,10 +175,9 @@
                 var jCursoMasivoExamen = /*[[${jCursoMasivoExamen}]]*/ '';
                 /*]]>*/
             </script>
-
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/phobos/modules/vue-generalComponents.js}" charset="utf-8"></script>
-            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8"></script>
             <div th:substituteby="rolexamen/components/mover-seccion-examen"/>
             <script th:src="@{/app/rolexamen/cursomasivos/cursoMasivoSecciones.js}" charset="utf-8"></script>
         </div>

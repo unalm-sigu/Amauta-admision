@@ -122,13 +122,12 @@
     </div>
 
     <div layout:fragment="js">
-        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-        <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_modules/vue-raptor-table"/>
         <script th:inline="javascript">
             /*<![CDATA[*/
             /*]]>*/
         </script>
+        <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/tramite/bolsainvestigacion/bolsainvestigacion.js}" charset="utf-8"></script>
     </div>

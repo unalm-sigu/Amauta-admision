@@ -53,15 +53,15 @@
                                             </td>
                                             <td class="v-middle text-left">
                                                 <div class="bock ">
-                                                {{ item.persona.apellidosNombres}}
-                                                    
+                                                    {{ item.persona.apellidosNombres}}
+
                                                 </div>
                                                 <div class="bock " v-if="item.alumno.carrera != null">
                                                     <span class="bold">Facultad</span>
-                                                {{ item.alumno.carrera.facultad.nombre}}
-                                                    
+                                                    {{ item.alumno.carrera.facultad.nombre}}
+
                                                 </div>
-                                                    
+
                                             </td>
                                             <td class="v-middle text-left">
                                                 {{ item.tipoTramite.nombre}}
@@ -181,14 +181,13 @@
         </div>
 
         <div th:substituteby="templates/modal"/>
-        <div th:substituteby="_modules/vue-modal"/>
 
     </div>
 
     <div layout:fragment="js">
+        <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_modules/vue-raptor-table"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script th:src="@{/app/academico/tramitesacademicos/tramitesAcademicos.js}" charset="utf-8"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-generalComponents.js}"></script>
     </div>

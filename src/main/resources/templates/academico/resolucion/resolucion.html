@@ -303,13 +303,12 @@
             </section>
         </div>
         <div th:substituteby="templates/modal"/>
-        <div th:substituteby="_modules/vue-modal"/>
 
     </div>
 
     <div layout:fragment="js">
+        <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
-        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-generalComponents.js}"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
 

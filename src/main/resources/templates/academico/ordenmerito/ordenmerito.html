@@ -69,7 +69,7 @@
                                             <td class="v-middle text-center">
                                                 <span> {{ item.totalAlumnos }} </span>
                                             </td>
-                                            
+
                                             <td class="v-middle text-center">
                                                 <a v-bind:href="`${URL}/${item.id}/control`"> {{ item.alumnosComputados }} </a>
                                             </td>
@@ -78,7 +78,7 @@
                                             <td class="v-middle text-center"><span> {{ item.computadosNivel3 }} </span></td>
                                             <td class="v-middle text-center"><span> {{ item.computadosNivel4 }} </span></td>
                                             <td class="v-middle text-center"><span> {{ item.computadosNivel5 }} </span></td>
-                                            
+
                                             <td class="v-middle text-center">
                                                 <span> {{ item.noComputados }} </span>
                                             </td>
@@ -105,13 +105,12 @@
     </div>
 
     <div layout:fragment="js">
-        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-        <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_modules/vue-raptor-table"/>
         <script th:inline="javascript">
             /*<![CDATA[*/
             /*]]>*/
         </script>
+        <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/academico/ordenmerito/ordenmerito.js}" charset="utf-8"></script>
     </div>
