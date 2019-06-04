@@ -104,15 +104,29 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
     }
 
     @Override
-    public List<AnexoCuotaUtilizadaBean> allByGpoHorasCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
+    public List<AnexoCuotaUtilizadaBean> allByGpoHorasCicloBeanUtilizado(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .select("anbo.id", " count(*) ")
                 .into(AnexoCuotaUtilizadaBean.class)
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
                 .filter("ca.id", cicloAcademico)
-                .filter("grho.id", grupoHoras)
+                .filter("grho.letra", grupoHoras.getLetra())
                 .groupBy("anbo.id");
+
+        return (List<AnexoCuotaUtilizadaBean>) sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AnexoCuotaUtilizadaBean> allByGpoHorasCicloBeanGpo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .select("anbo.id", "grho.codigo", " count(*) ")
+                .into(AnexoCuotaUtilizadaBean.class)
+                .from(HorarioSeccion.class, "hsecc")
+                .join("seccion secc", "secc.grupoHoras grho", "secc.grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .filter("grho.letra", grupoHoras.getLetra())
+                .groupBy("anbo.id", "grho.codigo");
 
         return (List<AnexoCuotaUtilizadaBean>) sql.all(getCurrentSession());
     }

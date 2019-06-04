@@ -3,7 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.cuotadpto;
 public class AnexoCuotaUtilizadaBean {
 
     private Long idAnexo;
-    private String grupa;
+    private String grupo;
     private Long cantidad;
 
     public AnexoCuotaUtilizadaBean(Long idAnexo, Long cantidad) {
@@ -11,26 +11,26 @@ public class AnexoCuotaUtilizadaBean {
         this.cantidad = cantidad;
     }
 
-    public AnexoCuotaUtilizadaBean(Long idAnexo, String grupa, Long cantidad) {
+    public AnexoCuotaUtilizadaBean(Long idAnexo, String grupo, Long cantidad) {
         this.idAnexo = idAnexo;
-        this.grupa = grupa;
+        this.grupo = grupo;
         this.cantidad = cantidad;
     }
 
-    public Long getAnexoBoletin() {
+    public Long getIdAnexo() {
         return idAnexo;
     }
 
-    public void setAnexoBoletin(Long idAnexo) {
+    public void setIdAnexo(Long idAnexo) {
         this.idAnexo = idAnexo;
     }
 
-    public String getGrupa() {
-        return grupa;
+    public String getGrupo() {
+        return grupo;
     }
 
-    public void setGrupa(String grupa) {
-        this.grupa = grupa;
+    public void setGrupo(String grupo) {
+        this.grupo = grupo;
     }
 
     public Long getCantidad() {

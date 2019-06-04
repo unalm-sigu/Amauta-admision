@@ -24,5 +24,7 @@ public interface CuotaGpoHorasDAO extends EasyDAO<CuotasGrupoHoras> {
 
     List<CuotasGrupoHoras> allByDynatableGpoHoras(DynatableFilter filter, GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
-    List<AnexoCuotaUtilizadaBean> allByGpoHorasCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+    List<AnexoCuotaUtilizadaBean> allByGpoHorasCicloBeanUtilizado(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+
+    List<AnexoCuotaUtilizadaBean> allByGpoHorasCicloBeanGpo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 }

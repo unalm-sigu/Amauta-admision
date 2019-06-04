@@ -44,13 +44,15 @@ public class CuotaDptoController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, @RequestParam(name = "grupoHoras", required = false) Long idGrupoHoras, HttpSession session, HttpServletRequest request) {
+    public DynatableResponse list(DynatableFilter filter, @RequestParam("grupoHoras") Long idGrupoHoras, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            
+            GrupoHoras grupo = service.findGrupo(new GrupoHoras(idGrupoHoras));
 
-            List<CuotasGrupoHoras> cuotagpohoras = service.allCuotasGpoHoras(filter, new GrupoHoras(idGrupoHoras), ds.getCicloAcademico());
+            List<CuotasGrupoHoras> cuotagpohoras = service.allCuotasGpoHoras(filter, grupo, ds.getCicloAcademico());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (CuotasGrupoHoras cuota : cuotagpohoras) {

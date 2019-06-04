@@ -12,4 +12,6 @@ public interface CuotaDptoService {
 
     List<CuotasGrupoHoras> allCuotasGpoHoras(DynatableFilter filter, GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
+    GrupoHoras findGrupo(GrupoHoras grupoHoras);
+
 }
