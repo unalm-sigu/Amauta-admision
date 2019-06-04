@@ -931,8 +931,13 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional
     public void beneficiar(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         ObjectUtil.eliminarAttrSinId(matriculaResumen);
-        matriculaResumen.setEsBeneficiadoUltimoCiclo(true);
-        matriculaResumen.setFechaBeneficiadoUtlCiclo(new Date());
+        if (!matriculaResumen.getEsBeneficiadoUltimoCiclo()) {
+            matriculaResumen.setEsBeneficiadoUltimoCiclo(true);
+            matriculaResumen.setFechaBeneficiadoUtlCiclo(new Date());
+        } else {
+            matriculaResumen.setEsBeneficiadoUltimoCiclo(false);
+            matriculaResumen.setFechaBeneficiadoUtlCiclo(null);
+        }
         matriculaResumenDAO.updateBeneficiado(matriculaResumen);
     }
 
