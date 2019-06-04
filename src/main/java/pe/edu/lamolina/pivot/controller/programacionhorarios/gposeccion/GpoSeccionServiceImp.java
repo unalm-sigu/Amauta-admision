@@ -1810,7 +1810,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionDAO.updateSeccionGrupoHora(seccion);
         this.actualizarBoletin();
         //actualizar grupo horas anterior
-        this.actualizarCuotaAnexo(seccionDB, seccionDB.getGrupoSeccion().getCicloAcademico());
+        if (seccionDB.getGrupoHoras() != null) {
+            this.actualizarCuotaAnexo(seccionDB, seccionDB.getGrupoSeccion().getCicloAcademico());
+        }
         //actualizar grupo horas actual
         this.actualizarCuotaAnexo(seccion, seccionDB.getGrupoSeccion().getCicloAcademico());
     }
