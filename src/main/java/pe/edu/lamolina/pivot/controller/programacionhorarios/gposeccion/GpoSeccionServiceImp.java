@@ -1409,7 +1409,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         return true;
     }
 
-    public void validateFraccion(String fraccion) {
+    private void validateFraccion(String fraccion) {
         String noFraccion = String.format("%s no es una fraccón, verifique.", fraccion);
         Assert.isNotBlank(fraccion, "La fracción es requerida, verifique.");
         Assert.isTrue(fraccion.contains("/"), noFraccion);
@@ -1421,7 +1421,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional
     public void updatePorcentajeAvance(DocenteSeccion profeSeccForm, CicloAcademico cicloAcademico) {
-        this.validateFraccion(profeSeccForm.getPorcentajeCargaFraccion());
+        //this.validateFraccion(profeSeccForm.getPorcentajeCargaFraccion());
         DocenteSeccion profeSeccBDMain = docenteSeccionDAO.find(profeSeccForm.getId());
         List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccBDMain.getSeccion());
 
@@ -1446,7 +1446,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (total.compareTo(cien) > 0) {
             throw new PhobosException("El porcentaje de carga no puede exceder el 100%");
         }
-        profeSeccBDMain.setPorcentajeCargaFraccion(profeSeccForm.getPorcentajeCargaFraccion());
+        profeSeccBDMain.setPorcentajeCargaFraccion(fraxtion.toString());
         profeSeccBDMain.setPorcentajeCarga(profeSeccForm.getPorcentajeCarga());
         docenteSeccionDAO.update(profeSeccBDMain);
 
