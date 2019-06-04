@@ -168,8 +168,6 @@ var app = new Vue({
         },
         alumnos: [],
         seccionesDisponibles: [],
-        //isShowTabFusion: false,
-        //cantidadTrasladados: 0,
         editaPrecio: false,
         guardaPrecio: false,
         aulas: [],
@@ -179,6 +177,7 @@ var app = new Vue({
             id: 'idModalAgregarHorasAdicionales',
         },
         configConfirmAction: VUE_MODAL.structConfirm({}),
+        seccionWorking: {}
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -233,6 +232,7 @@ var app = new Vue({
         }
     },
     methods: {
+
         custom() {
 
         },
@@ -466,8 +466,6 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        //$vue.loadSecciones();
-//                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
                         $vue.loadGpoSeccionFlash();
                     } else {
                         notify(response.message, "error");
@@ -489,8 +487,6 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        //$vue.loadSecciones();
-//                        $vue.loadGpoSeccion($vue.grupoSeccion.id, "");
                         $vue.loadGpoSeccionFlash();
                     } else {
                         notify(response.message, "error");
@@ -502,14 +498,11 @@ var app = new Vue({
         },
         seleccionarSeccion: function (index) {
             let $vue = this;
-//            $vue.verDocentes = false;
             $vue.idxSeccion = index;
             $vue.loadDataPantalla();
-            //this.seccionSeleccionada = seccion;
         },
         cambiarDocPrincipal: function (docSeccion) {
             let $vue = this;
-            //$vue.verDocentes = false;
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/cambiarDocPrincipal'),
@@ -524,10 +517,8 @@ var app = new Vue({
                     } else {
                         notify(response.message, "error");
                     }
-                    //$vue.verDocentes = true;
                 }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
-                    //$vue.verDocentes = true;
                 }
             });
         },
@@ -549,14 +540,11 @@ var app = new Vue({
                         porcentajeAvanceFraccion: docSeccion.porcentajeCargaFraccion
                     },
                     success: function (response) {
-                        //$vue.loadGpoSeccionEfecto($vue.grupoSeccion.id, "");
                         $vue.loadGpoSeccionFlash();
                         if (response.success) {
                             notify(response.message, "info");
-
-                            //$vue.loadSecciones();
-                            // $vue.docentesSeccion = [];
                             MODAL.hideWait();
+
                         } else {
                             notify(response.message, "error");
                             MODAL.hideWait();
@@ -606,145 +594,134 @@ var app = new Vue({
                 }
             });
         },
-        bloquearSeccion: function (seccion) {
+        verBloquearSeccion(seccion) {
             let $vue = this;
-            let mm = bootbox.confirm({
-                message: "¿Está seguro que desea bloquear la seccón?",
-                buttons: {
-                    confirm: {label: 'Si', className: "btn-warning btn-modal btn-procesar"},
-                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
-                },
-                callback: function (result) {
-                    if (result) {
-                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
-                        $(".btn-modal").prop('disabled', true);
+            $vue.seccionWorking = Object.assign({}, seccion);
 
-                        $.ajax({
-                            method: 'POST',
-                            url: APP.url('academico/gposeccion/bloquearSeccion'),
-                            data: {seccion: seccion.id},
-                            success: function (response) {
-                                if (response.success) {
-                                    notify(response.message, "info");
-                                    $vue.loadGpoSeccionFlash(mm);
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
+                message: "¿Está seguro que desea bloquear la sección?",
+                okbtn: "Si, bloquear",
+                okclass: "btn-warning",
+                okaction: $vue.bloquearSeccion
+            });
+            $vue.$refs.modalConfirmAction.open();
+        },
+        bloquearSeccion() {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url(rutaModulo + '/bloquearSeccion'),
+                data: {seccion: $vue.seccionWorking.id},
+                success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $vue.loadGpoSeccionFlash();
 
-                                } else {
-                                    $(".btn-modal").prop('disabled', false);
-                                    $(".btn-procesar").html('Si');
-                                    notify(response.message, "error");
-                                }
-                            }, error: function () {
-                                $(".btn-modal").prop('disabled', false);
-                                $(".btn-procesar").html('Si');
-                                notify(MESSAGES.errorComunicacion, "error");
-                            }
-                        });
-                        return false;
+                    } else {
+                        notify(response.message, "error");
                     }
+                },
+                error: function () {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
-        activarSeccion: function (seccion) {
+        verActivarSeccion(seccion) {
             let $vue = this;
-            let mm = bootbox.confirm({
+            $vue.seccionWorking = Object.assign({}, seccion);
+
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
                 message: "¿Está seguro que desea activar la seccón?",
-                buttons: {
-                    confirm: {label: 'Si', className: "btn-warning btn-modal btn-procesar"},
-                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
-                },
-                callback: function (result) {
-                    if (result) {
-                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
-                        $(".btn-modal").prop('disabled', true);
+                okbtn: "Si, activar",
+                okaction: $vue.activarSeccion
+            });
 
-                        $.ajax({
-                            method: 'POST',
-                            url: APP.url('academico/gposeccion/activarSeccion'),
-                            data: {seccion: seccion.id},
-                            success: function (response) {
-                                if (response.success) {
-                                    notify(response.message, "info");
-                                    $vue.loadGpoSeccionFlash(mm);
+            $vue.$refs.modalConfirmAction.open();
+        },
+        activarSeccion() {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/activarSeccion'),
+                data: {seccion: $vue.seccionWorking.id},
+                success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $vue.loadGpoSeccionFlash();
 
-                                } else {
-                                    $(".btn-modal").prop('disabled', false);
-                                    $(".btn-procesar").html('Si');
-                                    notify(response.message, "error");
-                                }
-                            }, error: function () {
-                                $(".btn-modal").prop('disabled', false);
-                                $(".btn-procesar").html('Si');
-                                notify(MESSAGES.errorComunicacion, "error");
-                            }
-                        });
-
-                        return false;
+                    } else {
+                        notify(response.message, "error");
                     }
+                },
+                error: function () {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
         verAnularSeccion(seccion) {
             let $vue = this;
+            $vue.seccionWorking = Object.assign({}, seccion);
 
-            VUE_MODAL.configure($vue.configConfirmAction, {
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
                 message: "¿Está seguro que desea anular la sección?",
                 okbtn: "Si, anular",
                 okclass: "btn-warning",
-                okaction: $vue.ordenarCiclo,
+                okaction: $vue.previoAnularSeccion,
                 okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Anulando...'
             });
-            $vue.$refs.modalConfirmAction.open();
 
-            let messageAlert = "¿Está seguro que desea anular la sección?";
-            let classButton = "btn-warning btn-modal btn-procesar";
-            let classMessage = "";
+            $vue.$refs.modalConfirmAction.open();
+        },
+        previoAnularSeccion() {
+            let $vue = this;
             let minSecciones = 1;
             if ($vue.grupoSeccion.curso.tipoCursoTEOPRA) {
                 minSecciones = 2;
             }
             if ($vue.grupoSeccion.secciones.length == minSecciones) {
-                classButton = "btn-danger btn-modal btn-procesar";
-                messageAlert = "¿Al anular esta sección, se eliminara el grupo, desea continuar?";
-                classMessage = "bold danger h3 text-danger";
-            }
-            let mm = bootbox.confirm({
-                message: messageAlert,
-                className: classMessage,
-                buttons: {
-                    confirm: {label: 'Si', className: classButton},
-                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
-                },
-                callback: function (result) {
-                    if (result) {
-                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
-                        $(".btn-modal").prop('disabled', true);
+                $vue.$refs.modalConfirmAction.close();
 
-                        $.ajax({
-                            method: 'POST',
-                            url: APP.url(rutaModulo + '/anularSeccion'),
-                            data: {seccion: seccion.id},
-                            success: function (response) {
-                                if (response.success) {
-                                    if (response.message == 'redirect') {
-                                        //location.href = APP.url('academico/gposeccion/deleteGrupoSeccion?curso=' + response.data);
-                                        location.href = $vue.navega.origen;
-                                    } else {
-                                        notify(response.message, "info");
-                                        $vue.loadGpoSeccionFlash(mm);
-                                    }
-                                } else {
-                                    $(".btn-modal").prop('disabled', false);
-                                    $(".btn-procesar").html('Si');
-                                    notify(response.message, "error");
-                                }
-                            }, error: function () {
-                                $(".btn-modal").prop('disabled', false);
-                                $(".btn-procesar").html('Si');
-                                notify(MESSAGES.errorComunicacion, "error");
-                            }
-                        });
-                        return false;
+                setTimeout(function () {
+                    VUE_MODAL.configure($vue.configConfirmAction, {
+                        message: "Al anular esta sección, se eliminará el grupo. ¿Desea continuar?",
+                        okbtn: "Si, continuar",
+                        okclass: "btn-warning",
+                        okaction: $vue.anularSeccion,
+                        okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Anulando...'
+                    });
+                    $vue.$refs.modalConfirmAction.open();
+                }, 400);
+
+            } else {
+                $vue.anularSeccion();
+            }
+
+        },
+        anularSeccion() {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url(rutaModulo + '/anularSeccion'),
+                data: {seccion: $vue.seccionWorking.id},
+                success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                    if (response.success) {
+                        if (response.message == 'redirect') {
+                            location.href = $vue.navega.origen;
+                        } else {
+                            notify(response.message, "info");
+                            $vue.loadGpoSeccionFlash();
+                        }
+                    } else {
+                        notify(response.message, "error");
                     }
+                }, error: function () {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
@@ -793,8 +770,6 @@ var app = new Vue({
             return "label-" + this.colorEstadoAmpliacion[estadoCode];
         },
         loadSecciones: function () {
-//            let $vue = this;
-//            $vue.secciones = $vue.grupoSeccion.secciones;
         },
         showModalGrupos(seccion) {
             var tabs = $("#tab-grupos");
@@ -802,7 +777,6 @@ var app = new Vue({
             tabs.find(".tab-pane").removeClass("active");
 
             let $vue = this;
-            // $global.$emit('loadGrupoComponent', seccion.id);
             $vue.$refs.grupoHorarioComponentRef.loadGruposHorario(seccion.id);
             if (seccion.matriculados > 0) {
                 $vue.grupoModal.showaccept = false;
@@ -819,7 +793,7 @@ var app = new Vue({
             if (response.success) {
                 notify(response.message, "info");
                 $vue.loadGpoSeccionFlash();
-                //$vue.loadSecciones();
+
             } else {
                 notify(response.message, "error");
             }
@@ -828,7 +802,6 @@ var app = new Vue({
             $vue.$refs.modalRestriccion.close();
             if (response.success) {
                 notify(response.message, "info");
-                //$vue.loadSecciones();
                 $vue.loadGpoSeccionFlash();
             } else {
                 notify(response.message, "error");
@@ -839,7 +812,6 @@ var app = new Vue({
             if (response.success) {
                 notify(response.message, "info");
                 $vue.loadGpoSeccionFlash();
-                //$vue.loadSecciones();
             } else {
                 notify(response.message, "error");
             }
@@ -923,9 +895,7 @@ var app = new Vue({
                         $vue.loadGpoSeccionFlash();
                         if (response.success) {
                             notify(response.message, "info");
-                            //$vue.loadSecciones();
                         } else {
-                            //$vue.loadSecciones();
                             notify(response.message, "error");
                         }
                     },
@@ -973,7 +943,6 @@ var app = new Vue({
             if (response.success) {
                 notify(response.message, "info");
                 $vue.loadGpoSeccionFlash();
-                //$vue.loadSecciones();
             } else {
                 notify(response.message, "error");
             }
@@ -1009,7 +978,6 @@ var app = new Vue({
         },
         showModalTipoRepitencia(seccion) {
             let $vue = this;
-            // $global.$emit('loadRepitenciaComponent', seccion.id);
             this.$refs.repitenciaComp.loadComponent(seccion.id);
             if (seccion.matriculados > 0) {
                 $vue.tipoRepitenciaModal.showaccept = false;
@@ -1039,7 +1007,6 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         MODAL.hideWait();
-                        //$vue.loadSecciones();
                         $vue.loadGpoSeccionFlash();
                         notify(response.message, "info");
                     } else {
@@ -1059,7 +1026,6 @@ var app = new Vue({
 
             let $vue = this;
             let docSeccionSend = {};
-            console.dir(docSeccion);
             docSeccionSend.id = docSeccion.id;
             docSeccionSend.fechaFin = docSeccion.fechaFin;
             MODAL.showWait("Espere un momento por favor");
@@ -1075,7 +1041,6 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         MODAL.hideWait();
-                        //$vue.loadSecciones();
                         $vue.loadGpoSeccionFlash();
                         notify(response.message, "info");
                     } else {
@@ -1110,7 +1075,6 @@ var app = new Vue({
                     if (response.success) {
                         notify(response.message, "info");
                         $vue.loadGpoSeccionFlash();
-                        //$vue.loadSecciones();
                     } else {
                         target.parsley().addError('forcederror', {message: response.message, updateClass: true});
                     }
@@ -1139,7 +1103,6 @@ var app = new Vue({
                     if (response.success) {
                         notify(response.message, "info");
                         $vue.loadGpoSeccionFlash();
-                        //$vue.loadSecciones();
                     } else {
                         target.parsley().addError('forcederror', {message: response.message, updateClass: true});
                     }
@@ -1439,8 +1402,6 @@ var app = new Vue({
                     data: JSON.stringify($vue.fusion),
                     success: function (response) {
                         if (response.success) {
-
-//                            $vue.allAlumnoBySeccion();
                             $vue.loadGpoSeccionFlash();
                             notify(response.message, "info");
                             swal({text: response.message, icon: "success", button: false, timer: 1000});
@@ -1642,10 +1603,6 @@ var app = new Vue({
 
             $vue.changeAulaGpo.aulaFin = $vue.seccionSeleccionada.aula;
             $vue.changeAulaGpo.grupoHorasFin = $vue.seccionSeleccionada.grupoHoras;
-
-            //   $vue.$refs.grupoRegularComponent.aula=$vue.seccionSeleccionada.aula;
-            //   $vue.$refs.grupoRegularComponent.grupohoras=$vue.seccionSeleccionada.grupoHoras;;
-            //   $global.$emit("loadGrupoRegularAulaComponent", $vue.seccionSeleccionada.id);
             $vue.$refs.grupoRegularComponent.seccion = $vue.seccionSeleccionada;
             $vue.$refs.grupoRegularComponent.loadGrupoRegularAulaComponent();
             $vue.$refs.modalEnviarCambioAulaGrupo.open();
@@ -2041,18 +1998,20 @@ var app = new Vue({
                 }
             });
 
-        }, getStyleDivGpoHoras(sec) {
-            console.dir(sec);
+        },
+        getStyleDivGpoHoras(sec) {
             if (this.mostrarCuotasExedidas(sec)) {
                 return 'border:1px solid; border-color: red;padding: 3px;border-radius: 5px;';
             }
             return "";
-        }, mostrarCuotasExedidas(sec) {
+        },
+        mostrarCuotasExedidas(sec) {
             if ((sec.grupoHoras.cuotasGrupoHoras.totalUtilizadas != null && sec.grupoHoras.cuotasGrupoHoras.totalUtilizadas != '') && sec.grupoHoras.cuotasGrupoHoras.totalUtilizadas > sec.grupoHoras.cuotasGrupoHoras.cuotas) {
                 return true;
             }
             return false;
         }
+        //*/
     }
 });
 

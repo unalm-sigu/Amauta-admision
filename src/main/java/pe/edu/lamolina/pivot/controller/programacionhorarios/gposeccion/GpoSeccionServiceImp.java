@@ -260,15 +260,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSecc);
         List<CuotasGrupoHoras> allCountCuotasGrupoHorases = cuotaGpoHorasDAO.allCuotasByAnexo(gpoSecc.getAnexoBoletin(), gpoSecc.getCicloAcademico());
 
-        secciones.forEach(x -> {
-            CuotasGrupoHoras cuotasGrupoHoras = allCountCuotasGrupoHorases.stream()
-                    .filter(y -> y.getGrupoHoras() != null)
-                    .filter(y -> y.getGrupoHoras().getCodigo().equals(x.getGrupoHoras().getLetra()))
-                    .findFirst().orElse(null);
-            if (cuotasGrupoHoras != null) {
-                x.getGrupoHoras().setCuotasGrupoHoras(cuotasGrupoHoras);
-            }
-        });
+        secciones.stream()
+                .filter(z -> z.getGrupoHoras() != null)
+                .forEach(x -> {
+                    CuotasGrupoHoras cuotasGrupoHoras = allCountCuotasGrupoHorases.stream()
+                            .filter(y -> y.getGrupoHoras().getCodigo().equals(x.getGrupoHoras().getLetra()))
+                            .findFirst().orElse(null);
+                    if (cuotasGrupoHoras != null) {
+                        x.getGrupoHoras().setCuotasGrupoHoras(cuotasGrupoHoras);
+                    }
+                });
         gpoSecc.setSecciones(secciones);
 
         CicloAcademico ciclo = gpoSecc.getCicloAcademico();
