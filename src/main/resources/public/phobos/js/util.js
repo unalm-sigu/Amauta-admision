@@ -626,12 +626,15 @@ VUE = {
     },
 }
 
+var htmlProcessing = '<i class="fa fa-spinner fa-pulse fa-fw"></i> Procesando...';
 VUE_MODAL = {
     dataFormAjax: {
         btnclose: false,
         showaccept: true,
         dataBackdrop: "static",
-        dataKeyboard: "false"
+        dataKeyboard: "false",
+        okbtnprocessing: htmlProcessing,
+        disabledok: false
     },
     dataProgress: {
         btnclose: false,
@@ -661,6 +664,7 @@ VUE_MODAL = {
         dataBackdrop: "static",
         dataKeyboard: "false",
         message: "¿Está seguro que desea ejecutar esta operación?",
+        okbtnprocessing: htmlProcessing,
         okaction: function () {}
     },
     dataError: {
@@ -717,7 +721,13 @@ VUE_MODAL = {
     structInfo(params) {
         return VUE_MODAL.structByType("INFO", params);
     },
-
+    configure(struct, params) {
+        var keys = Object.keys(params);
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            struct[key] = params[key];
+        }
+    }
 }
 
 MESSAGES = {

@@ -470,12 +470,11 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
 
         StringBuilder sql = new StringBuilder();
         sql.append(" DELETE ").append(Seccion.class.getName()).append(" sec ")
-                .append(" WHERE EXISTS ")
-                .append(" ( ")
-                .append(" SELECT 1 FROM ").append(GrupoSeccion.class.getName()).append(" gs ")
-                .append("   JOIN gs.cicloAcademico ci ")
-                .append("  WHERE ci.id=:CICLO ")
-                .append("    AND sec.grupoSeccion.id=gs.id ")
+                .append(" WHERE EXISTS ( ")
+                .append("   SELECT 1 FROM ").append(GrupoSeccion.class.getName()).append(" gs ")
+                .append("     JOIN gs.cicloAcademico ci ")
+                .append("    WHERE ci.id=:CICLO ")
+                .append("      AND sec.grupoSeccion.id=gs.id ")
                 .append(" ) ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
@@ -489,12 +488,11 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         StringBuilder sql = new StringBuilder();
         sql.append(" DELETE ").append(Seccion.class.getName()).append(" sec ")
                 .append(" WHERE sec.seccionSuperior.id is not null ")
-                .append("   AND EXISTS ")
-                .append(" ( ")
-                .append(" SELECT 1 FROM ").append(GrupoSeccion.class.getName()).append(" gs ")
-                .append(" JOIN gs.cicloAcademico ci ")
-                .append(" WHERE ci.id=:CICLO ")
-                .append(" AND sec.grupoSeccion.id=gs.id ")
+                .append("   AND EXISTS ( ")
+                .append("     SELECT 1 FROM ").append(GrupoSeccion.class.getName()).append(" gs ")
+                .append("       JOIN gs.cicloAcademico ci ")
+                .append("      WHERE ci.id = :CICLO ")
+                .append("        AND sec.grupoSeccion.id=gs.id ")
                 .append(" ) ");
 
         Query query = getCurrentSession().createQuery(sql.toString());

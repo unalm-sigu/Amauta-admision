@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +17,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 
 @Repository
 public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> implements MatriculaSeccionDAO {
@@ -401,5 +401,23 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .notIn("ms.estado", Arrays.asList(estadoMatriculaEnum))
                 .filter("sec.tipoSeccion", tipoSeccionEnum);
         return find(sqlUtil);
+    }
+
+    @Override
+    public void deleteAllByCiclo(CicloAcademico ciclo) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" DELETE ").append(MatriculaSeccion.class.getName()).append(" ms ")
+                .append(" WHERE EXISTS ( ")
+                .append("   SELECT 1 FROM ").append(Seccion.class.getName()).append(" sec ")
+                .append("     JOIN sec.grupoSeccion gs ")
+                .append("     JOIN gs.cicloAcademico ci ")
+                .append("    WHERE ci.id = :CICLO ")
+                .append("      AND ms.seccion.id = sec.id ")
+                .append(" ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
+        query.executeUpdate();
+
     }
 }

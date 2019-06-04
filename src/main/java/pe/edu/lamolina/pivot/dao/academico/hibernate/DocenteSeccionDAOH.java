@@ -484,13 +484,12 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
 
         StringBuilder sql = new StringBuilder();
         sql.append(" DELETE ").append(DocenteSeccion.class.getName()).append(" dos ")
-                .append(" WHERE EXISTS ")
-                .append(" ( ")
-                .append(" SELECT 1 FROM ").append(Seccion.class.getName()).append(" sec ")
-                .append(" JOIN sec.grupoSeccion gs ")
-                .append(" JOIN gs.cicloAcademico ci ")
-                .append(" WHERE ci.id=:CICLO ")
-                .append("   AND dos.seccion.id=sec.id ")
+                .append(" WHERE EXISTS  ( ")
+                .append("    SELECT 1 FROM ").append(Seccion.class.getName()).append(" sec ")
+                .append("      JOIN sec.grupoSeccion gs ")
+                .append("      JOIN gs.cicloAcademico ci ")
+                .append("     WHERE ci.id = :CICLO ")
+                .append("       AND dos.seccion.id = sec.id ")
                 .append(" ) ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
