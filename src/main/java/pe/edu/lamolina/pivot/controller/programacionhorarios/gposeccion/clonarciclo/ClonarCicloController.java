@@ -7,11 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
@@ -29,17 +31,18 @@ public class ClonarCicloController {
 
     @ResponseBody
     @RequestMapping("clonarciclo")
-    public JsonResponse clonarCiclo(CicloAcademico cicloOrigenForm, HttpSession session) {
+    public JsonResponse clonarCiclo(@RequestBody CicloClonacionBean cicloClonacionBean, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            CicloAcademico cicloDestino = ds.getCicloAcademico();
+            cicloClonacionBean.setCicloDestino(ds.getCicloAcademico());
 
-            service.clonarCiclo(cicloOrigenForm, cicloDestino, ds);
+            ObjectUtil.printAttr(cicloClonacionBean);
 
+            service.clonarCiclo(cicloClonacionBean, ds);
             response.setMessage("Se clonó satisfactoriamente la programación de horarios a este ciclo");
             response.setSuccess(true);
 

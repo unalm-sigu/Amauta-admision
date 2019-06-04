@@ -6,7 +6,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ClonarCicloService {
 
-    void clonarCiclo(CicloAcademico cicloOrigen, CicloAcademico cicloDestino, DataSessionPivot ds);
+    void clonarCiclo(CicloClonacionBean cicloClonacionBean, DataSessionPivot ds);
 
     //Long contarGpoSecc(CicloAcademico ciclo);
 
