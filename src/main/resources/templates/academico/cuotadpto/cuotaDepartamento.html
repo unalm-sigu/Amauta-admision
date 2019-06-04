@@ -1,6 +1,44 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Cuotas por Departamento Académico</title>
+        <style>
+            .circle-recorrido {
+                display: block;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                overflow: hidden;
+                margin: 0 auto;
+                line-height: 50px;  
+                /*                text-align: center;*/
+                font-size: 16px;
+                /*                margin-left: 49px;*/
+                text-indent: 0;
+                vertical-align: middle;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
+
+            .circle-recorrido.bgr-success {
+                background-color: #2ECC71;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-danger {
+                background-color: #E74C3C;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-black {
+                background-color: #3C4043;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-default {
+                background-color: #979595;
+                color: #fff;
+            }
+        </style>
     </head>
 
     <body>
@@ -51,10 +89,11 @@
                                                 <td class="v-middle text-center"> 
                                                     {{item.cuotas}}
                                                 </td>
-                                                <td class="v-middle text-center"> 
-                                                    {{item.horasUtilizadas}}
+                                                <td class="v-middle text-center">
+                                                    <div v-if="item.horasUtilizadas > item.cuotas" class="circle-recorrido bgr-danger text-center" v-text="item.horasUtilizadas"></div>
+                                                    <div v-else="" class="circle-recorrido bgr-black text-center" v-text="item.horasUtilizadas"></div>
                                                 </td>
-                                                <td class="v-middle"> 
+                                                <td class="v-middle">
                                                     {{item.detalleGrupos}}
                                                 </td>   
                                             </tr>
@@ -66,7 +105,6 @@
                         </section>
                     </section>
                 </section>
-
             </div>
 
         </div>

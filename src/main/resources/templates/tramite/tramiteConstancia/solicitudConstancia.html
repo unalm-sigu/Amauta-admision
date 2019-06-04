@@ -98,14 +98,12 @@
 
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
-
         </div>
         <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_layout/includes :: javascript-dynatable"/>
             <div th:substituteby="_layout/includes :: javascript-filedownload"/>
             <div th:substituteby="_layout/includes :: javascript-upload"/>
-            <div th:substituteby="_layout/includes :: vuemodal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoUploadFoto.js}" charset="utf-8"></script>
             <script th:src="@{/app/tramite/tramiteConstancia/solicitudConstancia.js}" charset="utf-8"></script>

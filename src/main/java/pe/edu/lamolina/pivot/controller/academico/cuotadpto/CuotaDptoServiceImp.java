@@ -41,29 +41,33 @@ public class CuotaDptoServiceImp implements CuotaDptoService {
 
         List<CuotasGrupoHoras> cuotas = cuotaGpoHorasDAO.allByDynatableGpoHoras(filter, grupoHoras, cicloAcademico);
 
-        List<AnexoCuotaUtilizadaBean> anexoCuotaUtilizadaBean = cuotaGpoHorasDAO.allByGpoHorasCiclo(grupoHoras, cicloAcademico);
+        List<AnexoCuotaUtilizadaBean> anexoCuotaUtilizadaBean = cuotaGpoHorasDAO.allByGpoHorasCicloBeanUtilizado(grupoHoras, cicloAcademico);
+        List<AnexoCuotaUtilizadaBean> anexoCuotaGrupoBean = cuotaGpoHorasDAO.allByGpoHorasCicloBeanGpo(grupoHoras, cicloAcademico);
 
         Map<String, AnexoCuotaUtilizadaBean> mapAnexoUtilizada = TypesUtil.convertListToMap("idAnexo", anexoCuotaUtilizadaBean);
+        Map<String, List<AnexoCuotaUtilizadaBean>> mapAnexoGrupos = TypesUtil.convertListToMapList("idAnexo", anexoCuotaGrupoBean);
 
         for (CuotasGrupoHoras cuota : cuotas) {
 
-            AnexoCuotaUtilizadaBean letraUtilizadoFound = mapAnexoUtilizada.get(cuota.getAnexoBoletin().getId());
-//            LetraCuotaUtilizadaBean letraHorasUtilizadoFound = mapLetraHorasUtilizadas.get(cuota.getGrupoHoras().getLetra());
-//            List<LetraCuotaUtilizadaBean> cantidadGrupoFound = TypesUtil.getListNotNull(mapCantidadGrupos.get(cuota.getGrupoHoras().getLetra()));
+            AnexoCuotaUtilizadaBean anexoUtilizadaFound = mapAnexoUtilizada.get(cuota.getAnexoBoletin().getId());
+            List<AnexoCuotaUtilizadaBean> cantidadGruposFound = TypesUtil.getListNotNull(mapAnexoGrupos.get(cuota.getAnexoBoletin().getId()));
 
-            cuota.setHorasUtilizadas(letraUtilizadoFound != null ? letraUtilizadoFound.getCantidad() : 0L);
-//            cuota.setGruposUtilizados(letraHorasUtilizadoFound != null ? letraHorasUtilizadoFound.getCantidad() : 0L);
+            cuota.setHorasUtilizadas(anexoUtilizadaFound != null ? anexoUtilizadaFound.getCantidad() : 0L);
 
-//            String strCantGpos = "";
-//            for (LetraCuotaUtilizadaBean letra : cantidadGrupoFound) {
-//                strCantGpos += strCantGpos.equals("") ? "" : ", ";
-//                strCantGpos += letra.getGrupo() + "(" + letra.getCantidad() + ")";
-//            }
-//            cuota.setDetalleGrupos(strCantGpos);
+            String strCantGpos = "";
+            for (AnexoCuotaUtilizadaBean anexo : cantidadGruposFound) {
+                strCantGpos += strCantGpos.equals("") ? "" : ", ";
+                strCantGpos += anexo.getGrupo() + "(" + anexo.getCantidad() + ")";
+            }
+            cuota.setDetalleGrupos(strCantGpos);
         }
 
         return cuotas;
+    }
 
+    @Override
+    public GrupoHoras findGrupo(GrupoHoras grupoHoras) {
+        return grupoHorasDAO.find(grupoHoras.getId());
     }
 
 }

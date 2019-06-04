@@ -42,7 +42,7 @@
                                                     <div class="h5 text-primary m-t-xs m-b-xs">{{item.nombre}}</div>
                                                     <p class="text-sm"><strong>Código:</strong> {{item.codigo}}</p>
                                                     <p class="text-sm"><strong>Tipo:</strong> {{item.tipoOficina.codigoEnum.value}}</p>
-                                                    
+
                                                     <small v-if="item.oficinaSuperior.id != '' ">
                                                         <br/>
                                                         <span class="block bold">Dependencia:</span>
@@ -147,10 +147,6 @@
                 <div th:substituteby="general/oficina/oficinaModals"/>
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
-
-
-
         </div>
 
         <div layout:fragment="js">
@@ -159,8 +155,8 @@
                 var rutaModulo = 'general/oficina';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
             <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <script th:src="@{/app/general/oficina/oficina.js}" charset="utf-8"></script>

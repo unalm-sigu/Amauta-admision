@@ -197,8 +197,6 @@
 
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
-
         </div>
         <div layout:fragment="js">
 
@@ -208,10 +206,8 @@
                 var sessiondocente = /*[[${docente.id}]]*/ '';
                 /*]]>*/
             </script>
-
-
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <div th:substituteby="_layout/includes :: vuemodal"/>
             <div th:substituteby="_layout/includes :: vue-loader"/>
             <script th:src="@{/app/docente/ampliacionvacante/ampliacionvacante.js}" charset="utf-8"></script>
         </div>
