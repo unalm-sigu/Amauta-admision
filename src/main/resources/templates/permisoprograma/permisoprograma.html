@@ -21,7 +21,7 @@
                     <h2>Permisos para programación de horarios -</h2>
                 </header>
                 <div class="tab-content">
-                    
+
                     <div role="tabpanel" class="tab-pane active" id="lista">
                         <section class="panel">
                             <section class="panel-body">
@@ -178,7 +178,6 @@
                 <th:block  th:replace="permisoprograma/addPermisoModal"/>
                 <th:block  th:replace="permisoprograma/modifiSeccModal"/>
             </div>
-            <div th:substituteby="_modules/vue-modal"/>
         </div>
         <div layout:fragment="js">
             <script th:inline="javascript">
@@ -192,7 +191,7 @@
                 var eventos = /*[[${eventos.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/permisoprograma/permisoprograma.js}" charset="utf-8"></script>
         </div>

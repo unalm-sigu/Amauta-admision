@@ -59,7 +59,7 @@
             <div th:substituteby="_layout/includes :: vue-loader"/>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-btn-download.js}"></script>
             <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <div th:substituteby="_modules/vue-modal"/>
             <script th:src="@{/app/gposeccion/reporte/reporte.js}" charset="utf-8"></script>
         </div>
 

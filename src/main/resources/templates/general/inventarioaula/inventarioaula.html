@@ -628,8 +628,6 @@
 
             </div>
 
-            <div th:substituteby="_modules/vue-modal"/>
-
         </div>
 
         <div layout:fragment="js">
@@ -638,13 +636,13 @@
                 var idaula = /*[[${aula.id}]]*/ '';
                 /*]]>*/
             </script>
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_layout/includes :: vue-loader"/>
             <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
             <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
             <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
-            <script th:src="@{/phobos/modules/vue-modal.js}" charset="utf-8" type="text/javascript" ></script>
             <script th:src="@{/app/general/inventarioaula/inventarioaula.js}" charset="utf-8"></script>
         </div>
 

@@ -47,7 +47,7 @@
                                                     </div>
                                                 </td>
                                                 <td class="v-middle text-left">
-                                                   
+
                                                     <span class="block bold "> <a>{{item.tramite.alumno.persona.nombreCompleto}}</a> </span> 
                                                     <span class="block bold " v-if="item.tramite.alumno.carrera.nombre!=item.tramite.alumno.carrera.facultad.nombre"> {{item.tramite.alumno.carrera.nombre}} - {{item.tramite.alumno.carrera.facultad.nombre}} </span> 
                                                     <span class="block bold " v-if="item.tramite.alumno.persona.numeroDocIdentidad!=null"> {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}} </span> 
@@ -88,7 +88,6 @@
                 <th:block  th:replace="tramite/bolsatrabajo/verTramiteModal"/>
             </div>
         </div>
-        <div th:substituteby="_modules/vue-modal"/>
     </section>
 
     <div layout:fragment="js">
@@ -97,8 +96,8 @@
             var cicloacademicoJson = /*[[${cicloacademico.toString()}]]*/ 'json';
             /*]]>*/
         </script>
+        <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_modules/vue-raptor-table"></div>
-        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script th:src="@{/app/tramite/bolsaTrabajo/bolsaTrabajo.js}" charset="utf-8"></script>
     </div>
 

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -475,7 +474,7 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
                 seccion.setDocenteSeccion(profesSeccion);
             }
         }
-        
+
         Collections.sort(gruposSecciones, new GrupoSeccion.CompareNombreCurso());
 
         return gruposSecciones;

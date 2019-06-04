@@ -346,7 +346,7 @@
             var tiposResolucionJson = /*[[${tiposResolucion.toString()}]]*/ 'json';
         </script>
         <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
-        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <div th:substituteby="_modules/vue-modal"/>
 
         <div th:substituteby="_modules/vue-raptor-table"/>
 

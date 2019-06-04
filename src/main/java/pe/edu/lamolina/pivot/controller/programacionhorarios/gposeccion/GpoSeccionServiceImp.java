@@ -47,6 +47,7 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CambioAulaGrupo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -123,6 +124,7 @@ import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.AmpliacionVacantesDAO;
 import pe.edu.lamolina.pivot.dao.academico.CambioAulaGrupoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CuotaGpoHorasDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
 import pe.edu.lamolina.pivot.dao.finanza.PagoHoraDocenteDAO;
@@ -234,6 +236,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Autowired
     PagoHoraDocenteDAO pagoHoraDocenteDAO;
 
+    @Autowired
+    CuotaGpoHorasDAO cuotaGpoHorasDAO;
+
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
         return cicloAcademicoDAO.find(cicloAcademico);
@@ -253,6 +258,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public GrupoSeccion findGpoSeccion(Long id) {
         GrupoSeccion gpoSecc = grupoSeccionDAO.find(id);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSecc);
+        List<CuotasGrupoHoras> allCountCuotasGrupoHorases = cuotaGpoHorasDAO.allCuotasByAnexo(gpoSecc.getAnexoBoletin(), gpoSecc.getCicloAcademico());
+
+        secciones.forEach(x -> {
+            CuotasGrupoHoras cuotasGrupoHoras = allCountCuotasGrupoHorases.stream()
+                    .filter(y -> y.getGrupoHoras() != null)
+                    .filter(y -> y.getGrupoHoras().getCodigo().equals(x.getGrupoHoras().getLetra()))
+                    .findFirst().orElse(null);
+            if (cuotasGrupoHoras != null) {
+                x.getGrupoHoras().setCuotasGrupoHoras(cuotasGrupoHoras);
+            }
+        });
         gpoSecc.setSecciones(secciones);
 
         CicloAcademico ciclo = gpoSecc.getCicloAcademico();
@@ -461,6 +477,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         grupoSeccion.setVersion(BigDecimal.ONE.toString());
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
         grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
+        grupoSeccion.setTipoDictadoEnum(TipoDictadoGrupoSeccionEnum.SEM);
 
         Integer horasTeoria = grupoSeccion.getHorasTeoria();
         Integer horasPractica = grupoSeccion.getHorasPractica();
@@ -1400,54 +1417,34 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     }
 
-    private boolean isInteger(String obj) {
-        try {
-            Integer.parseInt(obj);
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
-
-    public void validateFraccion(String fraccion) {
-        String noFraccion = String.format("%s no es una fraccón, verifique.", fraccion);
-        Assert.isNotBlank(fraccion, "La fracción es requerida, verifique.");
-        Assert.isTrue(fraccion.contains("/"), noFraccion);
-        String[] argFraccion = fraccion.split("/");
-        Assert.isTrue(argFraccion.length == 2, noFraccion);
-        Assert.isTrue(this.isInteger(argFraccion[0]) && this.isInteger(argFraccion[1]), noFraccion);
-    }
-
     @Override
     @Transactional
     public void updatePorcentajeAvance(DocenteSeccion profeSeccForm, CicloAcademico cicloAcademico) {
-        this.validateFraccion(profeSeccForm.getPorcentajeCargaFraccion());
         DocenteSeccion profeSeccBDMain = docenteSeccionDAO.find(profeSeccForm.getId());
         List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccBDMain.getSeccion());
 
-        BigDecimal total = BigDecimal.ZERO;
-        if (!profesSecc.isEmpty()) {
-            double dTotal = profesSecc.stream()
-                    .filter(x -> x.getId().longValue() != profeSeccForm.getId().longValue())
-                    .filter(x -> x.getPorcentajeCarga() != null)
-                    .filter(x -> x.getEstadoEnum() == EstadoEnum.ACT)
-                    .mapToDouble(x -> x.getPorcentajeCarga().doubleValue())
-                    .sum();
-            total = new BigDecimal(dTotal);
+        Fraxtion total = new Fraxtion(BigDecimal.ZERO);
+        for (DocenteSeccion profeSecc : profesSecc) {
+            if (profeSecc.getId() == profeSeccForm.getId().longValue()) {
+                continue;
+            }
+            if (profeSecc.getEstadoEnum() != EstadoEnum.ACT) {
+                continue;
+            }
+            if (profeSecc.getPorcentajeCargaFraccion() == null) {
+                continue;
+            }
+            total = total.add(new Fraxtion(profeSecc.getPorcentajeCargaFraccion()));
         }
-        //  String[] operandosFraccion = profeSeccForm.getPorcentajeCargaFraccion().split("/");
-//        BigDecimal dividendo = new BigDecimal(operandosFraccion[0]);
-//        BigDecimal divisor = new BigDecimal(operandosFraccion[1]);
-        Fraxtion fraxtion = new Fraxtion(profeSeccForm.getPorcentajeCargaFraccion());
-        profeSeccForm.setPorcentajeCarga(fraxtion.getValue(2));
-        total = total.add(profeSeccForm.getPorcentajeCarga());
-        BigDecimal cien = new BigDecimal(100L);
+        Fraxtion porcentaje = new Fraxtion(profeSeccForm.getPorcentajeCargaFraccion());
+        total = total.add(porcentaje);
+        Fraxtion cien = new Fraxtion(100L);
 
         if (total.compareTo(cien) > 0) {
-            throw new PhobosException("El porcentaje de carga no puede exceder el 100%");
+            throw new PhobosException("El porcentaje de carga no puede exceder el 100%. Usted ingresó " + porcentaje.getValue(2) + "%");
         }
-        profeSeccBDMain.setPorcentajeCargaFraccion(profeSeccForm.getPorcentajeCargaFraccion());
-        profeSeccBDMain.setPorcentajeCarga(profeSeccForm.getPorcentajeCarga());
+        profeSeccBDMain.setPorcentajeCargaFraccion(porcentaje.toString());
+        profeSeccBDMain.setPorcentajeCarga(porcentaje.getValue(2));
         docenteSeccionDAO.update(profeSeccBDMain);
 
         evaluateSeccion(profeSeccBDMain.getSeccion());
@@ -1850,10 +1847,23 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         seccionDAO.updateSeccionGrupoHora(seccion);
         this.actualizarBoletin();
+        this.actualizarCuotaAnexo(seccion, cicloAcademico);
     }
 
-    public void actualizarCuotaAnexo(GrupoHoras grupoHoras) {
+    public void actualizarCuotaAnexo(Seccion seccion, CicloAcademico cicloAcademico) {
+        GrupoHoras gpoHorasSeccion = seccion.getGrupoHoras();
+        //   GrupoHoras gpoHoraLetra = grupoHorasDAO.findByCode(gpoHorasSeccion.getCodigo());
+        GrupoSeccion gpoSeccion = seccion.getGrupoSeccion();
+        AnexoBoletin anexoBoletin = gpoSeccion.getAnexoBoletin();
 
+        CuotasGrupoHoras cuotasGrupoHoras = cuotaGpoHorasDAO.findByAnexoAndCicloAndGpoHoras(anexoBoletin, cicloAcademico, gpoHorasSeccion.getLetra());
+        if (cuotasGrupoHoras != null) {
+            Integer countForCuotasGrupoHoras = cuotaGpoHorasDAO.countByAnexoAndCicloAndLetraHoras(anexoBoletin, cicloAcademico, gpoHorasSeccion.getLetra());
+            CuotasGrupoHoras cuotasGrupoHorasUpd = new CuotasGrupoHoras();
+            cuotasGrupoHorasUpd.setId(cuotasGrupoHoras.getId());
+            cuotasGrupoHorasUpd.setAsignadasSistema(countForCuotasGrupoHoras);
+            cuotaGpoHorasDAO.updateColumns(cuotasGrupoHorasUpd, "asignadasSistema");
+        }
     }
 
     @Override

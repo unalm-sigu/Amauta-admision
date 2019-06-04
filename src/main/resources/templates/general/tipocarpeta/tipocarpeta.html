@@ -53,14 +53,13 @@
                 <div th:substituteby="general/tipocarpeta/tipocarpetaModal"></div>
 
             </div>
-            <div th:substituteby="_modules/vue-modal"/>
 
         </div>
 
         <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/general/tipocarpeta/tipocarpeta.js}" charset="utf-8"></script>
         </div>
 

@@ -21,7 +21,7 @@
 
                     <div class="pull-right m-t-md">                 
                         <div class="btn-group">
-                        
+
                         </div>
                     </div> 
                     <h2 th:text="|Cuotas Alumnos ${ciclo.descripcion}|">Grupo Sección</h2>
@@ -40,7 +40,7 @@
                     -->
                     <section class="panel">
                         <section class="panel-body">
-                          
+
                             <raptor-table v-bind:url="ALUMNOS_URL" >
                                 <div slot="header"></div>
                                 <template scope="props" >
@@ -133,13 +133,12 @@
 
                 <!--<script id="gpoSeccionTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/gposeccion/gpoSeccionTemplate"/></script>-->
             </div>
-            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="templates/modal"/>
         </div>
 
         <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/posgrado/cuotasalumno/generacionCuotas.js}" charset="utf-8"></script>
         </div>
 

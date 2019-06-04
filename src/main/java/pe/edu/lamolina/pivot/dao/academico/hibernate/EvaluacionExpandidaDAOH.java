@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
@@ -124,4 +125,22 @@ public class EvaluacionExpandidaDAOH extends AbstractEasyDAO<EvaluacionExpandida
 
         return all(sql);
     }
+
+    @Override
+    public void deleteAllByCiclo(CicloAcademico ciclo) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" DELETE ").append(EvaluacionExpandida.class.getName()).append(" evx ")
+                .append(" WHERE EXISTS ( ")
+                .append("   SELECT 1 FROM ").append(EvaluacionSeccion.class.getName()).append(" evs ")
+                .append("     JOIN evs.grupoSeccion gs ")
+                .append("     JOIN gs.cicloAcademico ci ")
+                .append("    WHERE ci.id = :CICLO ")
+                .append("      AND evx.evaluacionSeccion.id = evs.id ")
+                .append(" ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
+        query.executeUpdate();
+    }
+
 }

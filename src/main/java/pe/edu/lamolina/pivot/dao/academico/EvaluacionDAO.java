@@ -38,4 +38,6 @@ public interface EvaluacionDAO extends EasyDAO<Evaluacion> {
     List<Evaluacion> allByCiclo(CicloAcademico ciclo);
 
     List<Evaluacion> allByGrupoSeccionAlumno(GrupoSeccion grupoSeccion, Alumno alumno);
+
+    void deleteAllByCiclo(CicloAcademico ciclo);
 }

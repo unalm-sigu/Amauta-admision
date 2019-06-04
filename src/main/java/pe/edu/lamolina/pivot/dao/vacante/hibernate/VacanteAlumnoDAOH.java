@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import static pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum.DISP;
@@ -72,17 +71,20 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
     }
 
     @Override
-    public void deleteAllByCiclo(CicloAcademico cicloAcademico) {
+    public void deleteAllByCiclo(CicloAcademico ciclo) {
 
         StringBuilder sql = new StringBuilder();
-        sql.append("  delete from ").append(VacanteAlumno.class.getName()).append(" va ");
-        sql.append("  where va.alumno.id in ( ");
-        sql.append("    select ah.alumno.id  from ").append(AlumnoHorario.class.getName()).append(" ah ");
-        sql.append("    where ah.cicloAcademico.id = :CICLO ");
-        sql.append("  ) ");
+        sql.append(" DELETE ").append(VacanteAlumno.class.getName()).append(" va ")
+                .append(" WHERE EXISTS ( ")
+                .append("   SELECT 1 FROM ").append(Seccion.class.getName()).append(" sec ")
+                .append("     JOIN sec.grupoSeccion gs ")
+                .append("     JOIN gs.cicloAcademico ci ")
+                .append("    WHERE ci.id=:CICLO ")
+                .append("      AND va.seccion.id = sec.id ")
+                .append(" ) ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
-        query.setLong("CICLO", cicloAcademico.getId());
+        query.setLong("CICLO", ciclo.getId());
         query.executeUpdate();
     }
 

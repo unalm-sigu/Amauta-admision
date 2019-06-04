@@ -139,7 +139,7 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
                 MatriculaSeccion matSecc = getMatriSeccion(matriSeccionAlu, TipoSeccionEnum.TCUR);
                 matSecc.setEstadoEnum(EstadoMatriculaEnum.TRAS);
                 matriculaSeccionDAO.update(matSecc);
-                
+
                 MatriculaSeccion newMatriculaSeccion = new MatriculaSeccion();
                 newMatriculaSeccion.setVisible(null);
                 newMatriculaSeccion.setMatriculaResumen(matSecc.getMatriculaResumen());
@@ -176,84 +176,6 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
             seccionDAO.updateMatriculados(destinoSup, destinoSup.getMatriculados() + alumnos.size());
             seccionDAO.updateMatriculados(origenSup, origenSup.getMatriculados() - alumnos.size());
         }
-
-//        for (Long alumnoId : idAlumnos) {
-//
-//            MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(new Alumno(alumnoId), ciclo);
-//
-//            Alumno alumnoDb = matriculaResumen.getAlumno();
-//
-//            logger.debug("alumno  :  {}  ", alumnoDb.getPersona().getNombreCompleto());
-//            logger.debug("matriculaResumen  :  {}  ", matriculaResumen.getId());
-//            logger.debug("seccion  :  {}  ", destino.getId());
-//            MatriculaSeccion matriculaSeccion = matriculaSeccionDAO.findByMatriculaResumenSeccion(matriculaResumen, origen);
-//            logger.debug("matriculaSeccion existe  :  {}  ", matriculaSeccion != null);
-//
-//            if (matriculaSeccion != null) {
-//                logger.debug("matriculaSeccion  :  {}  ", matriculaSeccion.getId());
-//                matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.TRAS);
-//                matriculaSeccionDAO.update(matriculaSeccion);
-//            }
-//
-//            MatriculaSeccion justMatriculadoOnSeccion = matriculaSeccionDAO.findByMatriculaResumenSeccion(matriculaResumen, destino);
-//
-//            if (justMatriculadoOnSeccion != null) {
-//
-//                logger.debug("ya matriculado MatriculaSeccion  :  {}  ", justMatriculadoOnSeccion.getId());
-//                justMatriculadoOnSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
-//                matriculaSeccionDAO.update(justMatriculadoOnSeccion);
-//
-//            } else {
-//
-//                MatriculaSeccion newMatriculaSeccion = new MatriculaSeccion();
-//                newMatriculaSeccion.setVisible(null);
-//                newMatriculaSeccion.setMatriculaResumen(matriculaResumen);
-//                newMatriculaSeccion.setFechaRegistro(new Date());
-//                newMatriculaSeccion.setUserRegistro(ds.getUsuario());
-//                newMatriculaSeccion.setSeccion(destino);
-//                newMatriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
-//                matriculaSeccionDAO.save(newMatriculaSeccion);
-//                logger.debug("creado  :  {}  ", newMatriculaSeccion.getId());
-//            }
-//
-//            if (TipoSeccionEnum.PCUR.name().equalsIgnoreCase(origen.getTipoSeccion())) {
-//
-//                logger.debug(" ***** TipoSeccionEnum PCUR ***** ");
-//
-//                logger.debug("alumno  :  {}  ", alumnoDb.getPersona().getNombreCompleto());
-//                logger.debug("matriculaResumen  :  {}  ", matriculaResumen.getId());
-//                logger.debug("seccion  :  {}  ", destino.getSeccionSuperior().getId());
-//                MatriculaSeccion teoMatriculaSeccion = matriculaSeccionDAO.findByMatriculaResumenSeccion(matriculaResumen, origen.getSeccionSuperior());
-//                logger.debug("MatriculaSeccion existe  :  {}  ", teoMatriculaSeccion != null);
-//
-//                if (teoMatriculaSeccion != null) {
-//                    logger.debug("matriculaSeccion  :  {}  ", matriculaSeccion.getId());
-//                    teoMatriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.TRAS);
-//                    matriculaSeccionDAO.update(teoMatriculaSeccion);
-//                }
-//
-//                MatriculaSeccion justTeoMatriculadoOnSeccion = matriculaSeccionDAO.findByMatriculaResumenSeccion(matriculaResumen, destino.getSeccionSuperior());
-//
-//                if (justTeoMatriculadoOnSeccion != null) {
-//
-//                    logger.debug("ya matriculado MatriculaSeccion  :  {}  ", justTeoMatriculadoOnSeccion.getId());
-//                    justTeoMatriculadoOnSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
-//                    matriculaSeccionDAO.update(justTeoMatriculadoOnSeccion);
-//
-//                } else {
-//
-//                    MatriculaSeccion newTeoMatriculaSeccion = new MatriculaSeccion();
-//                    newTeoMatriculaSeccion.setVisible(null);
-//                    newTeoMatriculaSeccion.setMatriculaResumen(matriculaResumen);
-//                    newTeoMatriculaSeccion.setFechaRegistro(new Date());
-//                    newTeoMatriculaSeccion.setUserRegistro(ds.getUsuario());
-//                    newTeoMatriculaSeccion.setSeccion(destino.getSeccionSuperior());
-//                    newTeoMatriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
-//                    matriculaSeccionDAO.save(newTeoMatriculaSeccion);
-//                    logger.debug("creado :  {}", newTeoMatriculaSeccion.getId());
-//                }
-//            }
-//        }
     }
 
     private MatriculaSeccion getMatriSeccion(List<MatriculaSeccion> matriSecciones, TipoSeccionEnum tipoSeccion) {
