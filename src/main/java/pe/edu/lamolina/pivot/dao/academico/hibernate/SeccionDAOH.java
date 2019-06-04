@@ -602,10 +602,14 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     @Override
     public void updateMatriculados(Seccion seccion, Integer matriculados) {
         StringBuilder sql = new StringBuilder();
-        sql.append("update Seccion set matriculados = :MATRICULADOS where id = :SECCION ");
+        sql.append("update Seccion ");
+        sql.append("   set matriculados = :MATRICULADOS, ");
+        sql.append("       estado = :ESTADO ");
+        sql.append( "where id = :SECCION ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("MATRICULADOS", matriculados);
+        query.setParameter("ESTADO", seccion.getEstado());
         query.setParameter("SECCION", seccion.getId());
         query.executeUpdate();
     }

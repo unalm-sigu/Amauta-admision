@@ -178,6 +178,7 @@ var app = new Vue({
         dataModalAgregarHorasAdicionales: {
             id: 'idModalAgregarHorasAdicionales',
         },
+        configConfirmAction: VUE_MODAL.structConfirm({}),
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -682,8 +683,18 @@ var app = new Vue({
                 }
             });
         },
-        anularSeccion: function (seccion) {
+        verAnularSeccion(seccion) {
             let $vue = this;
+
+            VUE_MODAL.configure($vue.configConfirmAction, {
+                message: "¿Está seguro que desea anular la sección?",
+                okbtn: "Si, anular",
+                okclass: "btn-warning",
+                okaction: $vue.ordenarCiclo,
+                okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Anulando...'
+            });
+            $vue.$refs.modalConfirmAction.open();
+
             let messageAlert = "¿Está seguro que desea anular la sección?";
             let classButton = "btn-warning btn-modal btn-procesar";
             let classMessage = "";
@@ -710,7 +721,7 @@ var app = new Vue({
 
                         $.ajax({
                             method: 'POST',
-                            url: APP.url('academico/gposeccion/anularSeccion'),
+                            url: APP.url(rutaModulo + '/anularSeccion'),
                             data: {seccion: seccion.id},
                             success: function (response) {
                                 if (response.success) {
