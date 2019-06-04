@@ -281,9 +281,7 @@ var app = new Vue({
         },
         docenteSelected(item) {
             let $vue = this;
-            console.log($vue.docenteSelect)
             $vue.docenteSelect = item;
-            console.log($vue.docenteSelect)
         },
         getClassTab(tabBuscar) {
             let $vue = this;
@@ -321,7 +319,6 @@ var app = new Vue({
             return $vue.secciones[0].codigo2.substring(0, 3);
         },
         loadGpoSeccionEfecto(idGpoSecc, dir) {
-            console.log("loadGpoSeccion-loadGpoSeccion-loadGpoSeccion")
             let $vue = this;
             $.ajax({
                 method: 'POST',
@@ -343,7 +340,6 @@ var app = new Vue({
             });
         },
         loadGpoSeccionFlash(modalConfirm) {
-            console.log("loadGpoSeccionActual/loadGpoSeccionActual/loadGpoSeccionActual")
             let $vue = this;
             $.ajax({
                 method: 'POST',
@@ -858,10 +854,6 @@ var app = new Vue({
                     return;
                 }
 
-                console.log("seccion.id:: " + seccion.id);
-                console.log("seccion.vacantes:: " + seccion.vacantes);
-                console.dir(seccion)
-
                 $.ajax({
                     url: APP.url('academico/gposeccion/cambiarVacantesSeccion'),
                     type: 'POST',
@@ -1199,9 +1191,6 @@ var app = new Vue({
                 return;
             }
 
-            console.log($vue.ampliacionVacante.vacantesFin);
-            console.log($vue.seccionSeleccionada.matriculados);
-
             if ($vue.ampliacionVacante.vacantesFin < $vue.seccionSeleccionada.matriculados) {
                 swal({text: 'Ya existen alumnos matriculados', icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                 return;
@@ -1332,7 +1321,6 @@ var app = new Vue({
         aceptarSolicitud: function (ampliacion) {
 
             let $vue = this;
-            console.log('aceptarSolicitud');
             $vue.ampliacionVacante = Object.assign({}, ampliacion);
             $vue.$refs.aceptarSolicitudIncremento.open();
 
@@ -1340,7 +1328,6 @@ var app = new Vue({
         rechazarSolicitud: function (ampliacion) {
 
             let $vue = this;
-            console.log('rechazarSolicitud');
             $vue.ampliacionVacante = Object.assign({}, ampliacion);
             $vue.$refs.rechazarSolicitudIncremento.open();
 
@@ -1359,14 +1346,12 @@ var app = new Vue({
                 data: $('#aceptarFormSolicitarIncremento').serialize(),
                 success: function (response) {
                     if (response.success) {
-                        console.log("aumento")
                         $vue.allSolicitarIncremento();
                         $vue.loadGpoSeccionFlash();
                         $vue.$refs.aceptarSolicitudIncremento.close();
                         notify(response.message, 'info');
 
                     } else {
-                        console.log(" no aumento")
                         notify(response.message, 'error');
                     }
                 },
@@ -1679,9 +1664,6 @@ var app = new Vue({
                 return;
             }
 
-            console.log($vue.changeAulaGpo);
-            console.log("=====cantidad========");
-            console.log($vue.changeAulaGpo.grupoHorasFin.diaHoraGrupo.length);
             $.ajax({
                 url: APP.url('academico/gposeccion/savecambioaulagrupo'),
                 dataType: "json",
@@ -1850,7 +1832,6 @@ var app = new Vue({
         aceptarSolicitudCambioAulaGrupo: function (cambioaulagrupo) {
 
             let $vue = this;
-            console.log('aceptarSolicitudCambioAulaGrupo');
             $vue.changeAulaGpo = Object.assign({}, cambioaulagrupo);
             $vue.$refs.aceptarCambioAulaGrupo.open();
 
@@ -1858,7 +1839,6 @@ var app = new Vue({
         rechazarSolicitudCambioAulaGrupo: function (cambioaulagrupo) {
 
             let $vue = this;
-            console.log('rechazarSolicitudCambioAulaGrupo');
             $vue.changeAulaGpo = Object.assign({}, cambioaulagrupo);
             $vue.$refs.rechazarCambioAulaGrupo.open();
 

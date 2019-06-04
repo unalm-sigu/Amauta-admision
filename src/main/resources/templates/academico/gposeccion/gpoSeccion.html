@@ -23,13 +23,13 @@
                             Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a v-if="condicion1" type="button" v-on:click.prevent="nuevoGpoSecc()">Nuevo Grupo</a></li>
+                            <li><a v-if="condicion1" type="button" v-on:click.prevent="nuevoGpoSecc">Nuevo Grupo</a></li>
                             <li><a v-if="condicion1" type="button" v-on:click.prevent="verBoletin" >Ver Boletin </a></li>
                             <li><a v-if="condicion2" type="button" v-on:click.prevent="clonarCiclo" >Clonar Ciclo</a></li>
 
-                            <li><a v-if="condicion3" type="button" v-on:click.prevent="limpiarCiclo" >Limpiar Ciclo</a></li>                          
+                            <li><a v-if="condicion3" type="button" v-on:click.prevent="verLimpiarCiclo" >Limpiar Ciclo</a></li>                          
                             <li><a v-if="condicion3" type="button" v-on:click.prevent="finalizarClonacion" >Finalizar Clonación</a></li>
-                            <li><a v-if="condicion4" type="button" v-on:click.prevent="ordenarCiclo" >Ordenar Código</a></li>
+                            <li><a v-if="condicion4" type="button" v-on:click.prevent="verOrdenarCiclo" >Ordenar Código</a></li>
                             <li><a v-if="condicion4" type="button" v-on:click.prevent="cerrarOrden" >Cerrar Orden</a></li>
                             <li><a type="button" th:href="@{'/reporte/programacionHorarios'}">Reporte Pdf</a></li>
                             <li><a type="button" th:href="@{'/reporte/reporteboletinexcel'}">Reporte Excel</a></li>
@@ -321,8 +321,9 @@
                         </section>
                     </section>
                 </section>
-                
+
                 <div th:substituteby="academico/gposeccion/gpoSeccionModal"/>
+                <div th:substituteby="_modules/vue-modal-confirm"></div>
 
             </div>
             <div th:substituteby="academico/gposeccion/components/seccionDetalleComponent"/>
@@ -334,6 +335,7 @@
                 var cantidad = /*[[${cantidad}]]*/ '';
                 var cicloJson = /*[[${cicloJson}]]*/ '';
                 var resumenJson = /*[[${resumenJson}]]*/ '';
+                var rutaModulo = 'academico/gposeccion';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"/>

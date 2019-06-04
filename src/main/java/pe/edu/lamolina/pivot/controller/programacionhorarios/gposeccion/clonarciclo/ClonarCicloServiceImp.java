@@ -56,6 +56,9 @@ import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
+import pe.edu.lamolina.pivot.dao.academico.EvaluacionSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
@@ -134,6 +137,15 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
     @Autowired
     VacanteAlumnoDAO vacanteAlumnoDAO;
+
+    @Autowired
+    EvaluacionDAO evaluacionDAO;
+
+    @Autowired
+    EvaluacionSeccionDAO evaluacionSeccionDAO;
+
+    @Autowired
+    EvaluacionExpandidaDAO evaluacionExpandidaDAO;
 
     @Override
     @Transactional
@@ -236,7 +248,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             }
 
             int horasTeoria = 0;
-            int horasPractica = 0;  
+            int horasPractica = 0;
 
             try {
                 if (curso.getTipoCreditoEnum() == TipoCreditoEnum.FIJO) {
@@ -330,7 +342,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 seccNew.setFechaRegistro(today);
                 seccNew.setUserRegistro(ds.getUsuario());
                 seccNew.setSeccionSuperior(seccionSup);
-
 
                 if (seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.TEO || seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
                     seccNew.setCodigo(codigo + "0");
@@ -590,8 +601,13 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         restriccionCarreraDAO.deleteAllByCiclo(ciclo);
         docenteSeccionDAO.deleteAllByCiclo(ciclo);
         horarioSeccionDAO.deleteAllByCiclo(ciclo);
+        vacanteAlumnoDAO.deleteAllByCiclo(ciclo);
+        matriculaSeccionDAO.deleteAllByCiclo(ciclo); // No deberia
+        evaluacionDAO.deleteAllByCiclo(ciclo); // No deberia
         seccionDAO.deleteAllNotSuperiorByCiclo(ciclo);
         seccionDAO.deleteAllByCiclo(ciclo);
+        evaluacionExpandidaDAO.deleteAllByCiclo(ciclo); // No deberia
+        evaluacionSeccionDAO.deleteAllByCiclo(ciclo); // No deberia
         grupoSeccionDAO.deleteAllByCiclo(ciclo);
         precioCursoEstructuraDAO.deleteAllByCiclo(ciclo);
         cursoCicloAcademicoDAO.deleteAllByCiclo(ciclo);

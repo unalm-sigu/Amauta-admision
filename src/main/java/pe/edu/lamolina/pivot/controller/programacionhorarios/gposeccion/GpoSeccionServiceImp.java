@@ -477,6 +477,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         grupoSeccion.setVersion(BigDecimal.ONE.toString());
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
         grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
+        grupoSeccion.setTipoDictadoEnum(TipoDictadoGrupoSeccionEnum.SEM);
 
         Integer horasTeoria = grupoSeccion.getHorasTeoria();
         Integer horasPractica = grupoSeccion.getHorasPractica();
@@ -1416,54 +1417,34 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     }
 
-    private boolean isInteger(String obj) {
-        try {
-            Integer.parseInt(obj);
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
-
-    private void validateFraccion(String fraccion) {
-        String noFraccion = String.format("%s no es una fraccón, verifique.", fraccion);
-        Assert.isNotBlank(fraccion, "La fracción es requerida, verifique.");
-        Assert.isTrue(fraccion.contains("/"), noFraccion);
-        String[] argFraccion = fraccion.split("/");
-        Assert.isTrue(argFraccion.length == 2, noFraccion);
-        Assert.isTrue(this.isInteger(argFraccion[0]) && this.isInteger(argFraccion[1]), noFraccion);
-    }
-
     @Override
     @Transactional
     public void updatePorcentajeAvance(DocenteSeccion profeSeccForm, CicloAcademico cicloAcademico) {
-        //this.validateFraccion(profeSeccForm.getPorcentajeCargaFraccion());
         DocenteSeccion profeSeccBDMain = docenteSeccionDAO.find(profeSeccForm.getId());
         List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccBDMain.getSeccion());
 
-        BigDecimal total = BigDecimal.ZERO;
-        if (!profesSecc.isEmpty()) {
-            double dTotal = profesSecc.stream()
-                    .filter(x -> x.getId().longValue() != profeSeccForm.getId().longValue())
-                    .filter(x -> x.getPorcentajeCarga() != null)
-                    .filter(x -> x.getEstadoEnum() == EstadoEnum.ACT)
-                    .mapToDouble(x -> x.getPorcentajeCarga().doubleValue())
-                    .sum();
-            total = new BigDecimal(dTotal);
+        Fraxtion total = new Fraxtion(BigDecimal.ZERO);
+        for (DocenteSeccion profeSecc : profesSecc) {
+            if (profeSecc.getId() == profeSeccForm.getId().longValue()) {
+                continue;
+            }
+            if (profeSecc.getEstadoEnum() != EstadoEnum.ACT) {
+                continue;
+            }
+            if (profeSecc.getPorcentajeCargaFraccion() == null) {
+                continue;
+            }
+            total = total.add(new Fraxtion(profeSecc.getPorcentajeCargaFraccion()));
         }
-        //  String[] operandosFraccion = profeSeccForm.getPorcentajeCargaFraccion().split("/");
-//        BigDecimal dividendo = new BigDecimal(operandosFraccion[0]);
-//        BigDecimal divisor = new BigDecimal(operandosFraccion[1]);
-        Fraxtion fraxtion = new Fraxtion(profeSeccForm.getPorcentajeCargaFraccion());
-        profeSeccForm.setPorcentajeCarga(fraxtion.getValue(2));
-        total = total.add(profeSeccForm.getPorcentajeCarga());
-        BigDecimal cien = new BigDecimal(100L);
+        Fraxtion porcentaje = new Fraxtion(profeSeccForm.getPorcentajeCargaFraccion());
+        total = total.add(porcentaje);
+        Fraxtion cien = new Fraxtion(100L);
 
         if (total.compareTo(cien) > 0) {
-            throw new PhobosException("El porcentaje de carga no puede exceder el 100%");
+            throw new PhobosException("El porcentaje de carga no puede exceder el 100%. Usted ingresó " + porcentaje.getValue(2) + "%");
         }
-        profeSeccBDMain.setPorcentajeCargaFraccion(fraxtion.toString());
-        profeSeccBDMain.setPorcentajeCarga(profeSeccForm.getPorcentajeCarga());
+        profeSeccBDMain.setPorcentajeCargaFraccion(porcentaje.toString());
+        profeSeccBDMain.setPorcentajeCarga(porcentaje.getValue(2));
         docenteSeccionDAO.update(profeSeccBDMain);
 
         evaluateSeccion(profeSeccBDMain.getSeccion());

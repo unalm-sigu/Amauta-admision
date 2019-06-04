@@ -13,7 +13,7 @@ new Vue({
     el: '#gpoSeccionesVUE',
     mixins: [VueLoader],
     data: {
-        gpoSeccionesURL: APP.url('academico/gposeccion/list'),
+        gpoSeccionesURL: APP.url(rutaModulo + '/list'),
         seleccionado: '',
         bgColorClass: {ingresantes: '', departamentos: '', postgrados: '', actividades: ''},
         anexosSup: {ingresantes: 1, departamentos: 2, postgrados: 4, actividades: 3},
@@ -26,25 +26,22 @@ new Vue({
             title: 'Restricciones Modalidad / Facultad / Especialidad',
             modalsize: 'modal-md'
         },
-        nuevoGpoSeccModal: {
+        nuevoGpoSeccModal: VUE_MODAL.structFormAjax({
             id: 'modalNuevoGpoSecc',
+            form: 'formNuevoGpoSecc',
             header: true,
             title: 'Nuevo grupo de secciones',
-            modalsize: 'modal-md'
-        },
-        dataCloneCiclo: {
+            revisarForm: false
+        }),
+        dataCloneCiclo: VUE_MODAL.structFormAjax({
             id: 'modalCloneCiclo',
-            title: 'Copiar Ciclo',
-            header: true,
-            showaccept: true
-        },
+            title: 'Clonación de información por ciclo',
+            header: true
+        }),
         seccionSelect: {},
         tipoRestriccion: '',
         ciclo: {descripcion: ""},
-        //cantidadGrupoSeccion: cantidad,
-//        clonar: 0,
-//        cerrarClonacion: false,
-//        cicloSeccion: {},
+        cicloClonacion: {descripcion: ""},
         resumen: {
             ingresantes: 0,
             departamentos: 0,
@@ -57,7 +54,8 @@ new Vue({
         anexosPadres: [],
         anexosHijos: [],
         anexoPadreCurso: {},
-        newGrupoSeccion: {curso: {}, anexoBoletin: {}}
+        newGrupoSeccion: {curso: {}, anexoBoletin: {}},
+        configConfirmAction: VUE_MODAL.structConfirm({}),
     },
     computed: {
         condicion1() {
@@ -117,28 +115,44 @@ new Vue({
         nuevoGpoSecc() {
             let $vue = this;
             $vue.newGrupoSeccion = {curso: {}, anexoBoletin: {}};
+            $vue.nuevoGpoSeccModal.revisarForm = false;
+            $vue.revisarFormNuevoGpoSeccion();
             $vue.$refs.modalNuevoGpoSecc.open();
+        },
+        revisarFormNuevoGpoSeccion() {
+            let $vue = this;
+            var form = $("#" + $vue.nuevoGpoSeccModal.form);
+            form.parsley().destroy();
+            if ($vue.nuevoGpoSeccModal.revisarForm) {
+                setTimeout(function () {
+                    form.parsley().validate();
+                }, 300);
+            }
         },
         saveGpoSecc() {
             let $vue = this;
-            var form = $("#formNuevoGpoSecc");
+            $vue.nuevoGpoSeccModal.revisarForm = true;
+            var form = $("#" + $vue.nuevoGpoSeccModal.form);
             if (!form.parsley().validate()) {
                 return;
             }
 
+            $vue.$refs.modalNuevoGpoSecc.beginProcessing();
+
             $.ajax({
-                url: APP.url('academico/gposeccion/saveGpoHeader'),
+                url: APP.url(rutaModulo + '/saveGpoHeader'),
                 dataType: "json",
                 contentType: "application/json",
                 type: 'POST',
                 async: true,
                 data: JSON.stringify($vue.newGrupoSeccion),
                 success: function (response) {
+                    $vue.$refs.modalNuevoGpoSecc.confirmReaction(response.success);
                     if (response.success) {
                         $vue.$refs.modalNuevoGpoSecc.close();
                         let rpta = response.data;
                         let lista = Base64.encode(rpta.lista);
-                        location.href = APP.url("academico/gposeccion/" + rpta.primero + "/editar") + $vue.getOrigenURL() + "&ids=" + lista;
+                        location.href = APP.url(rutaModulo + "/" + rpta.primero + "/editar") + $vue.getOrigenURL() + "&ids=" + lista;
                         notify(response.message, 'info');
 
                     } else {
@@ -146,6 +160,7 @@ new Vue({
                     }
                 },
                 error: function () {
+                    $vue.$refs.modalNuevoGpoSecc.confirmReaction(false);
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
@@ -178,6 +193,7 @@ new Vue({
                 }
             }
             $vue.anexoPadreCurso = anxSup;
+            $vue.revisarFormNuevoGpoSeccion();
         },
         verAnexosHijos(item) {
             let $vue = this;
@@ -214,7 +230,7 @@ new Vue({
             let $vue = this;
             $vue.isLoadingCursos = true;
             $.ajax({
-                url: APP.url('academico/gposeccion//allCursos'),
+                url: APP.url(rutaModulo + '/allCursos'),
                 dataType: 'json',
                 type: 'POST',
                 async: true,
@@ -314,7 +330,7 @@ new Vue({
             let $vue = this;
             $.ajax({
                 method: 'GET',
-                url: APP.url('academico/gposeccion/allData'),
+                url: APP.url(rutaModulo + '/allData'),
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
@@ -367,7 +383,7 @@ new Vue({
         },
         editarGpoSeccion(item) {
             let $vue = this;
-            location.href = APP.url("academico/gposeccion/" + item.id + "/editar") + $vue.getOrigenURL();
+            location.href = APP.url(rutaModulo + "/" + item.id + "/editar") + $vue.getOrigenURL();
         },
         getOrigenURL() {
             var url = window.location.href;
@@ -437,41 +453,35 @@ new Vue({
         },
         clonarCiclo() {
             let $vue = this;
-            $vue.ciclo = {id: null};
+            $vue.cicloClonacion = {id: null};
             $vue.$refs.modalCloneCiclo.open();
         },
         saveCloneCiclo() {
-
             let $vue = this;
-
-            if ($vue.ciclo.id == null) {
+            if ($vue.cicloClonacion.id == null) {
                 return;
             }
-            var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false});
-            $vue.showLoader();
 
+            $vue.$refs.modalCloneCiclo.beginProcessing();
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/gposeccion/clonarciclo'),
+                url: APP.url(rutaModulo + '/clonarciclo'),
 //                async: false,
-                data: {id: $vue.ciclo.id},
+                data: {id: $vue.cicloClonacion.id},
                 success: function (response) {
+                    $vue.$refs.modalCloneCiclo.confirmReaction(response.success);
                     if (response.success) {
                         $vue.updateDataCiclo();
                         $vue.$refs.load.loadRemoteData();
-                        $vue.$refs.modalCloneCiclo.close();
+                        notifyBootbox(response.message, "success");
+
+                    } else {
+                        notifyBootbox(response.message, "warning");
                     }
-                    bootbox.alert({
-                        message: response.message,
-                        buttons: {ok: {label: "Aceptar"}}
-                    });
-                    mibox.modal('hide');
-                    $vue.hideLoader();
                 },
                 error: function () {
-                    $vue.hideLoader();
-                    notify(MESSAGES.errorComunicacion, "error");
-                    mibox.modal('hide');
+                    $vue.$refs.modalCloneCiclo.confirmReaction(false);
+                    notifyBootbox(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
@@ -479,7 +489,7 @@ new Vue({
             let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/gposeccion/findDataCiclo'),
+                url: APP.url(rutaModulo + '/findDataCiclo'),
                 async: false,
                 success: function (response) {
                     if (response.success) {
@@ -495,229 +505,254 @@ new Vue({
             });
 
         },
+        verOrdenarCiclo() {
+            let $vue = this;
+            VUE_MODAL.configure($vue.configConfirmAction, {
+                message: "¿Desea ordenar el código de todos las secciones?",
+                okbtn: "Si, ordenar",
+                okclass: "btn-warning",
+                okaction: $vue.ordenarCiclo,
+                okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Ordenando...'
+            });
+            $vue.$refs.modalConfirmAction.open();
+        },
         ordenarCiclo() {
             let $vue = this;
-
-            bootbox.confirm({
-                message: "<h4>¿Desea ordenar el código de todos las secciones?</h4>",
-                buttons: {
-                    cancel: {label: "Cancelar", className: "btn-link"},
-                    confirm: {label: "Si, ordenar", className: "btn-danger"}
-                },
-                callback(result) {
-                    if (result) {
-                        $vue.showLoader();
-                        $.ajax({
-                            method: 'POST',
-                            async: false,
-                            url: APP.url('academico/gposeccion/reordenar'),
-                            success: function (response) {
-                                if (response.success) {
-                                    $vue.$refs.load.loadRemoteData();
-                                    $vue.updateDataCiclo();
-                                }
-                                bootbox.alert({
-                                    message: response.message,
-                                    buttons: {ok: {label: "Aceptar"}}
-                                });
-                                $vue.hideLoader();
-                            },
-                            error: function () {
-                                bootbox.alert({
-                                    message: MESSAGES.errorComunicacion,
-                                    buttons: {ok: {label: "Aceptar"}}
-                                });
-                                $vue.hideLoader();
-                            }
-                        });
+            $.ajax({
+                method: 'POST',
+                async: false,
+                url: APP.url(rutaModulo + '/reordenar'),
+                success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                        $vue.updateDataCiclo();
+                        notifyBootbox(response.message, "success");
+                    } else {
+                        notifyBootbox(response.message, "warning");
                     }
+                },
+                error: function () {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notifyBootbox(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        verLimpiarCiclo() {
+            let $vue = this;
+            VUE_MODAL.configure($vue.configConfirmAction, {
+                message: "¿Desea eliminar todos los registros del ciclo?",
+                okbtn: "Si, eliminar",
+                okclass: "btn-danger",
+                okaction: $vue.limpiarCiclo,
+                okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Elimnando...'
+            });
+            $vue.$refs.modalConfirmAction.open();
+
         },
         limpiarCiclo() {
             let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url(rutaModulo + '/limpiarciclo'),
+                success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                        $vue.updateDataCiclo();
+                        notifyBootbox(response.message, "success");
 
-            bootbox.confirm({
-                message: "<h4>¿Desea eliminar todos los registros?</h4>",
-                buttons: {
-                    cancel: {label: "Cancelar", className: "btn-link"},
-                    confirm: {label: "Si, limpiar", className: "btn-danger"}
-                },
-                callback(result) {
-                    if (result) {
-                        $vue.showLoader();
-                        $.ajax({
-                            method: 'POST',
-//                            async: false,
-                            url: APP.url('academico/gposeccion/limpiarciclo'),
-                            success: function (response) {
-                                if (response.success) {
-                                    $vue.$refs.load.loadRemoteData();
-                                    $vue.updateDataCiclo();
-
-                                }
-                                bootbox.alert({
-                                    message: response.message,
-                                    buttons: {ok: {label: "Aceptar"}}
-                                });
-                                $vue.hideLoader();
-                            },
-                            error: function () {
-                                bootbox.alert({
-                                    message: MESSAGES.errorComunicacion,
-                                    buttons: {ok: {label: "Aceptar"}}
-                                });
-                                $vue.hideLoader();
-                            }
-                        });
+                    } else {
+                        notifyBootbox(response.message, "warning");
                     }
+                },
+                error: function () {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notifyBootbox(MESSAGES.errorComunicacion, "error");
                 }
             });
-
         },
         verBoletin() {
-
             let $vue = this;
 
-            bootbox.confirm({
-                message: '<h4>¿Seguro que desea que se visualice este ciclo en el boletín?</h4>',
-                buttons: {
-                    cancel: {label: "Cancelar", className: "btn-link"},
-                    confirm: {label: "Si, Visualizar el Boletín", className: "btn-primary"}
-                },
-                callback(result) {
-                    if (result) {
-                        $.ajax({
-                            method: 'POST',
-                            async: false,
-                            url: APP.url('academico/gposeccion/verBoletin'),
-                            success: function (response) {
-                                if (response.success) {
-                                    $vue.updateDataCiclo();
-                                    notify(response.message, 'info');
-                                } else {
-                                    notify(response.message, 'error');
-                                }
-                            },
-                            error: function () {
-                                notify(MESSAGES.errorComunicacion, 'error');
+            VUE_MODAL.configure($vue.configConfirmAction, {
+                message: "¿Seguro que desea que se visualice este ciclo en el boletín?",
+                okbtn: "Si, visibilizar boletín",
+                okclass: "btn-success",
+                okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Visibilizando...',
+                okaction: function () {
+                    $.ajax({
+                        method: 'POST',
+                        async: false,
+                        url: APP.url(rutaModulo + '/verBoletin'),
+                        success: function (response) {
+                            $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                            if (response.success) {
+                                $vue.updateDataCiclo();
+                                notify(response.message, 'info');
+                            } else {
+                                notify(response.message, 'error');
                             }
-                        });
-                    }
-                }
+                        },
+                        error: function () {
+                            $vue.$refs.modalConfirmAction.confirmReaction(false);
+                            notify(MESSAGES.errorComunicacion, 'error');
+                        }
+                    });
+                },
             });
+            $vue.$refs.modalConfirmAction.open();
+
+//            bootbox.confirm({
+//                message: '<h4>¿Seguro que desea que se visualice este ciclo en el boletín?</h4>',
+//                buttons: {
+//                    cancel: {label: "Cancelar", className: "btn-link"},
+//                    confirm: {label: "Si, Visualizar el Boletín", className: "btn-primary"}
+//                },
+//                callback(result) {
+//                    if (result) {
+//                        $.ajax({
+//                            method: 'POST',
+//                            async: false,
+//                            url: APP.url('academico/gposeccion/verBoletin'),
+//                            success: function (response) {
+//                                if (response.success) {
+//                                    $vue.updateDataCiclo();
+//                                    notify(response.message, 'info');
+//                                } else {
+//                                    notify(response.message, 'error');
+//                                }
+//                            },
+//                            error: function () {
+//                                notify(MESSAGES.errorComunicacion, 'error');
+//                            }
+//                        });
+//                    }
+//                }
+//            });
 
         },
         finalizarClonacion() {
 
             let $vue = this;
 
-            bootbox.confirm({
-//                title: "Finalizar clonación",
-                message: '<h4 class="text-danger m-t-xs">¿Seguro que desea dar por finalizada la clonación?</h4> <p>Recuerde que después de esta acción ya no podrá limpiar los datos de este ciclo.</p>',
-                buttons: {
-                    cancel: {label: "Cancelar", className: "btn-link"},
-                    confirm: {label: "Si, finalizar", className: "btn-warning"}
-                },
-                callback(result) {
-                    if (result) {
-                        $.ajax({
-                            method: 'POST',
-                            async: false,
-                            url: APP.url('academico/gposeccion/cerrarClonacion'),
-                            success: function (response) {
-                                if (response.success) {
-                                    $vue.updateDataCiclo();
-                                    notify(response.message, 'info');
-                                } else {
-                                    notify(response.message, 'error');
-                                }
-                            },
-                            error: function () {
-                                notify(MESSAGES.errorComunicacion, 'error');
+            VUE_MODAL.configure($vue.configConfirmAction, {
+                message: "¿Seguro que desea dar por finalizada la clonación? <p>Recuerde que después de esta acción ya no podrá limpiar los datos de este ciclo.</p>",
+                okbtn: "Si, finalizar",
+                okclass: "btn-warning",
+                okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Cerrando clonación...',
+                okaction: function () {
+                    $.ajax({
+                        method: 'POST',
+                        async: false,
+                        url: APP.url(rutaModulo + '/cerrarClonacion'),
+                        success: function (response) {
+                            $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                            if (response.success) {
+                                $vue.updateDataCiclo();
+                                notify(response.message, 'info');
+                            } else {
+                                notify(response.message, 'error');
                             }
-                        });
-                    }
-                }
+                        },
+                        error: function () {
+                            $vue.$refs.modalConfirmAction.confirmReaction(false);
+                            notify(MESSAGES.errorComunicacion, 'error');
+                        }
+                    });
+                },
             });
+            $vue.$refs.modalConfirmAction.open();
+
+//            bootbox.confirm({
+//                title: "Finalizar clonación",
+//                message: '<h4 class="text-danger m-t-xs">¿Seguro que desea dar por finalizada la clonación?</h4> <p>Recuerde que después de esta acción ya no podrá limpiar los datos de este ciclo.</p>',
+//                buttons: {
+//                    cancel: {label: "Cancelar", className: "btn-link"},
+//                    confirm: {label: "Si, finalizar", className: "btn-warning"}
+//                },
+//                callback(result) {
+//                    if (result) {
+//                        $.ajax({
+//                            method: 'POST',
+//                            async: false,
+//                            url: APP.url('academico/gposeccion/cerrarClonacion'),
+//                            success: function (response) {
+//                                if (response.success) {
+//                                    $vue.updateDataCiclo();
+//                                    notify(response.message, 'info');
+//                                } else {
+//                                    notify(response.message, 'error');
+//                                }
+//                            },
+//                            error: function () {
+//                                notify(MESSAGES.errorComunicacion, 'error');
+//                            }
+//                        });
+//                    }
+//                }
+//            });
 
         },
         cerrarOrden() {
 
             let $vue = this;
 
-            bootbox.confirm({
-//                title: "Finalizar ordenamiento de códigos",
-                message: '<h4 class="m-t-xs">¿Seguro que desea dar por finalizado el ordenamiento de códigos?</h4>',
-                buttons: {
-                    cancel: {label: "Cancelar", className: "btn-link"},
-                    confirm: {label: "Si, finalizar", className: "btn-warning"}
-                },
-                callback(result) {
-                    if (result) {
-                        $.ajax({
-                            method: 'POST',
-                            async: false,
-                            url: APP.url('academico/gposeccion/cerrarorden'),
-                            success: function (response) {
-                                if (response.success) {
-                                    $vue.updateDataCiclo();
-                                    notify(response.message, 'info');
-                                } else {
-                                    notify(response.message, 'error');
-                                }
-                            },
-                            error: function () {
-                                notify(MESSAGES.errorComunicacion, 'error');
+            VUE_MODAL.configure($vue.configConfirmAction, {
+                message: "¿Seguro que desea dar por finalizado el ordenamiento de códigos?",
+                okbtn: "Si, finalizar",
+                okclass: "btn-success",
+                okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Cerrando ordenamiento...',
+                okaction: function () {
+                    $.ajax({
+                        method: 'POST',
+                        async: false,
+                        url: APP.url(rutaModulo + '/cerrarorden'),
+                        success: function (response) {
+                            $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                            if (response.success) {
+                                $vue.updateDataCiclo();
+                                notify(response.message, 'info');
+                            } else {
+                                notify(response.message, 'error');
                             }
-                        });
-                    }
-                }
+                        },
+                        error: function () {
+                            $vue.$refs.modalConfirmAction.confirmReaction(false);
+                            notify(MESSAGES.errorComunicacion, 'error');
+                        }
+                    });
+                },
             });
+            $vue.$refs.modalConfirmAction.open();
 
-//            swal({
-//                title: "Cerrar Orden",
-//                text: "¿Desea cerrar la opción ordenar código?",
-//                icon: "warning",
-//                dangerMode: true,
+//            bootbox.confirm({
+////                title: "Finalizar ordenamiento de códigos",
+//                message: '<h4 class="m-t-xs">¿Seguro que desea dar por finalizado el ordenamiento de códigos?</h4>',
 //                buttons: {
-//                    cancel: {text: "Cancelar", closeModal: true, visible: true},
-//                    confirm: {text: "Aceptar", closeModal: false}
-//                }
-//            }).then((value) => {
-//
-//                if (value != true) {
-//                    return;
-//                }
-//
-//                $.ajax({
-//                    method: 'POST',
-//                    async: false,
-//                    url: APP.url('academico/gposeccion/cerrarorden'),
-//                    success: function (response) {
-//                        if (response.success) {
-//
-//                            notify(response.message, 'info');
-//
-//                            $vue.$refs.load.loadRemoteData();
-//
-//                            swal({text: response.message, icon: "success", button: false, timer: 1000});
-//
-//                        } else {
-//
-//                            swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
-//                        }
-//                    },
-//                    error: function () {
-//
-//                        swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+//                    cancel: {label: "Cancelar", className: "btn-link"},
+//                    confirm: {label: "Si, finalizar", className: "btn-warning"}
+//                },
+//                callback(result) {
+//                    if (result) {
+//                        $.ajax({
+//                            method: 'POST',
+//                            async: false,
+//                            url: APP.url('academico/gposeccion/cerrarorden'),
+//                            success: function (response) {
+//                                if (response.success) {
+//                                    $vue.updateDataCiclo();
+//                                    notify(response.message, 'info');
+//                                } else {
+//                                    notify(response.message, 'error');
+//                                }
+//                            },
+//                            error: function () {
+//                                notify(MESSAGES.errorComunicacion, 'error');
+//                            }
+//                        });
 //                    }
-//                });
-//
-//            }).catch(err => {
-//
-//                swal(MESSAGES.errorComunicacion, "error");
-//
+//                }
 //            });
 
         }

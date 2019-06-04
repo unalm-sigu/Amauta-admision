@@ -66,13 +66,13 @@
 
                     <vuelect 
                         required="true"
-                        v-bind:objetogenerico="ciclo"
-                        v-bind:initobject="ciclo"
+                        v-bind:objetogenerico="cicloClonacion"
+                        v-bind:initobject="cicloClonacion"
                         formatselection="descripcion2"
                         formatresult="descripcion2"
-                        nameinput="ciclo.id"
+                        nameinput="cicloClonacion.id"
                         remoteurl="comun/buscar/allCicloDescendent"
-                        v-model="ciclo"
+                        v-model="cicloClonacion"
                         ></vuelect>
 
                 </div>
@@ -86,9 +86,9 @@
            v-bind:okaction="saveGpoSecc">
     <div slot="body">
 
-        <form data-parsley-validate="true" id="formNuevoGpoSecc">
+        <form data-parsley-validate="true" v-bind:id="nuevoGpoSeccModal.form">
             <div>
-                <div class="form-group">
+                <div class="form-group m-b-xs">
                     <label class="bold">Curso</label>
                     <multiselect v-model='newGrupoSeccion.curso'
                                  label='nombre'
@@ -115,15 +115,14 @@
                     <input type="text" class="hide" required="" v-model="newGrupoSeccion.curso.id"/>
                 </div>
 
-                <div v-if="newGrupoSeccion.curso.id" class="form-group">
-                    <label class="bold">TCP</label>
-                    <p class="form-control-static">
-                        <small class="block">
-                            {{newGrupoSeccion.curso.codigo}} <i class="fa fa-bookmark text-primary"></i> {{newGrupoSeccion.curso.tpc}}
-                        </small>
-                        <small class="block">{{newGrupoSeccion.curso.departamentoAcademico.nombre}}</small>
-                    </p>
+                <div v-if="newGrupoSeccion.curso.id" class="m-t-xs m-b">
+                    <small class="block">
+                        {{newGrupoSeccion.curso.codigo}} <i class="fa fa-bookmark text-primary"></i> {{newGrupoSeccion.curso.tpc}}
+                    </small>
+                    <small class="block">Departamento académico: {{newGrupoSeccion.curso.departamentoAcademico.nombre}}</small>
                 </div>
+                <div v-else="" class="m-t-xs m-b">&nbsp;</div>
+
 
                 <div class="form-group">
                     <label class="bold">Categoría Anexo Boletín</label>
