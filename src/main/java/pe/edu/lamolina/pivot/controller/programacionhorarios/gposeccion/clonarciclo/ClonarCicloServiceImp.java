@@ -347,14 +347,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 seccNew.setUserRegistro(ds.getUsuario());
                 seccNew.setSeccionSuperior(seccionSup);
 
-                Aula aula = seccOrigen.getAula();
-                if (aula != null) {
-                    Oficina oficina = aula.getOficinaSupervisora();
-                    if (oficina.getCodigoEnum() == OficinaEnum.OERA && modalidad.getCodigoEnum() == ModalidadEstudioEnum.PRE) {
-                        seccNew.setAula(seccOrigen.getAula());
-                    }
-                }
-
                 if (seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.TEO || seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
                     seccNew.setCodigo(codigo + "0");
                     seccNew.setCodigo2(codigo + "0");
@@ -366,6 +358,36 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     seccNew.setCodigo(codigo + loopPCUR);
                     seccNew.setCodigo2(codigo + loopPCUR);
                     loopPCUR++;
+                }
+
+                boolean tieneAula = false;
+
+                Aula aula = seccOrigen.getAula();
+                if (aula != null) {
+                    Oficina oficina = aula.getOficinaSupervisora();
+                    if (oficina != null) {
+                        //  option copiar aulas oera
+                        if ((oficina.isOficinaOera() && modalidad.isPregrado()) && cicloClonacionBean.getCopiarAulasOera()) {
+                            tieneAula = true;
+                            seccNew.setAula(seccOrigen.getAula());
+                            logger.debug(" ************* clonacion de aulas oera {} {}", seccNew.getCodigo2(), seccOrigen.getCodigo2());
+                            // option copiar aulas depts
+                        } else if ((!oficina.isOficinaOera() && (modalidad.isPregrado() || modalidad.isPostgrado())) && cicloClonacionBean.getCopiarAulasDptos()) {
+                            tieneAula = true;
+                            seccNew.setAula(seccOrigen.getAula());
+                            logger.debug(" ************* clonacion de aulas dptos {} {}", seccNew.getCodigo2(), seccOrigen.getCodigo2());
+
+                            // option copiar aulas posgrado
+                        } else if ((oficina.isOficinaOera() && modalidad.isPostgrado()) && cicloClonacionBean.getCopiarAulasPosgrado()) {
+                            tieneAula = true;
+                            seccNew.setAula(seccOrigen.getAula());
+                            logger.debug(" ************* clonacion de aulas posgrado {} {}", seccNew.getCodigo2() , seccOrigen.getCodigo2());
+                        }
+                    }
+                }
+
+                if (!tieneAula) {
+                    logger.debug(" ************* clonacion sin aula {} {}", seccNew.getCodigo2(), seccOrigen.getCodigo2());
                 }
 
                 GrupoHoras gpoNew = seccNew.getGrupoHoras();
