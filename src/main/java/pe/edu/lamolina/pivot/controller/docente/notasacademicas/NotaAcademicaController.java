@@ -470,7 +470,7 @@ public class NotaAcademicaController {
             claves.append(",");
             if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
                 docenteSeccion = service.findDocenteSeccionByFilter(ds.getDocente(), sec);
-                if (docenteSeccion != null && docenteSeccion.getEstadoEnum().equals(EstadoEnum.ACT)) {
+                if (docenteSeccion != null && docenteSeccion.getEstadoEnum() == SeccionEstadoEnum.ACT) {
                     if (docenteSeccion.esDocentePrincipal()) {
                         permiteAsignar = true;
                     }

@@ -39,6 +39,7 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.pivot.controller.academico.acta.reporte.RecordDeActasExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -235,7 +236,7 @@ public class ActaController {
 //                        docentesSeccion = service.allDocenteSeccionByFilter(null, sec);
                         docentesSeccion = sec.getDocenteSeccion();
                         for (DocenteSeccion docentesSeccionEach : docentesSeccion) {
-                            if (docentesSeccionEach.getEstadoEnum().equals(EstadoEnum.ACT)) {
+                            if (docentesSeccionEach.getEstadoEnum() == SeccionEstadoEnum.ACT) {
                                 if (docentesSeccionEach.esDocentePrincipal()) {
                                     docentesPrincipal.add(docentesSeccionEach.getDocente());
                                 }

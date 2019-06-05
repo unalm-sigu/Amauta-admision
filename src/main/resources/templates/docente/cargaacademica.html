@@ -54,12 +54,12 @@
                                         <i v-else-if="seccion.tipoSeccionEnum.name==='PRA'" class="fa fa-flask  fa-lg"/>
                                         <i v-else="" class="fa fa-book fa-lg"/>
                                     </td>
-                                    
+
                                     <td class="v-middle text-center">
                                         <span class="block">{{seccion.codigo2}}</span>
                                         <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
                                     </td>
-                                    
+
                                     <td class="v-middle text-center">
                                         <span class="block" v-if="seccion.aula.codigo != '' "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
                                         <span class="block" v-if="seccion.grupoHoras.codigo != '' "><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
@@ -91,7 +91,7 @@
                                         <i v-if="seccion.tipoSeccionEnum.name === 'PCUR'" class="fa fa-flask  fa-lg"/>
                                         <i v-else-if="seccion.tipoSeccionEnum.name === 'PRA'" class="fa fa-flask  fa-lg"/>
                                         <i v-else="" class="fa fa-book fa-lg"/>
-                                        
+
                                     </td>
                                     <td class="v-middle text-center">
                                         <span class="block">{{seccion.codigo2}}</span>

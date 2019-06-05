@@ -41,11 +41,11 @@ public class CuotaDptoServiceImp implements CuotaDptoService {
 
         List<CuotasGrupoHoras> cuotas = cuotaGpoHorasDAO.allByDynatableGpoHoras(filter, grupoHoras, cicloAcademico);
 
-        List<AnexoCuotaUtilizadaBean> anexoCuotaUtilizadaBean = cuotaGpoHorasDAO.allByGpoHorasCicloBeanUtilizado(grupoHoras, cicloAcademico);
-        List<AnexoCuotaUtilizadaBean> anexoCuotaGrupoBean = cuotaGpoHorasDAO.allByGpoHorasCicloBeanGpo(grupoHoras, cicloAcademico);
+        List<AnexoCuotaUtilizadaBean> cuotasAnexosUtilizadas = cuotaGpoHorasDAO.allCuotasAnexosByLetraCiclo(grupoHoras, cicloAcademico);
+        List<AnexoCuotaUtilizadaBean> gposAnexosUtilizados = cuotaGpoHorasDAO.allGposAnexosByLetraCiclo(grupoHoras, cicloAcademico);
 
-        Map<String, AnexoCuotaUtilizadaBean> mapAnexoUtilizada = TypesUtil.convertListToMap("idAnexo", anexoCuotaUtilizadaBean);
-        Map<String, List<AnexoCuotaUtilizadaBean>> mapAnexoGrupos = TypesUtil.convertListToMapList("idAnexo", anexoCuotaGrupoBean);
+        Map<String, AnexoCuotaUtilizadaBean> mapAnexoUtilizada = TypesUtil.convertListToMap("idAnexo", cuotasAnexosUtilizadas);
+        Map<String, List<AnexoCuotaUtilizadaBean>> mapAnexoGrupos = TypesUtil.convertListToMapList("idAnexo", gposAnexosUtilizados);
 
         for (CuotasGrupoHoras cuota : cuotas) {
 

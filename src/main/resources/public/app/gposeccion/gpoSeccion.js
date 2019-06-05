@@ -101,6 +101,13 @@ new Vue({
             $vue.orderbycodigo = true;
             $vue.$refs.load.querie.push({name: 'order-codigo', value: orderBy});
         }
+        
+        let letra = $vue.$refs.load.getParameterByName('queries[letra]');
+        letra = (letra == null) ? '' : letra;
+        if (letra != '') {
+            //$vue.orderbycodigo = true;
+            $vue.$refs.load.querie.push({name: 'letra', value: letra});
+        }
 
         $vue.loadDataInicial();
 

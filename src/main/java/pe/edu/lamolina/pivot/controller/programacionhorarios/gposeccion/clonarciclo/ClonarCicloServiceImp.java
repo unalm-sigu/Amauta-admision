@@ -25,6 +25,7 @@ import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
@@ -40,13 +41,17 @@ import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_EPG;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
@@ -245,6 +250,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
         for (GrupoSeccion gpoSeccOrigen : gsOrigenes) {
             Curso curso = gpoSeccOrigen.getCurso();
+            ModalidadEstudio modalidad = curso.getModalidadEstudio();
             eventoDictadoClases = eventoDictadoVeranoPregrado;
             if (cicloDestino.getTipoEnum() == TipoCicloEnum.REG && curso.getModalidadEstudio().isPostgrado()) {
                 eventoDictadoClases = eventoDictadoPosgrado;
@@ -335,11 +341,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 seccNew.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
                 seccNew.setHorasSemanales(seccOrigen.getHorasSemanales());
                 seccNew.setVacantes(seccOrigen.getVacantes());
-                seccNew.setMatriculados(0);
-                seccNew.setReservados(0);
-                seccNew.setPrematriculados(0);
-                seccNew.setRetirados(0);
-                seccNew.setAmpliacionVacante(0);
                 seccNew.setGrupoHoras(seccOrigen.getGrupoHoras());
                 seccNew.setRestriccionCapa(seccOrigen.getRestriccionCapa());
                 seccNew.setFechaRegistro(today);
@@ -357,6 +358,36 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     seccNew.setCodigo(codigo + loopPCUR);
                     seccNew.setCodigo2(codigo + loopPCUR);
                     loopPCUR++;
+                }
+
+                boolean tieneAula = false;
+
+                Aula aula = seccOrigen.getAula();
+                if (aula != null) {
+                    Oficina oficina = aula.getOficinaSupervisora();
+                    if (oficina != null) {
+                        //  option copiar aulas oera
+                        if ((oficina.isOficinaOera() && modalidad.isPregrado()) && cicloClonacionBean.getCopiarAulasOera()) {
+                            tieneAula = true;
+                            seccNew.setAula(seccOrigen.getAula());
+                            logger.debug(" ************* clonacion de aulas oera {} {}", seccNew.getCodigo2(), seccOrigen.getCodigo2());
+                            // option copiar aulas depts
+                        } else if ((!oficina.isOficinaOera() && (modalidad.isPregrado() || modalidad.isPostgrado())) && cicloClonacionBean.getCopiarAulasDptos()) {
+                            tieneAula = true;
+                            seccNew.setAula(seccOrigen.getAula());
+                            logger.debug(" ************* clonacion de aulas dptos {} {}", seccNew.getCodigo2(), seccOrigen.getCodigo2());
+
+                            // option copiar aulas posgrado
+                        } else if ((oficina.isOficinaOera() && modalidad.isPostgrado()) && cicloClonacionBean.getCopiarAulasPosgrado()) {
+                            tieneAula = true;
+                            seccNew.setAula(seccOrigen.getAula());
+                            logger.debug(" ************* clonacion de aulas posgrado {} {}", seccNew.getCodigo2() , seccOrigen.getCodigo2());
+                        }
+                    }
+                }
+
+                if (!tieneAula) {
+                    logger.debug(" ************* clonacion sin aula {} {}", seccNew.getCodigo2(), seccOrigen.getCodigo2());
                 }
 
                 GrupoHoras gpoNew = seccNew.getGrupoHoras();

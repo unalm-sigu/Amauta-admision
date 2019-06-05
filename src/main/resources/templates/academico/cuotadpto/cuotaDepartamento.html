@@ -29,6 +29,11 @@
                 color: #fff;
             }
 
+            .circle-recorrido.bgr-warning {
+                background-color: #F1B41E;
+                color: #fff;
+            }
+
             .circle-recorrido.bgr-black {
                 background-color: #3C4043;
                 color: #fff;
@@ -53,11 +58,13 @@
                         <section class="panel-body">
 
                             <div slot="header">
-
-                                <div class="col-md-6">
+                                <div class="col-md-1 text-right h4 m-t-xs">
+                                    Letra
+                                </div>
+                                <div class="col-md-2">
                                     <multiselect v-model='grupoHoras'                                             
                                                  label="letra"
-                                                 placeholder="Seleccione un grupo"
+                                                 placeholder="Seleccione una letra"
                                                  track-by="id"
                                                  v-bind:allow-empty="false"
                                                  v-bind:options="grupos"
@@ -69,29 +76,36 @@
                             </div>
 
 
-                            <raptor-table v-bind:url="cuotadptoURL" v-bind:pagination="pagination" v-bind:searcher="false" v-bind:paginate="false"  v-bind:preload="false" ref="raptorCuotaGpoHoras" >
+                            <raptor-table v-bind:url="cuotadptoURL" 
+                                          v-bind:pagination="pagination" 
+                                          v-bind:searcher="false" 
+                                          v-bind:paginate="false"  
+                                          v-bind:preload="false" ref="raptorCuotaGpoHoras" >
 
                                 <template  scope="props" >
                                     <table class="table table-striped">
                                         <thead> 
                                             <tr> 
-                                                <th class="col-md-4">Departamento</th>
+                                                <th class="col-md-4">Anexo del boletín</th>
                                                 <th class="col-md-2 text-center">Cuotas</th>
-                                                <th class="col-md-2 text-center">Utilizados</th>
+                                                <th class="col-md-2 text-center">Utilizadas</th>
                                                 <th class="col-md-4">Cantidad Grupos</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data">
-                                                <td class="v-middle">
+                                                <td class="v-middle h5 text-primary">
                                                     {{item.anexoBoletin.nombre}}
                                                 </td>
                                                 <td class="v-middle text-center"> 
-                                                    {{item.cuotas}}
+                                                    <div class="circle-recorrido bgr-default text-center">{{item.cuotas}}</div>
                                                 </td>
                                                 <td class="v-middle text-center">
-                                                    <div v-if="item.horasUtilizadas > item.cuotas" class="circle-recorrido bgr-danger text-center" v-text="item.horasUtilizadas"></div>
-                                                    <div v-else="" class="circle-recorrido bgr-black text-center" v-text="item.horasUtilizadas"></div>
+                                                    <div v-if="item.horasUtilizadas > item.cuotas" 
+                                                         class="circle-recorrido bgr-danger text-center" v-text="item.horasUtilizadas"></div>
+                                                    <div v-else-if="item.horasUtilizadas == item.cuotas" 
+                                                         class="circle-recorrido bgr-success text-center" v-text="item.horasUtilizadas"></div>
+                                                    <div v-else="" class="circle-recorrido bgr-warning text-center" v-text="item.horasUtilizadas"></div>
                                                 </td>
                                                 <td class="v-middle">
                                                     {{item.detalleGrupos}}

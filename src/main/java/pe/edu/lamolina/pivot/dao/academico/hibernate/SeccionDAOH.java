@@ -148,7 +148,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
-                .leftJoin("aula", "grupoHoras", "seccionSuperior")
+                .leftJoin("aula au", "grupoHoras", "seccionSuperior", "au.oficinaSupervisora")
                 .filter("estado", SeccionEstadoEnum.ACT)
                 .filter("matriculados", ">", 0)
                 .in("gs.id", gruposSeccion)
@@ -605,7 +605,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         sql.append("update Seccion ");
         sql.append("   set matriculados = :MATRICULADOS, ");
         sql.append("       estado = :ESTADO ");
-        sql.append( "where id = :SECCION ");
+        sql.append("where id = :SECCION ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("MATRICULADOS", matriculados);

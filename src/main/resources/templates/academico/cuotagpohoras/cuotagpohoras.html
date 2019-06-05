@@ -1,6 +1,49 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Configurar Cuotas por Anexo</title>
+        <style>
+            .circle-recorrido {
+                display: block;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                overflow: hidden;
+                margin: 0 auto;
+                line-height: 50px;  
+                /*                text-align: center;*/
+                font-size: 16px;
+                /*                margin-left: 49px;*/
+                text-indent: 0;
+                vertical-align: middle;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
+
+            .circle-recorrido.bgr-success {
+                background-color: #2ECC71;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-danger {
+                background-color: #E74C3C;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-warning {
+                background-color: #F1B41E;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-black {
+                background-color: #3C4043;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-default {
+                background-color: #979595;
+                color: #fff;
+            }
+        </style>
     </head>
 
     <body>
@@ -38,7 +81,11 @@
                             </div>
 
 
-                            <raptor-table v-bind:url="cuotagpohorasURL" v-bind:pagination="pagination" v-bind:searcher="false" v-bind:paginate="false"  v-bind:preload="false" ref="raptorCuotaGpoHoras" >
+                            <raptor-table v-bind:url="cuotagpohorasURL" 
+                                          v-bind:pagination="pagination" 
+                                          v-bind:searcher="false" 
+                                          v-bind:paginate="false"  
+                                          v-bind:preload="false" ref="raptorCuotaGpoHoras" >
 
                                 <template  scope="props" >
                                     <table class="table table-striped">
@@ -48,26 +95,30 @@
                                                 <th class="col-md-1 text-center v-middle">Letra</th>
                                                 <th class="col-md-1 text-center v-middle">Cuota</th>
                                                 <th class="col-md-1 text-center v-middle">Utilizados</th>
-                                                <th class="col-md-1 text-center v-middle">Horas Utilizados</th>
+                                                <th class="col-md-1 text-center v-middle">Horas Utilizadas</th>
                                                 <th class="col-md-4 v-middle">Cantidad Grupos</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data">
-                                                <td class="v-middle">
+                                                <td class="v-middle text-primary h5">
                                                     {{item.anexoBoletin.nombre}}
                                                 </td>
-                                                <td class="v-middle text-center"> 
-                                                    {{item.grupoHoras.codigo}}
+                                                <td class="v-middle text-center h3"> 
+                                                    <div class="circle-recorrido bgr-black">{{item.grupoHoras.codigo}}</div>
                                                 </td>
                                                 <td class="v-middle text-center"> 
-                                                    {{item.cuotas}}
+                                                    <div class="circle-recorrido bgr-default">{{item.cuotas}}</div>
+                                                </td>
+                                                <td class="v-middle text-center pointer" v-on:click="editarGpoSecciones(item)"> 
+                                                    <div v-if="item.horasUtilizadas > item.cuotas"
+                                                         class="circle-recorrido bgr-danger">{{item.horasUtilizadas}}</div>
+                                                    <div v-else-if="item.horasUtilizadas == item.cuotas"
+                                                         class="circle-recorrido bgr-success">{{item.horasUtilizadas}}</div>
+                                                    <div v-else="" class="circle-recorrido bgr-warning">{{item.horasUtilizadas}}</div>
                                                 </td>
                                                 <td class="v-middle text-center"> 
-                                                    {{item.horasUtilizadas}}
-                                                </td>
-                                                <td class="v-middle text-center"> 
-                                                    {{item.gruposUtilizados}}
+                                                    <div class="circle-recorrido bgr-default">{{item.gruposUtilizados}}</div>
                                                 </td>   
                                                 <td class="v-middle"> 
                                                     {{item.detalleGrupos}}

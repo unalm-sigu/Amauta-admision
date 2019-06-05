@@ -68,7 +68,8 @@ public class CuotaGpoHorasController {
                             "cuotas", "asignadasSistema", "totalUtilizadas",
                             "gruposUtilizados",
                             "horasUtilizadas",
-                            "detalleGrupos"
+                            "detalleGrupos",
+                            "idsGposSecciones"
                         });
 
                 array.add(node);

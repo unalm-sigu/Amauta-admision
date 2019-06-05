@@ -1,9 +1,10 @@
 package pe.edu.lamolina.pivot.controller.academico.cuotagpohoras;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,9 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CuotaGpoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
@@ -35,20 +38,25 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
     @Autowired
     GrupoHorasDAO grupoHorasDAO;
 
+    @Autowired
+    GpoSeccionService gpoSeccionService;
+
     @Override
     public List<CuotasGrupoHoras> allCuotasGpoHoras(DynatableFilter filter, AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico) {
 
         List<CuotasGrupoHoras> cuotas = cuotaGpoHorasDAO.allByDynatable(filter, anexoBoletin, cicloAcademico);
 
-        List<LetraCuotaUtilizadaBean> letrasUtilizados = cuotaGpoHorasDAO.allByAnexoBoletinAcademico(anexoBoletin, cicloAcademico);
-        List<LetraCuotaUtilizadaBean> letrasHorasUtilizadas = cuotaGpoHorasDAO.allByAnexoBoletinHoras(anexoBoletin, cicloAcademico);
-        List<LetraCuotaUtilizadaBean> cantidadGrupos = cuotaGpoHorasDAO.allByAnexoBoletinGrupo(anexoBoletin, cicloAcademico);
+        List<LetraCuotaUtilizadaBean> letrasUtilizados = cuotaGpoHorasDAO.allLetrasUtilizadasByAnexoCiclo(anexoBoletin, cicloAcademico);
+        List<LetraCuotaUtilizadaBean> horasUtilizadas = cuotaGpoHorasDAO.allHorasUtilizadasByAnexoCiclo(anexoBoletin, cicloAcademico);
+        List<LetraCuotaUtilizadaBean> cantidadGrupos = cuotaGpoHorasDAO.allGposUtilizadosByAnexoCiclo(anexoBoletin, cicloAcademico);
 
         Map<String, LetraCuotaUtilizadaBean> mapLetraUtilizados = TypesUtil.convertListToMap("letra", letrasUtilizados);
-        Map<String, LetraCuotaUtilizadaBean> mapLetraHorasUtilizadas = TypesUtil.convertListToMap("letra", letrasHorasUtilizadas);
+        Map<String, LetraCuotaUtilizadaBean> mapLetraHorasUtilizadas = TypesUtil.convertListToMap("letra", horasUtilizadas);
         Map<String, List<LetraCuotaUtilizadaBean>> mapCantidadGrupos = TypesUtil.convertListToMapList("letra", cantidadGrupos);
 
         for (CuotasGrupoHoras cuota : cuotas) {
+            String ids = getIdsGpoSecciones(cuota, cicloAcademico);
+            cuota.setIdsGposSecciones(ids);
 
             LetraCuotaUtilizadaBean letraUtilizadoFound = mapLetraUtilizados.get(cuota.getGrupoHoras().getLetra());
             LetraCuotaUtilizadaBean letraHorasUtilizadoFound = mapLetraHorasUtilizadas.get(cuota.getGrupoHoras().getLetra());
@@ -59,14 +67,44 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
 
             String strCantGpos = "";
 
-            for (LetraCuotaUtilizadaBean letra : cantidadGrupoFound) {
+            for (LetraCuotaUtilizadaBean letraGrupo : cantidadGrupoFound) {
                 strCantGpos += strCantGpos.equals("") ? "" : ", ";
-                strCantGpos += letra.getGrupo() + "(" + letra.getCantidad() + ")";
+                strCantGpos += letraGrupo.getGrupo() + "(" + letraGrupo.getCantidad() + ")";
             }
             cuota.setDetalleGrupos(strCantGpos);
         }
 
         return cuotas;
+    }
+
+    private String getIdsGpoSecciones(CuotasGrupoHoras cuota, CicloAcademico cicloAcademico) {
+        AnexoBoletin anexo = cuota.getAnexoBoletin();
+        String letra = cuota.getGrupoHoras().getLetra();
+        DynatableFilter filterGpoSeccion = createFilterGpoSeccion(anexo, letra);
+        List<GrupoSeccion> gpoSecciones = gpoSeccionService.allCleanByDynatable(filterGpoSeccion, cicloAcademico);
+
+        String ids = "";
+        for (GrupoSeccion gpoSecc : gpoSecciones) {
+            ids += ids.equals("") ? "" : ",";
+            ids += gpoSecc.getId();
+        }
+        return ids;
+    }
+
+    private DynatableFilter createFilterGpoSeccion(AnexoBoletin anexo, String letra) {
+        DynatableFilter filter = new DynatableFilter();
+        filter.setPage(1);
+        filter.setOffset(0);
+        filter.setPerPage(1000000);
+
+        Map<String, Object> queries = new HashMap();
+        queries.put("letra", letra);
+        queries.put("anexo", anexo.getId());
+        queries.put("order-id", anexo.getId());
+
+        filter.setQueries(queries);
+
+        return filter;
     }
 
     @Override
@@ -91,20 +129,38 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
     @Override
     @Transactional
     public void save(List<CuotasGrupoHoras> cuotas, CicloAcademico ciclo, DataSessionPivot ds) {
-        for (CuotasGrupoHoras cuota : cuotas) {
-            cuota.setCicloAcademico(ciclo);
-            cuota.setUserRegistro(ds.getUsuario());
-            cuota.setAsignadasSistema(0);
-            cuota.setFechaRegistro(new Date());
-            cuota.setTotalUtilizadas(0);
-            if (cuota.getId() == null) {
-                if (cuota.getCuotas() > 0) {
-                    cuotaGpoHorasDAO.save(cuota);
+        if (cuotas.isEmpty()) {
+            return;
+        }
+
+        AnexoBoletin anexo = cuotas.get(0).getAnexoBoletin();
+        List<CuotasGrupoHoras> cuotasBD = cuotaGpoHorasDAO.allByAnexoCiclo(anexo, ciclo);
+        Map<Long, CuotasGrupoHoras> mapCuotas = TypesUtil.convertListToMap("id", cuotasBD);
+        DateTime today = new DateTime();
+
+        for (CuotasGrupoHoras cuotaForm : cuotas) {
+            if (cuotaForm.getId() == null) {
+                cuotaForm.setCicloAcademico(ciclo);
+                cuotaForm.setAsignadasSistema(0);
+                cuotaForm.setTotalUtilizadas(0);
+                cuotaForm.setUserRegistro(ds.getUsuario());
+                cuotaForm.setFechaRegistro(today.toDate());
+                if (cuotaForm.getCuotas() > 0) {
+                    cuotaGpoHorasDAO.save(cuotaForm);
                 }
-            } else if (cuota.getCuotas() > 0) {
-                cuotaGpoHorasDAO.update(cuota);
+
+            } else if (cuotaForm.getCuotas() > 0) {
+                CuotasGrupoHoras cuotaBD = mapCuotas.get(cuotaForm.getId());
+                if (cuotaBD.getCuotas() != cuotaForm.getCuotas().intValue()) {
+                    cuotaBD.setCuotas(cuotaForm.getCuotas());
+                    cuotaBD.setFechaModificacion(today.toDate());
+                    cuotaBD.setUserModificacion(ds.getUsuario());
+                    cuotaGpoHorasDAO.update(cuotaBD);
+                }
+
             } else {
-                cuotaGpoHorasDAO.delete(cuota);
+                CuotasGrupoHoras cuotaBD = mapCuotas.get(cuotaForm.getId());
+                cuotaGpoHorasDAO.delete(cuotaBD);
             }
 
         }
@@ -113,7 +169,7 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
 
     @Override
     public List<CuotasGrupoHoras> allCuotasByAnexo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico) {
-        List<CuotasGrupoHoras> cuotasGrupoHoras = cuotaGpoHorasDAO.allCuotasByAnexo(anexoBoletin, cicloAcademico);
+        List<CuotasGrupoHoras> cuotasGrupoHoras = cuotaGpoHorasDAO.allByAnexoCiclo(anexoBoletin, cicloAcademico);
         return cuotasGrupoHoras;
     }
 

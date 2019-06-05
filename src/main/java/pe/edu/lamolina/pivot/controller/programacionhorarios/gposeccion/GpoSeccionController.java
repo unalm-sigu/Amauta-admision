@@ -145,6 +145,7 @@ public class GpoSeccionController {
     public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
+            filter.getQueries();
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<GrupoSeccion> gpoSecciones = service.allByDynatable(filter, ds.getCicloAcademico());
             ArrayNode arrayGpoSecc = new ArrayNode(JsonNodeFactory.instance);
@@ -340,7 +341,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.cambiarEstadoGpoSeccion(SeccionEstadoEnum.ACT, new GrupoSeccion(gruposeccionId), ds.getUsuario());
+            service.cambiarEstadoGpoSeccion(SeccionEstadoEnum.ACT, new GrupoSeccion(gruposeccionId), ds);
             response.setMessage("Activado correctamente.");
             response.setSuccess(true);
         } catch (PhobosException e) {
@@ -358,7 +359,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.cambiarEstadoGpoSeccion(SeccionEstadoEnum.ANU, new GrupoSeccion(gruposeccionId), ds.getUsuario());
+            service.cambiarEstadoGpoSeccion(SeccionEstadoEnum.ANU, new GrupoSeccion(gruposeccionId), ds);
             response.setMessage("Desactivado correctamente.");
             response.setSuccess(true);
         } catch (PhobosException e) {
@@ -795,8 +796,9 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            TypesUtil.delay(3000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.activarSeccion(new Seccion(seccionId), ds.getUsuario());
+            service.activarSeccion(new Seccion(seccionId), ds);
             String message = "Sección activada.";
             response.setSuccess(true);
             response.setMessage(message);
@@ -818,8 +820,9 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            TypesUtil.delay(3000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.bloquearSeccion(new Seccion(seccionId), ds.getUsuario());
+            service.bloquearSeccion(new Seccion(seccionId), ds);
             String message = "Sección bloqueada.";
             response.setSuccess(true);
             response.setMessage(message);
@@ -841,14 +844,40 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            TypesUtil.delay(3000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            GrupoSeccion grupoSeccion = service.anularSeccion(new Seccion(seccionId), ds.getUsuario());
+            GrupoSeccion grupoSeccion = service.anularSeccion(new Seccion(seccionId), ds);
             String message = "redirect";
             response.setData(grupoSeccion.getCurso().getId());
             if (grupoSeccion.getId() != null) {
                 message = "Sección anulada.";
             }
+            response.setSuccess(true);
+            response.setMessage(message);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cancelarSeccion")
+    public JsonResponse cancelarSeccion(@RequestParam("seccion") Long seccionId,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            TypesUtil.delay(3000);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.cancelarSeccion(new Seccion(seccionId), ds);
+            String message = "Sección cancelada.";
             response.setSuccess(true);
             response.setMessage(message);
 
@@ -1027,7 +1056,7 @@ public class GpoSeccionController {
 
             Seccion seccion = new Seccion(seccionId);
             seccion.setVacantes(vacantes);
-            service.actualizarSeccionVacantes(seccion, ds.getUsuario());
+            service.actualizarSeccionVacantes(seccion, ds);
 
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Vacantes actualizadas");
@@ -1055,7 +1084,7 @@ public class GpoSeccionController {
 
             Seccion seccion = new Seccion(seccionId);
             seccion.setRestriccionCapa(capa);
-            service.actualizarSeccionResctriccionCapa(seccion, ds.getUsuario());
+            service.actualizarSeccionResctriccionCapa(seccion, ds);
 
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Restricción CAPA actualizada.");
@@ -1592,7 +1621,7 @@ public class GpoSeccionController {
                 restriccionesList.add(restriccionEach.get("id").asLong());
             }
 
-            service.saveRestriccion(seccion, ds.getUsuario(), tipoRestriccionEnum, restriccionesList);
+            service.saveRestriccion(seccion, ds, tipoRestriccionEnum, restriccionesList);
             String message = "Restriccion asignada correctamente.";
 
             response.setSuccess(true);
@@ -2463,6 +2492,7 @@ public class GpoSeccionController {
                 "*",
                 "grupoHoras.id",
                 "grupoHoras.codigo",
+                "grupoHoras.letra",
                 "grupoHoras.cuotasGrupoHoras.cuotas",
                 "grupoHoras.cuotasGrupoHoras.totalUtilizadas",
                 "aula.id",
