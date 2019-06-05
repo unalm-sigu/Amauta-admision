@@ -281,13 +281,15 @@
                                                 <div v-bind:style='getStyleDivGpoHoras(seccion)'
                                                      v-if="seccion.grupoHoras.id &amp;&amp; ( seccion.matriculados > 0 || !directEditSecciones)"
                                                      v-on:click="showModalGrupos(seccion)" 
-                                                     style="cursor:pointer;"
-                                                     >
+                                                     style="cursor:pointer;">
                                                     <div>{{ seccion.grupoHoras.codigo }} </div>
-                                                    <small v-if="mostrarCuotasExedidas(seccion)">
-                                                        {{seccion.grupoHoras.cuotasGrupoHoras.cuotas}} / {{seccion.grupoHoras.cuotasGrupoHoras.totalUtilizadas}}
-                                                    </small>
+
                                                 </div>
+
+                                                <small v-if="mostrarCuotasExedidas(seccion)">
+                                                    ({{seccion.grupoHoras.cuotasGrupoHoras.cuotas}}/{{seccion.grupoHoras.cuotasGrupoHoras.totalUtilizadas}}
+                                                    - {{seccion.grupoHoras.letra}})
+                                                </small>
 
                                                 <input v-if="directEditSecciones &amp;&amp; seccion.matriculados == 0"
                                                        v-on:blur="directEditGrupoHor(seccion,$event)"

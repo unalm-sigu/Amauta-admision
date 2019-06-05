@@ -1,7 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.cuotagpohoras;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.joda.time.DateTime;
@@ -15,7 +15,9 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CuotaGpoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
@@ -36,6 +38,9 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
     @Autowired
     GrupoHorasDAO grupoHorasDAO;
 
+    @Autowired
+    GpoSeccionService gpoSeccionService;
+
     @Override
     public List<CuotasGrupoHoras> allCuotasGpoHoras(DynatableFilter filter, AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico) {
 
@@ -50,6 +55,8 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
         Map<String, List<LetraCuotaUtilizadaBean>> mapCantidadGrupos = TypesUtil.convertListToMapList("letra", cantidadGrupos);
 
         for (CuotasGrupoHoras cuota : cuotas) {
+            String ids = getIdsGpoSecciones(cuota, cicloAcademico);
+            cuota.setIdsGposSecciones(ids);
 
             LetraCuotaUtilizadaBean letraUtilizadoFound = mapLetraUtilizados.get(cuota.getGrupoHoras().getLetra());
             LetraCuotaUtilizadaBean letraHorasUtilizadoFound = mapLetraHorasUtilizadas.get(cuota.getGrupoHoras().getLetra());
@@ -60,14 +67,44 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
 
             String strCantGpos = "";
 
-            for (LetraCuotaUtilizadaBean letra : cantidadGrupoFound) {
+            for (LetraCuotaUtilizadaBean letraGrupo : cantidadGrupoFound) {
                 strCantGpos += strCantGpos.equals("") ? "" : ", ";
-                strCantGpos += letra.getGrupo() + "(" + letra.getCantidad() + ")";
+                strCantGpos += letraGrupo.getGrupo() + "(" + letraGrupo.getCantidad() + ")";
             }
             cuota.setDetalleGrupos(strCantGpos);
         }
 
         return cuotas;
+    }
+
+    private String getIdsGpoSecciones(CuotasGrupoHoras cuota, CicloAcademico cicloAcademico) {
+        AnexoBoletin anexo = cuota.getAnexoBoletin();
+        String letra = cuota.getGrupoHoras().getLetra();
+        DynatableFilter filterGpoSeccion = createFilterGpoSeccion(anexo, letra);
+        List<GrupoSeccion> gpoSecciones = gpoSeccionService.allCleanByDynatable(filterGpoSeccion, cicloAcademico);
+
+        String ids = "";
+        for (GrupoSeccion gpoSecc : gpoSecciones) {
+            ids += ids.equals("") ? "" : ",";
+            ids += gpoSecc.getId();
+        }
+        return ids;
+    }
+
+    private DynatableFilter createFilterGpoSeccion(AnexoBoletin anexo, String letra) {
+        DynatableFilter filter = new DynatableFilter();
+        filter.setPage(1);
+        filter.setOffset(0);
+        filter.setPerPage(1000000);
+
+        Map<String, Object> queries = new HashMap();
+        queries.put("letra", letra);
+        queries.put("anexo", anexo.getId());
+        queries.put("order-id", anexo.getId());
+
+        filter.setQueries(queries);
+
+        return filter;
     }
 
     @Override

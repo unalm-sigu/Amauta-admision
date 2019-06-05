@@ -81,7 +81,11 @@
                             </div>
 
 
-                            <raptor-table v-bind:url="cuotagpohorasURL" v-bind:pagination="pagination" v-bind:searcher="false" v-bind:paginate="false"  v-bind:preload="false" ref="raptorCuotaGpoHoras" >
+                            <raptor-table v-bind:url="cuotagpohorasURL" 
+                                          v-bind:pagination="pagination" 
+                                          v-bind:searcher="false" 
+                                          v-bind:paginate="false"  
+                                          v-bind:preload="false" ref="raptorCuotaGpoHoras" >
 
                                 <template  scope="props" >
                                     <table class="table table-striped">
@@ -106,7 +110,7 @@
                                                 <td class="v-middle text-center"> 
                                                     <div class="circle-recorrido bgr-default">{{item.cuotas}}</div>
                                                 </td>
-                                                <td class="v-middle text-center pointer"> 
+                                                <td class="v-middle text-center pointer" v-on:click="editarGpoSecciones(item)"> 
                                                     <div v-if="item.horasUtilizadas > item.cuotas"
                                                          class="circle-recorrido bgr-danger">{{item.horasUtilizadas}}</div>
                                                     <div v-else-if="item.horasUtilizadas == item.cuotas"

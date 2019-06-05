@@ -30,8 +30,8 @@ public interface CuotaGpoHorasDAO extends EasyDAO<CuotasGrupoHoras> {
 
     Integer countSeccionesByAnexoCicloLetraGpo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico, String letraHoras);
 
-    List<AnexoCuotaUtilizadaBean> allAnexoCuotasByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+    List<AnexoCuotaUtilizadaBean> allCuotasAnexosByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
-    List<AnexoCuotaUtilizadaBean> allAnexosCuotasByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+    List<AnexoCuotaUtilizadaBean> allGposAnexosByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
 }

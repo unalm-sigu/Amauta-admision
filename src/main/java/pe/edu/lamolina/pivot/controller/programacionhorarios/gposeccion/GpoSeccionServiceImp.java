@@ -82,6 +82,7 @@ import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
@@ -270,8 +271,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSecc);
         List<CuotasGrupoHoras> allCountCuotasGrupoHorases = cuotaGpoHorasDAO.allByAnexoCiclo(gpoSecc.getAnexoBoletin(), gpoSecc.getCicloAcademico());
 
+        for (Seccion secc : secciones) {
+            if (secc.getGrupoHoras() != null) {
+                secc.setGrupoHoras(secc.getGrupoHoras().clone());
+            }
+        }
+
         secciones.stream()
+                .filter(z -> z.getAula() != null)
                 .filter(z -> z.getGrupoHoras() != null)
+                .filter(z -> z.getAula().getOficinaSupervisora() != null)
+                .filter(z -> z.getAula().getOficinaSupervisora().getCodigoEnum() == OficinaEnum.OERA)
                 .forEach(x -> {
                     CuotasGrupoHoras cuotasGrupoHoras = allCountCuotasGrupoHorases.stream()
                             .filter(y -> y.getGrupoHoras().getCodigo().equals(x.getGrupoHoras().getLetra()))

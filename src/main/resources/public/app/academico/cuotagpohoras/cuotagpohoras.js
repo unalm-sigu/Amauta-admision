@@ -18,20 +18,53 @@ new Vue({
         grupos: [],
         cuotas: [],
         cuotasBD: [],
-        departamentoAcademico: null
+        departamentoAcademico: null,
+        esInicio: false
     },
     mounted() {
         let $vue = this;
         $(".numerico").numeric({negative: false});
         $vue.loadGrupos();
-        //  $vue.loadDepartamentos();
+        $vue.esInicio = true;
+
+        let anx = $vue.$refs.raptorCuotaGpoHoras.getParameterByName('queries[anexo-cuotas]');
+        anx = (anx == null) ? '' : anx;
+        if (anx == '') {
+            $vue.esInicio = false;
+            $vue.$refs.raptorCuotaGpoHoras.repreload();
+        }
+
         $vue.loadAnexos();
+
     },
     methods: {
+        loadInfoAnexoInicio() {
+            let $vue = this;
+            if (!$vue.esInicio) {
+                return;
+            }
+
+            let anx = $vue.$refs.raptorCuotaGpoHoras.getParameterByName('queries[anexo-cuotas]');
+            anx = (anx == null) ? '' : anx;
+            if (anx != '') {
+                for (var i = 0; i < $vue.anexos.length; i++) {
+                    if (anx == $vue.anexos[i].id) {
+                        $vue.esInicio = false;
+                        $vue.anexoGrid = $vue.anexos[i];
+                        $vue.changeAnexoMain();
+                    }
+
+                }
+            }
+            $vue.esInicio = false;
+
+        },
         changeAnexoMain() {
-            this.$refs.raptorCuotaGpoHoras.querie = [];
-            this.$refs.raptorCuotaGpoHoras.ajaxdata = {anexo: this.anexoGrid.id};
-            this.$refs.raptorCuotaGpoHoras.loadRemoteData();
+            let $vue = this;
+            $vue.$refs.raptorCuotaGpoHoras.querie = [];
+            $vue.$refs.raptorCuotaGpoHoras.ajaxdata = {anexo: $vue.anexoGrid.id};
+            $vue.$refs.raptorCuotaGpoHoras.loadRemoteData();
+            $vue.$refs.raptorCuotaGpoHoras.changeUrl('queries[anexo-cuotas]', $vue.anexoGrid.id);
         },
         verCuotasByAnexo(item) {
             console.log(item.Id);
@@ -129,6 +162,7 @@ new Vue({
             }).then(response => {
                 if (response.success) {
                     $vue.anexos = response.data;
+                    $vue.loadInfoAnexoInicio();
                 } else {
                     notify(response.message, 'error');
                 }
@@ -170,6 +204,17 @@ new Vue({
             }, error => {
                 notify(MESSAGES.errorComunicacion, 'error');
             });
+        },
+        editarGpoSecciones(item) {
+            let $vue = this;
+            let first = item.idsGposSecciones.split(",")[0];
+            let lista = Base64.encode(item.idsGposSecciones);
+            location.href = APP.url("academico/gposeccion/" + first + "/editar") + $vue.getOrigenURL() + "&ids=" + lista;
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            console.log(url)
+            return "?origen=" + Base64.encode(url);
         },
     }
 

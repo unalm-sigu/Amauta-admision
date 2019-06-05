@@ -33,6 +33,7 @@ import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.ABI;
 import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.acta.ActaResumen;
@@ -279,7 +280,6 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
     @Override
     public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
-        System.out.println("1111 1111 1111 1111 1111 1111 1111 ");
         Octavia subQuerySearch = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
                 .join("docente doc", "seccion se", "se.grupoSeccion ggss")
@@ -302,8 +302,10 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         if (existeLetra) {
             subQueryLetra = Octavia.query()
                     .from(Seccion.class, "sec")
-                    .join("sec.grupoSeccion gpoSec")
-                    .left("sec.grupoHoras gpo");
+                    .join("sec.grupoSeccion gpoSec", "sec.aula au", "au.oficinaSupervisora ofi")
+                    .join("sec.grupoHoras gpo")
+                    .filter("ofi.codigo", OficinaEnum.OERA);
+
             this.setLetra(filter, subQueryLetra);
 
             sql.exists(subQueryLetra);
@@ -324,12 +326,9 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         }
 
         for (String key : queries.keySet()) {
-            System.out.println("key::" + key);
-            System.out.println("queries.get(key)::" + queries.get(key));
             if (!key.equals("letra")) {
                 continue;
             }
-            System.out.println("existe-letra");
             return true;
         }
         return false;
@@ -384,6 +383,10 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         for (String key : queries.keySet()) {
             if (key.equals("order-codigo")) {
                 sql.orderBy("gs.codigo2");
+                return;
+            }
+            if (key.equals("order-id")) {
+                sql.orderBy("gs.id asc");
                 return;
             }
         }
@@ -599,7 +602,6 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
     @Override
     public List<GrupoSeccion> allByDynatableGruposSeccion(DynatableFilter filter, CicloAcademico ciclo, List<GrupoSeccion> gpos) {
-        System.out.println("22222 22222 22222 22222 22222 22222 ");
         Octavia subQuery = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
                 .join("docente doc", "seccion se", "se.grupoSeccion ggss")
@@ -624,8 +626,10 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         if (existeLetra) {
             subQueryLetra = Octavia.query()
                     .from(Seccion.class, "sec")
-                    .join("sec.grupoSeccion gpoSec")
-                    .left("sec.grupoHoras gpo");
+                    .join("sec.grupoSeccion gpoSec", "sec.aula au", "au.oficinaSupervisora ofi")
+                    .join("sec.grupoHoras gpo")
+                    .filter("ofi.codigo", OficinaEnum.OERA);
+
             this.setLetra(filter, subQueryLetra);
 
             sql.exists(subQueryLetra);

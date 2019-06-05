@@ -11,7 +11,8 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
 import pe.edu.lamolina.model.academico.Seccion;
-import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
+import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.academico.cuotadpto.AnexoCuotaUtilizadaBean;
@@ -82,9 +83,11 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
                 .join("secc.aula au", "au.oficinaSupervisora ofi")
+                .filter("secc.estado", SeccionEstadoEnum.ACT)
+                .filter("grse.estado", SeccionEstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico)
                 .filter("anbo.id", anexoBoletine)
-                .filter("ofi.codigo", OERA)
+                .filter("ofi.codigo", OficinaEnum.OERA)
                 .groupBy("grho.letra");
 
         return (List<LetraCuotaUtilizadaBean>) sql.all(getCurrentSession());
@@ -98,9 +101,11 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .from(HorarioSeccion.class, "hsecc")
                 .join("seccion secc", "secc.grupoHoras grho", "secc.grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
                 .join("secc.aula au", "au.oficinaSupervisora ofi")
+                .filter("secc.estado", SeccionEstadoEnum.ACT)
+                .filter("grse.estado", SeccionEstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico)
                 .filter("anbo.id", anexoBoletin)
-                .filter("ofi.codigo", OERA)
+                .filter("ofi.codigo", OficinaEnum.OERA)
                 .groupBy("grho.letra");
 
         return (List<LetraCuotaUtilizadaBean>) sql.all(getCurrentSession());
@@ -114,23 +119,29 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
                 .join("secc.aula au", "au.oficinaSupervisora ofi")
+                .filter("secc.estado", SeccionEstadoEnum.ACT)
+                .filter("grse.estado", SeccionEstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico)
                 .filter("anbo.id", anexoBoletin)
-                .filter("ofi.codigo", OERA)
+                .filter("ofi.codigo", OficinaEnum.OERA)
                 .groupBy("grho.letra", "grho.codigo");
 
         return (List<LetraCuotaUtilizadaBean>) sql.all(getCurrentSession());
     }
 
     @Override
-    public List<AnexoCuotaUtilizadaBean> allAnexoCuotasByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
+    public List<AnexoCuotaUtilizadaBean> allCuotasAnexosByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .select("anbo.id", " count(*) ")
                 .into(AnexoCuotaUtilizadaBean.class)
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
+                .join("aula au", "au.oficinaSupervisora ofi")
+                .filter("secc.estado", SeccionEstadoEnum.ACT)
+                .filter("grse.estado", SeccionEstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico)
                 .filter("grho.letra", grupoHoras.getLetra())
+                .filter("ofi.codigo", OficinaEnum.OERA)
                 .groupBy("anbo.id");
 
         return (List<AnexoCuotaUtilizadaBean>) sql.all(getCurrentSession());
@@ -152,21 +163,29 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gSec", "gSec.cicloAcademico ca", "grupoHoras gHor")
                 .join("gSec.anexoBoletin bol")
+                .join("sec.aula au", "au.oficinaSupervisora ofi")
+                .filter("sec.estado", SeccionEstadoEnum.ACT)
+                .filter("gSec.estado", SeccionEstadoEnum.ACT)
                 .filter("gHor.letra", letra)
                 .filter("bol.id", anexoBoletin)
                 .filter("ca.id", cicloAcademico)
+                .filter("ofi.codigo", OficinaEnum.OERA)
                 .groupBy("gHor.letra");
         return TypesUtil.getInt(sql.find(getCurrentSession()));
     }
 
-    public List<AnexoCuotaUtilizadaBean> allAnexosCuotasByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
+    public List<AnexoCuotaUtilizadaBean> allGposAnexosByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .select("anbo.id", "grho.codigo", " count(*) ")
                 .into(AnexoCuotaUtilizadaBean.class)
-                .from(HorarioSeccion.class, "hsecc")
-                .join("seccion secc", "secc.grupoHoras grho", "secc.grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
+                .from(Seccion.class, "secc")
+                .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
+                .join("aula au", "au.oficinaSupervisora ofi")
+                .filter("secc.estado", SeccionEstadoEnum.ACT)
+                .filter("grse.estado", SeccionEstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico)
                 .filter("grho.letra", grupoHoras.getLetra())
+                .filter("ofi.codigo", OficinaEnum.OERA)
                 .groupBy("anbo.id", "grho.codigo");
 
         return (List<AnexoCuotaUtilizadaBean>) sql.all(getCurrentSession());
