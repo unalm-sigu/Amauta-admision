@@ -626,6 +626,10 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                 alumnoCicloDAO.save(alumnoCiclo);
                 alumnoCiclo.getId();
+            } else {
+                AlumnoCiclo alumnoCicloUpd = new AlumnoCiclo(alumnoCiclo.getId());
+                alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
+                alumnoCicloDAO.updateColumns(alumnoCicloUpd, "estado");
             }
 
             if (alumnoCicloCurso == null) {

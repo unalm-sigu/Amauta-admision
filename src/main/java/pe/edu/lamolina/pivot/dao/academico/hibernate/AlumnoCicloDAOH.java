@@ -389,6 +389,16 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
+    public void updateColumns(AlumnoCiclo alumnoCiclo, String... columns) {
+        List<String> lColumns = Arrays.asList(columns);
+        Octavia octavia = Octavia.update(AlumnoCiclo.class);
+        for (String column : lColumns) {
+            octavia.set(alumnoCiclo, column);
+        }
+        this.update(octavia);
+    }
+
+    @Override
     public List<AlumnoCiclo> allCicloRegularByAlumno(Alumno alum) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
