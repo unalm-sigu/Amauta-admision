@@ -145,6 +145,7 @@ public class GpoSeccionController {
     public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
+            filter.getQueries();
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<GrupoSeccion> gpoSecciones = service.allByDynatable(filter, ds.getCicloAcademico());
             ArrayNode arrayGpoSecc = new ArrayNode(JsonNodeFactory.instance);

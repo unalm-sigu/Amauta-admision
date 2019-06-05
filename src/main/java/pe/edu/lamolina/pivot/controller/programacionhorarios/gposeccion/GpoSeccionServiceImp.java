@@ -268,7 +268,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public GrupoSeccion findGpoSeccion(Long id) {
         GrupoSeccion gpoSecc = grupoSeccionDAO.find(id);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSecc);
-        List<CuotasGrupoHoras> allCountCuotasGrupoHorases = cuotaGpoHorasDAO.allCuotasByAnexo(gpoSecc.getAnexoBoletin(), gpoSecc.getCicloAcademico());
+        List<CuotasGrupoHoras> allCountCuotasGrupoHorases = cuotaGpoHorasDAO.allByAnexoCiclo(gpoSecc.getAnexoBoletin(), gpoSecc.getCicloAcademico());
 
         secciones.stream()
                 .filter(z -> z.getGrupoHoras() != null)
@@ -1696,7 +1696,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     private boolean existeCoincidencia(Map<Long, Object> mapDias, int horasSemanales) {
         int minimo = 5000;
-//        System.out.println("\tBuscando coincidencia de " + horasSemanales + " horas semanales");
 
         for (int i = 0; i < mapDias.size(); i++) {
             List<Map<Long, Object>> busquedas = new ArrayList();
@@ -1710,9 +1709,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     List<DiaHoraGrupo> horasDia = (List<DiaHoraGrupo>) entry.getValue();
                     total += horasDia.size();
                 }
-                //System.out.println("\t>> con combinacion(" + (i + 1) + ") se hallo a " + total + " horas");
                 if (total == horasSemanales) {
-//                    System.out.println("\t>> coincidencia hallada");
                     return true;
                 }
                 if (total < minimo) {
@@ -1723,7 +1720,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 break;
             }
         }
-//        System.out.println("\tninguna coincidencia hallada");
         return false;
     }
 
@@ -1929,7 +1925,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
             CuotasGrupoHoras cuotasGrupoHoras = cuotaGpoHorasDAO.findByAnexoAndCicloAndGpoHoras(anexoBoletin, cicloAcademico, gpoHorasSeccion.getLetra());
             if (cuotasGrupoHoras != null) {
-                Integer countForCuotasGrupoHoras = cuotaGpoHorasDAO.countByAnexoAndCicloAndLetraHoras(anexoBoletin, cicloAcademico, gpoHorasSeccion.getLetra());
+                Integer countForCuotasGrupoHoras = cuotaGpoHorasDAO.countSeccionesByAnexoCicloLetraGpo(anexoBoletin, cicloAcademico, gpoHorasSeccion.getLetra());
                 CuotasGrupoHoras cuotasGrupoHorasUpd = new CuotasGrupoHoras();
                 cuotasGrupoHorasUpd.setId(cuotasGrupoHoras.getId());
                 cuotasGrupoHorasUpd.setAsignadasSistema(countForCuotasGrupoHoras);
@@ -2576,11 +2572,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionTEO.setTipoSeccionEnum(TipoSeccionEnum.TEO);
                 seccionTEO.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
                 seccionTEO.setHorasSemanales(horasTeoria);
-                seccionTEO.setVacantes(0);
-                seccionTEO.setMatriculados(0);
-                seccionTEO.setPrematriculados(0);
-                seccionTEO.setReservados(0);
-                seccionTEO.setRetirados(0);
                 seccionTEO.setCodigo(gpoSeccClon.getCodigo() + "0");
                 seccionTEO.setCodigo2(seccionTEO.getCodigo());
                 seccionTEO.setFechaRegistro(today.toDate());
@@ -2610,11 +2601,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionPRA.setTipoSeccionEnum(TipoSeccionEnum.PRA);
                 seccionPRA.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
                 seccionPRA.setHorasSemanales(horasPractica);
-                seccionPRA.setVacantes(0);
-                seccionPRA.setMatriculados(0);
-                seccionPRA.setPrematriculados(0);
-                seccionPRA.setReservados(0);
-                seccionPRA.setRetirados(0);
                 seccionPRA.setCodigo(codigo + "1");
                 seccionPRA.setCodigo2(seccionPRA.getCodigo());
                 seccionPRA.setFechaRegistro(today.toDate());
@@ -2644,11 +2630,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionTCUR.setTipoSeccionEnum(TipoSeccionEnum.TCUR);
                 seccionTCUR.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
                 seccionTCUR.setHorasSemanales(horasTeoria);
-                seccionTCUR.setVacantes(0);
-                seccionTCUR.setMatriculados(0);
-                seccionTCUR.setPrematriculados(0);
-                seccionTCUR.setReservados(0);
-                seccionTCUR.setRetirados(0);
                 seccionTCUR.setCodigo(codigo + "0");
                 seccionTCUR.setCodigo2(seccionTCUR.getCodigo());
                 seccionTCUR.setFechaRegistro(today.toDate());
@@ -2677,11 +2658,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionPCUR.setTipoSeccionEnum(TipoSeccionEnum.PCUR);
                 seccionPCUR.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
                 seccionPCUR.setHorasSemanales(horasPractica);
-                seccionPCUR.setVacantes(0);
-                seccionPCUR.setMatriculados(0);
-                seccionPCUR.setPrematriculados(0);
-                seccionPCUR.setReservados(0);
-                seccionPCUR.setRetirados(0);
                 seccionPCUR.setCodigo(codigo + "1");
                 seccionPCUR.setCodigo2(seccionPCUR.getCodigo());
                 seccionPCUR.setFechaRegistro(today.toDate());

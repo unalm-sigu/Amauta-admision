@@ -14,13 +14,13 @@ public interface CuotaGpoHorasDAO extends EasyDAO<CuotasGrupoHoras> {
 
     List<CuotasGrupoHoras> allByDynatable(DynatableFilter filter, AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
 
-    List<CuotasGrupoHoras> allCuotasByAnexo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
+    List<CuotasGrupoHoras> allByAnexoCiclo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
 
-    List<LetraCuotaUtilizadaBean> allByAnexoBoletinAcademico(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
+    List<LetraCuotaUtilizadaBean> allLetrasUtilizadasByAnexoCiclo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
 
-    List<LetraCuotaUtilizadaBean> allByAnexoBoletinHoras(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
+    List<LetraCuotaUtilizadaBean> allHorasUtilizadasByAnexoCiclo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
 
-    List<LetraCuotaUtilizadaBean> allByAnexoBoletinGrupo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
+    List<LetraCuotaUtilizadaBean> allGposUtilizadosByAnexoCiclo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
 
     List<CuotasGrupoHoras> allByDynatableGpoHoras(DynatableFilter filter, GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
@@ -28,8 +28,10 @@ public interface CuotaGpoHorasDAO extends EasyDAO<CuotasGrupoHoras> {
 
     void updateColumns(CuotasGrupoHoras cuotasGrupoHoras, String... columns);
 
-    Integer countByAnexoAndCicloAndLetraHoras(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico, String letraHoras);
-    List<AnexoCuotaUtilizadaBean> allByGpoHorasCicloBeanUtilizado(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+    Integer countSeccionesByAnexoCicloLetraGpo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico, String letraHoras);
 
-    List<AnexoCuotaUtilizadaBean> allByGpoHorasCicloBeanGpo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+    List<AnexoCuotaUtilizadaBean> allAnexoCuotasByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+
+    List<AnexoCuotaUtilizadaBean> allAnexosCuotasByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+
 }
