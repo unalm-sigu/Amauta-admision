@@ -45,7 +45,7 @@ public interface GpoSeccionService {
 
     List<GrupoSeccion> allCleanByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    void cambiarEstadoGpoSeccion(SeccionEstadoEnum estadoEnum, GrupoSeccion grupoSeccion, Usuario usuario);
+    void cambiarEstadoGpoSeccion(SeccionEstadoEnum estadoEnum, GrupoSeccion grupoSeccion, DataSessionPivot ds);
 
     List<AnexoBoletin> allAnexosSuperiores();
 
@@ -71,11 +71,13 @@ public interface GpoSeccionService {
 
     void deleteSeccion(Seccion seccion);
 
-    void activarSeccion(Seccion seccion, Usuario usuario);
+    void activarSeccion(Seccion seccion, DataSessionPivot ds);
 
-    void bloquearSeccion(Seccion seccion, Usuario usuario);
+    void bloquearSeccion(Seccion seccion, DataSessionPivot ds);
 
-    GrupoSeccion anularSeccion(Seccion seccion, Usuario usuario);
+    GrupoSeccion anularSeccion(Seccion seccion, DataSessionPivot ds);
+
+    void cancelarSeccion(Seccion seccion, DataSessionPivot ds);
 
     List<DocenteSeccion> allDocentesSeccionBySeccion(Seccion seccion);
 
@@ -87,7 +89,7 @@ public interface GpoSeccionService {
 
     void actualizarDocente(Long docenteSeccionId, Long docenteId, CicloAcademico cicloAcademico);
 
-    void actualizarSeccionVacantes(Seccion seccion, Usuario usuario);
+    void actualizarSeccionVacantes(Seccion seccion, DataSessionPivot ds);
 
     void updatePorcentajeAvance(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico);
 
@@ -162,7 +164,7 @@ public interface GpoSeccionService {
 
     List<Carrera> allCarrerasActivasPrePost();
 
-    void saveRestriccion(Seccion seccion, Usuario usuario, TipoRestriccionEnum tipoRestriccionEnum, List<Long> restricciones);
+    void saveRestriccion(Seccion seccion, DataSessionPivot ds, TipoRestriccionEnum tipoRestriccionEnum, List<Long> restricciones);
 
     List<TipoRepitencia> allTipoRepitencia();
 
@@ -180,7 +182,7 @@ public interface GpoSeccionService {
 
     GrupoHoras findGrupoHorasForDirectUpdate(String code, CicloAcademico cicloAcademico, Seccion seccion);
 
-    void actualizarSeccionResctriccionCapa(Seccion seccionForm, Usuario usuario);
+    void actualizarSeccionResctriccionCapa(Seccion seccionForm, DataSessionPivot ds);
 
     List<HorarioSeccion> allHorarioSeccion(Seccion seccion);
 

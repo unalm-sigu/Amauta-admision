@@ -36,7 +36,7 @@ var app = new Vue({
         departamento: {},
         seccionModal: null,
         tabVisible: "DOCENTES",
-        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", INA: "danger", BLO: "warning", FUS: "warning"},
+        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", CAN: "danger", INA: "danger", BLO: "warning", FUS: "warning"},
         colorEstadoAmpliacion: {PENDIENTE: "default", ACEPTADO: "success", RECHAZADO: "danger", ANULADA: "warning"},
         colorEstadoAulaGrupo: {PENDIENTE: "default", ACEPTADO: "success", RECHAZADO: "danger", ANULADA: "warning"},
         grupoModal: {
@@ -633,7 +633,7 @@ var app = new Vue({
             $vue.seccionWorking = Object.assign({}, seccion);
 
             $vue.configConfirmAction = VUE_MODAL.structConfirm({
-                message: "¿Está seguro que desea activar la seccón?",
+                message: "¿Está seguro que desea activar la sección?",
                 okbtn: "Si, activar",
                 okaction: $vue.activarSeccion
             });
@@ -724,6 +724,49 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        verCancelarSeccion(seccion) {
+            let $vue = this;
+            $vue.seccionWorking = Object.assign({}, seccion);
+
+            let alus = $vue.seccionWorking.matriculados == 1
+                    ? "el alumno matriculado será retirado"
+                    : ("los " + $vue.seccionWorking.matriculados + " alumnos matriculados serán retirados");
+
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
+                message: "Al cancelar esta sección, " + alus + ".<br/><br/>¿Desea continuar?",
+                okbtn: "Si, cancelar",
+                okclass: "btn-danger",
+                okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Cancelando...',
+                okaction: $vue.cancelarSeccion
+            });
+
+            $vue.$refs.modalConfirmAction.open();
+        },
+        cancelarSeccion() {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url(rutaModulo + '/cancelarSeccion'),
+                data: {seccion: $vue.seccionWorking.id},
+                success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                    if (response.success) {
+                        if (response.message == 'redirect') {
+                            location.href = $vue.navega.origen;
+                        } else {
+                            notify(response.message, "info");
+                            $vue.loadGpoSeccionFlash();
+                        }
+                    } else {
+                        notify(response.message, "error");
+                    }
+                }, error: function () {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
         },
         deleteDocSeccion: function (docSeccion) {
             let $vue = this;
