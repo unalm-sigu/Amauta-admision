@@ -626,6 +626,10 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                 alumnoCicloDAO.save(alumnoCiclo);
                 alumnoCiclo.getId();
+            } else {
+                AlumnoCiclo alumnoCicloUpd = new AlumnoCiclo(alumnoCiclo.getId());
+                alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
+                alumnoCicloDAO.updateColumns(alumnoCicloUpd, "estado");
             }
 
             if (alumnoCicloCurso == null) {
@@ -1377,7 +1381,7 @@ public class PromedioServiceImp implements PromedioService {
             CicloAcademico cicloAcademico, AlumnoCiclo alumnoCiclo, AlumnoCiclo alumnoCicloSiguiente,
             DataSessionPivot ds) {
 
-        int MAX_CONSECUTIVOS_NMAT = cicloAcademico.getCodigoInt() <= 201710 ? 2 : 3;
+        int MAX_CONSECUTIVOS_NMAT = cicloAcademico.getCodigoInt() <= 201710 ? 2 : 4;
 
         List<AlumnoCiclo> alumnosCiclosAnteriores = alumnoCicloDAO.allAnterioresEQByCicloAlumno(alumno, cicloAcademico, 20);
         int contadorConsecutivo = 0;

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -219,6 +220,8 @@ public class PdfServiceImp implements PdfService {
         for (AnexoBoletin anexoBoletin : listaAB) {
             logger.debug("anexoboletin nombre {}", anexoBoletin.getNombre());
         }
+        List<Seccion> seccionListAll = seccionDAO.allByGposSeccionOrderedByCodigo2(ciclo);
+        Map<Long, List<Seccion>> mapSeccionesByCiclo = TypesUtil.convertListToMapList("grupoSeccion.id", seccionListAll);
         //para cada boletin encontrado buscar los boletines inferiores ordenados por orden
         for (AnexoBoletin ab : listaAB) {
             List<AnexoBoletin> subListaAB = anexoBoletinDAO.allBySuperior(ab);
@@ -226,9 +229,12 @@ public class PdfServiceImp implements PdfService {
                 List<GrupoSeccion> grupoSeccList = grupoSeccionDAO.allOrdenadoByCicloAndAnexoBoletin(ciclo, subAB);
 
                 for (GrupoSeccion gs : grupoSeccList) {
-                    List<Seccion> seccionList = seccionDAO.allByGposSeccionOrderedByCodigo2(gs);
+                    //       List<Seccion> seccionList = seccionDAO.allByGposSeccionOrderedByCodigo2(gs);
+                    List<Seccion> seccionList = mapSeccionesByCiclo.get(gs.getId());
+                    if (seccionList == null) {
+                        seccionList = new ArrayList<Seccion>();
+                    }
                     gs.setSecciones(seccionList);
-//                    logger.debug("secciones: {}",seccionList.size());
                 }
                 subAB.setGruposSecciones(grupoSeccList);
             }
