@@ -17,6 +17,9 @@ new Vue({
     },
     mounted() {
         let $vue = this;
+
+        console.log($vue.listFacultad.length);
+
         $vue.listFacultad.length == 0 ? $vue.isDisabled = true : $vue.isDisabled = false;
         let facultad = $vue.$refs.loadCursoDirigidoFAC.getParameterByName('queries[facultad-dirigido]');
 
@@ -25,7 +28,7 @@ new Vue({
             facultad = $vue.cursoDirigidoFacultad.facultad.id;
         }
 
-        if (facultad != '') {
+        if (facultad != '' && $vue.listFacultad.length != 0) {
             $vue.setFacultadSelected(facultad);
             $vue.$refs.loadCursoDirigidoFAC.querie.push({name: 'facultad-dirigido', value: facultad});
             $vue.$refs.loadCursoDirigidoFAC.repreload();
