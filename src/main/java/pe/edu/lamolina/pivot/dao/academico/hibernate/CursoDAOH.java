@@ -377,10 +377,11 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
     }
 
     @Override
-    public List<Curso> searchActivoLikeNombre(String parametro) {
+    public List<Curso> searchLikeNombreNotIn(String parametro, List<Curso> cursos) {
         Octavia sql = Octavia.query()
                 .from(Curso.class, "cur")
                 .filter("cur.estado", EstadoEnum.ACT)
+                .notIn("cur.id", cursos)
                 .beginBlock()
                 .__().filter("cur.nombre", "like", parametro)
                 .__().filter("cur.codigo", "like", parametro)

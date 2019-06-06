@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.docente.cursodirigidofacultad;
+package pe.edu.lamolina.pivot.controller.configuracion.cursodirigidofacultad;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,7 +31,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("docente/cursodirigidofacultad")
+@RequestMapping("configuracion/cursodirigidofacultad")
 public class CursoDirigidoFacultadController {
 
     @Autowired
@@ -49,22 +48,19 @@ public class CursoDirigidoFacultadController {
 
         List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
 
-        logger.debug("******** facultades {}", facultades.size());
-
         model.addAttribute("facultades", createFacultadesJson(facultades).toString());
         return "docente/cursodirigidofacultad/cursoDirigidoFacultad";
     }
 
     @ResponseBody
-    @RequestMapping("list/{idFacultad}")
-    public DynatableResponse list(@PathVariable("idFacultad") Long idFacultad, DynatableFilter filter, HttpSession session) {
+    @RequestMapping("list")
+    public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
 
-            List<CursoDirigidoFacultad> cursosDirigidosFaculta = service.allByDocenteFacultadDynatable(new Facultad(idFacultad), filter);
+            List<CursoDirigidoFacultad> cursosDirigidosFaculta = service.allByDynatable(filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -99,14 +95,13 @@ public class CursoDirigidoFacultadController {
 
     @ResponseBody
     @RequestMapping("allLikeCurso")
-    public JsonResponse allLikeCurso(@RequestParam("parametro") String parametro, HttpSession session) {
-
+    public JsonResponse allLikeCurso(@RequestParam("parametro") String parametro, @RequestParam("idFacultad") Long idFacultad, HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
 
         try {
             ArrayNode jsonList = new ArrayNode(jsonFactory);
-            List<Curso> cursos = service.allCursoLikeParam(parametro); //searhc for nombrey codigo
+            List<Curso> cursos = service.allCursoLikeParamByFacultad(parametro, new Facultad(idFacultad)); //searhc for nombrey codigo
             for (Curso curso : cursos) {
                 jsonList.add(JsonHelper.createJson(curso, JsonNodeFactory.instance, new String[]{
                     "id", "nombre", "estado", "codigo"

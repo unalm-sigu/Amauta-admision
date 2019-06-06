@@ -8,6 +8,8 @@ import pe.edu.lamolina.model.tramite.CursoDirigidoFacultad;
 
 public interface CursoDirigidoFacultadDAO extends EasyDAO<CursoDirigidoFacultad> {
 
-    List<CursoDirigidoFacultad> allByDynatable(Facultad facultad, DynatableFilter filter);
+    List<CursoDirigidoFacultad> allByDynatable(DynatableFilter filter);
+
+    List<CursoDirigidoFacultad> allByFacultad(Facultad facultad);
 
 }
