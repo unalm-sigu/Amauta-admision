@@ -3,10 +3,10 @@ Vue.component("multiselect", window.VueMultiselect.default)
 new Vue({
     el: '#cursoDirigidoFacultadVUE',
     data: {
-        cursoDirigidoFacURL: APP.url(rutaModulo + '/list'),
+        cursoDirigidoFacURL: APP.url("configuracion/cursodirigidofacultad/list"),
         cursoDirigidoFacultad: {curso: {}, facultad: {}},
         listFacultad: JSON.parse(facultadesJson),
-        isDisabled: "false",
+        isDisabled: false,
         listCurso: [],
         modalCursoDirigidoFAC: VUE_MODAL.structFormAjax({
             id: 'modalCursoDirigidoFAC',
@@ -17,13 +17,29 @@ new Vue({
     },
     mounted() {
         let $vue = this;
-        $vue.cursoDirigidoFacultad.facultad = $vue.listFacultad[0];
         $vue.listFacultad.length == 0 ? $vue.isDisabled = true : $vue.isDisabled = false;
+        let facultad = $vue.$refs.loadCursoDirigidoFAC.getParameterByName('queries[facultad-dirigido]');
 
-        console.log(JSON.stringify($vue.cursoDirigidoFacultad.facultad));
-        $vue.changeFacultadSelected();
+        if (facultad == null && $vue.listFacultad[0] != null) {
+            $vue.cursoDirigidoFacultad.facultad = $vue.listFacultad[0];
+            facultad = $vue.cursoDirigidoFacultad.facultad.id;
+        }
+
+        if (facultad != '') {
+            $vue.setFacultadSelected(facultad);
+            $vue.$refs.loadCursoDirigidoFAC.querie.push({name: 'facultad-dirigido', value: facultad});
+            $vue.$refs.loadCursoDirigidoFAC.repreload();
+        }
     },
     methods: {
+        setFacultadSelected(idFacultad) {
+            let $vue = this;
+            for (var i = 0; i < $vue.listFacultad.length; i++) {
+                if (idFacultad == $vue.listFacultad[i].id) {
+                    $vue.cursoDirigidoFacultad.facultad = $vue.listFacultad[i];
+                }
+            }
+        },
         nuevoCursoDirigidoFAC() {
             let $vue = this;
             $vue.listCurso = [];
@@ -36,6 +52,7 @@ new Vue({
                 return;
             const params = new URLSearchParams();
             params.append('parametro', parametro);
+            params.append('idFacultad', $vue.cursoDirigidoFacultad.facultad.id);
             axios.post(rutaModulo + "/allLikeCurso", params)
                     .then(function (response) {
                         if (response.data.success) {
@@ -70,44 +87,11 @@ new Vue({
         },
         changeFacultadSelected() {
             let $vue = this;
-            $vue.$refs.loadCursoDirigidoFAC.url = APP.url("docente/cursodirigidofacultad/list/" + $vue.cursoDirigidoFacultad.facultad.id);
-            $vue.$refs.loadCursoDirigidoFAC.loadRemoteData();
+            $vue.$refs.loadCursoDirigidoFAC.querie.push({name: 'facultad-dirigido', value: $vue.cursoDirigidoFacultad.facultad.id});
+            $vue.$refs.loadCursoDirigidoFAC.repreload();
         },
         convertFecha(datetime) {
             return datetime.substr(0, 10);
         }
-
-//        deleteMiembro(miembroItem, escuelaCarreraItem) {
-//            let $vue = this;
-//
-//            var apellidosNombres = miembroItem.docente.persona.apellidosNombres;
-//            var tipo = escuelaCarreraItem.carrera.tipoEnum.value;
-//            var carrera = escuelaCarreraItem.carrera.nombre;
-//            var con = tipo == "Maestría" ? 'de la' : 'de';
-//
-//            bootbox.confirm({
-//                message: '¿Está seguro que desea remover a <b>' + apellidosNombres + '</b> del comité de evaluación ' + con + ' <b>' + tipo + ' de ' + carrera + '</b>?',
-//                buttons: {
-//                    confirm: {label: 'Si, eliminar', className: "btn-danger"},
-//                    cancel: {label: 'Cancelar', className: "btn-link"}
-//                },
-//                callback: function (result) {
-//                    if (result) {
-//                        axios.post('/' + rutaModulo + "/deleteMiembro", miembroItem)
-//                                .then(function (response) {
-//                                    if (response.data.success) {
-//                                        $vue.$refs.loadComite.loadRemoteData();
-//                                        notify(response.data.message, "success");
-//                                    } else {
-//                                        notify(response.data.message, 'error');
-//                                    }
-//                                })
-//                                .catch(function (error) {
-//                                    notify(error.errorComunicacion, "error");
-//                                });
-//                    }
-//                }
-//            });
-//        }
     }
 });

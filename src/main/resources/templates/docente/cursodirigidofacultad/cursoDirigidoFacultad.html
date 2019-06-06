@@ -45,11 +45,11 @@
                                         <table id="dynaTable" class="table table-striped">
                                             <thead class="panel panel-heading">
                                                 <tr>
-                                                    <th class="col-md-4 v-middle">Facultad</th>
+                                                    <th class="col-md-5 v-middle">Facultad</th>
                                                     <th class="col-md-5 v-middle">Curso</th>
                                                     <th class="col-md-1 v-middle text-center">Fecha Registro</th>
                                                     <th class="col-md-1 v-middle text-center">Estado</th>
-                                                    <th class=""></th>
+                                                    <!--<th class=""></th>-->
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -72,7 +72,7 @@
                                                         <small v-if="item.estado == 'ACT' " class="label label-success">Activo</small>
                                                         <span v-else="" class="label label-default">Inactivo</span>
                                                     </td>
-                                                    <td class="v-middle">
+<!--                                                    <td class="v-middle">
                                                         <div class="dropdown actions">
                                                             <a class="dropdown-toggle" data-toggle="dropdown">
                                                                 <i class="glyphicon glyphicon-cog"></i>
@@ -81,7 +81,7 @@
                                                                 <li><a>OPCIONES</a></li>
                                                             </ul>
                                                         </div>
-                                                    </td>
+                                                    </td>-->
                                                 </tr>
                                             </tbody>
                                         </table>         
@@ -100,7 +100,7 @@
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var facultadesJson = /*[[${facultades}]]*/ '';
-                var rutaModulo = '/docente/cursodirigidofacultad';
+                var rutaModulo = '/configuracion/cursodirigidofacultad';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"/>
