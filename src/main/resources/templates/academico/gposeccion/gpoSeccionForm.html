@@ -3,61 +3,61 @@
         <title>Programación de Horarios</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
     <style type="text/css">
-        .buscarDocClass {
-            min-width: 300px;
-        }
-        /* Enter and leave animations can use different */
-        /* durations and timing functions.              */
-        .slide-fade-enter-active {
-            transition: all 1s ease;
-        }
-        .slide-fade-leave-active {
-            transition: all 1.5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
-        }
-        .slide-fade-enter, .slide-fade-leave-to
-        /* .slide-fade-leave-active below version 2.1.8 */ {
-            transform: translateX(10px);
-            opacity: 0;
-        }
-        .nav-gposec-gray {
-            color: #c8c8c8;
-        }
-        .nav-gposec-primary {
-            color: #0275D8;
-            cursor: pointer;
-        }
-        .avatar-gposecc {
-            display: block;
-            position: relative;
-            border-radius: 50%;
-            width: 54px;
-            height: 54px;
-            overflow: hidden;
-            line-height: 54px;
-            background-color: #F5B041;
-            color: #fff;
-            text-align: center;
-            font-size: 24px;
-            text-indent: 0;
-            margin: auto;
-            margin-top: 10px;
-        }
-        .text-curso {
-            font-size: 18px;
-            color: #0275D8;
-        }
-        .col-md-0 {
-            width: 75px;
-            float: left;
-            position: relative;
-            min-height: 1px;
-            padding-right: 5px;
-            padding-left: 15px;
-        }
+.buscarDocClass {
+    min-width: 300px;
+}
+/* Enter and leave animations can use different */
+/* durations and timing functions.              */
+.slide-fade-enter-active {
+    transition: all 1s ease;
+}
+.slide-fade-leave-active {
+    transition: all 1.5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+    transform: translateX(10px);
+    opacity: 0;
+}
+.nav-gposec-gray {
+    color: #c8c8c8;
+}
+.nav-gposec-primary {
+    color: #0275D8;
+    cursor: pointer;
+}
+.avatar-gposecc {
+    display: block;
+    position: relative;
+    border-radius: 50%;
+    width: 54px;
+    height: 54px;
+    overflow: hidden;
+    line-height: 54px;
+    background-color: #F5B041;
+    color: #fff;
+    text-align: center;
+    font-size: 24px;
+    text-indent: 0;
+    margin: auto;
+    margin-top: 10px;
+}
+.text-curso {
+    font-size: 18px;
+    color: #0275D8;
+}
+.col-md-0 {
+    width: 75px;
+    float: left;
+    position: relative;
+    min-height: 1px;
+    padding-right: 5px;
+    padding-left: 15px;
+}
 
-        .crueHorario{
-            font-size: 10px;
-        }
+.crueHorario{
+    font-size: 10px;
+}
     </style>
 </head>
 
@@ -277,7 +277,7 @@
                                                    style="cursor:pointer;">
                                                     Sin Grupo
                                                 </a>
-                                                
+
                                                 <div v-bind:style='getStyleDivGpoHoras(seccion)'
                                                      v-if="seccion.grupoHoras.id &amp;&amp; ( seccion.matriculados > 0 || !directEditSecciones)"
                                                      v-on:click="showModalGrupos(seccion)" 
@@ -529,7 +529,6 @@
 
 
                                         </h4>
-
                                         <div class="tabbable-line" style="margin-top: 8px;">	
                                             <ul class="nav nav-tabs">
                                                 <li v-bind:class="getClassTab('DOCENTES')" v-on:click="verTab('DOCENTES')">
@@ -555,6 +554,10 @@
                                                     v-bind:class="getClassTab('CARPETA')" v-on:click="verTab('CARPETA')">
                                                     <a href="#6Conte" data-toggle="tab">Tipo Carpeta</a>
                                                 </li>
+                                                <li v-if="seccionSeleccionada.estado == 'ACT' " 
+                                                    v-bind:class="getClassTab('CANCELAR')" v-on:click="verTab('CANCELAR')">
+                                                    <a href="#7Conte" data-toggle="tab">Cancelar Seccion</a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </header>
@@ -578,6 +581,11 @@
                                         </div>
                                         <div class="tab-pane" v-bind:class="getClassTab('CARPETA')" id="6Conte">
                                             <div th:substituteby="academico/gposeccion/includes/tipocarpetaform"/>
+                                        </div>
+                                        <div class="tab-pane" v-bind:class="getClassTab('CANCELAR')" id="7Conte">
+                                            <!-- 
+                                            <cancelar-seccion-component v-bind:seccion="seccionSeleccionada"></cancelar-seccion-component>
+                                            -->
                                         </div>
                                     </div>
 
@@ -605,6 +613,7 @@
         <div th:substituteby="academico/gposeccion/components/grupoRegularAulaComponent"/>
         <div th:substituteby="academico/gposeccion/components/horaAdicionalComponente"/>
         <div th:substituteby="academico/gposeccion/components/tipocarpetacomponent"/>
+
     </section>
 
     <div layout:fragment="js">
@@ -630,6 +639,7 @@
         <script th:src="@{/app/gposeccion/grupoRegularAulaComponet.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/horaAdicionalComponente.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/tipocarpetacomponent.js}" charset="utf-8"></script>
+        <div th:substituteby="academico/gposeccion/components/cancelarSeccionComponent"/>
         <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
     </div>
 </body>
