@@ -393,7 +393,7 @@ Vue.component("historial-component", {
                             success: function (response) {
                                 if (response.success) {
                                     vue.cargaHistorial();
-                                    notify(response.message, 'error');
+                                    notify(response.message, 'info');
                                 } else {
                                     notify(response.message, 'error');
                                 }
