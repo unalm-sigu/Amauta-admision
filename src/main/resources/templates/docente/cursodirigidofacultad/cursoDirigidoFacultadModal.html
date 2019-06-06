@@ -1,0 +1,37 @@
+<modal-vik ref="modalCursoDirigidoFAC"
+           v-bind="modalCursoDirigidoFAC"
+           v-bind:okaction="save">
+
+    <div slot="body">   
+        <form  method="post" id="modalCursoDirigidoFAC" data-parsley-validate="true">
+            <div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col">
+                            <label>Curso</label>
+                            <multiselect 
+                                v-model="cursoDirigidoFacultad.curso"
+                                v-bind:options='listCurso'
+                                label='nombre'
+                                track-by='id'
+                                placeholder="Ingrese y seleccione el nombre de un curso"
+                                v-bind:internal-search="false"
+                                v-on:search-change="searchCurso"
+                                v-bind:allow-empty="false"
+                                v-bind:show-labels="false"
+                                v-bind:hide-selected="false"
+                                >
+                                <template slot="option" slot-scope="props">
+                                    <span class="option__title">{{ props.option.nombre}}  -  {{ props.option.codigo}}</span>
+                                </template>
+                                <template slot="noOptions">La lista se encuentra vacía</template>
+                                <template slot="noResult">No se encontraron resultados</template>
+                            </multiselect>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+            </div>
+        </form>
+    </div>
+</modal-vik>
