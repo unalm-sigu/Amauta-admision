@@ -381,7 +381,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                         } else if ((oficina.isOficinaOera() && modalidad.isPostgrado()) && cicloClonacionBean.getCopiarAulasPosgrado()) {
                             tieneAula = true;
                             seccNew.setAula(seccOrigen.getAula());
-                            logger.debug(" ************* clonacion de aulas posgrado {} {}", seccNew.getCodigo2() , seccOrigen.getCodigo2());
+                            logger.debug(" ************* clonacion de aulas posgrado {} {}", seccNew.getCodigo2(), seccOrigen.getCodigo2());
                         }
                     }
                 }
@@ -584,12 +584,11 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         List<String> codigos = new ArrayList();
         long t1 = System.currentTimeMillis();
 
-        for (GrupoSeccion gpoSecc : gpoSecciones) {
+        for (GrupoSeccion gpoSeccBD : gpoSecciones) {
 
             String codigo = StringUtils.leftPad(CodeGenerator.getNextCode(codigos, 0), 3, '0');
 
-            List<Seccion> seccionesGpoSecc = gpoSecc.getSecciones();
-
+            List<Seccion> seccionesGpoSecc = gpoSeccBD.getSecciones();
             int loopPCUR = 1;
             codigos.add(codigo);
 
@@ -611,7 +610,10 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     t1 = System.currentTimeMillis();
                 }
             }
-
+            
+            GrupoSeccion gpoSecc = new GrupoSeccion(gpoSeccBD.getId());
+            gpoSecc.setCodigo2(codigo);
+            grupoSeccionDAO.updateCodigo2(gpoSecc);
         }
         logger.debug("Ya se terminó de actualizar los {} gpo-secciones", gpoSecciones.size());
 

@@ -734,4 +734,11 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         query.executeUpdate();
     }
 
+    @Override
+    public void updateCodigo2(GrupoSeccion gpoSecc) {
+        Octavia octavia = Octavia.update(GrupoSeccion.class);
+        octavia.set(gpoSecc, "codigo2");
+        this.update(octavia);
+    }
+
 }
