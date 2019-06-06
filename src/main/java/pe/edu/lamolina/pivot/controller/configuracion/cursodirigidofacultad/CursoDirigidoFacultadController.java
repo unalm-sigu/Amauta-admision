@@ -45,6 +45,8 @@ public class CursoDirigidoFacultadController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        
+        logger.debug("*************ds.getPersona() {}", ds.getPersona().getId());
 
         List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
 

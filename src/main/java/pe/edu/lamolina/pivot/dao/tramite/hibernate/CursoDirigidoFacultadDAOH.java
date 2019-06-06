@@ -16,8 +16,6 @@ import pe.edu.lamolina.pivot.dao.tramite.CursoDirigidoFacultadDAO;
 @Repository
 public class CursoDirigidoFacultadDAOH extends AbstractEasyDAO<CursoDirigidoFacultad> implements CursoDirigidoFacultadDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     public CursoDirigidoFacultadDAOH() {
         super();
         setClazz(CursoDirigidoFacultad.class);
