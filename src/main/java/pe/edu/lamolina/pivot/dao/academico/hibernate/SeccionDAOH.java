@@ -230,7 +230,18 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .left("grupoHoras gh", "aula au")
                 .filter("gs.id", gruposSeccion)
                 .orderBy("sec.codigo2");
+        return all(sql);
+    }
 
+    @Override
+    public List<Seccion> allByGposSeccionOrderedByCodigo2(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "docenteSeccion ds")
+                .join("gs.cicloAcademico ca")
+                .left("grupoHoras gh", "aula au")
+                .filter("ca.id", cicloAcademico)
+                .orderBy("sec.codigo2");
         return all(sql);
     }
 
