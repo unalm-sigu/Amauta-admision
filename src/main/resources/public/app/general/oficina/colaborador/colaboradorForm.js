@@ -263,8 +263,8 @@ new Vue({
             $vue.removerError();
 
         },
-        revisarNombre(e) {
-            e.target.value = APP.revisarNombre2(e.target.value);
+        revisar(person, campo) {
+            person[campo] = VUE.revisarApellido(person[campo]);
         }
     }
 });
