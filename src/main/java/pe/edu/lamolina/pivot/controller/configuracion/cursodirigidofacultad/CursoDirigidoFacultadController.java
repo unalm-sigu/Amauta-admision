@@ -149,8 +149,6 @@ public class CursoDirigidoFacultadController {
 
         try {
             
-            ObjectUtil.printAttr(cursoDirigidoFacultad);
-
             service.eliminar(cursoDirigidoFacultad);
             response.setMessage("El curso dirigido fue removido de la facultad satisfactoriamente");
             response.setSuccess(true);

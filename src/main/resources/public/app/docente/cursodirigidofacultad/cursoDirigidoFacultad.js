@@ -18,7 +18,6 @@ new Vue({
     },
     mounted() {
         let $vue = this;
-        //console.log($vue.listFacultad.length);
 
         $vue.listFacultad.length == 0 ? $vue.isDisabled = true : $vue.isDisabled = false;
         let facultad = $vue.$refs.loadCursoDirigidoFAC.getParameterByName('queries[facultad-dirigido]');
@@ -94,9 +93,6 @@ new Vue({
             let $vue = this;
             $vue.$refs.loadCursoDirigidoFAC.querie.push({name: 'facultad-dirigido', value: $vue.facultad.id});
             $vue.$refs.loadCursoDirigidoFAC.repreload();
-        },
-        convertFecha(datetime) {
-            return datetime.substr(0, 10);
         },
         eliminar(item) {
             let $vue = this;
