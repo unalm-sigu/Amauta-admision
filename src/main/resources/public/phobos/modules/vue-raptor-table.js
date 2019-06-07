@@ -11,6 +11,7 @@ Vue.component('raptor-table', {
         url: {type: String, default: null},
         ajaxdata: {type: Object, default: {}},
         searcher: {type: Boolean, default: true},
+        labelsearch: {type: Boolean, default: false},
         paginate: {type: Boolean, default: true},
         commented: {type: Boolean, default: true},
         preload: {type: Boolean, default: true},
@@ -150,7 +151,6 @@ Vue.component('raptor-table', {
             }
 
             $vue.footer = info;
-
         },
         generateParams() {
             let $vue = this;
