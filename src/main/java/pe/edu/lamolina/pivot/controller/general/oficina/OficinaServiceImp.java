@@ -669,11 +669,11 @@ public class OficinaServiceImp implements OficinaService {
     public List<Oficina> allOficinasMainByPersona(Persona persona) {
         List<Colaborador> colaboradores = colaboradorDAO.allActivosByPersona(persona);
         Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("oficina.id", "oficina", colaboradores);
-        List<Oficina> oficinasHijas = new ArrayList(mapOficinas.values());
+        List<Oficina> areasLaboraPersona = new ArrayList(mapOficinas.values());
         List<Oficina> oficinasMain = new ArrayList();
 
         List<Oficina> oficinasTodas = getOficinasOrganizadas();
-        for (Oficina ofi : oficinasHijas) {
+        for (Oficina ofi : areasLaboraPersona) {
             Oficina main = findOficinaMain(ofi, oficinasTodas);
             oficinasMain.add(main);
         }

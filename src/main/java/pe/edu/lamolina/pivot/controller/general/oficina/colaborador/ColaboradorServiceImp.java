@@ -516,14 +516,14 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
     @Override
     public ResumenColaborador getResumenColoboradores(Oficina oficina) {
-        List<Oficina> oficinas = allOficinasByMain(oficina);
+        List<Oficina> oficinas = allAreasByMain(oficina);
         ResumenColaborador colaboradors = colaboradorDAO.countByOficinas(oficinas);
         return colaboradors;
     }
 
     @Override
     public ArrayNode getColaboradoresJson(DynatableFilter filter, Oficina oficinaMain) {
-        List<Oficina> oficinas = allOficinasByMain(oficinaMain);
+        List<Oficina> oficinas = allAreasByMain(oficinaMain);
 
         List<Colaborador> colaboradores = colaboradorDAO.allDynatableByOficina(filter, oficinas);
         ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
@@ -531,37 +531,12 @@ public class ColaboradorServiceImp implements ColaboradorService {
         Map<Long, List<FuncionColaborador>> mapFunciones = TypesUtil.convertListToMapList("colaborador.id", funcionesColaboradores);
 
         for (Colaborador colaborador : colaboradores) {
-//            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-//            ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-
-//            if (ColaboradorEstadoEnum.DESP.name().equals(colaborador.getEstado())) {
-//                objNode.put("id", colaborador.getId());
-//                objNode.put("name", ColaboradorEstadoEnum.ACT.name());
-//                objNode.put("value", ColaboradorEstadoEnum.ACT.getValue());
-//                objNode.put("estado", colaborador.getEstado());
-//                array.add(objNode);
-//
-//            } else {
-//                for (ColaboradorEstadoEnum value : ColaboradorEstadoEnum.values()) {
-//                    objNode = new ObjectNode(JsonNodeFactory.instance);
-//                    if (value.name().equalsIgnoreCase(colaborador.getEstado())) {
-//
-//                    } else {
-//                        objNode.put("id", colaborador.getId());
-//                        objNode.put("name", value.name());
-//                        objNode.put("value", value.getValue());
-//                        objNode.put("estado", colaborador.getEstado());
-//                        array.add(objNode);
-//                    }
-//                }
-//            }
             String columnas = "id,estado,estadoEnum,codigo,"
                     + "oficina.nombre,cargo.nombre,persona.tipoDocumento.simbolo,"
                     + "persona.id,persona.nombreCompleto,persona.numeroDocIdentidad";
 
             ObjectNode node = JsonHelper.createJson(colaborador, JsonNodeFactory.instance, true, columnas.split(","));
             node.put("funciones", getFillList(mapFunciones.get(colaborador.getId())).size());
-//            node.set("estados", array);
             arrayNode.add(node);
         }
 
@@ -575,22 +550,24 @@ public class ColaboradorServiceImp implements ColaboradorService {
         return new ArrayList();
     }
 
-    private List<Oficina> allOficinasByMain(Oficina oficinaMain) {
+    private List<Oficina> allAreasByMain(Oficina oficinaMain) {
         List<Oficina> oficinasTodas = getOficinasOrganizadas();
         Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinasTodas);
 
-        Oficina oficinaBD = mapOficina.get(oficinaMain.getId());
+        Oficina oficinaMainBD = mapOficina.get(oficinaMain.getId());
         List<Oficina> oficinas = new ArrayList();
-        oficinas.add(oficinaBD);
-        agregarOficinasHijas(oficinaBD, oficinas);
+        oficinas.add(oficinaMainBD);
+        agregarOficinasHijas(oficinaMainBD, oficinas);
 
         return oficinas;
     }
 
     private void agregarOficinasHijas(Oficina oficinaMain, List<Oficina> oficinas) {
-        for (Oficina oficinasDependiente : oficinaMain.getOficinasDependientes()) {
-            oficinas.add(oficinasDependiente);
-            agregarOficinasHijas(oficinasDependiente, oficinas);
+        for (Oficina oficinaHija : oficinaMain.getOficinasDependientes()) {
+            if (oficinaHija.getTipoOficina().getNivelEnum() == NivelOficinaEnum.UNA) {
+                oficinas.add(oficinaHija);
+                agregarOficinasHijas(oficinaHija, oficinas);
+            }
         }
     }
 
@@ -745,8 +722,8 @@ public class ColaboradorServiceImp implements ColaboradorService {
     }
 
     @Override
-    public List<Oficina> allOficinasByOficinaMain(Oficina oficina) {
-        return allOficinasByMain(oficina);
+    public List<Oficina> allAreasByOficinaMain(Oficina oficina) {
+        return allAreasByMain(oficina);
     }
 
     @Override
@@ -1122,13 +1099,18 @@ public class ColaboradorServiceImp implements ColaboradorService {
     }
 
     @Transactional
-    private void updateUserRol(Usuario usuarioColaborador, List<PerfilCompania> perfilesCompaniaNuevos, Oficina oficinaMean, Colaborador colaborador, DataSessionPivot ds) {
+    private void updateUserRol(
+            Usuario usuarioColaborador,
+            List<PerfilCompania> perfilesCompaniaNuevos,
+            Oficina oficinaMain,
+            Colaborador colaborador, DataSessionPivot ds) {
+
         logger.info("ENTRA A UPDATE USER ROL");
         List<FuncionRol> funcionRolNuevos = funcionRolDAO.allByPerfilCompania(perfilesCompaniaNuevos);
         System.out.println("funcionRolNuevos ::: " + funcionRolNuevos.size());
         Map<Long, List<Rol>> mapRolNuevos = TypesUtil.convertListToMapList("rol.id", "rol", funcionRolNuevos);
 
-        List<UsuarioRol> rolesUsuarioTengo = usuarioRolDAO.allUsuarioAndOficina(usuarioColaborador, oficinaMean);
+        List<UsuarioRol> rolesUsuarioTengo = usuarioRolDAO.allUsuarioAndOficina(usuarioColaborador, oficinaMain);
         System.out.println("rolesUsuarioTengo ::: " + rolesUsuarioTengo.size());
         Map<Long, List<Rol>> mapRolTengo = TypesUtil.convertListToMapList("rol.id", "rol", rolesUsuarioTengo);
 
@@ -1151,9 +1133,9 @@ public class ColaboradorServiceImp implements ColaboradorService {
                 usuarioRol.setEstado(UserEstadoEnum.ACT);
                 usuarioRol.setFechaInicio(colaborador.getFechaInicio());
                 usuarioRol.setFechaRegistro(new Date());
-                usuarioRol.setOficina(oficinaMean);
-                usuarioRol.setIdInstancia(oficinaMean.getInstanciaOficina());
-                usuarioRol.setTipoOficina(oficinaMean.getTipoOficina().getCodigoEnum().name());
+                usuarioRol.setOficina(oficinaMain);
+                usuarioRol.setIdInstancia(oficinaMain.getInstanciaOficina());
+                usuarioRol.setTipoOficina(oficinaMain.getTipoOficina().getCodigoEnum().name());
                 usuarioRol.setUserRegistro(ds.getUsuario());
                 usuarioRol.setUsuario(usuarioColaborador);
                 usuarioRol.setRol(funcionRolNuevo.getRol());

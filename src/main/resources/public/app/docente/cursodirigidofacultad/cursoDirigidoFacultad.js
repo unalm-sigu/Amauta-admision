@@ -4,7 +4,8 @@ new Vue({
     el: '#cursoDirigidoFacultadVUE',
     data: {
         cursoDirigidoFacURL: APP.url("configuracion/cursodirigidofacultad/list"),
-        cursoDirigidoFacultad: {curso: {}, facultad: {}},
+        cursoDirigidoFacultad: null,
+        facultad: null,
         listFacultad: JSON.parse(facultadesJson),
         isDisabled: false,
         listCurso: [],
@@ -17,15 +18,13 @@ new Vue({
     },
     mounted() {
         let $vue = this;
-
-        console.log($vue.listFacultad.length);
+        //console.log($vue.listFacultad.length);
 
         $vue.listFacultad.length == 0 ? $vue.isDisabled = true : $vue.isDisabled = false;
         let facultad = $vue.$refs.loadCursoDirigidoFAC.getParameterByName('queries[facultad-dirigido]');
-
-        if (facultad == null && $vue.listFacultad[0] != null) {
-            $vue.cursoDirigidoFacultad.facultad = $vue.listFacultad[0];
-            facultad = $vue.cursoDirigidoFacultad.facultad.id;
+        if (facultad == null && $vue.listFacultad.length > 0) {
+            $vue.facultad = $vue.listFacultad[0];
+            facultad = $vue.facultad.id;
         }
 
         if (facultad != '' && $vue.listFacultad.length != 0) {
@@ -39,14 +38,17 @@ new Vue({
             let $vue = this;
             for (var i = 0; i < $vue.listFacultad.length; i++) {
                 if (idFacultad == $vue.listFacultad[i].id) {
-                    $vue.cursoDirigidoFacultad.facultad = $vue.listFacultad[i];
+                    $vue.facultad = $vue.listFacultad[i];
                 }
             }
         },
         nuevoCursoDirigidoFAC() {
             let $vue = this;
             $vue.listCurso = [];
-            $vue.cursoDirigidoFacultad.curso = {};
+            $vue.cursoDirigidoFacultad = {
+                curso: null,
+                facultad: $vue.facultad
+            };
             $vue.$refs.modalCursoDirigidoFAC.open();
         },
         searchCurso(parametro) {
