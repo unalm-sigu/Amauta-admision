@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -692,14 +693,14 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     }
 
     @Override
-    public List<GrupoSeccion> allOrdenadoByCicloAndAnexoBoletin(CicloAcademico ciclo, AnexoBoletin anexoBol) {
-
+    public List<GrupoSeccion> allOrdenadoByCicloAndAnexoBoletin(CicloAcademico ciclo, AnexoBoletin... anexoBol) {
+        List<AnexoBoletin> anexosBoletin = Arrays.asList(anexoBol);
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
                 .join("curso cur", "cicloAcademico ca", "anexoBoletin ab")
                 .join("ab.anexoSuperior asu")
                 .filter("ca.id", ciclo)
-                .filter("ab.id", anexoBol)
+                .in("ab.id", anexosBoletin)
                 .filter("gs.estado", SeccionEstadoEnum.ACT)
                 .orderBy("gs.codigo2");
 
