@@ -21,7 +21,6 @@ Vue.component("cancelar-seccion-component", {
                 data: {seccion: $vue.seccion.id},
                 success(response) {
                     if (response.success) {
-                        console.dir(response.data);
                         $vue.matriculasSeccion = response.data;
                     } else {
                         notify(response.message, "error");

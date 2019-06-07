@@ -750,9 +750,12 @@ var app = new Vue({
         cancelarSeccion(seccionWorking) {
             let $vue = this;
             $.ajax({
-                method: 'POST',
                 url: APP.url(rutaModulo + '/cancelarSeccion'),
-                data: {seccion: seccionWorking.id},
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify(seccionWorking),
                 success: function (response) {
                     $vue.$refs.modalConfirmAction.confirmReaction(response.success);
                     if (response.success) {
@@ -2067,6 +2070,17 @@ var app = new Vue({
                 return true;
             }
             return false;
+        }, rowSeccionStyles(index, seccion) {
+            let rows = $('#tblSecciones').find('> tbody > tr');
+            let row = rows[index];
+            if (row != null) {
+                if (seccion.isEstadoActivo) {
+                    $(row).find('a[class!="lnk-seccion"]').css('pointer-events', 'auto');
+                } else {
+                    $(row).find('a[class!="lnk-seccion"]').css('pointer-events', 'none');
+                }
+            }
+            return "";
         }
     }
 });

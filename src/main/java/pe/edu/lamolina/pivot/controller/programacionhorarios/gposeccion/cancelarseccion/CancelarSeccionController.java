@@ -43,6 +43,8 @@ public class CancelarSeccionController {
             for (MatriculaSeccion matriculaSeccion : matriculasSeccion) {
                 ObjectNode jMatriculaSeccion = JsonHelper.createJson(matriculaSeccion, jc, true,
                         new String[]{
+                            "estadoEnum",
+                            "estado",
                             "matriculaResumen.alumno.id",
                             "matriculaResumen.alumno.codigo",
                             "matriculaResumen.alumno.estado",
