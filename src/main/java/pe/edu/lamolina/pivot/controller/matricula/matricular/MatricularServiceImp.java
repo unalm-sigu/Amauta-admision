@@ -386,8 +386,8 @@ public class MatricularServiceImp implements MatricularService {
             Alumno alumno = mr.getAlumno();
             MatriculaCurso requisitoSim = map.get(matriculaCurso.getId());
             Boolean cumple = matriculaCursoMatriculados.stream().anyMatch(x
-                    -> x.getCurso().getId() == requisitoSim.getCurso().getId()
-                    && x.getMatriculaResumen().getId() == matriculaCurso.getMatriculaResumen().getId());
+                    -> Objects.equals(x.getCurso().getId(), requisitoSim.getCurso().getId())
+                    && Objects.equals(x.getMatriculaResumen().getId(), matriculaCurso.getMatriculaResumen().getId()));
             for (MatriculaSeccion matriculaSeccion : matriculaCurso.getMatriculaSeccion()) {
                 Seccion seccion = matriculaSeccion.getSeccion();
                 Integer vac = mapVacantesDisponibles.get(seccion.getId());
@@ -450,12 +450,12 @@ public class MatricularServiceImp implements MatricularService {
     ) {
         if (cumple) {
             VacanteAlumno vacante = this.getVacanteAlumno(vacanteAlumnosMap, seccion, ds.getUsuario());
-
+            logger.debug("alumno {}", alumno.getId());
             if (matriculaCurso.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
                 matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
                 AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculas.stream().
-                        filter(x -> x.getAlumno().getId() == alumno.getId()
-                        && x.getCurso().getId() == curso.getId()
+                        filter(x -> Objects.equals(x.getAlumno().getId(), alumno.getId())
+                        && Objects.equals(x.getCurso().getId(), curso.getId())
                         ).findAny().orElse(null);
                 this.actualizarAlumnoCursoCurricula(EstadoMatriculaEnum.MAT, alumnoCursoCurricula);
                 matriculaCursoDAO.update(matriculaCurso);
