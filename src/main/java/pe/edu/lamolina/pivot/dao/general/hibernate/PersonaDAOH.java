@@ -26,9 +26,11 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
         Octavia sql = Octavia.query()
                 .from(Persona.class, "per")
                 .leftJoin("tipoDocumento td")
-                .leftJoin("ubicacionDomicilio ud")
+                .leftJoin("ubicacionDomicilio udd", "udd.ubicacionSuperior udp", "udp.ubicacionSuperior udde")
+                .leftJoin("udd.tipoUbicacion", "udp.tipoUbicacion", "udde.tipoUbicacion")
                 .leftJoin("paisNacer ")
-                .leftJoin("ubicacionNacer ")
+                .leftJoin("ubicacionNacer und", "und.ubicacionSuperior unp", "unp.ubicacionSuperior unde")
+                .leftJoin("und.tipoUbicacion", "unp.tipoUbicacion", "unde.tipoUbicacion")
                 .leftJoin("paisDomicilio ")
                 .filter("per.id", id);
 
@@ -176,7 +178,7 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
         Octavia sql = Octavia.query()
                 .from(Persona.class, "per")
                 .leftJoin("tipoDocumento td")
-                .leftJoin("ubicacionDomicilio ud","paisNacer pn","nacionalidad nac","paisDomicilio paisDoc")
+                .leftJoin("ubicacionDomicilio ud", "paisNacer pn", "nacionalidad nac", "paisDomicilio paisDoc")
                 .filter("td.id", tipoDocumento)
                 .filter("per.numeroDocIdentidad", numeroDocIdentidad);
         return find(sql);

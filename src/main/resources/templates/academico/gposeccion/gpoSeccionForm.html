@@ -1,63 +1,63 @@
-<html layout:decorator="_layout/layout">
+3.<html layout:decorator="_layout/layout">
     <head>
         <title>Programación de Horarios</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
     <style type="text/css">
-.buscarDocClass {
-    min-width: 300px;
-}
-/* Enter and leave animations can use different */
-/* durations and timing functions.              */
-.slide-fade-enter-active {
-    transition: all 1s ease;
-}
-.slide-fade-leave-active {
-    transition: all 1.5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
-}
-.slide-fade-enter, .slide-fade-leave-to
-/* .slide-fade-leave-active below version 2.1.8 */ {
-    transform: translateX(10px);
-    opacity: 0;
-}
-.nav-gposec-gray {
-    color: #c8c8c8;
-}
-.nav-gposec-primary {
-    color: #0275D8;
-    cursor: pointer;
-}
-.avatar-gposecc {
-    display: block;
-    position: relative;
-    border-radius: 50%;
-    width: 54px;
-    height: 54px;
-    overflow: hidden;
-    line-height: 54px;
-    background-color: #F5B041;
-    color: #fff;
-    text-align: center;
-    font-size: 24px;
-    text-indent: 0;
-    margin: auto;
-    margin-top: 10px;
-}
-.text-curso {
-    font-size: 18px;
-    color: #0275D8;
-}
-.col-md-0 {
-    width: 75px;
-    float: left;
-    position: relative;
-    min-height: 1px;
-    padding-right: 5px;
-    padding-left: 15px;
-}
+        .buscarDocClass {
+            min-width: 300px;
+        }
+        /* Enter and leave animations can use different */
+        /* durations and timing functions.              */
+        .slide-fade-enter-active {
+            transition: all 1s ease;
+        }
+        .slide-fade-leave-active {
+            transition: all 1.5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        }
+        .slide-fade-enter, .slide-fade-leave-to
+        /* .slide-fade-leave-active below version 2.1.8 */ {
+            transform: translateX(10px);
+            opacity: 0;
+        }
+        .nav-gposec-gray {
+            color: #c8c8c8;
+        }
+        .nav-gposec-primary {
+            color: #0275D8;
+            cursor: pointer;
+        }
+        .avatar-gposecc {
+            display: block;
+            position: relative;
+            border-radius: 50%;
+            width: 54px;
+            height: 54px;
+            overflow: hidden;
+            line-height: 54px;
+            background-color: #F5B041;
+            color: #fff;
+            text-align: center;
+            font-size: 24px;
+            text-indent: 0;
+            margin: auto;
+            margin-top: 10px;
+        }
+        .text-curso {
+            font-size: 18px;
+            color: #0275D8;
+        }
+        .col-md-0 {
+            width: 75px;
+            float: left;
+            position: relative;
+            min-height: 1px;
+            padding-right: 5px;
+            padding-left: 15px;
+        }
 
-.crueHorario{
-    font-size: 10px;
-}
+        .crueHorario{
+            font-size: 10px;
+        }
     </style>
 </head>
 
@@ -471,11 +471,11 @@
                                                                v-on:click="verAnularSeccion(seccion)">
                                                                 Anular
                                                             </a>
-                                                            <a href="#"
-                                                               v-if="seccion.isEstadoActivo &amp;&amp; seccion.matriculados > 0 "
+<!--                                                            <a href="#"
+                                                               v-if="seccion.isEstadoActivo &amp;&amp; seccion.matriculados > 0"
                                                                v-on:click="verCancelarSeccion(seccion)">
                                                                 Cancelar
-                                                            </a>
+                                                            </a>-->
                                                             <a href="#"
                                                                v-if="seccion.isEstadoActivo "
                                                                v-on:click="verBloquearSeccion(seccion)">
@@ -554,7 +554,7 @@
                                                     v-bind:class="getClassTab('CARPETA')" v-on:click="verTab('CARPETA')">
                                                     <a href="#6Conte" data-toggle="tab">Tipo Carpeta</a>
                                                 </li>
-                                                <li v-if="seccionSeleccionada.estado == 'ACT' " 
+                                                <li v-if="seccionSeleccionada.isEstadoActivo &amp;&amp; seccionSeleccionada.matriculados > 0"
                                                     v-bind:class="getClassTab('CANCELAR')" v-on:click="verTab('CANCELAR')">
                                                     <a href="#7Conte" data-toggle="tab">Cancelar Seccion</a>
                                                 </li>
@@ -582,10 +582,11 @@
                                         <div class="tab-pane" v-bind:class="getClassTab('CARPETA')" id="6Conte">
                                             <div th:substituteby="academico/gposeccion/includes/tipocarpetaform"/>
                                         </div>
-                                        <div class="tab-pane" v-bind:class="getClassTab('CANCELAR')" id="7Conte">
-                                            <!-- 
-                                            <cancelar-seccion-component v-bind:seccion="seccionSeleccionada"></cancelar-seccion-component>
-                                            -->
+                                        <div v-if="seccionSeleccionada.isEstadoActivo &amp;&amp; seccionSeleccionada.matriculados > 0" 
+                                             class="tab-pane" v-bind:class="getClassTab('CANCELAR')" id="7Conte">
+                                            <div>
+                                                <cancelar-seccion-component v-bind:seccion="seccionSeleccionada"></cancelar-seccion-component>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -613,6 +614,7 @@
         <div th:substituteby="academico/gposeccion/components/grupoRegularAulaComponent"/>
         <div th:substituteby="academico/gposeccion/components/horaAdicionalComponente"/>
         <div th:substituteby="academico/gposeccion/components/tipocarpetacomponent"/>
+        <div th:substituteby="academico/gposeccion/components/cancelarSeccionComponent"/>
 
     </section>
 
@@ -639,7 +641,8 @@
         <script th:src="@{/app/gposeccion/grupoRegularAulaComponet.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/horaAdicionalComponente.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/tipocarpetacomponent.js}" charset="utf-8"></script>
-        <div th:substituteby="academico/gposeccion/components/cancelarSeccionComponent"/>
+        <script th:src="@{/app/gposeccion/cancelarSeccionComponent.js}" charset="utf-8"></script>
+
         <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
     </div>
 </body>

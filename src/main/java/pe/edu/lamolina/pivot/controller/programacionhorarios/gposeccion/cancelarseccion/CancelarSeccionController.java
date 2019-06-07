@@ -23,14 +23,14 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("academico/gposeccion")
 public class CancelarSeccionController {
-    
+
     @Autowired
     CancelarSeccionService service;
-    
+
     public List<MatriculaSeccion> matriculasSecciones(Seccion seccion) {
         return service.allMatriculaSeccionBySeccion(seccion);
     }
-    
+
     @ResponseBody
     @RequestMapping("loadCancelarSeccionComp")
     public JsonResponse loadCancelarSeccionComp(@RequestParam("seccion") Long seccionId, Model model, HttpSession session) {
@@ -43,9 +43,38 @@ public class CancelarSeccionController {
             for (MatriculaSeccion matriculaSeccion : matriculasSeccion) {
                 ObjectNode jMatriculaSeccion = JsonHelper.createJson(matriculaSeccion, jc, true,
                         new String[]{
+                            "matriculaResumen.alumno.id",
                             "matriculaResumen.alumno.codigo",
-                            "matriculaResumen.alumno.persona.apellidosNombres"
+                            "matriculaResumen.alumno.estado",
+                            "matriculaResumen.alumno.estadoEnum.*",
+                            "matriculaResumen.alumno.promedioAcumulado",
+                            "matriculaResumen.alumno.creditosCursados",
+                            "matriculaResumen.alumno.creditosAprobados",
+                            "matriculaResumen.alumno.persona.apellidosNombres",
+                            "matriculaResumen.alumno.persona.tipoFoto",
+                            "matriculaResumen.alumno.persona.rutaFoto",
+                            "matriculaResumen.alumno.persona.numeroDocIdentidad",
+                            "matriculaResumen.alumno.persona.tipoDocumento",
+                            "matriculaResumen.alumno.persona.tipoDocumento.simbolo",
+                            "matriculaResumen.alumno.persona.tipoFoto",
+                            "matriculaResumen.alumno.persona.telefono",
+                            "matriculaResumen.alumno.persona.celular",
+                            "matriculaResumen.alumno.persona.email",
+                            "matriculaResumen.alumno.persona.emailCompania",
+                            "matriculaResumen.alumno.cicloActivo.descripcion",
+                            "matriculaResumen.alumno.cicloIngreso.descripcion",
+                            "matriculaResumen.alumno.cicloIngreso.estadoEnum",
+                            "matriculaResumen.alumno.carrera.nombre",
+                            "matriculaResumen.alumno.carrera.codigo",
+                            "matriculaResumen.alumno.carrera.tipoEnum",
+                            "matriculaResumen.alumno.carrera.tipo",
+                            "matriculaResumen.alumno.carrera.facultad.codigo",
+                            "matriculaResumen.alumno.carrera.facultad.nombre",
+                            "matriculaResumen.alumno.modalidadEstudio.codigo",
+                            "matriculaResumen.alumno.situacionAcademica.codigo",
+                            "matriculaResumen.alumno.situacionAcademica.nombre"
                         });
+
                 jMatriculasSeccion.add(jMatriculaSeccion);
             }
             response.setData(jMatriculasSeccion);
@@ -58,5 +87,5 @@ public class CancelarSeccionController {
             return response;
         }
     }
-    
+
 }

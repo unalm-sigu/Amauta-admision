@@ -42,6 +42,7 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Autowired
     OficinaDAO oficinaDAO;
+
     @Autowired
     FacultadDAO facultadDAO;
 
@@ -69,6 +70,7 @@ public class VerificadorServiceImp implements VerificadorService {
     public List<Object> allInstanciasByMenuRol(TipoOficinaEnum tipoOficinaSolicitud, HttpServletRequest request, DataSessionPivot ds) {
         List<Object> lista = new ArrayList();
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        System.out.println("oficinas:::" + oficinasMain.size());
         for (Oficina oficina : oficinasMain) {
             if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
                 if (tipoOficinaSolicitud == DPTO) {
@@ -86,29 +88,40 @@ public class VerificadorServiceImp implements VerificadorService {
         Menu menu = findMenu(ds.getMenu(), obtainPath(request));
 
         if (menu == null) {
+            System.out.println("No tiene acceso a ningun menu");
             return new ArrayList();
         }
 
         List<Oficina> oficinas = oficinaDAO.allOficinaByUserMenu(ds.getUsuario(), menu);
         System.out.println("cantidad Oficinas " + oficinas.size());
+        if (oficinas.isEmpty()) {
+            return lista;
+        }
+
         List<Carrera> carreras = carreraDAO.all();
+        List<Facultad> facultades = facultadDAO.all();
+        List<DepartamentoAcademico> departamentos = departamentoAcademicoDAO.all();
         Map<Long, Carrera> mapCarreras = TypesUtil.convertListToMap("id", carreras);
+        Map<Long, Facultad> mapFacultad = TypesUtil.convertListToMap("id", facultades);
+        Map<Long, DepartamentoAcademico> mapDepartamento = TypesUtil.convertListToMap("id", departamentos);
 
         for (Oficina oficina : oficinas) {
             if (tipoOficinaSolicitud == ESP && oficina.getTipoOficina().getCodigoEnum() == ESP) {
                 lista.add(mapCarreras.get(oficina.getInstanciaOficina()));
 
             } else if (tipoOficinaSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == ESP) {
-                lista.addAll(facultadDAO.all());
+                // IMPLEMENTAR LOGICA
+                //lista.addAll(facultadDAO.all());
 
             } else if (tipoOficinaSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == FAC) {
-                lista.add(new Facultad(oficina.getInstanciaOficina()));
+                lista.add(mapFacultad.get(oficina.getInstanciaOficina()));
 
             } else if (tipoOficinaSolicitud == DPTO && oficina.getTipoOficina().getCodigoEnum() == DPTO) {
-                lista.add(new DepartamentoAcademico(oficina.getInstanciaOficina()));
+                lista.add(mapDepartamento.get(oficina.getInstanciaOficina()));
 
             } else if (tipoOficinaSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == DPTO) {
-                lista.addAll(facultadDAO.all());
+                // IMPLEMENTAR LOGICA
+                //lista.addAll(facultadDAO.all());
             }
         }
         return lista;

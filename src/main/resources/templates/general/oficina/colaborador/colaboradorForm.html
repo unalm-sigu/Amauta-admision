@@ -150,7 +150,7 @@
                                         <label>Área</label>
                                         <div class="form-group">                                
                                             <multiselect v-model="colaborador.oficina" 
-                                                         v-bind:options='area'
+                                                         v-bind:options='areas'
                                                          label='nombre'
                                                          track-by='id'
                                                          required="true"
@@ -278,7 +278,7 @@
             var colaboradorJson = /*[[${colaborador.toString()}]]*/ 'json';
             var tipoDocumentoJson = /*[[${tipoDocumento.toString()}]]*/ 'json';
             var sexoJson = /*[[${sexo}]]*/ 'json';
-            var areaJson = /*[[${area.toString()}]]*/ 'json';
+            var areasJson = /*[[${areas.toString()}]]*/ 'json';
             var misfuncionesJson = /*[[${misfunciones.toString()}]]*/ 'json';
             var funcionesJson = /*[[${funciones.toString()}]]*/ 'json';
             var cargosJson = /*[[${cargos.toString()}]]*/ 'json';
