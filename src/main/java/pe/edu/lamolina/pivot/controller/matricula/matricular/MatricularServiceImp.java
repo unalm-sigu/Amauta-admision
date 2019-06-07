@@ -288,7 +288,7 @@ public class MatricularServiceImp implements MatricularService {
         for (MatriculaCurso matriculaCursoTemp : matriculaCursosTemp) {
             MatriculaResumen matriculaResumen = matriculaCursoTemp.getMatriculaResumen();
             List<MatriculaCurso> matriculaCursos = noMatriculadosELC.stream().filter(x
-                    -> x.getMatriculaResumen().getId() == matriculaResumen.getId()
+                    -> Objects.equals(x.getMatriculaResumen().getId(), matriculaResumen.getId())
                     && Arrays.asList(ELC, ELE).contains(x.getTipoCursoCurricula().getCodigoEnum())).collect(Collectors.toList());
             for (MatriculaCurso matriculaCurso : matriculaCursos) {
                 if (matriculaCurso.getCreditos() <= matriculaCursoTemp.getCreditos()) {
