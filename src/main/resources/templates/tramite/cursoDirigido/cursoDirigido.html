@@ -1,0 +1,37 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Curso Dirigido </title>
+    </head>
+    <body>
+
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <h1 v-text="'Curso Dirigido'"></h1>
+                </header>
+
+                <section class="wrapper-lg m-b-xs">
+                    <section class="panel">
+                        <section class="panel-body m-t-sm">
+
+
+
+                        </section>
+                    </section>
+                </section>
+
+            </div>
+
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+            </script>
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="_layout/includes :: vuejs"/>
+            <!--<div th:substituteby="_layout/includes :: javascript-upload"/>-->
+            <script th:src="@{/app/tramite/cursodirigido/cursodirigido.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

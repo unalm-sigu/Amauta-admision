@@ -225,8 +225,10 @@ public class PdfServiceImp implements PdfService {
         //para cada boletin encontrado buscar los boletines inferiores ordenados por orden
         for (AnexoBoletin ab : listaAB) {
             List<AnexoBoletin> subListaAB = anexoBoletinDAO.allBySuperior(ab);
+            List<GrupoSeccion> grupoSeccListAll = grupoSeccionDAO.allOrdenadoByCicloAndAnexoBoletin(ciclo, subListaAB.toArray(new AnexoBoletin[subListaAB.size()]));
+            Map<Long, List<GrupoSeccion>> mapGryposSecBySubAnexo = TypesUtil.convertListToMapList("anexoBoletin.id", grupoSeccListAll);
             for (AnexoBoletin subAB : subListaAB) {
-                List<GrupoSeccion> grupoSeccList = grupoSeccionDAO.allOrdenadoByCicloAndAnexoBoletin(ciclo, subAB);
+                List<GrupoSeccion> grupoSeccList = mapGryposSecBySubAnexo.get(subAB.getId()) == null ? new ArrayList<>() : mapGryposSecBySubAnexo.get(subAB.getId());
 
                 for (GrupoSeccion gs : grupoSeccList) {
                     //       List<Seccion> seccionList = seccionDAO.allByGposSeccionOrderedByCodigo2(gs);
