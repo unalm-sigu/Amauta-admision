@@ -97,16 +97,16 @@ public class VerificadorServiceImp implements VerificadorService {
         for (Oficina oficina : oficinas) {
             if (tipoOficinaSolicitud == ESP && oficina.getTipoOficina().getCodigoEnum() == ESP) {
                 lista.add(mapCarreras.get(oficina.getInstanciaOficina()));
-                
+
             } else if (tipoOficinaSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == ESP) {
                 lista.addAll(facultadDAO.all());
-                
+
             } else if (tipoOficinaSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == FAC) {
                 lista.add(new Facultad(oficina.getInstanciaOficina()));
-                
+
             } else if (tipoOficinaSolicitud == DPTO && oficina.getTipoOficina().getCodigoEnum() == DPTO) {
                 lista.add(new DepartamentoAcademico(oficina.getInstanciaOficina()));
-                
+
             } else if (tipoOficinaSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == DPTO) {
                 lista.addAll(facultadDAO.all());
             }
