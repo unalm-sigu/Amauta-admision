@@ -17,6 +17,7 @@
                 </div>
 
                 <div class="col-md-2">
+                    <label v-if="labelsearch">&nbsp;</label>
                     <input v-on:change="executeSearch"
                            v-model="search" 
                            placeholder="Buscar"
