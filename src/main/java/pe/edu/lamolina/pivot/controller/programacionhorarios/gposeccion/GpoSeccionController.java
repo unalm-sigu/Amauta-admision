@@ -173,6 +173,8 @@ public class GpoSeccionController {
                     "secciones.restriccionCapa",
                     "secciones.horasSemanales",
                     "secciones.estadoEnum",
+                    "secciones.estadoActivo",
+                    "secciones.estadoCancelado",
                     "secciones.grupoHoras.codigo",
                     "secciones.aula.codigo",
                     "secciones.aula.nombre",
@@ -868,7 +870,7 @@ public class GpoSeccionController {
 
     @ResponseBody
     @RequestMapping("cancelarSeccion")
-    public JsonResponse cancelarSeccion(@RequestParam("seccion") Long seccionId,
+    public JsonResponse cancelarSeccion(@RequestBody Seccion seccion,
             Model model,
             HttpSession session) {
         JsonResponse response = new JsonResponse();
@@ -876,7 +878,7 @@ public class GpoSeccionController {
             TypesUtil.delay(3000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            service.cancelarSeccion(new Seccion(seccionId), ds);
+            service.cancelarSeccion(seccion, ds);
             String message = "Sección cancelada.";
             response.setSuccess(true);
             response.setMessage(message);

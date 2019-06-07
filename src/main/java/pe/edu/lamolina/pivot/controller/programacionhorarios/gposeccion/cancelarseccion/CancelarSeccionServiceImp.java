@@ -18,7 +18,7 @@ public class CancelarSeccionServiceImp implements CancelarSeccionService {
     @Override
     public List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion) {
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
-        matriculasSeccion.removeIf(x -> !x.isEstadoMAT() && !x.isEstadoPMAT());
+        matriculasSeccion.removeIf(x -> !x.isEstadoMAT() && !x.isEstadoPMAT() && !x.isEstadoRCA());
         return matriculasSeccion;
     }
 
