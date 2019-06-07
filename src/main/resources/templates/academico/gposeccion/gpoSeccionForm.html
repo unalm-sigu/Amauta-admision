@@ -1,4 +1,4 @@
-3.<html layout:decorator="_layout/layout">
+<html layout:decorator="_layout/layout">
     <head>
         <title>Programación de Horarios</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
@@ -471,11 +471,11 @@
                                                                v-on:click="verAnularSeccion(seccion)">
                                                                 Anular
                                                             </a>
-<!--                                                            <a href="#"
-                                                               v-if="seccion.isEstadoActivo &amp;&amp; seccion.matriculados > 0"
-                                                               v-on:click="verCancelarSeccion(seccion)">
-                                                                Cancelar
-                                                            </a>-->
+                                                            <!--                                                            <a href="#"
+                                                                                                                           v-if="seccion.isEstadoActivo &amp;&amp; seccion.matriculados > 0"
+                                                                                                                           v-on:click="verCancelarSeccion(seccion)">
+                                                                                                                            Cancelar
+                                                                                                                        </a>-->
                                                             <a href="#"
                                                                v-if="seccion.isEstadoActivo "
                                                                v-on:click="verBloquearSeccion(seccion)">

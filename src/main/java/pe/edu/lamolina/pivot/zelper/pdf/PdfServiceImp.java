@@ -217,9 +217,6 @@ public class PdfServiceImp implements PdfService {
         List<String> pdfs = new ArrayList<>();
         //buscar boletin anexo superiores ordenados por orden
         List<AnexoBoletin> listaAB = anexoBoletinDAO.allAnexosSuperioresOrderedbyOrden();
-        for (AnexoBoletin anexoBoletin : listaAB) {
-            logger.debug("anexoboletin nombre {}", anexoBoletin.getNombre());
-        }
         List<Seccion> seccionListAll = seccionDAO.allByGposSeccionOrderedByCodigo2(ciclo);
         Map<Long, List<Seccion>> mapSeccionesByCiclo = TypesUtil.convertListToMapList("grupoSeccion.id", seccionListAll);
         //para cada boletin encontrado buscar los boletines inferiores ordenados por orden
