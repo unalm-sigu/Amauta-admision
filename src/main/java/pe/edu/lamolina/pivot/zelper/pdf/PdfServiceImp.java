@@ -229,8 +229,10 @@ public class PdfServiceImp implements PdfService {
             Map<Long, List<GrupoSeccion>> mapGryposSecBySubAnexo = TypesUtil.convertListToMapList("anexoBoletin.id", grupoSeccListAll);
             for (AnexoBoletin subAB : subListaAB) {
                 List<GrupoSeccion> grupoSeccList = mapGryposSecBySubAnexo.get(subAB.getId()) == null ? new ArrayList<>() : mapGryposSecBySubAnexo.get(subAB.getId());
+
                 for (GrupoSeccion gs : grupoSeccList) {
-                    List<Seccion> seccionList = mapSeccionesByCiclo.get(gs.getId()) == null ? new ArrayList<>() : new ArrayList<Seccion>();
+                    //       List<Seccion> seccionList = seccionDAO.allByGposSeccionOrderedByCodigo2(gs);
+                    List<Seccion> seccionList = mapSeccionesByCiclo.get(gs.getId()) == null ? new ArrayList<>() : mapSeccionesByCiclo.get(gs.getId());
                     gs.setSecciones(seccionList);
                 }
                 subAB.setGruposSecciones(grupoSeccList);
