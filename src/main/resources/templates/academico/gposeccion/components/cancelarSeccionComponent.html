@@ -1,0 +1,104 @@
+<template id="cancelarSeccionComp">
+    <div>
+        <div th:substituteby="_modules/vue-modal-confirm"></div>
+        <form id="frmCancelarSeccion">
+            <h3>Alumnos de la Sección</h3>
+            <div class="form-group">
+                <label >Motivo de la cancelación:</label>
+                <textarea v-model="seccion.motivoCancelacion" required="true" style="width: 100%;height: 50px;"></textarea>
+            </div>
+            <div class="panel-body">
+
+                <a class="btn btn-danger btn-sm pull-right m-t-xs"
+                   v-on:click="verCancelarSeccion()">
+                    <strong> Cancelar Sección</strong>
+                </a>
+            </div>
+            <table class="table" v-if="matriculasSeccion">
+                <thead> 
+                    <tr>
+                        <th class="col-md-4" colspan="2"></th>
+                        <th class="col-md-3 text-center">Programa</th>
+                        <th class="col-md-3 text-center v-middle">Situación Académica</th>
+                        <th class="col-md-1 text-center v-middle">Promedios</th>
+                        <th class="col-md-1 text-center v-middle">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="mSec in matriculasSeccion">
+                        <td class="v-middle">
+                            <div class="pull-left">
+                                <div v-if="mSec.matriculaResumen.alumno.persona.tipoFoto=='POSTUL' "
+                                     class="img-responsive img-thumbnail img-circle div-foto-list">
+                                    <img class="img-foto-list" v-bind:src="mSec.matriculaResumen.alumno.persona.rutaFoto" />
+                                </div>
+
+                                <img v-else-if="mSec.matriculaResumen.alumno.persona.tipoFoto=='COMUN' " 
+                                     class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                     v-bind:src="mSec.matriculaResumen.alumno.persona.rutaFoto" />
+
+                                <img v-else="" 
+                                     class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                     v-bind:src="mSec.matriculaResumen.alumno.persona.rutaFoto" />
+                            </div>
+                        </td>
+                        <td class="v-middle">
+                            <template >
+                                <a v-bind:href="urlAcademico(mSec.matriculaResumen.alumno)" class="block text-primary bold h5 m-b-xs m-t-xs" >
+                                    {{mSec.matriculaResumen.alumno.persona.apellidosNombres}}
+                                </a>
+                                <span class="block">
+                                    Matrícula: {{mSec.matriculaResumen.alumno.codigo}}
+                                </span>
+                                <small v-if="mSec.matriculaResumen.alumno.persona.numeroDocIdentidad != '' " class="block bold">
+                                    {{mSec.matriculaResumen.alumno.persona.tipoDocumento.simbolo}} {{mSec.matriculaResumen.alumno.persona.numeroDocIdentidad}}
+                                </small>
+                            </template>
+                        </td>
+
+                        <td class="v-middle text-center">
+                            <template >
+                                <span v-if="mSec.matriculaResumen.alumno.carrera.tipo == 'MAE' || mSec.matriculaResumen.alumno.carrera.tipo == 'DOC'"
+                                      class="block text-info bold">{{mSec.matriculaResumen.alumno.carrera.tipoEnum.value}} en</span>
+                                <span class="block text-success">{{mSec.matriculaResumen.alumno.carrera.nombre}}</span>
+
+                                <span v-if="verFacultad(mSec.matriculaResumen.alumno)" class="block">Facultad de {{mSec.matriculaResumen.alumno.carrera.facultad.nombre}}</span>
+                                <small class="block bold">{{mSec.matriculaResumen.alumno.modalidadEstudio.nombre}}</small>
+                            </template>
+                        </td>
+
+                        <td class="v-middle text-center">
+                            <template>
+                                <span class="block h5 text-primary m-t-xs m-b-xs">{{mSec.matriculaResumen.alumno.situacionAcademica.nombre}}</span>
+                                <span class="block"><b>Ingresó:</b> {{mSec.matriculaResumen.alumno.cicloIngreso.descripcion}}</span>
+                                <span v-if="mSec.matriculaResumen.alumno.cicloActivo.descripcion != '' "
+                                      class="block"><b>Último ciclo:</b> {{mSec.matriculaResumen.alumno.cicloActivo.descripcion}}</span>
+                            </template>
+                        </td>
+
+                        <td class="v-middle">
+                            <template >
+                                <span v-if="mSec.matriculaResumen.alumno.ppa != '' " class="block"><b>ppa:</b> {{mSec.matriculaResumen.alumno.promedioAcumulado}}</span>
+                                <span v-if="mSec.matriculaResumen.alumno.cca != '' " class="block"><b>cca:</b> {{mSec.matriculaResumen.alumno.creditosCursados}}</span>
+                                <span v-if="mSec.matriculaResumen.alumno.capa != '' " class="block"><b>capa:</b> {{mSec.matriculaResumen.alumno.creditosAprobados}}</span>
+                            </template>
+                        </td>
+
+                        <td class="text-center v-middle">
+                            <template>
+                                <span  class="clear" v-if="mSec.matriculaResumen.alumno.estado">
+                                    <a v-if="mSec.matriculaResumen.alumno.estado == 'ANU' "
+                                       href="#" data-toggle="tooltip" data-html="true" data-placement="left" v-bind:title='mSec.matriculaResumen.alumno.motivo'>
+                                        <span class="label label-danger" >{{mSec.matriculaResumen.alumno.estadoEnum.value}} </span>
+                                    </a>
+                                    <span v-else="" class="label label-success">{{mSec.matriculaResumen.alumno.estadoEnum.value}} </span>
+                                </span>
+                            </template>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</template>
+

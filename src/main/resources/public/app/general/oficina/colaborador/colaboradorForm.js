@@ -9,7 +9,7 @@ new Vue({
         persona: {},
         oficina: {id: JSON.parse(oficinaId)},
         sexo: sexoJson,
-        area: JSON.parse(areaJson),
+        areas: JSON.parse(areasJson),
         misfunciones: JSON.parse(misfuncionesJson),
         funciones: JSON.parse(funcionesJson),
         cargos: JSON.parse(cargosJson),
@@ -263,8 +263,8 @@ new Vue({
             $vue.removerError();
 
         },
-        revisarNombre(e) {
-            e.target.value = APP.revisarNombre2(e.target.value);
+        revisar(person, campo) {
+            person[campo] = VUE.revisarApellido(person[campo]);
         }
     }
 });

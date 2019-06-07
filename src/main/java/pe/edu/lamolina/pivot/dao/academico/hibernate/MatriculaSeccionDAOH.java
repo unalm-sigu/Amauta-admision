@@ -61,8 +61,9 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
                 .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
-                .left("ms.userRegistro ureg", "ureg.persona urper")
-                .leftJoin("per.tipoDocumento tdoc")
+                .join("alu.cicloActivo ca", "alu.cicloIngreso caing")
+                .left("ms.userRegistro ureg", "ureg.persona urper", "alu.situacionAcademica sa")
+                .leftJoin("per.tipoDocumento tdoc", "alu.modalidadEstudio mest")
                 .filter("sec.id", seccion)
                 .orderBy("per.paterno", "per.materno", "per.nombres");
 

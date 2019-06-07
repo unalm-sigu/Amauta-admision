@@ -88,13 +88,13 @@
                                     <div class="col-sm-6">
                                         <label>Paterno</label>
                                         <div class="form-group">                                
-                                            <input type="text" v-on:blur="revisarNombre($event)"  v-bind:disabled="personaValidTemp.paterno"  required="true" class="inline form-control"  maxlength="200" v-model="persona.paterno" />
+                                            <input type="text" v-on:blur="revisar(persona,'paterno')" v-bind:disabled="personaValidTemp.paterno"  required="true" class="inline form-control"  maxlength="200" v-model="persona.paterno" />
                                         </div>
                                     </div>      
                                     <div class="col-sm-6">
                                         <label>Materno</label>
                                         <div class="form-group">    
-                                            <input type="text" v-on:blur="revisarNombre($event)" v-bind:disabled="personaValidTemp.materno"  required="true" class="inline form-control"  maxlength="200" v-model="persona.materno"/>
+                                            <input type="text" v-on:blur="revisar(persona,'materno')" v-bind:disabled="personaValidTemp.materno"  required="true" class="inline form-control"  maxlength="200" v-model="persona.materno"/>
                                         </div>
                                     </div>      
                                 </div>
@@ -102,7 +102,7 @@
                                     <div class="col-sm-6">
                                         <label>Nombres</label>
                                         <div class="form-group">     
-                                            <input type="text" v-on:blur="revisarNombre($event)" v-bind:disabled="personaValidTemp.nombres" required="true" class="inline form-control"  maxlength="200" v-model="persona.nombres"/>
+                                            <input type="text" v-on:blur="revisar(persona,'nombres')"   v-bind:disabled="personaValidTemp.nombres" required="true" class="inline form-control"  maxlength="200" v-model="persona.nombres"/>
                                         </div>
                                     </div>  
                                     <div class="col-sm-6">
@@ -150,7 +150,7 @@
                                         <label>Área</label>
                                         <div class="form-group">                                
                                             <multiselect v-model="colaborador.oficina" 
-                                                         v-bind:options='area'
+                                                         v-bind:options='areas'
                                                          label='nombre'
                                                          track-by='id'
                                                          required="true"
@@ -278,7 +278,7 @@
             var colaboradorJson = /*[[${colaborador.toString()}]]*/ 'json';
             var tipoDocumentoJson = /*[[${tipoDocumento.toString()}]]*/ 'json';
             var sexoJson = /*[[${sexo}]]*/ 'json';
-            var areaJson = /*[[${area.toString()}]]*/ 'json';
+            var areasJson = /*[[${areas.toString()}]]*/ 'json';
             var misfuncionesJson = /*[[${misfunciones.toString()}]]*/ 'json';
             var funcionesJson = /*[[${funciones.toString()}]]*/ 'json';
             var cargosJson = /*[[${cargos.toString()}]]*/ 'json';

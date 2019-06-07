@@ -222,7 +222,9 @@ var app = new Vue({
         $global.$on("selectGrupoHorarioChange", function (grupoHorario) {
             $vue.selectGrupoHorarioChange(grupoHorario, $vue);
         });
-
+        $global.$on("cancelarSeccion", function (seccion) {
+            $vue.cancelarSeccion(seccion);
+        });
     },
     computed: {
         precioBaseFormatoCalculado: function () {
@@ -725,30 +727,32 @@ var app = new Vue({
                 }
             });
         },
-        verCancelarSeccion(seccion) {
-            let $vue = this;
-            $vue.seccionWorking = Object.assign({}, seccion);
-
-            let alus = $vue.seccionWorking.matriculados == 1
-                    ? "el alumno matriculado será retirado"
-                    : ("los " + $vue.seccionWorking.matriculados + " alumnos matriculados serán retirados");
-
-            $vue.configConfirmAction = VUE_MODAL.structConfirm({
-                message: "Al cancelar esta sección, " + alus + ".<br/><br/>¿Desea continuar?",
-                okbtn: "Si, cancelar",
-                okclass: "btn-danger",
-                okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Cancelando...',
-                okaction: $vue.cancelarSeccion
-            });
-
-            $vue.$refs.modalConfirmAction.open();
-        },
-        cancelarSeccion() {
+        /*
+         verCancelarSeccion(seccion) {
+         let $vue = this;
+         $vue.seccionWorking = Object.assign({}, seccion);
+         
+         let alus = $vue.seccionWorking.matriculados == 1
+         ? "el alumno matriculado será retirado"
+         : ("los " + $vue.seccionWorking.matriculados + " alumnos matriculados serán retirados");
+         
+         $vue.configConfirmAction = VUE_MODAL.structConfirm({
+         message: "Al cancelar esta sección, " + alus + ".<br/><br/>¿Desea continuar?",
+         okbtn: "Si, cancelar",
+         okclass: "btn-danger",
+         okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Cancelando...',
+         okaction: $vue.cancelarSeccion
+         });
+         
+         $vue.$refs.modalConfirmAction.open();
+         }
+         ,*/
+        cancelarSeccion(seccionWorking) {
             let $vue = this;
             $.ajax({
                 method: 'POST',
                 url: APP.url(rutaModulo + '/cancelarSeccion'),
-                data: {seccion: $vue.seccionWorking.id},
+                data: {seccion: seccionWorking.id},
                 success: function (response) {
                     $vue.$refs.modalConfirmAction.confirmReaction(response.success);
                     if (response.success) {

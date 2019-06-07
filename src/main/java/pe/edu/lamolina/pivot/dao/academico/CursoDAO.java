@@ -55,4 +55,6 @@ public interface CursoDAO extends EasyDAO<Curso> {
 
     List<Curso> allForExamenByCiclo(String nombre, RolExamenes rolExamenes, CicloAcademico cicloAcademico);
 
+    List<Curso> searchLikeNombreNotIn(String parametro, List<Curso> cursos);
+
 }

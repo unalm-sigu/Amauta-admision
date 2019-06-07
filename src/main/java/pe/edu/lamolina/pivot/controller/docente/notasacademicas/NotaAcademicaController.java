@@ -67,6 +67,7 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.LoggerAccionEnum;
 import pe.edu.lamolina.model.enums.OrigenPlanCalificaEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
@@ -469,7 +470,7 @@ public class NotaAcademicaController {
             claves.append(",");
             if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
                 docenteSeccion = service.findDocenteSeccionByFilter(ds.getDocente(), sec);
-                if (docenteSeccion != null && docenteSeccion.getEstadoEnum().equals(EstadoEnum.ACT)) {
+                if (docenteSeccion != null && docenteSeccion.getEstadoEnum() == SeccionEstadoEnum.ACT) {
                     if (docenteSeccion.esDocentePrincipal()) {
                         permiteAsignar = true;
                     }
@@ -860,7 +861,7 @@ public class NotaAcademicaController {
 
             if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
                 DocenteSeccion docenteSeccion = service.findDocenteSeccionByFilter(ds.getDocente(), sec);
-                if (docenteSeccion != null && docenteSeccion.getEstadoEnum().equals(EstadoEnum.ACT)) {
+                if (docenteSeccion != null && docenteSeccion.getEstadoEnum().equals(SeccionEstadoEnum.ACT)) {
                     if (docenteSeccion.esDocentePrincipal()) {
                         esDocentePrincipal = true;
                     }

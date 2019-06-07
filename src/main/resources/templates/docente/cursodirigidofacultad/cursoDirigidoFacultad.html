@@ -1,0 +1,112 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Cursos Dirigido por Facultad</title>
+    </head>
+    <body>
+        <section layout:fragment="main">
+
+            <div id="cursoDirigidoFacultadVUE">
+                <div v-cloak="">
+
+                    <header class="header b-b padder-lg">
+                        <div class="pull-right m-t-md">                
+                            <button type="button" v-on:click="nuevoCursoDirigidoFAC" class="btn btn-success  pull-right"> Nuevo </button>
+                        </div>  
+                        <h2>Cursos Dirigido por Facultad</h2>
+                    </header>
+
+                    <section class="wrapper-lg">
+                        <section class="panel">
+                            <section class="panel-body">
+                                <raptor-table ref="loadCursoDirigidoFAC" v-bind:preload="false" v-bind:url="cursoDirigidoFacURL">
+                                    <div slot="header">
+                                        <div class="">
+                                            <div class="row">
+                                                <div class="col-md-5" >
+                                                    <multiselect v-model="facultad" 
+                                                                 v-bind:options='listFacultad'
+                                                                 label='nombre'
+                                                                 track-by='id'
+                                                                 placeholder="Seleccione una facultad"
+                                                                 v-bind:allow-empty="false"
+                                                                 v-bind:preselect="false"
+                                                                 v-bind:show-labels="false"
+                                                                 v-bind:hide-selected="false"
+                                                                 v-bind:disabled="isDisabled"
+                                                                 v-on:input="changeFacultadSelected">
+                                                        <template slot="noOptions">La lista se encuentra vacía</template>
+                                                        <template slot="noResult">No se encontraron resultados</template>
+                                                    </multiselect>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <template scope="props" >
+                                        <table id="dynaTable" class="table table-striped">
+                                            <thead class="panel panel-heading">
+                                                <tr>
+                                                    <th class="col-md-5 v-middle">Facultad</th>
+                                                    <th class="col-md-5 v-middle">Curso</th>
+                                                    <th class="col-md-1 v-middle text-center">Fecha Registro</th>
+                                                    <th class="col-md-1 v-middle text-center">Estado</th>
+                                                    <!--<th class=""></th>-->
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item in props.data">
+                                                    <td class="v-middle">
+                                                        <span>{{item.facultad.nombre}}</span> 
+                                                    </td>
+                                                    <td class="v-middle">
+                                                        <p class="text-left h5 text-info curso-info" 
+                                                           v-text="item.curso.nombre"></p>
+                                                        <span class="d-block text-muted">
+                                                            {{item.curso.codigo}} &nbsp; <i class="fa fa-bookmark"></i> {{item.curso.tpc}}
+                                                        </span>
+
+                                                    </td>
+                                                    <td class="v-middle text-center">
+                                                        <span>{{convertFecha(item.fechaRegistro)}}</span> 
+                                                    </td>
+                                                    <td class="v-middle text-center">
+                                                        <small v-if="item.estado == 'ACT' " class="label label-success">Activo</small>
+                                                        <span v-else="" class="label label-default">Inactivo</span>
+                                                    </td>
+<!--                                                    <td class="v-middle">
+                                                        <div class="dropdown actions">
+                                                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                                                <i class="glyphicon glyphicon-cog"></i>
+                                                            </a>
+                                                            <ul class="dropdown-menu pull-right">
+                                                                <li><a>OPCIONES</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>-->
+                                                </tr>
+                                            </tbody>
+                                        </table>         
+                                    </template>
+                                </raptor-table>
+
+                            </section>
+                        </section>
+                    </section>
+                    <div th:substituteby="docente/cursodirigidofacultad/cursoDirigidoFacultadModal"></div>
+                </div>
+            </div>
+        </section>
+
+        <div layout:fragment="js" th:remove="tag">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var facultadesJson = /*[[${facultades}]]*/ '';
+                var rutaModulo = '/configuracion/cursodirigidofacultad';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/docente/cursodirigidofacultad/cursoDirigidoFacultad.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

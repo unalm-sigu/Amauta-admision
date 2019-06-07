@@ -1,4 +1,4 @@
-<html layout:decorator="_layout/layout">
+3.<html layout:decorator="_layout/layout">
     <head>
         <title>Programación de Horarios</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
@@ -471,11 +471,11 @@
                                                                v-on:click="verAnularSeccion(seccion)">
                                                                 Anular
                                                             </a>
-                                                            <a href="#"
-                                                               v-if="seccion.isEstadoActivo &amp;&amp; seccion.matriculados > 0 "
+<!--                                                            <a href="#"
+                                                               v-if="seccion.isEstadoActivo &amp;&amp; seccion.matriculados > 0"
                                                                v-on:click="verCancelarSeccion(seccion)">
                                                                 Cancelar
-                                                            </a>
+                                                            </a>-->
                                                             <a href="#"
                                                                v-if="seccion.isEstadoActivo "
                                                                v-on:click="verBloquearSeccion(seccion)">
@@ -529,7 +529,6 @@
 
 
                                         </h4>
-
                                         <div class="tabbable-line" style="margin-top: 8px;">	
                                             <ul class="nav nav-tabs">
                                                 <li v-bind:class="getClassTab('DOCENTES')" v-on:click="verTab('DOCENTES')">
@@ -555,6 +554,10 @@
                                                     v-bind:class="getClassTab('CARPETA')" v-on:click="verTab('CARPETA')">
                                                     <a href="#6Conte" data-toggle="tab">Tipo Carpeta</a>
                                                 </li>
+                                                <li v-if="seccionSeleccionada.isEstadoActivo &amp;&amp; seccionSeleccionada.matriculados > 0"
+                                                    v-bind:class="getClassTab('CANCELAR')" v-on:click="verTab('CANCELAR')">
+                                                    <a href="#7Conte" data-toggle="tab">Cancelar Seccion</a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </header>
@@ -578,6 +581,12 @@
                                         </div>
                                         <div class="tab-pane" v-bind:class="getClassTab('CARPETA')" id="6Conte">
                                             <div th:substituteby="academico/gposeccion/includes/tipocarpetaform"/>
+                                        </div>
+                                        <div v-if="seccionSeleccionada.isEstadoActivo &amp;&amp; seccionSeleccionada.matriculados > 0" 
+                                             class="tab-pane" v-bind:class="getClassTab('CANCELAR')" id="7Conte">
+                                            <div>
+                                                <cancelar-seccion-component v-bind:seccion="seccionSeleccionada"></cancelar-seccion-component>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -605,6 +614,8 @@
         <div th:substituteby="academico/gposeccion/components/grupoRegularAulaComponent"/>
         <div th:substituteby="academico/gposeccion/components/horaAdicionalComponente"/>
         <div th:substituteby="academico/gposeccion/components/tipocarpetacomponent"/>
+        <div th:substituteby="academico/gposeccion/components/cancelarSeccionComponent"/>
+
     </section>
 
     <div layout:fragment="js">
@@ -630,6 +641,8 @@
         <script th:src="@{/app/gposeccion/grupoRegularAulaComponet.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/horaAdicionalComponente.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/tipocarpetacomponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/cancelarSeccionComponent.js}" charset="utf-8"></script>
+
         <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
     </div>
 </body>
