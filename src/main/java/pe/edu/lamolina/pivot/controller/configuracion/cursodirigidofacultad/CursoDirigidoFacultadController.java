@@ -21,6 +21,7 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -45,7 +46,7 @@ public class CursoDirigidoFacultadController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        
+
         logger.debug("*************ds.getPersona() {}", ds.getPersona().getId());
 
         List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
@@ -69,7 +70,7 @@ public class CursoDirigidoFacultadController {
             for (CursoDirigidoFacultad cursoDirigidoFacultad : cursosDirigidosFaculta) {
                 ObjectNode node = JsonHelper.createJson(cursoDirigidoFacultad, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id", "estado", "fechaRegistro",
+                            "id", "estado",
                             "facultad.id",
                             "facultad.codigo",
                             "facultad.nombre",
@@ -106,7 +107,7 @@ public class CursoDirigidoFacultadController {
             List<Curso> cursos = service.allCursoLikeParamByFacultad(parametro, new Facultad(idFacultad)); //searhc for nombrey codigo
             for (Curso curso : cursos) {
                 jsonList.add(JsonHelper.createJson(curso, JsonNodeFactory.instance, new String[]{
-                    "id", "nombre", "estado", "codigo"
+                    "id", "nombre", "estado", "codigo", "tpc"
                 }));
             }
             response.setData(jsonList);
@@ -131,6 +132,25 @@ public class CursoDirigidoFacultadController {
 
             service.save(cursoDirigidoFacultad, ds);
             response.setMessage("El curso fue agregado satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("eliminar")
+    public JsonResponse deleteMiembro(@RequestBody CursoDirigidoFacultad cursoDirigidoFacultad, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            
+            service.eliminar(cursoDirigidoFacultad);
+            response.setMessage("El curso dirigido fue removido de la facultad satisfactoriamente");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

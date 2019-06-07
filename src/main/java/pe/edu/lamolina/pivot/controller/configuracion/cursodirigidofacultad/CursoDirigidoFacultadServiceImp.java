@@ -60,4 +60,10 @@ public class CursoDirigidoFacultadServiceImp implements CursoDirigidoFacultadSer
         cursoDirigidoFacultadDAO.save(cursoDirigidoFacultad);
     }
 
+    @Override
+    @Transactional
+    public void eliminar(CursoDirigidoFacultad cursoDirigidoFacultad) {
+        cursoDirigidoFacultadDAO.delete(cursoDirigidoFacultad);
+    }
+
 }

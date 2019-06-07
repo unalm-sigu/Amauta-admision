@@ -12,13 +12,12 @@ new Vue({
         modalCursoDirigidoFAC: VUE_MODAL.structFormAjax({
             id: 'modalCursoDirigidoFAC',
             header: true,
-            title: 'Elija el curso dirigido',
+            title: 'Elija el curso',
             okbtn: 'Agregar',
         })
     },
     mounted() {
         let $vue = this;
-        //console.log($vue.listFacultad.length);
 
         $vue.listFacultad.length == 0 ? $vue.isDisabled = true : $vue.isDisabled = false;
         let facultad = $vue.$refs.loadCursoDirigidoFAC.getParameterByName('queries[facultad-dirigido]');
@@ -47,7 +46,7 @@ new Vue({
             $vue.listCurso = [];
             $vue.cursoDirigidoFacultad = {
                 curso: null,
-                facultad: $vue.facultad
+                facultad: Object.assign({}, $vue.facultad)
             };
             $vue.$refs.modalCursoDirigidoFAC.open();
         },
@@ -92,11 +91,35 @@ new Vue({
         },
         changeFacultadSelected() {
             let $vue = this;
-            $vue.$refs.loadCursoDirigidoFAC.querie.push({name: 'facultad-dirigido', value: $vue.cursoDirigidoFacultad.facultad.id});
+            $vue.$refs.loadCursoDirigidoFAC.querie.push({name: 'facultad-dirigido', value: $vue.facultad.id});
             $vue.$refs.loadCursoDirigidoFAC.repreload();
         },
-        convertFecha(datetime) {
-            return datetime.substr(0, 10);
+        eliminar(item) {
+            let $vue = this;
+
+            bootbox.confirm({
+                message: '¿Está seguro que desea remover el curso dirigido <b>' + item.curso.nombre + '</b> de la facultad <b>' + item.facultad.nombre + ' </b>?',
+                buttons: {
+                    confirm: {label: 'Si, eliminar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        axios.post(rutaModulo + "/eliminar", item)
+                                .then(function (response) {
+                                    if (response.data.success) {
+                                        notify(response.data.message, "success");
+                                        $vue.changeFacultadSelected();
+                                    } else {
+                                        notify(response.data.message, 'error');
+                                    }
+                                })
+                                .catch(function (error) {
+                                    notify(error.errorComunicacion, "error");
+                                });
+                    }
+                }
+            });
         }
     }
 });
