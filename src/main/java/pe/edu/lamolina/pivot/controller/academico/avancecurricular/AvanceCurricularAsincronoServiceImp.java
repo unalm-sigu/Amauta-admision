@@ -490,7 +490,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         }
 
         validarCursosComodin(alumnoCursoComodinDepNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas.stream().filter(x -> x.getCodigoEnum() == DEP).findAny().orElse(null));
-        validarCursosRequisito(mapAlumCursoCurrByCursoCurri, mapRequisitosCurricula);
+        validarCursosRequisito(mapAlumCursoCurrByCursoCurri, mapRequisitosCurricula, alumno);
         validarCursosSimultaneo(mapAlumCursoCurrByCursoCurri, cursosSimultaneosAlu, mapRequisitosCurricula, ds);
         validarEquivalencias(mapAlumCursoCurrByCursoCurri, mapEquivalentesCurricula, cursosAprobados);
         validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds);
@@ -499,11 +499,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         alumnoCursoOld = alumnoCursoOld == null ? new ArrayList<>() : alumnoCursoOld;
         for (AlumnoCursoCurricula alumnoCursoCurriculaNew : alumnoCursoNew) {
-            if (alumnoCursoCurriculaNew.getCursoCurricula() != null
-                    && !estadosAprobados.contains(alumnoCursoCurriculaNew.getEstadoEnum())
-                    && alumnoCursoCurriculaNew.getCursoCurricula().getCreditosRequisito() > alumno.getCreditosCarreraAprobados()) {
-                alumnoCursoCurriculaNew.setEstadoEnum(NREQ);
-            }
+//            if (alumnoCursoCurriculaNew.getCursoCurricula() != null
+//                    && !estadosAprobados.contains(alumnoCursoCurriculaNew.getEstadoEnum())) {
+//                alumnoCursoCurriculaNew.setEstadoEnum(NREQ);
+//            }
             AlumnoCursoCurricula cursoCurricula = alumnoCursoOld.stream().filter(x -> Objects.equals(x.getCurso().getId(), alumnoCursoCurriculaNew.getCurso().getId()) && !x.isValidado()).findAny().orElse(null);
             if (cursoCurricula != null) {
                 cursoCurricula.setValidado(true);
@@ -865,7 +864,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     private void validarCursosRequisito(
             Map<Long, AlumnoCursoCurricula> mapCursoCurriculaAlu,
-            Map<Long, List<RequisitoCursoCurricula>> mapRequisitos) {
+            Map<Long, List<RequisitoCursoCurricula>> mapRequisitos,
+            Alumno alumno) {
 
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursoCurriculaAlu.entrySet()) {
             AlumnoCursoCurricula evaluado = entry.getValue();
@@ -878,8 +878,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
 
             List<RequisitoCursoCurricula> requisitos = mapRequisitos.get(evaluado.getCursoCurricula().getId());
-            if (requisitos == null || requisitos.isEmpty() || cumpleRequisitos(requisitos, mapCursoCurriculaAlu, evaluado)) {
-                if (!tipoCursoELCEnums.contains(evaluado.getCurso().getCodigo())) {
+            if (requisitos == null || requisitos.isEmpty() || cumpleRequisitos(requisitos, mapCursoCurriculaAlu, evaluado, alumno)) {
+                if (!tipoCursoELCEnums.contains(evaluado.getCurso().getCodigo())
+                        && evaluado.getCursoCurricula().getCreditosRequisito() <= alumno.getCreditosAprobados()) {
                     evaluado.setEstadoEnum(HAB);
                 }
             } else {
@@ -890,6 +891,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 }
                 evaluado.setValidado(true);
             }
+            logger.debug("estado Final {}", evaluado.getEstado());
         }
 
     }
@@ -897,7 +899,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     private boolean cumpleRequisitos(
             List<RequisitoCursoCurricula> requisitos,
             Map<Long, AlumnoCursoCurricula> mapCursoCurriculaAlu,
-            AlumnoCursoCurricula evaluado) {
+            AlumnoCursoCurricula evaluado, Alumno alumno) {
 
 //        List<RequisitoCursoCurricula> requisitosNoSimultaneos = requisitos.stream().filter(x -> x.getSimultaneo() != 1).collect(Collectors.toList());
 //        if (requisitosNoSimultaneos.isEmpty()) {
@@ -905,7 +907,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 //        }
         boolean requisitosCumplidos = false;
 
-        logger.debug("cantidad de requisito", requisitos.size());
+        logger.debug("cantidad de requisito {}", requisitos.size());
         for (RequisitoCursoCurricula requisito : requisitos) {
             logger.debug("curso Requisito {}", requisito.getCursoRequisito().getCurso().getNombre() + " - " + requisito.getCursoRequisito().getCurso().getCodigo());
             AlumnoCursoCurricula cursoRequisito = mapCursoCurriculaAlu.get(requisito.getCursoRequisito().getId());
@@ -932,7 +934,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursosCurriculaAlu.entrySet()) {
 
             AlumnoCursoCurricula evaluado = entry.getValue();
-
+            logger.debug("-----------------------------------------------------------");
+            logger.debug("Curso a evaluar: {}", evaluado.getCurso().getNombre() + " - " + evaluado.getEstado());
             if (Arrays.asList(HAB, MAT).contains(evaluado.getEstadoEnum())) {
                 continue;
             }
@@ -963,14 +966,18 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         boolean requisitosCumplidos = true;
 
         for (RequisitoCursoCurricula requisito : requisitos) {
+            logger.debug("Requisito es simultaneo: {}", requisito.getCursoRequisito().getCurso().getNombre() + " - " + requisito.getSimultaneo());
             if (requisito.getSimultaneo() == 0) {
                 continue;
             }
 
+            logger.debug("map {}" + mapCursosCurriculaAlu.size());
             AlumnoCursoCurricula cursoRequisito = mapCursosCurriculaAlu.get(requisito.getCursoRequisito().getId());
             if (cursoRequisito == null) {
+                logger.debug("AlumnoCursoCurricula es null");
                 continue;
             }
+            logger.debug("Estado Requisito {} ", cursoRequisito.getEstadoEnum());
 
             if (cursoRequisito.getEstadoEnum() == APR) {
             } else if (Arrays.asList(HAB, MAT).contains(cursoRequisito.getEstadoEnum())) {
