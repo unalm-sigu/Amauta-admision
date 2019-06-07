@@ -105,17 +105,17 @@ public class ColaboradorController {
             "cargo.nombre",});
 
         List<TipoDocIdentidad> tiposDocumentos = service.allDocumentosIdentidad();
-        List<Oficina> oficinas = service.allOficinasByOficinaMain(new Oficina(idOficina));
+        List<Oficina> oficinas = service.allAreasByOficinaMain(new Oficina(idOficina));
 
         List<PerfilCompania> cargos = service.allCargoByOficina(new Oficina(idOficina));
         List<PerfilCompania> funciones = service.allFuncionByOficina(new Oficina(idOficina));
 
         List<PerfilCompania> misfunciones = service.allFuncionByColaborador(colaborador);
 
-        ArrayNode arrayOficinas = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode arrayArea = new ArrayNode(JsonNodeFactory.instance);
         for (Oficina oficina : oficinas) {
             ObjectNode node = createOficinaJson(oficina);
-            arrayOficinas.add(node);
+            arrayArea.add(node);
         }
 
         ArrayNode arrayCargos = new ArrayNode(jFactory);
@@ -146,7 +146,7 @@ public class ColaboradorController {
         model.addAttribute("oficina", idOficina);
         model.addAttribute("tipoDocumento", arrayTiposDocumentos);
         model.addAttribute("sexo", SexoEnum.values());
-        model.addAttribute("area", arrayOficinas);
+        model.addAttribute("areas", arrayArea);
 
         model.addAttribute("funciones", arrayFunciones);
         model.addAttribute("cargos", arrayCargos);
@@ -193,7 +193,7 @@ public class ColaboradorController {
             @RequestParam(value = "origen", required = false) String origen, Model model) {
 
         List<TipoDocIdentidad> tiposDocumentos = service.allDocumentosIdentidad();
-        List<Oficina> oficinas = service.allOficinasByOficinaMain(new Oficina(idOficina));
+        List<Oficina> oficinas = service.allAreasByOficinaMain(new Oficina(idOficina));
         List<PerfilCompania> cargos = service.allCargoByOficina(new Oficina(idOficina));
         List<PerfilCompania> funciones = service.allFuncionByOficina(new Oficina(idOficina));
 

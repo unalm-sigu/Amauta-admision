@@ -9,7 +9,7 @@ new Vue({
         persona: {},
         oficina: {id: JSON.parse(oficinaId)},
         sexo: sexoJson,
-        area: JSON.parse(areaJson),
+        areas: JSON.parse(areasJson),
         misfunciones: JSON.parse(misfuncionesJson),
         funciones: JSON.parse(funcionesJson),
         cargos: JSON.parse(cargosJson),

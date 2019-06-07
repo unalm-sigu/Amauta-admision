@@ -10,6 +10,7 @@ new Vue({
         cargos: [],
         funciones: [],
         dataModalCargo: {
+            id: "idModalCaargo",
             title: 'Relacionar Cargo',
             showaccept: false,
             modalscroll: 'modal-scroll-fix-500'
@@ -34,6 +35,7 @@ new Vue({
             vue.allCargo(rol);
             vue.dataModalCargo.title = "Cargos relacionados a " + rol.nombre;
             vue.$refs.cargomodal.open();
+            console.log("wkj5nkjnt4kj35n")
         },
         relacionarFuncion: function (rol) {
             let vue = this;
@@ -194,7 +196,7 @@ new Vue({
                 method: 'POST',
                 url: APP.url('seguridad/rol/save'),
                 data: $('#formNuevoRol').serialize(),
-                async :false,
+                async: false,
                 success: function (response) {
 
                     if (response.success) {
@@ -229,7 +231,7 @@ new Vue({
                 method: 'POST',
                 url: APP.url('seguridad/rol/editar'),
                 data: {id: rol.id},
-                async :false,
+                async: false,
                 success: function (response) {
                     if (response.success) {
 
