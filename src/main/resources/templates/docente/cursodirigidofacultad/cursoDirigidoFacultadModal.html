@@ -20,7 +20,10 @@
                             v-bind:show-labels="false"
                             v-bind:hide-selected="false">
                             <template slot="option" slot-scope="props">
-                                <span class="option__title">{{ props.option.nombre}}  -  {{ props.option.codigo}}</span>
+                                <span class="option__title text-default h6"><b>{{ props.option.nombre}}</b></span>
+                                <div class="option__desc">
+                                    <p class="option__small text-primary">{{props.option.codigo}} &nbsp; <i class="fa fa-bookmark"></i> {{props.option.tpc}}</p>
+                                </div>
                             </template>
                             <template slot="noOptions">La lista se encuentra vacía</template>
                             <template slot="noResult">No se encontraron resultados</template>

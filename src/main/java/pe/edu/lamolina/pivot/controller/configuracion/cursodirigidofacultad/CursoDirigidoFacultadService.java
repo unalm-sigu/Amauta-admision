@@ -15,4 +15,6 @@ public interface CursoDirigidoFacultadService {
 
     List<Curso> allCursoLikeParamByFacultad(String parametro, Facultad facultad);
 
+    void eliminar(CursoDirigidoFacultad cursoDirigidoFacultad);
+
 }
