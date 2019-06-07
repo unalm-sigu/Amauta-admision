@@ -72,7 +72,7 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     List<GrupoSeccion> allOrdenadoByCiclo(CicloAcademico ciclo);
 
-    List<GrupoSeccion> allOrdenadoByCicloAndAnexoBoletin(CicloAcademico ciclo, AnexoBoletin anexoBol);
+    List<GrupoSeccion> allOrdenadoByCicloAndAnexoBoletin(CicloAcademico ciclo, AnexoBoletin... anexoBol);
 
     void setCodigo2Null(CicloAcademico ciclo);
 

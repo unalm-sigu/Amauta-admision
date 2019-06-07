@@ -217,23 +217,19 @@ public class PdfServiceImp implements PdfService {
         List<String> pdfs = new ArrayList<>();
         //buscar boletin anexo superiores ordenados por orden
         List<AnexoBoletin> listaAB = anexoBoletinDAO.allAnexosSuperioresOrderedbyOrden();
-        for (AnexoBoletin anexoBoletin : listaAB) {
-            logger.debug("anexoboletin nombre {}", anexoBoletin.getNombre());
-        }
         List<Seccion> seccionListAll = seccionDAO.allByGposSeccionOrderedByCodigo2(ciclo);
         Map<Long, List<Seccion>> mapSeccionesByCiclo = TypesUtil.convertListToMapList("grupoSeccion.id", seccionListAll);
         //para cada boletin encontrado buscar los boletines inferiores ordenados por orden
         for (AnexoBoletin ab : listaAB) {
             List<AnexoBoletin> subListaAB = anexoBoletinDAO.allBySuperior(ab);
+            List<GrupoSeccion> grupoSeccListAll = grupoSeccionDAO.allOrdenadoByCicloAndAnexoBoletin(ciclo, subListaAB.toArray(new AnexoBoletin[subListaAB.size()]));
+            Map<Long, List<GrupoSeccion>> mapGryposSecBySubAnexo = TypesUtil.convertListToMapList("anexoBoletin.id", grupoSeccListAll);
             for (AnexoBoletin subAB : subListaAB) {
-                List<GrupoSeccion> grupoSeccList = grupoSeccionDAO.allOrdenadoByCicloAndAnexoBoletin(ciclo, subAB);
+                List<GrupoSeccion> grupoSeccList = mapGryposSecBySubAnexo.get(subAB.getId()) == null ? new ArrayList<>() : mapGryposSecBySubAnexo.get(subAB.getId());
 
                 for (GrupoSeccion gs : grupoSeccList) {
                     //       List<Seccion> seccionList = seccionDAO.allByGposSeccionOrderedByCodigo2(gs);
-                    List<Seccion> seccionList = mapSeccionesByCiclo.get(gs.getId());
-                    if (seccionList == null) {
-                        seccionList = new ArrayList<Seccion>();
-                    }
+                    List<Seccion> seccionList = mapSeccionesByCiclo.get(gs.getId()) == null ? new ArrayList<>() : mapSeccionesByCiclo.get(gs.getId());
                     gs.setSecciones(seccionList);
                 }
                 subAB.setGruposSecciones(grupoSeccList);

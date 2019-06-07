@@ -1389,6 +1389,9 @@ public class PromedioServiceImp implements PromedioService {
 
         for (AlumnoCiclo alumnoCicloEach : alumnosCiclosAnteriores) {
             logger.debug("Ciclo a evaluar {}", alumnoCicloEach.getCicloAcademico().getDescripcion());
+            if (alumnoCicloEach.getSituacionFinal().isCodigoD()) {
+                contadorIntercalado = 0;
+            }
             if (alumnoCicloEach.isNoMatriculado()) {
                 contadorIntercalado++;
                 contadorConsecutivo++;
