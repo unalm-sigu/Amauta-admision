@@ -342,10 +342,12 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         }
 
         for (String key : queries.keySet()) {
-            if (!key.equals("letra")) {
-                continue;
+            if (key.equals("letra")) {
+                subQueryLetra.filter("gpo.letra", queries.get(key));
             }
-            subQueryLetra.filter("gpo.letra", queries.get(key));
+            if (key.equals("tipoSeccion")) {
+                subQueryLetra.filter("gpo.tipoSeccion", queries.get(key));
+            }
         }
     }
 

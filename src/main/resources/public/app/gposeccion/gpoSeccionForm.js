@@ -2051,10 +2051,18 @@ var app = new Vue({
         },
         getStyleDivGpoHoras(sec) {
             if (this.mostrarCuotasExedidas(sec)) {
-                if (sec.estado == 'ACT') {
-                    if (sec.grupoHoras.cuotasGrupoHoras.totalUtilizadas > sec.grupoHoras.cuotasGrupoHoras.cuotas) {
+                if (sec.estado == 'ACT' && sec.grupoHoras.tipoSeccion=='TEO') {
+                    if (sec.grupoHoras.cuotasGrupoHoras.utilizadasTeoria > sec.grupoHoras.cuotasGrupoHoras.cuotasTeoria) {
                         return 'border:1px solid; border-color: red;padding: 3px;border-radius: 5px;';
-                    } else if (sec.grupoHoras.cuotasGrupoHoras.totalUtilizadas == sec.grupoHoras.cuotasGrupoHoras.cuotas) {
+                    } else if (sec.grupoHoras.cuotasGrupoHoras.utilizadasTeoria == sec.grupoHoras.cuotasGrupoHoras.cuotasTeoria) {
+                        return 'border:1px solid; border-color: red;padding: 3px;border-radius: 5px;';
+                    } else {
+                        return 'border:1px solid; border-color: orange;padding: 3px;border-radius: 5px;';
+                    }
+                } else if (sec.estado == 'ACT' && sec.grupoHoras.tipoSeccion=='PRA') {
+                    if (sec.grupoHoras.cuotasGrupoHoras.utilizadasPractica > sec.grupoHoras.cuotasGrupoHoras.cuotasPractica) {
+                        return 'border:1px solid; border-color: red;padding: 3px;border-radius: 5px;';
+                    } else if (sec.grupoHoras.cuotasGrupoHoras.utilizadasPractica == sec.grupoHoras.cuotasGrupoHoras.cuotasPractica) {
                         return 'border:1px solid; border-color: red;padding: 3px;border-radius: 5px;';
                     } else {
                         return 'border:1px solid; border-color: orange;padding: 3px;border-radius: 5px;';
@@ -2066,7 +2074,10 @@ var app = new Vue({
             return "";
         },
         mostrarCuotasExedidas(sec) {
-            if ((sec.grupoHoras.cuotasGrupoHoras.totalUtilizadas != null && sec.grupoHoras.cuotasGrupoHoras.totalUtilizadas != '')) {
+            if (sec.grupoHoras.tipoSeccion=='TEO' && sec.grupoHoras.cuotasGrupoHoras.utilizadasTeoria != null && sec.grupoHoras.cuotasGrupoHoras.utilizadasTeoria != '') {
+                return true;
+            }
+            if (sec.grupoHoras.tipoSeccion=='PRA' && sec.grupoHoras.cuotasGrupoHoras.utilizadasPractica != null && sec.grupoHoras.cuotasGrupoHoras.utilizadasPractica != '') {
                 return true;
             }
             return false;

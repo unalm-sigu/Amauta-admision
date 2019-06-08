@@ -40,8 +40,8 @@
             }
 
             .circle-recorrido.bgr-default {
-                background-color: #979595;
-                color: #fff;
+                background-color: #EBEDEF;
+                color: #000;
             }
         </style>
     </head>
@@ -91,12 +91,20 @@
                                     <table class="table table-striped">
                                         <thead> 
                                             <tr> 
-                                                <th class="col-md-4 v-middle">Anexo</th>
-                                                <th class="col-md-1 text-center v-middle">Letra</th>
-                                                <th class="col-md-1 text-center v-middle">Cuota</th>
-                                                <th class="col-md-1 text-center v-middle">Utilizados</th>
-                                                <th class="col-md-1 text-center v-middle">Horas Utilizadas</th>
-                                                <th class="col-md-4 v-middle">Cantidad Grupos</th>
+                                                <th class="col-md-4 v-middle" rowspan="2">Anexo</th>
+                                                <th class="col-md-1 text-center v-middle" rowspan="2">Letra</th>
+                                                <th class="col-md-1 text-center v-middle" colspan="2">Cuota</th>
+                                                <th class="col-md-1 text-center v-middle" colspan="2">Utilizados</th>
+                                                <th class="col-md-1 text-center v-middle" colspan="2">Horas Utilizadas</th>
+                                                <th class="col-md-4 v-middle" rowspan="2">Cantidad Grupos</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-center v-middle">Teoría</th>
+                                                <th class="text-center v-middle">Práctica</th>
+                                                <th class="text-center v-middle">Teoría</th>
+                                                <th class="text-center v-middle">Práctica</th>
+                                                <th class="text-center v-middle">Teoría</th>
+                                                <th class="text-center v-middle">Práctica</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -108,20 +116,34 @@
                                                     <div class="circle-recorrido bgr-black">{{item.grupoHoras.codigo}}</div>
                                                 </td>
                                                 <td class="v-middle text-center"> 
-                                                    <div class="circle-recorrido bgr-default">{{item.cuotas}}</div>
-                                                </td>
-                                                <td class="v-middle text-center pointer" v-on:click="editarGpoSecciones(item)"> 
-                                                    <div v-if="item.horasUtilizadas > item.cuotas"
-                                                         class="circle-recorrido bgr-danger">{{item.horasUtilizadas}}</div>
-                                                    <div v-else-if="item.horasUtilizadas == item.cuotas"
-                                                         class="circle-recorrido bgr-success">{{item.horasUtilizadas}}</div>
-                                                    <div v-else="" class="circle-recorrido bgr-warning">{{item.horasUtilizadas}}</div>
+                                                    <div class="circle-recorrido bgr-default">{{item.cuotasTeoria}}</div>
                                                 </td>
                                                 <td class="v-middle text-center"> 
-                                                    <div class="circle-recorrido bgr-default">{{item.gruposUtilizados}}</div>
+                                                    <div class="circle-recorrido bgr-default">{{item.cuotasPractica}}</div>
+                                                </td>
+                                                <td class="v-middle text-center pointer" v-on:click="editarGpoSecciones(item,'TEO')"> 
+                                                    <div v-if="item.utilizadasTeoria > item.cuotasTeoria"
+                                                         class="circle-recorrido bgr-danger">{{item.gruposUtilizadosTeoria}}</div>
+                                                    <div v-else-if="item.utilizadasTeoria == item.cuotasTeoria"
+                                                         class="circle-recorrido bgr-success">{{item.gruposUtilizadosTeoria}}</div>
+                                                    <div v-else="" class="circle-recorrido bgr-warning">{{item.gruposUtilizadosTeoria}}</div>
+                                                </td>
+                                                <td class="v-middle text-center pointer" v-on:click="editarGpoSecciones(item,'PRA')"> 
+                                                    <div v-if="item.utilizadasPractica > item.cuotasPractica"
+                                                         class="circle-recorrido bgr-danger">{{item.gruposUtilizadosPractica}}</div>
+                                                    <div v-else-if="item.utilizadasPractica == item.cuotasPractica"
+                                                         class="circle-recorrido bgr-success">{{item.gruposUtilizadosPractica}}</div>
+                                                    <div v-else="" class="circle-recorrido bgr-warning">{{item.gruposUtilizadosPractica}}</div>
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    <div class="circle-recorrido bgr-default">{{item.horasUtilizadasTeoria}}</div>
+                                                </td>   
+                                                <td class="v-middle text-center"> 
+                                                    <div class="circle-recorrido bgr-default">{{item.horasUtilizadasPractica}}</div>
                                                 </td>   
                                                 <td class="v-middle"> 
-                                                    {{item.detalleGrupos}}
+                                                    <span v-if="item.detalleGruposTeoria != '' " class="block"><strong>Teoría:</strong> {{item.detalleGruposTeoria}}</span>
+                                                    <span v-if="item.detalleGruposPractica != '' " class="block"><strong>Práctica:</strong> {{item.detalleGruposPractica}}</span>
                                                 </td>   
                                             </tr>
                                         </tbody>
@@ -157,18 +179,31 @@
                             <table class="table table-striped">
                                 <thead> 
                                     <tr> 
-                                        <th class="col-md-6 v-middle">Grupo</th>                                                                                                
-                                        <th class="col-md-6 v-middle">Cuota</th>
+                                        <th class="col-md-4 v-middle text-center">Grupo</th>                                                                                                
+                                        <th></th>
+                                        <th class="col-md-4 v-middle text-center">Cuota teoría</th>
+                                        <th class="col-md-4 v-middle text-center">Cuota práctica</th>
 
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="cuo in cuotas">                                           
-                                        <td class="v-middle">
+                                    <tr v-for="cuo in cuotas">  
+                                        <td class="v-middle text-center">
                                             {{cuo.grupoHoras.codigo}}
                                         </td>
-                                        <td class="v-middle">
-                                            <input required="" class="form-control" v-model="cuo.cuotas"/>
+
+                                        <td class="text-center v-middle">
+                                            <i v-if="cuo.cuotasTeoria + cuo.cuotasPractica &#62; 0" 
+                                               class="fa fa-check-circle text-success fa-lg"></i>
+                                            <i v-else="" 
+                                               class="fa fa-info-circle text-danger fa-lg"></i>
+                                        </td>
+
+                                        <td class="v-middle text-center">
+                                            <input required="" class="form-control" v-model="cuo.cuotasTeoria" type="text"/>
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            <input required="" class="form-control" v-model="cuo.cuotasPractica" type="text"/>
                                         </td>
 
                                     </tr>
@@ -184,6 +219,11 @@
         </div>
 
         <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var rutaModulo = 'academico/cuotagpohoras';
+                /*]]>*/
+            </script>
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/cuotagpohoras/cuotagpohoras.js}" charset="utf-8"></script>

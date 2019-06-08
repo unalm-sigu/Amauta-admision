@@ -4,17 +4,20 @@ public class AnexoCuotaUtilizadaBean {
 
     private Long idAnexo;
     private String grupo;
-    private Long cantidad;
+    private Long cantidadTeoria;
+    private Long cantidadPractica;
 
-    public AnexoCuotaUtilizadaBean(Long idAnexo, Long cantidad) {
+    public AnexoCuotaUtilizadaBean(Long idAnexo, Long cantidadTeoria, Long cantidadPractica) {
         this.idAnexo = idAnexo;
-        this.cantidad = cantidad;
+        this.cantidadTeoria = cantidadTeoria;
+        this.cantidadPractica = cantidadPractica;
     }
 
-    public AnexoCuotaUtilizadaBean(Long idAnexo, String grupo, Long cantidad) {
+    public AnexoCuotaUtilizadaBean(Long idAnexo, String grupo, Long cantidadTeoria, Long cantidadPractica) {
         this.idAnexo = idAnexo;
         this.grupo = grupo;
-        this.cantidad = cantidad;
+        this.cantidadTeoria = cantidadTeoria;
+        this.cantidadPractica = cantidadPractica;
     }
 
     public Long getIdAnexo() {
@@ -33,12 +36,20 @@ public class AnexoCuotaUtilizadaBean {
         this.grupo = grupo;
     }
 
-    public Long getCantidad() {
-        return cantidad;
+    public Long getCantidadTeoria() {
+        return cantidadTeoria;
     }
 
-    public void setCantidad(Long cantidad) {
-        this.cantidad = cantidad;
+    public void setCantidadTeoria(Long cantidadTeoria) {
+        this.cantidadTeoria = cantidadTeoria;
+    }
+
+    public Long getCantidadPractica() {
+        return cantidadPractica;
+    }
+
+    public void setCantidadPractica(Long cantidadPractica) {
+        this.cantidadPractica = cantidadPractica;
     }
 
 }
