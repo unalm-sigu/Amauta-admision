@@ -5,11 +5,18 @@
             <h3>Alumnos de la Sección</h3>
             <div class="form-group">
                 <label >Motivo de la cancelación:</label>
-                <textarea v-model="seccion.motivoCancelacion" required="true" style="width: 100%;height: 50px;"></textarea>
+                <textarea v-model="seccion.motivoCancelacion" 
+                          v-if="seccion.isEstadoActivo"
+                          required="true" 
+                          style="width: 100%;height: 50px;"
+                          maxlength="200">
+                </textarea>
+                <span v-if="seccion.isEstadoCancelado" v-text="seccion.motivoCancelacion" > </span>
             </div>
             <div class="panel-body">
 
                 <a class="btn btn-danger btn-sm pull-right m-t-xs"
+                   v-if="seccion.isEstadoActivo"
                    v-on:click="verCancelarSeccion()">
                     <strong> Cancelar Sección</strong>
                 </a>
@@ -91,7 +98,9 @@
                                        href="#" data-toggle="tooltip" data-html="true" data-placement="left" v-bind:title='mSec.matriculaResumen.alumno.motivo'>
                                         <span class="label label-danger" >{{mSec.matriculaResumen.alumno.estadoEnum.value}} </span>
                                     </a>
-                                    <span v-else="" class="label label-success">{{mSec.matriculaResumen.alumno.estadoEnum.value}} </span>
+                                
+                                    <span v-if="mSec.estado=='MAT'" class="label label-success">{{mSec.estadoEnum.value}} </span>
+                                    <span v-if="mSec.estado=='RCA'" class="label label-danger">{{mSec.estadoEnum.value}} </span>
                                 </span>
                             </template>
                         </td>
