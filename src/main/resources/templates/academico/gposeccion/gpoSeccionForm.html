@@ -288,8 +288,15 @@
                                                 </div>
 
                                                 <small v-if="mostrarCuotasExedidas(seccion)">
-                                                    ({{seccion.grupoHoras.cuotasGrupoHoras.cuotas}}/{{seccion.grupoHoras.cuotasGrupoHoras.totalUtilizadas}}
-                                                    - {{seccion.grupoHoras.letra}})
+                                                    <span v-if="seccion.grupoHoras.tipoSeccion == 'TEO' ">
+                                                        ({{seccion.grupoHoras.cuotasGrupoHoras.utilizadasTeoria}}/{{seccion.grupoHoras.cuotasGrupoHoras.cuotasTeoria}}
+                                                        - {{seccion.grupoHoras.letra}} Teo)
+                                                    </span>
+                                                    <span v-if="seccion.grupoHoras.tipoSeccion == 'PRA' ">
+                                                        ({{seccion.grupoHoras.cuotasGrupoHoras.utilizadasPractica}}/{{seccion.grupoHoras.cuotasGrupoHoras.cuotasPractica}}
+                                                        - {{seccion.grupoHoras.letra}} Pra)
+                                                    </span>
+
                                                 </small>
 
                                                 <input v-if="directEditSecciones &amp;&amp; seccion.matriculados == 0"

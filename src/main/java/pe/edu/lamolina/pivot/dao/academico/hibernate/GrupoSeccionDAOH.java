@@ -342,10 +342,12 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         }
 
         for (String key : queries.keySet()) {
-            if (!key.equals("letra")) {
-                continue;
+            if (key.equals("letra")) {
+                subQueryLetra.filter("gpo.letra", queries.get(key));
             }
-            subQueryLetra.filter("gpo.letra", queries.get(key));
+            if (key.equals("tipoSeccion")) {
+                subQueryLetra.filter("gpo.tipoSeccion", queries.get(key));
+            }
         }
     }
 
@@ -736,10 +738,24 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     }
 
     @Override
-    public void updateCodigo2(GrupoSeccion gpoSecc) {
-        Octavia octavia = Octavia.update(GrupoSeccion.class);
-        octavia.set(gpoSecc, "codigo2");
-        this.update(octavia);
+    public void updateCodigo2(List<GrupoSeccion> gpoSecciones) {
+        StringBuilder sql = new StringBuilder("update GrupoSeccion set codigo2 = case \n");
+        for (GrupoSeccion gs : gpoSecciones) {
+            sql.append(" when id = ").append(gs.getId()).append(" then '").append(gs.getCodigo2()).append("' \n");
+        }
+        sql.append(" end where id in (\n");
+        int loop = 0;
+        for (GrupoSeccion gs : gpoSecciones) {
+            if (loop > 0) {
+                sql.append(",");
+            }
+            sql.append(gs.getId());
+            loop++;
+        }
+        sql.append(")");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.executeUpdate();
     }
 
 }

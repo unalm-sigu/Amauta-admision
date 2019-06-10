@@ -12,6 +12,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.pivot.controller.academico.cuotagpohoras.LetraCuotaUtilizadaBean;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CuotaGpoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
@@ -52,14 +53,24 @@ public class CuotaDptoServiceImp implements CuotaDptoService {
             AnexoCuotaUtilizadaBean anexoUtilizadaFound = mapAnexoUtilizada.get(cuota.getAnexoBoletin().getId());
             List<AnexoCuotaUtilizadaBean> cantidadGruposFound = TypesUtil.getListNotNull(mapAnexoGrupos.get(cuota.getAnexoBoletin().getId()));
 
-            cuota.setHorasUtilizadas(anexoUtilizadaFound != null ? anexoUtilizadaFound.getCantidad() : 0L);
+            cuota.setGruposUtilizadosTeoria(anexoUtilizadaFound != null ? anexoUtilizadaFound.getCantidadTeoria() : 0L);
+            cuota.setGruposUtilizadosPractica(anexoUtilizadaFound != null ? anexoUtilizadaFound.getCantidadPractica() : 0L);
 
-            String strCantGpos = "";
+            String strCantGposTeoria = "";
+            String strCantGposPractica = "";
+
             for (AnexoCuotaUtilizadaBean anexo : cantidadGruposFound) {
-                strCantGpos += strCantGpos.equals("") ? "" : ", ";
-                strCantGpos += anexo.getGrupo() + "(" + anexo.getCantidad() + ")";
+                if (anexo.getCantidadTeoria() > 0) {
+                    strCantGposTeoria += strCantGposTeoria.equals("") ? "" : ", ";
+                    strCantGposTeoria += anexo.getGrupo() + "(" + anexo.getCantidadTeoria() + ")";
+                }
+                if (anexo.getCantidadPractica() > 0) {
+                    strCantGposPractica += strCantGposPractica.equals("") ? "" : ", ";
+                    strCantGposPractica += anexo.getGrupo() + "(" + anexo.getCantidadPractica() + ")";
+                }
             }
-            cuota.setDetalleGrupos(strCantGpos);
+            cuota.setDetalleGruposTeoria(strCantGposTeoria);
+            cuota.setDetalleGruposPractica(strCantGposPractica);
         }
 
         return cuotas;

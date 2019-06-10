@@ -3,7 +3,7 @@ Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#cuotagpohorasVUE',
     data: {
-        cuotagpohorasURL: APP.url('academico/cuotagpohoras/list'),
+        cuotagpohorasURL: APP.url(rutaModulo + '/list'),
         pagination: {'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true},
         confirmarModal: VUE_MODAL.structFormAjax({
             id: 'modalConfirmar',
@@ -74,7 +74,7 @@ new Vue({
             $.ajax({
                 method: "POST",
                 contentType: "application/json",
-                url: APP.url("academico/cuotagpohoras/" + item.id + "/allCuotasByAnexo")
+                url: APP.url(rutaModulo + "/" + item.id + "/allCuotasByAnexo")
             }).then(response => {
                 if (response.success) {
                     $vue.cuotasBD = response.data;
@@ -82,7 +82,7 @@ new Vue({
                     for (var i = 0; i < $vue.grupos.length; i++) {
                         let cuo = $vue.getCuotaGrupo($vue.grupos[i], $vue.cuotasBD);
                         if (cuo == null) {
-                            $vue.cuotas.push({grupoHoras: $vue.grupos[i], anexoBoletin: item, cuotas: 0});
+                            $vue.cuotas.push({grupoHoras: $vue.grupos[i], anexoBoletin: item, cuotasTeoria: 0, cuotasPractica: 0});
                         } else {
                             $vue.cuotas.push(cuo);
                         }
@@ -158,7 +158,7 @@ new Vue({
             $.ajax({
                 method: "POST",
                 contentType: "application/json",
-                url: APP.url("academico/cuotagpohoras/allAnexos")
+                url: APP.url(rutaModulo + "/allAnexos")
             }).then(response => {
                 if (response.success) {
                     $vue.anexos = response.data;
@@ -176,7 +176,7 @@ new Vue({
             $.ajax({
                 method: "POST",
                 contentType: "application/json",
-                url: APP.url("academico/cuotagpohoras/allGrupos")
+                url: APP.url(rutaModulo + "/allGrupos")
             }).then(response => {
                 if (response.success) {
                     $vue.grupos = response.data;
@@ -205,11 +205,15 @@ new Vue({
                 notify(MESSAGES.errorComunicacion, 'error');
             });
         },
-        editarGpoSecciones(item) {
+        editarGpoSecciones(item, tipoSeccion) {
             let $vue = this;
-            let first = item.idsGposSecciones.split(",")[0];
-            let lista = Base64.encode(item.idsGposSecciones);
-            location.href = APP.url("academico/gposeccion/" + first + "/editar") + $vue.getOrigenURL() + "&ids=" + lista;
+            let lista = tipoSeccion == "TEO" ? item.idsGposSeccionesTeoria : item.idsGposSeccionesPractica;
+            if (lista == "") {
+                return;
+            }
+            let listaEncode = Base64.encode(lista);
+            let first = lista.split(",")[0];
+            location.href = APP.url("academico/gposeccion/" + first + "/editar") + $vue.getOrigenURL() + "&ids=" + listaEncode;
         },
         getOrigenURL() {
             var url = window.location.href;

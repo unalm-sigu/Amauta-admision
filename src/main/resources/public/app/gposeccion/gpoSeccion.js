@@ -101,7 +101,7 @@ new Vue({
             $vue.orderbycodigo = true;
             $vue.$refs.load.querie.push({name: 'order-codigo', value: orderBy});
         }
-        
+
         let letra = $vue.$refs.load.getParameterByName('queries[letra]');
         letra = (letra == null) ? '' : letra;
         if (letra != '') {
@@ -517,7 +517,7 @@ new Vue({
         },
         verOrdenarCiclo() {
             let $vue = this;
-            VUE_MODAL.configure($vue.configConfirmAction, {
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
                 message: "¿Desea ordenar el código de todos las secciones?",
                 okbtn: "Si, ordenar",
                 okclass: "btn-warning",
@@ -530,7 +530,6 @@ new Vue({
             let $vue = this;
             $.ajax({
                 method: 'POST',
-                async: false,
                 url: APP.url(rutaModulo + '/reordenar'),
                 success: function (response) {
                     $vue.$refs.modalConfirmAction.confirmReaction(response.success);

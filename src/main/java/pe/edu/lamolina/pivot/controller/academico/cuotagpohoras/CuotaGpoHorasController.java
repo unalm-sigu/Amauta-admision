@@ -65,11 +65,11 @@ public class CuotaGpoHorasController {
                             "anexoBoletin.id", "anexoBoletin.nombre", "anexoBoletin.codigo", "anexoBoletin.estado",
                             "grupoHoras.codigo", "grupoHoras.letra", "grupoHoras.tipoCiclo",
                             "cicloAcademico.descripcion2",
-                            "cuotas", "asignadasSistema", "totalUtilizadas",
-                            "gruposUtilizados",
-                            "horasUtilizadas",
-                            "detalleGrupos",
-                            "idsGposSecciones"
+                            "cuotasTeoria", "cuotasPractica", "utilizadasTeoria", "utilizadasPractica",
+                            "gruposUtilizadosTeoria", "gruposUtilizadosPractica",
+                            "horasUtilizadasTeoria", "horasUtilizadasPractica",
+                            "detalleGruposTeoria", "detalleGruposPractica",
+                            "idsGposSeccionesTeoria", "idsGposSeccionesPractica"
                         });
 
                 array.add(node);
@@ -158,15 +158,13 @@ public class CuotaGpoHorasController {
     @RequestMapping("save")
     public JsonResponse save(@RequestBody List<CuotasGrupoHoras> cuotas, HttpSession session) {
 
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.save(cuotas, ds.getCicloAcademico(), ds);
 
             response.setSuccess(true);
-            response.setMessage("Guardado satisfactoriamnente");
+            response.setMessage("Guardado satisfactoriamente");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -208,7 +206,8 @@ public class CuotaGpoHorasController {
         ObjectNode json = JsonHelper.createJson(cuotasGrupoHora, JsonNodeFactory.instance, true, new String[]{
             "anexoBoletin.id", "anexoBoletin.nombre", "anexoBoletin.codigo",
             "grupoHoras.id", "grupoHoras.codigo",
-            "id", "cuotas"
+            "id",
+            "cuotasTeoria", "cuotasPractica", "utilizadasTeoria", "utilizadasPractica"
         });
         return json;
     }

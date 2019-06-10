@@ -575,14 +575,15 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         logger.debug("GrupoSeccion size  {}", gpoSecciones.size());
 
         List<Seccion> secciones = seccionDAO.allSeccionOrderByciclo(ciclo);
-        Map<Long, List<Seccion>> seccionesMap = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
+        Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
 
-        for (GrupoSeccion gsOrigene : gpoSecciones) {
-            gsOrigene.setSecciones(seccionesMap.get(gsOrigene.getId()));
+        for (GrupoSeccion gs : gpoSecciones) {
+            gs.setSecciones(mapSecciones.get(gs.getId()));
         }
 
         List<String> codigos = new ArrayList();
-        long t1 = System.currentTimeMillis();
+        List<Seccion> seccionesUpd = new ArrayList();
+        List<GrupoSeccion> gpoSeccionesUpd = new ArrayList();
 
         for (GrupoSeccion gpoSeccBD : gpoSecciones) {
 
@@ -603,19 +604,18 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     secc.setCodigo2(codigo + loopPCUR);
                     loopPCUR++;
                 }
-                seccionDAO.updateCodigo2(secc);
-                long t2 = System.currentTimeMillis();
-                if (t2 - t1 > 1000) {
-                    logger.debug("Ya se han actualizado {} de {} gpo-secciones", codigos.size(), gpoSecciones.size());
-                    t1 = System.currentTimeMillis();
-                }
+
+                seccionesUpd.add(secc);
             }
-            
+
             GrupoSeccion gpoSecc = new GrupoSeccion(gpoSeccBD.getId());
             gpoSecc.setCodigo2(codigo);
-            grupoSeccionDAO.updateCodigo2(gpoSecc);
+            gpoSeccionesUpd.add(gpoSecc);
         }
         logger.debug("Ya se terminó de actualizar los {} gpo-secciones", gpoSecciones.size());
+
+        grupoSeccionDAO.updateCodigo2(gpoSeccionesUpd);
+        seccionDAO.updateCodigo2(seccionesUpd);
 
     }
 

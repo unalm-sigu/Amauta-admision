@@ -80,6 +80,6 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     void deleteGrupoSeccion(GrupoSeccion gpoSeccion);
 
-    void updateCodigo2(GrupoSeccion gpoSecc);
+    void updateCodigo2(List<GrupoSeccion> gpoSecciones);
 
 }

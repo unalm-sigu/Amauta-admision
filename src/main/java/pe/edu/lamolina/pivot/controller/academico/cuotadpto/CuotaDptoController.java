@@ -64,10 +64,11 @@ public class CuotaDptoController {
                             "anexoBoletin.id", "anexoBoletin.nombre", "anexoBoletin.codigo", "anexoBoletin.estado",
                             "grupoHoras.codigo", "grupoHoras.letra", "grupoHoras.tipoCiclo",
                             "cicloAcademico.descripcion2",
-                            "cuotas", "asignadasSistema", "totalUtilizadas",
-                            "gruposUtilizados",
-                            "horasUtilizadas",
-                            "detalleGrupos"
+                            "cuotasTeoria", "cuotasPractica", "utilizadasTeoria", "utilizadasPractica",
+                            "gruposUtilizadosTeoria", "gruposUtilizadosPractica",
+                            "horasUtilizadasTeoria", "horasUtilizadasPractica",
+                            "detalleGruposTeoria", "detalleGruposPractica",
+                            "idsGposSeccionesTeoria", "idsGposSeccionesPractica"
                         });
 
                 array.add(node);

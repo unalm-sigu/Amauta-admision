@@ -55,32 +55,44 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
         Map<String, List<LetraCuotaUtilizadaBean>> mapCantidadGrupos = TypesUtil.convertListToMapList("letra", cantidadGrupos);
 
         for (CuotasGrupoHoras cuota : cuotas) {
-            String ids = getIdsGpoSecciones(cuota, cicloAcademico);
-            cuota.setIdsGposSecciones(ids);
+            String idsTeoria = getIdsGpoSecciones(cuota, cicloAcademico, "TEO");
+            String idsPractica = getIdsGpoSecciones(cuota, cicloAcademico, "PRA");
+            cuota.setIdsGposSeccionesTeoria(idsTeoria);
+            cuota.setIdsGposSeccionesPractica(idsPractica);
 
             LetraCuotaUtilizadaBean letraUtilizadoFound = mapLetraUtilizados.get(cuota.getGrupoHoras().getLetra());
             LetraCuotaUtilizadaBean letraHorasUtilizadoFound = mapLetraHorasUtilizadas.get(cuota.getGrupoHoras().getLetra());
             List<LetraCuotaUtilizadaBean> cantidadGrupoFound = TypesUtil.getListNotNull(mapCantidadGrupos.get(cuota.getGrupoHoras().getLetra()));
 
-            cuota.setHorasUtilizadas(letraUtilizadoFound != null ? letraUtilizadoFound.getCantidad() : 0L);
-            cuota.setGruposUtilizados(letraHorasUtilizadoFound != null ? letraHorasUtilizadoFound.getCantidad() : 0L);
+            cuota.setGruposUtilizadosTeoria(letraUtilizadoFound != null ? letraUtilizadoFound.getCantidadTeoria() : 0L);
+            cuota.setGruposUtilizadosPractica(letraUtilizadoFound != null ? letraUtilizadoFound.getCantidadPractica() : 0L);
+            cuota.setHorasUtilizadasTeoria(letraHorasUtilizadoFound != null ? letraHorasUtilizadoFound.getCantidadTeoria() : 0L);
+            cuota.setHorasUtilizadasPractica(letraHorasUtilizadoFound != null ? letraHorasUtilizadoFound.getCantidadPractica() : 0L);
 
-            String strCantGpos = "";
+            String strCantGposTeoria = "";
+            String strCantGposPractica = "";
 
             for (LetraCuotaUtilizadaBean letraGrupo : cantidadGrupoFound) {
-                strCantGpos += strCantGpos.equals("") ? "" : ", ";
-                strCantGpos += letraGrupo.getGrupo() + "(" + letraGrupo.getCantidad() + ")";
+                if (letraGrupo.getCantidadTeoria() > 0) {
+                    strCantGposTeoria += strCantGposTeoria.equals("") ? "" : ", ";
+                    strCantGposTeoria += letraGrupo.getGrupo() + "(" + letraGrupo.getCantidadTeoria() + ")";
+                }
+                if (letraGrupo.getCantidadPractica() > 0) {
+                    strCantGposPractica += strCantGposPractica.equals("") ? "" : ", ";
+                    strCantGposPractica += letraGrupo.getGrupo() + "(" + letraGrupo.getCantidadPractica() + ")";
+                }
             }
-            cuota.setDetalleGrupos(strCantGpos);
+            cuota.setDetalleGruposTeoria(strCantGposTeoria);
+            cuota.setDetalleGruposPractica(strCantGposPractica);
         }
 
         return cuotas;
     }
 
-    private String getIdsGpoSecciones(CuotasGrupoHoras cuota, CicloAcademico cicloAcademico) {
+    private String getIdsGpoSecciones(CuotasGrupoHoras cuota, CicloAcademico cicloAcademico, String tipoSeccion) {
         AnexoBoletin anexo = cuota.getAnexoBoletin();
         String letra = cuota.getGrupoHoras().getLetra();
-        DynatableFilter filterGpoSeccion = createFilterGpoSeccion(anexo, letra);
+        DynatableFilter filterGpoSeccion = createFilterGpoSeccion(anexo, letra, tipoSeccion);
         List<GrupoSeccion> gpoSecciones = gpoSeccionService.allCleanByDynatable(filterGpoSeccion, cicloAcademico);
 
         String ids = "";
@@ -91,7 +103,7 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
         return ids;
     }
 
-    private DynatableFilter createFilterGpoSeccion(AnexoBoletin anexo, String letra) {
+    private DynatableFilter createFilterGpoSeccion(AnexoBoletin anexo, String letra, String tipoSeccion) {
         DynatableFilter filter = new DynatableFilter();
         filter.setPage(1);
         filter.setOffset(0);
@@ -99,6 +111,7 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
 
         Map<String, Object> queries = new HashMap();
         queries.put("letra", letra);
+        queries.put("tipoSeccion", tipoSeccion);
         queries.put("anexo", anexo.getId());
         queries.put("order-id", anexo.getId());
 
@@ -113,7 +126,9 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
         List<AnexoBoletin> anexosBoletin = new ArrayList();
 
         for (AnexoBoletin anx : anexos) {
-            if (anx.getAnexoSuperior().getId() == 2) {
+            if (anx.getAnexoSuperior().getId() == 1) {
+                anexosBoletin.add(anx);
+            } else if (anx.getAnexoSuperior().getId() == 2) {
                 anexosBoletin.add(anx);
             }
         }
@@ -141,20 +156,31 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
         for (CuotasGrupoHoras cuotaForm : cuotas) {
             if (cuotaForm.getId() == null) {
                 cuotaForm.setCicloAcademico(ciclo);
-                cuotaForm.setAsignadasSistema(0);
-                cuotaForm.setTotalUtilizadas(0);
+                cuotaForm.setUtilizadasTeoria(0);
+                cuotaForm.setUtilizadasPractica(0);
                 cuotaForm.setUserRegistro(ds.getUsuario());
                 cuotaForm.setFechaRegistro(today.toDate());
-                if (cuotaForm.getCuotas() > 0) {
+                if (cuotaForm.getCuotasTeoria() > 0 || cuotaForm.getCuotasPractica() > 0) {
                     cuotaGpoHorasDAO.save(cuotaForm);
                 }
 
-            } else if (cuotaForm.getCuotas() > 0) {
+            } else if (cuotaForm.getCuotasTeoria() > 0 || cuotaForm.getCuotasPractica() > 0) {
                 CuotasGrupoHoras cuotaBD = mapCuotas.get(cuotaForm.getId());
-                if (cuotaBD.getCuotas() != cuotaForm.getCuotas().intValue()) {
-                    cuotaBD.setCuotas(cuotaForm.getCuotas());
+                boolean seModifico = false;
+                if (cuotaBD.getCuotasTeoria() != cuotaForm.getCuotasTeoria().intValue()) {
+                    cuotaBD.setCuotasTeoria(cuotaForm.getCuotasTeoria());
                     cuotaBD.setFechaModificacion(today.toDate());
                     cuotaBD.setUserModificacion(ds.getUsuario());
+                    seModifico = true;
+                }
+                if (cuotaBD.getCuotasPractica() != cuotaForm.getCuotasPractica().intValue()) {
+                    cuotaBD.setCuotasPractica(cuotaForm.getCuotasPractica());
+                    cuotaBD.setFechaModificacion(today.toDate());
+                    cuotaBD.setUserModificacion(ds.getUsuario());
+                    seModifico = true;
+                }
+
+                if (seModifico) {
                     cuotaGpoHorasDAO.update(cuotaBD);
                 }
 

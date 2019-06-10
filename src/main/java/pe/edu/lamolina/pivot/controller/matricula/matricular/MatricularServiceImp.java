@@ -201,8 +201,8 @@ public class MatricularServiceImp implements MatricularService {
             List<MatriculaResumen> listMatriculados,
             DataSessionPivot ds) {
 
-        List<MatriculaCurso> noMatriculadosELC = null;
-        List<MatriculaCurso> matriculaCursosFiltrados = null;
+        List<MatriculaCurso> noMatriculadosELC = new ArrayList<>();
+        List<MatriculaCurso> matriculaCursosFiltrados = new ArrayList<>();
 
         List<VacanteAlumno> vacantesAlumnoTemp = new ArrayList<>();
         List<MatriculaSeccion> matriculaSeccionMatTemp = new ArrayList<>();

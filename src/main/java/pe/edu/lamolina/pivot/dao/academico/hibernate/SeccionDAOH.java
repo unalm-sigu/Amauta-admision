@@ -654,10 +654,24 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
-    public void updateCodigo2(Seccion seccion) {
-        Octavia octavia = Octavia.update(Seccion.class);
-        octavia.set(seccion, "codigo2");
-        this.update(octavia);
+    public void updateCodigo2(List<Seccion> secciones) {
+        StringBuilder sql = new StringBuilder("update Seccion set codigo2 = case \n");
+        for (Seccion secc : secciones) {
+            sql.append(" when id = ").append(secc.getId()).append(" then '").append(secc.getCodigo2()).append("' \n");
+        }
+        sql.append(" end where id in (\n");
+        int loop = 0;
+        for (Seccion secc : secciones) {
+            if (loop > 0) {
+                sql.append(",");
+            }
+            sql.append(secc.getId());
+            loop++;
+        }
+        sql.append(")");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.executeUpdate();
     }
 
     @Override

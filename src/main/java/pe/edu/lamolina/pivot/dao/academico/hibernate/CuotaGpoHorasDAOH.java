@@ -65,20 +65,20 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
     }
 
     @Override
-    public CuotasGrupoHoras findByAnexoAndCicloAndGpoHoras(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico, String codigoGrupoHoras) {
+    public CuotasGrupoHoras findByAnexoAndCicloAndGpoHoras(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico, String letraGpoHoras) {
         Octavia sql = Octavia.query()
                 .from(CuotasGrupoHoras.class, "cgh")
                 .join("anexoBoletin ab", "grupoHoras gh", "cicloAcademico ca")
                 .filter("ca.id", cicloAcademico)
                 .filter("ab.id", anexoBoletin)
-                .filter("gh.codigo", codigoGrupoHoras);
+                .filter("gh.codigo", letraGpoHoras);
         return find(sql);
     }
 
     @Override
     public List<LetraCuotaUtilizadaBean> allLetrasUtilizadasByAnexoCiclo(AnexoBoletin anexoBoletine, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
-                .select(" grho.letra", " count(*) ")
+                .select("grho.letra", "count(case when grho.tipoSeccion='TEO' then grho.id end)", "count(case when grho.tipoSeccion='PRA' then grho.id end)")
                 .into(LetraCuotaUtilizadaBean.class)
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
@@ -96,7 +96,7 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
     @Override
     public List<LetraCuotaUtilizadaBean> allHorasUtilizadasByAnexoCiclo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
-                .select(" grho.letra", " count(*) ")
+                .select("grho.letra", "count(case when grho.tipoSeccion='TEO' then grho.id end)", "count(case when grho.tipoSeccion='PRA' then grho.id end)")
                 .into(LetraCuotaUtilizadaBean.class)
                 .from(HorarioSeccion.class, "hsecc")
                 .join("seccion secc", "secc.grupoHoras grho", "secc.grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
@@ -114,7 +114,9 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
     @Override
     public List<LetraCuotaUtilizadaBean> allGposUtilizadosByAnexoCiclo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
-                .select("grho.letra", "grho.codigo", " count(*) ")
+                .select("grho.letra", "grho.codigo",
+                        "count(case when grho.tipoSeccion='TEO' then grho.id end)",
+                        "count(case when grho.tipoSeccion='PRA' then grho.id end)")
                 .into(LetraCuotaUtilizadaBean.class)
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
@@ -132,7 +134,9 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
     @Override
     public List<AnexoCuotaUtilizadaBean> allCuotasAnexosByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
-                .select("anbo.id", " count(*) ")
+                .select("anbo.id",
+                        "count(case when grho.tipoSeccion='TEO' then grho.id end)",
+                        "count(case when grho.tipoSeccion='PRA' then grho.id end)")
                 .into(AnexoCuotaUtilizadaBean.class)
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
@@ -157,7 +161,7 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
     }
 
     @Override
-    public Integer countSeccionesByAnexoCicloLetraGpo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico, String letra) {
+    public Integer countSeccionesByAnexoCicloLetraGpo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico, String letra, String tipoSeccion) {
         Octavia sql = Octavia.query()
                 .selectCount()
                 .from(Seccion.class, "sec")
@@ -167,6 +171,7 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .filter("sec.estado", SeccionEstadoEnum.ACT)
                 .filter("gSec.estado", SeccionEstadoEnum.ACT)
                 .filter("gHor.letra", letra)
+                .filter("gHor.tipoSeccion", tipoSeccion)
                 .filter("bol.id", anexoBoletin)
                 .filter("ca.id", cicloAcademico)
                 .filter("ofi.codigo", OficinaEnum.OERA)
@@ -176,7 +181,9 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
 
     public List<AnexoCuotaUtilizadaBean> allGposAnexosByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
-                .select("anbo.id", "grho.codigo", " count(*) ")
+                .select("anbo.id", "grho.codigo",
+                        "count(case when grho.tipoSeccion='TEO' then grho.id end)",
+                        "count(case when grho.tipoSeccion='PRA' then grho.id end)")
                 .into(AnexoCuotaUtilizadaBean.class)
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")

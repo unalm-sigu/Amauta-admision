@@ -40,8 +40,8 @@
             }
 
             .circle-recorrido.bgr-default {
-                background-color: #979595;
-                color: #fff;
+                background-color: #EBEDEF;
+                color: #000;
             }
         </style>
     </head>
@@ -86,10 +86,16 @@
                                     <table class="table table-striped">
                                         <thead> 
                                             <tr> 
-                                                <th class="col-md-4">Anexo del boletín</th>
-                                                <th class="col-md-2 text-center">Cuotas</th>
-                                                <th class="col-md-2 text-center">Utilizadas</th>
-                                                <th class="col-md-4">Cantidad Grupos</th>
+                                                <th class="col-md-5 v-middle" rowspan="2">Anexo del boletín</th>
+                                                <th class="col-md-2 text-center" colspan="2">Cuotas</th>
+                                                <th class="col-md-2 text-center" colspan="2">Utilizadas</th>
+                                                <th class="col-md-3 v-middle" rowspan="2">Cantidad Grupos</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-center v-middle">Teoría</th>
+                                                <th class="text-center v-middle">Práctica</th>
+                                                <th class="text-center v-middle">Teoría</th>
+                                                <th class="text-center v-middle">Práctica</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -98,17 +104,30 @@
                                                     {{item.anexoBoletin.nombre}}
                                                 </td>
                                                 <td class="v-middle text-center"> 
-                                                    <div class="circle-recorrido bgr-default text-center">{{item.cuotas}}</div>
+                                                    <div class="circle-recorrido bgr-default">{{item.cuotasTeoria}}</div>
                                                 </td>
-                                                <td class="v-middle text-center">
-                                                    <div v-if="item.horasUtilizadas > item.cuotas" 
-                                                         class="circle-recorrido bgr-danger text-center" v-text="item.horasUtilizadas"></div>
-                                                    <div v-else-if="item.horasUtilizadas == item.cuotas" 
-                                                         class="circle-recorrido bgr-success text-center" v-text="item.horasUtilizadas"></div>
-                                                    <div v-else="" class="circle-recorrido bgr-warning text-center" v-text="item.horasUtilizadas"></div>
+                                                <td class="v-middle text-center"> 
+                                                    <div class="circle-recorrido bgr-default">{{item.cuotasPractica}}</div>
                                                 </td>
+
+                                                <td class="v-middle text-center"> 
+                                                    <div v-if="item.utilizadasTeoria > item.cuotasTeoria"
+                                                         class="circle-recorrido bgr-danger">{{item.gruposUtilizadosTeoria}}</div>
+                                                    <div v-else-if="item.utilizadasTeoria == item.cuotasTeoria"
+                                                         class="circle-recorrido bgr-success">{{item.gruposUtilizadosTeoria}}</div>
+                                                    <div v-else="" class="circle-recorrido bgr-warning">{{item.gruposUtilizadosTeoria}}</div>
+                                                </td>
+                                                <td class="v-middle text-center"> 
+                                                    <div v-if="item.utilizadasPractica > item.cuotasPractica"
+                                                         class="circle-recorrido bgr-danger">{{item.gruposUtilizadosPractica}}</div>
+                                                    <div v-else-if="item.utilizadasPractica == item.cuotasPractica"
+                                                         class="circle-recorrido bgr-success">{{item.gruposUtilizadosPractica}}</div>
+                                                    <div v-else="" class="circle-recorrido bgr-warning">{{item.gruposUtilizadosPractica}}</div>
+                                                </td>
+
                                                 <td class="v-middle">
-                                                    {{item.detalleGrupos}}
+                                                    <span v-if="item.detalleGruposTeoria != '' " class="block"><strong>Teoría:</strong> {{item.detalleGruposTeoria}}</span>
+                                                    <span v-if="item.detalleGruposPractica != '' " class="block"><strong>Práctica:</strong> {{item.detalleGruposPractica}}</span>
                                                 </td>   
                                             </tr>
                                         </tbody>
