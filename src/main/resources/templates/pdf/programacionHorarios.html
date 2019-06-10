@@ -146,7 +146,7 @@
                                         <tr th:each="secc : ${grupoSeccion.secciones}" >
 
                                             <td class="centrado">
-                                                <span th:if="${(secc.grupoHoras!=null and secc.grupoHoras.codigo != '') and secc.isTipoSeccionEvaluacionTeoria}" th:text="${secc.grupoHoras.codigo}"></span>                  
+                                                <span th:if="${(secc.grupoHoras != null and secc.grupoHoras.codigo != '') and secc.isTipoSeccionEvaluacionTeoria}" th:text="${secc.grupoHoras.codigo}"></span>                  
                                             </td>
                                             <td class="centrado">
                                                 <span th:if="${(secc.aula!=null and secc.aula.codigo != '') and secc.isTipoSeccionEvaluacionTeoria}" th:text="${secc.aula.codigo}"></span>
@@ -158,7 +158,8 @@
                                             </td>
 
                                             <td class="centrado"> 
-                                                <span th:if="${secc.grupoHoras.codigo != '' and secc.isTipoSeccionEvaluacionPractica}" th:text="${secc.grupoHoras.codigo}"></span>
+                                                <span th:if="${secc.grupoHoras !=null and secc.grupoHoras.codigo != '' and secc.isTipoSeccionEvaluacionPractica}" 
+                                                      th:text="${secc.grupoHoras.codigo}"></span>
                                             </td>
 
                                             <td class="centrado">
