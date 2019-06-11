@@ -187,6 +187,7 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
             } else {
                 CuotasGrupoHoras cuotaBD = mapCuotas.get(cuotaForm.getId());
                 cuotaGpoHorasDAO.delete(cuotaBD);
+                cuotaBD.setId(null);
             }
 
         }
@@ -197,6 +198,43 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
     public List<CuotasGrupoHoras> allCuotasByAnexo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico) {
         List<CuotasGrupoHoras> cuotasGrupoHoras = cuotaGpoHorasDAO.allByAnexoCiclo(anexoBoletin, cicloAcademico);
         return cuotasGrupoHoras;
+    }
+
+    @Override
+    @Transactional
+    public void updateUtilizados(CicloAcademico cicloAcademico, List<CuotasGrupoHoras> cuotasForm, DataSessionPivot ds) {
+        List<CuotasGrupoHoras> cuotasBD = cuotaGpoHorasDAO.allByCiclo(cicloAcademico);
+        List<LetraCuotaUtilizadaBean> letrasUtilizados = cuotaGpoHorasDAO.allLetrasUtilizadasByCiclo(cicloAcademico);
+        Map<Long, LetraCuotaUtilizadaBean> mapLetrasUtilizadas = TypesUtil.convertListToMap("anexoLetra", letrasUtilizados);
+        DateTime today = new DateTime();
+
+        List<CuotasGrupoHoras> cuotas = new ArrayList();
+        for (CuotasGrupoHoras cuota : cuotasForm) {
+            if (cuota.getId() != null) {
+                cuotas.add(cuota);
+            }
+        }
+        Map<Long, CuotasGrupoHoras> mapCuotas = TypesUtil.convertListToMap("id", cuotas);
+
+        for (CuotasGrupoHoras cuota : cuotasBD) {
+            AnexoBoletin anexo = cuota.getAnexoBoletin();
+            GrupoHoras gpo = cuota.getGrupoHoras();
+            LetraCuotaUtilizadaBean letraUtilizada = mapLetrasUtilizadas.get(anexo.getId() + "-" + gpo.getLetra());
+
+            cuota.setUtilizadasTeoria(0);
+            cuota.setUtilizadasPractica(0);
+            if (letraUtilizada != null) {
+                cuota.setUtilizadasTeoria(letraUtilizada.getCantidadTeoria().intValue());
+                cuota.setUtilizadasPractica(letraUtilizada.getCantidadPractica().intValue());
+            }
+            CuotasGrupoHoras cuotaExiste = mapCuotas.get(cuota.getId());
+            if (cuotaExiste == null) {
+                cuota.setUserRegistro(ds.getUsuario());
+                cuota.setFechaModificacion(today.toDate());
+            }
+            cuotaGpoHorasDAO.update(cuota);
+        }
+
     }
 
 }

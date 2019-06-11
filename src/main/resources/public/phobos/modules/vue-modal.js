@@ -49,7 +49,7 @@ Vue.component('modal-vik', {
             let overlap = $("#" + $vue.id).find("#over-body-modal");
 
             overlap.removeClass("hide")
-            overlap.css({position: "absolute", width: "100%", height: (body.height() + 30)});
+            overlap.css({position: "absolute", width: "100%", height: (body.height() + 30), "z-index": 1001});
             overlap.offset({top: body.offset().top});
         },
         unlockBody() {

@@ -52,6 +52,16 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
     }
 
     @Override
+    public List<CuotasGrupoHoras> allByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(CuotasGrupoHoras.class, "cgh")
+                .join("anexoBoletin ab", "grupoHoras gh", "cicloAcademico ca")
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
     public List<CuotasGrupoHoras> allByDynatableGpoHoras(DynatableFilter filter, GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(CuotasGrupoHoras.class, "cgpo")
@@ -89,6 +99,23 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .filter("anbo.id", anexoBoletine)
                 .filter("ofi.codigo", OficinaEnum.OERA)
                 .groupBy("grho.letra");
+
+        return (List<LetraCuotaUtilizadaBean>) sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<LetraCuotaUtilizadaBean> allLetrasUtilizadasByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .select("anbo.id", "grho.letra", "count(case when grho.tipoSeccion='TEO' then grho.id end)", "count(case when grho.tipoSeccion='PRA' then grho.id end)")
+                .into(LetraCuotaUtilizadaBean.class)
+                .from(Seccion.class, "secc")
+                .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
+                .join("secc.aula au", "au.oficinaSupervisora ofi")
+                .filter("secc.estado", SeccionEstadoEnum.ACT)
+                .filter("grse.estado", SeccionEstadoEnum.ACT)
+                .filter("ca.id", cicloAcademico)
+                .filter("ofi.codigo", OficinaEnum.OERA)
+                .groupBy("anbo.id", "grho.letra");
 
         return (List<LetraCuotaUtilizadaBean>) sql.all(getCurrentSession());
     }
@@ -179,6 +206,7 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
         return TypesUtil.getInt(sql.find(getCurrentSession()));
     }
 
+    @Override
     public List<AnexoCuotaUtilizadaBean> allGposAnexosByLetraCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .select("anbo.id", "grho.codigo",

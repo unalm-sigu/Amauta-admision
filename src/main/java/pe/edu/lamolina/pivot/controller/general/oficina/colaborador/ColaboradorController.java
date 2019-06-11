@@ -227,7 +227,7 @@ public class ColaboradorController {
         model.addAttribute("colaborador", colaboradorJson);
         model.addAttribute("tipoDocumento", arrayTiposDocumentos);
         model.addAttribute("sexo", SexoEnum.values());
-        model.addAttribute("area", arrayOficinas);
+        model.addAttribute("areas", arrayOficinas);
         model.addAttribute("cargos", createPerfilesJson(cargos));
         model.addAttribute("funciones", createPerfilesJson(funciones));
         model.addAttribute("misfunciones", arrayMisFunciones);

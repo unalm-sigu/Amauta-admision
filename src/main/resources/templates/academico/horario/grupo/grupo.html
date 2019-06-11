@@ -1,176 +1,200 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Grupos</title>
-    <div th:substituteby="_layout/includes :: styles-bootstrap-colorpicker"></div>
-</head>
+        <style>
+            table.table-letra {
+                border-collapse:separate;
+                border:solid #95a5a6 1px;
+                border-radius:4px;
+                -moz-border-radius:4px;
+            }
 
-<body>
-    <div layout:fragment="main">
-        <div id="grupoVUE">
+            td.table-letra, th.table-letra {
+                border-left:solid #95a5a6 1px;
+                border-top:solid #95a5a6 1px;
+            }
 
-            <header class="header b-b padder-lg">
+            th.table-letra {
+                background-color: #95a5a6;
+                border-top: none;
+            }
 
-                <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a v-on:click.prevent="clonarCiclo">Clonar</a></li>
-                        <li><a id="nuevo" href="#" >Nuevo</a></li>
-                    </ul>
-                </div>
+            td.table-letra:first-child, th.table-letra:first-child {
+                border-left: none;
+            }    
+        </style>
+        <!--<div th:substituteby="_layout/includes :: styles-bootstrap-colorpicker"></div>-->
+    </head>
 
-                <div class="pull-right m-t-md">                 
-                    <a class="btn btn-link" th:href="@{/academico/horario}" >Regresar</a>
-                    <!--<a class="btn btn-primary" id="nuevo" href="#" >Nuevo</a>-->
-                </div> 
+    <body>
+        <div layout:fragment="main">
+            <div id="grupoVUE">
 
-                <h2 class="block" th:text="${'Horarios de grupo '+ ciclo}" >Grupos</h2> 
-                <small th:text="${tipoGrupoHoras.codigo + ' GRUPO ' + tipoGrupoHoras.tipo}"></small>
+                <header class="header b-b padder-lg">
 
-            </header>
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a v-on:click.prevent="clonarCiclo">Clonar</a></li>
+                            <li><a id="nuevo" href="#" >Nuevo</a></li>
+                        </ul>
+                    </div>
 
-            <section class="panel">
-                <section class="panel-body">
+                    <div class="pull-right m-t-md">                 
+                        <a class="btn btn-link" th:href="@{/academico/horario}" >Regresar</a>
+                        <!--<a class="btn btn-primary" id="nuevo" href="#" >Nuevo</a>-->
+                    </div> 
 
-                    <input type="hidden" name="idTipoGrupo" th:value="${tipoGrupoHoras.id}" />
+                    <h2 class="block" th:text="${'Horarios de grupo '+ ciclo}" >Grupos</h2> 
+                    <small th:text="${tipoGrupoHoras.codigo + ' GRUPO ' + tipoGrupoHoras.tipo}"></small>
 
-                    <raptor-table v-bind:url="grupoURL" v-bind:preload="false" v-bind:pagination="paginationGpo" ref="raptorGrupo">
-                        <template scope="props" >
-                            <div class="col-sm-1 col-xs-1" 
-                                 v-for="item in props.data">
-                                <div class="list-group">
+                </header>
 
-                                    <div 
-                                        href="#" 
-                                        class="list-group-item item" 
-                                        style="min-height: 100px;border-width: 1px;"
-                                        v-bind:style="styleBorder(item)">
-
-                                        <div class="dropdown actions pull-right">
-
-                                            <a class="dropdown-toggle text-muted" href="#" data-toggle="dropdown">
-                                                <i class="fa fa-cog" aria-hidden="true"></i>
-                                            </a>
-
-                                            <ul class="dropdown-menu pull-right" aria-labelledby="dropdownMenu1" role="menu">
-                                                <li role="presentation">
-                                                    <a class="btn-link editar" href="#" >Editar</a>
-                                                </li>
-                                                <li role="presentation" class="divider"></li>
-                                                <li role="presentation">
-                                                    <a class="btn-link eliminar" href="#">Eliminar</a>
-                                                </li>
-                                            </ul>
-
-                                        </div>
-
-                                        <div class="m-t-sm pointer verhorario" v-on:click="verHorario(item)">
-                                            <h4 class="list-group-item-heading" >{{item.codigo}}</h4>
-                                            <h5 class="list-group-item-heading" >{{item.tipoSeccion}}/{{item.letra}}</h5>
-
-                                            <h5 class="list-group-item-heading text-center m-t-md" >
-                                                <span class="label" v-bind:class="classHoras(item)"> {{item.horas}} horas </span>
-                                            </h5>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </raptor-table>
-
-                </section>
-
-                <section class="panel" v-if="grupoActivo.id != undefined ">
+                <section class="panel">
                     <section class="panel-body">
 
+                        <input type="hidden" name="idTipoGrupo" th:value="${tipoGrupoHoras.id}" />
 
-                        <div class="table-responsive">
+                        <raptor-table v-bind:url="grupoURL" v-bind:preload="false" v-bind:pagination="paginationGpo" ref="raptorGrupo">
+                            <template scope="props" >
+                                <div class="col-sm-1 col-xs-1" 
+                                     v-for="item in props.data">
+                                    <div class="list-group">
 
-                            <table class="table table-fixed">
+                                        <div href="#" 
+                                             class="list-group-item item" 
+                                             style="min-height: 100px;border-width: 1px;"
+                                             v-bind:style="styleBorder(item)">
 
-                                <thead>
-                                    <tr>
-                                        <th style="width: 12.5%" class="text-center">Hora</th>
-                                        <th style="width: 12.5%" class="text-center" 
-                                            v-for="dia in dias" v-text="dia.nombre" >
-                                        </th>
-                                    </tr>
-                                </thead>
+                                            <div class="dropdown actions pull-right">
 
-                                <tbody >
-                                    <tr v-for="hora in horas">
-                                        <td style="width: 12.5%" class="v-middle">
-                                            <span 
-                                                class="form-control"
-                                                th:style="'border-color:#fff;'">
-                                                {{hora.descripcion}}
-                                            </span>
+                                                <a class="dropdown-toggle text-muted" href="#" data-toggle="dropdown">
+                                                    <i class="fa fa-cog" aria-hidden="true"></i>
+                                                </a>
 
-                                        </td>
-                                        <td v-for="dia in dias" style="width: 12.5%" v-on:click="conterObjHdia(dia,hora) == null ? asignarHora(dia,hora) : desasignarHora(dia,hora)">
-                                            <span v-bind:value="hora.id + '-' + dia.id" class="form-control pointer text-center"
-                                                  v-bind:style="styleHdia(dia,hora)"
-                                                  v-text="conteHdia(dia,hora)">
-                                                <!--span class="text-item-horario"
-                                                   v-bind:style="styleConteHdia(dia,hora)"
-                                                   v-text="conteHdia(dia,hora)">77</span-->
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                                <ul class="dropdown-menu pull-right" aria-labelledby="dropdownMenu1" role="menu">
+                                                    <li role="presentation">
+                                                        <a class="btn-link editar" v-on:click="verEditarGrupo(item)" >Editar</a>
+                                                    </li>
+                                                    <li role="presentation" class="divider"></li>
+                                                    <li role="presentation">
+                                                        <a class="btn-link eliminar" href="#">Eliminar</a>
+                                                    </li>
+                                                </ul>
 
-                        </div>
+                                            </div>
+
+                                            <div class="m-t-sm pointer verhorario" v-on:click="verHorario(item)">
+                                                <h4 class="list-group-item-heading" >{{item.codigo}}</h4>
+                                                <h5 class="list-group-item-heading" >{{item.tipoSeccion}}/{{item.letra}}</h5>
+
+                                                <h5 class="list-group-item-heading text-center m-t-md" >
+                                                    <span class="label" v-bind:class="classHoras(item)"> {{item.horas}} horas </span>
+                                                </h5>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </raptor-table>
+
+                    </section>
+
+                    <section class="panel" v-if="grupoActivo.id != undefined ">
+                        <section class="panel-body">
+
+
+                            <div class="table-responsive">
+
+                                <table class="table table-fixed">
+
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 12.5%" class="text-center">Hora</th>
+                                            <th style="width: 12.5%" class="text-center" 
+                                                v-for="dia in dias" v-text="dia.nombre" >
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody >
+                                        <tr v-for="hora in horas">
+                                            <td style="width: 12.5%" class="v-middle">
+                                                <span 
+                                                    class="form-control"
+                                                    th:style="'border-color:#fff;'">
+                                                    {{hora.descripcion}}
+                                                </span>
+
+                                            </td>
+                                            <td v-for="dia in dias" style="width: 12.5%" v-on:click="conterObjHdia(dia,hora) == null ? asignarHora(dia,hora) : desasignarHora(dia,hora)">
+                                                <span v-bind:value="hora.id + '-' + dia.id" class="form-control pointer text-center"
+                                                      v-bind:style="styleHdia(dia,hora)"
+                                                      v-text="conteHdia(dia,hora)">
+                                                    <!--span class="text-item-horario"
+                                                       v-bind:style="styleConteHdia(dia,hora)"
+                                                       v-text="conteHdia(dia,hora)">77</span-->
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </section>
                     </section>
                 </section>
-            </section>
-            <modal-vik ref="modalCloneCiclo"
-                       v-bind="dataCloneCiclo" 
-                       v-bind:okaction="saveCloneCiclo"  > 
-                <div slot="body">
 
-                    <form data-parsley-validate="true" class="panel-body">
+                <div th:substituteby="academico/horario/grupo/grupoModal"></div>
 
-                        <div class="col-xs-12">
-                            <div class="form-group">
-                                <label>Seleccione el ciclo académico de origen</label>
-                                <vuelect 
-                                    required="true"
-                                    v-bind:objetogenerico="ciclo"
-                                    v-bind:initobject="ciclo"
-                                    formatselection="descripcion2"
-                                    formatresult="descripcion2"
-                                    nameinput="ciclo.id"
-                                    remoteurl="comun/buscar/allCicloDescendent"
-                                    v-model="ciclo"/>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </modal-vik>
+                <!--            <modal-vik ref="modalCloneCiclo"
+                                       v-bind="dataCloneCiclo" 
+                                       v-bind:okaction="saveCloneCiclo" > 
+                                <div slot="body">
+                
+                                    <form data-parsley-validate="true" class="panel-body">
+                
+                                        <div class="col-xs-12">
+                                            <div class="form-group">
+                                                <label>Seleccione el ciclo académico de origen</label>
+                                                <vuelect 
+                                                    required="true"
+                                                    v-bind:objetogenerico="ciclo"
+                                                    v-bind:initobject="ciclo"
+                                                    formatselection="descripcion2"
+                                                    formatresult="descripcion2"
+                                                    nameinput="ciclo.id"
+                                                    remoteurl="comun/buscar/allCicloDescendent"
+                                                    v-model="ciclo"/>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </modal-vik>-->
 
-
+            </div>
         </div>
-    </div>
 
-    <div layout:fragment="js">
-        <script  th:inline="javascript" >
-            /*<![CDATA[*/
-            var tipoGpoJson = /*[[${tipoGpoJson}]]*/  '';
-            var diasJson = /*[[${diasJson}]]*/  '';
-            var horasJson = /*[[${horasJson}]]*/  '';
-            var horarioRegularJson = /*[[${horarioRegularJson}]]*/  '';
-            /*]]>*/
-        </script>
-        <div th:substituteby="_modules/vue-modal"/>
-        <div th:substituteby="_modules/vue-raptor-table"></div>
-        <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
-        <div th:substituteby="_layout/includes :: bootstrap-colorpicker"/>
-        <script th:src="@{/app/academico/horario/grupo/grupo.js}" charset="utf-8"></script>
-    </div>
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var tipoGpoJson = /*[[${tipoGpoJson}]]*/  '';
+                var diasJson = /*[[${diasJson}]]*/  '';
+                var horasJson = /*[[${horasJson}]]*/  '';
+                var horarioRegularJson = /*[[${horarioRegularJson}]]*/  '';
+                var tipoHorariosJson = /*[[${tipoHorariosJson}]]*/  '';
+                var rutaModulo = 'academico/horario/grupo';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
+            <div th:substituteby="_layout/includes :: bootstrap-colorpicker"/>
+            <script th:src="@{/app/academico/horario/grupo/grupo.js}" charset="utf-8"></script>
+        </div>
 
-</body>
+    </body>
 </html>

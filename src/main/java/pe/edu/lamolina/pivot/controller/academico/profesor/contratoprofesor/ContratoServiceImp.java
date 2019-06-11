@@ -116,8 +116,8 @@ public class ContratoServiceImp implements ContratoService {
     @Transactional
     public void finalizar(ContratoDocente contratoDocente, DataSessionPivot ds) {
         ContratoDocente cdBD = contratoDocenteDAO.find(contratoDocente.getId());
-        Assert.isTrue(cdBD.getEstadoEnum() ==ContratoDocenteEstadoEnum.ACT, "El contrato no está activo");
-        
+        Assert.isTrue(cdBD.getEstadoEnum() == ContratoDocenteEstadoEnum.ACT, "El contrato no está activo");
+
         cdBD.setEstado(ContratoDocenteEstadoEnum.CFIN);
         contratoDocenteDAO.update(cdBD);
     }
@@ -143,14 +143,14 @@ public class ContratoServiceImp implements ContratoService {
 
         if (cicloInicio.getCodigo().compareTo(actual.getCodigo()) <= 0 && cicloFin.getCodigo().compareTo(actual.getCodigo()) > 0) {
             Docente docenteBD = docenteDAO.find(docente.getId());
-            
+
             docenteBD.setCategoria(contratoDocente.getCategoria());
             docenteBD.setSituacion(contratoDocente.getSituacion());
             docenteBD.setDedicacion(contratoDocente.getDedicacion());
-            
+
             docenteBD.setCicloInicioContrato(cicloInicio);
             docenteBD.setCicloFinContrato(cicloFin);
-            
+
             docenteBD.setCategoria(contratoDocente.getCategoria());
             docenteBD.setEstado(DocenteEstadoEnum.ACT);
 
@@ -166,7 +166,8 @@ public class ContratoServiceImp implements ContratoService {
 
     @Override
     public List<Resolucion> searchResolucionFacultad(String nombre) {
-        return resolucionDAO.all();
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        return resolucionDAO.allByNombre(nombre);
     }
 
 }

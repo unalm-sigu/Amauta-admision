@@ -97,6 +97,7 @@ public class GrupoHorasController {
         model.addAttribute("diasJson", createDiasJson(dias).toString());
         model.addAttribute("horasJson", createHorasJson(horas).toString());
         model.addAttribute("horarioRegularJson", createDiaHoraGpoJson(diasHorasGposReg).toString());
+        model.addAttribute("tipoHorariosJson", JsonHelper.enumToJson(TipoGrupoHorariosEnum.values()).toString());
         model.addAttribute("ciclo", ciclo.getDescripcion());
         return "academico/horario/grupo/grupo";
     }
@@ -143,7 +144,7 @@ public class GrupoHorasController {
 
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(GrupoHoras grupoHoras, HttpSession session) {
+    public JsonResponse save(@RequestBody GrupoHoras grupoHoras, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             GrupoHoras grupoCode = service.findGrupoHorasByCode(grupoHoras.getCodigo());

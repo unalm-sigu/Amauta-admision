@@ -1,0 +1,155 @@
+<modal-vik ref="modalCloneCiclo"
+           v-bind="configCloneCiclo" 
+           v-bind:okaction="saveCloneCiclo" > 
+    <div slot="body">
+
+        <form data-parsley-validate="true" class="panel-body">
+
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label>Seleccione el ciclo académico de origen</label>
+                    <vuelect 
+                        required="true"
+                        v-bind:objetogenerico="ciclo"
+                        v-bind:initobject="ciclo"
+                        formatselection="descripcion2"
+                        formatresult="descripcion2"
+                        nameinput="ciclo.id"
+                        remoteurl="comun/buscar/allCicloDescendent"
+                        v-model="ciclo"/>
+                </div>
+            </div>
+        </form>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalEditGrupo"
+           v-bind="configEditGrupo" 
+           v-bind:okaction="saveEditGrupo" > 
+    <div slot="body">
+
+        <form data-parsley-validate="true" class="panel-body"
+              v-bind:id="configEditGrupo.form">
+
+            <div class="row">
+
+                <div class="col-md-9">
+
+                    <div class="form-group">
+                        <label>Código</label>
+                        <input v-model="grupoHorasForm.codigo" 
+                               v-on:blur="revisar('CODIGO',grupoHorasForm,'codigo')" class="form-control" type="text" required='' maxlength="20" data-trigger="change"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Letra</label>
+                        <div class="input-group" >
+                            <input v-model="grupoHorasForm.letra" 
+                                   v-on:blur="revisar('CODIGO',grupoHorasForm,'letra')" class="form-control" type="text" required='' maxlength="1" data-trigger="change"/>
+                            <span class="input-group-addon pointer text-primary" v-on:click="verAbc"><i class="fa fa-th-large"></i></span>
+                        </div>
+
+                        <table v-if="configEditGrupo.verLetras" width="100%" class="m-t-xs table-letra">
+                            <tbody>
+                                <tr v-for="(n,index) in 4" class="table-letra">
+                                    <td v-for="(m,index) in 6" class="h5 text-center v-middle table-letra pointer" style="padding: 5px;"
+                                        v-text="getLetra(n,m)"
+                                        v-bind:style="styleLetra(n,m)"
+                                        v-on:click="setLetra(n,m)"> &nbsp; </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+
+
+                </div>
+
+                <div class="col-md-3">
+                    <label>&nbsp;</label>
+
+                    <div class="list-group">
+                        <div v-bind:style="styleBorder(grupoHorasForm)"
+                             class="list-group-item item"
+                             style="min-height: 100px;border-width: 1px;">
+
+                            <div class="m-t-sm">
+
+                                <h4 class="list-group-item-heading" >{{grupoHorasForm.codigo}}</h4>
+                                <h5 class="list-group-item-heading" >{{grupoHorasForm.tipoSeccion}}/{{grupoHorasForm.letra}}</h5>
+
+                                <h5 class="list-group-item-heading text-center m-t-md" >
+                                    <span class="label" v-bind:class="classHoras(grupoHorasForm)"> {{grupoHorasForm.horas}} horas </span>
+                                </h5>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label>Color del borde</label>
+                <div class="input-group" >
+                    <input v-model="grupoHorasForm.color" 
+                           v-on:blur="revisar('CODIGO',grupoHorasForm,'color')" class="form-control" type="text" required='true' maxlength="7" data-trigger="change"
+                           data-parsley-errors-container="#errorColor"/>
+                    <span class="input-group-addon pointer text-primary" v-on:click="verColores"><i class="fa fa-tint"></i></span>
+                </div>
+
+                <table v-if="configEditGrupo.verPaleta" width="100%">
+                    <tbody>
+                        <tr v-for="(n,index) in 11">
+                            <td v-for="(m,index) in 20" 
+                                v-bind:style="findBgColor(n,m)"
+                                v-on:click="setColor(n,m)"> &nbsp; </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Tipo sección</label>
+                        <div class="form-group ">
+                            <div class="col-sm-12 b-t b-b b-l b-r">
+                                <div class="col-sm-6">
+                                    <label class="radio inline">
+                                        <input  type="radio" required="" name="tipoSeccion" v-model="grupoHorasForm.tipoSeccion" value="TEO" /> Teoría
+                                    </label>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="radio inline">
+                                        <input  type="radio" required="" name="tipoSeccion" v-model="grupoHorasForm.tipoSeccion" value="PRA"  /> Práctica
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Flexibilidad Horario</label>
+                        <multiselect v-model="grupoHorasForm.conHorarioEnum" 
+                                     v-bind:options='tipoHorarios'
+                                     v-bind:allow-empty="false"
+                                     v-bind:show-labels="false"
+                                     label='value'
+                                     track-by='name'
+                                     placeholder="Seleccione un de tipo horario">
+
+                        </multiselect>
+                        <input v-if="grupoHorasForm.conHorario != undefined" 
+                               type="text" class="hide" v-model="grupoHorasForm.conHorarioEnum.name" required=""/>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</modal-vik>
+
