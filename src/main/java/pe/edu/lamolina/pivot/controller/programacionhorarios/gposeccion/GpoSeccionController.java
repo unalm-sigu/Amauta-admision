@@ -541,12 +541,14 @@ public class GpoSeccionController {
         EventoCicloAcademico eventoCicloAcademico = service.findEventoAcademico(grupoSeccion.getCicloAcademico(), grupoSeccion.getCurso());
         String fechaMin = null;
         String fechaMax = null;
-        if (grupoSeccion.getTipoDictadoEnum() == TipoDictadoGrupoSeccionEnum.MOD) {
-            fechaMin = TypesUtil.getStringDate(grupoSeccion.getFechaInicioModular(), "dd/MM/yyyy");
-            fechaMax = TypesUtil.getStringDate(grupoSeccion.getFechaFinModular(), "dd/MM/yyyy");
-        } else {
-            fechaMin = TypesUtil.getStringDate(eventoCicloAcademico.getFechaInicio(), "dd/MM/yyyy");
-            fechaMax = TypesUtil.getStringDate(eventoCicloAcademico.getFechaFin(), "dd/MM/yyyy");
+        if (eventoCicloAcademico != null) {
+            if (grupoSeccion.getTipoDictadoEnum() == TipoDictadoGrupoSeccionEnum.MOD) {
+                fechaMin = TypesUtil.getStringDate(grupoSeccion.getFechaInicioModular(), "dd/MM/yyyy");
+                fechaMax = TypesUtil.getStringDate(grupoSeccion.getFechaFinModular(), "dd/MM/yyyy");
+            } else {
+                fechaMin = TypesUtil.getStringDate(eventoCicloAcademico.getFechaInicio(), "dd/MM/yyyy");
+                fechaMax = TypesUtil.getStringDate(eventoCicloAcademico.getFechaFin(), "dd/MM/yyyy");
+            }
         }
         fechas.add(fechaMin);
         fechas.add(fechaMax);

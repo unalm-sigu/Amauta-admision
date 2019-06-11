@@ -32,15 +32,15 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("academico/asignacionaula")
 public class AsignacionAulaController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     AsignacionAulaService asignacionAulaService;
-    
+
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
-        
+
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -51,7 +51,7 @@ public class AsignacionAulaController {
                 }
             }
         });
-        
+
         dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -63,12 +63,12 @@ public class AsignacionAulaController {
             }
         });
     }
-    
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         AsignacionAula asignacionAula = asignacionAulaService.findAsignacionAulaByCiclo(ds.getCicloAcademico());
-        
+
         if (asignacionAula != null) {
             ObjectNode jAsignacionAula = JsonHelper.createJson(asignacionAula,
                     JsonNodeFactory.instance, true,
@@ -80,10 +80,10 @@ public class AsignacionAulaController {
         }
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("cicloJson", createCicloJson(ds.getCicloAcademico()).toString());
-        
+
         return "programacion/asignacionaula/asignacionaula";
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "procesarAsignacionAulas", method = RequestMethod.POST)
     public JsonResponse procesarAsignacionAulas(@RequestBody AsignacionAula asignacionAula,
@@ -110,7 +110,7 @@ public class AsignacionAulaController {
         }
         return response;
     }
-    
+
     private ObjectNode createCicloJson(CicloAcademico ciclo) {
         ObjectNode nodeJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{
             "id", "codigo", "descripcion", "descripcion2", "tipo",
@@ -119,5 +119,5 @@ public class AsignacionAulaController {
         });
         return nodeJson;
     }
-    
+
 }

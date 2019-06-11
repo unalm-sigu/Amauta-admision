@@ -10,9 +10,6 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
@@ -113,6 +110,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
 
     @Override
     public List<Seccion> allForAsignacionAulaByCiclo(CicloAcademico ciclo, SeccionEstadoEnum... estados) {
+        List<SeccionEstadoEnum> lEstados = Arrays.asList(estados);
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
@@ -125,8 +123,17 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .beginBlock()
                 .isNotNull("tcp.id")
                 .endBlock()
-                .in("sec.estado", estados);
+                .in("sec.estado", lEstados);
+        return all(sql);
+    }
 
+    @Override
+    public List<Seccion> allSeccionesAulaAutoByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .filter("ca.id", ciclo)
+                .filter("sec.aulaAsignadaAuto", Boolean.TRUE);
         return all(sql);
     }
 
@@ -269,7 +276,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     @Override
     public void updateAsignacionAula(Seccion seccion) {
         Octavia octavia = Octavia.update(Seccion.class);
-        octavia.set(seccion, "restriccionCapa");
+        //octavia.set(seccion, "restriccionCapa");
         octavia.set(seccion, "aulaAsignadaAuto");
         octavia.set(seccion, "fechaAsignacionAuto");
         octavia.set(seccion, "aula");
