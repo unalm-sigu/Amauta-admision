@@ -27,6 +27,7 @@ import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.EstadoReservaAulaEnum;
 import pe.edu.lamolina.model.enums.TipoDocIdentidadEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
+import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
@@ -355,6 +356,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
                     horarioAula.setHora(diaHora.getHora());
                     horarioAula.setReservaAula(reservaAula);
                     horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
+                    horarioAula.setTipoEnum(TipoHorarioAulaEnum.RESERV);
                     horarioAulaDAO.save(horarioAula);
 
                 }
