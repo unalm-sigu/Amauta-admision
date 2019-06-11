@@ -6,6 +6,14 @@ public class LetraCuotaUtilizadaBean {
     private String grupo;
     private Long cantidadTeoria;
     private Long cantidadPractica;
+    private Long idAnexo;
+
+    public LetraCuotaUtilizadaBean(Long idAnexo, String letra, Long cantidadTeoria, Long cantidadPractica) {
+        this.idAnexo = idAnexo;
+        this.letra = letra;
+        this.cantidadTeoria = cantidadTeoria;
+        this.cantidadPractica = cantidadPractica;
+    }
 
     public LetraCuotaUtilizadaBean(String letra, Long cantidadTeoria, Long cantidadPractica) {
         this.letra = letra;
@@ -50,6 +58,18 @@ public class LetraCuotaUtilizadaBean {
 
     public void setCantidadPractica(Long cantidadPractica) {
         this.cantidadPractica = cantidadPractica;
+    }
+
+    public Long getIdAnexo() {
+        return idAnexo;
+    }
+
+    public void setIdAnexo(Long idAnexo) {
+        this.idAnexo = idAnexo;
+    }
+
+    public String getAnexoLetra() {
+        return this.idAnexo + "-" + this.letra;
     }
 
 }

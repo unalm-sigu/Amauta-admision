@@ -162,6 +162,7 @@ public class CuotaGpoHorasController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.save(cuotas, ds.getCicloAcademico(), ds);
+            service.updateUtilizados(ds.getCicloAcademico(), cuotas, ds);
 
             response.setSuccess(true);
             response.setMessage("Guardado satisfactoriamente");
@@ -193,6 +194,26 @@ public class CuotaGpoHorasController {
 
             response.setData(arrayCuotasByAnexo);
             response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("updateUtilizados")
+    public JsonResponse updateUtilizados(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.updateUtilizados(ds.getCicloAcademico(), null, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Guardado satisfactoriamente");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

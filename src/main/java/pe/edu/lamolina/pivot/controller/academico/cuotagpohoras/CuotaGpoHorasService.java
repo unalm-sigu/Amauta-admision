@@ -20,4 +20,6 @@ public interface CuotaGpoHorasService {
 
     List<CuotasGrupoHoras> allCuotasByAnexo(AnexoBoletin anexoBoletin, CicloAcademico cicloAcademico);
 
+    void updateUtilizados(CicloAcademico cicloAcademico, List<CuotasGrupoHoras> cuotas, DataSessionPivot ds);
+
 }
