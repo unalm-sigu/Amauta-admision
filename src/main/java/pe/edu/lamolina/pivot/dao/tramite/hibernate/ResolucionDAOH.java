@@ -89,4 +89,17 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
         return this.find(sql);
     }
 
+    @Override
+    public List<Resolucion> allByNombre(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(Resolucion.class, "r")
+                .beginBlock()
+                .__().filter("r.serie", "like", nombre)
+                .__().filter("r.numero", "like", nombre)
+                .__().filter("r.fecha", "like", nombre)
+                .endBlock()
+                .limit(10);
+        return sql.all(getCurrentSession());
+    }
+
 }
