@@ -96,24 +96,7 @@
 
                 <div class="col-md-12">
 
-                    <v-date-picker v-model="docSeccion.fechaInicio"
-                                   v-bind:id="'fechaInicio'+index"
-                                   v-bind:startdate="docSeccion.fechaInicioMin"
-                                   v-bind:enddate="docSeccion.fechaFinMax" 
-                                   v-on:changedate="cambiarFechaIniPeriodo(docSeccion,$event)"
-                                   v-if="docSeccion.estado == 'ACT'"
-                                   required="true"
-                                   class="col-md-6"
-                                   ></v-date-picker>
-                    <v-date-picker v-model="docSeccion.fechaFin"
-                                   v-bind:id="'fechaFin'+index"
-                                   v-bind:startdate="docSeccion.fechaInicioMin"
-                                   v-bind:enddate="docSeccion.fechaFinMax" 
-                                   v-on:changedate="cambiarFechaFinPeriodo(docSeccion,$event)"
-                                   v-if="docSeccion.estado == 'ACT'"
-                                   required="true"
-                                   class="col-md-6"
-                                   ></v-date-picker>
+
                     <div v-if="docSeccion.estado != 'ACT'" class="col-md-6">
                         <input type="text" readonly="" class="form-control" 
                                v-model="docSeccion.fechaInicio"/>
@@ -122,9 +105,27 @@
                         <input type="text" readonly="" class="form-control" 
                                v-model="docSeccion.fechaFin"/>
                     </div>
-                    <div class="block" v-if="docSeccion.estado == 'ACT'">
+                    <div class="block" v-if="docSeccion.contratoDocente.id != ''">
                         <span class="font-roman text-lg m-r-md" v-text="docSeccion.contratoDocente.cicloInicioContrato.descripcion"></span>
                         <span class="font-roman text-lg m-l-md" v-text="docSeccion.contratoDocente.cicloFinContrato.descripcion"></span>
+                    </div>
+                    <div v-else="">
+                        <v-date-picker v-model="docSeccion.fechaInicio"
+                                       v-bind:id="'fechaInicio'+index"
+                                       v-bind:startdate="docSeccion.fechaInicioMin"
+                                       v-bind:enddate="docSeccion.fechaFinMax" 
+                                       v-on:changedate="cambiarFechaIniPeriodo(docSeccion,$event)"
+                                       v-if="docSeccion.estado == 'ACT'"
+                                       required="true"
+                                       class="col-md-6"></v-date-picker>
+                        <v-date-picker v-model="docSeccion.fechaFin"
+                                       v-bind:id="'fechaFin'+index"
+                                       v-bind:startdate="docSeccion.fechaInicioMin"
+                                       v-bind:enddate="docSeccion.fechaFinMax" 
+                                       v-on:changedate="cambiarFechaFinPeriodo(docSeccion,$event)"
+                                       v-if="docSeccion.estado == 'ACT'"
+                                       required="true"
+                                       class="col-md-6"></v-date-picker>
                     </div>
                 </div>
             </td>
