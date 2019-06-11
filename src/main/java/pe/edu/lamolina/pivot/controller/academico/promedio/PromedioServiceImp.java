@@ -608,9 +608,6 @@ public class PromedioServiceImp implements PromedioService {
             List<MatriculaCurso> matriculasCursosByAlumno,
             DataSessionPivot ds) {
         try {
-            if (cicloAcademico.getCodigo().equals("201900")) {
-                logger.debug("");
-            }
             //  logger.debug("generar historial notas, alumno {} ciclo {}", alumno.getId(), cicloAcademico.getId());
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cicloAcademico, curso);
