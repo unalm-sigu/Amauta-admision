@@ -136,7 +136,8 @@ public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements A
     public List<AnexoBoletin> allActivosHijos() {
         Octavia sql = Octavia.query()
                 .from(AnexoBoletin.class, "ab")
-                .join("departamentoAcademico da", "anexoSuperior abs")
+                .join("anexoSuperior abs")
+                .leftJoin("departamentoAcademico da")
                 .filter("ab.estado", EstadoEnum.ACT)
                 .orderBy("abs.orden", "ab.orden");
 
